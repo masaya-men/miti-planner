@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useCallback } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 import { motion } from 'framer-motion';
@@ -7,9 +7,10 @@ import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
 import { PhaseModal } from './PhaseModal';
+import { getMitigationPriority } from '../data/mockData';
+
 import { MitigationSelector } from './MitigationSelector';
 import { JobPicker } from './JobPicker';
-import { TimelineHighlightOverlay } from './TimelineHighlightOverlay';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
@@ -19,8 +20,8 @@ import clsx from 'clsx';
 
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
-    if (role === 'tank' || role === 'healer') return 120;
-    return 60; // DPS
+    if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
+    return 50; // 25px * 2 slots for DPS
 };
 
 interface MitigationItemProps {
@@ -309,7 +310,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                     colors.border,
                     colors.shadow
                 )}
-                style={{ height: `${Math.max(0, durationHeight)}px`, marginTop: '-4px' }}
+                style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
             ></div>
 
             {/* Recast Line (Dotted) */}
@@ -317,8 +318,8 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                 <div
                     className="w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none"
                     style={{
-                        top: `${24 + durationHeight - 4}px`,
-                        height: `${recastPx - durationHeight}px`
+                        top: `${20 + Math.max(0, durationHeight - 33)}px`,
+                        height: `${recastPx - Math.max(durationHeight, 33)}px`
                     }}
                 ></div>
             )}
@@ -330,7 +331,7 @@ export const Timeline: React.FC = () => {
     const { t } = useTranslation();
 
     // Column Width Logic
-    const getColumnWidth = (role: string) => (role === 'tank' || role === 'healer') ? 120 : 60;
+    // const getColumnWidth = (role: string) => (role === 'tank' || role === 'healer') ? 120 : 60;
 
     // memberLayout moved to after sortedPartyMembers definition
 
@@ -376,11 +377,6 @@ export const Timeline: React.FC = () => {
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    // UI State
-    const [hoveredTime, setHoveredTime] = useState<number | null>(null);
-    const [hoveredRowTime, setHoveredRowTime] = useState<number | null>(null);
-    const [hoveredColumnMemberId, setHoveredColumnMemberId] = useState<string | null>(null);
     const [showPreStart] = useState(true); // Fixed for now, removed setter to fix lint
 
     const pixelsPerSecond = 50; // Configurable?
@@ -406,8 +402,6 @@ export const Timeline: React.FC = () => {
         });
         return map;
     }, [timelineEvents]);
-
-    // ...
 
     // --- Phase & Event Handlers ---
     const handleAddClick = (time: number, e: React.MouseEvent) => {
@@ -568,25 +562,6 @@ export const Timeline: React.FC = () => {
         }
         setJobPickerOpen(false);
     };
-
-    // --- Memoized Callbacks for TimelineRow ---
-    const handleRowMouseEnter = useCallback((time: number) => {
-        setHoveredTime(time);
-        setHoveredRowTime(time);
-    }, []);
-
-    const handleRowMouseLeave = useCallback(() => {
-        setHoveredTime(null);
-        setHoveredRowTime(null);
-    }, []);
-
-    const handleCellMouseEnter = useCallback((memberId: string) => {
-        setHoveredColumnMemberId(memberId);
-    }, []);
-
-    const handleCellMouseLeave = useCallback(() => {
-        setHoveredColumnMemberId(null);
-    }, []);
 
     // --- Calculation Helpers ---
     // calculateDamage is used in useMemo, so it must be defined BEFORE damageMap
@@ -760,7 +735,6 @@ export const Timeline: React.FC = () => {
 
             // Final Display Values
             const finalTaken = Math.max(0, currentDamage);
-            const totalMitigated = event.damageAmount - finalTaken;
             const percentMod = Math.round((1 - mitigationMultipliers) * 100);
 
             map.set(event.id, {
@@ -773,7 +747,7 @@ export const Timeline: React.FC = () => {
         });
 
         return map;
-    }, [timelineEvents, timelineMitigations, partyMembers]);
+    }, [eventsByTime, timelineMitigations, partyMembers]);
 
     // Party Sorting State
     const [partySortOrder, setPartySortOrder] = useState<'light_party' | 'role'>('light_party');
@@ -984,24 +958,27 @@ export const Timeline: React.FC = () => {
 
                     {/* Header Row - sticky within scroll container */}
                     <div className={clsx(
-                        "flex-shrink-0 z-50 bg-[#18191c]/95 backdrop-blur-md border-b border-black/50 text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 flex items-center shadow-md select-none"
+                        "flex-shrink-0 z-50 bg-[#0a0a0c]/40 backdrop-blur-xl border-b border-white/10 text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-lg select-none overflow-hidden"
                     )}>
-                        <div className="w-[100px] border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent">
-                            Ph
-                        </div>
+                        {/* ▼▼ 追加: 中身に合わせて伸びるラッパー箱 (PCのみ幅固定) ▼▼ */}
+                        <div className="flex items-center h-full md:w-max md:min-w-full">
+                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent">
+                                Ph
+                            </div>
 
-                        <div className="w-[70px] border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 font-bold text-[10px]">Time</div>
-                        <div className="w-[200px] border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] pl-2 justify-start font-bold">Mechanic</div>
-                        <div className="w-[100px] border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Raw</div>
-                        <div className="w-[100px] border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Taken</div>
+                            <div className="w-[70px] min-w-[70px] max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 font-bold text-[10px]">Time</div>
+                            <div className="w-[200px] min-w-[200px] max-w-[200px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] pl-2 justify-start font-bold">Mechanic</div>
+                        </div>
+                        <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Raw</div>
+                        <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Taken</div>
 
                         {/* Job Columns Headers */}
                         {sortedPartyMembers.map((member, index) => (
                             <div
                                 key={member.id}
-                                style={{ width: `${getColumnWidth(member.role)}px` }}
+                                style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                                 className={clsx(
-                                    "border-r border-white/5 h-full flex flex-col items-center justify-center p-0.5 relative group",
+                                    "flex-none border-r border-white/5 h-full flex flex-col items-center justify-center p-0.5 relative group",
                                     index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
                                     // Vivid Glass Effect for Groups
                                     partySortOrder === 'role' ? (
@@ -1018,8 +995,7 @@ export const Timeline: React.FC = () => {
                             >
                                 <div
                                     className={clsx(
-                                        "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-white/10 transition-all duration-300 relative",
-                                        hoveredColumnMemberId === member.id && "bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                                        "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-white/10 transition-all duration-300 relative"
                                     )}
                                     onClick={(e) => handleJobIconClick(member.id, e)}
                                     title={`${member.id} (${t('ui.change_job')})`}
@@ -1034,153 +1010,150 @@ export const Timeline: React.FC = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
+                    </div> {/* ◀◀ 追加したラッパーを閉じる */}
+                </div> {/* ◀◀ 追加したラッパーを閉じる */}
 
-                    <div className="flex-1 overflow-auto" ref={scrollContainerRef}>
-                        <div className="relative bg-transparent" style={{ height: `${(gridLines.length) * pixelsPerSecond}px` }}>
-                            {/* Performance Optimization: Highlight Overlay */}
-                            <TimelineHighlightOverlay
-                                hoveredTime={hoveredTime}
-                                hoveredColumnMemberId={hoveredColumnMemberId}
-                                memberLayout={memberLayout}
-                                pixelsPerSecond={pixelsPerSecond}
-                                showPreStart={showPreStart}
-                            />
+                <div className="flex-1 overflow-auto relative" ref={scrollContainerRef} onScroll={handleBodyScroll}>
+                    {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
+                    <div className="relative bg-transparent md:w-max md:min-w-full" style={{ height: `${(gridLines.length) * pixelsPerSecond}px` }}>                            {/* Time Grid & Columns */}
+                        {gridLines.map((time) => {
+                            const offsetTime = showPreStart ? -10 : 0;
+                            const rowEvents = eventsByTime.get(time) || [];
+                            const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
 
-                            {/* Time Grid & Columns */}
-                            {gridLines.map((time) => {
-                                const isHoveredRow = hoveredRowTime === time;
-                                const index = gridLines.indexOf(time);
-                                const top = index * pixelsPerSecond;
-                                const rowEvents = eventsByTime.get(time) || [];
-                                const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
+                            return (
+                                <TimelineRow
+                                    key={time}
+                                    time={time}
+                                    top={(time - offsetTime) * pixelsPerSecond}
+                                    damages={rowDamages}
+                                    events={rowEvents}
+                                    partyMembers={sortedPartyMembers}
+                                    onPhaseAdd={handlePhaseAdd}
+                                    onAddEventClick={handleAddClick}
+                                    onEventClick={handleEventClick}
+                                    onCellClick={handleCellClick}
+                                    partySortOrder={partySortOrder}
+                                />
+                            );
+                        })}
 
-                                return (
-                                    <TimelineRow
-                                        key={time}
-                                        time={time}
-                                        top={top}
-                                        damages={rowDamages}
-                                        events={rowEvents}
-                                        isHoveredRow={isHoveredRow}
-                                        hoveredTime={hoveredTime}
-                                        partyMembers={sortedPartyMembers}
-                                        onRowMouseEnter={handleRowMouseEnter}
-                                        onRowMouseLeave={handleRowMouseLeave}
-                                        onPhaseAdd={handlePhaseAdd}
-                                        onAddEventClick={handleAddClick}
-                                        onEventClick={handleEventClick}
-                                        onCellClick={handleCellClick}
-                                        onCellMouseEnter={handleCellMouseEnter}
-                                        onCellMouseLeave={handleCellMouseLeave}
-                                        partySortOrder={partySortOrder}
-                                    />
-                                );
-                            })}
+                        {/* Render Phases */}
+                        {phases.map((phase, index) => {
+                            if (!showPreStart && phase.endTime <= 0) return null;
 
-                            {/* Render Phases */}
-                            {phases.map((phase, index) => {
-                                if (!showPreStart && phase.endTime <= 0) return null;
+                            const offsetTime = showPreStart ? -10 : 0;
+                            const startTime = index === 0 ? -10 : phases[index - 1].endTime;
+                            const endTime = phase.endTime;
 
-                                const offsetTime = showPreStart ? -10 : 0;
-                                const startTime = index === 0 ? -10 : phases[index - 1].endTime;
-                                const endTime = phase.endTime;
+                            if (!showPreStart && endTime <= 0) return null;
 
-                                if (!showPreStart && endTime <= 0) return null;
+                            const effectiveStartTime = Math.max(startTime, offsetTime);
+                            const effectiveEndTime = Math.max(endTime, offsetTime);
+                            const duration = effectiveEndTime - effectiveStartTime;
 
-                                const effectiveStartTime = Math.max(startTime, offsetTime);
-                                const effectiveEndTime = Math.max(endTime, offsetTime);
-                                const duration = effectiveEndTime - effectiveStartTime;
+                            const topTime = effectiveStartTime - offsetTime;
+                            const top = topTime * pixelsPerSecond;
+                            const height = duration * pixelsPerSecond;
 
-                                const topTime = effectiveStartTime - offsetTime;
-                                const top = topTime * pixelsPerSecond;
-                                const height = duration * pixelsPerSecond;
-
-                                return (
-                                    <div
-                                        key={phase.id}
-                                        className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
-                                        style={{ top: `${top}px`, height: `${height}px` }}
-                                        onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
-                                        title="クリックして名前を変更"
-                                    >
-                                        <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
-                                            {phase.name}
-                                        </div>
+                            return (
+                                <div
+                                    key={phase.id}
+                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                    style={{ top: `${top}px`, height: `${height}px` }}
+                                    onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
+                                    title="クリックして名前を変更"
+                                >
+                                    <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
+                                        {phase.name}
                                     </div>
-                                );
-                            })}
+                                </div>
+                            );
+                        })}
 
-                            {/* Render Events Loop Removed - Events are now inside TimelineRow */}
+                        {/* Render Events Loop Removed - Events are now inside TimelineRow */}
 
-                            {/* Render Mitigations via new Component with Lane Logic */}
-                            {(() => {
-                                // 1. Filter visible
-                                const visibleMitigations = timelineMitigations.filter(m =>
-                                    showPreStart || (m.time + m.duration > 0)
-                                );
+                        {/* Render Mitigations via new Component with Lane Logic */}
+                        {(() => {
+                            // 1. Filter visible
+                            const visibleMitigations = timelineMitigations.filter(m =>
+                                showPreStart || (m.time + m.duration > 0)
+                            );
 
-                                // 2. Assign Lanes
-                                // Group by owner
-                                const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
-                                visibleMitigations.forEach(m => {
-                                    if (!mitigationsByOwner[m.ownerId]) mitigationsByOwner[m.ownerId] = [];
-                                    mitigationsByOwner[m.ownerId].push(m);
+                            // 2. Assign Lanes
+                            // Group by owner
+                            const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
+                            visibleMitigations.forEach(m => {
+                                if (!mitigationsByOwner[m.ownerId]) mitigationsByOwner[m.ownerId] = [];
+                                mitigationsByOwner[m.ownerId].push(m);
+                            });
+
+                            const renderedItems: React.ReactElement[] = [];
+
+                            Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
+                                // Sort by time, then by priority for overlapping mitigations
+                                ownerMitigations.sort((a, b) => {
+                                    if (a.time !== b.time) return a.time - b.time;
+                                    return getMitigationPriority(a.mitigationId) - getMitigationPriority(b.mitigationId);
                                 });
 
-                                const renderedItems: React.ReactElement[] = [];
+                                // Lane Packing
+                                const lanes: number[] = [];
 
-                                Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
-                                    // Sort by time
-                                    ownerMitigations.sort((a, b) => a.time - b.time);
+                                ownerMitigations.forEach(mitigation => {
+                                    const startTime = mitigation.time;
+                                    const member = partyMembers.find(m => m.id === mitigation.ownerId);
+                                    const maxLanes = (member?.role === 'tank' || member?.role === 'healer') ? 5 : 2;
 
-                                    // Lane Packing
-                                    const lanes: number[] = [];
+                                    // Find first free lane
+                                    let laneIndex = lanes.findIndex(endTime => endTime <= startTime);
 
-                                    ownerMitigations.forEach(mitigation => {
-                                        const startTime = mitigation.time;
-                                        // Find first free lane
-                                        let laneIndex = lanes.findIndex(endTime => endTime <= startTime);
-
-                                        if (laneIndex === -1) {
+                                    if (laneIndex === -1) {
+                                        if (lanes.length < maxLanes) {
                                             laneIndex = lanes.length;
                                             lanes.push(startTime + mitigation.duration);
                                         } else {
-                                            lanes[laneIndex] = startTime + mitigation.duration;
+                                            laneIndex = maxLanes - 1;
+                                            lanes[laneIndex] = Math.max(lanes[laneIndex], startTime + mitigation.duration);
                                         }
+                                    } else {
+                                        lanes[laneIndex] = startTime + mitigation.duration;
+                                    }
 
-                                        const offsetTime = showPreStart ? -10 : 0;
-                                        const top = (mitigation.time - offsetTime) * pixelsPerSecond;
-                                        const height = mitigation.duration * pixelsPerSecond;
+                                    laneIndex = Math.min(laneIndex, maxLanes - 1);
 
-                                        const layout = memberLayout.get(mitigation.ownerId);
-                                        const colStart = layout ? layout.left : 0;
-                                        const left = colStart + 2 + (laneIndex * 24);
+                                    const offsetTime = showPreStart ? -10 : 0;
+                                    const top = (mitigation.time - offsetTime) * pixelsPerSecond;
+                                    const height = mitigation.duration * pixelsPerSecond;
 
-                                        renderedItems.push(
-                                            <MitigationItem
-                                                key={mitigation.id}
-                                                mitigation={mitigation}
-                                                pixelsPerSecond={pixelsPerSecond}
-                                                onRemove={removeMitigation}
-                                                onUpdateTime={updateMitigationTime}
-                                                top={top}
-                                                height={height}
-                                                left={left}
-                                                partySortOrder={partySortOrder}
-                                                offsetTime={showPreStart ? -10 : 0}
-                                                scrollContainerRef={scrollContainerRef}
-                                            />
-                                        );
-                                    });
+                                    const layout = memberLayout.get(mitigation.ownerId);
+                                    const colStart = layout ? layout.left : 0;
+                                    const left = colStart + 2 + (laneIndex * 24);
+
+                                    renderedItems.push(
+                                        <MitigationItem
+                                            key={mitigation.id}
+                                            mitigation={mitigation}
+                                            pixelsPerSecond={pixelsPerSecond}
+                                            onRemove={removeMitigation}
+                                            onUpdateTime={updateMitigationTime}
+                                            top={top}
+                                            height={height}
+                                            left={left}
+                                            partySortOrder={partySortOrder}
+                                            offsetTime={showPreStart ? -10 : 0}
+                                            scrollContainerRef={scrollContainerRef}
+                                        />
+                                    );
                                 });
+                            });
 
-                                return renderedItems;
-                            })()}
-                        </div>
+                            return renderedItems;
+                        })()}
                     </div>
                 </div>
-            </div >
+            </div>
+        </div >
 
 
             <EventModal
@@ -1230,3 +1203,5 @@ export const Timeline: React.FC = () => {
         </>
     );
 };
+
+export default Timeline;

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Plus, User, Shield } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent } from '../types';
 import { getColumnWidth } from './Timeline';
@@ -19,17 +19,11 @@ interface TimelineRowProps {
     top: number;
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
-    isHoveredRow: boolean;
-    hoveredTime: number | null;
     partyMembers: PartyMember[];
-    onRowMouseEnter: (time: number) => void;
-    onRowMouseLeave: () => void;
     onPhaseAdd: (time: number, e: React.MouseEvent) => void;
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
-    onCellMouseEnter: (memberId: string) => void;
-    onCellMouseLeave: () => void;
     partySortOrder: 'light_party' | 'role';
 }
 
@@ -38,18 +32,11 @@ export const TimelineRow = memo(({
     top,
     damages,
     events,
-    isHoveredRow,
-    hoveredTime,
     partyMembers,
-    onRowMouseEnter,
-    onRowMouseLeave,
     onPhaseAdd,
     onAddEventClick,
     onEventClick,
-    onCellClick,
-    onCellMouseEnter,
-    onCellMouseLeave,
-    partySortOrder
+    onCellClick
 }: TimelineRowProps) => {
     const { t } = useTranslation();
 
@@ -61,45 +48,39 @@ export const TimelineRow = memo(({
     return (
         <div
             className={clsx(
-                "absolute left-0 w-fit border-b border-white/[0.03] flex h-[50px] group transition-all hover:bg-white/[0.02] duration-75"
+                "absolute left-0 w-fit border-b border-white/[0.03] flex h-[50px] group transition-colors hover:bg-white/[0.04] duration-75"
             )}
             style={{ top: `${top}px` }}
-            onMouseEnter={() => onRowMouseEnter(time)}
-            onMouseLeave={onRowMouseLeave}
         >
             {/* Phase Column */}
             <div
                 className={
                     clsx(
-                        "w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer hover:bg-white/[0.02] transition-colors flex items-center justify-center",
-                        isHoveredRow && "text-app-text-primary"
+                        "w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-app-text-primary"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
                 title={t('timeline.end_phase')}
             >
-                {hoveredTime === time && (
-                    <div className="flex items-center justify-center w-full h-full text-app-text-muted opacity-50 group-hover:opacity-100 transition-opacity">
-                        <Plus size={16} />
-                    </div>
-                )}
+                <div className="flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Plus size={16} />
+                </div>
             </div >
 
             {/* Time Column */}
-            <div className={clsx("w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-sm text-app-text-muted", isHoveredRow && "text-app-text-primary font-bold")}>
+            <div className="w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-sm text-app-text-muted transition-colors group-hover:text-app-text-primary group-hover:font-bold">
                 {formattedTime}
             </div >
 
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
-                "w-[200px] border-r border-white/[0.02] h-full relative flex flex-col",
-                isHoveredRow ? "bg-white/[0.02]" : "hover:bg-white/[0.01]"
+                "w-[200px] border-r border-white/[0.02] h-full relative flex flex-col transition-colors",
+                "group-hover:bg-white/[0.02]"
             )}>
                 {events.length === 0 ? (
                     // Case 0: Empty - Center Add Button across entire cell
                     <div
                         className={clsx(
-                            "w-full h-full flex items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-colors",
-                            hoveredTime !== time && "opacity-0"
+                            "w-full h-full flex items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all opacity-0 group-hover:opacity-100"
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
@@ -152,8 +133,7 @@ export const TimelineRow = memo(({
                         {/* Hover Add Button (Overlay at Bottom) */}
                         <div
                             className={clsx(
-                                "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-white/10 transition-all opacity-0 group-hover/slot:opacity-100 z-10",
-                                isHoveredRow ? "opacity-30" : "opacity-0"
+                                "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-white/10 transition-all opacity-0 group-hover/slot:opacity-100 z-10"
                             )}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -254,7 +234,7 @@ export const TimelineRow = memo(({
             </div>
 
             {/* U.Dmg Column (Vertical Stack) */}
-            <div className={clsx("w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-secondary", isHoveredRow && "text-app-text-primary")}>
+            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-secondary transition-colors group-hover:text-app-text-primary">
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className="w-full h-full flex items-center justify-center">
@@ -274,7 +254,7 @@ export const TimelineRow = memo(({
             </div >
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
-            <div className={clsx("w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-primary", isHoveredRow && "text-white")}>
+            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-primary transition-colors group-hover:text-white">
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className={clsx("w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none", (() => {
@@ -430,24 +410,11 @@ export const TimelineRow = memo(({
                 partyMembers.map((member) => (
                     <div
                         key={member.id}
-                        style={{ width: `${getColumnWidth(member.role)}px` }}
                         className={clsx(
-                            "h-full relative cursor-pointer flex justify-center transition-colors border-r border-white/[0.02]", // Subtle glass separator
-                            // Group Tinting Logic
-                            partySortOrder === 'role' ? (
-                                member.role === 'tank' ? "bg-blue-600/[0.05] hover:bg-blue-600/10" :
-                                    member.role === 'healer' ? "bg-green-500/[0.05] hover:bg-green-500/10" :
-                                        "bg-red-500/[0.05] hover:bg-red-500/10"
-                            ) : (
-                                // Light Party Default (Blue vs Gold)
-                                ['MT', 'H1', 'D1', 'D3'].includes(member.id)
-                                    ? "bg-cyan-500/[0.03] hover:bg-cyan-500/10"
-                                    : "bg-amber-500/[0.03] hover:bg-amber-500/10"
-                            )
+                            "border-r border-white/[0.02] h-full flex items-center justify-center relative group/cell cursor-pointer transition-colors hover:bg-white/[0.05]"
                         )}
+                        style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}
-                        onMouseEnter={() => onCellMouseEnter(member.id)}
-                        onMouseLeave={onCellMouseLeave}
                         title={t('mitigation.select')}
                     >
                         {/* Placeholder styling handled by class */}
@@ -470,11 +437,6 @@ export const TimelineRow = memo(({
 
     // Check Sort Order
     if (prevProps.partySortOrder !== nextProps.partySortOrder) return false;
-
-    // Check row hover
-    const wasHovered = prevProps.isHoveredRow;
-    const isHovered = nextProps.isHoveredRow;
-    if (wasHovered !== isHovered) return false;
 
     // Check events length just in case
     if (prevProps.events.length !== nextProps.events.length) return false;
