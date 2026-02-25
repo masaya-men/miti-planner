@@ -14,7 +14,7 @@ import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, Upload } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, Download } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -41,6 +41,7 @@ interface MitigationItemProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     activeMitigations: AppliedMitigation[];
     schAetherflowPattern: 1 | 2;
+    overlapOffset?: number;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -114,7 +115,12 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
     };
 };
 
-const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, onUpdateTime, top, height, pixelsPerSecond, left, partySortOrder = 'role', offsetTime, scrollContainerRef, activeMitigations, schAetherflowPattern }) => {
+const MitigationItem: React.FC<MitigationItemProps> = (props) => {
+    const {
+        mitigation, pixelsPerSecond, onRemove, onUpdateTime,
+        top, height, left, partySortOrder, offsetTime,
+        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0
+    } = props;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -416,7 +422,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                         colors.shadow,
                         useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
                     )}
-                    style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
+                    style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px', marginLeft: `${overlapOffset}px` }}
                 ></div>
 
                 {/* Recast Line (Dotted) */}
@@ -428,7 +434,8 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                         )}
                         style={{
                             top: `${20 + Math.max(0, durationHeight - 33)}px`,
-                            height: `${recastPx - Math.max(durationHeight, 33)}px`
+                            height: `${recastPx - Math.max(durationHeight, 33)}px`,
+                            marginLeft: `${overlapOffset}px`
                         }}
                     ></div>
                 )}
@@ -927,7 +934,7 @@ export const Timeline: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 {/* Control Bar (Status & Settings) - Moved to Top as requested */}
-                <div className="mb-4 flex items-center justify-between bg-black/20 backdrop-blur-xl p-2 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] border border-white/5 relative z-[100] group/bar">
+                <div className="mb-4 flex items-center justify-between bg-glass-panel backdrop-blur-xl p-2 rounded-2xl shadow-glass border border-glass-border relative z-[100] group/bar">
                     {/* Subtle Top Highlight */}
                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
@@ -948,7 +955,7 @@ export const Timeline: React.FC = () => {
                             className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-white/10 group/btn border border-transparent hover:border-white/10"
                             title="Import Timeline CSV"
                         >
-                            <Upload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                            <Download size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
                         </button>
 
                         <div className="w-[1px] h-6 bg-white/10 mx-1" />
@@ -1158,7 +1165,7 @@ export const Timeline: React.FC = () => {
 
                     {/* Header Row - sticky within scroll container */}
                     <div className={clsx(
-                        "flex-shrink-0 z-50 bg-[#0a0a0c]/40 backdrop-blur-xl border-b border-white/10 text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-lg select-none overflow-hidden"
+                        "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
                     )}>
                         {/* ▼▼ 追加: 中身に合わせて伸びるラッパー箱 (PCのみ幅固定) ▼▼ */}
                         <div className="flex items-center h-full md:w-max md:min-w-full">
@@ -1222,7 +1229,7 @@ export const Timeline: React.FC = () => {
 
                                 gridLines.forEach(time => {
                                     const hasEvents = (eventsByTime.get(time)?.length ?? 0) > 0;
-                                    const hasMitigations = timelineMitigations.some(m => m.time <= time && m.time + m.duration >= time);
+                                    const hasMitigations = timelineMitigations.some(m => m.time === time);
 
                                     if (!hideEmpty || hasEvents || hasMitigations) {
                                         totalHeight += pixelsPerSecond;
@@ -1245,7 +1252,7 @@ export const Timeline: React.FC = () => {
                                     const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
 
                                     const hasEvents = rowEvents.length > 0;
-                                    const hasMitigations = timelineMitigations.some(m => m.time <= time && m.time + m.duration >= time);
+                                    const hasMitigations = timelineMitigations.some(m => m.time === time);
 
                                     if (hideEmpty && !hasEvents && !hasMitigations) {
                                         // Skip row, but map the time to currentY for duration calculations
@@ -1343,6 +1350,7 @@ export const Timeline: React.FC = () => {
 
                                                 // Lane Packing
                                                 const lanes: number[] = [];
+                                                const laneCounts: Record<number, number> = {};
 
                                                 ownerMitigations.forEach(mitigation => {
                                                     const startTime = mitigation.time;
@@ -1365,6 +1373,10 @@ export const Timeline: React.FC = () => {
                                                     }
 
                                                     laneIndex = Math.min(laneIndex, maxLanes - 1);
+
+                                                    laneCounts[laneIndex] = (laneCounts[laneIndex] || 0) + 1;
+                                                    const count = laneCounts[laneIndex];
+                                                    const overlapOffset = (count % 3 === 1) ? -4 : (count % 3 === 2) ? 4 : 0;
 
                                                     const offsetTime = showPreStart ? -10 : 0;
                                                     const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
@@ -1393,6 +1405,7 @@ export const Timeline: React.FC = () => {
                                                             scrollContainerRef={scrollContainerRef}
                                                             activeMitigations={ownerMitigations}
                                                             schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
+                                                            overlapOffset={overlapOffset}
                                                         />
                                                     );
                                                 });

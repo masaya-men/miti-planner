@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Upload, AlertCircle } from 'lucide-react';
+import { X, Download, AlertCircle } from 'lucide-react';
 import { parseCSVToEvents } from '../utils/csvParser';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -61,7 +61,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                            <Upload size={18} className="text-blue-400" />
+                            <Download size={18} className="text-blue-400" />
                             Import Timeline (CSV)
                         </h2>
                         <button
@@ -122,7 +122,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                                     : "bg-white/5 text-slate-500 cursor-not-allowed uppercase"
                             )}
                         >
-                            <Upload size={16} />
+                            <Download size={16} />
                             {t('common.ok', 'OK')}
                         </button>
                     </div>

@@ -1,35 +1,63 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
+
+  :root,
+  .theme-dark {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     color-scheme: dark;
 
     /* Modern Dark & Blue Glass Theme */
     --color-bg-primary: #18191c;
-    /* Considerably Dark Gray */
     --color-bg-secondary: #000000;
-    /* Pure Black for contrast */
     --color-bg-tertiary: #202124;
-    /* Lighter Gray */
 
     --color-accent-primary: #60a5fa;
-    /* Light Blue */
     --color-accent-secondary: #38bdf8;
-    /* Cyan-400 */
     --color-accent-dim: rgba(56, 189, 248, 0.1);
 
     --color-text-primary: #f8fafc;
-    /* Slate-50 */
     --color-text-secondary: #94a3b8;
-    /* Slate-400 */
     --color-text-muted: #64748b;
-    /* Slate-500 */
 
     /* Glass Borders */
     --color-border: rgba(56, 189, 248, 0.15);
-    /* Light Blue subtle border */
     --color-border-accent: rgba(56, 189, 248, 0.4);
+
+    /* Unified Glassmorphism Variables */
+    --glass-bg-header: rgba(10, 10, 12, 0.8);
+    --glass-bg-panel: rgba(0, 0, 0, 0.4);
+    --glass-bg-card: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.1);
+    --glass-active: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .theme-light {
+    color-scheme: light;
+    --color-bg-primary: #f8fafc;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #f1f5f9;
+
+    --color-accent-primary: #2563eb;
+    --color-accent-secondary: #0284c7;
+    --color-accent-dim: rgba(37, 99, 235, 0.1);
+
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #64748b;
+
+    --color-border: rgba(0, 0, 0, 0.1);
+    --color-border-accent: rgba(37, 99, 235, 0.4);
+
+    --glass-bg-header: rgba(255, 255, 255, 0.85);
+    --glass-bg-panel: rgba(255, 255, 255, 0.6);
+    --glass-bg-card: rgba(0, 0, 0, 0.03);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-hover: rgba(0, 0, 0, 0.05);
+    --glass-active: rgba(0, 0, 0, 0.08);
+    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
 
   body {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type Theme = 'default' | 'obsidian' | 'forest';
+export type Theme = 'dark' | 'light';
 export type ContentLanguage = 'ja' | 'en';
 
 interface ThemeState {
@@ -14,13 +14,13 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
     persist(
         (set) => ({
-            theme: 'default',
+            theme: 'dark',
             contentLanguage: 'ja',
             setTheme: (theme) => {
                 set({ theme });
                 // Apply theme class to document element
                 const root = document.documentElement;
-                root.classList.remove('theme-default', 'theme-obsidian', 'theme-forest');
+                root.classList.remove('theme-dark', 'theme-light');
                 root.classList.add(`theme-${theme}`);
             },
             setContentLanguage: (lang) => set({ contentLanguage: lang }),
