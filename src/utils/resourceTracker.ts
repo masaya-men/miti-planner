@@ -301,8 +301,17 @@ export function validateMitigationPlacement(
     }
 
     // Cooldown check (non-charge skills only)
+    const getSharedCooldownIds = (id: string) => {
+        if (id === 'bloodwhetting' || id === 'nascent_flash') {
+            return ['bloodwhetting', 'nascent_flash'];
+        }
+        return [id];
+    };
+
+    const sharedIds = getSharedCooldownIds(m.id);
+
     const sameSkillUses = relevantMitigations
-        .filter(am => am.mitigationId === m.id)
+        .filter(am => sharedIds.includes(am.mitigationId))
         .sort((a, b) => a.time - b.time);
 
     if (sameSkillUses.length > 0) {

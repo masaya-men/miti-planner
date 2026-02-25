@@ -3,12 +3,21 @@ import { Timeline } from './components/Timeline';
 import { MitigationGrid } from './components/MitigationGrid';
 import { CheatSheetView } from './components/CheatSheetView';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { List, LayoutGrid } from 'lucide-react';
 
+import { useThemeStore } from './store/useThemeStore';
+
 function App() {
   const [viewMode, setViewMode] = useState<'timeline' | 'cheatsheet'>('timeline');
+  const theme = useThemeStore((state) => state.theme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('theme-dark', 'theme-light');
+    root.classList.add(`theme-${theme}`);
+  }, [theme]);
 
   return (
     <Layout>

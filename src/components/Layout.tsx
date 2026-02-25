@@ -27,7 +27,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors"
+                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
                         >
                             <Menu size={20} />
                         </button>
@@ -41,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors flex items-center justify-center"
+                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors flex items-center justify-center cursor-pointer"
                             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                         >
                             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

@@ -89,7 +89,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
     };
 
     // Identify Single Target Buffs that can be thrown to others
-    const SINGLE_TARGET_BUFFS = ['the_black_est_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima']; // Add others as needed
+    const SINGLE_TARGET_BUFFS = ['the_blackest_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima', 'aurora', 'nascent_flash']; // Add others as needed
 
     // Filter out skills whose prerequisites are not met (completely hidden)
     const availableMitigations = allJobMitigations.filter(m => {
@@ -143,12 +143,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 style={isMobile ? { maxHeight: '75vh' } : { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' }}
             >
                 {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-slate-900/ dark:bg-white/ rounded-full mx-auto mb-3 shrink-0" />}
+                {isMobile && <div className="w-12 h-1 bg-slate-900/10 dark:bg-white/10 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
-                    <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">
+                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
-                    <button onClick={handleClose} className="text-app-text-muted hover:text-slate-800 dark:text-white transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-white transition-colors">
                         <X size={14} />
                     </button>
                 </div>
@@ -156,7 +156,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 {!selectedSingleTargetMit ? (
                     <div className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
                         {availableMitigations.length === 0 ? (
-                            <div className="text-xs text-app-text-muted p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                            <div className="text-xs text-slate-400 p-4 text-center">{t('mitigation.no_mitigations')}</div>
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
@@ -199,11 +199,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                                 ? 'text-red-400'
                                                 : status.warning
                                                     ? 'text-amber-300'
-                                                    : 'text-app-text-primary group-hover:text-app-accent-primary'
+                                                    : 'text-slate-200 group-hover:text-white'
                                                 }`}>
                                                 {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
                                                 {SINGLE_TARGET_BUFFS.includes(mitigation.id) && (
-                                                    <span className="ml-1 text-[9px] bg-slate-900/ dark:bg-white/ px-1 rounded text-slate-800 dark:text-white/70">▶</span>
+                                                    <span className="ml-1 text-[9px] bg-slate-900/10 dark:bg-white/10 px-1 rounded text-slate-800 dark:text-white/70">▶</span>
                                                 )}
                                             </div>
                                             {!status.available ? (
@@ -215,7 +215,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                                     ⚠ {status.message}
                                                 </div>
                                             ) : (
-                                                <div className="text-[10px] text-app-text-muted">
+                                                <div className="text-[10px] text-slate-400">
                                                     {mitigation.duration}s / {mitigation.cooldown}s ({t('mitigation.cd')})
                                                 </div>
                                             )}
@@ -239,7 +239,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                     {job ? (
                                         <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
                                     ) : (
-                                        <div className="w-8 h-8 rounded bg-slate-900/ dark:bg-white/ border border-white/20" />
+                                        <div className="w-8 h-8 rounded bg-slate-900/10 dark:bg-white/10 border border-white/20" />
                                     )}
                                     <span className={`text-sm font-black tracking-widest ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
                                         {member.id}

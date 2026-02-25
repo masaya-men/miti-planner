@@ -56,18 +56,18 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-app-text-primary"
+                        "w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-100"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
                 title={t('timeline.end_phase')}
             >
-                <div className="flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center justify-center w-full h-full text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Plus size={16} />
                 </div>
             </div >
 
             {/* Time Column */}
-            <div className="w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-sm text-app-text-muted transition-colors group-hover:text-app-text-primary group-hover:font-bold">
+            <div className="w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-sm text-slate-400 transition-colors group-hover:text-slate-100 group-hover:font-bold">
                 {formattedTime}
             </div >
 
@@ -102,7 +102,7 @@ export const TimelineRow = memo(({
                                 {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
                                 {/* Name */}
-                                <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
+                                <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
                             </div>
 
                             {/* Right Side: Target */}
@@ -162,7 +162,7 @@ export const TimelineRow = memo(({
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
                                     {/* Name */}
-                                    <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
+                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
                                 </div>
 
                                 {/* Right Side: Target */}
@@ -202,7 +202,7 @@ export const TimelineRow = memo(({
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate leading-none pt-0.5">{events[1].name}</span>
+                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[1].name}</span>
                                 </div>
 
                                 {/* Right Side: Target */}
@@ -234,7 +234,7 @@ export const TimelineRow = memo(({
             </div>
 
             {/* U.Dmg Column (Vertical Stack) */}
-            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-secondary transition-colors group-hover:text-app-text-primary">
+            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100">
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className="w-full h-full flex items-center justify-center">
@@ -254,7 +254,7 @@ export const TimelineRow = memo(({
             </div >
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
-            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-app-text-primary transition-colors group-hover:text-slate-800 dark:text-white">
+            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white">
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className={clsx("w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none", (() => {
