@@ -1,6 +1,29 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
+@theme {
+  --color-app-bg: var(--color-bg-primary);
+  --color-app-surface: var(--color-bg-secondary);
+  --color-app-surface2: var(--color-bg-tertiary);
+  --color-app-accent: var(--color-accent-primary);
+  --color-app-accent-bold: var(--color-accent-secondary);
+  --color-app-accent-dim: var(--color-accent-dim);
+  --color-app-text: var(--color-text-primary);
+  --color-app-text-sec: var(--color-text-secondary);
+  --color-app-text-muted: var(--color-text-muted);
+  --color-app-border: var(--color-border);
+  --color-app-border-accent: var(--color-border-accent);
+
+  --color-glass-header: var(--glass-bg-header);
+  --color-glass-panel: var(--glass-bg-panel);
+  --color-glass-card: var(--glass-bg-card);
+  --color-glass-border: var(--glass-border);
+  --color-glass-hover: var(--glass-hover);
+  --color-glass-active: var(--glass-active);
+
+  --shadow-glass: var(--glass-shadow);
+}
+
 @layer base {
 
   :root,

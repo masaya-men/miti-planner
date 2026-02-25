@@ -3,10 +3,10 @@ import type { Job, Mitigation } from '../types';
 export const MITIGATION_DISPLAY_ORDER = [
     'reprisal',
     'divine_veil',
-    'passage_of_arms',
     'shake_it_off',
     'dark_missionary',
     'heart_of_light',
+    'passage_of_arms',
     'plenary_indulgence',
     'temperance',
     'divine_caress',
@@ -41,18 +41,26 @@ export const MITIGATION_DISPLAY_ORDER = [
     'magick_barrier',
     'tempera_grassa',
     'holy_sheltron',
+    'intervention',
     'bloodwhetting',
+    'nascent_flash',
     'the_blackest_night',
     'oblation',
     'heart_of_corundum',
     'aurora',
     'rampart',
+    'bulwark',
+    'thrill_of_battle',
+    'dark_mind',
+    'camouflage',
     'guardian',
     'damnation',
     'shadowed_vigil',
     'great_nebula',
-    'intervention',
-    'nascent_flash'
+    'hallowed_ground',
+    'holmgang',
+    'living_dead',
+    'superbolide'
 ];
 
 export function getMitigationPriority(mitigationId: string): number {
