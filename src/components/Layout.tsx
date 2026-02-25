@@ -33,9 +33,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-1 pt-14 relative overflow-hidden transition-colors duration-300">
+                <main className="flex-1 pt-14 pb-8 relative overflow-hidden transition-colors duration-300">
                     {children}
                 </main>
+
+                {/* Footer / Legal */}
+                <footer className="fixed bottom-0 w-full h-8 bg-black/60 backdrop-blur-md border-t border-white/5 flex items-center justify-center z-50 pointer-events-none">
+                    <p className="text-[10px] text-slate-400/80 font-medium tracking-wide">
+                        (C) SQUARE ENIX CO., LTD. All Rights Reserved. Not affiliated with Square Enix.
+                    </p>
+                </footer>
             </div>
         </div>
     );

@@ -169,11 +169,22 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                                 {job ? (
                                     <>
-                                        <div className="z-10 relative filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]">
+                                        <div className="z-10 relative filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] flex flex-col items-center">
                                             <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain" />
+                                            {useMitigationStore.getState().myMemberId === member.id && (
+                                                <span className="absolute -bottom-3 text-[7px] text-yellow-300 font-bold tracking-widest bg-black/60 px-1 rounded">MY JOB</span>
+                                            )}
                                         </div>
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-20 backdrop-blur-[1px]">
-                                            <Trash2 size={14} className="text-white/90 drop-shadow-lg" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity z-20 backdrop-blur-[1px] gap-1">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); useMitigationStore.getState().setMyMemberId(member.id); }}
+                                                className="text-[8px] font-bold text-yellow-400 bg-yellow-400/20 px-1.5 py-0.5 rounded border border-yellow-400/30 hover:bg-yellow-400/40 transition-colors"
+                                            >
+                                                SET MY JOB
+                                            </button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleRemoveJob(member.id); }}>
+                                                <Trash2 size={14} className="text-white/90 drop-shadow-lg hover:text-red-400 transition-colors" />
+                                            </button>
                                         </div>
                                     </>
                                 ) : (

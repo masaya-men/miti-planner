@@ -18,6 +18,9 @@ interface MitigationState {
     timelineMitigations: AppliedMitigation[];
     aaSettings: AASettings;
     schAetherflowPatterns: Record<string, 1 | 2>;
+    // UI State
+    myMemberId: string | null;
+    hideEmptyRows: boolean;
 
     // Actions
     updateMemberStats: (memberId: string, stats: Partial<PlayerStats>) => void;
@@ -34,6 +37,10 @@ interface MitigationState {
     setMemberJob: (memberId: string, jobId: string) => void;
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
+
+    // UI Actions
+    setMyMemberId: (memberId: string | null) => void;
+    setHideEmptyRows: (hide: boolean) => void;
 }
 
 export const DEFAULT_TANK_STATS: PlayerStats = {
@@ -91,6 +98,11 @@ export const useMitigationStore = create<MitigationState>()(
                     target: 'MT'
                 },
                 schAetherflowPatterns: {} as Record<string, 1 | 2>,
+                myMemberId: null,
+                hideEmptyRows: false,
+
+                setMyMemberId: (memberId) => set({ myMemberId: memberId }),
+                setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
 
                 addEvent: (event) => set((state) => ({
                     timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)

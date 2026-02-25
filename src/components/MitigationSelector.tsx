@@ -5,6 +5,7 @@ import { MITIGATIONS, getMitigationPriority } from '../data/mockData';
 import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { getAetherflowStacks, getAddersgallStacks, canUseSummonSeraph, getRemainingCharges, isFairyAvailable } from '../utils/resourceTracker';
+import { useMitigationStore } from '../store/useMitigationStore';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -23,6 +24,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
 
     const panelRef = React.useRef<HTMLDivElement>(null);
     const [adjustedPos, setAdjustedPos] = React.useState(position);
+
+    // 2-step selection state
+    const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
+    const { partyMembers } = useMitigationStore();
 
     React.useEffect(() => {
         if (!isOpen || !panelRef.current) {
@@ -48,7 +53,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
 
     // Close on click outside (without blocking scroll)
     React.useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) {
+            setSelectedSingleTargetMit(null);
+            return;
+        }
         const handleMouseDown = (e: MouseEvent) => {
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 onClose();
@@ -150,6 +158,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
         return { available: true };
     };
 
+    // Identify Single Target Buffs that can be thrown to others
+    const SINGLE_TARGET_BUFFS = ['the_black_est_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima']; // Add others as needed
+
     // Filter out skills whose prerequisites are not met (completely hidden)
     const availableMitigations = allJobMitigations.filter(m => {
         if (!m.requires) return true;
@@ -161,88 +172,143 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
         });
     }).sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
 
+    const handleMitigationClick = (mitigation: Mitigation) => {
+        // If it's a single target buff, go to step 2
+        if (SINGLE_TARGET_BUFFS.includes(mitigation.id)) {
+            setSelectedSingleTargetMit(mitigation);
+        } else {
+            // Normal skill
+            onSelect(mitigation);
+        }
+    };
+
+    const handleTargetSelect = (targetId: string) => {
+        if (selectedSingleTargetMit) {
+            // Pass targetId by hacking it onto the object or letting the parent handle it
+            // The cleanest way without changing Mitigation type is to cast/extend it here,
+            // but the parent `onSelect` expects Mitigation. 
+            // Let's modify onSelect to take an optional targetId.
+            onSelect({ ...selectedSingleTargetMit, _targetId: targetId } as any);
+        }
+    };
+
+    const handleClose = () => {
+        if (selectedSingleTargetMit) {
+            setSelectedSingleTargetMit(null); // Go back to mitigation list
+        } else {
+            onClose();
+        }
+    };
+
     return (
         <div className="fixed z-[9999] pointer-events-none" style={{ top: 0, left: 0 }}>
             <div
                 ref={panelRef}
-                className="pointer-events-auto glass-panel rounded-xl shadow-2xl p-2 w-64 overflow-hidden ring-1 ring-white/5 fixed"
-                style={{ left: adjustedPos.x, top: adjustedPos.y }}
+                className="pointer-events-auto glass-panel rounded-xl shadow-2xl p-2 w-64 overflow-hidden ring-1 ring-white/5 fixed flex flex-col"
+                style={{ left: adjustedPos.x, top: adjustedPos.y, maxHeight: '80vh' }}
             >
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1">
-                    <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">{t('mitigation.select')}</span>
-                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors">
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
+                    <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">
+                        {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択') : t('mitigation.select')}
+                    </span>
+                    <button onClick={handleClose} className="text-app-text-muted hover:text-white transition-colors">
                         <X size={14} />
                     </button>
                 </div>
 
-                <div className="space-y-1 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-                    {availableMitigations.length === 0 ? (
-                        <div className="text-xs text-app-text-muted p-4 text-center">{t('mitigation.no_mitigations')}</div>
-                    ) : (
-                        availableMitigations.map(mitigation => {
-                            const status = getResourceStatus(mitigation);
-                            return (
-                                <button
-                                    key={mitigation.id}
-                                    onClick={() => status.available && onSelect(mitigation)}
-                                    disabled={!status.available}
-                                    className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border ${!status.available
-                                        ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70'
-                                        : status.warning
-                                            ? 'hover:bg-amber-500/[0.06] border-amber-500/30 cursor-pointer'
-                                            : 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03] cursor-pointer'
-                                        }`}
-                                >
-                                    <div className="relative flex-shrink-0">
-                                        <img
-                                            src={mitigation.icon}
-                                            alt={mitigation.name}
-                                            className={`w-8 h-8 object-contain rounded border ${!status.available
-                                                ? 'bg-red-900/30 border-red-500/30'
-                                                : status.warning
-                                                    ? 'bg-amber-900/20 border-amber-500/30'
-                                                    : 'bg-black/30 border-white/5'
-                                                }`}
-                                        />
-                                        {status.badge && (
-                                            <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
-                                                ? 'bg-red-600/90 text-red-100 ring-red-400/50'
-                                                : status.badgeColor === 'amber'
-                                                    ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
-                                                    : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
-                                                }`}>
-                                                {status.badge}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <div className={`text-xs font-bold transition-colors ${!status.available
-                                            ? 'text-red-400'
+                {!selectedSingleTargetMit ? (
+                    <div className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
+                        {availableMitigations.length === 0 ? (
+                            <div className="text-xs text-app-text-muted p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                        ) : (
+                            availableMitigations.map(mitigation => {
+                                const status = getResourceStatus(mitigation);
+                                return (
+                                    <button
+                                        key={mitigation.id}
+                                        onClick={() => status.available && handleMitigationClick(mitigation)}
+                                        disabled={!status.available}
+                                        className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border ${!status.available
+                                            ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70'
                                             : status.warning
-                                                ? 'text-amber-300'
-                                                : 'text-app-text-primary group-hover:text-app-accent-primary'
-                                            }`}>
-                                            {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
+                                                ? 'hover:bg-amber-500/[0.06] border-amber-500/30 cursor-pointer'
+                                                : 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03] cursor-pointer'
+                                            }`}
+                                    >
+                                        <div className="relative flex-shrink-0">
+                                            <img
+                                                src={mitigation.icon}
+                                                alt={mitigation.name}
+                                                className={`w-8 h-8 object-contain rounded border ${!status.available
+                                                    ? 'bg-red-900/30 border-red-500/30'
+                                                    : status.warning
+                                                        ? 'bg-amber-900/20 border-amber-500/30'
+                                                        : 'bg-black/30 border-white/5'
+                                                    }`}
+                                            />
+                                            {status.badge && (
+                                                <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
+                                                    ? 'bg-red-600/90 text-red-100 ring-red-400/50'
+                                                    : status.badgeColor === 'amber'
+                                                        ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
+                                                        : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
+                                                    }`}>
+                                                    {status.badge}
+                                                </span>
+                                            )}
                                         </div>
-                                        {!status.available ? (
-                                            <div className="text-[10px] text-red-400/80 font-medium">
-                                                {status.message}
+                                        <div>
+                                            <div className={`text-xs font-bold transition-colors ${!status.available
+                                                ? 'text-red-400'
+                                                : status.warning
+                                                    ? 'text-amber-300'
+                                                    : 'text-app-text-primary group-hover:text-app-accent-primary'
+                                                }`}>
+                                                {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
+                                                {SINGLE_TARGET_BUFFS.includes(mitigation.id) && (
+                                                    <span className="ml-1 text-[9px] bg-white/10 px-1 rounded text-white/70">▶</span>
+                                                )}
                                             </div>
-                                        ) : status.warning ? (
-                                            <div className="text-[10px] text-amber-400/80 font-medium">
-                                                ⚠ {status.message}
-                                            </div>
-                                        ) : (
-                                            <div className="text-[10px] text-app-text-muted">
-                                                {mitigation.duration}s / {mitigation.cooldown}s ({t('mitigation.cd')})
-                                            </div>
-                                        )}
-                                    </div>
-                                </button>
-                            );
-                        })
-                    )}
-                </div>
+                                            {!status.available ? (
+                                                <div className="text-[10px] text-red-400/80 font-medium">
+                                                    {status.message}
+                                                </div>
+                                            ) : status.warning ? (
+                                                <div className="text-[10px] text-amber-400/80 font-medium">
+                                                    ⚠ {status.message}
+                                                </div>
+                                            ) : (
+                                                <div className="text-[10px] text-app-text-muted">
+                                                    {mitigation.duration}s / {mitigation.cooldown}s ({t('mitigation.cd')})
+                                                </div>
+                                            )}
+                                        </div>
+                                    </button>
+                                );
+                            })
+                        )}
+                    </div>
+                ) : (
+                    // Target Selection View
+                    <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1 shrink">
+                        {partyMembers.map((member: import('../types').PartyMember) => (
+                            <button
+                                key={member.id}
+                                onClick={() => handleTargetSelect(member.id)}
+                                className="flex flex-col items-center justify-center p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors"
+                            >
+                                <span className={`text-[10px] font-black tracking-widest mb-1 ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
+                                    {member.id}
+                                </span>
+                                {member.jobId ? (
+                                    <img src={`/icons/${member.jobId}.png`} alt={member.jobId} className="w-6 h-6 object-contain opacity-90" />
+                                ) : (
+                                    <div className="w-6 h-6 rounded-full bg-white/10" />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
