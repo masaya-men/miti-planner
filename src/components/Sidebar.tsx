@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         <Map size={14} className="text-app-accent" />
                         <div>Series</div>
                     </div>
-                    <div className="text-white font-medium text-sm truncate pl-6">
+                    <div className="text-slate-800 dark:text-white font-medium text-sm truncate pl-6">
                         AAC Light Heavyweight
                     </div>
                 </div>

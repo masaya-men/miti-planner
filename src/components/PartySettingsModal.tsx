@@ -126,7 +126,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
         return (
             <div className="flex-1 flex flex-col gap-2 bg-[#0a0a0c]/80 p-3 rounded-xl border border-white/[0.05]">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-white/[0.05] pb-1 mb-1">
+                <h3 className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest border-b border-white/[0.05] pb-1 mb-1">
                     {title}
                 </h3>
 
@@ -182,7 +182,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                                     "transition-colors",
                                                     useMitigationStore.getState().myMemberId === member.id
                                                         ? "text-yellow-400 fill-yellow-400 opacity-100 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"
-                                                        : "text-white/20 hover:text-yellow-100 opacity-0 group-hover:opacity-100"
+                                                        : "text-slate-800 dark:text-white/20 hover:text-yellow-100 opacity-0 group-hover:opacity-100"
                                                 )}
                                             />
                                         </button>
@@ -194,13 +194,13 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         {/* Delete Overlay */}
                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity z-20 backdrop-blur-[1px]">
                                             <button onClick={(e) => { e.stopPropagation(); handleRemoveJob(member.id); }} className="w-full h-full flex items-center justify-center pt-2">
-                                                <Trash2 size={16} className="text-white/90 drop-shadow-lg hover:text-red-400 transition-colors" />
+                                                <Trash2 size={16} className="text-slate-800 dark:text-white/90 drop-shadow-lg hover:text-red-400 transition-colors" />
                                             </button>
                                         </div>
                                     </>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => { }}>
-                                        <span className="text-white/20 text-[8px] tracking-widest font-light">SELECT</span>
+                                        <span className="text-slate-800 dark:text-white/20 text-[8px] tracking-widest font-light">SELECT</span>
                                     </div>
                                 )}
                             </div>
@@ -224,13 +224,13 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     // Fixed position: top-24 left-4 (based on timeline button pos)
     return (
         <div className={clsx(
-            "fixed inset-0 z-[9999] transition-all duration-300",
-            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none invisible"
+            "fixed inset-0 z-[9999]",
+            isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
             <div
                 className={clsx(
-                    "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
+                    "absolute inset-0 bg-glass-panel backdrop-blur-sm transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}
@@ -240,18 +240,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "absolute top-0 left-0 h-full w-[400px] max-w-full bg-[#020203] border-r border-white/[0.08] shadow-2xl flex flex-col transition-transform duration-300 ease-out glass-panel",
+                    "absolute top-0 left-0 h-full w-[400px] max-w-full bg-glass-panel border-r border-glass-border shadow-glass flex flex-col transition-transform duration-300 ease-out glass-panel",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="text-blue-500" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">{t('party.configuration_title', 'パーティ構成設定')}</h2>
+                            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">{t('party.configuration_title', 'パーティ構成設定')}</h2>
                             <p className="text-[9px] text-slate-500">{t('party.configuration_description', 'パーティ構成とグループを管理します')}</p>
                             <p className="text-[9px] text-yellow-500/90 font-bold mt-1 flex items-center gap-1 bg-yellow-500/10 w-fit px-1.5 py-0.5 rounded">
                                 <Star size={10} className="fill-yellow-500/80" /> {t('party.my_job_instruction', 'スロット右上の星をタップして自ジョブに設定')}
@@ -270,7 +270,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 <div className="px-5 py-3 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end flex-shrink-0 items-center">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white rounded-xl font-bold text-xs shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95"
                     >
                         {t('common.ok', 'OK')}
                     </button>

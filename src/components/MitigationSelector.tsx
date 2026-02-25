@@ -143,12 +143,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 style={isMobile ? { maxHeight: '75vh' } : { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' }}
             >
                 {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 shrink-0" />}
+                {isMobile && <div className="w-12 h-1 bg-slate-900/ dark:bg-white/ rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
                     <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
-                    <button onClick={handleClose} className="text-app-text-muted hover:text-white transition-colors">
+                    <button onClick={handleClose} className="text-app-text-muted hover:text-slate-800 dark:text-white transition-colors">
                         <X size={14} />
                     </button>
                 </div>
@@ -203,7 +203,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                                 }`}>
                                                 {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
                                                 {SINGLE_TARGET_BUFFS.includes(mitigation.id) && (
-                                                    <span className="ml-1 text-[9px] bg-white/10 px-1 rounded text-white/70">▶</span>
+                                                    <span className="ml-1 text-[9px] bg-slate-900/ dark:bg-white/ px-1 rounded text-slate-800 dark:text-white/70">▶</span>
                                                 )}
                                             </div>
                                             {!status.available ? (
@@ -239,7 +239,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                     {job ? (
                                         <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
                                     ) : (
-                                        <div className="w-8 h-8 rounded bg-white/10 border border-white/20" />
+                                        <div className="w-8 h-8 rounded bg-slate-900/ dark:bg-white/ border border-white/20" />
                                     )}
                                     <span className={`text-sm font-black tracking-widest ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
                                         {member.id}

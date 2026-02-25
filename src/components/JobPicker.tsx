@@ -52,7 +52,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                 >
                     <div className="flex justify-between items-center border-b border-white/[0.03] pb-1.5 px-1">
                         <h3 className="font-bold text-app-text-primary text-xs tracking-wide">Select Job</h3>
-                        <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors">
+                        <button onClick={onClose} className="text-app-text-muted hover:text-slate-800 dark:text-white transition-colors">
                             <X size={14} />
                         </button>
                     </div>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
-import { motion } from 'framer-motion';
+
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
@@ -341,7 +341,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
             {/* Local Error Tooltip for Drag & Drop */}
             {toastMessage && (
                 <div
-                    className="fixed z-[150] bg-red-600 border border-red-400 text-white px-3 py-1.5 rounded-lg shadow-[0_4px_16px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 pointer-events-none transition-all duration-200 animate-in slide-in-from-top-2 fade-in whitespace-nowrap"
+                    className="fixed z-[150] bg-red-600 border border-red-400 text-slate-800 dark:text-white px-3 py-1.5 rounded-lg shadow-[0_4px_16px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 pointer-events-none transition-all duration-200 animate-in slide-in-from-top-2 fade-in whitespace-nowrap"
                     style={{
                         // 12px centers it cleanly over the 24px wide column
                         left: `${toastMessage.leftOffset + 12}px`,
@@ -355,11 +355,9 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 </div>
             )}
 
-            <motion.div
+            <div
                 ref={containerRef}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute z-30 flex flex-col items-center group select-none pointer-events-none"
+                className="absolute flex flex-col items-center group select-none pointer-events-none animate-in zoom-in-90 fade-in duration-200"
                 style={{ left: `${left}px`, top: `${top + 13}px`, width: '24px' }}
             >
                 {/* Drag time indicator line */}
@@ -404,7 +402,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                                 {targetJob ? (
                                     <img src={targetJob.icon} alt={targetJob.name} className="w-[20px] h-[20px] object-contain rounded-sm" />
                                 ) : (
-                                    <div className="bg-black/90 rounded px-1 py-0.5 text-[8px] font-black text-white ring-1 ring-white/20 origin-bottom-right">
+                                    <div className="bg-black/90 rounded px-1 py-0.5 text-[8px] font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
                                         {mitigation.targetId}
                                     </div>
                                 )}
@@ -416,30 +414,35 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 {/* Effect Bar (Duration) */}
                 <div
                     className={clsx(
-                        "w-1.5 relative z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
+                        "absolute top-3 w-1.5 z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
                         colors.bg,
                         colors.border,
                         colors.shadow,
                         useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
                     )}
-                    style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px', marginLeft: `${overlapOffset}px` }}
+                    style={{
+                        height: `${Math.max(0, durationHeight)}px`,
+                        left: `calc(50% + ${overlapOffset}px)`,
+                        transform: 'translateX(-50%)'
+                    }}
                 ></div>
 
                 {/* Recast Line (Dotted) */}
                 {recastPx > durationHeight && (
                     <div
                         className={clsx(
-                            "w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none",
+                            "absolute w-0 border-l-[2px] border-dotted border-slate-500/40 z-0 pointer-events-none",
                             useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
                         )}
                         style={{
-                            top: `${20 + Math.max(0, durationHeight - 33)}px`,
-                            height: `${recastPx - Math.max(durationHeight, 33)}px`,
-                            marginLeft: `${overlapOffset}px`
+                            top: `${12 + Math.max(0, durationHeight)}px`,
+                            height: `${Math.max(0, recastPx - durationHeight)}px`,
+                            left: `calc(50% + ${overlapOffset}px)`,
+                            transform: 'translateX(-50%)'
                         }}
                     ></div>
                 )}
-            </motion.div>
+            </div>
         </>
     );
 };
@@ -942,7 +945,7 @@ export const Timeline: React.FC = () => {
                         {/* Auto Plan Button */}
                         <button
                             onClick={handleAutoPlan}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
                             title="Auto Plan Mitigations"
                         >
                             <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
@@ -952,21 +955,21 @@ export const Timeline: React.FC = () => {
                         {/* Import Button */}
                         <button
                             onClick={() => setImportModalOpen(true)}
-                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-white/10 group/btn border border-transparent hover:border-white/10"
+                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/ group/btn border border-transparent hover:border-white/10"
                             title="Import Timeline CSV"
                         >
                             <Download size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
                         </button>
 
-                        <div className="w-[1px] h-6 bg-white/10 mx-1" />
+                        <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
 
                         <button
                             onClick={() => setPartySettingsOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-100 group/btn relative overflow-hidden cursor-pointer water-drop"
+                            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-800 dark:text-slate-100 group/btn relative overflow-hidden cursor-pointer water-drop"
                             title={t('party.title')}
                         >
-                            <User size={16} className="text-blue-300 opacity-100 group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
-                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-100 group-hover/btn:text-white transition-colors shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
+                            <User size={16} className="text-blue-300 opacity-100 group-hover/btn:text-slate-800 dark:text-white group-hover/btn:scale-110 transition-all duration-300" />
+                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-800 dark:text-slate-100 group-hover/btn:text-slate-800 dark:text-white transition-colors shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
                         </button>
 
                         <button
@@ -974,12 +977,12 @@ export const Timeline: React.FC = () => {
                             className={clsx(
                                 "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
                                 statusOpen
-                                    ? "bg-blue-500/40 border-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
-                                    : "water-drop text-slate-100 hover:text-white"
+                                    ? "bg-blue-500/40 border-blue-400 text-slate-800 dark:text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
+                                    : "water-drop text-slate-800 dark:text-slate-100 hover:text-slate-800 dark:text-white"
                             )}
                             title={t('settings.party_stats')}
                         >
-                            <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-white" : "text-blue-300 group-hover/btn:text-white")} />
+                            <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-slate-800 dark:text-white" : "text-blue-300 group-hover/btn:text-slate-800 dark:text-white")} />
                             <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
                         </button>
 
@@ -990,20 +993,20 @@ export const Timeline: React.FC = () => {
                                 className={clsx(
                                     "flex items-center gap-2 px-3 py-2 rounded-l-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                     isAaModeEnabled
-                                        ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
-                                        : "bg-transparent border-transparent water-drop text-slate-100 hover:text-white hover:bg-white/5"
+                                        ? "bg-blue-600 border-blue-400 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                                        : "bg-transparent border-transparent water-drop text-slate-800 dark:text-slate-100 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                                 )}
                                 title="AA Registration Mode"
                             >
-                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-slate-300 group-hover/btn:text-white")} />
+                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-slate-800 dark:text-white" : "text-slate-700 dark:text-slate-300 group-hover/btn:text-slate-800 dark:text-white")} />
                                 <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">AA Mode</span>
                             </button>
                             <button
                                 ref={aaSettingsButtonRef}
                                 onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
                                 className={clsx(
-                                    "px-1.5 py-2 rounded-r-2xl border-l-[1px] border-white/10 transition-colors cursor-pointer hover:bg-white/10",
-                                    isAaModeEnabled ? "bg-blue-600 border-blue-500 text-white" : "bg-transparent text-slate-400"
+                                    "px-1.5 py-2 rounded-r-2xl border-l-[1px] border-white/10 transition-colors cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/",
+                                    isAaModeEnabled ? "bg-blue-600 border-blue-500 text-slate-800 dark:text-white" : "bg-transparent text-slate-600 dark:text-slate-400"
                                 )}
                                 title="AA Settings"
                             >
@@ -1034,19 +1037,19 @@ export const Timeline: React.FC = () => {
                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                 myJobHighlight
                                     ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-100 shadow-[inset_0_1px_0_rgba(250,204,21,0.2)]"
-                                    : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
+                                    : "bg-slate-900/ dark:bg-white/ border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-900/ dark:hover:bg-white/ hover:text-slate-800 dark:text-white"
                             )}
                             title={t('party.my_job_select')}
                         >
                             {myJobHighlight ? (
                                 <Eye size={14} className="text-yellow-400" />
                             ) : (
-                                <EyeOff size={14} className="text-slate-400 group-hover/btn:text-slate-300" />
+                                <EyeOff size={14} className="text-slate-600 dark:text-slate-400 group-hover/btn:text-slate-700 dark:text-slate-300" />
                             )}
                             <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">MY JOB HIGHLIGHT</span>
                             <div className={clsx(
                                 "w-7 h-4 rounded-full flex items-center p-0.5 transition-colors ml-1",
-                                myJobHighlight ? "bg-yellow-500" : "bg-white/20"
+                                myJobHighlight ? "bg-yellow-500" : "bg-slate-900/ dark:bg-white/"
                             )}>
                                 <div className={clsx(
                                     "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
@@ -1058,7 +1061,7 @@ export const Timeline: React.FC = () => {
                         {/* Sorting Controls */}
                         <div className="flex items-center gap-3 px-4 py-2 bg-black/50 rounded-2xl border border-white/15 relative shadow-inner">
                             <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
-                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
 
                             <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
                                 <button
@@ -1066,20 +1069,20 @@ export const Timeline: React.FC = () => {
                                     className={clsx(
                                         "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                         partySortOrder === 'light_party'
-                                            ? "bg-white/25 text-white border-white/40 shadow-sm"
-                                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                                            ? "bg-slate-900/ dark:bg-white/ text-slate-800 dark:text-white border-white/40 shadow-sm"
+                                            : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                                     )}
                                 >
                                     LIGHT PARTY
                                 </button>
-                                <div className="w-[1px] h-4 bg-white/15 my-auto" />
+                                <div className="w-[1px] h-4 bg-slate-900/ dark:bg-white/ my-auto" />
                                 <button
                                     onClick={() => setPartySortOrder('role')}
                                     className={clsx(
                                         "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                         partySortOrder === 'role'
-                                            ? "bg-white/25 text-white border-white/40 shadow-sm"
-                                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                                            ? "bg-slate-900/ dark:bg-white/ text-slate-800 dark:text-white border-white/40 shadow-sm"
+                                            : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                                     )}
                                 >
                                     Role Order
@@ -1087,18 +1090,18 @@ export const Timeline: React.FC = () => {
                             </div>
 
                             {/* Hide Empty Rows Toggle */}
-                            <div className="w-[1px] h-4 bg-white/15 my-auto mx-1" />
+                            <div className="w-[1px] h-4 bg-slate-900/ dark:bg-white/ my-auto mx-1" />
                             <button
                                 onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                 className={clsx(
                                     "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                     useMitigationStore.getState().hideEmptyRows
                                         ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm"
-                                        : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                                        : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                                 )}
                                 title="Toggle Empty Rows"
                             >
-                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-400"} />
+                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-600 dark:text-slate-400"} />
                                 COMPACT
                             </button>
                         </div>
@@ -1144,7 +1147,7 @@ export const Timeline: React.FC = () => {
                                                         <img src="/icons/Dissipation.png" alt="転化" className="w-full h-full object-contain" />
                                                     </div>
                                                 </div>
-                                                <div className="w-[1px] h-3.5 bg-white/15 mx-0.5" />
+                                                <div className="w-[1px] h-3.5 bg-slate-900/ dark:bg-white/ mx-0.5" />
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1201,7 +1204,7 @@ export const Timeline: React.FC = () => {
                                 >
                                     <div
                                         className={clsx(
-                                            "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-white/10 transition-all duration-300 relative"
+                                            "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all duration-300 relative"
                                         )}
                                         onClick={(e) => handleJobIconClick(member.id, e)}
                                         title={`${member.id} (${t('ui.change_job')})`}
@@ -1209,7 +1212,7 @@ export const Timeline: React.FC = () => {
                                         {member.jobId ? (
                                             <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
                                         ) : (
-                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ transition-colors">
                                                 <Plus size={10} className="text-app-text-muted" />
                                             </div>
                                         )}
@@ -1310,7 +1313,7 @@ export const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-slate-900/ dark:bg-white/ flex items-center justify-center text-sm font-bold text-slate-800 dark:text-slate-100 cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                     title={t('timeline.click_rename', 'クリックして名前を変更')}
@@ -1342,41 +1345,54 @@ export const Timeline: React.FC = () => {
                                             const renderedItems: React.ReactElement[] = [];
 
                                             Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
-                                                // Sort by time, then by priority for overlapping mitigations
+                                                // Sort by Recast ascending, then by Time
+                                                const getRecast = (mitigationId: string): number => {
+                                                    const def = MITIGATIONS.find((m: any) => m.id === mitigationId);
+                                                    return def ? (def.recast || def.cooldown || 999) : 999;
+                                                };
+
                                                 ownerMitigations.sort((a, b) => {
+                                                    const rA = getRecast(a.mitigationId);
+                                                    const rB = getRecast(b.mitigationId);
+                                                    if (rA !== rB) return rA - rB;
                                                     if (a.time !== b.time) return a.time - b.time;
-                                                    return getMitigationPriority(a.mitigationId) - getMitigationPriority(b.mitigationId);
+                                                    return a.mitigationId.localeCompare(b.mitigationId);
                                                 });
 
-                                                // Lane Packing
-                                                const lanes: number[] = [];
-                                                const laneCounts: Record<number, number> = {};
+                                                // Half-lane Interleaving Logic
+                                                const PLACEMENT_STEP = 12;
+                                                const FULL_LANE_WIDTH = 24;
+                                                const HALF_LANE_WIDTH = 12;
+                                                const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
+                                                const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
+                                                const colStart = layout ? layout.left : 0;
+                                                const colWidth = (member?.role === 'tank' || member?.role === 'healer') ? 120 : 60;
+                                                const MAX_LEFT = colWidth - 24; // 24 is icon width
+
+                                                const assignedPositions: { m: typeof timelineMitigations[0], left: number }[] = [];
 
                                                 ownerMitigations.forEach(mitigation => {
-                                                    const startTime = mitigation.time;
-                                                    const member = partyMembers.find(m => m.id === mitigation.ownerId);
-                                                    const maxLanes = (member?.role === 'tank' || member?.role === 'healer') ? 5 : 2;
+                                                    const timeOverlaps = assignedPositions.filter(a =>
+                                                        (a.m.time < mitigation.time + mitigation.duration) &&
+                                                        (a.m.time + a.m.duration > mitigation.time)
+                                                    );
 
-                                                    // Find first free lane
-                                                    let laneIndex = lanes.findIndex(endTime => endTime <= startTime);
-
-                                                    if (laneIndex === -1) {
-                                                        if (lanes.length < maxLanes) {
-                                                            laneIndex = lanes.length;
-                                                            lanes.push(startTime + mitigation.duration);
-                                                        } else {
-                                                            laneIndex = maxLanes - 1;
-                                                            lanes[laneIndex] = Math.max(lanes[laneIndex], startTime + mitigation.duration);
-                                                        }
-                                                    } else {
-                                                        lanes[laneIndex] = startTime + mitigation.duration;
+                                                    let candidateLeft = 0;
+                                                    while (candidateLeft <= MAX_LEFT) {
+                                                        const hasCollision = timeOverlaps.some(a => {
+                                                            const isSameTime = a.m.time === mitigation.time;
+                                                            const threshold = isSameTime ? FULL_LANE_WIDTH : HALF_LANE_WIDTH;
+                                                            return Math.abs(a.left - candidateLeft) < threshold;
+                                                        });
+                                                        if (!hasCollision) break;
+                                                        candidateLeft += PLACEMENT_STEP;
                                                     }
 
-                                                    laneIndex = Math.min(laneIndex, maxLanes - 1);
+                                                    if (candidateLeft > MAX_LEFT) {
+                                                        candidateLeft = MAX_LEFT; // Clamp to right edge if extremely dense
+                                                    }
 
-                                                    laneCounts[laneIndex] = (laneCounts[laneIndex] || 0) + 1;
-                                                    const count = laneCounts[laneIndex];
-                                                    const overlapOffset = (count % 3 === 1) ? -4 : (count % 3 === 2) ? 4 : 0;
+                                                    assignedPositions.push({ m: mitigation, left: candidateLeft });
 
                                                     const offsetTime = showPreStart ? -10 : 0;
                                                     const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
@@ -1385,9 +1401,7 @@ export const Timeline: React.FC = () => {
                                                     const top = startY;
                                                     const height = Math.max(0, endY - startY);
 
-                                                    const layout = memberLayout.get(mitigation.ownerId);
-                                                    const colStart = layout ? layout.left : 0;
-                                                    const left = colStart + 2 + (laneIndex * 24);
+                                                    const absoluteLeft = colStart + 2 + candidateLeft;
 
                                                     renderedItems.push(
                                                         <MitigationItem
@@ -1398,14 +1412,14 @@ export const Timeline: React.FC = () => {
                                                             onUpdateTime={updateMitigationTime}
                                                             top={top}
                                                             height={height}
-                                                            left={left}
-                                                            laneIndex={laneIndex}
+                                                            left={absoluteLeft}
+                                                            laneIndex={candidateLeft / PLACEMENT_STEP}
                                                             partySortOrder={partySortOrder}
                                                             offsetTime={offsetTime}
                                                             scrollContainerRef={scrollContainerRef}
                                                             activeMitigations={ownerMitigations}
                                                             schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
-                                                            overlapOffset={overlapOffset}
+                                                            overlapOffset={0}
                                                         />
                                                     );
                                                 });

@@ -15,10 +15,10 @@ export const ContentLanguageSwitcher: React.FC = () => {
     return (
         <button
             onClick={toggleLanguage}
-            className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-100 hover:text-white group relative overflow-hidden water-drop"
+            className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-slate-800 dark:text-slate-100 hover:text-slate-800 dark:text-white group relative overflow-hidden water-drop"
             title={t('ui.switch_lang', contentLanguage === 'ja' ? 'Switch skill names to English' : 'スキル名を日本語に切り替え')}
         >
-            <BookOpen size={14} className="text-slate-400 group-hover:text-amber-300 transition-colors duration-300" />
+            <BookOpen size={14} className="text-slate-600 dark:text-slate-400 group-hover:text-amber-300 transition-colors duration-300" />
             <span className="relative z-10 w-4 text-center">
                 {contentLanguage === 'ja' ? 'JP' : 'EN'}
             </span>
