@@ -25,7 +25,7 @@ function App() {
                 "p-2 rounded-lg transition-all duration-300 flex items-center justify-center cursor-pointer",
                 viewMode === 'timeline'
                   ? "bg-blue-500/40 text-blue-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
-                  : "text-slate-400 hover:text-white hover:bg-white/10"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
               )}
               title="Timeline View"
             >
@@ -37,7 +37,7 @@ function App() {
                 "p-2 rounded-lg transition-all duration-300 flex items-center justify-center cursor-pointer",
                 viewMode === 'cheatsheet'
                   ? "bg-amber-500/40 text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
-                  : "text-slate-400 hover:text-white hover:bg-white/10"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
               )}
               title="Cheat Sheet View"
             >

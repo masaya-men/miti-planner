@@ -53,7 +53,7 @@ export const CheatSheetView: React.FC = () => {
 
                                 {/* Target Badge */}
                                 {m.targetId && (
-                                    <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-black/80 rounded px-[2px] text-[6px] font-black text-white ring-[0.5px] ring-white/20 scale-90">
+                                    <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-black/80 rounded px-[2px] text-[6px] font-black text-slate-800 dark:text-white ring-[0.5px] ring-white/20 scale-90">
                                         {m.targetId}
                                     </div>
                                 )}
@@ -77,7 +77,7 @@ export const CheatSheetView: React.FC = () => {
                     <span className="text-[10px] font-mono text-cyan-400 font-bold tracking-wider leading-none mb-0.5 shadow-black drop-shadow-md">
                         {formatTime(event.time)}
                     </span>
-                    <span className="text-xs font-bold text-slate-100 text-center leading-tight line-clamp-2 px-1 break-words w-full shadow-black drop-shadow-md">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 text-center leading-tight line-clamp-2 px-1 break-words w-full shadow-black drop-shadow-md">
                         {event.name}
                     </span>
 
@@ -123,7 +123,7 @@ export const CheatSheetView: React.FC = () => {
                     <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest px-2 text-center drop-shadow-md">MT Group</span>
                 </div>
                 <div className="w-[120px] shrink-0 flex flex-col items-center justify-center bg-glass-card border-x border-glass-border shadow-inner">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest drop-shadow-md">Timeline</span>
+                    <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest drop-shadow-md">Timeline</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center border-l border-white/5 bg-gradient-to-l from-orange-900/30 to-orange-500/10">
                     <span className="text-[10px] font-bold text-amber-300 uppercase tracking-widest px-2 text-center drop-shadow-md">ST Group</span>

@@ -278,13 +278,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 style={style}
             >
                 {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 shrink-0" />}
+                {isMobile && <div className="w-12 h-1 bg-slate-900/ dark:bg-white/ rounded-full mx-auto mt-3 shrink-0" />}
 
                 <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
-                    <h2 className="text-sm font-bold text-slate-200">
+                    <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
-                    <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+                    <button onClick={onClose} className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors p-1 rounded hover:bg-slate-900/ dark:hover:bg-white/">
                         <X size={16} />
                     </button>
                 </div>
@@ -297,7 +297,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             onClick={() => setInputMode('reverse')}
                             className={`flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all ${inputMode === 'reverse'
                                 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-900/ dark:hover:bg-white/ border border-transparent'
                                 }`}
                         >
                             <Calculator size={14} className="inline-block mr-2" />
@@ -308,7 +308,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             onClick={() => setInputMode('direct')}
                             className={`flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all ${inputMode === 'direct'
                                 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-900/ dark:hover:bg-white/ border border-transparent'
                                 }`}
                         >
                             {t('modal.mode_direct', '直接入力 (Direct)')}
@@ -318,25 +318,25 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Common Event Properties */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.time')}</label>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">{t('modal.time')}</label>
                             <input
                                 type="number"
                                 inputMode="decimal"
                                 value={time}
                                 onChange={(e) => setTime(Number(e.target.value))}
                                 onFocus={(e) => e.target.select()}
-                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-800 dark:text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.name')}</label>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">{t('modal.name')}</label>
                             <input
                                 type="text"
                                 lang={t('app.language') === 'English' ? 'en' : 'ja'}
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
                                 required
                                 placeholder={t('modal.enter_event_name')}
                             />
@@ -347,7 +347,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     <div className="grid grid-cols-2 gap-4">
                         {/* Damage Type */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.damage_type')}</label>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">{t('modal.damage_type')}</label>
                             <div className="flex gap-2">
                                 {[
                                     { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
@@ -367,7 +367,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         title={item.label}
                                     >
                                         <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
-                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-400'}`}>
+                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-600 dark:text-slate-400'}`}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -377,7 +377,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         {/* Target Selection */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.target')}</label>
+                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">{t('modal.target')}</label>
                             <div className="flex gap-2 h-[52px] items-center">
                                 {[
                                     { value: 'AoE', label: t('modal.aoe') },
@@ -392,7 +392,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center
                                             ${target === t.value
                                                 ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.15)]'
-                                                : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-slate-200'}
+                                                : 'bg-slate-900/ dark:bg-white/ border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-900/ dark:hover:bg-white/ hover:text-slate-800 dark:text-slate-200'}
                                         `}
                                     >
                                         {t.label}
@@ -402,20 +402,20 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         </div>
                     </div>
 
-                    <div className="w-full h-px bg-white/5 my-6" />
+                    <div className="w-full h-px bg-slate-900/ dark:bg-white/ my-6" />
 
                     {/* Dynamic Inputs Area */}
                     <div className="space-y-6">
                         {inputMode === 'direct' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.damage_amount')}</label>
+                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">{t('modal.damage_amount')}</label>
                                 <input
                                     type="number"
                                     inputMode="numeric"
                                     value={damageAmount}
                                     onChange={(e) => setDamageAmount(Number(e.target.value))}
                                     onFocus={(e) => e.target.select()}
-                                    className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-lg font-mono text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-bold"
+                                    className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-lg font-mono text-slate-800 dark:text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-bold"
                                 />
                             </div>
                         ) : (
@@ -423,14 +423,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 <div className="p-5 bg-white/[0.02] rounded-xl border border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
                                     <div className="flex flex-col gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.actual_damage', '実際に受けたダメージ (軽減後)')}</label>
+                                            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">{t('modal.actual_damage', '実際に受けたダメージ (軽減後)')}</label>
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
                                                     value={calcActualDamage}
                                                     onChange={(e) => setCalcActualDamage(Number(e.target.value))}
                                                     onFocus={(e) => e.target.select()}
-                                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-lg font-mono focus:border-blue-500/50 outline-none text-white drop-shadow-sm transition-all"
+                                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-lg font-mono focus:border-blue-500/50 outline-none text-slate-800 dark:text-white drop-shadow-sm transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
@@ -438,15 +438,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                                         <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                                             <span className="text-xs font-bold text-blue-300 uppercase tracking-widest">{t('modal.calculated_raw', '推計Rawダメージ:')}</span>
-                                            <span className="text-xl font-mono font-bold text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
+                                            <span className="text-xl font-mono font-bold text-slate-800 dark:text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <label className="block text-xs font-medium text-slate-400">{t('modal.calc_mitigations', '使用された軽減・バリア (選択)')}</label>
-                                        <span className="text-[10px] text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
+                                        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400">{t('modal.calc_mitigations', '使用された軽減・バリア (選択)')}</label>
+                                        <span className="text-[10px] text-slate-500 bg-slate-900/ dark:bg-white/ px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
                                     </div>
                                     <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 bg-black/20 rounded-xl border border-white/5 custom-scrollbar shadow-inner">
                                         {sortedMitigations.map((mit) => (
@@ -459,7 +459,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95
                                                     ${selectedMitigations.includes(mit.id)
                                                         ? 'bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30'
-                                                        : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 opacity-60 hover:opacity-100'}
+                                                        : 'bg-slate-900/ dark:bg-white/ border-white/10 hover:bg-slate-900/ dark:hover:bg-white/ hover:border-white/20 opacity-60 hover:opacity-100'}
                                                 `}
                                             >
                                                 <img src={mit.icon} alt={mit.name} className="w-7 h-7 object-contain drop-shadow" />
@@ -491,7 +491,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         <button
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider"
                         >
                             <Save size={16} />
                             {t('common.save', 'SAVE')}

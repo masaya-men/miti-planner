@@ -57,14 +57,14 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
             className="w-[280px] bg-[#1a1b1e] border border-white/10 rounded-lg shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5">
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-900/ dark:bg-white/ border-b border-white/5">
                 <div className="flex items-center gap-2">
-                    <Settings size={14} className="text-slate-400" />
-                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">AA Settings</span>
+                    <Settings size={14} className="text-slate-600 dark:text-slate-400" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">AA Settings</span>
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-slate-500 hover:text-white transition-colors"
+                    className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors"
                 >
                     <X size={14} />
                 </button>
@@ -75,7 +75,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Target */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target</label>
+                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Target</label>
                     <div className="flex bg-black/30 p-1 rounded-md border border-white/5">
                         {['MT', 'ST'].map((target) => (
                             <button
@@ -84,7 +84,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                     "flex-1 py-1 px-2 text-xs font-bold rounded transition-colors",
                                     settings.target === target
                                         ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                        : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                                        : "text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-900/ dark:hover:bg-white/"
                                 )}
                                 onClick={() => handleChange('target', target)}
                             >
@@ -97,10 +97,10 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Damage</label>
+                        <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Damage</label>
                         <div className="group relative">
                             <Info size={12} className="text-slate-600 cursor-help" />
-                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-slate-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-slate-700 dark:text-slate-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {t('aa_settings.help_text', 'バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。')}
                             </div>
                         </div>
@@ -110,14 +110,14 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-black/30 border border-white/10 rounded-md px-3 py-1.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors"
+                        className="w-full bg-black/30 border border-white/10 rounded-md px-3 py-1.5 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>
 
                 {/* Damage Type */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Type</label>
+                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Type</label>
                     <div className="flex gap-2">
                         {[
                             { id: 'physical', label: 'Phys', icon: '/icons/type_phys.png', color: 'text-orange-300' },
@@ -130,7 +130,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                     "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1",
                                     settings.type === type.id
                                         ? `bg-blue-500/10 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.2)]`
-                                        : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"
+                                        : "bg-slate-900/ dark:bg-white/ border-white/5 hover:bg-slate-900/ dark:hover:bg-white/ hover:border-white/10"
                                 )}
                                 onClick={() => handleChange('type', type.id)}
                             >

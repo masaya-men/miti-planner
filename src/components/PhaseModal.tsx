@@ -87,26 +87,26 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         style={style}
                     >
                         {/* Mobile Drag Handle Indicator */}
-                        {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 shrink-0" />}
+                        {isMobile && <div className="w-12 h-1 bg-slate-900/ dark:bg-white/ rounded-full mx-auto mt-3 shrink-0" />}
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 shrink-0">
-                            <h2 className="text-sm font-bold text-slate-200">
+                            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">
                                 {isEdit ? t('timeline.edit_phase') : t('timeline.new_phase')}
                             </h2>
-                            <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
+                            <button onClick={onClose} className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors p-1 rounded hover:bg-slate-900/ dark:hover:bg-white/">
                                 <X size={16} />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('timeline.phase')}</label>
+                                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">{t('timeline.phase')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                    className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
                                     placeholder={t('timeline.enter_phase_name')}
                                     autoFocus
                                 />
@@ -131,13 +131,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors text-xs font-medium"
+                                        className="px-4 py-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/ rounded-md transition-colors text-xs font-medium"
                                     >
                                         {t('common.cancel', 'キャンセル')}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
+                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
                                     >
                                         {t('common.ok', 'OK')}
                                     </button>

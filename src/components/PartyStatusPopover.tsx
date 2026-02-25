@@ -96,13 +96,13 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
 
     return createPortal(
         <div className={clsx(
-            "fixed inset-0 z-[9999] transition-all duration-300",
-            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none invisible"
+            "fixed inset-0 z-[9999]",
+            isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
             <div
                 className={clsx(
-                    "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
+                    "absolute inset-0 bg-glass-panel backdrop-blur-sm transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}
@@ -112,7 +112,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-[#020203] border-r border-white/[0.08] shadow-2xl flex flex-col transition-transform duration-300 ease-out glass-panel overflow-y-auto",
+                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-glass-panel border-r border-glass-border shadow-glass flex flex-col transition-transform duration-300 ease-out glass-panel overflow-y-auto",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
@@ -287,7 +287,7 @@ const renderSkillItem = (skillName: string, tankRep: any, healerRep: any, conten
             {iconUrl ? (
                 <img src={iconUrl} alt={displayName} className="w-[20px] h-[20px] rounded-sm opacity-90" />
             ) : (
-                <div className="w-[20px] h-[20px] bg-white/10 rounded-sm flex items-center justify-center text-[9px] text-white/50">?</div>
+                <div className="w-[20px] h-[20px] bg-slate-900/ dark:bg-white/ rounded-sm flex items-center justify-center text-[9px] text-slate-800 dark:text-white/50">?</div>
             )}
             <span className="font-mono text-app-accent-primary font-bold text-[9px] tracking-tight leading-none">
                 {value.toLocaleString()}
