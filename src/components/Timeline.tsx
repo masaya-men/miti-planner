@@ -41,6 +41,7 @@ interface MitigationItemProps {
     activeMitigations: AppliedMitigation[];
     schAetherflowPattern: 1 | 2;
     overlapOffset?: number;
+    recastHeight?: number;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -118,7 +119,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0
+        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight
     } = props;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
@@ -136,7 +137,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     // Calculate visualization metrics
     const durationHeight = height;
     const recast = def?.recast || def?.cooldown || 0;
-    const recastPx = recast * pixelsPerSecond;
+    const recastPx = recastHeight ?? (recast * pixelsPerSecond);
 
     // Direct DOM update for drag position (no React re-render)
     const updateDragPosition = (dy: number, animateSnap: boolean = false) => {
@@ -1394,11 +1395,34 @@ export const Timeline: React.FC = () => {
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
 
                                                     const offsetTime = showPreStart ? -10 : 0;
+
+                                                    // Realize visual height mapping: 5s duration should visually span 4 intervals (t to t+4) but reach the BOTTOM of that cell (+24px)
+                                                    const durationSeconds = Math.max(1, mitigation.duration);
+                                                    const durationEndTime = mitigation.time + durationSeconds - 1;
                                                     const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
-                                                    const endY = timeToYMap.get(mitigation.time + mitigation.duration) ?? (Math.max(0, mitigation.time + mitigation.duration - offsetTime) * pixelsPerSecond);
+
+                                                    // Map functions for future extrapolated times (recast lines often extend past mapped phases)
+                                                    const gridKeys = Array.from(timeToYMap.keys());
+                                                    const maxGridTime = gridKeys.length > 0 ? Math.max(...gridKeys) : 0;
+                                                    const maxGridY = timeToYMap.get(maxGridTime) ?? 0;
+                                                    const getMappedY = (t: number) => {
+                                                        if (timeToYMap.has(t)) return timeToYMap.get(t)!;
+                                                        if (t > maxGridTime) return maxGridY + (t - maxGridTime) * pixelsPerSecond;
+                                                        return Math.max(0, t - offsetTime) * pixelsPerSecond;
+                                                    };
+
+                                                    // Add 24px so the line hits the bottom border of the target row
+                                                    const endY = getMappedY(durationEndTime) + 24;
+
+                                                    // Similarly, recalculate recast taking hidden rows into account
+                                                    const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
+                                                    const recast = def?.recast || def?.cooldown || 0;
+                                                    const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
+                                                    const recastEndY = getMappedY(recastEndTime) + 24;
+                                                    const calculatedRecastHeight = Math.max(0, recastEndY - startY);
 
                                                     const top = startY;
-                                                    const height = Math.max(0, endY - startY);
+                                                    const height = Math.max(0, Math.round(endY - startY));
 
                                                     const absoluteLeft = colStart + 2 + candidateLeft;
 
@@ -1411,6 +1435,7 @@ export const Timeline: React.FC = () => {
                                                             onUpdateTime={updateMitigationTime}
                                                             top={top}
                                                             height={height}
+                                                            recastHeight={calculatedRecastHeight}
                                                             left={absoluteLeft}
                                                             laneIndex={candidateLeft / PLACEMENT_STEP}
                                                             partySortOrder={partySortOrder}
