@@ -24,6 +24,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const [damageAmount, setDamageAmount] = useState<number>(0);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
 
+    // Mobile Detection
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // ... (rest of logic same until return)
 
     useEffect(() => {
@@ -228,22 +237,32 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         onClose();
     };
 
+    const handleBackdropClick = () => {
+        if (name.trim()) {
+            onSave({ name, time, damageType, damageAmount, target });
+        }
+        onClose();
+    };
+
     // Right-side positioning logic (offset by 20px from cursor)
     const x = position ? Math.min(position.x + 20, window.innerWidth - 520) : '50%';
     const y = position ? Math.min(position.y, window.innerHeight - 600) : '50%'; // Approx height
-    const style = position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' };
+    const style = isMobile ? { maxHeight: '85vh', bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' } : (position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' });
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
+        <div className="fixed inset-0 z-[9999] text-left pointer-events-none display-flex flex-col justify-end">
             {/* Transparent Backdrop */}
-            <div className="absolute inset-0 bg-transparent pointer-events-auto" onClick={onClose} />
+            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute bg-[#020203] border border-white/[0.08] rounded-xl shadow-2xl w-[500px] overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto"
+                className={`absolute bg-[#020203] border border-white/[0.08] shadow-2xl overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto transition-transform duration-100 flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[500px] rounded-xl'}`}
                 style={style}
             >
-                <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50">
+                {/* Mobile Drag Handle Indicator */}
+                {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 shrink-0" />}
+
+                <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
                     <h2 className="text-sm font-bold text-slate-200">
                         {initialData ? 'イベント編集' : 'イベント追加'}
                     </h2>
@@ -442,9 +461,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50"
+                                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
                             >
-                                保存
+                                OK
                             </button>
                         </div>
                     </div>

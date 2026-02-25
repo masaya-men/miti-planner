@@ -14,7 +14,7 @@ import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 
@@ -291,7 +291,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
             <div
                 className={clsx(
                     "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform bg-black/50 overflow-hidden border border-white/20 pointer-events-auto",
-                    useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
+                    useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
                 )}
                 onContextMenu={handleContextMenu}
                 onPointerDown={handlePointerDown}
@@ -319,7 +319,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                     colors.bg,
                     colors.border,
                     colors.shadow,
-                    useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
+                    useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
                 )}
                 style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
             ></div>
@@ -329,7 +329,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                 <div
                     className={clsx(
                         "w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none",
-                        useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
+                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
                     )}
                     style={{
                         top: `${20 + Math.max(0, durationHeight - 33)}px`,
@@ -350,12 +350,21 @@ export const Timeline: React.FC = () => {
     // memberLayout moved to after sortedPartyMembers definition
 
     const {
-        timelineEvents, addEvent, updateEvent, removeEvent,
-        phases, addPhase, updatePhase, removePhase,
-        partyMembers, timelineMitigations, addMitigation, removeMitigation, updateMitigationTime,
+        addEvent, updateEvent, removeEvent, addMitigation,
         setMemberJob,
         aaSettings, setAaSettings,
-        schAetherflowPatterns, setSchAetherflowPattern
+        schAetherflowPatterns, setSchAetherflowPattern,
+        partyMembers,
+        timelineMitigations,
+        timelineEvents,
+        removeMitigation,
+        updateMitigationTime,
+        addPhase,
+        updatePhase,
+        removePhase,
+        phases,
+        myJobHighlight,
+        setMyJobHighlight
     } = useMitigationStore();
 
     // Modal State
@@ -886,52 +895,82 @@ export const Timeline: React.FC = () => {
                     {/* Status Popover */}
                     <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
 
-                    {/* Sorting Controls */}
-                    <div className="flex items-center gap-3 px-4 py-2 bg-black/50 rounded-2xl border border-white/15 relative shadow-inner">
-                        <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+                    <div className="flex items-center gap-3">
+                        {/* My Job Highlight Toggle */}
+                        <button
+                            onClick={() => setMyJobHighlight(!myJobHighlight)}
+                            className={clsx(
+                                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                myJobHighlight
+                                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-100 shadow-[inset_0_1px_0_rgba(250,204,21,0.2)]"
+                                    : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
+                            )}
+                            title={t('party.my_job_select')}
+                        >
+                            {myJobHighlight ? (
+                                <Eye size={14} className="text-yellow-400" />
+                            ) : (
+                                <EyeOff size={14} className="text-slate-400 group-hover/btn:text-slate-300" />
+                            )}
+                            <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">MY JOB HIGHLIGHT</span>
+                            <div className={clsx(
+                                "w-7 h-4 rounded-full flex items-center p-0.5 transition-colors ml-1",
+                                myJobHighlight ? "bg-yellow-500" : "bg-white/20"
+                            )}>
+                                <div className={clsx(
+                                    "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
+                                    myJobHighlight ? "translate-x-3" : "translate-x-0"
+                                )} />
+                            </div>
+                        </button>
 
-                        <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
+                        {/* Sorting Controls */}
+                        <div className="flex items-center gap-3 px-4 py-2 bg-black/50 rounded-2xl border border-white/15 relative shadow-inner">
+                            <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
+                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+
+                            <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
+                                <button
+                                    onClick={() => setPartySortOrder('light_party')}
+                                    className={clsx(
+                                        "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                        partySortOrder === 'light_party'
+                                            ? "bg-white/25 text-white border-white/40 shadow-sm"
+                                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                                    )}
+                                >
+                                    LIGHT PARTY
+                                </button>
+                                <div className="w-[1px] h-4 bg-white/15 my-auto" />
+                                <button
+                                    onClick={() => setPartySortOrder('role')}
+                                    className={clsx(
+                                        "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                        partySortOrder === 'role'
+                                            ? "bg-white/25 text-white border-white/40 shadow-sm"
+                                            : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                                    )}
+                                >
+                                    Role Order
+                                </button>
+                            </div>
+
+                            {/* Hide Empty Rows Toggle */}
+                            <div className="w-[1px] h-4 bg-white/15 my-auto mx-1" />
                             <button
-                                onClick={() => setPartySortOrder('light_party')}
+                                onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                 className={clsx(
-                                    "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                    partySortOrder === 'light_party'
-                                        ? "bg-white/25 text-white border-white/40 shadow-sm"
+                                    "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                    useMitigationStore.getState().hideEmptyRows
+                                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm"
                                         : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
                                 )}
+                                title="Toggle Empty Rows"
                             >
-                                LIGHT PARTY
-                            </button>
-                            <div className="w-[1px] h-4 bg-white/15 my-auto" />
-                            <button
-                                onClick={() => setPartySortOrder('role')}
-                                className={clsx(
-                                    "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                    partySortOrder === 'role'
-                                        ? "bg-white/25 text-white border-white/40 shadow-sm"
-                                        : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
-                                )}
-                            >
-                                Role Order
+                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-400"} />
+                                COMPACT
                             </button>
                         </div>
-
-                        {/* Hide Empty Rows Toggle */}
-                        <div className="w-[1px] h-4 bg-white/15 my-auto mx-1" />
-                        <button
-                            onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
-                            className={clsx(
-                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                useMitigationStore.getState().hideEmptyRows
-                                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm"
-                                    : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
-                            )}
-                            title="Toggle Empty Rows"
-                        >
-                            <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-400"} />
-                            COMPACT
-                        </button>
                     </div>
                 </div>
 

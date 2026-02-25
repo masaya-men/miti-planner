@@ -20,6 +20,7 @@ interface MitigationState {
     schAetherflowPatterns: Record<string, 1 | 2>;
     // UI State
     myMemberId: string | null;
+    myJobHighlight: boolean;
     hideEmptyRows: boolean;
 
     // Actions
@@ -40,6 +41,7 @@ interface MitigationState {
 
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
+    setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
 }
 
@@ -99,9 +101,11 @@ export const useMitigationStore = create<MitigationState>()(
                 },
                 schAetherflowPatterns: {} as Record<string, 1 | 2>,
                 myMemberId: null,
+                myJobHighlight: true,
                 hideEmptyRows: false,
 
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
+                setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
 
                 addEvent: (event) => set((state) => ({

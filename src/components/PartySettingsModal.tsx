@@ -1,11 +1,9 @@
 import React from 'react';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { JOBS } from '../data/mockData';
-import { X, User, Trash2 } from 'lucide-react';
+import { User, Trash2, Star } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
-
 interface PartySettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -39,8 +37,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         };
     }, [isOpen, onClose]);
 
-    if (!isOpen) return null;
-
+    // Removed conditional return null to ensure pre-mounting
     // Standard Light Party Grouping
     // MtGroup: MT(0), H1(2), D1(4), D3(6)
     // StGroup: ST(1), H2(3), D2(5), D4(7)
@@ -155,41 +152,55 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <div
                                 key={member.id}
                                 className={clsx(
-                                    "aspect-square rounded-lg flex flex-col items-center justify-center relative group cursor-pointer transition-all duration-300 overflow-hidden",
+                                    "h-12 rounded-lg flex flex-col items-center justify-center relative group transition-all duration-300 overflow-hidden",
                                     job
-                                        ? `${activeClass} hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]`
+                                        ? `${activeClass} hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]`
                                         : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
                                 )}
-                                onClick={() => job && handleRemoveJob(member.id)}
                             >
-                                <span className={clsx("absolute top-0.5 left-1 text-[8px] font-black tracking-widest opacity-40 z-0",
+                                <span className={clsx("absolute top-1 left-1.5 text-[8px] font-black tracking-widest opacity-40 z-0",
                                     member.role === 'tank' ? 'text-blue-200' :
                                         member.role === 'healer' ? 'text-green-200' : 'text-red-200'
                                 )}>{member.id}</span>
 
                                 {job ? (
                                     <>
-                                        <div className="z-10 relative filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] flex flex-col items-center">
-                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain" />
-                                            {useMitigationStore.getState().myMemberId === member.id && (
-                                                <span className="absolute -bottom-3 text-[7px] text-yellow-300 font-bold tracking-widest bg-black/60 px-1 rounded">MY JOB</span>
-                                            )}
+                                        {/* My Job Toggle Star */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                useMitigationStore.getState().myMemberId === member.id
+                                                    ? useMitigationStore.getState().setMyMemberId(null)
+                                                    : useMitigationStore.getState().setMyMemberId(member.id);
+                                            }}
+                                            className="absolute top-1 right-1 z-30 p-1"
+                                            title="Set as My Job"
+                                        >
+                                            <Star
+                                                size={12}
+                                                className={clsx(
+                                                    "transition-colors",
+                                                    useMitigationStore.getState().myMemberId === member.id
+                                                        ? "text-yellow-400 fill-yellow-400 opacity-100 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"
+                                                        : "text-white/20 hover:text-yellow-100 opacity-0 group-hover:opacity-100"
+                                                )}
+                                            />
+                                        </button>
+
+                                        <div className="z-10 relative filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)] flex flex-col items-center pointer-events-none mt-1">
+                                            <img src={job.icon} alt={job.name} className="w-5 h-5 object-contain" />
                                         </div>
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity z-20 backdrop-blur-[1px] gap-1">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); useMitigationStore.getState().setMyMemberId(member.id); }}
-                                                className="text-[8px] font-bold text-yellow-400 bg-yellow-400/20 px-1.5 py-0.5 rounded border border-yellow-400/30 hover:bg-yellow-400/40 transition-colors"
-                                            >
-                                                SET MY JOB
-                                            </button>
-                                            <button onClick={(e) => { e.stopPropagation(); handleRemoveJob(member.id); }}>
-                                                <Trash2 size={14} className="text-white/90 drop-shadow-lg hover:text-red-400 transition-colors" />
+
+                                        {/* Delete Overlay */}
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity z-20 backdrop-blur-[1px]">
+                                            <button onClick={(e) => { e.stopPropagation(); handleRemoveJob(member.id); }} className="w-full h-full flex items-center justify-center pt-2">
+                                                <Trash2 size={16} className="text-white/90 drop-shadow-lg hover:text-red-400 transition-colors" />
                                             </button>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-white/10 text-[7px] tracking-widest font-light">SELECT</span>
+                                    <div className="w-full h-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => { }}>
+                                        <span className="text-white/20 text-[8px] tracking-widest font-light">SELECT</span>
                                     </div>
                                 )}
                             </div>
@@ -212,52 +223,59 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     // Use createPortal like PartyStatusPopover
     // Fixed position: top-24 left-4 (based on timeline button pos)
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-[9999] pointer-events-none">
-                    {/* No backdrop, just content */}
-                    <div ref={popoverRef} className="pointer-events-auto fixed top-24 left-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            className="bg-[#020203] border border-white/[0.08] rounded-xl shadow-2xl w-[650px] flex flex-col overflow-hidden ring-1 ring-white/5 glass-panel"
-                        >
-                            {/* Header */}
-                            <div className="flex justify-between items-center px-4 py-2 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-1.5 bg-blue-500/10 rounded-lg">
-                                        <User className="text-blue-500" size={14} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">{t('party.configuration_title')}</h2>
-                                        <p className="text-[9px] text-slate-500">{t('party.configuration_description')}</p>
-                                    </div>
-                                </div>
-                                <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1">
-                                    <X size={16} />
-                                </button>
-                            </div>
+        <div className={clsx(
+            "fixed inset-0 z-[9999] transition-all duration-300",
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none invisible"
+        )}>
+            {/* Backdrop */}
+            <div
+                className={clsx(
+                    "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
+                    isOpen ? "opacity-100" : "opacity-0"
+                )}
+                onClick={onClose}
+            />
 
-                            {/* Content */}
-                            <div className="p-3 flex gap-3 bg-[#020203]/80">
-                                {renderGroup("MT Group", mtGroupIndices)}
-                                {renderGroup("ST Group", stGroupIndices)}
-                            </div>
-
-                            {/* Footer */}
-                            <div className="px-3 py-2 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end flex-shrink-0">
-                                <button
-                                    onClick={onClose}
-                                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-[10px] shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all"
-                                >
-                                    OK
-                                </button>
-                            </div>
-                        </motion.div>
+            {/* Slide-Over Panel (Left) */}
+            <div
+                ref={popoverRef}
+                className={clsx(
+                    "absolute top-0 left-0 h-full w-[400px] max-w-full bg-[#020203] border-r border-white/[0.08] shadow-2xl flex flex-col transition-transform duration-300 ease-out glass-panel",
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                )}
+            >
+                {/* Header */}
+                <div className="flex justify-between items-center px-5 py-4 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/10 rounded-xl">
+                            <User className="text-blue-500" size={16} />
+                        </div>
+                        <div>
+                            <h2 className="text-xs font-bold text-slate-200 uppercase tracking-wider">{t('party.configuration_title', 'パーティ構成設定')}</h2>
+                            <p className="text-[9px] text-slate-500">{t('party.configuration_description', 'パーティ構成とグループを管理します')}</p>
+                            <p className="text-[9px] text-yellow-500/90 font-bold mt-1 flex items-center gap-1 bg-yellow-500/10 w-fit px-1.5 py-0.5 rounded">
+                                <Star size={10} className="fill-yellow-500/80" /> {t('party.my_job_instruction', 'スロット右上の星をタップして自ジョブに設定')}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            )}
-        </AnimatePresence>
+
+                {/* Content */}
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-2 bg-[#020203]/80">
+                    {renderGroup("MT Group", mtGroupIndices)}
+                    {renderGroup("ST Group", stGroupIndices)}
+                </div>
+
+                {/* Footer */}
+                <div className="px-5 py-3 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end flex-shrink-0 items-center">
+                    <button
+                        onClick={onClose}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:scale-105 active:scale-95"
+                    >
+                        {t('common.ok', 'OK')}
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 };

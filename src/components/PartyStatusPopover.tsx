@@ -5,6 +5,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
 import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import clsx from 'clsx';
 
 interface PartyStatusPopoverProps {
     isOpen: boolean;
@@ -94,136 +95,156 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const healerRep = partyMembers.find(m => m.role === 'healer');
 
     return createPortal(
-        <div
-            ref={popoverRef}
-            className="fixed top-24 left-48 w-[340px] glass-panel rounded-xl shadow-2xl p-3 z-[9999] max-h-[85vh] overflow-y-auto ring-1 ring-white/5"
-        >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-3 border-b border-white/[0.03] pb-2">
-                <h3 className="text-app-text-primary font-bold flex items-center gap-2 text-xs uppercase tracking-wider">
-                    <Shield size={14} className="text-app-accent-primary" />
-                    {t('party.settings_title')}
-                </h3>
-                <button onClick={onClose} className="text-app-text-muted hover:text-app-text-primary transition-colors">
-                    <X size={14} />
-                </button>
-            </div>
+        <div className={clsx(
+            "fixed inset-0 z-[9999] transition-all duration-300",
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none invisible"
+        )}>
+            {/* Backdrop */}
+            <div
+                className={clsx(
+                    "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
+                    isOpen ? "opacity-100" : "opacity-0"
+                )}
+                onClick={onClose}
+            />
 
-            <div className="space-y-3">
-                {/* Role Settings Group */}
-                <div className="space-y-2">
-                    {/* Tank Settings */}
-                    <div className="bg-blue-500/[0.03] border border-blue-500/10 rounded-lg p-2">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                                <h4 className="text-[9px] font-bold text-blue-200 uppercase tracking-wider opacity-90">TANK</h4>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <label className="text-[9px] uppercase tracking-wider text-app-text-muted">HP</label>
-                                <FormattedNumberInput
-                                    value={tankRep?.stats.hp || 0}
-                                    onChange={(val) => updateTankHP(val)}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-blue-500/30 focus:outline-none focus:ring-1 focus:ring-blue-500/10 font-mono transition-all"
-                                />
-                            </div>
-                        </div>
+            {/* Slide-Over Panel */}
+            <div
+                ref={popoverRef}
+                className={clsx(
+                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-[#020203] border-r border-white/[0.08] shadow-2xl flex flex-col transition-transform duration-300 ease-out glass-panel overflow-y-auto",
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                )}
+            >
+                <div className="p-4 flex-1">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-3 border-b border-white/[0.03] pb-2">
+                        <h3 className="text-app-text-primary font-bold flex items-center gap-2 text-xs uppercase tracking-wider">
+                            <Shield size={14} className="text-app-accent-primary" />
+                            {t('party.settings_title')}
+                        </h3>
+                        <button onClick={onClose} className="text-app-text-muted hover:text-app-text-primary transition-colors">
+                            <X size={14} />
+                        </button>
                     </div>
 
-                    {/* Healer Settings */}
-                    <div className="bg-green-500/[0.03] border border-green-500/10 rounded-lg p-2">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
-                            <h4 className="text-[9px] font-bold text-green-200 uppercase tracking-wider opacity-90">HEALER</h4>
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[9px] uppercase tracking-wider text-app-text-muted">HP</label>
-                                <FormattedNumberInput
-                                    value={healerRep?.stats.hp || 0}
-                                    onChange={(val) => updateHealerHP(val)}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <label className="text-[9px] uppercase tracking-wider text-app-text-muted">WD</label>
-                                <FormattedNumberInput
-                                    value={healerRep?.stats.wd || 0}
-                                    onChange={(val) => updateHealerStats({ wd: val })}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <label className="text-[9px] uppercase tracking-wider text-app-text-muted">MND</label>
-                                <FormattedNumberInput
-                                    value={healerRep?.stats.mainStat || 0}
-                                    onChange={(val) => updateHealerStats({ mainStat: val })}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <label className="text-[9px] uppercase tracking-wider text-app-text-muted">DET</label>
-                                <FormattedNumberInput
-                                    value={healerRep?.stats.det || 0}
-                                    onChange={(val) => updateHealerStats({ det: val })}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Skill Value Preview List */}
-                <div className="space-y-1 border-t border-white/[0.03] pt-2">
-                    <h4 className="text-[9px] uppercase tracking-widest text-app-text-muted font-bold px-1 mb-1">{t('settings.shield_preview')}</h4>
-
-                    <div className="space-y-1">
-                        {/* Top Row: Tank (4 cols) and DPS (2 cols) */}
-                        <div className="flex gap-1">
-                            {/* Tank Group */}
-                            <div className="flex-[4]">
-                                <h5 className="text-[8px] font-bold text-blue-400 opacity-80 pl-1 mb-0.5">TANK</h5>
-                                <div className="grid grid-cols-4 gap-1">
-                                    {[
-                                        "ディヴァインヴェール",
-                                        "シェイクオフ",
-                                        "原初の血気",
-                                        "ブラックナイト",
-                                    ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                    <div className="space-y-3">
+                        {/* Role Settings Group */}
+                        <div className="space-y-2">
+                            {/* Tank Settings */}
+                            <div className="bg-blue-500/[0.03] border border-blue-500/10 rounded-lg p-2">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+                                        <h4 className="text-[9px] font-bold text-blue-200 uppercase tracking-wider opacity-90">TANK</h4>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-[9px] uppercase tracking-wider text-app-text-muted">HP</label>
+                                        <FormattedNumberInput
+                                            value={tankRep?.stats.hp || 0}
+                                            onChange={(val) => updateTankHP(val)}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-blue-500/30 focus:outline-none focus:ring-1 focus:ring-blue-500/10 font-mono transition-all"
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                            {/* DPS Group */}
-                            <div className="flex-[2]">
-                                <h5 className="text-[8px] font-bold text-red-400 opacity-80 pl-1 mb-0.5">DPS</h5>
-                                <div className="grid grid-cols-2 gap-1">
-                                    {[
-                                        "インプロビゼーション",
-                                        "テンペラグラッサ",
-                                    ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+
+                            {/* Healer Settings */}
+                            <div className="bg-green-500/[0.03] border border-green-500/10 rounded-lg p-2">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+                                    <h4 className="text-[9px] font-bold text-green-200 uppercase tracking-wider opacity-90">HEALER</h4>
+                                </div>
+                                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[9px] uppercase tracking-wider text-app-text-muted">HP</label>
+                                        <FormattedNumberInput
+                                            value={healerRep?.stats.hp || 0}
+                                            onChange={(val) => updateHealerHP(val)}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[9px] uppercase tracking-wider text-app-text-muted">WD</label>
+                                        <FormattedNumberInput
+                                            value={healerRep?.stats.wd || 0}
+                                            onChange={(val) => updateHealerStats({ wd: val })}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[9px] uppercase tracking-wider text-app-text-muted">MND</label>
+                                        <FormattedNumberInput
+                                            value={healerRep?.stats.mainStat || 0}
+                                            onChange={(val) => updateHealerStats({ mainStat: val })}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[9px] uppercase tracking-wider text-app-text-muted">DET</label>
+                                        <FormattedNumberInput
+                                            value={healerRep?.stats.det || 0}
+                                            onChange={(val) => updateHealerStats({ det: val })}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-20 bg-black/40 border border-white/5 rounded px-1.5 py-0.5 text-right text-app-text-primary text-[10px] focus:border-green-500/30 focus:outline-none focus:ring-1 focus:ring-green-500/10 font-mono transition-all"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Bottom Row: Healer (6 cols) */}
-                        <div>
-                            <h5 className="text-[8px] font-bold text-green-400 opacity-80 pl-1 mb-0.5">HEALER</h5>
-                            <div className="grid grid-cols-6 gap-1">
-                                {[
-                                    "ディヴァインカレス",
-                                    "秘策：展開戦術",
-                                    "コンソレイション",
-                                    "アクセッション",
-                                    "ホーリズム",
-                                    "パンハイマ",
-                                    "鼓舞激励の策",
-                                    "意気軒昂の策",
-                                    "エウクラシア・プログノシスII",
-                                ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                        {/* Skill Value Preview List */}
+                        <div className="space-y-1 border-t border-white/[0.03] pt-2">
+                            <h4 className="text-[9px] uppercase tracking-widest text-app-text-muted font-bold px-1 mb-1">{t('settings.shield_preview')}</h4>
+
+                            <div className="space-y-1">
+                                {/* Top Row: Tank (4 cols) and DPS (2 cols) */}
+                                <div className="flex gap-1">
+                                    {/* Tank Group */}
+                                    <div className="flex-[4]">
+                                        <h5 className="text-[8px] font-bold text-blue-400 opacity-80 pl-1 mb-0.5">TANK</h5>
+                                        <div className="grid grid-cols-4 gap-1">
+                                            {[
+                                                "ディヴァインヴェール",
+                                                "シェイクオフ",
+                                                "原初の血気",
+                                                "ブラックナイト",
+                                            ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                        </div>
+                                    </div>
+                                    {/* DPS Group */}
+                                    <div className="flex-[2]">
+                                        <h5 className="text-[8px] font-bold text-red-400 opacity-80 pl-1 mb-0.5">DPS</h5>
+                                        <div className="grid grid-cols-2 gap-1">
+                                            {[
+                                                "インプロビゼーション",
+                                                "テンペラグラッサ",
+                                            ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Bottom Row: Healer (6 cols) */}
+                                <div>
+                                    <h5 className="text-[8px] font-bold text-green-400 opacity-80 pl-1 mb-0.5">HEALER</h5>
+                                    <div className="grid grid-cols-6 gap-1">
+                                        {[
+                                            "ディヴァインカレス",
+                                            "秘策：展開戦術",
+                                            "コンソレイション",
+                                            "アクセッション",
+                                            "ホーリズム",
+                                            "パンハイマ",
+                                            "鼓舞激励の策",
+                                            "意気軒昂の策",
+                                            "エウクラシア・プログノシスII",
+                                        ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
