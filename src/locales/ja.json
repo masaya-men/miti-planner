@@ -52,13 +52,31 @@
         "st": "ST",
         "cancel": "キャンセル",
         "save": "保存",
-        "delete": "削除"
+        "delete": "削除",
+        "enter_event_name": "イベント名を入力",
+        "reverse_calc": "ダメージ逆算機 (Beta)",
+        "actual_damage": "実際に受けたダメージ (軽減後)",
+        "calc_and_apply": "計算 & 登録",
+        "calc_overwrite_warning": "※ 適用すると上の「ダメージ量」が上書きされます",
+        "calc_mitigations": "使用された軽減・バリア (選択)",
+        "mode_direct": "直接入力 (Direct)",
+        "mode_reverse": "逆算入力 (Reverse)",
+        "calculated_raw": "推計Rawダメージ:"
     },
     "mitigation": {
         "select": "軽減スキル選択",
         "no_mitigations": "軽減スキルが見つかりません",
         "cd": "リキャスト",
-        "details": "軽減: {{mit}}%, バリア: {{shield}}"
+        "details": "軽減: {{mit}}%, バリア: {{shield}}",
+        "unavailable_dissipation": "転化中",
+        "unavailable_dissipation_dup": "転化重複不可",
+        "no_aetherflow": "AF不足",
+        "no_addersgall": "アダーガル不足",
+        "no_charges": "チャージ不足",
+        "cd_remaining": "CD残{{seconds}}s",
+        "next_at": "{{time}}sに配置済 ({{gap}}s間隔)",
+        "select_target": "対象を選択",
+        "no_skills": "このジョブの軽減スキルはありません。"
     },
     "settings": {
         "party_stats": "パーティステータス設定",

@@ -86,10 +86,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
     const getResourceStatus = (m: Mitigation): { available: boolean; warning?: boolean; message?: string; badge?: string; badgeColor?: string } => {
         // Fairy-dependent skill restrictions (Dissipation dismisses fairy)
         if (m.id === 'fey_illumination' && !isFairyAvailable(selectedTime, activeMitigations)) {
-            return { available: false, message: contentLanguage === 'en' ? 'Unavailable (Dissipation)' : '転化中' };
+            return { available: false, message: t('mitigation.unavailable_dissipation', 'Unavailable (Dissipation)') };
         }
         if (m.id === 'summon_seraph' && !canUseSummonSeraph(selectedTime, activeMitigations)) {
-            return { available: false, message: contentLanguage === 'en' ? 'Unavailable (Dissipation)' : '転化重複不可' };
+            return { available: false, message: t('mitigation.unavailable_dissipation_dup', 'Unavailable (Dissipation)') };
         }
 
         // Resource cost check (Aetherflow / Addersgall)
@@ -103,8 +103,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
             const badge = `×${stacks}`;
             if (stacks < m.resourceCost.amount) {
                 const label = m.resourceCost.type === 'aetherflow'
-                    ? (contentLanguage === 'en' ? 'No Aetherflow' : 'AF不足')
-                    : (contentLanguage === 'en' ? 'No Addersgall' : 'アダーガル不足');
+                    ? t('mitigation.no_aetherflow', 'No Aetherflow')
+                    : t('mitigation.no_addersgall', 'No Addersgall');
                 return { available: false, message: label, badge, badgeColor: 'red' };
             }
             // Resource available but still check cooldown below
@@ -115,7 +115,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
             const remaining = getRemainingCharges(m.id, selectedTime, activeMitigations);
             const badge = `${remaining}/${m.maxCharges}`;
             if (remaining <= 0) {
-                const label = contentLanguage === 'en' ? 'No charges' : 'チャージ不足';
+                const label = t('mitigation.no_charges', 'No charges');
                 return { available: false, message: label, badge, badgeColor: 'red' };
             }
             return { available: true, badge, badgeColor: remaining <= 1 ? 'amber' : 'cyan' };
@@ -134,7 +134,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 const cdEnd = lastPrev.time + m.cooldown;
                 if (selectedTime < cdEnd) {
                     const remaining = Math.ceil(cdEnd - selectedTime);
-                    const label = contentLanguage === 'en' ? `CD ${remaining}s` : `CD残${remaining}s`;
+                    const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
                     return { available: false, message: label };
                 }
             }
@@ -145,7 +145,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 const firstNext = nextUses[0];
                 if (selectedTime + m.cooldown > firstNext.time) {
                     const gap = Math.floor(firstNext.time - selectedTime);
-                    const label = contentLanguage === 'en' ? `Next at ${firstNext.time}s (${gap}s gap)` : `${firstNext.time}sに配置済 (${gap}s間隔)`;
+                    const label = t('mitigation.next_at', { time: firstNext.time, gap, defaultValue: `Next at ${firstNext.time}s (${gap}s gap)` });
                     // Get resource badge if applicable
                     const resourceBadge = m.resourceCost ? (() => {
                         let stacks = 0;

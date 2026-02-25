@@ -51,13 +51,31 @@
         "st": "ST",
         "cancel": "Cancel",
         "save": "Save",
-        "delete": "Delete"
+        "delete": "Delete",
+        "enter_event_name": "Enter event name",
+        "reverse_calc": "Reverse Calculator (Beta)",
+        "actual_damage": "Actual Damage Taken (After Mitigation)",
+        "calc_and_apply": "Calc & Save",
+        "calc_overwrite_warning": "* Applying will overwrite the Damage Amount above",
+        "calc_mitigations": "Mitigations Used (Select)",
+        "mode_direct": "Direct Input",
+        "mode_reverse": "Reverse Input",
+        "calculated_raw": "Estimated Raw Damage:"
     },
     "mitigation": {
         "select": "Select Mitigation",
         "no_mitigations": "No mitigations found",
         "cd": "CD",
-        "details": "Mitigation: {{mit}}%, Barrier: {{shield}}"
+        "details": "Mitigation: {{mit}}%, Barrier: {{shield}}",
+        "unavailable_dissipation": "Unavailable (Dissipation)",
+        "unavailable_dissipation_dup": "Unavailable (Dissipation)",
+        "no_aetherflow": "No Aetherflow",
+        "no_addersgall": "No Addersgall",
+        "no_charges": "No charges",
+        "cd_remaining": "CD {{seconds}}s",
+        "next_at": "Next at {{time}}s ({{gap}}s gap)",
+        "select_target": "Select Target",
+        "no_skills": "No mitigation skills available for this job."
     },
     "settings": {
         "party_stats": "Party Stats Settings",
