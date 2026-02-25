@@ -1,17 +1,18 @@
+
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { MITIGATIONS, getMitigationPriority } from '../data/mockData';
+import { MITIGATIONS, getMitigationPriority, JOBS } from '../data/mockData';
 import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
-import { getAetherflowStacks, getAddersgallStacks, canUseSummonSeraph, getRemainingCharges, isFairyAvailable } from '../utils/resourceTracker';
+import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelect: (mitigation: Mitigation) => void;
+    onSelect: (mitigation: Mitigation & { _targetId?: string }) => void;
     jobId: string | null;
     position: { x: number; y: number };
     activeMitigations?: AppliedMitigation[];
@@ -82,92 +83,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
 
     const allJobMitigations = jobId ? MITIGATIONS.filter(m => m.jobId === jobId) : [];
 
-    // Check resource availability for a mitigation
-    const getResourceStatus = (m: Mitigation): { available: boolean; warning?: boolean; message?: string; badge?: string; badgeColor?: string } => {
-        // Fairy-dependent skill restrictions (Dissipation dismisses fairy)
-        if (m.id === 'fey_illumination' && !isFairyAvailable(selectedTime, activeMitigations)) {
-            return { available: false, message: t('mitigation.unavailable_dissipation', 'Unavailable (Dissipation)') };
-        }
-        if (m.id === 'summon_seraph' && !canUseSummonSeraph(selectedTime, activeMitigations)) {
-            return { available: false, message: t('mitigation.unavailable_dissipation_dup', 'Unavailable (Dissipation)') };
-        }
-
-        // Resource cost check (Aetherflow / Addersgall)
-        if (m.resourceCost) {
-            let stacks = 0;
-            if (m.resourceCost.type === 'aetherflow') {
-                stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, activeMitigations);
-            } else if (m.resourceCost.type === 'addersgall') {
-                stacks = getAddersgallStacks(selectedTime, activeMitigations);
-            }
-            const badge = `×${stacks}`;
-            if (stacks < m.resourceCost.amount) {
-                const label = m.resourceCost.type === 'aetherflow'
-                    ? t('mitigation.no_aetherflow', 'No Aetherflow')
-                    : t('mitigation.no_addersgall', 'No Addersgall');
-                return { available: false, message: label, badge, badgeColor: 'red' };
-            }
-            // Resource available but still check cooldown below
-        }
-
-        // Charge check (maxCharges) — charge system handles cooldown internally
-        if (m.maxCharges) {
-            const remaining = getRemainingCharges(m.id, selectedTime, activeMitigations);
-            const badge = `${remaining}/${m.maxCharges}`;
-            if (remaining <= 0) {
-                const label = t('mitigation.no_charges', 'No charges');
-                return { available: false, message: label, badge, badgeColor: 'red' };
-            }
-            return { available: true, badge, badgeColor: remaining <= 1 ? 'amber' : 'cyan' };
-        }
-
-        // Cooldown check (non-charge skills only)
-        const sameSkillUses = activeMitigations
-            .filter(am => am.mitigationId === m.id)
-            .sort((a, b) => a.time - b.time);
-
-        if (sameSkillUses.length > 0) {
-            // Forward check: is the skill still on cooldown from a previous use?
-            const prevUses = sameSkillUses.filter(u => u.time < selectedTime);
-            if (prevUses.length > 0) {
-                const lastPrev = prevUses[prevUses.length - 1];
-                const cdEnd = lastPrev.time + m.cooldown;
-                if (selectedTime < cdEnd) {
-                    const remaining = Math.ceil(cdEnd - selectedTime);
-                    const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
-                    return { available: false, message: label };
-                }
-            }
-
-            // Backward check: would this placement's cooldown overlap with a future use?
-            const nextUses = sameSkillUses.filter(u => u.time > selectedTime);
-            if (nextUses.length > 0) {
-                const firstNext = nextUses[0];
-                if (selectedTime + m.cooldown > firstNext.time) {
-                    const gap = Math.floor(firstNext.time - selectedTime);
-                    const label = t('mitigation.next_at', { time: firstNext.time, gap, defaultValue: `Next at ${firstNext.time}s (${gap}s gap)` });
-                    // Get resource badge if applicable
-                    const resourceBadge = m.resourceCost ? (() => {
-                        let stacks = 0;
-                        if (m.resourceCost!.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, activeMitigations);
-                        else if (m.resourceCost!.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, activeMitigations);
-                        return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
-                    })() : {};
-                    return { available: true, warning: true, message: label, ...resourceBadge };
-                }
-            }
-        }
-
-        // If we have resource cost, return with badge (passed the resource check earlier)
-        if (m.resourceCost) {
-            let stacks = 0;
-            if (m.resourceCost.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, activeMitigations);
-            else if (m.resourceCost.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, activeMitigations);
-            const badge = `×${stacks}`;
-            return { available: true, badge, badgeColor: stacks <= 1 ? 'amber' : 'cyan' };
-        }
-
-        return { available: true };
+    // Check resource availability for a mitigation using shared logic
+    const getResourceStatus = (m: Mitigation) => {
+        return validateMitigationPlacement(m, selectedTime, activeMitigations, schAetherflowPattern, t);
     };
 
     // Identify Single Target Buffs that can be thrown to others
@@ -200,7 +118,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
             // The cleanest way without changing Mitigation type is to cast/extend it here,
             // but the parent `onSelect` expects Mitigation. 
             // Let's modify onSelect to take an optional targetId.
-            onSelect({ ...selectedSingleTargetMit, _targetId: targetId } as any);
+            onSelect({ ...selectedSingleTargetMit, _targetId: targetId });
         }
     };
 
@@ -228,7 +146,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                 {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
                     <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">
-                        {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択') : t('mitigation.select')}
+                        {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
                     <button onClick={handleClose} className="text-app-text-muted hover:text-white transition-colors">
                         <X size={14} />
@@ -309,23 +227,26 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                     </div>
                 ) : (
                     // Target Selection View
-                    <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1 shrink">
-                        {partyMembers.map((member: import('../types').PartyMember) => (
-                            <button
-                                key={member.id}
-                                onClick={() => handleTargetSelect(member.id)}
-                                className="flex flex-col items-center justify-center p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors"
-                            >
-                                <span className={`text-[10px] font-black tracking-widest mb-1 ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
-                                    {member.id}
-                                </span>
-                                {member.jobId ? (
-                                    <img src={`/icons/${member.jobId}.png`} alt={member.jobId} className="w-6 h-6 object-contain opacity-90" />
-                                ) : (
-                                    <div className="w-6 h-6 rounded-full bg-white/10" />
-                                )}
-                            </button>
-                        ))}
+                    <div className="flex flex-col gap-2 overflow-y-auto pr-1 shrink">
+                        {partyMembers.map((member: import('../types').PartyMember) => {
+                            const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+                            return (
+                                <button
+                                    key={member.id}
+                                    onClick={() => handleTargetSelect(member.id)}
+                                    className="flex items-center gap-4 p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors"
+                                >
+                                    {job ? (
+                                        <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded bg-white/10 border border-white/20" />
+                                    )}
+                                    <span className={`text-sm font-black tracking-widest ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
+                                        {member.id}
+                                    </span>
+                                </button>
+                            );
+                        })}
                     </div>
                 )}
             </div>

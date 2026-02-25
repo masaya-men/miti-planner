@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 import { motion } from 'framer-motion';
@@ -14,9 +14,12 @@ import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, Upload } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
+import { generateAutoPlan } from '../utils/autoPlanner';
+import { CsvImportModal } from './CsvImportModal';
+import { validateMitigationPlacement } from '../utils/resourceTracker';
 
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
@@ -36,6 +39,8 @@ interface MitigationItemProps {
     partySortOrder?: 'role' | 'light_party';
     offsetTime: number;
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+    activeMitigations: AppliedMitigation[];
+    schAetherflowPattern: 1 | 2;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -109,7 +114,7 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
     };
 };
 
-const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, onUpdateTime, top, height, pixelsPerSecond, left, partySortOrder = 'role', offsetTime, scrollContainerRef }) => {
+const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, onUpdateTime, top, height, pixelsPerSecond, left, partySortOrder = 'role', offsetTime, scrollContainerRef, activeMitigations, schAetherflowPattern }) => {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -129,8 +134,15 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
     const recastPx = recast * pixelsPerSecond;
 
     // Direct DOM update for drag position (no React re-render)
-    const updateDragPosition = (dy: number) => {
+    const updateDragPosition = (dy: number, animateSnap: boolean = false) => {
         if (!containerRef.current) return;
+
+        if (animateSnap) {
+            containerRef.current.style.transition = 'top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        } else {
+            containerRef.current.style.transition = 'none';
+        }
+
         containerRef.current.style.top = `${top + 13 + dy}px`;
         containerRef.current.style.zIndex = '50';
         containerRef.current.style.opacity = '0.9';
@@ -154,14 +166,43 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
         }
     };
 
-    const resetDragPosition = () => {
+    const resetDragPosition = (animate: boolean = false) => {
         if (!containerRef.current) return;
+
+        if (animate) {
+            containerRef.current.style.transition = 'top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        } else {
+            containerRef.current.style.transition = 'none';
+        }
+
         containerRef.current.style.top = `${top + 13}px`;
-        containerRef.current.style.zIndex = '';
-        containerRef.current.style.opacity = '';
+
+        // Clean up transition and z-index after animation
+        if (animate) {
+            setTimeout(() => {
+                if (containerRef.current) {
+                    containerRef.current.style.zIndex = '';
+                    containerRef.current.style.opacity = '';
+                    containerRef.current.style.transition = '';
+                }
+            }, 300);
+        } else {
+            containerRef.current.style.zIndex = '';
+            containerRef.current.style.opacity = '';
+        }
+
         if (indicatorRef.current) indicatorRef.current.style.display = 'none';
         if (timeLabelRef.current) timeLabelRef.current.style.display = 'none';
     };
+
+    const [toastMessage, setToastMessage] = useState<{ message: string; leftOffset: number } | null>(null);
+
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => setToastMessage(null), 2500);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
 
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -258,10 +299,31 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
         const dy = e.clientY - dragStartRef.current.pointerY + scrollDelta;
         const deltaTime = Math.round(dy / pixelsPerSecond);
         dragStartRef.current = null;
-        resetDragPosition();
-        if (deltaTime !== 0) {
-            const newTime = mitigation.time + deltaTime;
-            onUpdateTime(mitigation.id, Math.max(offsetTime, newTime));
+
+        if (deltaTime !== 0 && def) {
+            const newTime = Math.max(offsetTime, mitigation.time + deltaTime);
+
+            // Validate the placement
+            // We pass mitigation.id to ignoreInstanceId so it doesn't collide with itself
+            const status = validateMitigationPlacement(def, newTime, activeMitigations, schAetherflowPattern, t, mitigation.id);
+
+            if (status.available) {
+                // Success: update time and reset visual instantly (re-render will place it correctly)
+                resetDragPosition(false);
+                onUpdateTime(mitigation.id, newTime);
+            } else {
+                // Failed: show toast pointing to the timeline header of this lane
+                const containerLeft = scrollContainerRef.current?.getBoundingClientRect().left ?? 0;
+                setToastMessage({
+                    message: status.message || t('timeline.invalid_placement', 'Invalid placement'),
+                    leftOffset: containerLeft + left
+                });
+                // Use animated snap back
+                resetDragPosition(true);
+            }
+        } else {
+            // No movement, just reset
+            resetDragPosition(false);
         }
     };
 
@@ -269,76 +331,109 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
     const name = contentLanguage === 'en' && def?.nameEn ? def.nameEn : def?.name;
 
     return (
-        <motion.div
-            ref={containerRef}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute z-30 flex flex-col items-center group select-none pointer-events-none"
-            style={{ left: `${left}px`, top: `${top + 13}px`, width: '24px' }}
-        >
-            {/* Drag time indicator line */}
-            <div
-                ref={indicatorRef}
-                className="absolute pointer-events-none"
-                style={{ display: 'none', left: '-4px', width: '32px', height: '2px', background: 'rgba(56,189,248,0.8)', boxShadow: '0 0 6px rgba(56,189,248,0.6)', borderRadius: '1px', zIndex: 100 }}
-            />
-            {/* Drag time label */}
-            <div
-                ref={timeLabelRef}
-                className="absolute pointer-events-none text-[10px] font-mono text-sky-300 bg-black/70 px-1 rounded"
-                style={{ display: 'none', left: '28px', zIndex: 100 }}
-            />
-            {/* Icon - Interactive */}
-            <div
-                className={clsx(
-                    "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform bg-black/50 overflow-hidden border border-white/20 pointer-events-auto",
-                    useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
-                )}
-                onContextMenu={handleContextMenu}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                onTouchMove={handleTouchMove}
-                title={`${name || t('timeline.mitigation', '軽減')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint', '(ドラッグで移動 / 右クリックで削除)')}`}
+        <>
+            {/* Local Error Tooltip for Drag & Drop */}
+            {toastMessage && (
+                <div
+                    className="fixed z-[150] bg-red-600 border border-red-400 text-white px-3 py-1.5 rounded-lg shadow-[0_4px_16px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 pointer-events-none transition-all duration-200 animate-in slide-in-from-top-2 fade-in whitespace-nowrap"
+                    style={{
+                        // 12px centers it cleanly over the 24px wide column
+                        left: `${toastMessage.leftOffset + 12}px`,
+                        // 88px avoids the top nav header and positions it firmly under the sticky timeline header
+                        top: `88px`,
+                        transform: 'translateX(-50%)' // Center anchor horizontally above the column
+                    }}
+                >
+                    <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-600 border-l border-t border-red-400 rotate-45" />
+                    <span className="text-xs font-bold whitespace-nowrap relative z-10">{toastMessage.message}</span>
+                </div>
+            )}
+
+            <motion.div
+                ref={containerRef}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute z-30 flex flex-col items-center group select-none pointer-events-none"
+                style={{ left: `${left}px`, top: `${top + 13}px`, width: '24px' }}
             >
-                {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
-
-                {/* Target Badge for Single Target Buffs */}
-                {mitigation.targetId && (
-                    <div className="absolute -bottom-1 -right-0.5 z-30 bg-black/80 rounded px-0.5 text-[7px] font-black text-white ring-1 ring-white/20 pointer-events-none scale-90 origin-bottom-right shadow-lg">
-                        {mitigation.targetId}
-                    </div>
-                )}
-            </div>
-
-            {/* Effect Bar (Duration) */}
-            <div
-                className={clsx(
-                    "w-1.5 relative z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
-                    colors.bg,
-                    colors.border,
-                    colors.shadow,
-                    useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
-                )}
-                style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
-            ></div>
-
-            {/* Recast Line (Dotted) */}
-            {recastPx > durationHeight && (
+                {/* Drag time indicator line */}
+                <div
+                    ref={indicatorRef}
+                    className="absolute pointer-events-none"
+                    style={{ display: 'none', left: '-4px', width: '32px', height: '2px', background: 'rgba(56,189,248,0.8)', boxShadow: '0 0 6px rgba(56,189,248,0.6)', borderRadius: '1px', zIndex: 100 }}
+                />
+                {/* Drag time label */}
+                <div
+                    ref={timeLabelRef}
+                    className="absolute pointer-events-none text-[10px] font-mono text-sky-300 bg-black/70 px-1 rounded"
+                    style={{ display: 'none', left: '28px', zIndex: 100 }}
+                />
+                {/* Icon - Interactive */}
                 <div
                     className={clsx(
-                        "w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none",
-                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
+                        "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform pointer-events-auto",
+                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
                     )}
-                    style={{
-                        top: `${20 + Math.max(0, durationHeight - 33)}px`,
-                        height: `${recastPx - Math.max(durationHeight, 33)}px`
-                    }}
+                    onContextMenu={handleContextMenu}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchMove}
+                    title={`${name || t('timeline.mitigation', '軽減')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint', '(ドラッグで移動 / 右クリックで削除)')}`}
+                >
+                    {/* Inner wrapper for overflow hidden on the main image only */}
+                    <div className="w-full h-full bg-black/50 overflow-hidden rounded border border-white/20">
+                        {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
+                    </div>
+
+                    {/* Target Badge for Single Target Buffs */}
+                    {mitigation.targetId && (() => {
+                        const members = useMitigationStore.getState().partyMembers;
+                        const targetMember = members.find((m: import('../types').PartyMember) => m.id === mitigation.targetId);
+                        const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
+                        return (
+                            <div className="absolute -bottom-2 -right-2 z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+                                {targetJob ? (
+                                    <img src={targetJob.icon} alt={targetJob.name} className="w-[20px] h-[20px] object-contain rounded-sm" />
+                                ) : (
+                                    <div className="bg-black/90 rounded px-1 py-0.5 text-[8px] font-black text-white ring-1 ring-white/20 origin-bottom-right">
+                                        {mitigation.targetId}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                {/* Effect Bar (Duration) */}
+                <div
+                    className={clsx(
+                        "w-1.5 relative z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
+                        colors.bg,
+                        colors.border,
+                        colors.shadow,
+                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
+                    )}
+                    style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
                 ></div>
-            )}
-        </motion.div>
+
+                {/* Recast Line (Dotted) */}
+                {recastPx > durationHeight && (
+                    <div
+                        className={clsx(
+                            "w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none",
+                            useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
+                        )}
+                        style={{
+                            top: `${20 + Math.max(0, durationHeight - 33)}px`,
+                            height: `${recastPx - Math.max(durationHeight, 33)}px`
+                        }}
+                    ></div>
+                )}
+            </motion.div>
+        </>
     );
 };
 
@@ -402,6 +497,13 @@ export const Timeline: React.FC = () => {
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [showPreStart] = useState(true); // Fixed for now, removed setter to fix lint
+    const [importModalOpen, setImportModalOpen] = useState(false);
+
+    const handleAutoPlan = () => {
+        if (window.confirm("This will automatically generate a mitigation plan based on the current timeline events.\nWarning: Any overlapping logic might overwrite intended placements.\nContinue?")) {
+            generateAutoPlan();
+        }
+    };
 
     const pixelsPerSecond = 50; // Configurable?
     const fightDuration = 1200; // 20 mins
@@ -830,6 +932,27 @@ export const Timeline: React.FC = () => {
                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-2 relative">
+                        {/* Auto Plan Button */}
+                        <button
+                            onClick={handleAutoPlan}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
+                            title="Auto Plan Mitigations"
+                        >
+                            <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
+                        </button>
+
+                        {/* Import Button */}
+                        <button
+                            onClick={() => setImportModalOpen(true)}
+                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-400 hover:text-white hover:bg-white/10 group/btn border border-transparent hover:border-white/10"
+                            title="Import Timeline CSV"
+                        >
+                            <Upload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                        </button>
+
+                        <div className="w-[1px] h-6 bg-white/10 mx-1" />
+
                         <button
                             onClick={() => setPartySettingsOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-100 group/btn relative overflow-hidden cursor-pointer water-drop"
@@ -1264,9 +1387,12 @@ export const Timeline: React.FC = () => {
                                                             top={top}
                                                             height={height}
                                                             left={left}
+                                                            laneIndex={laneIndex}
                                                             partySortOrder={partySortOrder}
                                                             offsetTime={offsetTime}
                                                             scrollContainerRef={scrollContainerRef}
+                                                            activeMitigations={ownerMitigations}
+                                                            schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
                                                         />
                                                     );
                                                 });
@@ -1281,8 +1407,6 @@ export const Timeline: React.FC = () => {
                             {/* Render Phases (Moved inside the layout calculation block above) */}
 
                             {/* Render Events Loop Removed - Events are now inside TimelineRow */}
-
-                            {/* Render Mitigations (Moved inside the layout calculation block above) */}
                         </div>
                     </div>
                 </div>
@@ -1332,6 +1456,11 @@ export const Timeline: React.FC = () => {
             <PartySettingsModal
                 isOpen={partySettingsOpen}
                 onClose={() => setPartySettingsOpen(false)}
+            />
+
+            <CsvImportModal
+                isOpen={importModalOpen}
+                onClose={() => setImportModalOpen(false)}
             />
         </>
     );

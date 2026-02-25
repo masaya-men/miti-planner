@@ -1,4 +1,4 @@
-import type { AppliedMitigation } from '../types';
+import type { AppliedMitigation, Mitigation } from '../types';
 import { MITIGATIONS } from '../data/mockData';
 
 /**
@@ -242,4 +242,117 @@ export function getRemainingCharges(
 
         return charges;
     }
+}
+
+/**
+ * Validates if a mitigation can be placed at a specific time.
+ * This is the shared logic used by both the MitigationSelector (adding new) 
+ * and Timeline (dragging existing).
+ */
+export function validateMitigationPlacement(
+    m: Mitigation,
+    selectedTime: number,
+    activeMitigations: AppliedMitigation[],
+    schAetherflowPattern: 1 | 2,
+    t: (key: string, options?: any) => string,
+    // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
+    ignoreInstanceId?: string
+): { available: boolean; warning?: boolean; message?: string; badge?: string; badgeColor?: string } {
+
+    // Filter out the instance being moved if dragging
+    const relevantMitigations = ignoreInstanceId
+        ? activeMitigations.filter(am => am.id !== ignoreInstanceId)
+        : activeMitigations;
+
+    // Fairy-dependent skill restrictions (Dissipation dismisses fairy)
+    if (m.id === 'fey_illumination' && !isFairyAvailable(selectedTime, relevantMitigations)) {
+        return { available: false, message: t('mitigation.unavailable_dissipation', 'Unavailable (Dissipation)') };
+    }
+    if (m.id === 'summon_seraph' && !canUseSummonSeraph(selectedTime, relevantMitigations)) {
+        return { available: false, message: t('mitigation.unavailable_dissipation_dup', 'Unavailable (Dissipation)') };
+    }
+
+    // Resource cost check (Aetherflow / Addersgall)
+    if (m.resourceCost) {
+        let stacks = 0;
+        if (m.resourceCost.type === 'aetherflow') {
+            stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+        } else if (m.resourceCost.type === 'addersgall') {
+            stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+        }
+        const badge = `×${stacks}`;
+        if (stacks < m.resourceCost.amount) {
+            const label = m.resourceCost.type === 'aetherflow'
+                ? t('mitigation.no_aetherflow', 'No Aetherflow')
+                : t('mitigation.no_addersgall', 'No Addersgall');
+            return { available: false, message: label, badge, badgeColor: 'red' };
+        }
+    }
+
+    // Charge check (maxCharges) — charge system handles cooldown internally
+    if (m.maxCharges) {
+        const remaining = getRemainingCharges(m.id, selectedTime, relevantMitigations);
+        const badge = `${remaining}/${m.maxCharges}`;
+        if (remaining <= 0) {
+            const label = t('mitigation.no_charges', 'No charges');
+            return { available: false, message: label, badge, badgeColor: 'red' };
+        }
+        return { available: true, badge, badgeColor: remaining <= 1 ? 'amber' : 'cyan' };
+    }
+
+    // Cooldown check (non-charge skills only)
+    const sameSkillUses = relevantMitigations
+        .filter(am => am.mitigationId === m.id)
+        .sort((a, b) => a.time - b.time);
+
+    if (sameSkillUses.length > 0) {
+        // Forward check: is the skill still on cooldown from a previous use?
+        const prevUses = sameSkillUses.filter(u => u.time < selectedTime);
+        if (prevUses.length > 0) {
+            const lastPrev = prevUses[prevUses.length - 1];
+            const cdEnd = lastPrev.time + m.cooldown;
+            if (selectedTime < cdEnd) {
+                const remaining = Math.ceil(cdEnd - selectedTime);
+                const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
+                return { available: false, message: label };
+            }
+        }
+
+        // Backward check: would this placement's cooldown overlap with a future use?
+        const nextUses = sameSkillUses.filter(u => u.time > selectedTime);
+        if (nextUses.length > 0) {
+            const firstNext = nextUses[0];
+            if (selectedTime + m.cooldown > firstNext.time) {
+                const overlap = Math.ceil((selectedTime + m.cooldown) - firstNext.time);
+                // When dragging, we want to block if we overlap with a future CD
+                if (ignoreInstanceId) {
+                    const label = t('mitigation.cd_overlap', { seconds: overlap, defaultValue: `CD overlap (${overlap}s)` });
+                    return { available: false, message: label };
+                }
+
+                // If just selecting, show warning
+                const gap = Math.floor(firstNext.time - selectedTime);
+                const label = t('mitigation.next_at', { time: firstNext.time, gap, defaultValue: `Next at ${firstNext.time}s (${gap}s gap)` });
+                // Get resource badge if applicable
+                const resourceBadge = m.resourceCost ? (() => {
+                    let stacks = 0;
+                    if (m.resourceCost!.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+                    else if (m.resourceCost!.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+                    return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
+                })() : {};
+                return { available: true, warning: true, message: label, ...resourceBadge };
+            }
+        }
+    }
+
+    // If we have resource cost, return with badge (passed the resource check earlier)
+    if (m.resourceCost) {
+        let stacks = 0;
+        if (m.resourceCost.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+        else if (m.resourceCost.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+        const badge = `×${stacks}`;
+        return { available: true, badge, badgeColor: stacks <= 1 ? 'amber' : 'cyan' };
+    }
+
+    return { available: true };
 }
