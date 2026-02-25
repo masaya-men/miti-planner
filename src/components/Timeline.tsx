@@ -13,11 +13,11 @@ import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, Download } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
-import { CsvImportModal } from './CsvImportModal';
+import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 
 // Helper for column widths
@@ -952,13 +952,13 @@ export const Timeline: React.FC = () => {
                             <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
                         </button>
 
-                        {/* Import Button */}
+                        {/* FFLogs Import Button */}
                         <button
                             onClick={() => setImportModalOpen(true)}
                             className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
-                            title="Import Timeline CSV"
+                            title="Import from FFLogs"
                         >
-                            <Download size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                            <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
                         </button>
 
                         <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
@@ -1509,7 +1509,7 @@ export const Timeline: React.FC = () => {
                 onClose={() => setPartySettingsOpen(false)}
             />
 
-            <CsvImportModal
+            <FFLogsImportModal
                 isOpen={importModalOpen}
                 onClose={() => setImportModalOpen(false)}
             />
