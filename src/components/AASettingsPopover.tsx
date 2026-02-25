@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Settings, X, Info } from 'lucide-react';
 import clsx from 'clsx';
 import type { AASettings } from '../store/useMitigationStore';
+import { useTranslation } from 'react-i18next';
 
 interface AASettingsPopoverProps {
     isOpen: boolean;
@@ -19,6 +20,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
     triggerRef
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
 
     // Close on click outside
     useEffect(() => {
@@ -99,7 +101,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         <div className="group relative">
                             <Info size={12} className="text-slate-600 cursor-help" />
                             <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-slate-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                                バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。
+                                {t('aa_settings.help_text', 'バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。')}
                             </div>
                         </div>
                     </div>

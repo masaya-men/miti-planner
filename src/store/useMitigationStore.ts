@@ -101,7 +101,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
                 schAetherflowPatterns: {} as Record<string, 1 | 2>,
                 myMemberId: null,
-                myJobHighlight: true,
+                myJobHighlight: false,
                 hideEmptyRows: false,
 
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),

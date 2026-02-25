@@ -345,7 +345,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "plenary_indulgence", jobId: "whm", name: "インドゥルゲンティア", nameEn: "Plenary Indulgence", icon: "/icons/Plenary_Indulgence.png",
-        cooldown: 60, duration: 10, type: "all", value: 0, isShield: false
+        cooldown: 60, duration: 10, type: "all", value: 10, isShield: false
     },
     {
         id: "temperance", jobId: "whm", name: "テンパランス", nameEn: "Temperance", icon: "/icons/Temperance.png",

@@ -111,6 +111,7 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
 
 const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, onUpdateTime, top, height, pixelsPerSecond, left, partySortOrder = 'role', offsetTime, scrollContainerRef }) => {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const dragStartRef = useRef<{ pointerY: number; scrollTop: number } | null>(null);
     const autoScrollRef = useRef<number | null>(null);
@@ -300,7 +301,7 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onTouchMove={handleTouchMove}
-                title={`${name || '軽減'} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} (ドラッグで移動 / 右クリックで削除)`}
+                title={`${name || t('timeline.mitigation', '軽減')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint', '(ドラッグで移動 / 右クリックで削除)')}`}
             >
                 {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
 
@@ -538,7 +539,7 @@ export const Timeline: React.FC = () => {
 
     const handleDelete = () => {
         if (selectedEvent) {
-            if (confirm('このイベントを削除しますか？')) {
+            if (confirm(t('timeline.delete_event_confirm'))) {
                 removeEvent(selectedEvent.id);
                 setIsModalOpen(false);
             }
@@ -1000,7 +1001,7 @@ export const Timeline: React.FC = () => {
                                             <button
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/50 border border-white/10 hover:border-amber-400/40 hover:bg-black/70 transition-all duration-300 cursor-pointer group shadow-lg"
-                                                title={isPatternOne ? '転化先 → 転化後に切替' : '転化後 → 転化先に切替'}
+                                                title={isPatternOne ? t('timeline.dissipation_to_post', '転化先 → 転化後に切替') : t('timeline.post_to_dissipation', '転化後 → 転化先に切替')}
                                             >
                                                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">START</span>
                                                 <div className="flex items-center gap-0.5">
@@ -1182,7 +1183,7 @@ export const Timeline: React.FC = () => {
                                                     className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
-                                                    title="クリックして名前を変更"
+                                                    title={t('timeline.click_rename', 'クリックして名前を変更')}
                                                 >
                                                     <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
                                                         {phase.name}

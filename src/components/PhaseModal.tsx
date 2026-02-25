@@ -91,7 +91,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 shrink-0">
                             <h2 className="text-sm font-bold text-slate-200">
-                                {isEdit ? 'フェーズ編集' : '新しいフェーズ'}
+                                {isEdit ? t('timeline.edit_phase') : t('timeline.new_phase')}
                             </h2>
                             <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
                                 <X size={16} />
@@ -100,14 +100,14 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">フェーズ名</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('timeline.phase')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
-                                    placeholder="フェーズ名を入力"
+                                    placeholder={t('timeline.enter_phase_name')}
                                     autoFocus
                                 />
                             </div>
@@ -123,7 +123,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                         className="px-3 py-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md flex items-center gap-1.5 transition-colors text-xs"
                                     >
                                         <Trash2 size={14} />
-                                        <span>削除</span>
+                                        <span>{t('modal.delete')}</span>
                                     </button>
                                 ) : <div></div>}
 

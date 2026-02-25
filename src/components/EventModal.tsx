@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Trash2, Calculator, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Trash2, Calculator, Save } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
 import { MITIGATIONS, JOBS } from '../data/mockData';
@@ -18,6 +19,7 @@ interface EventModalProps {
 }
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, initialData, initialTime, position }) => {
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [time, setTime] = useState(0);
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
@@ -43,18 +45,26 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 setDamageType(initialData.damageType);
                 setDamageAmount(initialData.damageAmount || 0);
                 setTarget(initialData.target || 'AoE');
+                // Reset calculator state
+                setInputMode('reverse');
+                setCalcActualDamage(0);
+                setSelectedMitigations([]);
             } else {
                 setName('');
                 setTime(initialTime || 0);
                 setDamageType('magical');
                 setDamageAmount(0);
                 setTarget('AoE');
+                // Reset calculator state
+                setInputMode('reverse');
+                setCalcActualDamage(0);
+                setSelectedMitigations([]);
             }
         }
     }, [isOpen, initialData, initialTime]);
 
     // Calculator State
-    const [showCalculator, setShowCalculator] = useState(false);
+    const [inputMode, setInputMode] = useState<'direct' | 'reverse'>('reverse');
     const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
     const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
 
@@ -178,8 +188,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         if (mitigationMult === 0) mitigationMult = 0.01; // Avoid divide by zero
         const raw = Math.ceil((actual + shieldTotal) / mitigationMult);
 
-        setDamageAmount(raw);
+        return raw;
     };
+
+    // Auto-calculate running effect
+    useEffect(() => {
+        if (inputMode === 'reverse') {
+            const calculated = handleCalculate();
+            setDamageAmount(calculated);
+        }
+    }, [calcActualDamage, selectedMitigations, damageType, inputMode, target]);
 
     // Helper to calculate single shield value
     const getShieldAmount = (def: typeof MITIGATIONS[0]) => {
@@ -264,7 +282,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                 <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 flex-shrink-0">
                     <h2 className="text-sm font-bold text-slate-200">
-                        {initialData ? 'イベント編集' : 'イベント追加'}
+                        {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
                     <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-1 rounded hover:bg-white/5">
                         <X size={16} />
@@ -272,10 +290,35 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar">
-                    {/* Time & Damage Amount Row */}
+                    {/* Input Mode Toggle (Segmented Control) */}
+                    <div className="flex bg-black/30 p-1 rounded-lg border border-white/10 mb-6">
+                        <button
+                            type="button"
+                            onClick={() => setInputMode('reverse')}
+                            className={`flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all ${inputMode === 'reverse'
+                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                                }`}
+                        >
+                            <Calculator size={14} className="inline-block mr-2" />
+                            {t('modal.mode_reverse', '逆算入力 (Reverse)')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setInputMode('direct')}
+                            className={`flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all ${inputMode === 'direct'
+                                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                                }`}
+                        >
+                            {t('modal.mode_direct', '直接入力 (Direct)')}
+                        </button>
+                    </div>
+
+                    {/* Common Event Properties */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">時間 (秒)</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.time')}</label>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -287,42 +330,29 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">ダメージ量</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.name')}</label>
                             <input
-                                type="number"
-                                inputMode="numeric"
-                                value={damageAmount}
-                                onChange={(e) => setDamageAmount(Number(e.target.value))}
-                                onFocus={(e) => e.target.select()}
-                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                type="text"
+                                lang={t('app.language') === 'English' ? 'en' : 'ja'}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                required
+                                placeholder={t('modal.enter_event_name')}
                             />
                         </div>
-                    </div>
-
-                    {/* Event Name */}
-                    <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1.5">イベント名</label>
-                        <input
-                            type="text"
-                            lang="ja"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-600 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
-                            required
-                            placeholder="イベント名を入力"
-                        />
                     </div>
 
                     {/* Type & Target Row */}
                     <div className="grid grid-cols-2 gap-4">
                         {/* Damage Type */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">ダメージタイプ</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.damage_type')}</label>
                             <div className="flex gap-2">
                                 {[
-                                    { type: 'magical', icon: '/icons/type_magic.png', label: '魔法' },
-                                    { type: 'physical', icon: '/icons/type_phys.png', label: '物理' },
-                                    { type: 'unavoidable', icon: '/icons/type_dark.png', label: '無属性' }
+                                    { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
+                                    { type: 'physical', icon: '/icons/type_phys.png', label: t('modal.physical') },
+                                    { type: 'unavoidable', icon: '/icons/type_dark.png', label: t('modal.unavoidable') }
                                 ].map((item) => (
                                     <button
                                         key={item.type}
@@ -347,12 +377,12 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         {/* Target Selection */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">対象</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.target')}</label>
                             <div className="flex gap-2 h-[52px] items-center">
                                 {[
-                                    { value: 'AoE', label: '全体' },
-                                    { value: 'MT', label: 'MT' },
-                                    { value: 'ST', label: 'ST' }
+                                    { value: 'AoE', label: t('modal.aoe') },
+                                    { value: 'MT', label: t('modal.mt') },
+                                    { value: 'ST', label: t('modal.st') }
                                 ].map((t) => (
                                     <button
                                         key={t.value}
@@ -372,45 +402,53 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         </div>
                     </div>
 
-                    {/* Reverse Calculator Toggle */}
-                    <div className="border-t border-white/5 pt-4">
-                        <button
-                            type="button"
-                            onClick={() => setShowCalculator(!showCalculator)}
-                            className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors w-full"
-                        >
-                            <Calculator size={14} />
-                            <span>ダメージ逆算機 (Beta)</span>
-                            {showCalculator ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        </button>
+                    <div className="w-full h-px bg-white/5 my-6" />
 
-                        {showCalculator && (
-                            <div className="mt-3 space-y-4 p-4 bg-white/[0.03] rounded-lg border border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div>
-                                    <label className="block text-xs font-medium text-slate-400 mb-1.5">実際に受けたダメージ (軽減後)</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="number"
-                                            value={calcActualDamage}
-                                            onChange={(e) => setCalcActualDamage(Number(e.target.value))}
-                                            onFocus={(e) => e.target.select()}
-                                            className="flex-1 bg-black/20 border border-white/10 rounded px-2 py-1.5 text-sm font-mono focus:border-blue-500/50 outline-none text-white"
-                                            placeholder="0"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleCalculate}
-                                            className="px-3 py-1 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded hover:bg-blue-600/30 text-xs font-bold transition-all"
-                                        >
-                                            計算 & 適用
-                                        </button>
+                    {/* Dynamic Inputs Area */}
+                    <div className="space-y-6">
+                        {inputMode === 'direct' ? (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.damage_amount')}</label>
+                                <input
+                                    type="number"
+                                    inputMode="numeric"
+                                    value={damageAmount}
+                                    onChange={(e) => setDamageAmount(Number(e.target.value))}
+                                    onFocus={(e) => e.target.select()}
+                                    className="w-full bg-white/[0.03] border border-white/[0.1] rounded-lg p-2.5 text-lg font-mono text-slate-200 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-bold"
+                                />
+                            </div>
+                        ) : (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="p-5 bg-white/[0.02] rounded-xl border border-white/10 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+                                    <div className="flex flex-col gap-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.actual_damage', '実際に受けたダメージ (軽減後)')}</label>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={calcActualDamage}
+                                                    onChange={(e) => setCalcActualDamage(Number(e.target.value))}
+                                                    onFocus={(e) => e.target.select()}
+                                                    className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-lg font-mono focus:border-blue-500/50 outline-none text-white drop-shadow-sm transition-all"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                            <span className="text-xs font-bold text-blue-300 uppercase tracking-widest">{t('modal.calculated_raw', '推計Rawダメージ:')}</span>
+                                            <span className="text-xl font-mono font-bold text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 mt-1">※ 適用すると上の「ダメージ量」が上書きされます</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-400 mb-2">使用された軽減・バリア (選択)</label>
-                                    <div className="grid grid-cols-6 gap-2 max-h-[150px] overflow-y-auto p-1 custom-scrollbar">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <label className="block text-xs font-medium text-slate-400">{t('modal.calc_mitigations', '使用された軽減・バリア (選択)')}</label>
+                                        <span className="text-[10px] text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
+                                    </div>
+                                    <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 bg-black/20 rounded-xl border border-white/5 custom-scrollbar shadow-inner">
                                         {sortedMitigations.map((mit) => (
                                             <button
                                                 key={mit.id}
@@ -418,13 +456,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 onClick={() => toggleMitigation(mit.id)}
                                                 title={getTooltipText(mit)}
                                                 className={`
-                                                    relative group p-1.5 rounded border transition-all flex items-center justify-center
+                                                    relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95
                                                     ${selectedMitigations.includes(mit.id)
-                                                        ? 'bg-green-500/20 border-green-500/50 shadow-[0_0_8px_rgba(34,197,94,0.3)]'
+                                                        ? 'bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30'
                                                         : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 opacity-60 hover:opacity-100'}
                                                 `}
                                             >
-                                                <img src={mit.icon} alt={mit.name} className="w-6 h-6 object-contain" />
+                                                <img src={mit.icon} alt={mit.name} className="w-7 h-7 object-contain drop-shadow" />
                                             </button>
                                         ))}
                                     </div>
@@ -434,38 +472,30 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-between items-center pt-2 mt-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-6 border-t border-white/5">
                         {onDelete && initialData ? (
                             <button
                                 type="button"
                                 onClick={() => {
-                                    if (confirm('このイベントを削除しますか？')) {
+                                    if (confirm(t('timeline.delete_event_confirm'))) {
                                         onDelete();
                                         onClose();
                                     }
                                 }}
-                                className="px-3 py-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md flex items-center gap-1.5 transition-colors text-xs"
+                                className="w-full sm:w-auto px-4 py-2 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold"
                             >
-                                <Trash2 size={14} />
-                                <span>削除</span>
+                                <Trash2 size={16} />
+                                <span>{t('modal.delete')}</span>
                             </button>
-                        ) : <div></div>}
+                        ) : <div className="hidden sm:block"></div>}
 
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors text-xs font-medium"
-                            >
-                                キャンセル
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
-                            >
-                                OK
-                            </button>
-                        </div>
+                        <button
+                            type="submit"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider"
+                        >
+                            <Save size={16} />
+                            {t('common.save', 'SAVE')}
+                        </button>
                     </div>
                 </form>
             </div>
