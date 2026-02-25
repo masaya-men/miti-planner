@@ -15,7 +15,8 @@
         "settings_title": "Stat Config",
         "comp_short": "Party Comp",
         "configuration_title": "Party Composition",
-        "configuration_description": "Manage jobs, roles, and light parties."
+        "configuration_description": "Manage jobs, roles, and light parties.",
+        "my_job_instruction": "Tap the star on the top right of a slot to set as My Job"
     },
     "timeline": {
         "phase": "PHASE",

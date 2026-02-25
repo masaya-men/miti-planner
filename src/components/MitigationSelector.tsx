@@ -1,6 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import clsx from 'clsx';
 import { MITIGATIONS, getMitigationPriority } from '../data/mockData';
 import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
@@ -29,11 +30,22 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const { partyMembers } = useMitigationStore();
 
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     React.useEffect(() => {
         if (!isOpen || !panelRef.current) {
             setAdjustedPos(position);
             return;
         }
+        if (isMobile) return; // Position handled by CSS on mobile
+
         requestAnimationFrame(() => {
             if (!panelRef.current) return;
             const rect = panelRef.current.getBoundingClientRect();
@@ -49,7 +61,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
             }
             setAdjustedPos({ x, y });
         });
-    }, [isOpen, position]);
+    }, [isOpen, position, isMobile]);
 
     // Close on click outside (without blocking scroll)
     React.useEffect(() => {
@@ -204,9 +216,16 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
         <div className="fixed z-[9999] pointer-events-none" style={{ top: 0, left: 0 }}>
             <div
                 ref={panelRef}
-                className="pointer-events-auto glass-panel rounded-xl shadow-2xl p-2 w-64 overflow-hidden ring-1 ring-white/5 fixed flex flex-col"
-                style={{ left: adjustedPos.x, top: adjustedPos.y, maxHeight: '80vh' }}
+                className={clsx(
+                    "pointer-events-auto glass-panel shadow-2xl p-2 overflow-hidden ring-1 ring-white/5 fixed flex flex-col transition-transform duration-300",
+                    isMobile
+                        ? "bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
+                        : "rounded-xl w-64"
+                )}
+                style={isMobile ? { maxHeight: '75vh' } : { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' }}
             >
+                {/* Mobile Drag Handle Indicator */}
+                {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
                     <span className="text-xs font-bold text-app-text-muted uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択') : t('mitigation.select')}

@@ -16,7 +16,8 @@
         "composition": "パーティ",
         "comp_short": "パーティ編成",
         "configuration_title": "パーティ構成設定",
-        "configuration_description": "パーティ構成とグループを管理します"
+        "configuration_description": "パーティ構成とグループを管理します",
+        "my_job_instruction": "スロット右上の星をタップして自ジョブに設定"
     },
     "timeline": {
         "phase": "フェーズ",

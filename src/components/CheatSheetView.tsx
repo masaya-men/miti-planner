@@ -45,7 +45,7 @@ export const CheatSheetView: React.FC = () => {
                                 key={m.id}
                                 className={clsx(
                                     "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-white/20",
-                                    !isMyJob && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
+                                    !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
                                 title={`${def.name} (${m.ownerId})`}
                             >

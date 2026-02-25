@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface PhaseModalProps {
     isOpen: boolean;
@@ -27,6 +28,16 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
     const [name, setName] = useState(initialName);
     const [time, setTime] = useState(initialTime || 0);
     const [mounted, setMounted] = useState(false);
+    const { t } = useTranslation();
+
+    // Mobile Detection
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         setMounted(true);
@@ -48,26 +59,37 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
         onClose();
     };
 
+    const handleBackdropClick = () => {
+        if (name.trim()) {
+            onSave(name, time);
+        }
+        onClose();
+    };
+
     const x = position ? Math.min(position.x, window.innerWidth - 420) : '50%';
     const y = position ? Math.min(position.y, window.innerHeight - 300) : '50%';
-    const style = position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' };
+    const style = isMobile ? { bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' } : (position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' });
 
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
+                <div className="fixed inset-0 z-[9999] text-left pointer-events-none flex flex-col justify-end">
                     {/* Transparent Backdrop to close on click outside */}
-                    <div className="absolute inset-0 bg-transparent pointer-events-auto" onClick={onClose} />
+                    <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
+                        animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                        exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="absolute bg-[#020203] border border-white/[0.08] rounded-xl shadow-2xl w-[400px] overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto"
+                        className={`absolute bg-[#020203] border border-white/[0.08] shadow-2xl overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
                     >
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50">
+                        {/* Mobile Drag Handle Indicator */}
+                        {isMobile && <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 shrink-0" />}
+
+                        <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-[#050505]/50 shrink-0">
                             <h2 className="text-sm font-bold text-slate-200">
                                 {isEdit ? 'フェーズ編集' : '新しいフェーズ'}
                             </h2>
@@ -77,8 +99,6 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                            {/* Time Range removed per user request */}
-
                             <div>
                                 <label className="block text-xs font-medium text-slate-400 mb-1.5">フェーズ名</label>
                                 <input
@@ -113,13 +133,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                         onClick={onClose}
                                         className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors text-xs font-medium"
                                     >
-                                        キャンセル
+                                        {t('common.cancel', 'キャンセル')}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50"
+                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
                                     >
-                                        保存
+                                        {t('common.ok', 'OK')}
                                     </button>
                                 </div>
                             </div>
