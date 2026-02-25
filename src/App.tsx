@@ -12,10 +12,10 @@ function App() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-screen pt-14 relative">
+      <div className="flex flex-col h-full relative">
 
-        {/* Top Controls */}
-        <div className="absolute top-16 right-6 z-50 bg-black/40 backdrop-blur-md p-1 rounded-xl flex items-center gap-2 border border-white/10 shadow-lg">
+        {/* Floating View Toggle */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-glass-header backdrop-blur-xl p-1.5 rounded-full flex items-center gap-1 border border-glass-border shadow-glass">
 
           {/* View Toggle */}
           <div className="flex items-center gap-1">

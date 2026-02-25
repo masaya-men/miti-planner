@@ -115,14 +115,14 @@ export const CheatSheetView: React.FC = () => {
     }, [timelineEvents]);
 
     return (
-        <div className="flex flex-col h-full w-full max-w-3xl mx-auto bg-black/30 backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden shadow-2xl relative">
+        <div className="flex flex-col h-full w-full max-w-3xl mx-auto bg-glass-panel backdrop-blur-xl rounded-xl border border-glass-border overflow-hidden shadow-glass relative">
 
             {/* Header */}
-            <div className="flex items-stretch h-10 bg-black/50 border-b border-white/10 shrink-0 sticky top-0 z-20 shadow-md">
+            <div className="flex items-stretch h-10 bg-glass-header border-b border-glass-border shrink-0 sticky top-0 z-20 shadow-glass">
                 <div className="flex-1 flex items-center justify-center border-r border-white/5 bg-gradient-to-r from-blue-900/30 to-blue-500/10">
                     <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest px-2 text-center drop-shadow-md">MT Group</span>
                 </div>
-                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center bg-black/40 border-x border-white/10 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
+                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center bg-glass-card border-x border-glass-border shadow-inner">
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest drop-shadow-md">Timeline</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center border-l border-white/5 bg-gradient-to-l from-orange-900/30 to-orange-500/10">
