@@ -35,6 +35,7 @@ export interface AppliedMitigation {
     time: number;
     duration: number; // Snapshot of duration at application time
     ownerId: string; // Party Member ID (e.g. "MT")
+    targetId?: string; // Party Member ID of the target (e.g. "ST") for single-target buffs
 }
 
 export interface TimelineEvent {

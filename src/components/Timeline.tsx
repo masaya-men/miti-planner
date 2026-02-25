@@ -14,7 +14,7 @@ import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 
@@ -289,7 +289,10 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
             />
             {/* Icon - Interactive */}
             <div
-                className="w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform bg-black/50 overflow-hidden border border-white/20 pointer-events-auto"
+                className={clsx(
+                    "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform bg-black/50 overflow-hidden border border-white/20 pointer-events-auto",
+                    useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
+                )}
                 onContextMenu={handleContextMenu}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
@@ -297,9 +300,16 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 onTouchMove={handleTouchMove}
-                title={`${name || '軽減'} (ドラッグで移動 / 右クリックで削除)`}
+                title={`${name || '軽減'} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} (ドラッグで移動 / 右クリックで削除)`}
             >
                 {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
+
+                {/* Target Badge for Single Target Buffs */}
+                {mitigation.targetId && (
+                    <div className="absolute -bottom-1 -right-0.5 z-30 bg-black/80 rounded px-0.5 text-[7px] font-black text-white ring-1 ring-white/20 pointer-events-none scale-90 origin-bottom-right shadow-lg">
+                        {mitigation.targetId}
+                    </div>
+                )}
             </div>
 
             {/* Effect Bar (Duration) */}
@@ -308,7 +318,8 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
                     "w-1.5 relative z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
                     colors.bg,
                     colors.border,
-                    colors.shadow
+                    colors.shadow,
+                    useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
                 )}
                 style={{ height: `${Math.max(0, durationHeight - 33)}px`, marginTop: '-4px' }}
             ></div>
@@ -316,7 +327,10 @@ const MitigationItem: React.FC<MitigationItemProps> = ({ mitigation, onRemove, o
             {/* Recast Line (Dotted) */}
             {recastPx > durationHeight && (
                 <div
-                    className="w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none"
+                    className={clsx(
+                        "w-0 border-l-[2px] border-dotted border-slate-500/40 absolute z-0 pointer-events-none",
+                        useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
+                    )}
                     style={{
                         top: `${20 + Math.max(0, durationHeight - 33)}px`,
                         height: `${recastPx - Math.max(durationHeight, 33)}px`
@@ -533,7 +547,7 @@ export const Timeline: React.FC = () => {
         setMitigationSelectorOpen(true);
     };
 
-    const handleMitigationSelect = (mitigation: Mitigation) => {
+    const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
         if (!selectedMemberId) return;
 
         addMitigation({
@@ -541,7 +555,8 @@ export const Timeline: React.FC = () => {
             mitigationId: mitigation.id,
             time: selectedMitigationTime,
             duration: mitigation.duration,
-            ownerId: selectedMemberId
+            ownerId: selectedMemberId,
+            targetId: mitigation._targetId
         });
         setMitigationSelectorOpen(false);
     };
@@ -630,7 +645,10 @@ export const Timeline: React.FC = () => {
                 if (!def || def.isShield) return;
 
                 // Scope Check: Self buffs only apply to owner (and not to Party context)
-                if (def.scope === 'self' && appMit.ownerId !== displayContext) return;
+                if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
+
+                // Target check: Targeted buffs only apply to their specific target
+                if (appMit.targetId && appMit.targetId !== displayContext) return;
 
                 // Invulnerability Check
                 if (def.isInvincible) {
@@ -682,8 +700,11 @@ export const Timeline: React.FC = () => {
 
                     if (!def.isShield && !isConditionalShield) return;
 
-                    // Scope Check: Self shields only apply to owner
-                    if (def.scope === 'self' && appMit.ownerId !== displayContext) return;
+                    // Scope Check: Self shields only apply to owner or target
+                    if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
+
+                    // Target check: Targeted shields only apply to their specific target
+                    if (appMit.targetId && appMit.targetId !== displayContext) return;
 
                     if (def.type === 'physical' && event.damageType === 'magical') return;
                     if (def.type === 'magical' && event.damageType === 'physical') return;
@@ -895,6 +916,22 @@ export const Timeline: React.FC = () => {
                                 Role Order
                             </button>
                         </div>
+
+                        {/* Hide Empty Rows Toggle */}
+                        <div className="w-[1px] h-4 bg-white/15 my-auto mx-1" />
+                        <button
+                            onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
+                            className={clsx(
+                                "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                useMitigationStore.getState().hideEmptyRows
+                                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm"
+                                    : "text-slate-300 border-transparent hover:text-white hover:bg-white/15"
+                            )}
+                            title="Toggle Empty Rows"
+                        >
+                            <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-400"} />
+                            COMPACT
+                        </button>
                     </div>
                 </div>
 
@@ -968,192 +1005,248 @@ export const Timeline: React.FC = () => {
 
                             <div className="w-[70px] min-w-[70px] max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 font-bold text-[10px]">Time</div>
                             <div className="w-[200px] min-w-[200px] max-w-[200px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] pl-2 justify-start font-bold">Mechanic</div>
-                        </div>
-                        <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Raw</div>
-                        <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Taken</div>
+                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Raw</div>
+                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-muted/70 text-[10px] font-bold">Taken</div>
 
-                        {/* Job Columns Headers */}
-                        {sortedPartyMembers.map((member, index) => (
-                            <div
-                                key={member.id}
-                                style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
-                                className={clsx(
-                                    "flex-none border-r border-white/5 h-full flex flex-col items-center justify-center p-0.5 relative group",
-                                    index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
-                                    // Vivid Glass Effect for Groups
-                                    partySortOrder === 'role' ? (
-                                        member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
-                                            member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
-                                                "bg-gradient-to-b from-red-500/20 via-red-500/5 to-transparent shadow-[inset_0_1px_0_rgba(239,68,68,0.5)]"
-                                    ) : (
-                                        // Light Party Default (Blue vs Gold)
-                                        ['MT', 'H1', 'D1', 'D3'].includes(member.id)
-                                            ? "bg-gradient-to-b from-cyan-500/20 via-blue-500/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]" // MT Group (Cyan/Blue)
-                                            : "bg-gradient-to-b from-amber-500/20 via-orange-500/5 to-transparent shadow-[inset_0_1px_0_rgba(245,158,11,0.5)]" // ST Group (Amber/Gold)
-                                    )
-                                )}
-                            >
+                            {/* Job Columns Headers */}
+                            {sortedPartyMembers.map((member, index) => (
                                 <div
+                                    key={member.id}
+                                    style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                                     className={clsx(
-                                        "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-white/10 transition-all duration-300 relative"
+                                        "flex-none border-r border-white/5 h-full flex flex-col items-center justify-center p-0.5 relative group",
+                                        index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
+                                        // Vivid Glass Effect for Groups
+                                        partySortOrder === 'role' ? (
+                                            member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
+                                                member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
+                                                    "bg-gradient-to-b from-red-500/20 via-red-500/5 to-transparent shadow-[inset_0_1px_0_rgba(239,68,68,0.5)]"
+                                        ) : (
+                                            // Light Party Default (Blue vs Gold)
+                                            ['MT', 'H1', 'D1', 'D3'].includes(member.id)
+                                                ? "bg-gradient-to-b from-cyan-500/20 via-blue-500/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]" // MT Group (Cyan/Blue)
+                                                : "bg-gradient-to-b from-amber-500/20 via-orange-500/5 to-transparent shadow-[inset_0_1px_0_rgba(245,158,11,0.5)]" // ST Group (Amber/Gold)
+                                        )
                                     )}
-                                    onClick={(e) => handleJobIconClick(member.id, e)}
-                                    title={`${member.id} (${t('ui.change_job')})`}
                                 >
-                                    {member.jobId ? (
-                                        <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
-                                    ) : (
-                                        <div className="w-5 h-5 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
-                                            <Plus size={10} className="text-app-text-muted" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div> {/* ◀◀ 追加したラッパーを閉じる */}
-                </div> {/* ◀◀ 追加したラッパーを閉じる */}
-
-                <div className="flex-1 overflow-auto relative" ref={scrollContainerRef} onScroll={handleBodyScroll}>
-                    {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
-                    <div className="relative bg-transparent md:w-max md:min-w-full" style={{ height: `${(gridLines.length) * pixelsPerSecond}px` }}>                            {/* Time Grid & Columns */}
-                        {gridLines.map((time) => {
-                            const offsetTime = showPreStart ? -10 : 0;
-                            const rowEvents = eventsByTime.get(time) || [];
-                            const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
-
-                            return (
-                                <TimelineRow
-                                    key={time}
-                                    time={time}
-                                    top={(time - offsetTime) * pixelsPerSecond}
-                                    damages={rowDamages}
-                                    events={rowEvents}
-                                    partyMembers={sortedPartyMembers}
-                                    onPhaseAdd={handlePhaseAdd}
-                                    onAddEventClick={handleAddClick}
-                                    onEventClick={handleEventClick}
-                                    onCellClick={handleCellClick}
-                                    partySortOrder={partySortOrder}
-                                />
-                            );
-                        })}
-
-                        {/* Render Phases */}
-                        {phases.map((phase, index) => {
-                            if (!showPreStart && phase.endTime <= 0) return null;
-
-                            const offsetTime = showPreStart ? -10 : 0;
-                            const startTime = index === 0 ? -10 : phases[index - 1].endTime;
-                            const endTime = phase.endTime;
-
-                            if (!showPreStart && endTime <= 0) return null;
-
-                            const effectiveStartTime = Math.max(startTime, offsetTime);
-                            const effectiveEndTime = Math.max(endTime, offsetTime);
-                            const duration = effectiveEndTime - effectiveStartTime;
-
-                            const topTime = effectiveStartTime - offsetTime;
-                            const top = topTime * pixelsPerSecond;
-                            const height = duration * pixelsPerSecond;
-
-                            return (
-                                <div
-                                    key={phase.id}
-                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
-                                    style={{ top: `${top}px`, height: `${height}px` }}
-                                    onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
-                                    title="クリックして名前を変更"
-                                >
-                                    <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
-                                        {phase.name}
+                                    <div
+                                        className={clsx(
+                                            "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-white/10 transition-all duration-300 relative"
+                                        )}
+                                        onClick={(e) => handleJobIconClick(member.id, e)}
+                                        title={`${member.id} (${t('ui.change_job')})`}
+                                    >
+                                        {member.jobId ? (
+                                            <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
+                                        ) : (
+                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                                                <Plus size={10} className="text-app-text-muted" />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            );
-                        })}
+                            ))}
+                        </div> {/* ◀◀ 追加したラッパーを閉じる */}
+                    </div> {/* ◀◀ 追加したラッパーを閉じる */}
 
-                        {/* Render Events Loop Removed - Events are now inside TimelineRow */}
+                    <div className="flex-1 overflow-auto relative" ref={scrollContainerRef}>
+                        {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
+                        {/* Time Grid & Columns */}
+                        <div className="relative bg-transparent md:w-max md:min-w-full" style={{
+                            height: `${(() => {
+                                let totalHeight = 0;
+                                const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
 
-                        {/* Render Mitigations via new Component with Lane Logic */}
-                        {(() => {
-                            // 1. Filter visible
-                            const visibleMitigations = timelineMitigations.filter(m =>
-                                showPreStart || (m.time + m.duration > 0)
-                            );
+                                gridLines.forEach(time => {
+                                    const hasEvents = (eventsByTime.get(time)?.length ?? 0) > 0;
+                                    const hasMitigations = timelineMitigations.some(m => m.time <= time && m.time + m.duration >= time);
 
-                            // 2. Assign Lanes
-                            // Group by owner
-                            const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
-                            visibleMitigations.forEach(m => {
-                                if (!mitigationsByOwner[m.ownerId]) mitigationsByOwner[m.ownerId] = [];
-                                mitigationsByOwner[m.ownerId].push(m);
-                            });
-
-                            const renderedItems: React.ReactElement[] = [];
-
-                            Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
-                                // Sort by time, then by priority for overlapping mitigations
-                                ownerMitigations.sort((a, b) => {
-                                    if (a.time !== b.time) return a.time - b.time;
-                                    return getMitigationPriority(a.mitigationId) - getMitigationPriority(b.mitigationId);
+                                    if (!hideEmpty || hasEvents || hasMitigations) {
+                                        totalHeight += pixelsPerSecond;
+                                    }
                                 });
+                                return totalHeight;
+                            })()}px`
+                        }}>
+                            {/* Time Grid & Columns */}
+                            {(() => {
+                                const renderItems: React.ReactElement[] = [];
+                                let currentY = 0;
+                                const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
 
-                                // Lane Packing
-                                const lanes: number[] = [];
+                                // Build layout map for mitigations and phases
+                                const timeToYMap = new Map<number, number>();
 
-                                ownerMitigations.forEach(mitigation => {
-                                    const startTime = mitigation.time;
-                                    const member = partyMembers.find(m => m.id === mitigation.ownerId);
-                                    const maxLanes = (member?.role === 'tank' || member?.role === 'healer') ? 5 : 2;
+                                gridLines.forEach((time) => {
+                                    const rowEvents = eventsByTime.get(time) || [];
+                                    const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
 
-                                    // Find first free lane
-                                    let laneIndex = lanes.findIndex(endTime => endTime <= startTime);
+                                    const hasEvents = rowEvents.length > 0;
+                                    const hasMitigations = timelineMitigations.some(m => m.time <= time && m.time + m.duration >= time);
 
-                                    if (laneIndex === -1) {
-                                        if (lanes.length < maxLanes) {
-                                            laneIndex = lanes.length;
-                                            lanes.push(startTime + mitigation.duration);
-                                        } else {
-                                            laneIndex = maxLanes - 1;
-                                            lanes[laneIndex] = Math.max(lanes[laneIndex], startTime + mitigation.duration);
-                                        }
-                                    } else {
-                                        lanes[laneIndex] = startTime + mitigation.duration;
+                                    if (hideEmpty && !hasEvents && !hasMitigations) {
+                                        // Skip row, but map the time to currentY for duration calculations
+                                        timeToYMap.set(time, currentY);
+                                        return;
                                     }
 
-                                    laneIndex = Math.min(laneIndex, maxLanes - 1);
+                                    timeToYMap.set(time, currentY);
 
-                                    const offsetTime = showPreStart ? -10 : 0;
-                                    const top = (mitigation.time - offsetTime) * pixelsPerSecond;
-                                    const height = mitigation.duration * pixelsPerSecond;
-
-                                    const layout = memberLayout.get(mitigation.ownerId);
-                                    const colStart = layout ? layout.left : 0;
-                                    const left = colStart + 2 + (laneIndex * 24);
-
-                                    renderedItems.push(
-                                        <MitigationItem
-                                            key={mitigation.id}
-                                            mitigation={mitigation}
-                                            pixelsPerSecond={pixelsPerSecond}
-                                            onRemove={removeMitigation}
-                                            onUpdateTime={updateMitigationTime}
-                                            top={top}
-                                            height={height}
-                                            left={left}
+                                    renderItems.push(
+                                        <TimelineRow
+                                            key={time}
+                                            time={time}
+                                            top={currentY}
+                                            damages={rowDamages}
+                                            events={rowEvents}
+                                            partyMembers={sortedPartyMembers}
+                                            onPhaseAdd={handlePhaseAdd}
+                                            onAddEventClick={handleAddClick}
+                                            onEventClick={handleEventClick}
+                                            onCellClick={handleCellClick}
                                             partySortOrder={partySortOrder}
-                                            offsetTime={showPreStart ? -10 : 0}
-                                            scrollContainerRef={scrollContainerRef}
                                         />
                                     );
-                                });
-                            });
 
-                            return renderedItems;
-                        })()}
+                                    currentY += pixelsPerSecond;
+                                });
+
+                                // Expose timeToYMap for Mitigation Lane rendering logic
+                                // (We can attach it to the div or store it in a ref if necessary, but since it's local we need to render the phases & mitigations here to use the mapping)
+                                return (
+                                    <>
+                                        {renderItems}
+
+                                        {/* Render Phases */}
+                                        {phases.map((phase, index) => {
+                                            if (!showPreStart && phase.endTime <= 0) return null;
+
+                                            const offsetTime = showPreStart ? -10 : 0;
+                                            const startTime = index === 0 ? -10 : phases[index - 1].endTime;
+                                            const endTime = phase.endTime;
+
+                                            if (!showPreStart && endTime <= 0) return null;
+
+                                            const effectiveStartTime = Math.max(startTime, offsetTime);
+                                            const effectiveEndTime = Math.max(endTime, offsetTime);
+
+                                            // Handle edge case where phase extends beyond gridLines
+                                            const startY = timeToYMap.get(effectiveStartTime) ?? (Math.max(0, effectiveStartTime - offsetTime) * pixelsPerSecond);
+                                            const endY = timeToYMap.get(effectiveEndTime) ?? (Math.max(0, effectiveEndTime - offsetTime) * pixelsPerSecond);
+
+                                            const top = startY;
+                                            const height = Math.max(0, endY - startY);
+
+                                            return (
+                                                <div
+                                                    key={phase.id}
+                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-white/10 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-white/20 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    style={{ top: `${top}px`, height: `${height}px` }}
+                                                    onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
+                                                    title="クリックして名前を変更"
+                                                >
+                                                    <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
+                                                        {phase.name}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* Render Mitigations via new Component with Lane Logic */}
+                                        {(() => {
+                                            // 1. Filter visible
+                                            const visibleMitigations = timelineMitigations.filter(m =>
+                                                showPreStart || (m.time + m.duration > 0)
+                                            );
+
+                                            // 2. Assign Lanes
+                                            // Group by owner
+                                            const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
+                                            // Ensure timeToY mapping is accessible
+
+                                            visibleMitigations.forEach(m => {
+                                                if (!mitigationsByOwner[m.ownerId]) mitigationsByOwner[m.ownerId] = [];
+                                                mitigationsByOwner[m.ownerId].push(m);
+                                            });
+
+                                            const renderedItems: React.ReactElement[] = [];
+
+                                            Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
+                                                // Sort by time, then by priority for overlapping mitigations
+                                                ownerMitigations.sort((a, b) => {
+                                                    if (a.time !== b.time) return a.time - b.time;
+                                                    return getMitigationPriority(a.mitigationId) - getMitigationPriority(b.mitigationId);
+                                                });
+
+                                                // Lane Packing
+                                                const lanes: number[] = [];
+
+                                                ownerMitigations.forEach(mitigation => {
+                                                    const startTime = mitigation.time;
+                                                    const member = partyMembers.find(m => m.id === mitigation.ownerId);
+                                                    const maxLanes = (member?.role === 'tank' || member?.role === 'healer') ? 5 : 2;
+
+                                                    // Find first free lane
+                                                    let laneIndex = lanes.findIndex(endTime => endTime <= startTime);
+
+                                                    if (laneIndex === -1) {
+                                                        if (lanes.length < maxLanes) {
+                                                            laneIndex = lanes.length;
+                                                            lanes.push(startTime + mitigation.duration);
+                                                        } else {
+                                                            laneIndex = maxLanes - 1;
+                                                            lanes[laneIndex] = Math.max(lanes[laneIndex], startTime + mitigation.duration);
+                                                        }
+                                                    } else {
+                                                        lanes[laneIndex] = startTime + mitigation.duration;
+                                                    }
+
+                                                    laneIndex = Math.min(laneIndex, maxLanes - 1);
+
+                                                    const offsetTime = showPreStart ? -10 : 0;
+                                                    const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
+                                                    const endY = timeToYMap.get(mitigation.time + mitigation.duration) ?? (Math.max(0, mitigation.time + mitigation.duration - offsetTime) * pixelsPerSecond);
+
+                                                    const top = startY;
+                                                    const height = Math.max(0, endY - startY);
+
+                                                    const layout = memberLayout.get(mitigation.ownerId);
+                                                    const colStart = layout ? layout.left : 0;
+                                                    const left = colStart + 2 + (laneIndex * 24);
+
+                                                    renderedItems.push(
+                                                        <MitigationItem
+                                                            key={mitigation.id}
+                                                            mitigation={mitigation}
+                                                            pixelsPerSecond={pixelsPerSecond}
+                                                            onRemove={removeMitigation}
+                                                            onUpdateTime={updateMitigationTime}
+                                                            top={top}
+                                                            height={height}
+                                                            left={left}
+                                                            partySortOrder={partySortOrder}
+                                                            offsetTime={offsetTime}
+                                                            scrollContainerRef={scrollContainerRef}
+                                                        />
+                                                    );
+                                                });
+                                            });
+
+                                            return renderedItems;
+                                        })()}
+                                    </>
+                                );
+                            })()}
+
+                            {/* Render Phases (Moved inside the layout calculation block above) */}
+
+                            {/* Render Events Loop Removed - Events are now inside TimelineRow */}
+
+                            {/* Render Mitigations (Moved inside the layout calculation block above) */}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div >
+            </div >
 
 
             <EventModal
