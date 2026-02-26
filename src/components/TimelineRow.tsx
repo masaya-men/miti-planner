@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import type { PartyMember, TimelineEvent } from '../types';
 import { getColumnWidth } from './Timeline';
 import { useTranslation } from 'react-i18next';
+import { useThemeStore } from '../store/useThemeStore';
 import { JOBS } from '../data/mockData';
 
 interface DamageInfo {
@@ -39,6 +40,11 @@ export const TimelineRow = memo(({
     onCellClick
 }: TimelineRowProps) => {
     const { t } = useTranslation();
+    const { contentLanguage } = useThemeStore();
+
+    // Bilingual event name helper (same pattern as Job/Mitigation)
+    const getEventName = (ev: TimelineEvent) =>
+        contentLanguage === 'en' && ev.nameEn ? ev.nameEn : ev.name;
 
     const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
     const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
@@ -92,7 +98,7 @@ export const TimelineRow = memo(({
                         <div
                             className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
                             onClick={(e) => onEventClick(events[0], e)}
-                            title={`${events[0].name} (${events[0].damageAmount?.toLocaleString()})`}
+                            title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                         >
                             {/* Left Side: Icon + Name */}
                             <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -102,7 +108,7 @@ export const TimelineRow = memo(({
                                 {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
                                 {/* Name */}
-                                <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
+                                <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
                             </div>
 
                             {/* Right Side: Target */}
@@ -152,7 +158,7 @@ export const TimelineRow = memo(({
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
                                 onClick={(e) => onEventClick(events[0], e)}
-                                title={`${events[0].name} (${events[0].damageAmount?.toLocaleString()})`}
+                                title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                             >
                                 {/* Left Side: Icon + Name */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -162,7 +168,7 @@ export const TimelineRow = memo(({
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
                                     {/* Name */}
-                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[0].name}</span>
+                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
                                 </div>
 
                                 {/* Right Side: Target */}
@@ -195,14 +201,14 @@ export const TimelineRow = memo(({
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
                                 onClick={(e) => onEventClick(events[1], e)}
-                                title={`${events[1].name} (${events[1].damageAmount?.toLocaleString()})`}
+                                title={`${getEventName(events[1])} (${events[1].damageAmount?.toLocaleString()})`}
                             >
                                 {/* Left Side: Icon + Name */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{events[1].name}</span>
+                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
                                 </div>
 
                                 {/* Right Side: Target */}
