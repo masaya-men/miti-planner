@@ -38,6 +38,8 @@ interface MitigationState {
     setMemberJob: (memberId: string, jobId: string) => void;
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
+    /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */
+    importTimelineEvents: (events: TimelineEvent[]) => void;
 
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
@@ -111,6 +113,11 @@ export const useMitigationStore = create<MitigationState>()(
                 addEvent: (event) => set((state) => ({
                     timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
                 })),
+
+                importTimelineEvents: (events) => set({
+                    timelineEvents: [...events].sort((a, b) => a.time - b.time),
+                    timelineMitigations: [], // Clear old mitigations — they belong to a different fight
+                }),
 
                 updateEvent: (id, updatedEvent) => set((state) => ({
                     timelineEvents: state.timelineEvents.map(e => e.id === id ? { ...e, ...updatedEvent } : e).sort((a, b) => a.time - b.time)

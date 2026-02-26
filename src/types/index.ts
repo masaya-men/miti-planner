@@ -42,6 +42,7 @@ export interface TimelineEvent {
     id: string;
     time: number; // seconds from start
     name: string;
+    nameEn?: string;
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
