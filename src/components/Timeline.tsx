@@ -511,7 +511,8 @@ export const Timeline: React.FC = () => {
 
     const handleAutoPlan = () => {
         if (window.confirm("This will automatically generate a mitigation plan based on the current timeline events.\nWarning: Any overlapping logic might overwrite intended placements.\nContinue?")) {
-            generateAutoPlan();
+            const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
+            newMitigations.forEach(addMitigation);
         }
     };
 

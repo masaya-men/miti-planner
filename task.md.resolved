@@ -1,0 +1,60 @@
+# FFLogs Import - Phase 1 実装
+
+## Planning
+- [x] 既存コードの調査（FFLogsImportModal, Timeline, Store, Types）
+- [x] 実装計画書の作成・レビュー依頼（承認済：FFLogsのみ、CSVは削除）
+
+## Phase 1 実装 ✅
+- [x] Timeline.tsx: CsvImportModal → FFLogsImportModal に差し替え
+- [x] FFLogsImportModal.tsx: URL正規表現の改善
+- [x] ビルド確認・動作検証
+- [x] Git commit & push
+
+## Phase 2 実装 ✅
+- [x] 実装計画書の更新（.env.local方式、ユーザーAPIキー入力なし）
+- [x] .env.local.example の作成（セットアップ案内入り）
+- [x] src/api/fflogs.ts 新規作成（OAuth2 + ページネーション付きGraphQL通信）
+- [x] FFLogsImportModalに通信ロジックを統合（4状態udle/loading/success/error）
+- [x] ビルド確認（TypeScriptエラーゼロ）
+
+## Phase 3 実装
+- [x] src/utils/fflogsMapper.ts 新規作成（データ変換ロジック）
+- [x] useMitigationStore に importTimelineEvents アクション追加
+- [x] FFLogsImportModal にマッピング+Store登録を接続
+- [x] ビルド確認・動作検証（大ダメージワイプ技の除外、死体殴りの除外等を含む）
+
+## Phase 4 実装 ✅
+- [x] src/utils/autoPlanner.ts のエンジン実装
+- [x] MT組/ST組のローテーション機能
+- [x] 致死ダメージ（>130,000）の追加軽減ロジック
+- [x] 同系統スキルの重複除外・リキャスト管理
+- [x] パッセージ・オブ・アームズの除外
+- [x] Timeline.tsx への純粋関数としての統合
+
+## Phase 5 実装 (Advanced Raid Theory V2) ✅
+- [x] 軽減配置時間を攻撃と同時間帯（timeSec）へ完全同期
+- [x] 動的危険度検知（AoE最大基礎ダメージの80% or 3~5秒内連続着弾）
+- [x] Group1 / Group2 の交互ベースローテーション（通常AoE）
+- [x] 危険時（特大AoE）の別グループ軽減（D3等のレンジ・ヒラ大技・メレー軽減）厚盛り
+- [x] BHの強力セット運用スケジューリング（SCHセットA/B/C、SGEセットA/B 等）
+- [x] 30秒リキャスト軽減（陣・ケーラ）の常時運用と隙間配置
+- [x] タンク強攻撃（TB）の対象判定厳格化（MT/ST限定、無駄撃ち禁止）
+- [x] TBに対するパターンA/Bの自動交互ローテーション（タンク別）
+- [x] リキャストと効果時間の厳密管理、Passage of Armsの完全除外
+
+## Phase 6 実装 (Advanced Raid Theory V3) ✅
+- [x] 軽減配置時間の「攻撃との完全同期」（ズラしの完全廃止）
+- [x] Group1 / Group2 を用いた「チームローテーション」主軸のAoEベースアサイン
+- [x] 危険なAoEに対するヒーラーセット（学者セットA/B/C、賢者セットA/B）の上乗せカバー
+- [x] TBの厳格判定（MT/ST被弾 かつ (Max TBdmgの50%以上 or "(TB)" 含む)）
+- [x] 特大TB（Max TBdmgの80%以上）への「無敵優先、無い場合はフルバフ」生存特化ロジック
+- [x] 通常TBへの「A（20%＋中＋短） / B（30%＋短）」交互節約ローテーション
+- [x] タンク個人バフの通常攻撃（AA）への浪費完全禁止
+
+## Phase 7 実装 (Advanced Raid Theory V4 - Priority / 2-Pass Scheduling)
+- [ ] AoEとTBをダメージ降順にソートし、「痛い順（致死級）」から優先的にスケジュールを埋める2パス方式の採用
+- [ ] パス1：特大AoE（Max80%以上）にグループ軽減とヒラ大技セットを厚盛りしてロック
+- [ ] パス2：残り通常AoEに「陣/ケーラ」「運命の輪」等エコな短リキャスト1〜2枚だけを配置
+- [ ] リキャスト判定を「過去・未来の区間チェック（[t-CD, t+CD]）」に変更（前後衝突の防止）
+- [ ] 派生スキル（ニュートラルセクト→サンサイン、テンパランス→ディヴァイングレイス等）の同時自動配置
+- [ ] PH（ピュアヒラ）の短リキャスト・エコスキル（輪・インゲン等）の積極活用
