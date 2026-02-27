@@ -77,7 +77,7 @@ export function generateAutoPlan(
         return true;
     };
 
-    const useMitigation = (memberId: string, mitiId: string, time: number) => {
+    const useMitigation = (memberId: string, mitiId: string, time: number, targetId?: string) => {
         const miti = getMitigation(mitiId);
         if (!miti) return null;
 
@@ -87,6 +87,7 @@ export function generateAutoPlan(
             time: time,
             duration: miti.duration,
             ownerId: memberId,
+            targetId: targetId,
         };
         assignments.push(assignment);
 
@@ -117,11 +118,14 @@ export function generateAutoPlan(
     };
 
     const cancelAssignment = (targetId: string, mitiId: string, timeToRemove: number) => {
-        const index = assignments.findIndex(a => a.ownerId === targetId && a.mitigationId === mitiId && a.time === timeToRemove);
+        const member = party.find(m => m.id === targetId || m.role === targetId);
+        if (!member) return;
+
+        const index = assignments.findIndex(a => a.ownerId === member.id && a.mitigationId === mitiId && a.time === timeToRemove);
         if (index > -1) {
             assignments.splice(index, 1);
         }
-        const key = `${targetId}_${mitiId}`;
+        const key = `${member.id}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         const tIndex = times.indexOf(timeToRemove);
         if (tIndex > -1) {
@@ -162,10 +166,10 @@ export function generateAutoPlan(
 
     let currentTurn = 1;
 
-    const tryAssignMiti = (roleId: string, mitiId: string, time: number): boolean => {
+    const tryAssignMiti = (roleId: string, mitiId: string, time: number, targetId?: string): boolean => {
         const member = party.find(m => m.id === roleId || m.role === roleId);
         if (member && isCooldownAvailable(member.id, mitiId, time)) {
-            useMitigation(member.id, mitiId, time);
+            useMitigation(member.id, mitiId, time, targetId);
             return true;
         }
         return false;
@@ -190,13 +194,13 @@ export function generateAutoPlan(
         return tryAssignMiti(partyMember.id, mitiId, time);
     };
 
-    const getH1CoverSets = (job: string) => job === 'whm' ? ['temperance', 'liturgy_of_the_bell', 'plenary_indulgence'] : ['neutral_sect', 'macrocosmos', 'collective_unconscious'];
-    const getH2CoverSets = (job: string) => job === 'sch' ? ['sacred_soil', 'summon_seraph', 'recitation_deployment_tactics', 'expedient'] : ['kerachole', 'holos', 'panhaima', 'philosophia'];
+    const getH1CoverSets = (job: string) => job === 'whm' ? ['temperance'] : ['neutral_sect', 'collective_unconscious'];
+    const getH2CoverSets = (job: string) => job === 'sch' ? ['sacred_soil', 'summon_seraph', 'expedient', 'recitation_deployment_tactics'] : ['kerachole', 'holos', 'panhaima'];
 
-    const getH1Short = (job: string) => job === 'whm' ? 'plenary_indulgence' : 'collective_unconscious';
-    const getH1Mid = (job: string) => job === 'whm' ? 'liturgy_of_the_bell' : 'macrocosmos';
+    const getH1Short = (job: string) => job === 'whm' ? '' : 'collective_unconscious';
+    const getH1Mid = (job: string) => job === 'whm' ? '' : '';
     const getH2Short = (job: string) => job === 'sch' ? 'sacred_soil' : 'kerachole';
-    const getH2Mid = (job: string) => job === 'sch' ? 'fey_illumination' : 'holos';
+    const getH2Mid = (job: string) => job === 'sch' ? '' : 'holos';
 
     const tankSkills = {
         pld: { invuln: 'hallowed_ground', heavy: 'guardian', mid: 'bulwark', short: 'holy_sheltron', partnerShort: 'intervention' },
@@ -269,6 +273,9 @@ export function generateAutoPlan(
                     if (realDamage <= safeSettings.dpsHp) break;
 
                     if (tryAssignMiti(coverSkill.role, coverSkill.mitiId, time)) {
+                        if (coverSkill.mitiId === 'summon_seraph') {
+                            tryAssignMiti(coverSkill.role, 'fey_illumination', time);
+                        }
                         realDamage = calculateRealDamage(time, rawDamage, 'AoE');
                     }
                 }
@@ -290,6 +297,30 @@ export function generateAutoPlan(
             const skills = tankSkills[targetTank.jobId as keyof typeof tankSkills];
             const rampart = `rampart_${targetTank.jobId}`;
 
+            // 1. Check if already invincible from a previous mechanic
+            let hasInvulnActive = false;
+            for (const a of assignments) {
+                if (a.ownerId === targetTank.id && a.mitigationId === skills.invuln && time >= a.time && time < a.time + a.duration) {
+                    hasInvulnActive = true;
+                    break;
+                }
+            }
+            if (hasInvulnActive) continue;
+
+            // 2. Group consecutive TBs into a flurry
+            const previousTB = chronologicalEvents.find(e =>
+                e.target === targetId && e.time < time && time - e.time <= 5 &&
+                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.nameEn?.toLowerCase().includes('(tb)') || e.name?.includes('(TB)') || e.name?.includes('強攻撃'))
+            );
+            if (previousTB) continue;
+
+            // This is the FIRST hit of a flurry (or a single TB). Find max damage.
+            const flurryHits = chronologicalEvents.filter(e =>
+                e.target === targetId && e.time >= time && e.time - time <= 5 &&
+                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.nameEn?.toLowerCase().includes('(tb)') || e.name?.includes('(TB)') || e.name?.includes('強攻撃'))
+            );
+            const maxRawDamage = Math.max(...flurryHits.map(e => e.damageAmount || 0));
+
             // Try standard Busters
             const assignedIds: string[] = [];
 
@@ -308,11 +339,11 @@ export function generateAutoPlan(
             // Partner covert
             if (partnerTank?.jobId) {
                 const pSkills = tankSkills[partnerTank.jobId as keyof typeof tankSkills];
-                if (tryAssignMiti(partnerId, pSkills.partnerShort, time)) assignedIds.push(`partner_${pSkills.partnerShort}`);
+                if (tryAssignMiti(partnerId, pSkills.partnerShort, time, targetId)) assignedIds.push(`partner_${pSkills.partnerShort}`);
             }
 
-            // Check if survived
-            const realDamage = calculateRealDamage(time, rawDamage, targetId);
+            // Calculate real damage for the maximum hit using the buffs we JUST assigned
+            const realDamage = calculateRealDamage(time, maxRawDamage, targetId);
 
             // If lethal, or if we couldn't even assign 2 personal buffs
             if (realDamage > safeSettings.tankHp || assignedIds.filter(id => !id.startsWith('partner_')).length === 0) {

@@ -19,8 +19,20 @@ function isAutoAttack(ev: FFLogsRawEvent): boolean {
 }
 
 function mapDamageType(t: number | undefined): 'physical' | 'magical' | 'unavoidable' {
-    if (t === 1) return 'physical';
-    if (t === 2 || t === 1024) return 'magical';  // 1024 = FF14 "unique" but mitigable by magic def
+    if (t === undefined) return 'magical';
+
+    // FFXIV / FFLogs Ability Types:
+    // 1: Physical Slashing
+    // 2: Piercing
+    // 3: Blunt
+    // 4: Shot (Ranged Physical)
+    // 5: Magic
+    // 6: Unique (Usually Magical depending on scaling)
+    // Sometimes FFLogs uses 1=Physical generally, 2=Magical.
+    // Also, physical damage often has IDs 1, 2, 3, 4. Magical is 2, 5, 8.
+
+    // We will treat 1, 2, 3, 4 as physical attacks.
+    if (t === 1 || t === 2 || t === 3 || t === 4 || t === 128) return 'physical';
     return 'magical';
 }
 
