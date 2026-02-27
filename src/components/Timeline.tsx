@@ -1118,30 +1118,30 @@ export const Timeline: React.FC = () => {
                         </button>
 
                         {/* Sorting Controls */}
-                        <div className="flex items-center gap-3 px-4 py-2 bg-black/50 rounded-2xl border border-white/15 relative shadow-inner">
+                        <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
                             <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
-                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
 
-                            <div className="flex gap-1 bg-black/30 p-1 rounded-xl border border-white/10">
+                            <div className="flex gap-1 bg-slate-300/50 dark:bg-black/30 p-1 rounded-xl border border-slate-400/30 dark:border-white/10">
                                 <button
                                     onClick={() => setPartySortOrder('light_party')}
                                     className={clsx(
                                         "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                         partySortOrder === 'light_party'
-                                            ? "bg-slate-900/40 dark:bg-white/10 text-slate-800 dark:text-white border-white/40 shadow-sm"
-                                            : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:hover:text-white hover:bg-slate-900/40 dark:hover:bg-white/10"
+                                            ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
+                                            : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                     )}
                                 >
                                     LIGHT PARTY
                                 </button>
-                                <div className="w-[1px] h-4 bg-slate-900/40 dark:bg-white/10 my-auto" />
+                                <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto" />
                                 <button
                                     onClick={() => setPartySortOrder('role')}
                                     className={clsx(
                                         "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                         partySortOrder === 'role'
-                                            ? "bg-slate-900/40 dark:bg-white/10 text-slate-800 dark:text-white border-white/40 shadow-sm"
-                                            : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:hover:text-white hover:bg-slate-900/40 dark:hover:bg-white/10"
+                                            ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
+                                            : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                     )}
                                 >
                                     Role Order
@@ -1149,18 +1149,18 @@ export const Timeline: React.FC = () => {
                             </div>
 
                             {/* Hide Empty Rows Toggle */}
-                            <div className="w-[1px] h-4 bg-slate-900/40 dark:bg-white/10 my-auto mx-1" />
+                            <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto mx-1" />
                             <button
                                 onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                 className={clsx(
                                     "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
                                     useMitigationStore.getState().hideEmptyRows
-                                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30 shadow-sm"
-                                        : "text-slate-700 dark:text-slate-300 border-transparent hover:text-slate-800 dark:hover:text-white hover:bg-slate-900/40 dark:hover:bg-white/10"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
+                                        : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                 )}
                                 title="Toggle Empty Rows"
                             >
-                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-400" : "text-slate-700 dark:text-slate-300"} />
+                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
                                 COMPACT
                             </button>
                         </div>
