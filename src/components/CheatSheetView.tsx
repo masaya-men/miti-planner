@@ -107,15 +107,15 @@ export const CheatSheetView: React.FC = () => {
         );
     };
 
-    // Filter events to only show those that have damage
+    // Filter events to only show those that have damage and are not Autto-Attacks (AA)
     const damageEvents = useMemo(() => {
         return timelineEvents
-            .filter(e => e.damageAmount && e.damageAmount > 0)
+            .filter(e => e.damageAmount && e.damageAmount > 0 && e.name !== 'AA')
             .sort((a, b) => a.time - b.time);
     }, [timelineEvents]);
 
     return (
-        <div className="flex flex-col h-full w-full max-w-3xl mx-auto bg-glass-panel backdrop-blur-xl rounded-xl border border-glass-border overflow-hidden shadow-glass relative">
+        <div className="flex flex-col h-full w-full max-w-3xl mx-auto bg-glass-panel backdrop-blur-xl rounded-xl border border-glass-border overflow-y-auto overflow-x-hidden relative scroll-smooth thin-scrollbar pb-10 shadow-glass">
 
             {/* Header */}
             <div className="flex items-stretch h-10 bg-glass-header border-b border-glass-border shrink-0 sticky top-0 z-20 shadow-glass">
@@ -131,7 +131,7 @@ export const CheatSheetView: React.FC = () => {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto relative scroll-smooth thin-scrollbar pb-10">
+            <div className="flex-1 flex flex-col">
                 {damageEvents.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-slate-500 text-sm font-medium">
                         No damage events recorded.

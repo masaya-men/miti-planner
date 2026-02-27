@@ -316,7 +316,7 @@ export function validateMitigationPlacement(
 
     if (sameSkillUses.length > 0) {
         // Forward check: is the skill still on cooldown from a previous use?
-        const prevUses = sameSkillUses.filter(u => u.time < selectedTime);
+        const prevUses = sameSkillUses.filter(u => u.time <= selectedTime);
         if (prevUses.length > 0) {
             const lastPrev = prevUses[prevUses.length - 1];
             const cdEnd = lastPrev.time + m.cooldown;
