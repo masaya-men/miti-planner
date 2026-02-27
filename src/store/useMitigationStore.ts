@@ -40,6 +40,8 @@ interface MitigationState {
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
     /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */
     importTimelineEvents: (events: TimelineEvent[]) => void;
+    /** Changes a member's job and strictly overwrites their mitigations with the provided array */
+    changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
 
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
@@ -252,6 +254,46 @@ export const useMitigationStore = create<MitigationState>()(
                     }
 
                     return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
+                }),
+
+                changeMemberJobWithMitigations: (memberId, jobId, mitis) => set((state) => {
+                    // Update member job
+                    const newMembers = state.partyMembers.map(m => {
+                        if (m.id === memberId) {
+                            const job = JOBS.find(j => j.id === jobId);
+                            const newRole = job ? job.role : m.role;
+                            let newStats = { ...m.stats };
+                            if (job && job.role !== m.role) {
+                                if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                                else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                                else newStats = { ...DEFAULT_HEALER_STATS };
+                            }
+                            const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+                            return { ...updatedMember, computedValues: calculateMemberValues(updatedMember) };
+                        }
+                        return m;
+                    });
+
+                    // Remove old mitigations for this member, and append the newly migrated ones
+                    const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
+
+                    // Auto-insert Dissipation for Scholar if missing
+                    let finalMitis = [...mitis];
+                    if (jobId === 'sch') {
+                        const pattern = state.schAetherflowPatterns[memberId] ?? 1;
+                        const hasInitialDissipation = finalMitis.some(m => m.mitigationId === 'dissipation' && m.time <= 15);
+                        if (!hasInitialDissipation) {
+                            finalMitis.push({
+                                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                mitigationId: 'dissipation',
+                                ownerId: memberId,
+                                time: pattern === 1 ? 1 : 14,
+                                duration: 30
+                            });
+                        }
+                    }
+
+                    return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
                 }),
 
                 updateMemberStats: (memberId, stats) => set((state) => ({
