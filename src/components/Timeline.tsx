@@ -518,6 +518,33 @@ export const Timeline: React.FC = () => {
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const schBarRef = useRef<HTMLDivElement>(null);
+
+    const handleScrollSync = () => {
+        if (!scrollContainerRef.current) return;
+        const scrollLeft = scrollContainerRef.current.scrollLeft;
+        if (headerRef.current) headerRef.current.scrollLeft = scrollLeft;
+        if (schBarRef.current) schBarRef.current.scrollLeft = scrollLeft;
+    };
+    // 👇👇👇 ここから追加 👇👇👇
+    useEffect(() => {
+        const syncPadding = () => {
+            if (scrollContainerRef.current && headerRef.current) {
+                // スクロールバーの幅を自動計算（全体幅 - 中身の幅）
+                const scrollbarWidth = scrollContainerRef.current.offsetWidth - scrollContainerRef.current.clientWidth;
+
+                // ヘッダーとSCHバーの右側に、スクロールバーと同じ幅の余白を強制追加
+                headerRef.current.style.paddingRight = `${scrollbarWidth}px`;
+                if (schBarRef.current) schBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
+            }
+        };
+
+        syncPadding(); // 初回実行
+        window.addEventListener('resize', syncPadding); // ウィンドウサイズ変更時も再計算
+        return () => window.removeEventListener('resize', syncPadding);
+    }, []);
+    // 👆👆👆 ここまで追加 👆👆👆
     const [showPreStart] = useState(true); // Fixed for now, removed setter to fix lint
     const [importModalOpen, setImportModalOpen] = useState(false);
 
@@ -1176,7 +1203,9 @@ export const Timeline: React.FC = () => {
                         if (schMembers.length === 0) return null;
                         const fixedColsWidth = 570;
                         return (
-                            <div className="flex-shrink-0 z-[51] h-7 relative bg-[#111214]/90 backdrop-blur-md border-b border-white/[0.03]">
+                            <div
+                                ref={schBarRef} /* 👈 これを追加 */
+                                className="flex-shrink-0 z-[51] h-7 relative bg-[#111214]/90 backdrop-blur-md border-b border-white/[0.03]">
                                 {schMembers.map(({ member, idx }) => {
                                     let schLeft = fixedColsWidth;
                                     for (let i = 0; i < idx; i++) {
@@ -1226,9 +1255,12 @@ export const Timeline: React.FC = () => {
                     })()}
 
                     {/* Header Row - sticky within scroll container */}
-                    <div className={clsx(
-                        "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
-                    )}>
+                    <div
+                        ref={headerRef} /* 👈 これを追加 */
+                        className={clsx(
+                            "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
+                        )} /* 👈 最後に overflow-hidden があることを確認 */
+                    >
                         {/* ▼▼ 追加: 中身に合わせて伸びるラッパー箱 (PCのみ幅固定) ▼▼ */}
                         <div className="flex items-center h-full md:w-max md:min-w-full">
                             <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent">
@@ -1280,7 +1312,7 @@ export const Timeline: React.FC = () => {
                         </div> {/* ◀◀ 追加したラッパーを閉じる */}
                     </div> {/* ◀◀ 追加したラッパーを閉じる */}
 
-                    <div className="flex-1 overflow-auto relative" ref={scrollContainerRef}>
+                    <div className="flex-1 overflow-auto relative" ref={scrollContainerRef} onScroll={handleScrollSync}>
                         {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
                         {/* Time Grid & Columns */}
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
