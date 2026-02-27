@@ -7,9 +7,6 @@ import { MITIGATIONS } from '../data/mockData';
 
 const EXCLUDED_MITIGATIONS = new Set(['passage_of_arms']);
 
-const GROUP1_ROLES = ['MT', 'H1', 'D1', 'D3'];
-const GROUP2_ROLES = ['ST', 'H2', 'D2', 'D4'];
-
 const DERIVED_SKILLS_MAP: Record<string, string> = {
     'neutral_sect': 'sun_sign',
     'temperance': 'divine_caress'
@@ -31,8 +28,14 @@ function getFamily(miti: Mitigation): string {
 export function generateAutoPlan(
     timeline: TimelineEvent[],
     party: PartyMember[],
+    settings?: { tankHp: number; dpsHp: number }
 ): AppliedMitigation[] {
     const assignments: AppliedMitigation[] = [];
+
+    const safeSettings = {
+        tankHp: settings?.tankHp ?? 299000,
+        dpsHp: settings?.dpsHp ?? 199000,
+    };
 
     const memberMitigations = new Map<string, Mitigation[]>();
     for (const member of party) {
@@ -44,8 +47,7 @@ export function generateAutoPlan(
         }
     }
 
-    // Step 2: Recast Interval Management (Collision check)
-    // Tracks usage times of each mitigation for each member: memberId_mitiId -> number[]
+    // Interval Check Function
     const usageTimes = new Map<string, number[]>();
 
     const isCooldownAvailable = (memberId: string, mitiId: string, time: number): boolean => {
@@ -55,7 +57,6 @@ export function generateAutoPlan(
         const memberMitis = memberMitigations.get(memberId) || [];
         if (!memberMitis.some(m => m.id === mitiId)) return false;
 
-        // 1. Cooldown interval check
         const key = `${memberId}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         for (const usedTime of times) {
@@ -64,7 +65,6 @@ export function generateAutoPlan(
             }
         }
 
-        // 2. Exact same time overlapping family check
         const family = getFamily(miti);
         const hasFamilyOverlap = assignments.some(a => {
             const aMiti = getMitigation(a.mitigationId);
@@ -79,22 +79,22 @@ export function generateAutoPlan(
 
     const useMitigation = (memberId: string, mitiId: string, time: number) => {
         const miti = getMitigation(mitiId);
-        if (!miti) return;
+        if (!miti) return null;
 
-        assignments.push({
+        const assignment: AppliedMitigation = {
             id: crypto.randomUUID(),
             mitigationId: miti.id,
             time: time,
             duration: miti.duration,
             ownerId: memberId,
-        });
+        };
+        assignments.push(assignment);
 
         const key = `${memberId}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         times.push(time);
         usageTimes.set(key, times);
 
-        // Step 5: Derived Skills Auto-Placement
         if (DERIVED_SKILLS_MAP[miti.id]) {
             const derivedId = DERIVED_SKILLS_MAP[miti.id];
             const dMiti = getMitigation(derivedId);
@@ -112,203 +112,221 @@ export function generateAutoPlan(
                 usageTimes.set(dKey, dTimes);
             }
         }
+
+        return assignment;
     };
 
-    // Step 1: Data Preparation and Sorting
-    const damageEvents = timeline.filter(t => (t.target === 'AoE' || t.target === 'MT' || t.target === 'ST') && (t.damageAmount || 0) > 0);
-    const aoeEvents = damageEvents.filter(t => t.target === 'AoE');
-    const tbEvents = damageEvents.filter(t => t.target === 'MT' || t.target === 'ST');
-
-    const maxAoeDamage = aoeEvents.reduce((max, ev) => Math.max(max, ev.damageAmount || 0), 0);
-    const maxTbDamage = tbEvents.reduce((max, ev) => Math.max(max, ev.damageAmount || 0), 0);
-
-    const extremeAoeThreshold = maxAoeDamage * 0.8;
-    const extremeTbThreshold = maxTbDamage * 0.8;
-
-    // Queue of all damage events sorted descending by raw damage
-    const sortedEvents = [...damageEvents].sort((a, b) => (b.damageAmount || 0) - (a.damageAmount || 0));
-
-    const tankSkills = {
-        pld: { invuln: 'hallowed_ground', heavy: 'guardian', mid: 'bulwark', short: 'holy_sheltron' },
-        war: { invuln: 'holmgang', heavy: 'damnation', mid: 'thrill_of_battle', short: 'bloodwhetting' },
-        drk: { invuln: 'living_dead', heavy: 'shadowed_vigil', mid: 'dark_mind', short: 'the_blackest_night' },
-        gnb: { invuln: 'superbolide', heavy: 'great_nebula', mid: 'camouflage', short: 'heart_of_corundum' },
-    };
-
-    const h2 = party.find(m => m.id === 'H2');
-    const getBhSets = (jobId: string) => {
-        if (jobId === 'sch') return { setA: ['sacred_soil', 'fey_illumination', 'summon_seraph'], setB: ['sacred_soil', 'recitation_deployment_tactics'], setC: ['sacred_soil', 'expedient'], short: 'sacred_soil' };
-        if (jobId === 'sge') return { setA: ['kerachole', 'holos'], setB: ['kerachole', 'panhaima'], setC: ['kerachole', 'philosophia'], short: 'kerachole' };
-        return null;
-    };
-    const bhSets = h2?.jobId ? getBhSets(h2.jobId) : null;
-
-    const tryRoleMitis = (roleIds: string[], time: number) => {
-        for (const roleId of roleIds) {
-            const member = party.find(m => m.id === roleId);
-            if (!member || !member.jobId) continue;
-            const partyMitis = (memberMitigations.get(roleId) || []).filter(m => m.scope === 'party' || m.scope === undefined);
-            for (const miti of partyMitis) {
-                if (isCooldownAvailable(roleId, miti.id, time)) {
-                    useMitigation(roleId, miti.id, time);
-                }
-            }
+    const cancelAssignment = (targetId: string, mitiId: string, timeToRemove: number) => {
+        const index = assignments.findIndex(a => a.ownerId === targetId && a.mitigationId === mitiId && a.time === timeToRemove);
+        if (index > -1) {
+            assignments.splice(index, 1);
+        }
+        const key = `${targetId}_${mitiId}`;
+        const times = usageTimes.get(key) || [];
+        const tIndex = times.indexOf(timeToRemove);
+        if (tIndex > -1) {
+            times.splice(tIndex, 1);
+            usageTimes.set(key, times);
         }
     };
 
-    let groupToggle = 1;
+    // Calculate Real Damage helper
+    const calculateRealDamage = (eventTime: number, rawDamage: number, eventTarget: 'MT' | 'ST' | 'AoE'): number => {
+        let mitigationMultiplier = 1;
 
-    const isDangerousTb = (ev: TimelineEvent) => {
-        if (ev.target === 'MT' || ev.target === 'ST') {
-            return (ev.damageAmount || 0) >= extremeTbThreshold || ev.nameEn?.toLowerCase().includes('(tb)') || ev.name?.includes('(TB)') || ev.name?.includes('強攻撃');
+        for (const a of assignments) {
+            const miti = getMitigation(a.mitigationId);
+            if (!miti) continue;
+
+            const isCoveringEvent = eventTime >= a.time && eventTime <= a.time + a.duration;
+            if (!isCoveringEvent) continue;
+
+            if (miti.isInvincible && a.ownerId === eventTarget) {
+                return 0; // Invuln is active on target
+            }
+
+            if (!miti.isShield && miti.value > 0) {
+                if (miti.scope === 'party' || miti.scope === undefined || a.ownerId === eventTarget) {
+                    mitigationMultiplier *= (1 - miti.value / 100);
+                }
+            }
+        }
+
+        return rawDamage * mitigationMultiplier;
+    };
+
+    // Damage Events
+    const damageEvents = timeline.filter(t => (t.target === 'AoE' || t.target === 'MT' || t.target === 'ST') && (t.damageAmount || 0) > 0);
+    // Sort strictly chronologically
+    const chronologicalEvents = [...damageEvents].sort((a, b) => a.time - b.time);
+
+    let currentTurn = 1;
+
+    const tryAssignMiti = (roleId: string, mitiId: string, time: number): boolean => {
+        const member = party.find(m => m.id === roleId || m.role === roleId);
+        if (member && isCooldownAvailable(member.id, mitiId, time)) {
+            useMitigation(member.id, mitiId, time);
+            return true;
         }
         return false;
     };
 
-    // Step 3: Pass 1 - Lethal Damage Lock
-    for (const ev of sortedEvents) {
-        const isAoE = ev.target === 'AoE';
-        const isExtAoE = isAoE && (ev.damageAmount || 0) >= extremeAoeThreshold;
+    const tanks = { mt: party.find(m => m.id === 'MT'), st: party.find(m => m.id === 'ST') };
+    const healers = { h1: party.find(m => m.id === 'H1'), h2: party.find(m => m.id === 'H2') };
+    const melees = party.filter(m => m.role === 'dps' && ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(m.jobId!));
+    const casters = party.filter(m => m.role === 'dps' && ['blm', 'smn', 'rdm', 'pct'].includes(m.jobId!));
+    const ranged = party.filter(m => m.role === 'dps' && ['brd', 'mch', 'dnc'].includes(m.jobId!));
 
-        const isTB = ev.target === 'MT' || ev.target === 'ST';
-        const isExtTB = isTB && (ev.damageAmount || 0) >= extremeTbThreshold;
+    const tryRoleGeneric = (partyMember: PartyMember | undefined, type: 'reprisal' | '90s_tank' | 'feint' | 'addle' | '90s_ranged', time: number) => {
+        if (!partyMember || !partyMember.jobId) return false;
 
+        let mitiId = '';
+        if (type === 'reprisal') mitiId = `reprisal_${partyMember.jobId}`;
+        else if (type === '90s_tank') mitiId = partyMember.jobId === 'war' ? 'shake_it_off' : partyMember.jobId === 'pld' ? 'divine_veil' : partyMember.jobId === 'drk' ? 'dark_missionary' : 'heart_of_light';
+        else if (type === 'feint') mitiId = `feint_${partyMember.jobId}`;
+        else if (type === 'addle') mitiId = `addle_${partyMember.jobId}`;
+        else if (type === '90s_ranged') mitiId = partyMember.jobId === 'brd' ? 'troubadour' : partyMember.jobId === 'mch' ? 'tactician' : 'shield_samba';
+
+        return tryAssignMiti(partyMember.id, mitiId, time);
+    };
+
+    const getH1CoverSets = (job: string) => job === 'whm' ? ['temperance', 'liturgy_of_the_bell', 'plenary_indulgence'] : ['neutral_sect', 'macrocosmos', 'collective_unconscious'];
+    const getH2CoverSets = (job: string) => job === 'sch' ? ['sacred_soil', 'summon_seraph', 'recitation_deployment_tactics', 'expedient'] : ['kerachole', 'holos', 'panhaima', 'philosophia'];
+
+    const getH1Short = (job: string) => job === 'whm' ? 'plenary_indulgence' : 'collective_unconscious';
+    const getH1Mid = (job: string) => job === 'whm' ? 'liturgy_of_the_bell' : 'macrocosmos';
+    const getH2Short = (job: string) => job === 'sch' ? 'sacred_soil' : 'kerachole';
+    const getH2Mid = (job: string) => job === 'sch' ? 'fey_illumination' : 'holos';
+
+    const tankSkills = {
+        pld: { invuln: 'hallowed_ground', heavy: 'guardian', mid: 'bulwark', short: 'holy_sheltron', partnerShort: 'intervention' },
+        war: { invuln: 'holmgang', heavy: 'damnation', mid: 'thrill_of_battle', short: 'bloodwhetting', partnerShort: 'nascent_flash' },
+        drk: { invuln: 'living_dead', heavy: 'shadowed_vigil', mid: 'dark_mind', short: 'the_blackest_night', partnerShort: 'oblation' },
+        gnb: { invuln: 'superbolide', heavy: 'great_nebula', mid: 'camouflage', short: 'heart_of_corundum', partnerShort: 'heart_of_corundum' },
+    };
+
+    for (const ev of chronologicalEvents) {
         const time = ev.time;
+        const rawDamage = ev.damageAmount || 0;
 
-        if (isExtAoE) {
-            const currentGroup = groupToggle === 1 ? GROUP1_ROLES : GROUP2_ROLES;
-
-            tryRoleMitis(currentGroup.filter(r => r !== 'H1' && r !== 'H2'), time);
-
-            // D3 Absolute Rule
-            const d3 = party.find(m => m.id === 'D3');
-            if (d3?.jobId) {
-                const d3Miti = d3.jobId === 'brd' ? 'troubadour' : d3.jobId === 'mch' ? 'tactician' : 'shield_samba';
-                if (isCooldownAvailable('D3', d3Miti, time)) useMitigation('D3', d3Miti, time);
-            }
-
-            // BH Sets and Short
-            if (bhSets) {
-                if (bhSets.setA.every(id => isCooldownAvailable('H2', id, time))) {
-                    bhSets.setA.forEach(id => useMitigation('H2', id, time));
-                } else if (bhSets.setB.every(id => isCooldownAvailable('H2', id, time))) {
-                    bhSets.setB.forEach(id => useMitigation('H2', id, time));
-                } else if (bhSets.setC?.every(id => isCooldownAvailable('H2', id, time))) {
-                    bhSets.setC.forEach(id => useMitigation('H2', id, time));
-                } else {
-                    [...bhSets.setA, ...bhSets.setB].forEach(id => {
-                        if (isCooldownAvailable('H2', id, time)) useMitigation('H2', id, time);
-                    });
-                }
-                if (isCooldownAvailable('H2', bhSets.short, time)) {
-                    useMitigation('H2', bhSets.short, time);
-                }
-            }
-
-            // PH Heavy and Short
-            const h1Job = party.find(m => m.id === 'H1')?.jobId;
-            if (h1Job === 'whm') {
-                if (isCooldownAvailable('H1', 'temperance', time)) useMitigation('H1', 'temperance', time);
-                if (isCooldownAvailable('H1', 'liturgy_of_the_bell', time)) useMitigation('H1', 'liturgy_of_the_bell', time);
-                if (isCooldownAvailable('H1', 'plenary_indulgence', time)) useMitigation('H1', 'plenary_indulgence', time);
-            } else if (h1Job === 'ast') {
-                if (isCooldownAvailable('H1', 'neutral_sect', time)) useMitigation('H1', 'neutral_sect', time);
-                if (isCooldownAvailable('H1', 'macrocosmos', time)) useMitigation('H1', 'macrocosmos', time);
-                if (isCooldownAvailable('H1', 'collective_unconscious', time)) useMitigation('H1', 'collective_unconscious', time);
-            }
-
-            groupToggle = groupToggle === 1 ? 2 : 1;
-
-        } else if (isExtTB) {
-            const targetId = ev.target === 'MT' ? 'MT' : 'ST';
-            const tankJob = party.find(m => m.id === targetId)?.jobId as keyof typeof tankSkills;
-            if (tankJob && tankSkills[tankJob]) {
-                const skills = tankSkills[tankJob];
-                const rampart = `rampart_${tankJob}`;
-
-                if (isCooldownAvailable(targetId, skills.invuln, time)) {
-                    useMitigation(targetId, skills.invuln, time);
-                } else {
-                    if (isCooldownAvailable(targetId, skills.heavy, time)) useMitigation(targetId, skills.heavy, time);
-                    if (isCooldownAvailable(targetId, rampart, time)) useMitigation(targetId, rampart, time);
-                    if (isCooldownAvailable(targetId, skills.mid, time)) useMitigation(targetId, skills.mid, time);
-                    if (isCooldownAvailable(targetId, skills.short, time)) useMitigation(targetId, skills.short, time);
-                }
-            }
+        // Skip consecutive AoEs (process the first one of the flurry)
+        if (ev.target === 'AoE') {
+            const previousAoE = chronologicalEvents.find(e => e.target === 'AoE' && e.time < time && time - e.time <= 3);
+            if (previousAoE) continue;
         }
-    }
 
-    // Step 4: Pass 2 - Eco-Mode
-    for (const ev of sortedEvents) {
-        const isAoE = ev.target === 'AoE';
-        const isExtAoE = isAoE && (ev.damageAmount || 0) >= extremeAoeThreshold;
-        const isTB = ev.target === 'MT' || ev.target === 'ST';
-        const isExtTB = isTB && (ev.damageAmount || 0) >= extremeTbThreshold;
+        if (ev.target === 'AoE') {
+            // -- GROUP ROTATION ASSIGNMENT --
+            if (currentTurn === 1) {
+                // Group 1: MT, H1(Short/Mid), D1(Feint), D3(90s)
+                tryRoleGeneric(tanks.mt, 'reprisal', time);
+                tryRoleGeneric(tanks.mt, '90s_tank', time);
 
-        // Skip events already processed in Pass 1
-        if (isExtAoE || isExtTB) continue;
-
-        const time = ev.time;
-
-        if (isAoE) {
-            let mitigationsDeployed = 0;
-
-            if (bhSets) {
-                if (isCooldownAvailable('H2', bhSets.short, time)) {
-                    useMitigation('H2', bhSets.short, time);
-                    mitigationsDeployed++;
+                if (healers.h1?.jobId) {
+                    tryAssignMiti('H1', getH1Short(healers.h1.jobId), time);
+                    tryAssignMiti('H1', getH1Mid(healers.h1.jobId), time);
                 }
+
+                if (melees.length > 0) tryRoleGeneric(melees[0], 'feint', time);
+                if (ranged.length > 0) tryRoleGeneric(ranged[0], '90s_ranged', time);
+
+            } else {
+                // Group 2: ST, H2(Short/Mid), D2(Feint), D4(Addle)
+                tryRoleGeneric(tanks.st, 'reprisal', time);
+                tryRoleGeneric(tanks.st, '90s_tank', time);
+
+                if (healers.h2?.jobId) {
+                    tryAssignMiti('H2', getH2Short(healers.h2.jobId), time);
+                    tryAssignMiti('H2', getH2Mid(healers.h2.jobId), time);
+                }
+
+                if (melees.length > 1) tryRoleGeneric(melees[1], 'feint', time);
+                if (casters.length > 0) tryRoleGeneric(casters[0], 'addle', time);
             }
 
-            const h1Job = party.find(m => m.id === 'H1')?.jobId;
-            if (h1Job === 'ast') {
-                if (isCooldownAvailable('H1', 'collective_unconscious', time)) {
-                    useMitigation('H1', 'collective_unconscious', time);
-                    mitigationsDeployed++;
-                }
-            } else if (h1Job === 'whm') {
-                if (isCooldownAvailable('H1', 'plenary_indulgence', time)) {
-                    useMitigation('H1', 'plenary_indulgence', time);
-                    mitigationsDeployed++;
-                }
-            }
+            // -- HP CALCULATION WHILE LOOP --
+            let realDamage = calculateRealDamage(time, rawDamage, 'AoE');
 
-            if (mitigationsDeployed === 0) {
-                const mtJob = party.find(m => m.id === 'MT')?.jobId;
-                const stJob = party.find(m => m.id === 'ST')?.jobId;
-                if (mtJob && isCooldownAvailable('MT', `reprisal_${mtJob}`, time)) {
-                    useMitigation('MT', `reprisal_${mtJob}`, time);
-                } else if (stJob && isCooldownAvailable('ST', `reprisal_${stJob}`, time)) {
-                    useMitigation('ST', `reprisal_${stJob}`, time);
-                } else {
-                    const meleeJob = party.find(m => m.role === 'dps' && ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(m.jobId!));
-                    if (meleeJob && isCooldownAvailable(meleeJob.id, `feint_${meleeJob.jobId}`, time)) {
-                        useMitigation(meleeJob.id, `feint_${meleeJob.jobId}`, time);
-                    } else {
-                        const casterJob = party.find(m => m.role === 'dps' && ['blm', 'smn', 'rdm', 'pct'].includes(m.jobId!));
-                        if (casterJob && isCooldownAvailable(casterJob.id, `addle_${casterJob.jobId}`, time)) {
-                            useMitigation(casterJob.id, `addle_${casterJob.jobId}`, time);
-                        }
+            if (realDamage > safeSettings.dpsHp) {
+                // Determine Cover Set
+                const coverSet: { role: string, mitiId: string }[] = [];
+
+                if (healers.h1?.jobId) getH1CoverSets(healers.h1.jobId).forEach(id => coverSet.push({ role: 'H1', mitiId: id }));
+                if (healers.h2?.jobId) getH2CoverSets(healers.h2.jobId).forEach(id => coverSet.push({ role: 'H2', mitiId: id }));
+
+                const d4 = casters[0];
+                if (d4?.jobId === 'rdm') coverSet.push({ role: d4.id, mitiId: 'magick_barrier' });
+
+                const d3 = ranged[0];
+                if (d3?.jobId === 'brd') coverSet.push({ role: d3.id, mitiId: 'nature_s_minne' });
+                else if (d3?.jobId === 'dnc') coverSet.push({ role: d3.id, mitiId: 'improvisation' });
+
+                const mnk = melees.find(m => m.jobId === 'mnk');
+                if (mnk) coverSet.push({ role: mnk.id, mitiId: 'mantra' });
+
+                // Add to schedule until we survive
+                for (const coverSkill of coverSet) {
+                    if (realDamage <= safeSettings.dpsHp) break;
+
+                    if (tryAssignMiti(coverSkill.role, coverSkill.mitiId, time)) {
+                        realDamage = calculateRealDamage(time, rawDamage, 'AoE');
                     }
                 }
             }
-        } else if (isTB && isDangerousTb(ev)) {
-            const targetId = ev.target === 'MT' ? 'MT' : 'ST';
-            const tankJob = party.find(m => m.id === targetId)?.jobId as keyof typeof tankSkills;
-            if (tankJob && tankSkills[tankJob]) {
-                const skills = tankSkills[tankJob];
-                const rampart = `rampart_${tankJob}`;
 
-                if (isCooldownAvailable(targetId, rampart, time)) {
-                    useMitigation(targetId, rampart, time);
-                    if (isCooldownAvailable(targetId, skills.mid, time)) useMitigation(targetId, skills.mid, time);
-                    if (isCooldownAvailable(targetId, skills.short, time)) useMitigation(targetId, skills.short, time);
-                } else if (isCooldownAvailable(targetId, skills.heavy, time)) {
-                    useMitigation(targetId, skills.heavy, time);
-                    if (isCooldownAvailable(targetId, skills.short, time)) useMitigation(targetId, skills.short, time);
-                } else {
-                    if (isCooldownAvailable(targetId, skills.mid, time)) useMitigation(targetId, skills.mid, time);
-                    if (isCooldownAvailable(targetId, skills.short, time)) useMitigation(targetId, skills.short, time);
+            // Flip turn
+            currentTurn = currentTurn === 1 ? 2 : 1;
+
+        } else if (ev.target === 'MT' || ev.target === 'ST') {
+            const isTB = rawDamage >= (safeSettings.tankHp * 0.5) || ev.nameEn?.toLowerCase().includes('(tb)') || ev.name?.includes('(TB)') || ev.name?.includes('強攻撃');
+            if (!isTB) continue;
+
+            const targetId = ev.target;
+            const partnerId = targetId === 'MT' ? 'ST' : 'MT';
+            const targetTank = targetId === 'MT' ? tanks.mt : tanks.st;
+            const partnerTank = targetId === 'MT' ? tanks.st : tanks.mt;
+
+            if (!targetTank?.jobId) continue;
+            const skills = tankSkills[targetTank.jobId as keyof typeof tankSkills];
+            const rampart = `rampart_${targetTank.jobId}`;
+
+            // Try standard Busters
+            const assignedIds: string[] = [];
+
+            if (isCooldownAvailable(targetId, rampart, time)) {
+                if (tryAssignMiti(targetId, rampart, time)) assignedIds.push(rampart);
+                if (tryAssignMiti(targetId, skills.mid, time)) assignedIds.push(skills.mid);
+                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
+            } else if (isCooldownAvailable(targetId, skills.heavy, time)) {
+                if (tryAssignMiti(targetId, skills.heavy, time)) assignedIds.push(skills.heavy);
+                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
+            } else {
+                if (tryAssignMiti(targetId, skills.mid, time)) assignedIds.push(skills.mid);
+                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
+            }
+
+            // Partner covert
+            if (partnerTank?.jobId) {
+                const pSkills = tankSkills[partnerTank.jobId as keyof typeof tankSkills];
+                if (tryAssignMiti(partnerId, pSkills.partnerShort, time)) assignedIds.push(`partner_${pSkills.partnerShort}`);
+            }
+
+            // Check if survived
+            const realDamage = calculateRealDamage(time, rawDamage, targetId);
+
+            // If lethal, or if we couldn't even assign 2 personal buffs
+            if (realDamage > safeSettings.tankHp || assignedIds.filter(id => !id.startsWith('partner_')).length === 0) {
+                if (isCooldownAvailable(targetId, skills.invuln, time)) {
+                    // Cancel all assigned standard buffs for this mechanic to save for later
+                    for (const id of assignedIds) {
+                        if (id.startsWith('partner_')) {
+                            cancelAssignment(partnerId, id.split('_')[1], time);
+                        } else {
+                            cancelAssignment(targetId, id, time);
+                        }
+                    }
+                    // Apply Invuln
+                    useMitigation(targetId, skills.invuln, time);
                 }
             }
         }
