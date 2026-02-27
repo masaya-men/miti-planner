@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { JOBS } from '../data/mockData';
 import { User, Trash2, Star } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { JobMigrationModal } from './JobMigrationModal';
+import { migrateMitigations } from '../utils/jobMigration';
+import type { MigrationMode } from '../utils/jobMigration';
 interface PartySettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -11,8 +14,16 @@ interface PartySettingsModalProps {
 
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { partyMembers, setMemberJob } = useMitigationStore();
+    const { partyMembers, setMemberJob, timelineMitigations } = useMitigationStore();
     const popoverRef = React.useRef<HTMLDivElement>(null);
+
+    // Migration Modal State
+    const [migrationConfig, setMigrationConfig] = useState<{
+        isOpen: boolean;
+        memberId: string;
+        oldJobId: string;
+        newJobId: string;
+    } | null>(null);
 
     // Close on click outside + Enter key
     React.useEffect(() => {
@@ -52,37 +63,73 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const MELEE_IDS = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
 
     const handleToggleJob = (groupIndices: number[], jobId: string) => {
-        const existingMemberIndex = groupIndices.find(index => partyMembers[index].jobId === jobId);
+        const job = JOBS.find(j => j.id === jobId);
+        if (!job) return;
 
-        if (existingMemberIndex !== undefined) {
-            handleRemoveJob(partyMembers[existingMemberIndex].id);
+        let preferredIndices: number[];
+        if (job.role === 'tank') {
+            preferredIndices = [groupIndices[0]];
+        } else if (job.role === 'healer') {
+            preferredIndices = [groupIndices[1]];
+        } else if (MELEE_IDS.includes(jobId)) {
+            preferredIndices = [groupIndices[2], groupIndices[3]];
         } else {
-            const job = JOBS.find(j => j.id === jobId);
-            if (!job) return;
+            preferredIndices = [groupIndices[3], groupIndices[2]];
+        }
 
-            // Determine preferred slot indices within the group based on job role/subrole
-            // groupIndices: [tank, healer, D-melee, D-ranged]
-            //   MT group: [0, 2, 4, 6]  →  MT, H1, D1, D3
-            //   ST group: [1, 3, 5, 7]  →  ST, H2, D2, D4
-            let preferredIndices: number[];
-            if (job.role === 'tank') {
-                preferredIndices = [groupIndices[0]]; // Tank slot
-            } else if (job.role === 'healer') {
-                preferredIndices = [groupIndices[1]]; // Healer slot
-            } else if (MELEE_IDS.includes(jobId)) {
-                preferredIndices = [groupIndices[2], groupIndices[3]]; // D-melee first, then D-ranged
-            } else {
-                preferredIndices = [groupIndices[3], groupIndices[2]]; // D-ranged first, then D-melee
+        // Target the first preferred slot
+        let targetIndex = preferredIndices.find(idx => !partyMembers[idx].jobId);
+        if (targetIndex === undefined) {
+            targetIndex = preferredIndices[0]; // Overwrite the primary slot for that role if full
+        }
+
+        if (targetIndex !== undefined) {
+            const targetMember = partyMembers[targetIndex];
+
+            // If the target slot ALREADY has the EXACT SAME job we clicked, toggle it off (remove job)
+            if (targetMember.jobId === jobId) {
+                handleRemoveJob(targetMember.id);
+                return;
             }
 
-            // Try preferred slots first, then fall back to any empty slot
-            const targetIndex = preferredIndices.find(idx => !partyMembers[idx].jobId)
-                ?? groupIndices.find(idx => !partyMembers[idx].jobId);
+            // Otherwise, we are assigning a new job to this slot (either overwriting or filling empty)
+            // Check if this member has existing mitigations on the timeline
+            const hasMitigations = timelineMitigations.some(m => m.ownerId === targetMember.id);
 
-            if (targetIndex !== undefined) {
-                setMemberJob(partyMembers[targetIndex].id, jobId);
+            if (hasMitigations && targetMember.jobId) {
+                // Open migration confirmation modal instead of directly setting the job
+                setMigrationConfig({
+                    isOpen: true,
+                    memberId: targetMember.id,
+                    oldJobId: targetMember.jobId,
+                    newJobId: jobId
+                });
+            } else {
+                // No existing mitigations or no previous job, apply directly
+                setMemberJob(targetMember.id, jobId);
             }
         }
+    };
+
+    const handleMigrationConfirm = (mode: MigrationMode) => {
+        if (!migrationConfig) return;
+
+        const { memberId, oldJobId, newJobId } = migrationConfig;
+
+        // 1. Get current member mitigations
+        const memberMitis = timelineMitigations.filter(m => m.ownerId === memberId);
+
+        // 2. Calculate the new migrated set
+        const newMitis = migrateMitigations(oldJobId, newJobId, memberId, memberMitis, mode);
+
+        // 3. Atomically update the job and the timeline mitigations
+        useMitigationStore.getState().changeMemberJobWithMitigations(memberId, newJobId, newMitis);
+
+        setMigrationConfig(null);
+    };
+
+    const handleMigrationCancel = () => {
+        setMigrationConfig(null);
     };
 
     const renderGroup = (title: string, groupIndices: number[]) => {
@@ -276,6 +323,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     </button>
                 </div>
             </div>
+
+            {/* Render Migration Confirmation over everything else */}
+            {migrationConfig && (
+                <JobMigrationModal
+                    isOpen={migrationConfig.isOpen}
+                    oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || null}
+                    newJob={JOBS.find(j => j.id === migrationConfig.newJobId)!}
+                    memberName={migrationConfig.memberId}
+                    onConfirm={handleMigrationConfirm}
+                    onCancel={handleMigrationCancel}
+                />
+            )}
         </div>
     );
 };

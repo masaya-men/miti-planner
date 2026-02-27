@@ -27,6 +27,7 @@ export interface Mitigation {
     requires?: string; // Prerequisite mitigation ID that must be active
     resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
+    family?: string; // Compatibility family for job migration mappings
 }
 
 export interface AppliedMitigation {

@@ -12,6 +12,8 @@ import { MitigationSelector } from './MitigationSelector';
 import { JobPicker } from './JobPicker';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
+import { JobMigrationModal } from './JobMigrationModal';
+import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
@@ -470,7 +472,8 @@ export const Timeline: React.FC = () => {
         removePhase,
         phases,
         myJobHighlight,
-        setMyJobHighlight
+        setMyJobHighlight,
+        changeMemberJobWithMitigations
     } = useMitigationStore();
 
     // Modal State
@@ -496,6 +499,15 @@ export const Timeline: React.FC = () => {
     const [jobPickerOpen, setJobPickerOpen] = useState(false);
     const [jobPickerPosition, setJobPickerPosition] = useState({ x: 0, y: 0 });
     const [jobPickerMemberId, setJobPickerMemberId] = useState<string | null>(null);
+
+    // Job Migration Modal State
+    type MigrationMode = 'inherit' | 'common_only' | 'reset';
+    const [migrationConfig, setMigrationConfig] = useState<{
+        isOpen: boolean;
+        memberId: string;
+        oldJobId: string;
+        newJobId: string;
+    } | null>(null);
 
     // Party Settings Modal
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
@@ -696,9 +708,55 @@ export const Timeline: React.FC = () => {
 
     const handleJobSelect = (jobId: string) => {
         if (jobPickerMemberId) {
-            setMemberJob(jobPickerMemberId, jobId);
+            const targetMember = partyMembers.find(m => m.id === jobPickerMemberId);
+            if (targetMember) {
+                // Check if the exact same job was selected (do nothing)
+                if (targetMember.jobId === jobId) {
+                    setJobPickerOpen(false);
+                    return;
+                }
+
+                // Check if this member has existing mitigations on the timeline
+                const hasMitigations = timelineMitigations.some(m => m.ownerId === targetMember.id);
+
+                if (hasMitigations && targetMember.jobId) {
+                    // Open migration confirmation modal instead of directly setting the job
+                    setMigrationConfig({
+                        isOpen: true,
+                        memberId: targetMember.id,
+                        oldJobId: targetMember.jobId,
+                        newJobId: jobId
+                    });
+                    setJobPickerOpen(false); // Close the job picker, open migration modal
+                    return;
+                } else {
+                    // No existing mitigations or no previous job, apply directly
+                    setMemberJob(targetMember.id, jobId);
+                }
+            }
         }
         setJobPickerOpen(false);
+    };
+
+    const handleMigrationConfirm = (mode: MigrationMode) => {
+        if (!migrationConfig) return;
+
+        const { memberId, oldJobId, newJobId } = migrationConfig;
+
+        // 1. Get current member mitigations
+        const memberMitis = timelineMitigations.filter(m => m.ownerId === memberId);
+
+        // 2. Calculate the new migrated set
+        const newMitis = migrateMitigations(oldJobId, newJobId, memberId, memberMitis, mode);
+
+        // 3. Atomically update the job and the timeline mitigations
+        changeMemberJobWithMitigations(memberId, newJobId, newMitis);
+
+        setMigrationConfig(null);
+    };
+
+    const handleMigrationCancel = () => {
+        setMigrationConfig(null);
     };
 
     // --- Calculation Helpers ---
@@ -1514,6 +1572,17 @@ export const Timeline: React.FC = () => {
                 isOpen={importModalOpen}
                 onClose={() => setImportModalOpen(false)}
             />
+
+            {migrationConfig && (
+                <JobMigrationModal
+                    isOpen={migrationConfig.isOpen}
+                    onConfirm={handleMigrationConfirm}
+                    onCancel={handleMigrationCancel}
+                    oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || JOBS[0]}
+                    newJob={JOBS.find(j => j.id === migrationConfig.newJobId) || JOBS[0]}
+                    memberName={partyMembers.find(m => m.id === migrationConfig.memberId)?.id || ''}
+                />
+            )}
         </>
     );
 };
