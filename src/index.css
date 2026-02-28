@@ -347,3 +347,8 @@ body {
     animation-delay: 4s;
   }
 }
+
+/* Safe-area padding for devices with home indicators (iPhone X+) */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

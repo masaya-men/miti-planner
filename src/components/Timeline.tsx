@@ -22,7 +22,8 @@ import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { ConfirmDialog } from './ConfirmDialog';
-import { MobileTriggersContext } from './Layout';
+import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
+import { MobileBottomSheet } from './MobileBottomSheet';
 
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
@@ -453,7 +454,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
 export const Timeline: React.FC = () => {
     const { t } = useTranslation();
-    const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen } = useContext(MobileTriggersContext);
+    const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
 
     // Column Width Logic
     // const getColumnWidth = (role: string) => (role === 'tank' || role === 'healer') ? 120 : 60;
@@ -529,6 +530,14 @@ export const Timeline: React.FC = () => {
             setMobileStatusOpen(false);
         }
     }, [mobileStatusOpen]);
+    // Tools trigger sync
+    const [mobileToolsSheetOpen, setMobileToolsSheetOpen] = useState(false);
+    useEffect(() => {
+        if (mobileToolsOpen) {
+            setMobileToolsSheetOpen(true);
+            setMobileToolsOpen(false);
+        }
+    }, [mobileToolsOpen]);
 
     // AA Mode State
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
@@ -729,6 +738,19 @@ export const Timeline: React.FC = () => {
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(memberId);
+        setSelectedMitigationTime(time);
+        setMitigationSelectorOpen(true);
+    };
+
+    // Mobile: tap RAW/TAKEN column to open mitigation for myMemberId (or first healer)
+    const handleDamageClick = (time: number, e: React.MouseEvent) => {
+        const targetId = useMitigationStore.getState().myMemberId || partyMembers.find(m => m.role === 'healer')?.id;
+        if (!targetId) return;
+        const member = partyMembers.find(m => m.id === targetId);
+        if (!member || !member.jobId) return;
+
+        setSelectorPosition({ x: e.clientX, y: e.clientY });
+        setSelectedMemberId(targetId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
     };
@@ -1083,7 +1105,7 @@ export const Timeline: React.FC = () => {
 
     return (
         <>
-            <div className="flex flex-col h-full w-full bg-transparent px-2 md:px-6 pt-1 md:pt-2 pb-16 md:pb-6 overflow-auto relative">
+            <div className="flex flex-col h-full w-full bg-transparent px-2 md:px-6 pt-1 md:pt-2 pb-16 md:pb-6 overflow-auto relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 {/* Control Bar (Status & Settings) - Hidden on mobile, shown on PC */}
@@ -1422,34 +1444,37 @@ export const Timeline: React.FC = () => {
                             "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
                         )} /* 👈 最後に overflow-hidden があることを確認 */
                     >
-                        {/* ▼▼ 追加: 中身に合わせて伸びるラッパー箱 (PCのみ幅固定) ▼▼ */}
-                        <div className="flex items-center h-full md:w-max md:min-w-full">
-                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent">
-                                Ph
+                        {/* Header wrapper — mobile: flex auto-fit; PC: fixed width */}
+                        <div className="flex items-center h-full w-full md:w-max md:min-w-full">
+                            {/* PH — tiny on mobile */}
+                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent text-[8px] md:text-[11px]">
+                                PH
                             </div>
-                            <div className="w-[70px] min-w-[70px] max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[10px]">Time</div>
-                            <div className="w-[200px] min-w-[200px] max-w-[200px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[10px] pl-2 justify-start font-bold">Mechanic</div>
-                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[10px] font-bold">Raw</div>
-                            <div className="w-[100px] min-w-[100px] max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[10px] font-bold">Taken</div>
+                            {/* TIME — tiny on mobile */}
+                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[8px] md:text-[10px]">TIME</div>
+                            {/* MECHANIC — fills remaining space on mobile */}
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[9px] md:text-[10px] pl-2 justify-start font-bold">MECHANIC</div>
+                            {/* RAW — small on mobile */}
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">RAW</div>
+                            {/* TAKEN — small on mobile */}
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">TAKEN</div>
 
-                            {/* Job Columns Headers */}
+                            {/* Job Columns Headers — hidden on mobile */}
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
                                     style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                                     className={clsx(
-                                        "flex-none border-r border-white/5 h-full flex flex-col items-center justify-center p-0.5 relative group",
+                                        "hidden md:flex flex-none border-r border-white/5 h-full flex-col items-center justify-center p-0.5 relative group",
                                         index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
-                                        // Vivid Glass Effect for Groups
                                         partySortOrder === 'role' ? (
                                             member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
                                                 member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
                                                     "bg-gradient-to-b from-red-500/20 via-red-500/5 to-transparent shadow-[inset_0_1px_0_rgba(239,68,68,0.5)]"
                                         ) : (
-                                            // Light Party Default (Blue vs Gold)
                                             ['MT', 'H1', 'D1', 'D3'].includes(member.id)
-                                                ? "bg-gradient-to-b from-cyan-500/20 via-blue-500/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]" // MT Group (Cyan/Blue)
-                                                : "bg-gradient-to-b from-amber-500/20 via-orange-500/5 to-transparent shadow-[inset_0_1px_0_rgba(245,158,11,0.5)]" // ST Group (Amber/Gold)
+                                                ? "bg-gradient-to-b from-cyan-500/20 via-blue-500/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]"
+                                                : "bg-gradient-to-b from-amber-500/20 via-orange-500/5 to-transparent shadow-[inset_0_1px_0_rgba(245,158,11,0.5)]"
                                         )
                                     )}
                                 >
@@ -1529,6 +1554,7 @@ export const Timeline: React.FC = () => {
                                             onAddEventClick={handleAddClick}
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
+                                            onDamageClick={handleDamageClick}
                                             partySortOrder={partySortOrder}
                                         />
                                     );
@@ -1790,6 +1816,79 @@ export const Timeline: React.FC = () => {
                 confirmLabel="実行"
                 cancelLabel="キャンセル"
             />
+            {/* Mobile Tools Bottom Sheet */}
+            <MobileBottomSheet
+                isOpen={mobileToolsSheetOpen}
+                onClose={() => setMobileToolsSheetOpen(false)}
+                title="ツール"
+                height="55vh"
+            >
+                <div className="flex flex-col gap-3">
+                    {/* Quick Actions Row */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => {
+                                const store = useMitigationStore.getState();
+                                store.setHideEmptyRows(!store.hideEmptyRows);
+                            }}
+                            className={clsx(
+                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
+                                useMitigationStore.getState().hideEmptyRows
+                                    ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300"
+                                    : "bg-white/5 border-white/10 text-slate-400"
+                            )}
+                        >
+                            <AlignJustify size={16} />
+                            <span className="text-xs font-bold">COMPACT</span>
+                        </button>
+                        <button
+                            onClick={() => useMitigationStore.getState().undo()}
+                            disabled={useMitigationStore.getState()._history.length === 0}
+                            className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 disabled:opacity-30 cursor-pointer"
+                        >
+                            <Undo2 size={16} />
+                        </button>
+                        <button
+                            onClick={() => useMitigationStore.getState().redo()}
+                            disabled={useMitigationStore.getState()._future.length === 0}
+                            className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 disabled:opacity-30 cursor-pointer"
+                        >
+                            <Redo2 size={16} />
+                        </button>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-white/10" />
+
+                    {/* Main Buttons */}
+                    <button
+                        onClick={() => {
+                            setMobileToolsSheetOpen(false);
+                            setImportModalOpen(true);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 transition-colors cursor-pointer"
+                    >
+                        <CloudDownload size={20} />
+                        <div className="text-left">
+                            <div className="text-sm font-bold">FFLogs Import</div>
+                            <div className="text-[10px] text-blue-600/70 dark:text-blue-400/70">FFLogsからタイムラインをインポート</div>
+                        </div>
+                    </button>
+                    <button
+                        onClick={() => {
+                            setMobileToolsSheetOpen(false);
+                            handleAutoPlan();
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30 transition-colors cursor-pointer"
+                    >
+                        <Sparkles size={20} />
+                        <div className="text-left">
+                            <div className="text-sm font-bold">Auto Plan</div>
+                            <div className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70">軽減を自動配置</div>
+                        </div>
+                    </button>
+                </div>
+            </MobileBottomSheet>
         </>
     );
 };

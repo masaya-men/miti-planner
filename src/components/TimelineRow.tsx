@@ -25,6 +25,7 @@ interface TimelineRowProps {
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
+    onDamageClick?: (time: number, e: React.MouseEvent) => void;
     partySortOrder: 'light_party' | 'role';
 }
 
@@ -37,7 +38,8 @@ export const TimelineRow = memo(({
     onPhaseAdd,
     onAddEventClick,
     onEventClick,
-    onCellClick
+    onCellClick,
+    onDamageClick
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -54,7 +56,7 @@ export const TimelineRow = memo(({
     return (
         <div
             className={clsx(
-                "absolute left-0 w-fit border-b border-white/[0.03] flex h-[50px] group transition-colors hover:bg-white/[0.04] duration-75"
+                "absolute left-0 w-full md:w-fit border-b border-white/[0.03] flex h-[50px] group transition-colors hover:bg-white/[0.04] duration-75"
             )}
             style={{ top: `${top}px` }}
         >
@@ -62,7 +64,7 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-100"
+                        "w-[30px] md:w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-100"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
                 title={t('timeline.end_phase')}
@@ -73,13 +75,13 @@ export const TimelineRow = memo(({
             </div >
 
             {/* Time Column */}
-            <div className="w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-sm text-slate-400 transition-colors group-hover:text-slate-100 group-hover:font-bold">
+            <div className="w-[40px] md:w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm text-slate-400 transition-colors group-hover:text-slate-100 group-hover:font-bold">
                 {formattedTime}
             </div >
 
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
-                "w-[200px] border-r border-white/[0.02] h-full relative flex flex-col transition-colors",
+                "flex-1 md:flex-none md:w-[200px] border-r border-white/[0.02] h-full relative flex flex-col transition-colors",
                 "group-hover:bg-white/[0.02]"
             )}>
                 {events.length === 0 ? (
@@ -240,7 +242,10 @@ export const TimelineRow = memo(({
             </div>
 
             {/* U.Dmg Column (Vertical Stack) */}
-            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100">
+            <div
+                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100 md:cursor-default cursor-pointer"
+                onClick={(e) => onDamageClick?.(time, e)}
+            >
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className="w-full h-full flex items-center justify-center">
@@ -260,7 +265,10 @@ export const TimelineRow = memo(({
             </div >
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
-            <div className="w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white">
+            <div
+                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white md:cursor-default cursor-pointer"
+                onClick={(e) => onDamageClick?.(time, e)}
+            >
                 {events.length === 1 ? (
                     // Case 1: Single Event - Center Vertically
                     <div className={clsx("w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none", (() => {
@@ -417,7 +425,7 @@ export const TimelineRow = memo(({
                     <div
                         key={member.id}
                         className={clsx(
-                            "border-r border-white/[0.02] h-full flex items-center justify-center relative group/cell cursor-pointer transition-colors hover:bg-white/[0.05]"
+                            "hidden md:flex border-r border-white/[0.02] h-full items-center justify-center relative group/cell cursor-pointer transition-colors hover:bg-white/[0.05]"
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}
