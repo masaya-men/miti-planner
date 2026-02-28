@@ -86,12 +86,12 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-glass-panel backdrop-blur-xl border-r border-glass-border shadow-glass flex flex-col transition-transform duration-300 ease-out overflow-y-auto",
+                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-r border-glass-border shadow-glass flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <Shield className="text-blue-500" size={16} />

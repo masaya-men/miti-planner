@@ -401,12 +401,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "relative h-full w-[450px] max-w-full flex flex-col bg-glass-panel backdrop-blur-xl border-r border-glass-border shadow-2xl transition-transform duration-300 ease-out",
+                    "relative h-full w-[450px] max-w-full flex flex-col bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-r border-glass-border shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
                 {/* ヘッダーエリア */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="text-blue-500" size={16} />
@@ -425,7 +425,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                 {/* 上部セクション：8つのスロット（スクロール可能領域） */}
                 <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
-                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-[#020203]/40">
+                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-transparent">
 
                         {/* Status Info Box inside scroll area, just above groups */}
                         {focusedSlot !== null && (
@@ -439,7 +439,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                         {/* MTグループ */}
                         <div>
-                            <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">MT GROUP</h3>
+                            <div className="flex items-center gap-2 mb-2 pl-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]"></span>
+                                <h3 className="text-slate-800 dark:text-blue-200/90 text-[11px] font-bold tracking-widest">MT GROUP</h3>
+                            </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (MT, H1, D1, D3) */}
                                 {mtGroupIndices.map(renderSlot)}
@@ -448,7 +451,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                         {/* STグループ */}
                         <div>
-                            <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">ST GROUP</h3>
+                            <div className="flex items-center gap-2 mb-2 pl-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.6)]"></span>
+                                <h3 className="text-slate-800 dark:text-purple-200/90 text-[11px] font-bold tracking-widest">ST GROUP</h3>
+                            </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (ST, H2, D2, D4) */}
                                 {stGroupIndices.map(renderSlot)}
@@ -457,8 +463,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     </div>
 
                     {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
-                    <div className="h-auto max-h-[45vh] bg-glass-card border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10">
-                        <h3 className="text-app-text-muted text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
+                    <div className="h-auto max-h-[45vh] bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
+                        <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
                     </div>
