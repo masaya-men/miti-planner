@@ -7,9 +7,10 @@ import type { Job } from '../types';
 
 interface JobMigrationModalProps {
     isOpen: boolean;
-    oldJob: Job | null;
-    newJob: Job;
-    memberName: string;
+    oldJob?: Job | null;
+    newJob?: Job;
+    memberName?: string;
+    batchTasks?: { memberName: string; oldJob: Job | null; newJob: Job }[];
     onConfirm: (mode: MigrationMode) => void;
     onCancel: () => void;
 }
@@ -19,6 +20,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
     oldJob,
     newJob,
     memberName,
+    batchTasks,
     onConfirm,
     onCancel
 }) => {
@@ -55,7 +57,9 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {t('migration.title', 'ジョブ変更に伴うスキル引き継ぎ')}
                         </h2>
                         <p className="text-[10px] text-slate-400 mt-0.5">
-                            {memberName} のジョブを {oldJob?.name || '未設定'} から {newJob.name} に変更します。
+                            {batchTasks && batchTasks.length >= 2
+                                ? `${batchTasks.length}名のジョブを一括で変更します。`
+                                : `${memberName} のジョブを ${oldJob?.name || '未設定'} から ${newJob?.name} に変更します。`}
                         </p>
                     </div>
                 </div>
