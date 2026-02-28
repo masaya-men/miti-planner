@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { JOBS } from '../data/mockData';
-import { User, Trash2, Star } from 'lucide-react';
+import { User, Trash2, Star, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
@@ -94,6 +94,34 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             setMigrationBatch(null);
         }
     }, [isOpen]);
+
+    // Swipe-to-dismiss refs for mobile bottom sheet
+    const dragStartY = useRef(0);
+    const isDragging = useRef(false);
+
+    const handleSheetTouchStart = (e: React.TouchEvent) => {
+        dragStartY.current = e.touches[0].clientY;
+        isDragging.current = true;
+    };
+    const handleSheetTouchMove = (e: React.TouchEvent) => {
+        if (!isDragging.current || !popoverRef.current) return;
+        const dy = e.touches[0].clientY - dragStartY.current;
+        if (dy > 0) {
+            popoverRef.current.style.transform = `translateY(${dy}px)`;
+            popoverRef.current.style.transition = 'none';
+        }
+    };
+    const handleSheetTouchEnd = () => {
+        if (!isDragging.current || !popoverRef.current) return;
+        isDragging.current = false;
+        const dy = parseInt(popoverRef.current.style.transform.replace(/[^-?\d]/g, '') || '0');
+        if (dy > 100) {
+            handleAttemptClose();
+        } else {
+            popoverRef.current.style.transform = '';
+            popoverRef.current.style.transition = 'all 0.3s cubic-bezier(0.2,0.8,0.2,1)';
+        }
+    };
 
     // ②：背景クリックとEscapeキーの検知（お掃除コードから状態リセットを削除）
     React.useEffect(() => {
@@ -318,7 +346,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 )}
                                 title="Set as My Job"
                             >
-                                {isMyJob && <Star size={10} className="fill-yellow-400" />} My Job
+                                {isMyJob && <Star size={10} className="fill-yellow-400" />}<span className="hidden md:inline"> My Job</span>
                             </button>
                             <button
                                 onClick={(e) => {
@@ -326,7 +354,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     handleRemoveJob(member.id);
                                     if (isFocused) setFocusedSlot(null);
                                 }}
-                                className="p-1.5 rounded-lg bg-black/40 text-white/40 hover:bg-red-500/20 hover:text-red-400 transition-colors opacity-0 group-hover/slot:opacity-100 focus:opacity-100"
+                                className="p-1.5 rounded-lg bg-black/40 text-white/40 hover:bg-red-500/20 hover:text-red-400 transition-colors hidden md:block md:opacity-0 group-hover/slot:md:opacity-100 focus:opacity-100"
                                 title="Remove Job"
                             >
                                 <Trash2 size={14} />
@@ -397,14 +425,29 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 onClick={handleAttemptClose}
             />
 
-            {/* Slide-Over Panel (Left) using User's skeleton structure exactly */}
+            {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "relative h-full w-[450px] max-w-full flex flex-col bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-r border-glass-border shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
-                    isOpen ? "translate-x-0" : "-translate-x-full"
+                    "relative flex flex-col bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-glass-border shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                    // PC: left slide-over
+                    "md:h-full md:w-[450px] md:max-w-full md:border-r",
+                    isOpen ? "md:translate-x-0" : "md:-translate-x-full",
+                    // Mobile: bottom sheet
+                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t",
+                    isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
             >
+                {/* Mobile drag handle */}
+                <div
+                    className="md:hidden flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing"
+                    onTouchStart={handleSheetTouchStart}
+                    onTouchMove={handleSheetTouchMove}
+                    onTouchEnd={handleSheetTouchEnd}
+                >
+                    <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                </div>
+
                 {/* ヘッダーエリア */}
                 <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
                     <div className="flex items-center gap-3">
@@ -418,14 +461,14 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={handleAttemptClose} className="px-4 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
-                        Close
+                    <button onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
+                        <X size={18} />
                     </button>
                 </div>
 
                 {/* 上部セクション：8つのスロット（スクロール可能領域） */}
                 <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
-                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-transparent">
+                    <div className="flex-1 overflow-y-auto p-4 pb-20 flex flex-col gap-6 bg-transparent">
 
                         {/* Status Info Box inside scroll area, just above groups */}
                         {focusedSlot !== null && (

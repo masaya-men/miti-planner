@@ -42,6 +42,34 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
         };
     }, [isOpen, onClose]);
 
+    // Swipe-to-dismiss for mobile bottom sheet
+    const dragStartY = useRef(0);
+    const isDragging = useRef(false);
+
+    const handleSheetTouchStart = (e: React.TouchEvent) => {
+        dragStartY.current = e.touches[0].clientY;
+        isDragging.current = true;
+    };
+    const handleSheetTouchMove = (e: React.TouchEvent) => {
+        if (!isDragging.current || !popoverRef.current) return;
+        const dy = e.touches[0].clientY - dragStartY.current;
+        if (dy > 0) {
+            popoverRef.current.style.transform = `translateY(${dy}px)`;
+            popoverRef.current.style.transition = 'none';
+        }
+    };
+    const handleSheetTouchEnd = () => {
+        if (!isDragging.current || !popoverRef.current) return;
+        isDragging.current = false;
+        const dy = parseInt(popoverRef.current.style.transform.replace(/[^-?\d]/g, '') || '0');
+        if (dy > 100) {
+            onClose();
+        } else {
+            popoverRef.current.style.transform = '';
+            popoverRef.current.style.transition = 'all 0.3s cubic-bezier(0.2,0.8,0.2,1)';
+        }
+    };
+
     //if (!isOpen || !mounted) return null;
     if (!mounted) return null;
 
@@ -82,14 +110,29 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 onClick={onClose}
             />
 
-            {/* Slide-Over Panel */}
+            {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "absolute top-0 left-0 h-full w-[340px] max-w-full bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-r border-glass-border shadow-glass flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
-                    isOpen ? "translate-x-0" : "-translate-x-full"
+                    "bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-glass-border shadow-glass flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
+                    // PC: left slide-over
+                    "md:absolute md:top-0 md:left-0 md:h-full md:w-[340px] md:max-w-full md:border-r",
+                    isOpen ? "md:translate-x-0" : "md:-translate-x-full",
+                    // Mobile: bottom sheet
+                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t max-md:pb-20",
+                    isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
             >
+                {/* Mobile drag handle */}
+                <div
+                    className="md:hidden flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing"
+                    onTouchStart={handleSheetTouchStart}
+                    onTouchMove={handleSheetTouchMove}
+                    onTouchEnd={handleSheetTouchEnd}
+                >
+                    <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                </div>
+
                 {/* Header */}
                 <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
                     <div className="flex items-center gap-3">

@@ -1,23 +1,17 @@
-import React, { createContext, useState } from 'react';
+import React, { useState } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Sidebar } from './Sidebar';
 import { MobileBottomNav } from './MobileBottomNav';
+import { MobileBottomSheet } from './MobileBottomSheet';
+import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Sun, Moon } from 'lucide-react';
 import clsx from 'clsx';
 
 interface LayoutProps {
     children: React.ReactNode;
 }
-
-// Context for mobile triggers — avoids prop leakage via cloneElement
-export const MobileTriggersContext = createContext<{
-    mobilePartyOpen: boolean;
-    setMobilePartyOpen: (v: boolean) => void;
-    mobileStatusOpen: boolean;
-    setMobileStatusOpen: (v: boolean) => void;
-}>({ mobilePartyOpen: false, setMobilePartyOpen: () => { }, mobileStatusOpen: false, setMobileStatusOpen: () => { } });
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
@@ -30,6 +24,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // Mobile modal triggers — these are read by Timeline.tsx via the store
     const [mobilePartyOpen, setMobilePartyOpen] = useState(false);
     const [mobileStatusOpen, setMobileStatusOpen] = useState(false);
+    const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // ベースの背景色（一番底の色）
     const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
@@ -79,18 +75,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Sidebar isOpen={isSidebarOpen} />
             </div>
 
-            {/* Mobile sidebar overlay */}
-            {isSidebarOpen && (
-                <div className="md:hidden fixed inset-0 z-[250]">
-                    <div
-                        className="absolute inset-0 bg-black/50 z-[250]"
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-                    <div className="relative z-[251] h-full" style={{ width: 'fit-content' }}>
-                        <Sidebar isOpen={true} />
-                    </div>
+            {/* Mobile sidebar — slides up from bottom as a sheet */}
+            <MobileBottomSheet
+                isOpen={mobileMenuOpen}
+                onClose={() => setMobileMenuOpen(false)}
+                title="メニュー"
+                height="80vh"
+            >
+                <div className="-mx-4 -mt-3">
+                    <Sidebar isOpen={true} />
                 </div>
-            )}
+            </MobileBottomSheet>
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10">
 
@@ -171,10 +166,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </header>
 
                 {/* Main content — add bottom padding on mobile for bottom nav */}
-                <main className="flex-1 flex flex-col relative overflow-hidden transition-colors duration-300 pb-0 md:pb-0">
+                <main className="flex-1 flex flex-col relative overflow-hidden transition-colors duration-300 pb-16 md:pb-0">
                     <MobileTriggersContext.Provider value={{
                         mobilePartyOpen, setMobilePartyOpen,
-                        mobileStatusOpen, setMobileStatusOpen
+                        mobileStatusOpen, setMobileStatusOpen,
+                        mobileToolsOpen, setMobileToolsOpen,
+                        mobileMenuOpen, setMobileMenuOpen
                     }}>
                         {children}
                     </MobileTriggersContext.Provider>
@@ -194,12 +191,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* Mobile Bottom Nav */}
             <MobileBottomNav
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                onMenuToggle={() => setMobileMenuOpen(true)}
                 onPartyOpen={() => setMobilePartyOpen(true)}
                 onStatusOpen={() => setMobileStatusOpen(true)}
+                onToolsOpen={() => setMobileToolsOpen(true)}
                 myJobHighlight={myJobHighlight}
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
-                isSidebarOpen={isSidebarOpen}
+                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : undefined}
             />
         </div>
     );
