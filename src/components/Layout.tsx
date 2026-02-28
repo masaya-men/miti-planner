@@ -75,27 +75,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className="relative w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex justify-center items-center active:scale-90 group"
                         >
-                            {/* 完璧な×になるよう調整し、バウンドを強化、色をアクセントカラーに */}
-                            <div className={clsx("relative w-5 h-4 flex justify-center items-center pointer-events-none transition-transform duration-700 ease-[cubic-bezier(0.5,2.5,0.4,0.8)]", isSidebarOpen && "rotate-[180deg]")}>
+                            {/* 超最新モダンな「くるくる回る」スピニングハンバーガー */}
+                            <div className={clsx("relative w-5 h-4 flex justify-center items-center pointer-events-none transition-transform duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]", isSidebarOpen ? "rotate-[180deg]" : "rotate-0")}>
                                 {/* 上の線 */}
                                 <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.5,2.5,0.4,0.8)] ORIGIN-CENTER",
-                                    isSidebarOpen ? "rotate-45" : "-translate-y-[7px]",
-                                    // 開いたときはアクセントカラーに
-                                    isSidebarOpen ? "text-app-accent" : "text-app-text-muted group-hover:text-app-text"
+                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                                    isSidebarOpen ? "rotate-45" : "-translate-y-[6px]",
+                                    isSidebarOpen ? "text-app-accent" : "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
                                 )} />
-                                {/* 真ん中の線 */}
+                                {/* 真ん中の線：回転しながら縮んで消える */}
                                 <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-300 ease-in-out",
-                                    isSidebarOpen ? "opacity-0 translate-x-6 scale-x-0" : "opacity-100",
-                                    "text-app-text-muted group-hover:text-app-text"
+                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                                    isSidebarOpen ? "opacity-0 scale-x-0 rotate-90" : "opacity-100 rotate-0",
+                                    "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
                                 )} />
                                 {/* 下の線 */}
                                 <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.5,2.5,0.4,0.8)] ORIGIN-CENTER",
-                                    isSidebarOpen ? "-rotate-45" : "translate-y-[7px]",
-                                    // 開いたときはアクセントカラーに
-                                    isSidebarOpen ? "text-app-accent" : "text-app-text-muted group-hover:text-app-text"
+                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
+                                    isSidebarOpen ? "-rotate-45" : "translate-y-[6px]",
+                                    isSidebarOpen ? "text-app-accent" : "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
                                 )} />
                             </div>
                         </button>
