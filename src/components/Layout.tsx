@@ -120,12 +120,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </main>
 
                 <footer className={clsx(
-                    "h-8 shrink-0 backdrop-blur-md border-t flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
+                    "h-6 shrink-0 backdrop-blur-md border-t flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
                     "border-white/20 dark:border-white/10",
                     theme === 'dark' ? "bg-slate-900/40" : "bg-white/40"
                 )}>
-                    <p className="text-[10px] text-slate-400 font-medium tracking-wide">
-                        (C) SQUARE ENIX CO., LTD. All Rights Reserved. Not affiliated with Square Enix.
+                    <p className="text-[8px] text-slate-500 dark:text-slate-600 tracking-wide">
+                        (C) SQUARE ENIX CO., LTD. All Rights Reserved. · 当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
                     </p>
                 </footer>
             </div>

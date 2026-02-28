@@ -10,6 +10,8 @@ export interface AASettings {
     target: 'MT' | 'ST';
 }
 
+const MAX_HISTORY = 30;
+
 interface MitigationState {
     mitigations: Mitigation[];
     partyMembers: PartyMember[];
@@ -22,6 +24,9 @@ interface MitigationState {
     myMemberId: string | null;
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
+    // Undo/Redo History (not persisted)
+    _history: AppliedMitigation[][];
+    _future: AppliedMitigation[][];
 
     // Actions
     updateMemberStats: (memberId: string, stats: Partial<PlayerStats>) => void;
@@ -42,6 +47,12 @@ interface MitigationState {
     importTimelineEvents: (events: TimelineEvent[]) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
+    // Bulk delete
+    clearMitigationsByMember: (memberId: string) => void;
+    clearAllMitigations: () => void;
+    // Undo/Redo
+    undo: () => void;
+    redo: () => void;
 
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
@@ -83,8 +94,15 @@ const INITIAL_PARTY: PartyMember[] = [
 
 export const useMitigationStore = create<MitigationState>()(
     persist(
-        (set) => {
+        (set, get) => {
 
+            // Helper: push current timelineMitigations onto history stack before mutating
+            const pushHistory = () => {
+                const state = get();
+                const snapshot = [...state.timelineMitigations];
+                const newHistory = [...state._history, snapshot].slice(-MAX_HISTORY);
+                set({ _history: newHistory, _future: [] });
+            };
 
             // Initialize values for default party
             const initialMembers = INITIAL_PARTY.map(m => ({
@@ -107,6 +125,46 @@ export const useMitigationStore = create<MitigationState>()(
                 myMemberId: null,
                 myJobHighlight: false,
                 hideEmptyRows: false,
+                _history: [],
+                _future: [],
+
+                // Undo: restore the last snapshot from history
+                undo: () => set((state) => {
+                    if (state._history.length === 0) return state;
+                    const previous = state._history[state._history.length - 1];
+                    const newHistory = state._history.slice(0, -1);
+                    return {
+                        _history: newHistory,
+                        _future: [state.timelineMitigations, ...state._future],
+                        timelineMitigations: previous,
+                    };
+                }),
+
+                // Redo: restore the next snapshot from future
+                redo: () => set((state) => {
+                    if (state._future.length === 0) return state;
+                    const next = state._future[0];
+                    const newFuture = state._future.slice(1);
+                    return {
+                        _history: [...state._history, state.timelineMitigations],
+                        _future: newFuture,
+                        timelineMitigations: next,
+                    };
+                }),
+
+                // Bulk delete: clear mitigations for a specific member
+                clearMitigationsByMember: (memberId) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineMitigations: state.timelineMitigations.filter(m => m.ownerId !== memberId)
+                    }));
+                },
+
+                // Bulk delete: clear ALL mitigations
+                clearAllMitigations: () => {
+                    pushHistory();
+                    set({ timelineMitigations: [] });
+                },
 
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
@@ -116,10 +174,13 @@ export const useMitigationStore = create<MitigationState>()(
                     timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
                 })),
 
-                importTimelineEvents: (events) => set({
-                    timelineEvents: [...events].sort((a, b) => a.time - b.time),
-                    timelineMitigations: [], // Clear old mitigations — they belong to a different fight
-                }),
+                importTimelineEvents: (events) => {
+                    pushHistory();
+                    set({
+                        timelineEvents: [...events].sort((a, b) => a.time - b.time),
+                        timelineMitigations: [], // Clear old mitigations — they belong to a different fight
+                    });
+                },
 
                 updateEvent: (id, updatedEvent) => set((state) => ({
                     timelineEvents: state.timelineEvents.map(e => e.id === id ? { ...e, ...updatedEvent } : e).sort((a, b) => a.time - b.time)
@@ -149,152 +210,167 @@ export const useMitigationStore = create<MitigationState>()(
                     phases: state.phases.filter(p => p.id !== id)
                 })),
 
-                addMitigation: (mitigation) => set((state) => ({
-                    timelineMitigations: [...state.timelineMitigations, mitigation]
-                })),
+                addMitigation: (mitigation) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineMitigations: [...state.timelineMitigations, mitigation]
+                    }));
+                },
 
-                removeMitigation: (id) => set((state) => {
-                    const removed = state.timelineMitigations.find(m => m.id === id);
-                    if (!removed) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
+                removeMitigation: (id) => {
+                    pushHistory();
+                    set((state) => {
+                        const removed = state.timelineMitigations.find(m => m.id === id);
+                        if (!removed) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
 
-                    const removedDef = MITIGATIONS.find(d => d.id === removed.mitigationId);
-                    if (!removedDef) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
+                        const removedDef = MITIGATIONS.find(d => d.id === removed.mitigationId);
+                        if (!removedDef) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
 
-                    // Find skills that depend on the removed skill
-                    const dependentIds = MITIGATIONS.filter(d => d.requires === removed.mitigationId).map(d => d.id);
+                        // Find skills that depend on the removed skill
+                        const dependentIds = MITIGATIONS.filter(d => d.requires === removed.mitigationId).map(d => d.id);
 
-                    const removedStart = removed.time;
-                    const removedEnd = removed.time + removed.duration;
+                        const removedStart = removed.time;
+                        const removedEnd = removed.time + removed.duration;
 
-                    return {
-                        timelineMitigations: state.timelineMitigations.filter(m => {
-                            if (m.id === id) return false; // Remove the target itself
-                            // Remove dependents that overlap the removed skill's window
-                            if (dependentIds.includes(m.mitigationId) && m.ownerId === removed.ownerId) {
-                                return !(m.time >= removedStart && m.time < removedEnd);
-                            }
-                            return true;
-                        })
-                    };
-                }),
-
-                updateMitigationTime: (id, newTime) => set((state) => ({
-                    timelineMitigations: state.timelineMitigations.map(m =>
-                        m.id === id ? { ...m, time: newTime } : m
-                    )
-                })),
-
-                setMemberJob: (memberId, jobId) => set((state) => {
-                    const newMembers = state.partyMembers.map(m => {
-                        if (m.id === memberId) {
-                            const job = JOBS.find(j => j.id === jobId);
-                            const newRole = job ? job.role : m.role;
-                            let newStats = { ...m.stats };
-
-                            // If role changed, reset stats to default of new role
-                            if (job && job.role !== m.role) {
-                                if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
-                                else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
-                                else newStats = { ...DEFAULT_HEALER_STATS };
-                            }
-
-                            const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                            const computedValues = calculateMemberValues(updatedMember);
-                            return { ...updatedMember, computedValues };
-                        }
-                        return m;
+                        return {
+                            timelineMitigations: state.timelineMitigations.filter(m => {
+                                if (m.id === id) return false; // Remove the target itself
+                                // Remove dependents that overlap the removed skill's window
+                                if (dependentIds.includes(m.mitigationId) && m.ownerId === removed.ownerId) {
+                                    return !(m.time >= removedStart && m.time < removedEnd);
+                                }
+                                return true;
+                            })
+                        };
                     });
+                },
 
-                    // Filter or Migrate Mitigations
-                    const filteredMitigations = state.timelineMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
-                        // Keep mitigations owned by others
-                        if (mit.ownerId !== memberId) {
-                            acc.push(mit);
-                            return acc;
-                        }
+                updateMitigationTime: (id, newTime) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineMitigations: state.timelineMitigations.map(m =>
+                            m.id === id ? { ...m, time: newTime } : m
+                        )
+                    }));
+                },
 
-                        const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                setMemberJob: (memberId, jobId) => {
+                    pushHistory();
+                    set((state) => {
+                        const newMembers = state.partyMembers.map(m => {
+                            if (m.id === memberId) {
+                                const job = JOBS.find(j => j.id === jobId);
+                                const newRole = job ? job.role : m.role;
+                                let newStats = { ...m.stats };
 
-                        // If exact match (job specific or shared if any), keep it
-                        if (def?.jobId === jobId) {
-                            acc.push(mit);
-                            return acc;
-                        }
+                                // If role changed, reset stats to default of new role
+                                if (job && job.role !== m.role) {
+                                    if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                                    else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                                    else newStats = { ...DEFAULT_HEALER_STATS };
+                                }
 
-                        // Try to migrate Role Actions (e.g. rampart_gnb -> rampart_drk)
-                        if (def && def.jobId !== jobId) {
-                            const baseId = def.id.replace(`_${def.jobId}`, '');
-                            const newId = `${baseId}_${jobId}`;
-                            const newDef = MITIGATIONS.find(m => m.id === newId);
+                                const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+                                const computedValues = calculateMemberValues(updatedMember);
+                                return { ...updatedMember, computedValues };
+                            }
+                            return m;
+                        });
 
-                            if (newDef && newDef.jobId === jobId) {
-                                // Migration successful
-                                acc.push({ ...mit, mitigationId: newId });
+                        // Filter or Migrate Mitigations
+                        const filteredMitigations = state.timelineMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
+                            // Keep mitigations owned by others
+                            if (mit.ownerId !== memberId) {
+                                acc.push(mit);
                                 return acc;
                             }
-                        }
 
-                        // Otherwise filter out
-                        return acc;
-                    }, []);
+                            const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
 
-                    // Auto-insert Dissipation for Scholar if missing
-                    if (jobId === 'sch') {
-                        const pattern = state.schAetherflowPatterns[memberId] ?? 1;
-                        const hasInitialDissipation = filteredMitigations.some(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15);
-                        if (!hasInitialDissipation) {
-                            filteredMitigations.push({
-                                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                mitigationId: 'dissipation',
-                                ownerId: memberId,
-                                time: pattern === 1 ? 1 : 14,
-                                duration: 30
-                            });
-                        }
-                    }
-
-                    return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
-                }),
-
-                changeMemberJobWithMitigations: (memberId, jobId, mitis) => set((state) => {
-                    // Update member job
-                    const newMembers = state.partyMembers.map(m => {
-                        if (m.id === memberId) {
-                            const job = JOBS.find(j => j.id === jobId);
-                            const newRole = job ? job.role : m.role;
-                            let newStats = { ...m.stats };
-                            if (job && job.role !== m.role) {
-                                if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
-                                else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
-                                else newStats = { ...DEFAULT_HEALER_STATS };
+                            // If exact match (job specific or shared if any), keep it
+                            if (def?.jobId === jobId) {
+                                acc.push(mit);
+                                return acc;
                             }
-                            const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                            return { ...updatedMember, computedValues: calculateMemberValues(updatedMember) };
+
+                            // Try to migrate Role Actions (e.g. rampart_gnb -> rampart_drk)
+                            if (def && def.jobId !== jobId) {
+                                const baseId = def.id.replace(`_${def.jobId}`, '');
+                                const newId = `${baseId}_${jobId}`;
+                                const newDef = MITIGATIONS.find(m => m.id === newId);
+
+                                if (newDef && newDef.jobId === jobId) {
+                                    // Migration successful
+                                    acc.push({ ...mit, mitigationId: newId });
+                                    return acc;
+                                }
+                            }
+
+                            // Otherwise filter out
+                            return acc;
+                        }, []);
+
+                        // Auto-insert Dissipation for Scholar if missing
+                        if (jobId === 'sch') {
+                            const pattern = state.schAetherflowPatterns[memberId] ?? 1;
+                            const hasInitialDissipation = filteredMitigations.some(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15);
+                            if (!hasInitialDissipation) {
+                                filteredMitigations.push({
+                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                    mitigationId: 'dissipation',
+                                    ownerId: memberId,
+                                    time: pattern === 1 ? 1 : 14,
+                                    duration: 30
+                                });
+                            }
                         }
-                        return m;
+
+                        return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
                     });
+                },
 
-                    // Remove old mitigations for this member, and append the newly migrated ones
-                    const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
+                changeMemberJobWithMitigations: (memberId, jobId, mitis) => {
+                    pushHistory();
+                    set((state) => {
+                        // Update member job
+                        const newMembers = state.partyMembers.map(m => {
+                            if (m.id === memberId) {
+                                const job = JOBS.find(j => j.id === jobId);
+                                const newRole = job ? job.role : m.role;
+                                let newStats = { ...m.stats };
+                                if (job && job.role !== m.role) {
+                                    if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                                    else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                                    else newStats = { ...DEFAULT_HEALER_STATS };
+                                }
+                                const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+                                return { ...updatedMember, computedValues: calculateMemberValues(updatedMember) };
+                            }
+                            return m;
+                        });
 
-                    // Auto-insert Dissipation for Scholar if missing
-                    let finalMitis = [...mitis];
-                    if (jobId === 'sch') {
-                        const pattern = state.schAetherflowPatterns[memberId] ?? 1;
-                        const hasInitialDissipation = finalMitis.some(m => m.mitigationId === 'dissipation' && m.time <= 15);
-                        if (!hasInitialDissipation) {
-                            finalMitis.push({
-                                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                mitigationId: 'dissipation',
-                                ownerId: memberId,
-                                time: pattern === 1 ? 1 : 14,
-                                duration: 30
-                            });
+                        // Remove old mitigations for this member, and append the newly migrated ones
+                        const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
+
+                        // Auto-insert Dissipation for Scholar if missing
+                        let finalMitis = [...mitis];
+                        if (jobId === 'sch') {
+                            const pattern = state.schAetherflowPatterns[memberId] ?? 1;
+                            const hasInitialDissipation = finalMitis.some(m => m.mitigationId === 'dissipation' && m.time <= 15);
+                            if (!hasInitialDissipation) {
+                                finalMitis.push({
+                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                    mitigationId: 'dissipation',
+                                    ownerId: memberId,
+                                    time: pattern === 1 ? 1 : 14,
+                                    duration: 30
+                                });
+                            }
                         }
-                    }
 
-                    return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
-                }),
+                        return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
+                    });
+                },
 
                 updateMemberStats: (memberId, stats) => set((state) => ({
                     partyMembers: state.partyMembers.map(m => {
