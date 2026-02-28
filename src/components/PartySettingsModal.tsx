@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { JOBS } from '../data/mockData';
 import { User, Trash2, Star } from 'lucide-react';
@@ -6,6 +7,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
+import { Ripple } from './Ripple';
 import type { MigrationMode } from '../utils/jobMigration';
 import type { Job, PartyMember } from '../types';
 
@@ -21,6 +23,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
     // Hybrid UI State
     const [focusedSlot, setFocusedSlot] = useState<number | null>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
     // Draft state for party members
     const [draftMembers, setDraftMembers] = useState<PartyMember[]>([]);
@@ -258,7 +266,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 id={`party-slot-${index}`}
                 onClick={() => setFocusedSlot(isFocused ? null : index)}
                 className={clsx(
-                    "h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer transition-all duration-200 border relative overflow-hidden group/slot",
+                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot",
                     isFocused
                         ? "bg-app-accent-dim border-app-border-accent shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                         : job
@@ -274,6 +282,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 'bg-gradient-to-r from-red-500/50 to-transparent'
                     )} />
                 )}
+
+                <Ripple />
 
                 {/* Left side: Tag and Icon */}
                 <div className="flex items-center gap-3 z-10 pointer-events-none">
@@ -353,12 +363,13 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             key={job.id}
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
-                                                "w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center transition-all relative overflow-hidden group/btn",
-                                                `border-white/10 cursor-pointer ${cat.color} hover:shadow-lg hover:border-white/20`
+                                                "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
+                                                `border-white/10 cursor-pointer ${cat.color}`
                                             )}
                                             title={job.name}
                                         >
-                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110" />
+                                            <Ripple />
+                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                         </button>
                                     );
                                 })}
@@ -370,9 +381,11 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         );
     };
 
-    return (
+    if (!mounted) return null;
+
+    return createPortal(
         <div className={clsx(
-            "fixed inset-0 z-[9999] flex",
+            "fixed inset-0 z-[10000] flex",
             isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
@@ -464,6 +477,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     onCancel={handleBatchMigrationCancel}
                 />
             )}
-        </div>
+        </div>,
+        document.body
     );
 };

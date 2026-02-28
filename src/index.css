@@ -22,6 +22,39 @@
   --color-glass-active: var(--glass-active);
 
   --shadow-glass: var(--glass-shadow);
+
+  --animate-blob: blob 10s infinite;
+  --animate-ripple: ripple 600ms linear;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 @layer base {
@@ -241,4 +274,54 @@ body {
 
 .hover-shine:hover::after {
   animation: shine 0.8s ease-in-out;
+}
+
+@layer components {
+
+  /* Tactile Spring Effect */
+  .btn-tactile {
+    @apply transition-all duration-200 relative overflow-hidden;
+  }
+
+  .btn-tactile:hover {
+    @apply -translate-y-0.5 shadow-lg;
+  }
+
+  .btn-tactile:active {
+    @apply scale-95 translate-y-0 shadow-sm;
+  }
+
+  /* Background Blobs */
+  .bg-blob {
+    @apply absolute rounded-full filter blur-[100px] md:blur-[120px] opacity-50 animate-blob;
+    will-change: transform;
+  }
+
+  .theme-light .bg-blob.blob-1 {
+    @apply bg-sky-300/40 mix-blend-multiply;
+  }
+
+  .theme-light .bg-blob.blob-2 {
+    @apply bg-rose-200/40 mix-blend-multiply;
+    animation-delay: 2s;
+  }
+
+  .theme-light .bg-blob.blob-3 {
+    @apply bg-indigo-200/40 mix-blend-multiply;
+    animation-delay: 4s;
+  }
+
+  .theme-dark .bg-blob.blob-1 {
+    @apply bg-blue-900/30 mix-blend-screen;
+  }
+
+  .theme-dark .bg-blob.blob-2 {
+    @apply bg-purple-900/20 mix-blend-screen;
+    animation-delay: 2s;
+  }
+
+  .theme-dark .bg-blob.blob-3 {
+    @apply bg-indigo-900/20 mix-blend-screen;
+    animation-delay: 4s;
+  }
 }

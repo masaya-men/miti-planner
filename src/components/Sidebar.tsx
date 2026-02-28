@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Map, Layers, ChevronRight, Hash } from 'lucide-react';
 import clsx from 'clsx';
+import { Ripple } from './Ripple';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -48,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                             <button
                                 key={floor.id}
                                 className={clsx(
-                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left group",
+                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left group relative overflow-hidden active:scale-[0.98]",
                                     isActive
                                         ? "bg-app-accent-dim border border-app-border-accent text-app-accent shadow-[inset_0_1px_0_var(--color-border-accent)]"
                                         : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text"
