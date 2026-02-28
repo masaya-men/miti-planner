@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { createContext, useState } from 'react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
+import { useMitigationStore } from '../store/useMitigationStore';
 import { Sidebar } from './Sidebar';
+import { MobileBottomNav } from './MobileBottomNav';
 import { Sun, Moon } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -9,9 +11,25 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
+// Context for mobile triggers — avoids prop leakage via cloneElement
+export const MobileTriggersContext = createContext<{
+    mobilePartyOpen: boolean;
+    setMobilePartyOpen: (v: boolean) => void;
+    mobileStatusOpen: boolean;
+    setMobileStatusOpen: (v: boolean) => void;
+}>({ mobilePartyOpen: false, setMobilePartyOpen: () => { }, mobileStatusOpen: false, setMobileStatusOpen: () => { } });
+
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    // Default sidebar closed on mobile (< 768px)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
+        typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+    );
+    const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
+
+    // Mobile modal triggers — these are read by Timeline.tsx via the store
+    const [mobilePartyOpen, setMobilePartyOpen] = useState(false);
+    const [mobileStatusOpen, setMobileStatusOpen] = useState(false);
 
     // ベースの背景色（一番底の色）
     const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
@@ -48,21 +66,38 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     theme === 'dark' ? "bg-blue-800/20" : "bg-slate-300/40"
                 )} />
                 <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px] animate-blob-2",
+                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-2",
                     "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
                     // 👇 透明度を下げて、少し深めの色（より落ち着いた印象）に変更
                     theme === 'dark' ? "bg-indigo-900/20" : "bg-indigo-100/40"
                 )} />
             </div>
 
-            {/* サイドバー */}
-            <Sidebar isOpen={isSidebarOpen} />
+            {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
+            {/* PC sidebar */}
+            <div className="hidden md:block">
+                <Sidebar isOpen={isSidebarOpen} />
+            </div>
+
+            {/* Mobile sidebar overlay */}
+            {isSidebarOpen && (
+                <div className="md:hidden fixed inset-0 z-[250]">
+                    <div
+                        className="absolute inset-0 bg-black/50 z-[250]"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                    <div className="relative z-[251] h-full" style={{ width: 'fit-content' }}>
+                        <Sidebar isOpen={true} />
+                    </div>
+                </div>
+            )}
 
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10">
 
-                {/* 👇 3. ヘッダーを「真のすりガラス」に変更（bg-white/40 などで半透明化） */}
+                {/* ── PC Header ── */}
                 <header className={clsx(
                     "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative transition-colors duration-300 shadow-sm",
+                    "hidden md:flex",
                     theme === 'dark'
                         ? "bg-slate-900/40 border-slate-700/50 backdrop-blur-xl"
                         : "bg-white/40 border-slate-200/50 backdrop-blur-xl"
@@ -70,26 +105,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-3">
-                        {/* 👇 【修正】スピン＆バウンドをより強調、色もアニメーション */}
+                        {/* ハンバーガーメニュー */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className="relative w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex justify-center items-center active:scale-90 group"
                         >
-                            {/* 超最新モダンな「くるくる回る」スピニングハンバーガー */}
                             <div className={clsx("relative w-5 h-4 flex justify-center items-center pointer-events-none transition-transform duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]", isSidebarOpen ? "rotate-[180deg]" : "rotate-0")}>
-                                {/* 上の線 */}
                                 <span className={clsx(
                                     "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
                                     isSidebarOpen ? "rotate-45" : "-translate-y-[6px]",
                                     isSidebarOpen ? "text-app-accent" : "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
                                 )} />
-                                {/* 真ん中の線：回転しながら縮んで消える */}
                                 <span className={clsx(
                                     "absolute h-[2px] w-full bg-current rounded-full transition-all duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]",
                                     isSidebarOpen ? "opacity-0 scale-x-0 rotate-90" : "opacity-100 rotate-0",
                                     "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
                                 )} />
-                                {/* 下の線 */}
                                 <span className={clsx(
                                     "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
                                     isSidebarOpen ? "-rotate-45" : "translate-y-[6px]",
@@ -115,12 +146,43 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </div>
                 </header>
 
-                <main className="flex-1 flex flex-col relative overflow-hidden transition-colors duration-300">
-                    {children}
+                {/* ── Mobile Header ── */}
+                <header className={clsx(
+                    "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative transition-colors duration-300",
+                    theme === 'dark'
+                        ? "bg-slate-900/60 border-slate-700/50 backdrop-blur-xl"
+                        : "bg-white/60 border-slate-200/50 backdrop-blur-xl"
+                )}>
+                    <img
+                        src="/icons/logo.png"
+                        alt="Logo"
+                        className="h-8 w-auto object-contain filter grayscale sepia hue-rotate-[190deg] saturate-[300%] brightness-110 dark:sepia-0 dark:hue-rotate-0 dark:saturate-100 dark:brightness-[1.5] dark:drop-shadow-[0_0_8px_rgba(226,232,240,0.6)] transition-all duration-300 pointer-events-none"
+                    />
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className="p-1.5 w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
+                        >
+                            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                        </button>
+                        <LanguageSwitcher />
+                    </div>
+                </header>
+
+                {/* Main content — add bottom padding on mobile for bottom nav */}
+                <main className="flex-1 flex flex-col relative overflow-hidden transition-colors duration-300 pb-0 md:pb-0">
+                    <MobileTriggersContext.Provider value={{
+                        mobilePartyOpen, setMobilePartyOpen,
+                        mobileStatusOpen, setMobileStatusOpen
+                    }}>
+                        {children}
+                    </MobileTriggersContext.Provider>
                 </main>
 
+                {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
-                    "h-6 shrink-0 backdrop-blur-md border-t flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
+                    "h-6 shrink-0 backdrop-blur-md border-t hidden md:flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
                     "border-white/20 dark:border-white/10",
                     theme === 'dark' ? "bg-slate-900/40" : "bg-white/40"
                 )}>
@@ -129,6 +191,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </p>
                 </footer>
             </div>
+
+            {/* Mobile Bottom Nav */}
+            <MobileBottomNav
+                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                onPartyOpen={() => setMobilePartyOpen(true)}
+                onStatusOpen={() => setMobileStatusOpen(true)}
+                myJobHighlight={myJobHighlight}
+                onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
+                isSidebarOpen={isSidebarOpen}
+            />
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 
@@ -22,6 +22,7 @@ import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { ConfirmDialog } from './ConfirmDialog';
+import { MobileTriggersContext } from './Layout';
 
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
@@ -452,6 +453,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
 export const Timeline: React.FC = () => {
     const { t } = useTranslation();
+    const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen } = useContext(MobileTriggersContext);
 
     // Column Width Logic
     // const getColumnWidth = (role: string) => (role === 'tank' || role === 'healer') ? 120 : 60;
@@ -513,6 +515,20 @@ export const Timeline: React.FC = () => {
     // Party Settings Modal
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false); // For Stats Popover
+
+    // Sync mobile triggers from Layout's bottom nav
+    useEffect(() => {
+        if (mobilePartyOpen) {
+            setPartySettingsOpen(true);
+            setMobilePartyOpen(false);
+        }
+    }, [mobilePartyOpen]);
+    useEffect(() => {
+        if (mobileStatusOpen) {
+            setStatusOpen(true);
+            setMobileStatusOpen(false);
+        }
+    }, [mobileStatusOpen]);
 
     // AA Mode State
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
@@ -1067,11 +1083,11 @@ export const Timeline: React.FC = () => {
 
     return (
         <>
-            <div className="flex flex-col h-full w-full bg-transparent px-6 pt-2 pb-6 overflow-auto relative">
+            <div className="flex flex-col h-full w-full bg-transparent px-2 md:px-6 pt-1 md:pt-2 pb-16 md:pb-6 overflow-auto relative">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                {/* Control Bar (Status & Settings) - Moved to Top as requested */}
-                <div className="mb-4 flex items-center justify-between bg-glass-panel backdrop-blur-xl p-2 rounded-2xl shadow-glass border border-glass-border relative z-[100] group/bar">
+                {/* Control Bar (Status & Settings) - Hidden on mobile, shown on PC */}
+                <div className="mb-4 hidden md:flex items-center justify-between bg-glass-panel backdrop-blur-xl p-2 rounded-2xl shadow-glass border border-glass-border relative z-[100] group/bar">
                     {/* Subtle Top Highlight */}
                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
