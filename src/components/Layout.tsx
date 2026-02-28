@@ -44,14 +44,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-1",
                     "w-[80vw] h-[80vw] md:w-[60vw] md:h-[60vw] left-[-10%] top-[-10%]",
-                    // 👇 透明度を上げて色の主張を少し強める
-                    theme === 'dark' ? "bg-blue-600/30" : "bg-blue-300/50"
+                    // 👇 透明度を下げて、少し深めの色（より落ち着いた印象）に変更
+                    theme === 'dark' ? "bg-blue-800/20" : "bg-slate-300/40"
                 )} />
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px] animate-blob-2",
                     "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
-                    // 👇 透明度を上げて色の主張を少し強める
-                    theme === 'dark' ? "bg-cyan-500/25" : "bg-cyan-200/60"
+                    // 👇 透明度を下げて、少し深めの色（より落ち着いた印象）に変更
+                    theme === 'dark' ? "bg-indigo-900/20" : "bg-indigo-100/40"
                 )} />
             </div>
 
