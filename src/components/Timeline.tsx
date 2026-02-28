@@ -15,12 +15,13 @@ import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
+import { ConfirmDialog } from './ConfirmDialog';
 
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
@@ -547,12 +548,19 @@ export const Timeline: React.FC = () => {
     // 👆👆👆 ここまで追加 👆👆👆
     const [showPreStart] = useState(true); // Fixed for now, removed setter to fix lint
     const [importModalOpen, setImportModalOpen] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
 
     const handleAutoPlan = () => {
-        if (window.confirm("This will automatically generate a mitigation plan based on the current timeline events.\nWarning: Any overlapping logic might overwrite intended placements.\nContinue?")) {
-            const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
-            newMitigations.forEach(addMitigation);
-        }
+        setConfirmDialog({
+            title: 'オートプラン実行',
+            message: '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置と重複する可能性があります。実行しますか？',
+            variant: 'warning',
+            onConfirm: () => {
+                const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
+                newMitigations.forEach(addMitigation);
+                setConfirmDialog(null);
+            },
+        });
     };
 
     const pixelsPerSecond = 50; // Configurable?
@@ -980,6 +988,46 @@ export const Timeline: React.FC = () => {
 
     // Party Sorting State
     const [partySortOrder, setPartySortOrder] = useState<'light_party' | 'role'>('light_party');
+    const [clearMenuOpen, setClearMenuOpen] = useState(false);
+
+    // Keyboard shortcuts for Undo/Redo
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Skip if user is typing in an input/textarea
+            const tag = (e.target as HTMLElement)?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                useMitigationStore.getState().undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+                e.preventDefault();
+                useMitigationStore.getState().redo();
+            }
+            // Also support Ctrl+Y for redo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                useMitigationStore.getState().redo();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    // Close clear menu when clicking outside
+    useEffect(() => {
+        if (!clearMenuOpen) return;
+        const handleClick = () => setClearMenuOpen(false);
+        // Delay to avoid closing immediately on the opening click
+        const timer = setTimeout(() => {
+            window.addEventListener('click', handleClick);
+        }, 0);
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener('click', handleClick);
+        };
+    }, [clearMenuOpen]);
 
     // Derived Sorted Party Members
     const sortedPartyMembers = useMemo(() => {
@@ -1028,27 +1076,7 @@ export const Timeline: React.FC = () => {
                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-2 relative">
-                        {/* Auto Plan Button */}
-                        <button
-                            onClick={handleAutoPlan}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
-                            title="Auto Plan Mitigations"
-                        >
-                            <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
-                        </button>
-
-                        {/* FFLogs Import Button */}
-                        <button
-                            onClick={() => setImportModalOpen(true)}
-                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
-                            title="Import from FFLogs"
-                        >
-                            <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
-                        </button>
-
-                        <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
-
+                        {/* パーティ編成 (leftmost) */}
                         <button
                             onClick={() => setPartySettingsOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
@@ -1058,6 +1086,7 @@ export const Timeline: React.FC = () => {
                             <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-colors shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
                         </button>
 
+                        {/* ステータス設定 */}
                         <button
                             onClick={() => setStatusOpen(!statusOpen)}
                             className={clsx(
@@ -1110,6 +1139,27 @@ export const Timeline: React.FC = () => {
                                 />
                             </div>
                         </div>
+
+                        <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
+
+                        {/* Auto Plan Button */}
+                        <button
+                            onClick={handleAutoPlan}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
+                            title="Auto Plan Mitigations"
+                        >
+                            <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
+                        </button>
+
+                        {/* FFLogs Import Button */}
+                        <button
+                            onClick={() => setImportModalOpen(true)}
+                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
+                            title="Import from FFLogs"
+                        >
+                            <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                        </button>
                     </div>
 
                     {/* Status Popover */}
@@ -1192,21 +1242,22 @@ export const Timeline: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 <div className="relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border border-white/5">
-                    {/* SCH Aetherflow Pattern Toggle Bars - one per SCH member */}
-                    {(() => {
-                        const schMembers = sortedPartyMembers
-                            .map((m, idx) => ({ member: m, idx }))
-                            .filter(({ member }) => member.jobId === 'sch');
-                        if (schMembers.length === 0) return null;
-                        const fixedColsWidth = 570;
-                        return (
-                            <div
-                                ref={schBarRef} /* 👈 これを追加 */
-                                className="flex-shrink-0 z-[51] h-7 relative bg-[#111214]/90 backdrop-blur-md border-b border-white/[0.03]">
-                                {schMembers.map(({ member, idx }) => {
+                    {/* Action Bar: SCH Aetherflow toggles (left) + Undo/Redo/Clear (right) */}
+                    <div
+                        ref={schBarRef}
+                        className="flex-shrink-0 z-[51] h-7 relative bg-[#111214]/90 backdrop-blur-md border-b border-white/[0.03] flex items-center justify-between px-1">
+                        {/* Left side: SCH Aetherflow controls */}
+                        <div className="flex items-center relative flex-1">
+                            {(() => {
+                                const schMembers = sortedPartyMembers
+                                    .map((m, idx) => ({ member: m, idx }))
+                                    .filter(({ member }) => member.jobId === 'sch');
+                                if (schMembers.length === 0) return null;
+                                const fixedColsWidth = 570;
+                                return schMembers.map(({ member, idx }) => {
                                     let schLeft = fixedColsWidth;
                                     for (let i = 0; i < idx; i++) {
                                         schLeft += getColumnWidth(sortedPartyMembers[i].role);
@@ -1249,10 +1300,104 @@ export const Timeline: React.FC = () => {
                                             </button>
                                         </div>
                                     );
-                                })}
+                                });
+                            })()}
+                        </div>
+
+                        {/* Right side: Undo/Redo + Clear */}
+                        <div className="flex items-center gap-0.5 shrink-0">
+                            <button
+                                onClick={() => useMitigationStore.getState().undo()}
+                                disabled={useMitigationStore.getState()._history.length === 0}
+                                className={clsx(
+                                    "p-1 rounded transition-all duration-150 cursor-pointer",
+                                    useMitigationStore.getState()._history.length > 0
+                                        ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                        : "text-slate-700 cursor-default"
+                                )}
+                                title="Undo (Ctrl+Z)"
+                            >
+                                <Undo2 size={12} />
+                            </button>
+                            <button
+                                onClick={() => useMitigationStore.getState().redo()}
+                                disabled={useMitigationStore.getState()._future.length === 0}
+                                className={clsx(
+                                    "p-1 rounded transition-all duration-150 cursor-pointer",
+                                    useMitigationStore.getState()._future.length > 0
+                                        ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                        : "text-slate-700 cursor-default"
+                                )}
+                                title="Redo (Ctrl+Shift+Z)"
+                            >
+                                <Redo2 size={12} />
+                            </button>
+                            <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
+                            <div className="relative">
+                                <button
+                                    onClick={() => setClearMenuOpen(!clearMenuOpen)}
+                                    className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
+                                    title="Clear Mitigations"
+                                >
+                                    <Trash2 size={12} />
+                                    <ChevronDown size={7} />
+                                </button>
+                                {clearMenuOpen && (
+                                    <div className="absolute top-full right-0 mt-1 min-w-[180px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 rounded-xl shadow-2xl z-[200] py-1">
+                                        <button
+                                            onClick={() => {
+                                                setClearMenuOpen(false);
+                                                setConfirmDialog({
+                                                    title: '軽減を全て削除',
+                                                    message: '全メンバーの軽減を削除します。この操作はUndoで取り消せます。',
+                                                    variant: 'danger',
+                                                    onConfirm: () => {
+                                                        useMitigationStore.getState().clearAllMitigations();
+                                                        setConfirmDialog(null);
+                                                    },
+                                                });
+                                            }}
+                                            className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                        >
+                                            <Trash2 size={12} />
+                                            全ての軽減を削除
+                                        </button>
+                                        <div className="h-[1px] bg-slate-200/50 dark:bg-white/5 my-1" />
+                                        <div className="px-3 py-1 text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">
+                                            メンバー別に削除
+                                        </div>
+                                        {partyMembers.map(m => {
+                                            const job = JOBS.find(j => j.id === m.jobId);
+                                            const count = timelineMitigations.filter(mit => mit.ownerId === m.id).length;
+                                            if (!job || count === 0) return null;
+                                            return (
+                                                <button
+                                                    key={m.id}
+                                                    onClick={() => {
+                                                        setClearMenuOpen(false);
+                                                        setConfirmDialog({
+                                                            title: `${m.id} の軽減を削除`,
+                                                            message: `${m.id}（${job.name}）の軽減を削除します。この操作はUndoで取り消せます。`,
+                                                            variant: 'danger',
+                                                            onConfirm: () => {
+                                                                useMitigationStore.getState().clearMitigationsByMember(m.id);
+                                                                setConfirmDialog(null);
+                                                            },
+                                                        });
+                                                    }}
+                                                    className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center gap-2"
+                                                >
+                                                    <img src={job.icon} alt={job.name} className="w-4 h-4 rounded" />
+                                                    <span className="font-medium">{m.id}</span>
+                                                    <span className="text-slate-400 dark:text-slate-500">({job.name})</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
-                        );
-                    })()}
+                        </div>
+                    </div>
 
                     {/* Header Row - sticky within scroll container */}
                     <div
@@ -1605,16 +1750,30 @@ export const Timeline: React.FC = () => {
                 onClose={() => setImportModalOpen(false)}
             />
 
-            {migrationConfig && (
-                <JobMigrationModal
-                    isOpen={migrationConfig.isOpen}
-                    onConfirm={handleMigrationConfirm}
-                    onCancel={handleMigrationCancel}
-                    oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || JOBS[0]}
-                    newJob={JOBS.find(j => j.id === migrationConfig.newJobId) || JOBS[0]}
-                    memberName={partyMembers.find(m => m.id === migrationConfig.memberId)?.id || ''}
-                />
-            )}
+            {
+                migrationConfig && (
+                    <JobMigrationModal
+                        isOpen={migrationConfig.isOpen}
+                        onConfirm={handleMigrationConfirm}
+                        onCancel={handleMigrationCancel}
+                        oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || JOBS[0]}
+                        newJob={JOBS.find(j => j.id === migrationConfig.newJobId) || JOBS[0]}
+                        memberName={partyMembers.find(m => m.id === migrationConfig.memberId)?.id || ''}
+                    />
+                )
+            }
+
+            {/* Custom Confirm Dialog */}
+            <ConfirmDialog
+                isOpen={confirmDialog !== null}
+                title={confirmDialog?.title ?? ''}
+                message={confirmDialog?.message ?? ''}
+                variant={confirmDialog?.variant ?? 'danger'}
+                onConfirm={() => confirmDialog?.onConfirm?.()}
+                onCancel={() => setConfirmDialog(null)}
+                confirmLabel="実行"
+                cancelLabel="キャンセル"
+            />
         </>
     );
 };
