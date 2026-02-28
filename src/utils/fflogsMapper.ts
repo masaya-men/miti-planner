@@ -1,9 +1,9 @@
 /**
- * src/utils/fflogsMapper.ts — V4.7
+ * src/utils/fflogsMapper.ts — V4.8
  *
- * Key fixes from V4.6:
- *  - Keep 0-damage events for target counting (fixes Fixer/細胞重爆 AoE detection)
- *  - AA proximity window: 500ms (fixes same-time AA split across seconds)
+ * Key fixes from V4.7:
+ *  - Fix onMT misattribution: single non-tank targets now default to 'AoE'
+ *  - Add same-timeSec grouping merge for abilities hitting both tanks and non-tanks
  */
 
 import type { FFLogsRawEvent, FFLogsFight, DeathEvent } from '../api/fflogs';
@@ -289,7 +289,22 @@ export function mapFFLogsToTimeline(
         groups.push(gr);
     }
 
-    // Post-merge: merge same-ability groups within 2s of each other,
+    // Post-merge Phase 1: merge same-ability, same-timeSec groups.
+    // This handles attacks like リーサルスカージ where the same ability hits
+    // both tanks and non-tanks at the same second but gets split into
+    // separate groups due to event ordering.
+    for (let i = 0; i < groups.length; i++) {
+        for (let j = i + 1; j < groups.length; j++) {
+            if (groups[i][0].guid !== groups[j][0].guid) continue;
+            if (groups[i][0].timeSec !== groups[j][0].timeSec) continue;
+            // Same ability, same second → merge
+            groups[i].push(...groups[j]);
+            groups.splice(j, 1);
+            j--;
+        }
+    }
+
+    // Post-merge Phase 2: merge same-ability groups within 2s of each other,
     // but ONLY when the smaller group has ≤2 events (likely a split outlier,
     // not a separate cast). This prevents merging legitimate 1s-interval casts.
     const MERGE_WINDOW_MS = 2000;
@@ -399,12 +414,15 @@ export function mapFFLogsToTimeline(
             });
 
         } else {
+            // Single target hit
             const [tid] = uTgts;
             const d = dmgP.get(g) ?? 0;
+            // If target is not a tank, treat as AoE (party-wide attack that hit 1 target)
+            const target = tid === stId ? 'ST' : (tid === mtId ? 'MT' : 'AoE');
             tl.push({
                 id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
                 damageType: mapDamageType(f.aType), damageAmount: d > 0 ? d : undefined,
-                target: tid === stId ? 'ST' : (tid === mtId ? 'MT' : 'MT')
+                target
             });
         }
     }
