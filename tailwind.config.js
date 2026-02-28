@@ -31,6 +31,23 @@ export default {
       },
       boxShadow: {
         'glass': 'var(--glass-shadow)',
+      },
+      keyframes: {
+        blob: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(15vw, -15vh) scale(1.3)' }, // 画面の15%分大きく移動！
+          '66%': { transform: 'translate(-20vw, 10vh) scale(0.8)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
+        },
+        // ...rippleは使わないのでそのまま放置か削除でOKです
+        ripple: {
+          '0%': { transform: 'scale(0)', opacity: '0.4' },
+          '100%': { transform: 'scale(4)', opacity: '0' },
+        }
+      },
+      animation: {
+        blob: 'blob 10s infinite alternate',
+        ripple: 'ripple 0.6s linear',
       }
     },
   },
