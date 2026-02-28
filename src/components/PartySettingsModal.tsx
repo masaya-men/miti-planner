@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import type { MigrationMode } from '../utils/jobMigration';
+import type { Job, PartyMember } from '../types';
 
 interface PartySettingsModalProps {
     isOpen: boolean;
@@ -21,24 +22,81 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     // Hybrid UI State
     const [focusedSlot, setFocusedSlot] = useState<number | null>(null);
 
-    // Migration Modal State
-    const [migrationConfig, setMigrationConfig] = useState<{
-        isOpen: boolean;
-        memberId: string;
-        oldJobId: string;
-        newJobId: string;
-    } | null>(null);
+    // Draft state for party members
+    const [draftMembers, setDraftMembers] = useState<PartyMember[]>([]);
 
-    // Close on click outside + Enter/Escape key
+    // Batch Migration State
+    const [migrationBatch, setMigrationBatch] = useState<{
+        memberName: string;
+        oldJob: Job | null;
+        newJob: Job;
+        memberId: string;
+    }[] | null>(null);
+
+    // Set draft members when the modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            setDraftMembers(JSON.parse(JSON.stringify(partyMembers))); // Simple deep copy for draft
+        }
+    }, [isOpen, partyMembers]);
+
+    const handleAttemptClose = React.useCallback(() => {
+        if (migrationBatch) return;
+
+        const pendingMigrations: { memberName: string; oldJob: Job | null; newJob: Job; memberId: string }[] = [];
+        const safeChanges: { memberId: string; jobId: string | null }[] = [];
+
+        draftMembers.forEach(draftMember => {
+            const originalMember = partyMembers.find(m => m.id === draftMember.id);
+            if (!originalMember) return;
+
+            if (originalMember.jobId !== draftMember.jobId) {
+                const hasMitigations = timelineMitigations.some(m => m.ownerId === draftMember.id);
+                if (hasMitigations && originalMember.jobId && draftMember.jobId) {
+                    const oldJob = JOBS.find(j => j.id === originalMember.jobId) || null;
+                    const newJob = JOBS.find(j => j.id === draftMember.jobId)!;
+                    pendingMigrations.push({
+                        memberName: draftMember.id,
+                        memberId: draftMember.id,
+                        oldJob,
+                        newJob
+                    });
+                } else {
+                    safeChanges.push({ memberId: draftMember.id, jobId: draftMember.jobId });
+                }
+            }
+        });
+
+        // Apply safe changes immediately if there are no pending migrations
+        if (pendingMigrations.length === 0) {
+            safeChanges.forEach(change => {
+                setMemberJob(change.memberId, change.jobId as any);
+            });
+            onClose();
+        } else {
+            // Unsafe changes
+            setMigrationBatch(pendingMigrations);
+        }
+    }, [partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, setMemberJob]);
+
+    // ①：画面が完全に閉じた時だけ、状態をリセットする（点滅バグの防止）
+    React.useEffect(() => {
+        if (!isOpen) {
+            setFocusedSlot(null);
+            setMigrationBatch(null);
+        }
+    }, [isOpen]);
+
+    // ②：背景クリックとEscapeキーの検知（お掃除コードから状態リセットを削除）
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
-                onClose();
+                handleAttemptClose();
             }
         };
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Enter' || event.key === 'Escape') {
-                onClose();
+                handleAttemptClose();
             }
         };
 
@@ -47,18 +105,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             document.addEventListener('keydown', handleKeyDown);
         }
         return () => {
+            // リスナーの解除のみ行い、状態のリセットは行わない
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleKeyDown);
-            setFocusedSlot(null); // Reset focus when closing
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, handleAttemptClose]);
 
     // Absolute Rules - DO NOT MODIFY
     const mtGroupIndices = [0, 2, 4, 6];
     const stGroupIndices = [1, 3, 5, 7];
 
     const handleRemoveJob = (memberId: string) => {
-        setMemberJob(memberId, null as any);
+        setDraftMembers(prev => prev.map(m => m.id === memberId ? { ...m, jobId: null as any } : m));
     };
 
     const MELEE_IDS = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
@@ -74,69 +132,116 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         // Mode A: Manual Focus Override
         if (focusedSlot !== null && focusedSlot >= 0 && focusedSlot < 8) {
             targetIndex = focusedSlot;
+            setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
         }
         // Mode B: Smart Auto Assign
         else {
-            let preferredIndices: number[];
+            let preferredIndices: number[] = [];
+            let swapData: { mtIdx: number, stIdx: number, newMtJob: string, newStJob: string } | null = null;
+
             if (job.role === 'tank') {
-                preferredIndices = [mtGroupIndices[0], stGroupIndices[0]]; // MT -> ST
+                // MT優先度: 暗黒(4) > 戦士(3) > ナイト(2) > ガンブレ(1)。ST優先度はその逆。
+                const mtScore: Record<string, number> = { drk: 4, war: 3, pld: 2, gnb: 1 };
+                const mtIdx = mtGroupIndices[0];
+                const stIdx = stGroupIndices[0];
+                const currentMtJob = draftMembers[mtIdx].jobId;
+                const currentStJob = draftMembers[stIdx].jobId;
+
+                const isMtPreferred = mtScore[jobId] >= 3; // 暗黒、戦士はMT希望
+
+                if (!currentMtJob && !currentStJob) {
+                    preferredIndices = isMtPreferred ? [mtIdx, stIdx] : [stIdx, mtIdx];
+                } else if (currentMtJob && !currentStJob) {
+                    if (mtScore[jobId] > mtScore[currentMtJob]) {
+                        swapData = { mtIdx, stIdx, newMtJob: jobId, newStJob: currentMtJob };
+                        targetIndex = mtIdx;
+                    } else {
+                        preferredIndices = [stIdx];
+                    }
+                } else if (!currentMtJob && currentStJob) {
+                    if (mtScore[jobId] < mtScore[currentStJob]) {
+                        swapData = { mtIdx, stIdx, newMtJob: currentStJob, newStJob: jobId };
+                        targetIndex = stIdx;
+                    } else {
+                        preferredIndices = [mtIdx];
+                    }
+                } else {
+                    preferredIndices = isMtPreferred ? [mtIdx] : [stIdx];
+                }
             } else if (job.role === 'healer') {
-                preferredIndices = [mtGroupIndices[1], stGroupIndices[1]]; // H1 -> H2
+                // PH(白,占)はH1、BH(学,賢)はH2
+                if (['whm', 'ast'].includes(jobId)) {
+                    preferredIndices = [mtGroupIndices[1], stGroupIndices[1]];
+                } else {
+                    preferredIndices = [stGroupIndices[1], mtGroupIndices[1]];
+                }
             } else if (MELEE_IDS.includes(jobId)) {
                 preferredIndices = [mtGroupIndices[2], stGroupIndices[2]]; // D1 -> D2
             } else if (PHYS_RANGED_IDS.includes(jobId)) {
-                preferredIndices = [mtGroupIndices[3], stGroupIndices[3]]; // D3 -> D4 (物理レンジ最優先)
+                preferredIndices = [mtGroupIndices[3], stGroupIndices[3]]; // D3 -> D4
             } else {
-                preferredIndices = [stGroupIndices[3], mtGroupIndices[3]]; // D4 -> D3 (キャスター最優先)
+                preferredIndices = [stGroupIndices[3], mtGroupIndices[3]]; // D4 -> D3
             }
 
-            // Target the first empty preferred slot
-            targetIndex = preferredIndices.find(idx => !partyMembers[idx].jobId);
-            if (targetIndex === undefined) {
-                targetIndex = preferredIndices[0]; // Overwrite the primary slot for that role if full
+            if (swapData) {
+                setDraftMembers(prev => {
+                    const next = [...prev];
+                    next[swapData!.mtIdx] = { ...next[swapData!.mtIdx], jobId: swapData!.newMtJob as any };
+                    next[swapData!.stIdx] = { ...next[swapData!.stIdx], jobId: swapData!.newStJob as any };
+                    return next;
+                });
+            } else {
+                targetIndex = preferredIndices.find(idx => !draftMembers[idx].jobId);
+                if (targetIndex === undefined) targetIndex = preferredIndices[0];
+                setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
             }
         }
 
+        // オートスクロール（配置されたスロットへ滑らかに移動）
         if (targetIndex !== undefined) {
-            const targetMember = partyMembers[targetIndex];
-
-            // Existing Migration Check Logic (Protected & Untouched)
-            const hasMitigations = timelineMitigations.some(m => m.ownerId === targetMember.id);
-
-            if (hasMitigations && targetMember.jobId) {
-                setMigrationConfig({
-                    isOpen: true,
-                    memberId: targetMember.id,
-                    oldJobId: targetMember.jobId,
-                    newJobId: jobId
-                });
-            } else {
-                setMemberJob(targetMember.id, jobId);
-            }
+            setTimeout(() => {
+                const el = document.getElementById(`party-slot-${targetIndex}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 50);
         }
 
         // Always unfocus after a selection attempt
         setFocusedSlot(null);
     };
 
-    // Protected Migration Handlers (Do not modify logic)
-    const handleMigrationConfirm = (mode: MigrationMode) => {
-        if (!migrationConfig) return;
-        const { memberId, oldJobId, newJobId } = migrationConfig;
-        const memberMitis = timelineMitigations.filter(m => m.ownerId === memberId);
-        const newMitis = migrateMitigations(oldJobId, newJobId, memberId, memberMitis, mode);
-        useMitigationStore.getState().changeMemberJobWithMitigations(memberId, newJobId, newMitis);
-        setMigrationConfig(null);
+    // Protected Migration Handlers for Batch Process
+    const handleBatchMigrationConfirm = (mode: MigrationMode) => {
+        if (!migrationBatch) return;
+
+        // Apply any safe changes first
+        draftMembers.forEach(draftMember => {
+            const originalMember = partyMembers.find(m => m.id === draftMember.id);
+            if (originalMember && originalMember.jobId !== draftMember.jobId && !migrationBatch.some(b => b.memberId === draftMember.id)) {
+                setMemberJob(draftMember.id, draftMember.jobId as any);
+            }
+        });
+
+        migrationBatch.forEach(({ memberId, oldJob, newJob }) => {
+            const memberMitis = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === memberId);
+            const newMitis = migrateMitigations(oldJob?.id || '', newJob.id, memberId, memberMitis, mode);
+            useMitigationStore.getState().changeMemberJobWithMitigations(memberId, newJob.id, newMitis);
+        });
+
+        setMigrationBatch(null);
+        onClose();
     };
 
-    const handleMigrationCancel = () => {
-        setMigrationConfig(null);
+    const handleBatchMigrationCancel = () => {
+        setMigrationBatch(null);
     };
 
     // --- UI Rendering Helpers ---
 
     const renderSlot = (index: number) => {
-        const member = partyMembers[index];
+        const member = draftMembers[index];
+        if (!member) return null;
         const job = JOBS.find(j => j.id === member.jobId);
         const isFocused = focusedSlot === index;
         const isMyJob = myMemberId === member.id;
@@ -150,6 +255,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         return (
             <div
                 key={member.id}
+                id={`party-slot-${index}`}
                 onClick={() => setFocusedSlot(isFocused ? null : index)}
                 className={clsx(
                     "h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer transition-all duration-200 border relative overflow-hidden group/slot",
@@ -275,7 +381,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     "absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
                 )}
-                onClick={onClose}
+                onClick={handleAttemptClose}
             />
 
             {/* Slide-Over Panel (Left) using User's skeleton structure exactly */}
@@ -299,63 +405,65 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="px-4 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
+                    <button onClick={handleAttemptClose} className="px-4 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
                         Close
                     </button>
                 </div>
 
                 {/* 上部セクション：8つのスロット（スクロール可能領域） */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-[#020203]/40">
+                <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
+                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 bg-[#020203]/40">
 
-                    {/* Status Info Box inside scroll area, just above groups */}
-                    {focusedSlot !== null && (
-                        <div className="w-full p-2.5 rounded-lg border bg-app-accent-dim/20 border-app-border-accent flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-                            <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                            <span className="text-[11px] text-sky-200">
-                                <strong>マニュアルモード:</strong> 次に選んだジョブは <strong>{partyMembers[focusedSlot].id}</strong> に強制配置されます。
-                            </span>
+                        {/* Status Info Box inside scroll area, just above groups */}
+                        {focusedSlot !== null && (
+                            <div className="w-full p-2.5 rounded-lg border bg-app-accent-dim/20 border-app-border-accent flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                                <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                                <span className="text-[11px] text-sky-200">
+                                    <strong>マニュアルモード:</strong> 次に選んだジョブは <strong>{partyMembers[focusedSlot].id}</strong> に強制配置されます。
+                                </span>
+                            </div>
+                        )}
+
+                        {/* MTグループ */}
+                        <div>
+                            <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">MT GROUP</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {/* h-14 の大きなスロットを4つ並べる (MT, H1, D1, D3) */}
+                                {mtGroupIndices.map(renderSlot)}
+                            </div>
                         </div>
-                    )}
 
-                    {/* MTグループ */}
-                    <div>
-                        <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">MT GROUP</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                            {/* h-14 の大きなスロットを4つ並べる (MT, H1, D1, D3) */}
-                            {mtGroupIndices.map(renderSlot)}
+                        {/* STグループ */}
+                        <div>
+                            <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">ST GROUP</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {/* h-14 の大きなスロットを4つ並べる (ST, H2, D2, D4) */}
+                                {stGroupIndices.map(renderSlot)}
+                            </div>
                         </div>
                     </div>
 
-                    {/* STグループ */}
-                    <div>
-                        <h3 className="text-app-text-muted text-xs font-bold mb-2 tracking-widest pl-1">ST GROUP</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                            {/* h-14 の大きなスロットを4つ並べる (ST, H2, D2, D4) */}
-                            {stGroupIndices.map(renderSlot)}
-                        </div>
+                    {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
+                    <div className="h-auto max-h-[45vh] bg-glass-card border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10">
+                        <h3 className="text-app-text-muted text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
+                        {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
+                        {renderJobPalette()}
                     </div>
-                </div>
-
-                {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
-                <div className="h-auto max-h-[45vh] bg-glass-card border-t border-glass-border p-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] z-10">
-                    <h3 className="text-app-text-muted text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
-                    {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
-                    {renderJobPalette()}
                 </div>
             </div>
 
             {/* Render Migration Confirmation over everything else */}
-            {migrationConfig && (
+            {migrationBatch && (
                 <JobMigrationModal
-                    isOpen={migrationConfig.isOpen}
-                    oldJob={JOBS.find(j => j.id === migrationConfig.oldJobId) || null}
-                    newJob={JOBS.find(j => j.id === migrationConfig.newJobId)!}
-                    memberName={migrationConfig.memberId}
-                    onConfirm={handleMigrationConfirm}
-                    onCancel={handleMigrationCancel}
+                    isOpen={migrationBatch.length > 0}
+                    oldJob={migrationBatch[0]?.oldJob || null}
+                    newJob={migrationBatch[0]?.newJob}
+                    memberName={migrationBatch[0]?.memberName}
+                    batchTasks={migrationBatch}
+                    onConfirm={handleBatchMigrationConfirm}
+                    onCancel={handleBatchMigrationCancel}
                 />
             )}
         </div>
     );
 };
-
