@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -18,16 +17,19 @@ interface MitigationSelectorProps {
     activeMitigations?: AppliedMitigation[];
     selectedTime?: number;
     schAetherflowPattern?: 1 | 2;
+    isCentered?: boolean; // 👈 追加：中央表示モードのフラグ
 }
 
-export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, onClose, onSelect, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1 }) => {
+export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
+    isOpen, onClose, onSelect, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
+    isCentered = false // 👈 デフォルトはfalse（今まで通り）
+}) => {
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
 
     const panelRef = React.useRef<HTMLDivElement>(null);
     const [adjustedPos, setAdjustedPos] = React.useState(position);
 
-    // 2-step selection state
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const { partyMembers } = useMitigationStore();
 
@@ -41,11 +43,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
     }, []);
 
     React.useEffect(() => {
-        if (!isOpen || !panelRef.current) {
+        if (!isOpen || !panelRef.current || isCentered) { // 👈 isCenteredの時は座標計算をスキップ
             setAdjustedPos(position);
             return;
         }
-        if (isMobile) return; // Position handled by CSS on mobile
+        if (isMobile) return;
 
         requestAnimationFrame(() => {
             if (!panelRef.current) return;
@@ -62,9 +64,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
             }
             setAdjustedPos({ x, y });
         });
-    }, [isOpen, position, isMobile]);
+    }, [isOpen, position, isMobile, isCentered]);
 
-    // Close on click outside (without blocking scroll)
     React.useEffect(() => {
         if (!isOpen) {
             setSelectedSingleTargetMit(null);
@@ -83,15 +84,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
 
     const allJobMitigations = jobId ? MITIGATIONS.filter(m => m.jobId === jobId) : [];
 
-    // Check resource availability for a mitigation using shared logic
     const getResourceStatus = (m: Mitigation) => {
         return validateMitigationPlacement(m, selectedTime, activeMitigations, schAetherflowPattern, t);
     };
 
-    // Identify Single Target Buffs that can be thrown to others
-    const SINGLE_TARGET_BUFFS = ['the_blackest_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima', 'aurora', 'nascent_flash']; // Add others as needed
+    const SINGLE_TARGET_BUFFS = ['the_blackest_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima', 'aurora', 'nascent_flash'];
 
-    // Filter out skills whose prerequisites are not met (completely hidden)
     const availableMitigations = allJobMitigations.filter(m => {
         if (!m.requires) return true;
         return activeMitigations.some(am => {
@@ -103,52 +101,55 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
     }).sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
 
     const handleMitigationClick = (mitigation: Mitigation) => {
-        // If it's a single target buff, go to step 2
         if (SINGLE_TARGET_BUFFS.includes(mitigation.id)) {
             setSelectedSingleTargetMit(mitigation);
         } else {
-            // Normal skill
             onSelect(mitigation);
         }
     };
 
     const handleTargetSelect = (targetId: string) => {
         if (selectedSingleTargetMit) {
-            // Pass targetId by hacking it onto the object or letting the parent handle it
-            // The cleanest way without changing Mitigation type is to cast/extend it here,
-            // but the parent `onSelect` expects Mitigation. 
-            // Let's modify onSelect to take an optional targetId.
             onSelect({ ...selectedSingleTargetMit, _targetId: targetId });
         }
     };
 
     const handleClose = () => {
         if (selectedSingleTargetMit) {
-            setSelectedSingleTargetMit(null); // Go back to mitigation list
+            setSelectedSingleTargetMit(null);
         } else {
             onClose();
         }
     };
 
     return (
-        <div className="fixed z-[9999] pointer-events-none" style={{ top: 0, left: 0 }}>
+        // 👇 修正：isCenteredがtrueなら、画面全体を覆うオーバーレイにしてド真ん中に配置！
+        <div
+            className={clsx(
+                "fixed z-[9999] pointer-events-none",
+                isCentered ? "inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-auto" : ""
+            )}
+            style={!isCentered ? { top: 0, left: 0 } : {}}
+            onClick={isCentered ? onClose : undefined} // 背景クリックで閉じる
+        >
             <div
                 ref={panelRef}
+                onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto glass-panel shadow-2xl p-2 overflow-hidden ring-1 ring-white/5 fixed flex flex-col transition-transform duration-300",
-                    isMobile
-                        ? "bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
-                        : "rounded-xl w-64"
+                    "pointer-events-auto glass-panel shadow-2xl p-2 overflow-hidden ring-1 ring-white/5 flex flex-col transition-transform duration-300",
+                    isMobile && !isCentered
+                        ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
+                        : "rounded-xl w-64",
+                    !isCentered && !isMobile ? "fixed" : "relative animate-in zoom-in-95 fade-in duration-200" // 中央配置の時はfixedを外してアニメーション追加
                 )}
-                style={isMobile ? { maxHeight: '75vh' } : { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' }}
+                style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
             >
-                {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-slate-900/10 dark:bg-white/10 rounded-full mx-auto mb-3 shrink-0" />}
+                {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-900/10 dark:bg-white/10 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
                     <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
-                    <button onClick={handleClose} className="text-slate-400 hover:text-white transition-colors">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
                         <X size={14} />
                     </button>
                 </div>
@@ -226,7 +227,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                         )}
                     </div>
                 ) : (
-                    // Target Selection View
                     <div className="flex flex-col gap-2 overflow-y-auto pr-1 shrink">
                         {partyMembers.map((member: import('../types').PartyMember) => {
                             const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
@@ -234,7 +234,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
                                 <button
                                     key={member.id}
                                     onClick={() => handleTargetSelect(member.id)}
-                                    className="flex items-center gap-4 p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors"
+                                    className="flex items-center gap-4 p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors cursor-pointer"
                                 >
                                     {job ? (
                                         <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
@@ -253,4 +253,3 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({ isOpen, 
         </div>
     );
 };
-
