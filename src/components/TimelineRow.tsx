@@ -1,11 +1,12 @@
 import React, { memo } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent } from '../types';
 import { getColumnWidth } from './Timeline';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { JOBS } from '../data/mockData';
+import { useMitigationStore } from '../store/useMitigationStore';
 
 interface DamageInfo {
     unmitigated: number;
@@ -43,6 +44,7 @@ export const TimelineRow = memo(({
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
+    const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
 
     // Bilingual event name helper (same pattern as Job/Mitigation)
     const getEventName = (ev: TimelineEvent) =>
@@ -111,6 +113,17 @@ export const TimelineRow = memo(({
 
                                 {/* Name */}
                                 <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setClipboardEvent(events[0]);
+                                    }}
+                                    className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                    title="このイベントをコピーしてスタンプする"
+                                >
+                                    <Copy size={14} />
+                                </button>
                             </div>
 
                             {/* Right Side: Target */}
@@ -171,6 +184,17 @@ export const TimelineRow = memo(({
 
                                     {/* Name */}
                                     <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setClipboardEvent(events[0]);
+                                        }}
+                                        className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        title="このイベントをコピーしてスタンプする"
+                                    >
+                                        <Copy size={14} />
+                                    </button>
                                 </div>
 
                                 {/* Right Side: Target */}
@@ -211,6 +235,17 @@ export const TimelineRow = memo(({
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
                                     <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
+
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setClipboardEvent(events[1]);
+                                        }}
+                                        className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        title="このイベントをコピーしてスタンプする"
+                                    >
+                                        <Copy size={14} />
+                                    </button>
                                 </div>
 
                                 {/* Right Side: Target */}
@@ -438,22 +473,12 @@ export const TimelineRow = memo(({
         </div >
     );
 }, (prevProps, nextProps) => {
-    // Custom comparison function for React.memo
-
-    // Check if critical data changed
     if (prevProps.time !== nextProps.time) return false;
     if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.events !== nextProps.events) return false; // Event array check
-    // Need to check damages array deeply? Or length/ref? Ref should change if data updates.
+    if (prevProps.events !== nextProps.events) return false;
     if (prevProps.damages !== nextProps.damages) return false;
-
-    if (prevProps.partyMembers !== nextProps.partyMembers) return false; // Party members array ref check
-
-    // Check Sort Order
+    if (prevProps.partyMembers !== nextProps.partyMembers) return false;
     if (prevProps.partySortOrder !== nextProps.partySortOrder) return false;
-
-    // Check events length just in case
     if (prevProps.events.length !== nextProps.events.length) return false;
-
     return true;
 });

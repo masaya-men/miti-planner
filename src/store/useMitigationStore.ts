@@ -24,6 +24,7 @@ interface MitigationState {
     myMemberId: string | null;
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
+    clipboardEvent: TimelineEvent | null; // 👈 追加1：クリップボード用の変数
     // Undo/Redo History (not persisted)
     _history: AppliedMitigation[][];
     _future: AppliedMitigation[][];
@@ -58,6 +59,7 @@ interface MitigationState {
     setMyMemberId: (memberId: string | null) => void;
     setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
+    setClipboardEvent: (event: TimelineEvent | null) => void; // 👈 追加2：操作用のアクション
 }
 
 export const DEFAULT_TANK_STATS: PlayerStats = {
@@ -125,6 +127,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myMemberId: null,
                 myJobHighlight: false,
                 hideEmptyRows: false,
+                clipboardEvent: null, // 👈 追加3：初期状態は「空っぽ（null）」
                 _history: [],
                 _future: [],
 
@@ -169,6 +172,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
+                setClipboardEvent: (event) => set({ clipboardEvent: event }), // 👈 追加4：クリップボードに記憶させる処理
 
                 addEvent: (event) => set((state) => ({
                     timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)

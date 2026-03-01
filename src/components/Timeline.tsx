@@ -15,7 +15,7 @@ import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, X } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -477,7 +477,9 @@ export const Timeline: React.FC = () => {
         phases,
         myJobHighlight,
         setMyJobHighlight,
-        changeMemberJobWithMitigations
+        changeMemberJobWithMitigations,
+        clipboardEvent,
+        setClipboardEvent,
     } = useMitigationStore();
 
     // Modal State
@@ -546,6 +548,7 @@ export const Timeline: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const schBarRef = useRef<HTMLDivElement>(null);
+    const timeToYMapRef = useRef(new Map<number, number>()); // 👈 追加：各秒数のY座標を記憶するためのRef
 
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
@@ -615,6 +618,17 @@ export const Timeline: React.FC = () => {
     // --- Phase & Event Handlers ---
     const handleAddClick = (time: number, e: React.MouseEvent) => {
         e.stopPropagation(); // Ensure we don't trigger other things
+
+        // 👇 追加：もしコピー中（スタンプモード）なら、即座にペーストして終了！
+        if (clipboardEvent) {
+            const generateId = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
+            addEvent({
+                ...clipboardEvent,
+                id: generateId(), // IDは新しく生成
+                time: time        // 時間はクリックした行の時間で上書き
+            });
+            return; // モーダルは開かずにここで処理を終わる
+        }
 
         if (isAaModeEnabled) {
             // Check if we can add an event (Max 2 per row)
@@ -720,6 +734,20 @@ export const Timeline: React.FC = () => {
             });
         }
         setIsModalOpen(false); // Ensure modal closes
+
+        // 👇 追加：保存後、新しく作られた行へ自動スクロールする
+        setTimeout(() => {
+            if (scrollContainerRef.current) {
+                // 行がレンダリングされた後のY座標を取得
+                const targetY = timeToYMapRef.current.get(eventData.time);
+                if (targetY !== undefined) {
+                    scrollContainerRef.current.scrollTo({
+                        top: targetY,
+                        behavior: 'smooth' // なめらかにスクロール
+                    });
+                }
+            }
+        }, 100); // レンダリング完了を待つために100ミリ秒だけ遅らせる
     };
 
     const handleDelete = () => {
@@ -1506,23 +1534,41 @@ export const Timeline: React.FC = () => {
                                 let totalHeight = 0;
                                 const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
 
+                                // 👇 追加：一番最後のイベント/軽減の時間を探す
+                                let maxPopulatedTime = -11;
+                                if (hideEmpty) {
+                                    timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
+                                    timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
+                                }
+
                                 gridLines.forEach(time => {
                                     const hasEvents = (eventsByTime.get(time)?.length ?? 0) > 0;
                                     const hasMitigations = timelineMitigations.some(m => m.time === time);
 
-                                    if (!hideEmpty || hasEvents || hasMitigations) {
+                                    // 👇 追加：一番最後の行の「次の1秒」は強制表示する
+                                    const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
+
+                                    if (!hideEmpty || hasEvents || hasMitigations || isBottomEmptyRow) {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
-                                return totalHeight;
-                            })()
-                                }px`
+                                // 👇 修正：計算された高さに「画面の高さの70% (70vh)」の架空の余白を足して返す！
+                                // これにより、たった1行しかない状態でも、その1行を画面の一番上までスクロールできるようになります。
+                                return `calc(${totalHeight}px + 70vh)`;
+                            })()}` // 👈 注意: `px` を外してバッククォートの形に合わせます
                         }}>
                             {/* Time Grid & Columns */}
                             {(() => {
                                 const renderItems: React.ReactElement[] = [];
                                 let currentY = 0;
                                 const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
+
+                                // 👇 追加：一番最後のイベント/軽減の時間を探す
+                                let maxPopulatedTime = -11;
+                                if (hideEmpty) {
+                                    timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
+                                    timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
+                                }
 
                                 // Build layout map for mitigations and phases
                                 const timeToYMap = new Map<number, number>();
@@ -1534,7 +1580,10 @@ export const Timeline: React.FC = () => {
                                     const hasEvents = rowEvents.length > 0;
                                     const hasMitigations = timelineMitigations.some(m => m.time === time);
 
-                                    if (hideEmpty && !hasEvents && !hasMitigations) {
+                                    // 👇 追加：一番最後の行の「次の1秒」は強制表示する
+                                    const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
+
+                                    if (hideEmpty && !hasEvents && !hasMitigations && !isBottomEmptyRow) {
                                         // Skip row, but map the time to currentY for duration calculations
                                         timeToYMap.set(time, currentY);
                                         return;
@@ -1562,6 +1611,8 @@ export const Timeline: React.FC = () => {
                                     currentY += pixelsPerSecond;
                                 });
 
+                                // 👇 追加：スクロールで使うために、計算された各行のY座標マップをRefに保存しておく
+                                timeToYMapRef.current = timeToYMap;
                                 // Expose timeToYMap for Mitigation Lane rendering logic
                                 // (We can attach it to the div or store it in a ref if necessary, but since it's local we need to render the phases & mitigations here to use the mapping)
                                 return (
@@ -1741,6 +1792,29 @@ export const Timeline: React.FC = () => {
                 </div>
             </div >
 
+            {/* 📋 スタンプモードのフローティングバッジ */}
+            {clipboardEvent && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xl drop-shadow-md">📋</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-sm leading-tight drop-shadow-md">
+                                {clipboardEvent.name || 'イベント'} をコピー中
+                            </span>
+                            <span className="text-[10px] text-blue-100/90 leading-tight">
+                                空行をクリックで連続ペースト
+                            </span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setClipboardEvent(null)}
+                        className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full transition-colors cursor-pointer"
+                        title="コピー状態を解除"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+            )}
 
             <EventModal
                 isOpen={isModalOpen}
