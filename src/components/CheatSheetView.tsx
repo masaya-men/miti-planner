@@ -1,16 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { MITIGATIONS } from '../data/mockData';
+import { MITIGATIONS, JOBS } from '../data/mockData'; // 👈 JOBSを追加
 import clsx from 'clsx';
-import type { TimelineEvent } from '../types';
+import type { TimelineEvent, Mitigation } from '../types';
+import { MitigationSelector } from './MitigationSelector';
 
-// マージ（合体）されたイベント用の型
 type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime: number };
 
 export const CheatSheetView: React.FC = () => {
-    const { timelineEvents, timelineMitigations, partyMembers } = useMitigationStore();
+    const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
 
-    // 完璧なダメージ計算頭脳
+    // 状態管理
+    const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
+    const [selectorPosition, setSelectorPosition] = useState({ x: 0, y: 0 });
+    const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+    const [selectedMitigationTime, setSelectedMitigationTime] = useState<number>(0);
+    const [memberSelectOpen, setMemberSelectOpen] = useState(false); // 👈 メンバー選択用ポップアップの状態
+
+    // ダメージ計算頭脳
     const damageMap = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean }>();
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
@@ -148,7 +155,6 @@ export const CheatSheetView: React.FC = () => {
     };
 
     const EventRow = ({ event }: { event: MergedEvent }) => {
-        // 🎯 究極の改修ポイント：攻撃の期間（span）全体をカバーする軽減をすべて取得して集約！
         const activeMitigations = timelineMitigations.filter(m => {
             return m.time <= (event.time + event.span) && (m.time + m.duration) >= event.time;
         });
@@ -168,8 +174,18 @@ export const CheatSheetView: React.FC = () => {
         const isLethal = actualDamage >= maxHp && actualDamage > 0;
         const hasDamage = actualDamage > 0;
 
+        // 👇 修正：どこをクリックしても「画面のど真ん中」の座標を計算して渡す！
+        const handleRowClick = (e: React.MouseEvent) => {
+            // モーダルの大きさを考慮して、画面のど真ん中に来るように座標を計算
+            const centerX = (window.innerWidth / 2) - 120; // 120はモーダルの幅の半分くらい
+            const centerY = (window.innerHeight / 2) - 150; // 150はモーダルの高さの半分くらい
+
+            setSelectorPosition({ x: centerX, y: centerY }); // クリック位置ではなく、中央の座標をセット
+            setSelectedMitigationTime(event.time);
+            setMemberSelectOpen(true); // メンバー選択画面をON
+        };
+
         const renderMitigationGroup = (mitigations: typeof timelineMitigations, alignRight: boolean = false) => {
-            // 重複する軽減アイコンを排除（同じ技の中で何度も同じ軽減が取得されるのを防ぐ）
             const uniqueMitigations = mitigations.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
 
             return (
@@ -202,18 +218,19 @@ export const CheatSheetView: React.FC = () => {
         };
 
         return (
-            <div className={clsx(
-                "flex w-full items-stretch min-h-[40px] border-b border-white/5 transition-colors relative group",
-                isLethal ? "bg-red-500/10 hover:bg-red-500/20" : "hover:bg-white/[0.02]"
-            )}>
+            <div
+                onClick={handleRowClick}
+                className={clsx(
+                    "flex w-full items-stretch min-h-[40px] border-b border-white/5 transition-colors relative group cursor-pointer",
+                    isLethal ? "bg-red-500/10 hover:bg-red-500/20" : "hover:bg-white/[0.02]"
+                )}>
                 <div className="flex-1 p-1 flex items-center justify-end border-r border-white/5 pr-2">
                     {renderMitigationGroup(mtGroupMitigations, true)}
                 </div>
 
-                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center p-1 relative z-10 bg-black/20 backdrop-blur-sm border-x border-white/10 mx-[-1px] shadow-[0_0_10px_rgba(0,0,0,0.2)]">
+                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center p-1 relative z-10 bg-black/20 backdrop-blur-sm border-x border-white/10 mx-[-1px] shadow-[0_0_10px_rgba(0,0,0,0.2)] pointer-events-none">
                     <span className="text-[10px] font-mono text-cyan-400 font-bold tracking-wider leading-none mb-0.5 shadow-black drop-shadow-md">
                         {formatTime(event.time)}
-                        {/* 期間が長い場合は ~ 0:51 のように終了時間も表示すると親切かもしれませんね（今回はスッキリさを優先して非表示にしています） */}
                     </span>
                     <span className={clsx(
                         "text-xs text-center leading-tight line-clamp-2 px-1 break-words w-full shadow-black drop-shadow-md",
@@ -235,7 +252,6 @@ export const CheatSheetView: React.FC = () => {
                             </span>
                         )}
 
-                        {/* 合体した攻撃に「×6」のバッジを表示 */}
                         {event.hitCount > 1 && (
                             <span
                                 className="text-[8px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm"
@@ -254,7 +270,6 @@ export const CheatSheetView: React.FC = () => {
         );
     };
 
-    // 🎯 究極のマージロジック：同じ名前の攻撃が15秒以内に来たら全部まとめる！
     const damageEvents = useMemo(() => {
         const rawEvents = timelineEvents
             .filter(e => e.damageAmount && e.damageAmount > 0 && e.name !== 'AA')
@@ -266,9 +281,7 @@ export const CheatSheetView: React.FC = () => {
             const lastMerge = merged[merged.length - 1];
 
             if (lastMerge && lastMerge.name === event.name) {
-                const totalSpan = event.time - lastMerge.time; // 最初のヒットからの経過時間
-
-                // 最初のヒットから15秒以内なら、問答無用で合体させる！
+                const totalSpan = event.time - lastMerge.time;
                 if (totalSpan <= 15) {
                     lastMerge.hitCount += 1;
                     lastMerge.span = totalSpan;
@@ -315,6 +328,67 @@ export const CheatSheetView: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* 👇 追加：誰の軽減を入れるか選ぶポップアップ */}
+            {memberSelectOpen && (
+                <div
+                    className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                    onClick={() => setMemberSelectOpen(false)}
+                >
+                    <div
+                        className="bg-white/10 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl animate-in zoom-in-95 fade-in duration-200"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
+                            軽減を追加するメンバー
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                            {partyMembers.map(m => {
+                                const job = JOBS.find(j => j.id === m.jobId);
+                                if (!job) return null;
+                                return (
+                                    <button
+                                        key={m.id}
+                                        onClick={() => {
+                                            setSelectedMemberId(m.id);
+                                            setMemberSelectOpen(false); // メンバー選択を閉じる
+                                            setMitigationSelectorOpen(true); // 軽減スキル一覧を開く！
+                                        }}
+                                        className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
+                                    >
+                                        <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain drop-shadow-md" />
+                                        <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 軽減スキルを選ぶポップアップ */}
+            <MitigationSelector
+                isOpen={mitigationSelectorOpen}
+                onClose={() => setMitigationSelectorOpen(false)}
+                onSelect={(mitigation: Mitigation & { _targetId?: string }) => {
+                    if (!selectedMemberId) return;
+                    addMitigation({
+                        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15),
+                        mitigationId: mitigation.id,
+                        time: selectedMitigationTime,
+                        duration: mitigation.duration,
+                        ownerId: selectedMemberId,
+                        targetId: mitigation._targetId
+                    });
+                    setMitigationSelectorOpen(false);
+                }}
+                jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
+                position={selectorPosition}
+                activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
+                selectedTime={selectedMitigationTime}
+                schAetherflowPattern={selectedMemberId ? (schAetherflowPatterns[selectedMemberId] ?? 1) : 1}
+                isCentered={true} // 👈 これを1行追加するだけ！
+            />
         </div>
     );
 };
