@@ -45,8 +45,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 setDamageType(initialData.damageType);
                 setDamageAmount(initialData.damageAmount || 0);
                 setTarget(initialData.target || 'AoE');
-                // Reset calculator state
-                setInputMode('reverse');
+
+                // 👇 修正：すでにダメージが入っている場合は、電卓が上書きしないように「直接入力(Direct)」モードで開く
+                if (initialData.damageAmount && initialData.damageAmount > 0) {
+                    setInputMode('direct');
+                } else {
+                    setInputMode('reverse');
+                }
                 setCalcActualDamage(0);
                 setSelectedMitigations([]);
             } else {
