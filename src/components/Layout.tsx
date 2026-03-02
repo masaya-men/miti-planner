@@ -191,13 +191,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* Mobile Bottom Nav */}
             <MobileBottomNav
-                onMenuToggle={() => setMobileMenuOpen(true)}
-                onPartyOpen={() => setMobilePartyOpen(true)}
-                onStatusOpen={() => setMobileStatusOpen(true)}
-                onToolsOpen={() => setMobileToolsOpen(true)}
+                onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onPartyOpen={() => setMobilePartyOpen(!mobilePartyOpen)}
+                onStatusOpen={() => setMobileStatusOpen(!mobileStatusOpen)}
+                onToolsOpen={() => setMobileToolsOpen(!mobileToolsOpen)}
                 myJobHighlight={myJobHighlight}
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
-                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : undefined}
+                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : mobilePartyOpen ? 'party' : mobileStatusOpen ? 'status' : undefined}
             />
         </div>
     );

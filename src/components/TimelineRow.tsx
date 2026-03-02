@@ -51,6 +51,8 @@ export const TimelineRow = memo(({
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     // 👇 追加：スマホ版でアイコンを表示するために、現在のアクティブな軽減を取得
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
+    const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
+    const myMemberId = useMitigationStore(state => state.myMemberId);
 
     // Bilingual event name helper
     const getEventName = (ev: TimelineEvent) =>
@@ -139,9 +141,18 @@ export const TimelineRow = memo(({
                                 {getActiveMitigationsForTime(time).map(mit => {
                                     const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
                                     if (!def) return null;
+                                    const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
                                     return (
-                                        <img key={mit.id} src={def.icon} alt={def.name} className="w-3.5 h-3.5 object-cover rounded opacity-80" />
-                                    )
+                                        <img
+                                            key={mit.id}
+                                            src={def.icon}
+                                            alt={def.name}
+                                            className={clsx(
+                                                "w-3.5 h-3.5 object-cover rounded transition-all",
+                                                isDimmed ? "opacity-40 grayscale" : "opacity-90"
+                                            )}
+                                        />
+                                    );
                                 })}
                             </div>
 
@@ -479,7 +490,7 @@ export const TimelineRow = memo(({
                     </div>
                 ))
             }
-        </div >
+        </div>
     );
 }, (prevProps, nextProps) => {
     if (prevProps.time !== nextProps.time) return false;

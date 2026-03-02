@@ -12,6 +12,7 @@ interface MitigationSelectorProps {
     isOpen: boolean;
     onClose: () => void;
     onSelect: (mitigation: Mitigation & { _targetId?: string }) => void;
+    onRemove?: (mitigationId: string) => void; // 👈 追加：削除用コールバック
     jobId: string | null;
     position: { x: number; y: number };
     activeMitigations?: AppliedMitigation[];
@@ -21,7 +22,7 @@ interface MitigationSelectorProps {
 }
 
 export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
-    isOpen, onClose, onSelect, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
+    isOpen, onClose, onSelect, onRemove, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
     isCentered = false // 👈 デフォルトはfalse（今まで通り）
 }) => {
     const { contentLanguage } = useThemeStore();
@@ -101,6 +102,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     }).sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
 
     const handleMitigationClick = (mitigation: Mitigation) => {
+        const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+        if (isAlreadyPlaced && onRemove) {
+            onRemove(mitigation.id);
+            return;
+        }
+
         if (SINGLE_TARGET_BUFFS.includes(mitigation.id)) {
             setSelectedSingleTargetMit(mitigation);
         } else {
@@ -161,17 +168,24 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
+                                const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+                                const isClickable = status.available || isAlreadyPlaced;
+
                                 return (
                                     <button
                                         key={mitigation.id}
-                                        onClick={() => status.available && handleMitigationClick(mitigation)}
-                                        disabled={!status.available}
-                                        className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border ${!status.available
-                                            ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70'
-                                            : status.warning
-                                                ? 'hover:bg-amber-500/[0.06] border-amber-500/30 cursor-pointer'
-                                                : 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03] cursor-pointer'
-                                            }`}
+                                        onClick={() => isClickable && handleMitigationClick(mitigation)}
+                                        disabled={!isClickable}
+                                        className={clsx(
+                                            "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border",
+                                            isAlreadyPlaced
+                                                ? "bg-red-500/10 border-red-500/40 hover:bg-red-500/20 cursor-pointer" // 削除モードの見た目
+                                                : !status.available
+                                                    ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70'
+                                                    : status.warning
+                                                        ? 'hover:bg-amber-500/[0.06] border-amber-500/30 cursor-pointer'
+                                                        : 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03] cursor-pointer'
+                                        )}
                                     >
                                         <div className="relative flex-shrink-0">
                                             <img
@@ -203,7 +217,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                     : 'text-slate-200 group-hover:text-white'
                                                 }`}>
                                                 {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
-                                                {SINGLE_TARGET_BUFFS.includes(mitigation.id) && (
+                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-500 text-white px-1 rounded uppercase">Remove</span>}
+                                                {SINGLE_TARGET_BUFFS.includes(mitigation.id) && !isAlreadyPlaced && (
                                                     <span className="ml-1 text-[9px] bg-slate-900/10 dark:bg-white/10 px-1 rounded text-slate-800 dark:text-white/70">▶</span>
                                                 )}
                                             </div>

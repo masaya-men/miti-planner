@@ -14,6 +14,11 @@ const DERIVED_SKILLS_MAP: Record<string, string> = {
     'temperance': 'divine_caress'
 };
 
+function genId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return 'ap_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+}
+
 function getMitigation(id: string): Mitigation | undefined {
     return MITIGATIONS.find(m => m.id === id);
 }
@@ -112,7 +117,7 @@ export function generateAutoPlan(
         if (!miti) return null;
 
         const assignment: AppliedMitigation = {
-            id: crypto.randomUUID(),
+            id: genId(),
             mitigationId: miti.id,
             time: time,
             duration: miti.duration,
@@ -131,7 +136,7 @@ export function generateAutoPlan(
             const dMiti = getMitigation(derivedId);
             if (dMiti) {
                 assignments.push({
-                    id: crypto.randomUUID(),
+                    id: genId(),
                     mitigationId: dMiti.id,
                     time: time,
                     duration: dMiti.duration,
