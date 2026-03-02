@@ -354,10 +354,11 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     handleRemoveJob(member.id);
                                     if (isFocused) setFocusedSlot(null);
                                 }}
-                                className="p-1.5 rounded-lg bg-black/40 text-white/40 hover:bg-red-500/20 hover:text-red-400 transition-colors hidden md:block md:opacity-0 group-hover/slot:md:opacity-100 focus:opacity-100"
+                                // 👇 変更：スマホでも常に表示され、少し大きく押しやすいように調整
+                                className="p-2 rounded-lg bg-red-500/10 text-red-400/80 hover:bg-red-500/20 hover:text-red-400 transition-colors md:opacity-0 group-hover/slot:md:opacity-100 flex items-center justify-center ml-1"
                                 title="Remove Job"
                             >
-                                <Trash2 size={14} />
+                                <Trash2 size={16} />
                             </button>
                         </>
                     )}
@@ -376,7 +377,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         ];
 
         return (
-            <div className="flex flex-col gap-1">
+            // 👇 スマホ時にパレット全体がスクロールできるようにし、下部に十分な余白(pb-12)を持たせる
+            <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar pr-1 pb-12">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
@@ -430,11 +432,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 ref={popoverRef}
                 className={clsx(
                     "relative flex flex-col bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-glass-border shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
-                    // PC: left slide-over
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
-                    // Mobile: bottom sheet
-                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t",
+                    // 👇 変更：スマホ時の高さ上限を 85vh に広げる
+                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[85vh] max-md:rounded-t-2xl max-md:border-t",
                     isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
             >
@@ -506,7 +507,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     </div>
 
                     {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
-                    <div className="h-auto max-h-[45vh] bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
+                    {/* 👇 変更：max-h-[50vh]に広げ、pb-8 (下部余白) を追加してセーフエリアを確保 */}
+                    <div className="h-auto max-h-[50vh] bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-8 md:pb-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
                         <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
