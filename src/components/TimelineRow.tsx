@@ -47,7 +47,7 @@ export const TimelineRow = memo(({
     partySortOrder
 }: TimelineRowProps) => {
     const { t } = useTranslation();
-    const { contentLanguage } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     // 👇 追加：スマホ版でアイコンを表示するために、現在のアクティブな軽減を取得
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
@@ -71,7 +71,10 @@ export const TimelineRow = memo(({
     return (
         <div
             className={clsx(
-                "absolute left-0 w-full md:w-fit border-b border-white/[0.03] flex h-[50px] group transition-colors hover:bg-white/[0.04] duration-75"
+                "absolute left-0 w-full md:w-fit border-b flex h-[50px] group transition-colors duration-75",
+                theme === 'dark'
+                    ? "border-white/[0.03] hover:bg-white/[0.04]"
+                    : "border-slate-200 hover:bg-slate-100"
             )}
             style={{ top: `${top}px` }}
         >
@@ -79,7 +82,8 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r border-white/[0.02] h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-100"
+                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100",
+                        theme === 'dark' ? "border-white/[0.02]" : "border-slate-200"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
                 title={t('timeline.end_phase')}
@@ -90,14 +94,17 @@ export const TimelineRow = memo(({
             </div >
 
             {/* Time Column */}
-            <div className="w-[40px] md:w-[70px] border-r border-white/[0.02] h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm text-slate-400 transition-colors group-hover:text-slate-100 group-hover:font-bold">
+            <div className={clsx(
+                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100 group-hover:font-bold",
+                theme === 'dark' ? "border-white/[0.02] text-slate-400" : "border-slate-200 text-slate-600"
+            )}>
                 {formattedTime}
             </div >
 
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
-                "flex-1 md:flex-none md:w-[200px] border-r border-white/[0.02] h-full relative flex flex-col transition-colors",
-                "group-hover:bg-white/[0.02]"
+                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col transition-colors",
+                theme === 'dark' ? "border-white/[0.02] group-hover:bg-white/[0.02]" : "border-slate-200 group-hover:bg-slate-50"
             )}>
                 {events.length === 0 ? (
                     <div
@@ -122,7 +129,7 @@ export const TimelineRow = memo(({
                                 {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                 {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
-                                <span className="text-[11px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                 <button
                                     onClick={(e) => {
@@ -205,7 +212,7 @@ export const TimelineRow = memo(({
                                     {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[10px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                    <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                     <button
                                         onClick={(e) => {
@@ -253,7 +260,7 @@ export const TimelineRow = memo(({
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[10px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
+                                    <span className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
 
                                     <button
                                         onClick={(e) => {
@@ -296,7 +303,10 @@ export const TimelineRow = memo(({
 
             {/* U.Dmg Column (Vertical Stack) */}
             <div
-                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100 cursor-pointer md:cursor-default"
+                className={clsx(
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100 cursor-pointer md:cursor-default",
+                    theme === 'dark' ? "border-white/[0.02] text-slate-300" : "border-slate-200 text-slate-500"
+                )}
                 // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
@@ -324,7 +334,10 @@ export const TimelineRow = memo(({
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
             <div
-                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white cursor-pointer md:cursor-default"
+                className={clsx(
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold transition-colors group-hover:text-black dark:group-hover:text-white cursor-pointer md:cursor-default",
+                    theme === 'dark' ? "border-white/[0.02] text-slate-200" : "border-slate-200 text-slate-800"
+                )}
                 // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
@@ -358,7 +371,7 @@ export const TimelineRow = memo(({
                                             maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
                                         }
                                         const isLethal = dmg.mitigated >= maxHp;
-                                        return isLethal ? "text-red-500 font-extrabold" : "text-green-400";
+                                        return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                     })()
                                 )}>
                                     {damages[0].mitigated.toLocaleString()}
@@ -405,7 +418,7 @@ export const TimelineRow = memo(({
                                                 maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
                                             }
                                             const isLethal = dmg.mitigated >= maxHp;
-                                            return isLethal ? "text-red-500 font-extrabold" : "text-green-400";
+                                            return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                         })()
                                     )}>
                                         {damages[0].mitigated.toLocaleString()}
@@ -450,7 +463,7 @@ export const TimelineRow = memo(({
                                                 maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
                                             }
                                             const isLethal = dmg.mitigated >= maxHp;
-                                            return isLethal ? "text-red-500 font-extrabold" : "text-green-400";
+                                            return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                         })()
                                     )}>
                                         {damages[1].mitigated.toLocaleString()}
@@ -480,7 +493,10 @@ export const TimelineRow = memo(({
                     <div
                         key={member.id}
                         className={clsx(
-                            "hidden md:flex border-r border-white/[0.02] h-full items-center justify-center relative group/cell cursor-pointer transition-colors hover:bg-white/[0.05]"
+                            "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer transition-colors border-r",
+                            theme === 'dark'
+                                ? "border-white/[0.02] hover:bg-white/[0.05]"
+                                : "border-slate-200 hover:bg-slate-100"
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
+import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { MITIGATIONS, JOBS } from '../data/mockData'; // 👈 JOBSを追加
+import { MITIGATIONS, JOBS } from '../data/mockData';
 import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
 import { MitigationSelector } from './MitigationSelector';
@@ -8,6 +9,7 @@ import { MitigationSelector } from './MitigationSelector';
 type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime: number };
 
 export const CheatSheetView: React.FC = () => {
+    const { theme } = useThemeStore();
     const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
 
     // 状態管理
@@ -15,7 +17,7 @@ export const CheatSheetView: React.FC = () => {
     const [selectorPosition, setSelectorPosition] = useState({ x: 0, y: 0 });
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
     const [selectedMitigationTime, setSelectedMitigationTime] = useState<number>(0);
-    const [memberSelectOpen, setMemberSelectOpen] = useState(false); // 👈 メンバー選択用ポップアップの状態
+    const [memberSelectOpen, setMemberSelectOpen] = useState(false);
 
     // ダメージ計算頭脳
     const damageMap = useMemo(() => {
@@ -174,15 +176,13 @@ export const CheatSheetView: React.FC = () => {
         const isLethal = actualDamage >= maxHp && actualDamage > 0;
         const hasDamage = actualDamage > 0;
 
-        // 👇 修正：どこをクリックしても「画面のど真ん中」の座標を計算して渡す！
-        const handleRowClick = (e: React.MouseEvent) => {
-            // モーダルの大きさを考慮して、画面のど真ん中に来るように座標を計算
-            const centerX = (window.innerWidth / 2) - 120; // 120はモーダルの幅の半分くらい
-            const centerY = (window.innerHeight / 2) - 150; // 150はモーダルの高さの半分くらい
+        const handleRowClick = () => {
+            const centerX = (window.innerWidth / 2) - 120;
+            const centerY = (window.innerHeight / 2) - 150;
 
-            setSelectorPosition({ x: centerX, y: centerY }); // クリック位置ではなく、中央の座標をセット
+            setSelectorPosition({ x: centerX, y: centerY });
             setSelectedMitigationTime(event.time);
-            setMemberSelectOpen(true); // メンバー選択画面をON
+            setMemberSelectOpen(true);
         };
 
         const renderMitigationGroup = (mitigations: typeof timelineMitigations, alignRight: boolean = false) => {
@@ -221,24 +221,32 @@ export const CheatSheetView: React.FC = () => {
             <div
                 onClick={handleRowClick}
                 className={clsx(
-                    "flex w-full items-stretch min-h-[40px] border-b border-white/5 transition-colors relative group cursor-pointer",
-                    isLethal ? "bg-red-500/10 hover:bg-red-500/20" : "hover:bg-white/[0.02]"
+                    "flex w-full items-stretch min-h-[44px] border-b transition-colors relative group cursor-pointer",
+                    isLethal
+                        ? (theme === 'dark' ? "bg-red-500/10 hover:bg-red-500/20" : "bg-red-50/50 hover:bg-red-100/50")
+                        : (theme === 'dark' ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"),
+                    theme === 'dark' ? "border-white/5" : "border-slate-200"
                 )}>
-                <div className="flex-1 p-1 flex items-center justify-end border-r border-white/5 pr-2">
+                <div className="flex-1 p-1.5 flex items-center justify-end border-r border-white/5 pr-3">
                     {renderMitigationGroup(mtGroupMitigations, true)}
                 </div>
 
-                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center p-1 relative z-10 bg-black/20 backdrop-blur-sm border-x border-white/10 mx-[-1px] shadow-[0_0_10px_rgba(0,0,0,0.2)] pointer-events-none">
-                    <span className="text-[10px] font-mono text-cyan-400 font-bold tracking-wider leading-none mb-0.5 shadow-black drop-shadow-md">
+                <div className={clsx(
+                    "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none transition-colors",
+                    theme === 'dark'
+                        ? "bg-black/40 border-white/10"
+                        : "bg-slate-100/80 border-slate-200"
+                )}>
+                    <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-1 drop-shadow-md">
                         {formatTime(event.time)}
                     </span>
                     <span className={clsx(
-                        "text-xs text-center leading-tight line-clamp-2 px-1 break-words w-full shadow-black drop-shadow-md",
-                        isLethal ? "text-red-500 font-extrabold" : hasDamage ? "text-green-400 font-bold" : "text-slate-800 dark:text-slate-100 font-bold"
+                        "text-xs text-center leading-tight line-clamp-2 px-1 break-words w-full font-bold drop-shadow-md",
+                        isLethal ? "text-red-600 dark:text-red-400 font-black" : hasDamage ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"
                     )}>
                         {event.name}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 opacity-80 scale-90">
+                    <div className="flex items-center gap-1 mt-1 opacity-90 scale-90">
                         {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5" alt="Magical" />}
                         {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5" alt="Physical" />}
                         {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5" alt="Dark" />}
@@ -263,7 +271,7 @@ export const CheatSheetView: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 p-1 flex items-center justify-start border-l border-white/5 pl-2">
+                <div className="flex-1 p-1.5 flex items-center justify-start border-l border-white/5 pl-3">
                     {renderMitigationGroup(stGroupMitigations, false)}
                 </div>
             </div>
@@ -302,93 +310,105 @@ export const CheatSheetView: React.FC = () => {
     }, [timelineEvents]);
 
     return (
-        <div className="flex flex-col h-full w-full max-w-3xl mx-auto bg-white/10 dark:bg-slate-900/30 backdrop-blur-xl rounded-xl border border-white/20 dark:border-white/5 overflow-y-auto overflow-x-hidden relative scroll-smooth thin-scrollbar pb-10 shadow-glass">
-            <div className="flex items-stretch h-10 bg-white/20 dark:bg-slate-900/60 border-b border-white/20 dark:border-white/5 shrink-0 sticky top-0 z-20 shadow-glass backdrop-blur-xl">
-                <div className="flex-1 flex items-center justify-center border-r border-white/5 bg-gradient-to-r from-blue-900/30 to-blue-500/10">
-                    <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest px-2 text-center drop-shadow-md">MT Group</span>
+        <div className={clsx(
+            "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-2xl transition-colors",
+            theme === 'dark'
+                ? "bg-slate-950/40 backdrop-blur-3xl border-white/10"
+                : "bg-white/90 backdrop-blur-md border-slate-200"
+        )}>
+            <div className={clsx(
+                "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl transition-colors [scrollbar-gutter:stable] overflow-y-hidden",
+                theme === 'dark' ? "bg-slate-900/60 border-white/10" : "bg-slate-50 border-slate-200"
+            )}>
+                <div className="flex-1 flex items-center justify-center border-r border-slate-300/20 bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
+                    <span className="text-[10px] font-black text-blue-700 dark:text-cyan-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">MT Group</span>
                 </div>
-                <div className="w-[120px] shrink-0 flex flex-col items-center justify-center border-x border-white/5 shadow-inner">
-                    <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest drop-shadow-md">Timeline</span>
+                <div className={clsx(
+                    "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
+                    theme === 'dark' ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-100/50"
+                )}>
+                    <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
-                <div className="flex-1 flex items-center justify-center border-l border-white/5 bg-gradient-to-l from-orange-900/30 to-orange-500/10">
-                    <span className="text-[10px] font-bold text-amber-300 uppercase tracking-widest px-2 text-center drop-shadow-md">ST Group</span>
+                <div className="flex-1 flex items-center justify-center border-l border-slate-300/20 bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent">
+                    <span className="text-[10px] font-black text-orange-700 dark:text-amber-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">ST Group</span>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col">
-                {damageEvents.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-slate-500 text-sm font-medium">
-                        No damage events recorded.
-                    </div>
-                ) : (
-                    <div className="flex flex-col">
-                        {damageEvents.map(event => (
-                            <EventRow key={event.id} event={event} />
-                        ))}
+            {/* Scrollable List Container (Relative) */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth thin-scrollbar pb-10 [scrollbar-gutter:stable]">
+                <div className="flex-1 flex flex-col">
+                    {damageEvents.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-slate-500 text-sm font-medium">
+                            No damage events recorded.
+                        </div>
+                    ) : (
+                        <div className="flex flex-col">
+                            {damageEvents.map(event => (
+                                <EventRow key={event.id} event={event} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {memberSelectOpen && (
+                    <div
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                        onClick={() => setMemberSelectOpen(false)}
+                    >
+                        <div
+                            className="bg-white/10 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl animate-in zoom-in-95 fade-in duration-200"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
+                                軽減を追加するメンバー
+                            </div>
+                            <div className="grid grid-cols-4 gap-2">
+                                {partyMembers.map(m => {
+                                    const job = JOBS.find(j => j.id === m.jobId);
+                                    if (!job) return null;
+                                    return (
+                                        <button
+                                            key={m.id}
+                                            onClick={() => {
+                                                setSelectedMemberId(m.id);
+                                                setMemberSelectOpen(false);
+                                                setMitigationSelectorOpen(true);
+                                            }}
+                                            className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
+                                        >
+                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain drop-shadow-md" />
+                                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
                 )}
+
+                <MitigationSelector
+                    isOpen={mitigationSelectorOpen}
+                    onClose={() => setMitigationSelectorOpen(false)}
+                    onSelect={(mitigation: Mitigation & { _targetId?: string }) => {
+                        if (!selectedMemberId) return;
+                        addMitigation({
+                            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15),
+                            mitigationId: mitigation.id,
+                            time: selectedMitigationTime,
+                            duration: mitigation.duration,
+                            ownerId: selectedMemberId,
+                            targetId: mitigation._targetId
+                        });
+                        setMitigationSelectorOpen(false);
+                    }}
+                    jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
+                    position={selectorPosition}
+                    activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
+                    selectedTime={selectedMitigationTime}
+                    schAetherflowPattern={selectedMemberId ? (schAetherflowPatterns[selectedMemberId] ?? 1) : 1}
+                    isCentered={true}
+                />
             </div>
-
-            {/* 👇 追加：誰の軽減を入れるか選ぶポップアップ */}
-            {memberSelectOpen && (
-                <div
-                    className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm"
-                    onClick={() => setMemberSelectOpen(false)}
-                >
-                    <div
-                        className="bg-white/10 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl animate-in zoom-in-95 fade-in duration-200"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
-                            軽減を追加するメンバー
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                            {partyMembers.map(m => {
-                                const job = JOBS.find(j => j.id === m.jobId);
-                                if (!job) return null;
-                                return (
-                                    <button
-                                        key={m.id}
-                                        onClick={() => {
-                                            setSelectedMemberId(m.id);
-                                            setMemberSelectOpen(false); // メンバー選択を閉じる
-                                            setMitigationSelectorOpen(true); // 軽減スキル一覧を開く！
-                                        }}
-                                        className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
-                                    >
-                                        <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain drop-shadow-md" />
-                                        <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 軽減スキルを選ぶポップアップ */}
-            <MitigationSelector
-                isOpen={mitigationSelectorOpen}
-                onClose={() => setMitigationSelectorOpen(false)}
-                onSelect={(mitigation: Mitigation & { _targetId?: string }) => {
-                    if (!selectedMemberId) return;
-                    addMitigation({
-                        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15),
-                        mitigationId: mitigation.id,
-                        time: selectedMitigationTime,
-                        duration: mitigation.duration,
-                        ownerId: selectedMemberId,
-                        targetId: mitigation._targetId
-                    });
-                    setMitigationSelectorOpen(false);
-                }}
-                jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
-                position={selectorPosition}
-                activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
-                selectedTime={selectedMitigationTime}
-                schAetherflowPattern={selectedMemberId ? (schAetherflowPatterns[selectedMemberId] ?? 1) : 1}
-                isCentered={true} // 👈 これを1行追加するだけ！
-            />
         </div>
     );
 };

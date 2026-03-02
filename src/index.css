@@ -190,13 +190,10 @@ body {
 
 /* Modern Glass Utility - Light Blue Glass */
 .glass-panel {
-  background-color: rgba(5, 10, 15, 0.85);
-  /* Dark base with Blue tint */
+  background-color: var(--glass-bg-panel);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  /* Light Blue border */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(56, 189, 248, 0.05);
-  /* Inner blue glow */
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 ::-webkit-scrollbar-thumb:hover {
