@@ -41,7 +41,7 @@ export function migrateMitigations(
         return migrated.some(m => m.mitigationId === skillId && m.time === timeSec && m.targetId === targetId);
     };
 
-    for (const mit of currentMitigations) {
+    for (const mit of currentMitigations.sort((a, b) => a.time - b.time)) {
         // Find the definition of the currently applied skill
         const oldDef = MITIGATIONS.find(m => m.id === mit.mitigationId);
         if (!oldDef) continue; // Unknown skill, skip
@@ -49,18 +49,20 @@ export function migrateMitigations(
         if (mode === 'common_only') {
             if (oldDef.family === 'role_action') {
                 const newSkills = findByFamily('role_action');
-                // The new job might have a different role action id (e.g. rampart_gnb -> rampart_pld)
-                // We match based on the base name (the part before the _) or by just finding one of the same base.
-                const baseName = oldDef.id.replace(`_${oldJobId}`, '');
-                const targetNewSkill = newSkills.find(s => s.id.startsWith(baseName));
+                const baseId = oldDef.id.replace(`_${oldJobId}`, '');
+                const targetNewSkill = newSkills.find(s => s.id.startsWith(baseId));
 
                 if (targetNewSkill && !isDuplicate(targetNewSkill.id, mit.time, mit.targetId)) {
-                    migrated.push({
-                        ...mit,
-                        id: genId(),
-                        mitigationId: targetNewSkill.id,
-                        duration: targetNewSkill.duration
-                    });
+                    // Check recast for this skill
+                    const lastUse = migrated.filter(m => m.mitigationId === targetNewSkill.id).pop();
+                    if (!lastUse || mit.time >= lastUse.time + targetNewSkill.cooldown) {
+                        migrated.push({
+                            ...mit,
+                            id: genId(),
+                            mitigationId: targetNewSkill.id,
+                            duration: targetNewSkill.duration
+                        });
+                    }
                 }
             }
             continue;
@@ -71,94 +73,79 @@ export function migrateMitigations(
             // Find all matching skills in the new job with the same family
             let replacementSkills = findByFamily(oldDef.family);
 
-            // Special 1-to-many fallback logic based on specific rules:
-
-            // Tank A: Old skill is tank_short OR tank_sub_targeted + has a target -> it is a targeted short buff.
-            // If the new job has a sub-targeted buff (Oblation, Aurora, Intervention, Nascent), 
-            // we carry them over ALONG WITH the main tank_short buff (TBN, Corundum etc).
-            // The user requested to throw ALL possible targeted skills (up to 2).
+            // Special 1-to-many logic for TANK targeted buffs
             if ((oldDef.family === 'tank_short' || oldDef.family === 'tank_sub_targeted') && mit.targetId) {
                 const mainShorts = findByFamily('tank_short');
                 const subTargeteds = findByFamily('tank_sub_targeted');
 
-                // If the new job has a main tank short, add it.
-                // UNLESS it is strictly self-only in FF14 (Holy Sheltron, Bloodwhetting) and we are targeting someone.
+                // Try main short (TBN, Corundum etc)
                 if (mainShorts.length > 0) {
-                    const shortSkill = mainShorts[0];
-                    const isSelfOnly = shortSkill.id === 'holy_sheltron' || shortSkill.id === 'bloodwhetting';
-                    if (!isSelfOnly && !isDuplicate(shortSkill.id, mit.time, mit.targetId)) {
-                        migrated.push({
-                            ...mit,
-                            id: genId(),
-                            mitigationId: shortSkill.id,
-                            duration: shortSkill.duration
-                        });
+                    const skill = mainShorts[0];
+                    const isSelfOnly = skill.id === 'holy_sheltron' || skill.id === 'bloodwhetting';
+                    if (!isSelfOnly && !isDuplicate(skill.id, mit.time, mit.targetId)) {
+                        // Recast check
+                        const last = migrated.filter(m => m.mitigationId === skill.id).pop();
+                        if (!last || mit.time >= last.time + skill.cooldown) {
+                            migrated.push({ ...mit, id: genId(), mitigationId: skill.id, duration: skill.duration });
+                        }
                     }
                 }
 
-                // If the new job ALSO has sub targeted buffs, add ALL of them (e.g. Oblation, Intervention, Nascent)
+                // Try sub targeted (Oblation, Aurora etc)
                 subTargeteds.forEach(sub => {
                     if (!isDuplicate(sub.id, mit.time, mit.targetId)) {
-                        migrated.push({
-                            ...mit,
-                            id: genId(),
-                            mitigationId: sub.id,
-                            duration: sub.duration
-                        });
+                        // Recast check (charges are complex, but basic CD check helps)
+                        const last = migrated.filter(m => m.mitigationId === sub.id).pop();
+                        if (!last || mit.time >= last.time + sub.cooldown) {
+                            migrated.push({ ...mit, id: genId(), mitigationId: sub.id, duration: sub.duration });
+                        }
                     }
                 });
-
-                continue; // Handled specially
+                continue;
             }
 
             // Healer A: Old skill is main barrier (bh_120_a e.g. Panhaima).
-            // When going Sage -> Scholar, we convert to Seraph, but we also want to add Illumination (bh_sub_a).
             if (oldDef.family === 'bh_120_a') {
                 const mainBarriers = replacementSkills;
                 const subShields = findByFamily('bh_sub_a'); // Fey Illum + Consolation
 
                 if (mainBarriers.length > 0 && !isDuplicate(mainBarriers[0].id, mit.time, mit.targetId)) {
-                    migrated.push({
-                        ...mit,
-                        id: genId(),
-                        mitigationId: mainBarriers[0].id,
-                        duration: mainBarriers[0].duration
-                    });
+                    const skill = mainBarriers[0];
+                    const last = migrated.filter(m => m.mitigationId === skill.id).pop();
+                    if (!last || mit.time >= last.time + skill.cooldown) {
+                        migrated.push({ ...mit, id: genId(), mitigationId: skill.id, duration: skill.duration });
+                    }
                 }
 
                 // If it's Seraph, add Illum
                 const illum = subShields.find(s => s.id === 'fey_illumination');
                 if (illum && !isDuplicate(illum.id, mit.time, mit.targetId)) {
-                    migrated.push({
-                        ...mit,
-                        id: genId(),
-                        mitigationId: illum.id,
-                        duration: illum.duration
-                    });
+                    const last = migrated.filter(m => m.mitigationId === illum.id).pop();
+                    if (!last || mit.time >= last.time + illum.cooldown) {
+                        migrated.push({ ...mit, id: genId(), mitigationId: illum.id, duration: illum.duration });
+                    }
                 }
-                // Consolation logic can be complex since it requires Seraph, 
-                // but usually players plot Consolation manually or as a separate tag.
-                // For direct family translation, we've handled the "set" via Illumination.
                 continue;
             }
 
             // Standard direct family match
-            // For role actions, we need exact base matching because a family could contain multiple (rampart vs reprisal)
             if (oldDef.family === 'role_action') {
-                const baseName = oldDef.id.replace(`_${oldJobId}`, '');
-                replacementSkills = replacementSkills.filter(s => s.id.startsWith(baseName));
+                const baseId = oldDef.id.replace(`_${oldJobId}`, '');
+                replacementSkills = replacementSkills.filter(s => s.id.startsWith(baseId));
             }
 
-            // Just take the first matching skill of the same family
             if (replacementSkills.length > 0) {
-                const targetNewSkill = replacementSkills[0];
-                if (!isDuplicate(targetNewSkill.id, mit.time, mit.targetId)) {
-                    migrated.push({
-                        ...mit,
-                        id: genId(),
-                        mitigationId: targetNewSkill.id,
-                        duration: targetNewSkill.duration
-                    });
+                const skill = replacementSkills[0];
+                if (!isDuplicate(skill.id, mit.time, mit.targetId)) {
+                    const last = migrated.filter(m => m.mitigationId === skill.id).pop();
+                    if (!last || mit.time >= last.time + (skill.cooldown || 0)) {
+                        migrated.push({
+                            ...mit,
+                            id: genId(),
+                            mitigationId: skill.id,
+                            duration: skill.duration
+                        });
+                    }
                 }
             }
         }
