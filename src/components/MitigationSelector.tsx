@@ -25,7 +25,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     isOpen, onClose, onSelect, onRemove, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
     isCentered = false // 👈 デフォルトはfalse（今まで通り）
 }) => {
-    const { contentLanguage } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const { t } = useTranslation();
 
     const panelRef = React.useRef<HTMLDivElement>(null);
@@ -143,20 +143,23 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 ref={panelRef}
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto glass-panel shadow-2xl p-2 overflow-hidden ring-1 ring-white/5 flex flex-col transition-transform duration-300",
+                    "pointer-events-auto shadow-2xl p-2 overflow-hidden flex flex-col transition-transform duration-300 backdrop-blur-xl border",
+                    theme === 'dark'
+                        ? "bg-slate-900 ring-1 ring-white/5 border-white/10"
+                        : "bg-white ring-1 ring-slate-200 border-slate-300",
                     isMobile && !isCentered
                         ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
                         : "rounded-xl w-64",
-                    !isCentered && !isMobile ? "fixed" : "relative animate-in zoom-in-95 fade-in duration-200" // 中央配置の時はfixedを外してアニメーション追加
+                    !isCentered && !isMobile ? "fixed" : "relative animate-in zoom-in-95 fade-in duration-200"
                 )}
                 style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
             >
                 {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-900/10 dark:bg-white/10 rounded-full mx-auto mb-3 shrink-0" />}
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/[0.03] px-1 shrink-0">
-                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0">
+                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
-                    <button onClick={handleClose} className="text-slate-400 hover:text-white transition-colors cursor-pointer">
+                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
                         <X size={14} />
                     </button>
                 </div>
@@ -179,24 +182,27 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         className={clsx(
                                             "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border",
                                             isAlreadyPlaced
-                                                ? "bg-red-500/10 border-red-500/40 hover:bg-red-500/20 cursor-pointer" // 削除モードの見た目
+                                                ? (theme === 'dark' ? "bg-red-500/10 border-red-500/40 hover:bg-red-500/20" : "bg-red-50 border-red-200 hover:bg-red-100")
                                                 : !status.available
-                                                    ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70'
+                                                    ? (theme === 'dark' ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70' : 'border-red-100 bg-red-50/50 cursor-not-allowed opacity-50')
                                                     : status.warning
-                                                        ? 'hover:bg-amber-500/[0.06] border-amber-500/30 cursor-pointer'
-                                                        : 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03] cursor-pointer'
+                                                        ? (theme === 'dark' ? 'hover:bg-amber-500/[0.06] border-amber-500/30' : 'hover:bg-amber-50 border-amber-200')
+                                                        : (theme === 'dark' ? 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03]' : 'hover:bg-slate-50 border-transparent hover:border-slate-200'),
+                                            isClickable ? "cursor-pointer" : "cursor-not-allowed"
                                         )}
                                     >
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 src={mitigation.icon}
                                                 alt={mitigation.name}
-                                                className={`w-8 h-8 object-contain rounded border ${!status.available
-                                                    ? 'bg-red-900/30 border-red-500/30'
-                                                    : status.warning
-                                                        ? 'bg-amber-900/20 border-amber-500/30'
-                                                        : 'bg-black/30 border-white/5'
-                                                    }`}
+                                                className={clsx(
+                                                    "w-8 h-8 object-contain rounded border",
+                                                    !status.available
+                                                        ? (theme === 'dark' ? 'bg-red-900/30 border-red-500/30' : 'bg-red-50 border-red-200')
+                                                        : status.warning
+                                                            ? (theme === 'dark' ? 'bg-amber-900/20 border-amber-500/30' : 'bg-amber-50 border-amber-200')
+                                                            : (theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-slate-100 border-slate-200')
+                                                )}
                                             />
                                             {status.badge && (
                                                 <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
@@ -211,27 +217,27 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         </div>
                                         <div>
                                             <div className={`text-xs font-bold transition-colors ${!status.available
-                                                ? 'text-red-400'
+                                                ? 'text-red-600 dark:text-red-400'
                                                 : status.warning
-                                                    ? 'text-amber-300'
-                                                    : 'text-slate-200 group-hover:text-white'
+                                                    ? 'text-amber-600 dark:text-amber-300'
+                                                    : 'text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white'
                                                 }`}>
                                                 {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
-                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-500 text-white px-1 rounded uppercase">Remove</span>}
+                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">Remove</span>}
                                                 {SINGLE_TARGET_BUFFS.includes(mitigation.id) && !isAlreadyPlaced && (
-                                                    <span className="ml-1 text-[9px] bg-slate-900/10 dark:bg-white/10 px-1 rounded text-slate-800 dark:text-white/70">▶</span>
+                                                    <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-slate-600 dark:text-white/70">▶</span>
                                                 )}
                                             </div>
                                             {!status.available ? (
-                                                <div className="text-[10px] text-red-400/80 font-medium">
+                                                <div className="text-[10px] text-red-600 dark:text-red-400/80 font-medium">
                                                     {status.message}
                                                 </div>
                                             ) : status.warning ? (
-                                                <div className="text-[10px] text-amber-400/80 font-medium">
+                                                <div className="text-[10px] text-amber-700 dark:text-amber-400/80 font-medium">
                                                     ⚠ {status.message}
                                                 </div>
                                             ) : (
-                                                <div className="text-[10px] text-slate-400">
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400">
                                                     {mitigation.duration}s / {mitigation.cooldown}s ({t('mitigation.cd')})
                                                 </div>
                                             )}
@@ -249,7 +255,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                 <button
                                     key={member.id}
                                     onClick={() => handleTargetSelect(member.id)}
-                                    className="flex items-center gap-4 p-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] transition-colors cursor-pointer"
+                                    className={clsx(
+                                        "flex items-center gap-4 p-3 rounded-lg border transition-colors cursor-pointer",
+                                        theme === 'dark'
+                                            ? "bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05]"
+                                            : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                                    )}
                                 >
                                     {job ? (
                                         <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
