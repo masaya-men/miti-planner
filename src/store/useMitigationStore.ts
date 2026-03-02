@@ -12,6 +12,14 @@ export interface AASettings {
 
 const MAX_HISTORY = 30;
 
+// 👇 追加：履歴に保存する「スナップショット（その瞬間の写真）」の型定義
+interface HistorySnapshot {
+    timelineMitigations: AppliedMitigation[];
+    timelineEvents: TimelineEvent[];
+    phases: Phase[];
+    partyMembers: PartyMember[];
+}
+
 interface MitigationState {
     mitigations: Mitigation[];
     partyMembers: PartyMember[];
@@ -20,14 +28,16 @@ interface MitigationState {
     timelineMitigations: AppliedMitigation[];
     aaSettings: AASettings;
     schAetherflowPatterns: Record<string, 1 | 2>;
+
     // UI State
     myMemberId: string | null;
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
-    clipboardEvent: TimelineEvent | null; // 👈 追加1：クリップボード用の変数
+    clipboardEvent: TimelineEvent | null;
+
     // Undo/Redo History (not persisted)
-    _history: AppliedMitigation[][];
-    _future: AppliedMitigation[][];
+    _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
+    _future: HistorySnapshot[];
 
     // Actions
     updateMemberStats: (memberId: string, stats: Partial<PlayerStats>) => void;
@@ -48,9 +58,11 @@ interface MitigationState {
     importTimelineEvents: (events: TimelineEvent[]) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
+
     // Bulk delete
     clearMitigationsByMember: (memberId: string) => void;
     clearAllMitigations: () => void;
+
     // Undo/Redo
     undo: () => void;
     redo: () => void;
@@ -59,7 +71,7 @@ interface MitigationState {
     setMyMemberId: (memberId: string | null) => void;
     setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
-    setClipboardEvent: (event: TimelineEvent | null) => void; // 👈 追加2：操作用のアクション
+    setClipboardEvent: (event: TimelineEvent | null) => void;
 }
 
 export const DEFAULT_TANK_STATS: PlayerStats = {
@@ -98,10 +110,15 @@ export const useMitigationStore = create<MitigationState>()(
     persist(
         (set, get) => {
 
-            // Helper: push current timelineMitigations onto history stack before mutating
+            // Helper: push current state snapshot onto history stack before mutating
             const pushHistory = () => {
                 const state = get();
-                const snapshot = [...state.timelineMitigations];
+                const snapshot: HistorySnapshot = {
+                    timelineMitigations: [...state.timelineMitigations],
+                    timelineEvents: [...state.timelineEvents],
+                    phases: [...state.phases],
+                    partyMembers: [...state.partyMembers]
+                };
                 const newHistory = [...state._history, snapshot].slice(-MAX_HISTORY);
                 set({ _history: newHistory, _future: [] });
             };
@@ -127,7 +144,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myMemberId: null,
                 myJobHighlight: false,
                 hideEmptyRows: false,
-                clipboardEvent: null, // 👈 追加3：初期状態は「空っぽ（null）」
+                clipboardEvent: null,
                 _history: [],
                 _future: [],
 
@@ -136,10 +153,19 @@ export const useMitigationStore = create<MitigationState>()(
                     if (state._history.length === 0) return state;
                     const previous = state._history[state._history.length - 1];
                     const newHistory = state._history.slice(0, -1);
+                    const currentSnapshot: HistorySnapshot = {
+                        timelineMitigations: state.timelineMitigations,
+                        timelineEvents: state.timelineEvents,
+                        phases: state.phases,
+                        partyMembers: state.partyMembers
+                    };
                     return {
                         _history: newHistory,
-                        _future: [state.timelineMitigations, ...state._future],
-                        timelineMitigations: previous,
+                        _future: [currentSnapshot, ...state._future],
+                        timelineMitigations: previous.timelineMitigations,
+                        timelineEvents: previous.timelineEvents,
+                        phases: previous.phases,
+                        partyMembers: previous.partyMembers,
                     };
                 }),
 
@@ -148,10 +174,19 @@ export const useMitigationStore = create<MitigationState>()(
                     if (state._future.length === 0) return state;
                     const next = state._future[0];
                     const newFuture = state._future.slice(1);
+                    const currentSnapshot: HistorySnapshot = {
+                        timelineMitigations: state.timelineMitigations,
+                        timelineEvents: state.timelineEvents,
+                        phases: state.phases,
+                        partyMembers: state.partyMembers
+                    };
                     return {
-                        _history: [...state._history, state.timelineMitigations],
+                        _history: [...state._history, currentSnapshot],
                         _future: newFuture,
-                        timelineMitigations: next,
+                        timelineMitigations: next.timelineMitigations,
+                        timelineEvents: next.timelineEvents,
+                        phases: next.phases,
+                        partyMembers: next.partyMembers,
                     };
                 }),
 
@@ -172,11 +207,14 @@ export const useMitigationStore = create<MitigationState>()(
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
-                setClipboardEvent: (event) => set({ clipboardEvent: event }), // 👈 追加4：クリップボードに記憶させる処理
+                setClipboardEvent: (event) => set({ clipboardEvent: event }),
 
-                addEvent: (event) => set((state) => ({
-                    timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
-                })),
+                addEvent: (event) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
+                    }));
+                },
 
                 importTimelineEvents: (events) => {
                     pushHistory();
@@ -186,33 +224,47 @@ export const useMitigationStore = create<MitigationState>()(
                     });
                 },
 
-                updateEvent: (id, updatedEvent) => set((state) => ({
-                    timelineEvents: state.timelineEvents.map(e => e.id === id ? { ...e, ...updatedEvent } : e).sort((a, b) => a.time - b.time)
-                })),
+                updateEvent: (id, updatedEvent) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineEvents: state.timelineEvents.map(e => e.id === id ? { ...e, ...updatedEvent } : e).sort((a, b) => a.time - b.time)
+                    }));
+                },
 
-                removeEvent: (id) => set((state) => ({
-                    timelineEvents: state.timelineEvents.filter(e => e.id !== id)
-                })),
+                removeEvent: (id) => {
+                    pushHistory();
+                    set((state) => ({
+                        timelineEvents: state.timelineEvents.filter(e => e.id !== id)
+                    }));
+                },
 
-                addPhase: (endTime, name = 'New Phase') => set((state) => {
-                    const exists = state.phases.some(p => p.endTime === endTime);
-                    if (exists) return state;
+                addPhase: (endTime, name = 'New Phase') => {
+                    const exists = get().phases.some(p => p.endTime === endTime);
+                    if (exists) return;
+                    pushHistory();
+                    set((state) => {
+                        const newPhase: Phase = {
+                            id: crypto.randomUUID(),
+                            name,
+                            endTime
+                        };
+                        return { phases: [...state.phases, newPhase].sort((a, b) => a.endTime - b.endTime) };
+                    });
+                },
 
-                    const newPhase: Phase = {
-                        id: crypto.randomUUID(),
-                        name,
-                        endTime
-                    };
-                    return { phases: [...state.phases, newPhase].sort((a, b) => a.endTime - b.endTime) };
-                }),
+                updatePhase: (id, name) => {
+                    pushHistory();
+                    set((state) => ({
+                        phases: state.phases.map(p => p.id === id ? { ...p, name } : p)
+                    }));
+                },
 
-                updatePhase: (id, name) => set((state) => ({
-                    phases: state.phases.map(p => p.id === id ? { ...p, name } : p)
-                })),
-
-                removePhase: (id) => set((state) => ({
-                    phases: state.phases.filter(p => p.id !== id)
-                })),
+                removePhase: (id) => {
+                    pushHistory();
+                    set((state) => ({
+                        phases: state.phases.filter(p => p.id !== id)
+                    }));
+                },
 
                 addMitigation: (mitigation) => {
                     pushHistory();
@@ -376,38 +428,44 @@ export const useMitigationStore = create<MitigationState>()(
                     });
                 },
 
-                updateMemberStats: (memberId, stats) => set((state) => ({
-                    partyMembers: state.partyMembers.map(m => {
-                        if (m.id === memberId) {
-                            const newStats = { ...m.stats, ...stats };
-                            const computedValues = calculateMemberValues({ ...m, stats: newStats });
-                            return { ...m, stats: newStats, computedValues };
-                        }
-                        return m;
-                    })
-                })),
+                updateMemberStats: (memberId, stats) => {
+                    pushHistory();
+                    set((state) => ({
+                        partyMembers: state.partyMembers.map(m => {
+                            if (m.id === memberId) {
+                                const newStats = { ...m.stats, ...stats };
+                                const computedValues = calculateMemberValues({ ...m, stats: newStats });
+                                return { ...m, stats: newStats, computedValues };
+                            }
+                            return m;
+                        })
+                    }));
+                },
 
                 setAaSettings: (settings) => set({ aaSettings: settings }),
 
-                setSchAetherflowPattern: (memberId, pattern) => set((state) => {
-                    // Remove any existing dissipation for this member that might have been the previous auto-inserted one
-                    const existingMitigations = state.timelineMitigations.filter(
-                        m => !(m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15)
-                    );
+                setSchAetherflowPattern: (memberId, pattern) => {
+                    pushHistory();
+                    set((state) => {
+                        // Remove any existing dissipation for this member that might have been the previous auto-inserted one
+                        const existingMitigations = state.timelineMitigations.filter(
+                            m => !(m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15)
+                        );
 
-                    const newDissipation = {
-                        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                        mitigationId: 'dissipation',
-                        ownerId: memberId,
-                        time: pattern === 1 ? 1 : 14,
-                        duration: 30
-                    };
+                        const newDissipation = {
+                            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                            mitigationId: 'dissipation',
+                            ownerId: memberId,
+                            time: pattern === 1 ? 1 : 14,
+                            duration: 30
+                        };
 
-                    return {
-                        schAetherflowPatterns: { ...state.schAetherflowPatterns, [memberId]: pattern },
-                        timelineMitigations: [...existingMitigations, newDissipation]
-                    };
-                }),
+                        return {
+                            schAetherflowPatterns: { ...state.schAetherflowPatterns, [memberId]: pattern },
+                            timelineMitigations: [...existingMitigations, newDissipation]
+                        };
+                    });
+                },
 
                 initializeParty: () => {
                     // Handled in initial state
