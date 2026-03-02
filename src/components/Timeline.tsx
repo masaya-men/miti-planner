@@ -25,6 +25,11 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MobileBottomSheet } from './MobileBottomSheet';
 
+function genId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return 'id_' + Math.random().toString(36).substring(2, 9);
+}
+
 // Helper for column widths
 export const getColumnWidth = (role: string) => {
     if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
@@ -135,6 +140,9 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
+
+    const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
+    const myMemberId = useMitigationStore(state => state.myMemberId);
 
     const def = MITIGATIONS.find(m => m.id === mitigation.mitigationId);
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
@@ -381,7 +389,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 <div
                     className={clsx(
                         "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform pointer-events-auto",
-                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
+                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
                     )}
                     onContextMenu={handleContextMenu}
                     onPointerDown={handlePointerDown}
@@ -423,7 +431,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                         colors.bg,
                         colors.border,
                         colors.shadow,
-                        useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-40"
+                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40"
                     )}
                     style={{
                         height: `${Math.max(0, durationHeight)}px`,
@@ -437,7 +445,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     <div
                         className={clsx(
                             "absolute w-0 border-l-[2px] border-dotted border-slate-500/40 z-0 pointer-events-none",
-                            useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId && useMitigationStore.getState().myMemberId !== mitigation.ownerId && "opacity-30"
+                            myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-30"
                         )}
                         style={{
                             top: `${12 + Math.max(0, durationHeight)}px`,
@@ -588,6 +596,7 @@ export const Timeline: React.FC = () => {
     const handleAutoPlan = () => {
         // オートプランの生成と、先ほど作った「一括上書き＆履歴1回分」の必殺技を呼び出す共通処理
         const executePlan = () => {
+            const { timelineEvents, partyMembers } = useMitigationStore.getState();
             const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
             useMitigationStore.getState().applyAutoPlan(newMitigations);
         };
@@ -1911,8 +1920,8 @@ export const Timeline: React.FC = () => {
                                         });
 
                                         return availableMitis.map(mit => {
-                                            // 👇 修正：PC版と全く同じ「配置可能かどうかのルールチェック」を実行
                                             const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
+                                            const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
                                             const status = validateMitigationPlacement(
                                                 mit,
                                                 mobileMitiFlow.time,
@@ -1920,11 +1929,20 @@ export const Timeline: React.FC = () => {
                                                 schAetherflowPatterns[member.id] ?? 1,
                                                 t
                                             );
+                                            const isClickable = status.available || isAlreadyPlaced;
 
                                             return (
                                                 <button
                                                     key={mit.id}
+                                                    disabled={!isClickable}
                                                     onClick={() => {
+                                                        if (isAlreadyPlaced) {
+                                                            const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                            if (amToRemove) removeMitigation(amToRemove.id);
+                                                            setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
+                                                            return;
+                                                        }
+
                                                         // 配置不可の場合は理由をアラートで出して中断
                                                         if (!status.available) {
                                                             alert(status.message || 'このタイミングには配置できません（リキャスト等）');
@@ -1933,7 +1951,7 @@ export const Timeline: React.FC = () => {
 
                                                         // チェックを通った場合のみ追加
                                                         addMitigation({
-                                                            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                                            id: genId(), // 👈 共通のID生成関数を使用
                                                             mitigationId: mit.id,
                                                             time: mobileMitiFlow.time,
                                                             duration: mit.duration,
@@ -1943,13 +1961,22 @@ export const Timeline: React.FC = () => {
                                                     }}
                                                     // 配置不可のスキルはアイコンを暗くして押せない感を出す
                                                     className={clsx(
-                                                        "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-colors",
-                                                        status.available
-                                                            ? "bg-white/5 border-white/10 active:bg-blue-500/30"
-                                                            : "bg-black/40 border-transparent opacity-40"
+                                                        "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all relative overflow-hidden",
+                                                        isAlreadyPlaced
+                                                            ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
+                                                            : status.available
+                                                                ? "bg-white/5 border-white/10 active:bg-blue-500/30"
+                                                                : "bg-black/40 border-transparent opacity-40"
                                                     )}
                                                 >
-                                                    <img src={mit.icon} className="w-8 h-8 object-contain rounded drop-shadow-md" />
+                                                    <div className="relative">
+                                                        <img src={mit.icon} className={clsx("w-8 h-8 object-contain rounded drop-shadow-md", isAlreadyPlaced ? "ring-2 ring-red-500 ring-offset-1 ring-offset-transparent" : "opacity-90")} />
+                                                        {isAlreadyPlaced && (
+                                                            <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-0.5">
+                                                                <X size={10} className="text-white" />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{mit.name}</span>
                                                 </button>
                                             );
