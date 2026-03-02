@@ -52,23 +52,19 @@ interface MitigationItemProps {
     schAetherflowPattern: 1 | 2;
     overlapOffset?: number;
     recastHeight?: number;
+    timeToYMap: Map<number, number>; // 👈 追加：コンパクトモードの吸着計算用
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
-    // 1. Light Party Sort Logic (Group based)
     if (partySortOrder === 'light_party') {
         const mtGroup = ['MT', 'H1', 'D1', 'D3'];
-        // const stGroup = ['ST', 'H2', 'D2', 'D4']; 
-
         if (mtGroup.includes(ownerId)) {
-            // MT Group -> Cyan/Blue Theme
             return {
                 bg: "bg-cyan-500/80",
                 border: "border-cyan-400/30",
                 shadow: "shadow-[0_0_5px_rgba(6,182,212,0.5)]"
             };
         } else {
-            // ST Group -> Amber/Orange Theme
             return {
                 bg: "bg-amber-500/80",
                 border: "border-amber-400/30",
@@ -77,7 +73,6 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
         }
     }
 
-    // 2. Role Sort Logic (Job/Role based)
     if (!jobId) return {
         bg: "bg-slate-400/80",
         border: "border-slate-300/30",
@@ -87,7 +82,7 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
     const tank = ['pld', 'war', 'drk', 'gnb'];
     const healer = ['whm', 'sch', 'ast', 'sge'];
     const melee = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
-    const ranged = ['brd', 'mch', 'dnc', 'blm', 'smn', 'rdm', 'pct']; // Phys & Magical
+    const ranged = ['brd', 'mch', 'dnc', 'blm', 'smn', 'rdm', 'pct'];
 
     if (tank.includes(jobId)) {
         return {
@@ -129,7 +124,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight
+        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight, timeToYMap
     } = props;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
@@ -143,16 +138,39 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
+    const hideEmptyRows = useMitigationStore(state => state.hideEmptyRows);
 
     const def = MITIGATIONS.find(m => m.id === mitigation.mitigationId);
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
 
-    // Calculate visualization metrics
     const durationHeight = height;
     const recast = def?.recast || def?.cooldown || 0;
     const recastPx = recastHeight ?? (recast * pixelsPerSecond);
 
-    // Direct DOM update for drag position (no React re-render)
+    // 👇 追加：Y座標から、コンパクトモード時でも正確に「どの時間の行を指しているか」を逆算する関数
+    const getTimeFromY = (targetY: number): number => {
+        if (!hideEmptyRows) {
+            return Math.max(offsetTime, offsetTime + Math.round(targetY / pixelsPerSecond));
+        }
+
+        // コンパクトモード時：Y座標が一番近い「可視行の時間」を探す
+        let closestTime = offsetTime;
+        let minDiff = Infinity;
+
+        timeToYMap.forEach((mappedY, time) => {
+            const diff = Math.abs(mappedY - targetY);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestTime = time;
+            } else if (diff === minDiff && time > closestTime) {
+                // 👇 修正：同じY座標（距離が同じ）なら、必ず一番大きい時間（＝実際の可視行）を選ぶ
+                closestTime = time;
+            }
+        });
+
+        return closestTime;
+    };
+
     const updateDragPosition = (dy: number, animateSnap: boolean = false) => {
         if (!containerRef.current) return;
 
@@ -162,14 +180,16 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
             containerRef.current.style.transition = 'none';
         }
 
-        containerRef.current.style.top = `${top + 13 + dy}px`;
+        const currentY = top + dy;
+        containerRef.current.style.top = `${currentY + 13}px`;
         containerRef.current.style.zIndex = '50';
         containerRef.current.style.opacity = '0.9';
 
-        // Show time indicator line
-        const snappedTime = Math.max(offsetTime, mitigation.time + Math.round(dy / pixelsPerSecond));
-        const snappedY = (snappedTime - offsetTime) * pixelsPerSecond;
-        const relativeY = snappedY - (top + 13 + dy); // relative to container
+        // 修正：スナップ先の時間を計算
+        const snappedTime = getTimeFromY(currentY);
+        // その時間の正しいY座標（コンパクトモードの圧縮を加味）
+        const snappedY = hideEmptyRows ? (timeToYMap.get(snappedTime) ?? currentY) : (snappedTime - offsetTime) * pixelsPerSecond;
+        const relativeY = snappedY - currentY; // containerRefからの相対位置
 
         if (indicatorRef.current) {
             indicatorRef.current.style.display = 'block';
@@ -196,7 +216,6 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
         containerRef.current.style.top = `${top + 13}px`;
 
-        // Clean up transition and z-index after animation
         if (animate) {
             setTimeout(() => {
                 if (containerRef.current) {
@@ -245,7 +264,6 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
         if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     };
 
-    // Auto-scroll
     const EDGE_ZONE = 60;
     const MAX_SCROLL_SPEED = 15;
 
@@ -316,32 +334,28 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
         const scrollTop = scrollContainerRef.current?.scrollTop ?? 0;
         const scrollDelta = scrollTop - dragStartRef.current.scrollTop;
         const dy = e.clientY - dragStartRef.current.pointerY + scrollDelta;
-        const deltaTime = Math.round(dy / pixelsPerSecond);
+
+        // 👇 修正：指を離した最終的なY座標から、スナップ先の時間を計算する
+        const finalY = top + dy;
+        const newTime = getTimeFromY(finalY);
+
         dragStartRef.current = null;
 
-        if (deltaTime !== 0 && def) {
-            const newTime = Math.max(offsetTime, mitigation.time + deltaTime);
-
-            // Validate the placement
-            // We pass mitigation.id to ignoreInstanceId so it doesn't collide with itself
+        if (newTime !== mitigation.time && def) {
             const status = validateMitigationPlacement(def, newTime, activeMitigations, schAetherflowPattern, t, mitigation.id);
 
             if (status.available) {
-                // Success: update time and reset visual instantly (re-render will place it correctly)
                 resetDragPosition(false);
                 onUpdateTime(mitigation.id, newTime);
             } else {
-                // Failed: show toast pointing to the timeline header of this lane
                 const containerLeft = scrollContainerRef.current?.getBoundingClientRect().left ?? 0;
                 setToastMessage({
                     message: status.message || t('timeline.invalid_placement', 'Invalid placement'),
                     leftOffset: containerLeft + left
                 });
-                // Use animated snap back
                 resetDragPosition(true);
             }
         } else {
-            // No movement, just reset
             resetDragPosition(false);
         }
     };
@@ -351,16 +365,13 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
     return (
         <>
-            {/* Local Error Tooltip for Drag & Drop */}
             {toastMessage && (
                 <div
                     className="fixed z-[150] bg-red-600 border border-red-400 text-slate-800 dark:text-white px-3 py-1.5 rounded-lg shadow-[0_4px_16px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 pointer-events-none transition-all duration-200 animate-in slide-in-from-top-2 fade-in whitespace-nowrap"
                     style={{
-                        // 12px centers it cleanly over the 24px wide column
                         left: `${toastMessage.leftOffset + 12}px`,
-                        // 88px avoids the top nav header and positions it firmly under the sticky timeline header
                         top: `88px`,
-                        transform: 'translateX(-50%)' // Center anchor horizontally above the column
+                        transform: 'translateX(-50%)'
                     }}
                 >
                     <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-600 border-l border-t border-red-400 rotate-45" />
@@ -373,19 +384,16 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 className="absolute flex flex-col items-center group select-none pointer-events-none animate-in zoom-in-90 fade-in duration-200"
                 style={{ left: `${left}px`, top: `${top + 13}px`, width: '24px' }}
             >
-                {/* Drag time indicator line */}
                 <div
                     ref={indicatorRef}
                     className="absolute pointer-events-none"
                     style={{ display: 'none', left: '-4px', width: '32px', height: '2px', background: 'rgba(56,189,248,0.8)', boxShadow: '0 0 6px rgba(56,189,248,0.6)', borderRadius: '1px', zIndex: 100 }}
                 />
-                {/* Drag time label */}
                 <div
                     ref={timeLabelRef}
                     className="absolute pointer-events-none text-[10px] font-mono text-sky-300 bg-black/70 px-1 rounded"
                     style={{ display: 'none', left: '28px', zIndex: 100 }}
                 />
-                {/* Icon - Interactive */}
                 <div
                     className={clsx(
                         "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform pointer-events-auto",
@@ -400,12 +408,10 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     onTouchMove={handleTouchMove}
                     title={`${name || t('timeline.mitigation', '軽減')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint', '(ドラッグで移動 / 右クリックで削除)')} `}
                 >
-                    {/* Inner wrapper for overflow hidden on the main image only */}
                     <div className="w-full h-full bg-black/50 overflow-hidden rounded border border-white/20">
                         {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
                     </div>
 
-                    {/* Target Badge for Single Target Buffs */}
                     {mitigation.targetId && (() => {
                         const members = useMitigationStore.getState().partyMembers;
                         const targetMember = members.find((m: import('../types').PartyMember) => m.id === mitigation.targetId);
@@ -424,7 +430,6 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     })()}
                 </div>
 
-                {/* Effect Bar (Duration) */}
                 <div
                     className={clsx(
                         "absolute top-3 w-1.5 z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
@@ -440,7 +445,6 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     }}
                 ></div>
 
-                {/* Recast Line (Dotted) */}
                 {recastPx > durationHeight && (
                     <div
                         className={clsx(
@@ -465,11 +469,6 @@ export const Timeline: React.FC = () => {
     const { t } = useTranslation();
     const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
 
-    // Column Width Logic
-    // const getColumnWidth = (role: string) => (role === 'tank' || role === 'healer') ? 120 : 60;
-
-    // memberLayout moved to after sortedPartyMembers definition
-
     const {
         addEvent, updateEvent, removeEvent, addMitigation,
         setMemberJob,
@@ -491,19 +490,16 @@ export const Timeline: React.FC = () => {
         setClipboardEvent,
     } = useMitigationStore();
 
-    // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
     const [selectedTime, setSelectedTime] = useState<number>(0);
     const [eventModalPosition, setEventModalPosition] = useState({ x: 0, y: 0 });
 
-    // Phase Modal State
     const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
     const [selectedPhase, setSelectedPhase] = useState<{ id: string, name: string } | null>(null);
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
 
-    // 👇 スマホ専用：軽減追加フロー状態管理（PCには影響しません）
     const [mobileMitiFlow, setMobileMitiFlow] = useState<{
         isOpen: boolean;
         time: number;
@@ -511,18 +507,15 @@ export const Timeline: React.FC = () => {
         selectedMemberId: string | null;
     }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null });
 
-    // Mitigation Selector State
     const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
     const [selectorPosition, setSelectorPosition] = useState({ x: 0, y: 0 });
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
     const [selectedMitigationTime, setSelectedMitigationTime] = useState<number>(0);
 
-    // Job Picker State
     const [jobPickerOpen, setJobPickerOpen] = useState(false);
     const [jobPickerPosition, setJobPickerPosition] = useState({ x: 0, y: 0 });
     const [jobPickerMemberId, setJobPickerMemberId] = useState<string | null>(null);
 
-    // Job Migration Modal State
     type MigrationMode = 'inherit' | 'common_only' | 'reset';
     const [migrationConfig, setMigrationConfig] = useState<{
         isOpen: boolean;
@@ -531,11 +524,9 @@ export const Timeline: React.FC = () => {
         newJobId: string;
     } | null>(null);
 
-    // Party Settings Modal
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
-    const [statusOpen, setStatusOpen] = useState(false); // For Stats Popover
+    const [statusOpen, setStatusOpen] = useState(false);
 
-    // Sync mobile triggers from Layout's bottom nav
     useEffect(() => {
         if (mobilePartyOpen) {
             setPartySettingsOpen(true);
@@ -548,7 +539,7 @@ export const Timeline: React.FC = () => {
             setMobileStatusOpen(false);
         }
     }, [mobileStatusOpen]);
-    // Tools trigger sync
+
     const [mobileToolsSheetOpen, setMobileToolsSheetOpen] = useState(false);
     useEffect(() => {
         if (mobileToolsOpen) {
@@ -557,14 +548,13 @@ export const Timeline: React.FC = () => {
         }
     }, [mobileToolsOpen]);
 
-    // AA Mode State
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const schBarRef = useRef<HTMLDivElement>(null);
-    const timeToYMapRef = useRef(new Map<number, number>()); // 👈 追加：各秒数のY座標を記憶するためのRef
+    const timeToYMapRef = useRef(new Map<number, number>());
 
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
@@ -572,30 +562,26 @@ export const Timeline: React.FC = () => {
         if (headerRef.current) headerRef.current.scrollLeft = scrollLeft;
         if (schBarRef.current) schBarRef.current.scrollLeft = scrollLeft;
     };
-    // 👇👇👇 ここから追加 👇👇👇
+
     useEffect(() => {
         const syncPadding = () => {
             if (scrollContainerRef.current && headerRef.current) {
-                // スクロールバーの幅を自動計算（全体幅 - 中身の幅）
                 const scrollbarWidth = scrollContainerRef.current.offsetWidth - scrollContainerRef.current.clientWidth;
-
-                // ヘッダーとSCHバーの右側に、スクロールバーと同じ幅の余白を強制追加
                 headerRef.current.style.paddingRight = `${scrollbarWidth}px`;
                 if (schBarRef.current) schBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
             }
         };
 
-        syncPadding(); // 初回実行
-        window.addEventListener('resize', syncPadding); // ウィンドウサイズ変更時も再計算
+        syncPadding();
+        window.addEventListener('resize', syncPadding);
         return () => window.removeEventListener('resize', syncPadding);
     }, []);
-    // 👆👆👆 ここまで追加 👆👆👆
-    const [showPreStart] = useState(true); // Fixed for now, removed setter to fix lint
+
+    const [showPreStart] = useState(true);
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
 
     const handleAutoPlan = () => {
-        // オートプランの生成と、先ほど作った「一括上書き＆履歴1回分」の必殺技を呼び出す共通処理
         const executePlan = () => {
             const { timelineEvents, partyMembers } = useMitigationStore.getState();
             const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
@@ -603,7 +589,6 @@ export const Timeline: React.FC = () => {
         };
 
         if (typeof window !== 'undefined' && window.innerWidth < 768) {
-            // スマホ用ルート（メニューが閉じるのをほんの少し待ってから、確実に手前に出る純正ダイアログを出す）
             setTimeout(() => {
                 const isConfirmed = window.confirm(
                     "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。"
@@ -613,7 +598,6 @@ export const Timeline: React.FC = () => {
                 }
             }, 150);
         } else {
-            // PC用ルート（お気に入りのデザインのまま！）
             setConfirmDialog({
                 title: 'オートプラン実行',
                 message: '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？',
@@ -626,8 +610,8 @@ export const Timeline: React.FC = () => {
         }
     };
 
-    const pixelsPerSecond = 50; // Configurable?
-    const fightDuration = 1200; // 20 mins
+    const pixelsPerSecond = 50;
+    const fightDuration = 1200;
 
     const gridLines = useMemo(() => {
         const lines = [];
@@ -639,7 +623,6 @@ export const Timeline: React.FC = () => {
         return lines;
     }, [fightDuration]);
 
-    // Group events by time for row-based rendering
     const eventsByTime = useMemo(() => {
         const map = new Map<number, TimelineEvent[]>();
         timelineEvents.forEach(event => {
@@ -650,40 +633,34 @@ export const Timeline: React.FC = () => {
         return map;
     }, [timelineEvents]);
 
-    // --- Phase & Event Handlers ---
     const handleAddClick = (time: number, e: React.MouseEvent) => {
-        e.stopPropagation(); // Ensure we don't trigger other things
+        e.stopPropagation();
 
-        // 👇 追加：もしコピー中（スタンプモード）なら、即座にペーストして終了！
         if (clipboardEvent) {
             const generateId = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
             addEvent({
                 ...clipboardEvent,
-                id: generateId(), // IDは新しく生成
-                time: time        // 時間はクリックした行の時間で上書き
+                id: generateId(),
+                time: time
             });
-            return; // モーダルは開かずにここで処理を終わる
+            return;
         }
 
         if (isAaModeEnabled) {
-            // Check if we can add an event (Max 2 per row)
             const existingEvents = eventsByTime.get(time) || [];
             if (existingEvents.length < 2) {
-                // Add AA Event immediately
                 const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
                 addEvent({
                     id: newId,
                     time: time,
                     name: 'AA',
                     damageAmount: aaSettings.damage,
-                    damageType: aaSettings.type, // Explicit cast if needed, but type matches matches string
+                    damageType: aaSettings.type,
                     target: aaSettings.target
                 });
                 return;
             } else {
-                // Row full or other issue -> Normal behavior and turn off AA mode
                 setIsAaModeEnabled(false);
-                // Fall through to open modal
             }
         }
 
@@ -696,7 +673,6 @@ export const Timeline: React.FC = () => {
     const handlePhaseAdd = (time: number, e: React.MouseEvent) => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
-        // User Request: Consider Phase End Point as Time + 1 second
         setSelectedPhaseTime(time + 1);
         setSelectedPhase(null);
         setIsPhaseModalOpen(true);
@@ -706,10 +682,6 @@ export const Timeline: React.FC = () => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
         setSelectedPhase({ id, name: currentName });
-        // Find existing time? Usually phase edit is just name?
-        // But for "New Phase", we need time.
-        // For Edit, time might be irrelevant or we might want to edit duration?
-        // Let's keep it simple: Name only for now, as implemented in prompt version.
         setIsPhaseModalOpen(true);
     };
 
@@ -717,11 +689,6 @@ export const Timeline: React.FC = () => {
         if (selectedPhase) {
             updatePhase(selectedPhase.id, name);
         } else {
-            // Create new phase
-            // 'time' from handlePhaseAdd is typically the START time of the next phase or END time of the previous?
-            // In this app, 'time' passed to addPhase is the END TIME of the phase being created at that row index.
-            // The row index represents 'time'. Changing that to a phase end point.
-
             const targetTime = time !== undefined ? time : selectedPhaseTime;
             if (targetTime !== undefined) {
                 addPhase(targetTime, name);
@@ -739,7 +706,6 @@ export const Timeline: React.FC = () => {
     const handleEventClick = (event: TimelineEvent, e: React.MouseEvent) => {
         e.stopPropagation();
 
-        // If AA Mode is On, clicking an existing event turns it off (Normal behavior - edit)
         if (isAaModeEnabled) {
             setIsAaModeEnabled(false);
         }
@@ -750,7 +716,6 @@ export const Timeline: React.FC = () => {
     };
 
     const handleSave = (eventData: Omit<TimelineEvent, 'id'>) => {
-        // Robust ID generation
         const generateId = () => {
             if (typeof crypto !== 'undefined' && crypto.randomUUID) {
                 return crypto.randomUUID();
@@ -768,21 +733,19 @@ export const Timeline: React.FC = () => {
                 id: newId,
             });
         }
-        setIsModalOpen(false); // Ensure modal closes
+        setIsModalOpen(false);
 
-        // 👇 追加：保存後、新しく作られた行へ自動スクロールする
         setTimeout(() => {
             if (scrollContainerRef.current) {
-                // 行がレンダリングされた後のY座標を取得
                 const targetY = timeToYMapRef.current.get(eventData.time);
                 if (targetY !== undefined) {
                     scrollContainerRef.current.scrollTo({
                         top: targetY,
-                        behavior: 'smooth' // なめらかにスクロール
+                        behavior: 'smooth'
                     });
                 }
             }
-        }, 100); // レンダリング完了を待つために100ミリ秒だけ遅らせる
+        }, 100);
     };
 
     const handleDelete = () => {
@@ -794,7 +757,6 @@ export const Timeline: React.FC = () => {
         }
     };
 
-    // --- Mitigation Handlers ---
     const handleCellClick = (memberId: string, time: number, e: React.MouseEvent) => {
         const member = partyMembers.find(m => m.id === memberId);
         if (!member || !member.jobId) return;
@@ -805,13 +767,11 @@ export const Timeline: React.FC = () => {
         setMitigationSelectorOpen(true);
     };
 
-    // 👇 スマホ専用：Raw/Takenタップで開く処理
     const handleMobileDamageClick = (time: number, e: React.MouseEvent) => {
         e.stopPropagation();
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
     };
 
-    // Mobile: tap RAW/TAKEN column to open mitigation for myMemberId (or first healer)
     const handleDamageClick = (time: number, e: React.MouseEvent) => {
         const targetId = useMitigationStore.getState().myMemberId || partyMembers.find(m => m.role === 'healer')?.id;
         if (!targetId) return;
@@ -838,9 +798,6 @@ export const Timeline: React.FC = () => {
         setMitigationSelectorOpen(false);
     };
 
-
-
-    // --- Job Picker Handlers ---
     const handleJobIconClick = (memberId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         setJobPickerPosition({ x: e.clientX, y: e.clientY });
@@ -852,27 +809,23 @@ export const Timeline: React.FC = () => {
         if (jobPickerMemberId) {
             const targetMember = partyMembers.find(m => m.id === jobPickerMemberId);
             if (targetMember) {
-                // Check if the exact same job was selected (do nothing)
                 if (targetMember.jobId === jobId) {
                     setJobPickerOpen(false);
                     return;
                 }
 
-                // Check if this member has existing mitigations on the timeline
                 const hasMitigations = timelineMitigations.some(m => m.ownerId === targetMember.id);
 
                 if (hasMitigations && targetMember.jobId) {
-                    // Open migration confirmation modal instead of directly setting the job
                     setMigrationConfig({
                         isOpen: true,
                         memberId: targetMember.id,
                         oldJobId: targetMember.jobId,
                         newJobId: jobId
                     });
-                    setJobPickerOpen(false); // Close the job picker, open migration modal
+                    setJobPickerOpen(false);
                     return;
                 } else {
-                    // No existing mitigations or no previous job, apply directly
                     setMemberJob(targetMember.id, jobId);
                 }
             }
@@ -885,15 +838,10 @@ export const Timeline: React.FC = () => {
 
         const { memberId, oldJobId, newJobId } = migrationConfig;
 
-        // 1. Get current member mitigations
         const memberMitis = timelineMitigations.filter(m => m.ownerId === memberId);
-
-        // 2. Calculate the new migrated set
         const newMitis = migrateMitigations(oldJobId, newJobId, memberId, memberMitis, mode);
 
-        // 3. Atomically update the job and the timeline mitigations
         changeMemberJobWithMitigations(memberId, newJobId, newMitis);
-
         setMigrationConfig(null);
     };
 
@@ -901,18 +849,9 @@ export const Timeline: React.FC = () => {
         setMigrationConfig(null);
     };
 
-    // --- Calculation Helpers ---
-    // calculateDamage is used in useMemo, so it must be defined BEFORE damageMap
-    // Memoize damage calculation with stateful shield decay
     const damageMap = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean }>();
-
-        // 1. Sort events by time to process chronologically
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
-
-        // 2. Shield State Tracking
-        // Contexts: 'MT', 'ST', 'Party'. 
-        // Maps Context -> (MitigationInstanceId -> RemainingHP)
         const shieldStates = new Map<string, Map<string, number>>();
 
         const getShieldState = (context: string, instanceId: string, maxValue: number) => {
@@ -933,47 +872,33 @@ export const Timeline: React.FC = () => {
             shieldStates.get(context)!.set(instanceId, newValue);
         };
 
-        // 3. Process Events
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
                 return;
             }
 
-            // Determine Contexts
             const target = event.target;
-            // Explicit check to satisfy Typescript narrowing
             const displayContext = (target === 'MT' || target === 'ST') ? target : 'Party';
-
-            // Affected contexts for shield consumption
-            // AOE hits everyone -> Update Party, MT, ST
-            // Single Target hits one -> Update that one
             const affectedContexts = (target === 'MT' || target === 'ST') ? [target] : ['Party', 'MT', 'ST'];
 
-            // Calculation variables for the DISPLAY context
             let currentDamage = event.damageAmount;
             let mitigationMultipliers = 1;
-            let displayShieldTotal = 0; // Available shield for display
-            let displayShieldAbsorbed = 0; // Actually used shield for display
+            let displayShieldTotal = 0;
+            let displayShieldAbsorbed = 0;
             let isInvincibleForEvent = false;
 
-            // Find Active Mitigations
             const activeMitigations = timelineMitigations.filter(m =>
                 m.time <= event.time && event.time < m.time + m.duration
             );
 
-            // Step A: % Mitigations
             activeMitigations.forEach(appMit => {
                 const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
                 if (!def || def.isShield) return;
 
-                // Scope Check: Self buffs only apply to owner (and not to Party context)
                 if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
-
-                // Target check: Targeted buffs only apply to their specific target
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
-                // Invulnerability Check
                 if (def.isInvincible) {
                     currentDamage = 0;
                     isInvincibleForEvent = true;
@@ -996,23 +921,16 @@ export const Timeline: React.FC = () => {
                 mitigationMultipliers *= multiplier;
             });
 
-            // Round down damage after % mits
             currentDamage = Math.floor(currentDamage);
-
-            // Store the damage to be applied to shields for state updates
-            // (Simplification: using the same calculated damage for all contexts)
             const damageForShields = currentDamage;
 
-            // Step B: Shields with Decay (Apply to ALL affected contexts)
             if (!isInvincibleForEvent) {
                 activeMitigations.forEach(appMit => {
                     const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
                     if (!def) return;
 
-                    // Check for Conditional Shields (e.g. Helios Conjunction with Neutral Sect)
                     let isConditionalShield = false;
                     if (def.id === 'helios_conjunction') {
-                        // Check if Neutral Sect is active at cast time
                         const nsActive = timelineMitigations.some(m =>
                             m.mitigationId === 'neutral_sect' &&
                             m.time <= appMit.time &&
@@ -1022,20 +940,14 @@ export const Timeline: React.FC = () => {
                     }
 
                     if (!def.isShield && !isConditionalShield) return;
-
-                    // Scope Check: Self shields only apply to owner or target
                     if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
-
-                    // Target check: Targeted shields only apply to their specific target
                     if (appMit.targetId && appMit.targetId !== displayContext) return;
-
                     if (def.type === 'physical' && event.damageType === 'magical') return;
                     if (def.type === 'magical' && event.damageType === 'physical') return;
 
                     const member = partyMembers.find(m => m.id === appMit.ownerId);
                     if (!member) return;
 
-                    // Calculate Healing Potency Multiplier (Snapshot at cast time)
                     let healingMultiplier = 1;
                     const buffsAtCast = timelineMitigations.filter(b =>
                         b.time <= appMit.time && appMit.time < b.time + b.duration && b.id !== appMit.id
@@ -1044,11 +956,7 @@ export const Timeline: React.FC = () => {
                     buffsAtCast.forEach(buff => {
                         const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
                         if (bDef && bDef.healingIncrease) {
-                            // Check if this buff applies to the current displayContext
-                            // (e.g. Minne on MT boosts shields on MT)
-                            // Party buffs apply to everyone. Self buffs apply only to owner.
                             if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
-
                             healingMultiplier += (bDef.healingIncrease / 100);
                         }
                     });
@@ -1056,7 +964,6 @@ export const Timeline: React.FC = () => {
                     const maxValBase = member.computedValues[def.name] || 0;
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
-                    // 1. Calculate for Display (Viewpoint)
                     const remainingForDisplay = getShieldState(displayContext, appMit.id, maxVal);
                     displayShieldTotal += remainingForDisplay;
 
@@ -1066,7 +973,6 @@ export const Timeline: React.FC = () => {
                         displayShieldAbsorbed += absorbed;
                     }
 
-                    // 2. Update States for ALL Affected Contexts
                     affectedContexts.forEach(ctx => {
                         const remaining = getShieldState(ctx, appMit.id, maxVal);
                         if (remaining > 0) {
@@ -1077,7 +983,6 @@ export const Timeline: React.FC = () => {
                 });
             }
 
-            // Final Display Values
             const finalTaken = Math.max(0, currentDamage);
             const percentMod = Math.round((1 - mitigationMultipliers) * 100);
 
@@ -1085,7 +990,7 @@ export const Timeline: React.FC = () => {
                 unmitigated: event.damageAmount,
                 mitigated: finalTaken,
                 mitigationPercent: percentMod,
-                shieldTotal: displayShieldTotal, // Show available shield overlap at start of event
+                shieldTotal: displayShieldTotal,
                 isInvincible: isInvincibleForEvent
             });
         });
@@ -1093,14 +998,11 @@ export const Timeline: React.FC = () => {
         return map;
     }, [eventsByTime, timelineMitigations, partyMembers]);
 
-    // Party Sorting State
     const [partySortOrder, setPartySortOrder] = useState<'light_party' | 'role'>('light_party');
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
 
-    // Keyboard shortcuts for Undo/Redo
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Skip if user is typing in an input/textarea
             const tag = (e.target as HTMLElement)?.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
@@ -1112,7 +1014,6 @@ export const Timeline: React.FC = () => {
                 e.preventDefault();
                 useMitigationStore.getState().redo();
             }
-            // Also support Ctrl+Y for redo
             if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
                 e.preventDefault();
                 useMitigationStore.getState().redo();
@@ -1122,11 +1023,9 @@ export const Timeline: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Close clear menu when clicking outside
     useEffect(() => {
         if (!clearMenuOpen) return;
         const handleClick = () => setClearMenuOpen(false);
-        // Delay to avoid closing immediately on the opening click
         const timer = setTimeout(() => {
             window.addEventListener('click', handleClick);
         }, 0);
@@ -1136,9 +1035,7 @@ export const Timeline: React.FC = () => {
         };
     }, [clearMenuOpen]);
 
-    // Derived Sorted Party Members
     const sortedPartyMembers = useMemo(() => {
-        // Define priority maps for each sort order
         const lightPartyOrder = ['MT', 'H1', 'D1', 'D3', 'ST', 'H2', 'D2', 'D4'];
         const roleOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
 
@@ -1162,10 +1059,6 @@ export const Timeline: React.FC = () => {
         return layout;
     }, [sortedPartyMembers]);
 
-
-
-
-
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
         const job = JOBS.find(j => j.id === jobId);
@@ -1177,13 +1070,10 @@ export const Timeline: React.FC = () => {
             <div className="flex flex-col h-full w-full bg-transparent px-2 md:px-6 pt-1 md:pt-2 pb-16 md:pb-6 overflow-auto relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                {/* Control Bar (Status & Settings) - Hidden on mobile, shown on PC */}
                 <div className="mb-4 hidden md:flex items-center justify-between bg-glass-panel backdrop-blur-xl p-2 rounded-2xl shadow-glass border border-glass-border relative z-[100] group/bar">
-                    {/* Subtle Top Highlight */}
                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-2 relative">
-                        {/* パーティ編成 (leftmost) */}
                         <button
                             onClick={() => setPartySettingsOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
@@ -1193,7 +1083,6 @@ export const Timeline: React.FC = () => {
                             <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-colors shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
                         </button>
 
-                        {/* ステータス設定 */}
                         <button
                             onClick={() => setStatusOpen(!statusOpen)}
                             className={clsx(
@@ -1208,7 +1097,6 @@ export const Timeline: React.FC = () => {
                             <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
                         </button>
 
-                        {/* AA Mode Toggle */}
                         <div className="flex items-center gap-0.5 relative">
                             <button
                                 onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
@@ -1235,7 +1123,6 @@ export const Timeline: React.FC = () => {
                                 <Settings size={12} />
                             </button>
 
-                            {/* AA Settings Popover - Positioned Right of Gear */}
                             <div className="absolute top-0 left-full ml-2 z-[101] origin-top-left">
                                 <AASettingsPopover
                                     isOpen={aaSettingsOpen}
@@ -1249,7 +1136,6 @@ export const Timeline: React.FC = () => {
 
                         <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
 
-                        {/* Auto Plan Button */}
                         <button
                             onClick={handleAutoPlan}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
@@ -1259,7 +1145,6 @@ export const Timeline: React.FC = () => {
                             <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
                         </button>
 
-                        {/* FFLogs Import Button */}
                         <button
                             onClick={() => setImportModalOpen(true)}
                             className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
@@ -1269,11 +1154,9 @@ export const Timeline: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Status Popover */}
                     <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
 
                     <div className="flex items-center gap-3">
-                        {/* My Job Highlight Toggle */}
                         <button
                             onClick={() => setMyJobHighlight(!myJobHighlight)}
                             className={clsx(
@@ -1301,7 +1184,6 @@ export const Timeline: React.FC = () => {
                             </div>
                         </button>
 
-                        {/* Sorting Controls */}
                         <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
                             <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
                             <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
@@ -1332,7 +1214,6 @@ export const Timeline: React.FC = () => {
                                 </button>
                             </div>
 
-                            {/* Hide Empty Rows Toggle */}
                             <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto mx-1" />
                             <button
                                 onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
@@ -1355,13 +1236,11 @@ export const Timeline: React.FC = () => {
                     "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border transition-colors",
                     theme === 'dark' ? "border-white/5" : "border-slate-200"
                 )}>
-                    {/* Action Bar: SCH Aetherflow toggles (left) + Undo/Redo/Clear (right) */}
                     <div
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 transition-colors",
                             theme === 'dark' ? "bg-[#111214]/90 border-white/[0.03]" : "bg-slate-50/90 border-slate-200"
                         )}>
-                        {/* Left side: SCH Aetherflow controls */}
                         <div className="flex items-center relative flex-1">
                             {(() => {
                                 const schMembers = sortedPartyMembers
@@ -1421,7 +1300,6 @@ export const Timeline: React.FC = () => {
                             })()}
                         </div>
 
-                        {/* Right side: Undo/Redo + Clear */}
                         <div className="flex items-center gap-0.5 shrink-0">
                             <button
                                 onClick={() => useMitigationStore.getState().undo()}
@@ -1516,29 +1394,21 @@ export const Timeline: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Header Row - sticky within scroll container */}
                     <div
-                        ref={headerRef} /* 👈 これを追加 */
+                        ref={headerRef}
                         className={clsx(
                             "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
-                        )} /* 👈 最後に overflow-hidden があることを確認 */
+                        )}
                     >
-                        {/* Header wrapper — mobile: flex auto-fit; PC: fixed width */}
                         <div className="flex items-center h-full w-full md:w-max md:min-w-full">
-                            {/* PH — tiny on mobile */}
                             <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent text-[8px] md:text-[11px]">
                                 PH
                             </div>
-                            {/* TIME — tiny on mobile */}
                             <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[8px] md:text-[10px]">TIME</div>
-                            {/* MECHANIC — fills remaining space on mobile */}
                             <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[9px] md:text-[10px] pl-2 justify-start font-bold">MECHANIC</div>
-                            {/* RAW — small on mobile */}
                             <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">RAW</div>
-                            {/* TAKEN — small on mobile */}
                             <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">TAKEN</div>
 
-                            {/* Job Columns Headers — hidden on mobile */}
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
@@ -1574,19 +1444,15 @@ export const Timeline: React.FC = () => {
                                     </div>
                                 </div>
                             ))}
-                        </div> {/* ◀◀ 追加したラッパーを閉じる */}
-                    </div> {/* ◀◀ 追加したラッパーを閉じる */}
+                        </div>
+                    </div>
 
-                    {/* 👇 修正：スマホ時は横スクロールを禁止(overflow-x-hidden)し、PC時のみ横スクロールを許可(md:overflow-x-auto)する */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative" ref={scrollContainerRef} onScroll={handleScrollSync}>
-                        {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
-                        {/* Time Grid & Columns */}
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
                                 const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
 
-                                // 👇 追加：一番最後のイベント/軽減の時間を探す
                                 let maxPopulatedTime = -11;
                                 if (hideEmpty) {
                                     timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
@@ -1597,32 +1463,26 @@ export const Timeline: React.FC = () => {
                                     const hasEvents = (eventsByTime.get(time)?.length ?? 0) > 0;
                                     const hasMitigations = timelineMitigations.some(m => m.time === time);
 
-                                    // 👇 追加：一番最後の行の「次の1秒」は強制表示する
                                     const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
 
                                     if (!hideEmpty || hasEvents || hasMitigations || isBottomEmptyRow) {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
-                                // 👇 修正：計算された高さに「画面の高さの70% (70vh)」の架空の余白を足して返す！
-                                // これにより、たった1行しかない状態でも、その1行を画面の一番上までスクロールできるようになります。
                                 return `calc(${totalHeight}px + 70vh)`;
-                            })()}` // 👈 注意: `px` を外してバッククォートの形に合わせます
+                            })()}`
                         }}>
-                            {/* Time Grid & Columns */}
                             {(() => {
                                 const renderItems: React.ReactElement[] = [];
                                 let currentY = 0;
                                 const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
 
-                                // 👇 追加：一番最後のイベント/軽減の時間を探す
                                 let maxPopulatedTime = -11;
                                 if (hideEmpty) {
                                     timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
                                     timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
                                 }
 
-                                // Build layout map for mitigations and phases
                                 const timeToYMap = new Map<number, number>();
 
                                 gridLines.forEach((time) => {
@@ -1632,11 +1492,9 @@ export const Timeline: React.FC = () => {
                                     const hasEvents = rowEvents.length > 0;
                                     const hasMitigations = timelineMitigations.some(m => m.time === time);
 
-                                    // 👇 追加：一番最後の行の「次の1秒」は強制表示する
                                     const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
 
                                     if (hideEmpty && !hasEvents && !hasMitigations && !isBottomEmptyRow) {
-                                        // Skip row, but map the time to currentY for duration calculations
                                         timeToYMap.set(time, currentY);
                                         return;
                                     }
@@ -1656,7 +1514,7 @@ export const Timeline: React.FC = () => {
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
                                             onDamageClick={handleDamageClick}
-                                            onMobileDamageClick={handleMobileDamageClick} // 👈 これを追加
+                                            onMobileDamageClick={handleMobileDamageClick}
                                             partySortOrder={partySortOrder}
                                         />
                                     );
@@ -1664,15 +1522,12 @@ export const Timeline: React.FC = () => {
                                     currentY += pixelsPerSecond;
                                 });
 
-                                // 👇 追加：スクロールで使うために、計算された各行のY座標マップをRefに保存しておく
                                 timeToYMapRef.current = timeToYMap;
-                                // Expose timeToYMap for Mitigation Lane rendering logic
-                                // (We can attach it to the div or store it in a ref if necessary, but since it's local we need to render the phases & mitigations here to use the mapping)
+
                                 return (
                                     <>
                                         {renderItems}
 
-                                        {/* Render Phases */}
                                         {phases.map((phase, index) => {
                                             if (!showPreStart && phase.endTime <= 0) return null;
 
@@ -1685,7 +1540,6 @@ export const Timeline: React.FC = () => {
                                             const effectiveStartTime = Math.max(startTime, offsetTime);
                                             const effectiveEndTime = Math.max(endTime, offsetTime);
 
-                                            // Handle edge case where phase extends beyond gridLines
                                             const startY = timeToYMap.get(effectiveStartTime) ?? (Math.max(0, effectiveStartTime - offsetTime) * pixelsPerSecond);
                                             const endY = timeToYMap.get(effectiveEndTime) ?? (Math.max(0, effectiveEndTime - offsetTime) * pixelsPerSecond);
 
@@ -1707,17 +1561,12 @@ export const Timeline: React.FC = () => {
                                             );
                                         })}
 
-                                        {/* Render Mitigations via new Component with Lane Logic */}
                                         {(() => {
-                                            // 1. Filter visible
                                             const visibleMitigations = timelineMitigations.filter(m =>
                                                 showPreStart || (m.time + m.duration > 0)
                                             );
 
-                                            // 2. Assign Lanes
-                                            // Group by owner
                                             const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
-                                            // Ensure timeToY mapping is accessible
 
                                             visibleMitigations.forEach(m => {
                                                 if (!mitigationsByOwner[m.ownerId]) mitigationsByOwner[m.ownerId] = [];
@@ -1727,7 +1576,6 @@ export const Timeline: React.FC = () => {
                                             const renderedItems: React.ReactElement[] = [];
 
                                             Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
-                                                // Sort by Recast ascending, then by Time
                                                 const getRecast = (mitigationId: string): number => {
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigationId);
                                                     return def ? (def.recast || def.cooldown || 999) : 999;
@@ -1741,7 +1589,6 @@ export const Timeline: React.FC = () => {
                                                     return a.mitigationId.localeCompare(b.mitigationId);
                                                 });
 
-                                                // Half-lane Interleaving Logic
                                                 const PLACEMENT_STEP = 12;
                                                 const FULL_LANE_WIDTH = 24;
                                                 const HALF_LANE_WIDTH = 12;
@@ -1749,7 +1596,7 @@ export const Timeline: React.FC = () => {
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 const colStart = layout ? layout.left : 0;
                                                 const colWidth = (member?.role === 'tank' || member?.role === 'healer') ? 120 : 60;
-                                                const MAX_LEFT = colWidth - 24; // 24 is icon width
+                                                const MAX_LEFT = colWidth - 24;
 
                                                 const assignedPositions: { m: typeof timelineMitigations[0], left: number }[] = [];
 
@@ -1771,19 +1618,17 @@ export const Timeline: React.FC = () => {
                                                     }
 
                                                     if (candidateLeft > MAX_LEFT) {
-                                                        candidateLeft = MAX_LEFT; // Clamp to right edge if extremely dense
+                                                        candidateLeft = MAX_LEFT;
                                                     }
 
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
 
                                                     const offsetTime = showPreStart ? -10 : 0;
 
-                                                    // Realize visual height mapping: 5s duration should visually span 4 intervals (t to t+4) but reach the BOTTOM of that cell (+24px)
                                                     const durationSeconds = Math.max(1, mitigation.duration);
                                                     const durationEndTime = mitigation.time + durationSeconds - 1;
                                                     const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
 
-                                                    // Map functions for future extrapolated times (recast lines often extend past mapped phases)
                                                     const gridKeys = Array.from(timeToYMap.keys());
                                                     const maxGridTime = gridKeys.length > 0 ? Math.max(...gridKeys) : 0;
                                                     const maxGridY = timeToYMap.get(maxGridTime) ?? 0;
@@ -1793,10 +1638,8 @@ export const Timeline: React.FC = () => {
                                                         return Math.max(0, t - offsetTime) * pixelsPerSecond;
                                                     };
 
-                                                    // Add 24px so the line hits the bottom border of the target row
                                                     const endY = getMappedY(durationEndTime) + 24;
 
-                                                    // Similarly, recalculate recast taking hidden rows into account
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
                                                     const recast = def?.recast || def?.cooldown || 0;
                                                     const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
@@ -1826,6 +1669,7 @@ export const Timeline: React.FC = () => {
                                                             activeMitigations={ownerMitigations}
                                                             schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
                                                             overlapOffset={0}
+                                                            timeToYMap={timeToYMap} /* 👈 追加：マップを渡す */
                                                         />
                                                     );
                                                 });
@@ -1836,16 +1680,11 @@ export const Timeline: React.FC = () => {
                                     </>
                                 );
                             })()}
-
-                            {/* Render Phases (Moved inside the layout calculation block above) */}
-
-                            {/* Render Events Loop Removed - Events are now inside TimelineRow */}
                         </div>
                     </div>
                 </div>
             </div >
 
-            {/* 📋 スタンプモードのフローティングバッジ */}
             {clipboardEvent && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
                     <div className="flex items-center gap-2">
@@ -1890,7 +1729,6 @@ export const Timeline: React.FC = () => {
                 position={phaseModalPosition}
             />
 
-            {/* 👇 スマホ専用：軽減追加フローの中央ポップアップ */}
             {mobileMitiFlow.isOpen && (
                 <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                     <div className={clsx(
@@ -1969,15 +1807,13 @@ export const Timeline: React.FC = () => {
                                                             return;
                                                         }
 
-                                                        // 配置不可の場合は理由をアラートで出して中断
                                                         if (!status.available) {
                                                             alert(status.message || 'このタイミングには配置できません（リキャスト等）');
                                                             return;
                                                         }
 
-                                                        // チェックを通った場合のみ追加
                                                         addMitigation({
-                                                            id: genId(), // 👈 共通のID生成関数を使用
+                                                            id: genId(),
                                                             mitigationId: mit.id,
                                                             time: mobileMitiFlow.time,
                                                             duration: mit.duration,
@@ -1985,7 +1821,6 @@ export const Timeline: React.FC = () => {
                                                         });
                                                         setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
                                                     }}
-                                                    // 配置不可のスキルはアイコンを暗くして押せない感を出す
                                                     className={clsx(
                                                         "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all relative overflow-hidden",
                                                         isAlreadyPlaced
@@ -2067,7 +1902,6 @@ export const Timeline: React.FC = () => {
                 )
             }
 
-            {/* Custom Confirm Dialog */}
             <ConfirmDialog
                 isOpen={confirmDialog !== null}
                 title={confirmDialog?.title ?? ''}
@@ -2078,7 +1912,6 @@ export const Timeline: React.FC = () => {
                 confirmLabel="実行"
                 cancelLabel="キャンセル"
             />
-            {/* Mobile Tools Bottom Sheet */}
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
                 onClose={() => setMobileToolsSheetOpen(false)}
@@ -2086,7 +1919,6 @@ export const Timeline: React.FC = () => {
                 height="55vh"
             >
                 <div className="flex flex-col gap-3">
-                    {/* Quick Actions Row */}
                     <div className="flex gap-2">
                         <button
                             onClick={() => {
@@ -2132,7 +1964,6 @@ export const Timeline: React.FC = () => {
                         theme === 'dark' ? "bg-white/10" : "bg-slate-100"
                     )} />
 
-                    {/* Main Buttons */}
                     <button
                         onClick={() => {
                             setMobileToolsSheetOpen(false);
