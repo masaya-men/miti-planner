@@ -195,6 +195,9 @@ export const CheatSheetView: React.FC = () => {
                         const isMyJob = useMitigationStore.getState().myMemberId === m.ownerId;
                         if (!def) return null;
 
+                        const targetMember = m.targetId ? partyMembers.find(p => p.id === m.targetId) : null;
+                        const targetJob = targetMember ? JOBS.find(j => j.id === targetMember.jobId) : null;
+
                         return (
                             <div
                                 key={m.id}
@@ -202,12 +205,17 @@ export const CheatSheetView: React.FC = () => {
                                     "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-white/20",
                                     !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
-                                title={`${def.name} (${m.ownerId})`}
+                                title={`${def.name} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}
                             >
                                 <img src={def.icon} alt={def.name} className="w-full h-full object-cover" />
+
                                 {m.targetId && (
-                                    <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-black/80 rounded px-[2px] text-[6px] font-black text-slate-800 dark:text-white ring-[0.5px] ring-white/20 scale-90">
-                                        {m.targetId}
+                                    <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-slate-900/90 rounded-tl-[3px] p-[1px] shadow-sm ring-[0.5px] ring-white/30 flex items-center justify-center">
+                                        {targetJob ? (
+                                            <img src={targetJob.icon} alt={targetJob.name} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
+                                        ) : (
+                                            <span className="text-[6px] font-black text-white px-0.5 block scale-90">{m.targetId}</span>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -220,6 +228,7 @@ export const CheatSheetView: React.FC = () => {
         return (
             <div
                 onClick={handleRowClick}
+                title={event.name}
                 className={clsx(
                     "flex w-full items-stretch min-h-[44px] border-b transition-colors relative group cursor-pointer",
                     isLethal
@@ -237,37 +246,83 @@ export const CheatSheetView: React.FC = () => {
                         ? "bg-black/40 border-white/10"
                         : "bg-slate-100/80 border-slate-200"
                 )}>
-                    <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-1 drop-shadow-md">
+                    {/* 1段目: 時間 */}
+                    <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
                         {formatTime(event.time)}
                     </span>
-                    <span className={clsx(
-                        "text-xs text-center leading-tight line-clamp-2 px-1 break-words w-full font-bold drop-shadow-md",
-                        isLethal ? "text-red-600 dark:text-red-400 font-black" : hasDamage ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"
-                    )}>
-                        {event.name}
-                    </span>
-                    <div className="flex items-center gap-1 mt-1 opacity-90 scale-90">
-                        {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5" alt="Magical" />}
-                        {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5" alt="Physical" />}
-                        {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5" alt="Dark" />}
 
-                        {(event.target === 'MT' || event.target === 'ST') && (
-                            <span className={clsx(
-                                "text-[7px] font-bold px-1 rounded uppercase tracking-wider",
-                                event.target === 'MT' ? "text-cyan-400 bg-cyan-400/20" : "text-amber-400 bg-amber-400/20"
-                            )}>
-                                {event.target}
-                            </span>
-                        )}
-
+                    {/* 2段目: 攻撃種別アイコン + 攻撃名 + 連続ヒット */}
+                    <div className="flex items-center gap-1 w-full justify-center opacity-90 mb-0.5">
+                        {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5 shrink-0" alt="Magical" />}
+                        {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5 shrink-0" alt="Physical" />}
+                        {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt="Dark" />}
+                        <span
+                            className={clsx(
+                                "text-[10px] leading-tight truncate font-bold drop-shadow-md cursor-help",
+                                isLethal ? "text-red-600 dark:text-red-400 font-black" : hasDamage ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"
+                            )}
+                        >
+                            {event.name}
+                        </span>
+                        {/* 連続ヒットバッジ */}
                         {event.hitCount > 1 && (
                             <span
-                                className="text-[8px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm"
+                                className="text-[7px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
                                 title={`合計 ${event.hitCount} 回のヒット (${event.span}秒間)`}
                             >
                                 ×{event.hitCount}
                             </span>
                         )}
+                    </div>
+
+                    {/* 3段目: 最終ダメージ + サマリー + ターゲット（すべて1行にまとめる） */}
+                    <div className="flex items-center justify-center gap-1 w-full leading-none">
+                        {/* 最終ダメージ量 */}
+                        {hasDamage && dmgInfo && (
+                            <span className={clsx(
+                                "text-[10px] font-mono font-black drop-shadow-md shrink-0",
+                                isLethal ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-200"
+                            )}>
+                                {dmgInfo.isInvincible ? "Invuln" : actualDamage.toLocaleString()}
+                            </span>
+                        )}
+
+                        {/* 軽減率・バリア量（超省略表記） */}
+                        {dmgInfo && !dmgInfo.isInvincible && (dmgInfo.mitigationPercent > 0 || dmgInfo.shieldTotal > 0) && (
+                            <span className="text-[8px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
+                                {[
+                                    dmgInfo.mitigationPercent > 0 ? `▼-${dmgInfo.mitigationPercent}%` : null,
+                                    dmgInfo.shieldTotal > 0 ? `🛡️${Math.floor(dmgInfo.shieldTotal / 1000)}k` : null
+                                ].filter(Boolean).join(' ') || ''}
+                            </span>
+                        )}
+
+                        {/* ターゲット（ジョブアイコンのみ表示） */}
+                        {(event.target === 'MT' || event.target === 'ST') && (() => {
+                            const targetMember = partyMembers.find(m => m.id === event.target);
+                            const targetJob = targetMember ? JOBS.find(j => j.id === targetMember.jobId) : null;
+
+                            return targetJob ? (
+                                <div
+                                    className={clsx(
+                                        "flex items-center justify-center rounded p-[1px] shadow-sm border shrink-0",
+                                        event.target === 'MT'
+                                            ? "bg-cyan-500/20 border-cyan-500/30"
+                                            : "bg-amber-500/20 border-amber-500/30"
+                                    )}
+                                    title={`${event.target} (${targetJob.name})`}
+                                >
+                                    <img src={targetJob.icon} alt={targetJob.name} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
+                                </div>
+                            ) : (
+                                <span className={clsx(
+                                    "text-[7px] font-bold px-1 rounded uppercase tracking-wider whitespace-nowrap scale-90 shrink-0",
+                                    event.target === 'MT' ? "text-cyan-400 bg-cyan-400/20" : "text-amber-400 bg-amber-400/20"
+                                )}>
+                                    {event.target}
+                                </span>
+                            );
+                        })()}
                     </div>
                 </div>
 
