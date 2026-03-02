@@ -31,7 +31,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
 
     return (
-        <div className={`flex min-h-screen h-screen overflow-hidden font-sans text-app-text selection:bg-app-accent/20 transition-colors duration-300 ${bgClass} relative`}>
+        <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 transition-colors duration-300 ${bgClass} relative`}>
 
             {/* 👇 【修正】アニメーションをより激しく、速く */}
             <style>{`
@@ -87,7 +87,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
             </MobileBottomSheet>
 
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative z-10">
+            <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden relative z-10">
 
                 {/* ── PC Header ── */}
                 <header className={clsx(
