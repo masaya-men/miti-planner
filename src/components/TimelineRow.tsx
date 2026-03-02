@@ -5,7 +5,7 @@ import type { PartyMember, TimelineEvent } from '../types';
 import { getColumnWidth } from './Timeline';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
-import { JOBS } from '../data/mockData';
+import { JOBS, MITIGATIONS } from '../data/mockData';
 import { useMitigationStore } from '../store/useMitigationStore';
 
 interface DamageInfo {
@@ -27,6 +27,8 @@ interface TimelineRowProps {
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
     onDamageClick?: (time: number, e: React.MouseEvent) => void;
+    // 👇 追加：スマホ専用の中央ポップアップを開くための関数
+    onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
     partySortOrder: 'light_party' | 'role';
 }
 
@@ -40,13 +42,17 @@ export const TimelineRow = memo(({
     onAddEventClick,
     onEventClick,
     onCellClick,
-    onDamageClick
+    onDamageClick,
+    onMobileDamageClick, // 👈 追加
+    partySortOrder
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
+    // 👇 追加：スマホ版でアイコンを表示するために、現在のアクティブな軽減を取得
+    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
 
-    // Bilingual event name helper (same pattern as Job/Mitigation)
+    // Bilingual event name helper
     const getEventName = (ev: TimelineEvent) =>
         contentLanguage === 'en' && ev.nameEn ? ev.nameEn : ev.name;
 
@@ -54,6 +60,11 @@ export const TimelineRow = memo(({
     const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
         time < 0 ? `-${displayTimeStr}` :
             displayTimeStr;
+
+    // 👇 追加：この時間にアクティブな軽減をリストアップする関数（スマホ表示用）
+    const getActiveMitigationsForTime = (currentTime: number) => {
+        return timelineMitigations.filter(m => m.time <= currentTime && currentTime < m.time + m.duration);
+    };
 
     return (
         <div
@@ -87,7 +98,6 @@ export const TimelineRow = memo(({
                 "group-hover:bg-white/[0.02]"
             )}>
                 {events.length === 0 ? (
-                    // Case 0: Empty - Center Add Button across entire cell
                     <div
                         className={clsx(
                             "w-full h-full flex items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all opacity-0 group-hover:opacity-100"
@@ -97,22 +107,20 @@ export const TimelineRow = memo(({
                         <Plus size={16} className="text-slate-600 hover:text-slate-600 dark:text-slate-400 transition-colors" />
                     </div>
                 ) : events.length === 1 ? (
-                    // Case 1: Single Event - Center Vertically
                     <div className="w-full h-full relative group/slot">
                         <div
-                            className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
+                            // 👇 スマホ表示用に少し padding や flex-col を調整
+                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-0.5 md:gap-2"
                             onClick={(e) => onEventClick(events[0], e)}
                             title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                         >
                             {/* Left Side: Icon + Name */}
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                                {/* Damage Type Icon */}
+                            <div className="flex items-center gap-1.5 md:gap-2 min-w-0 flex-1">
                                 {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                 {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                 {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
-                                {/* Name */}
-                                <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                <span className="text-[11px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                 <button
                                     onClick={(e) => {
@@ -126,9 +134,19 @@ export const TimelineRow = memo(({
                                 </button>
                             </div>
 
-                            {/* Right Side: Target */}
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                                {/* Target (Job Icon for MT/ST) */}
+                            {/* 👇 スマホ専用：軽減アイコンのリスト（PCでは md:hidden で隠す） */}
+                            <div className="flex md:hidden items-center gap-0.5 flex-wrap pl-4">
+                                {getActiveMitigationsForTime(time).map(mit => {
+                                    const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                                    if (!def) return null;
+                                    return (
+                                        <img key={mit.id} src={def.icon} alt={def.name} className="w-3.5 h-3.5 object-cover rounded opacity-80" />
+                                    )
+                                })}
+                            </div>
+
+                            {/* Right Side: Target (PC & Mobile) */}
+                            <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                 {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                     <>
                                         <span className="text-[10px] text-slate-500 font-mono">on</span>
@@ -151,7 +169,6 @@ export const TimelineRow = memo(({
                             </div>
                         </div>
 
-                        {/* Hover Add Button (Overlay at Bottom) */}
                         <div
                             className={clsx(
                                 "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all opacity-0 group-hover/slot:opacity-100 z-10"
@@ -166,24 +183,18 @@ export const TimelineRow = memo(({
                         </div>
                     </div>
                 ) : (
-                    // Case > 1: Split Slots (Existing Logic)
                     <>
-                        {/* Slot 1 (Top) */}
                         <div className="flex-1 w-full border-b border-white/[0.02] relative group/slot">
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
                                 onClick={(e) => onEventClick(events[0], e)}
                                 title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                             >
-                                {/* Left Side: Icon + Name */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    {/* Damage Type Icon */}
                                     {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-
-                                    {/* Name */}
-                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                    <span className="text-[10px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                     <button
                                         onClick={(e) => {
@@ -197,8 +208,7 @@ export const TimelineRow = memo(({
                                     </button>
                                 </div>
 
-                                {/* Right Side: Target */}
-                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                     {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                         <>
                                             <span className="text-[10px] text-slate-500 font-mono">on</span>
@@ -206,10 +216,10 @@ export const TimelineRow = memo(({
                                                 const member = partyMembers.find(m => m.id === events[0].target);
                                                 const job = member ? JOBS.find(j => j.id === member.jobId) : null;
                                                 return job ? (
-                                                    <img src={job.icon} className="w-5 h-5 rounded-sm" alt={events[0].target} />
+                                                    <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[0].target} />
                                                 ) : (
                                                     <span className={clsx(
-                                                        "text-[10px] font-bold px-1 rounded",
+                                                        "text-[9px] font-bold px-1 rounded",
                                                         events[0].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
                                                     )}>
                                                         {events[0].target}
@@ -222,19 +232,17 @@ export const TimelineRow = memo(({
                             </div>
                         </div>
 
-                        {/* Slot 2 (Bottom) */}
                         <div className="flex-1 w-full relative group/slot">
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
                                 onClick={(e) => onEventClick(events[1], e)}
                                 title={`${getEventName(events[1])} (${events[1].damageAmount?.toLocaleString()})`}
                             >
-                                {/* Left Side: Icon + Name */}
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
+                                    <span className="text-[10px] md:text-xs font-medium text-slate-200 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
 
                                     <button
                                         onClick={(e) => {
@@ -248,8 +256,7 @@ export const TimelineRow = memo(({
                                     </button>
                                 </div>
 
-                                {/* Right Side: Target */}
-                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                     {(events[1].target === 'MT' || events[1].target === 'ST') && (
                                         <>
                                             <span className="text-[10px] text-slate-500 font-mono">on</span>
@@ -257,10 +264,10 @@ export const TimelineRow = memo(({
                                                 const member = partyMembers.find(m => m.id === events[1].target);
                                                 const job = member ? JOBS.find(j => j.id === member.jobId) : null;
                                                 return job ? (
-                                                    <img src={job.icon} className="w-5 h-5 rounded-sm" alt={events[1].target} />
+                                                    <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[1].target} />
                                                 ) : (
                                                     <span className={clsx(
-                                                        "text-[10px] font-bold px-1 rounded",
+                                                        "text-[9px] font-bold px-1 rounded",
                                                         events[1].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
                                                     )}>
                                                         {events[1].target}
@@ -278,16 +285,21 @@ export const TimelineRow = memo(({
 
             {/* U.Dmg Column (Vertical Stack) */}
             <div
-                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100 md:cursor-default cursor-pointer"
-                onClick={(e) => onDamageClick?.(time, e)}
+                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-300 transition-colors group-hover:text-slate-100 cursor-pointer md:cursor-default"
+                // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
+                onClick={(e) => {
+                    if (window.innerWidth < 768 && onMobileDamageClick) {
+                        onMobileDamageClick(time, e);
+                    } else if (onDamageClick) {
+                        onDamageClick(time, e);
+                    }
+                }}
             >
                 {events.length === 1 ? (
-                    // Case 1: Single Event - Center Vertically
                     <div className="w-full h-full flex items-center justify-center">
                         {damages[0] && damages[0].unmitigated > 0 ? damages[0].unmitigated.toLocaleString() : ''}
                     </div>
                 ) : (
-                    // Case Normal
                     <>
                         <div className="flex-1 w-full flex items-center justify-center border-b border-white/[0.02]">
                             {damages[0] && damages[0].unmitigated > 0 ? damages[0].unmitigated.toLocaleString() : ''}
@@ -301,19 +313,23 @@ export const TimelineRow = memo(({
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
             <div
-                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white md:cursor-default cursor-pointer"
-                onClick={(e) => onDamageClick?.(time, e)}
+                className="w-[45px] md:w-[100px] border-r border-white/[0.02] h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold text-slate-200 transition-colors group-hover:text-white cursor-pointer md:cursor-default"
+                // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
+                onClick={(e) => {
+                    if (window.innerWidth < 768 && onMobileDamageClick) {
+                        onMobileDamageClick(time, e);
+                    } else if (onDamageClick) {
+                        onDamageClick(time, e);
+                    }
+                }}
             >
                 {events.length === 1 ? (
-                    // Case 1: Single Event - Center Vertically
                     <div className={clsx("w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none", (() => {
                         const evt = events[0];
                         const dmg = damages[0];
                         if (!evt || !dmg) return "";
-
                         if (dmg.unmitigated <= 0) return "";
-                        // Determine Target HP
-                        let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1; // Default to Healer
+                        let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                         if (evt.target === 'MT' || evt.target === 'ST') {
                             maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
                         }
@@ -326,8 +342,6 @@ export const TimelineRow = memo(({
                                     (() => {
                                         const evt = events[0];
                                         const dmg = damages[0];
-
-                                        // Determine Target HP
                                         let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                                         if (evt.target === 'MT' || evt.target === 'ST') {
                                             maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
@@ -343,7 +357,7 @@ export const TimelineRow = memo(({
                                         Invuln
                                     </span>
                                 ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) && (
-                                    <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                    <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline">
                                         {[
                                             damages[0].mitigationPercent > 0 ? `▼ ${damages[0].mitigationPercent}%` : null,
                                             damages[0].shieldTotal > 0 ? `🛡️ ${damages[0].shieldTotal.toLocaleString()}` : null
@@ -354,14 +368,12 @@ export const TimelineRow = memo(({
                         ) : ''}
                     </div>
                 ) : (
-                    // Case Normal
                     <>
                         <div className={clsx("flex-1 w-full flex flex-col items-center justify-center border-b border-white/[0.02] gap-0.5 leading-none",
                             (() => {
                                 const evt = events[0];
                                 const dmg = damages[0];
                                 if (!evt || !dmg) return "";
-
                                 if (dmg.unmitigated <= 0) return "";
                                 let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                                 if (evt.target === 'MT' || evt.target === 'ST') {
@@ -377,7 +389,6 @@ export const TimelineRow = memo(({
                                         (() => {
                                             const evt = events[0];
                                             const dmg = damages[0];
-
                                             let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                                             if (evt.target === 'MT' || evt.target === 'ST') {
                                                 maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
@@ -393,7 +404,7 @@ export const TimelineRow = memo(({
                                             Invuln
                                         </span>
                                     ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) && (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline">
                                             {[
                                                 damages[0].mitigationPercent > 0 ? `▼ ${damages[0].mitigationPercent}%` : null,
                                                 damages[0].shieldTotal > 0 ? `🛡️ ${damages[0].shieldTotal.toLocaleString()}` : null
@@ -408,7 +419,6 @@ export const TimelineRow = memo(({
                                 const evt = events[1];
                                 const dmg = damages[1];
                                 if (!evt || !dmg) return "";
-
                                 if (dmg.unmitigated <= 0) return "";
                                 let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                                 if (evt.target === 'MT' || evt.target === 'ST') {
@@ -424,7 +434,6 @@ export const TimelineRow = memo(({
                                         (() => {
                                             const evt = events[1];
                                             const dmg = damages[1];
-
                                             let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
                                             if (evt.target === 'MT' || evt.target === 'ST') {
                                                 maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
@@ -440,7 +449,7 @@ export const TimelineRow = memo(({
                                             Invuln
                                         </span>
                                     ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) && (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline">
                                             {[
                                                 damages[1].mitigationPercent > 0 ? `▼ ${damages[1].mitigationPercent}%` : null,
                                                 damages[1].shieldTotal > 0 ? `🛡️ ${damages[1].shieldTotal.toLocaleString()}` : null

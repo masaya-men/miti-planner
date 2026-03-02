@@ -494,6 +494,13 @@ export const Timeline: React.FC = () => {
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
 
+    // 👇 スマホ専用：軽減追加フロー状態管理（PCには影響しません）
+    const [mobileMitiFlow, setMobileMitiFlow] = useState<{
+        isOpen: boolean;
+        time: number;
+        step: 'job' | 'skill';
+        selectedMemberId: string | null;
+    }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null });
 
     // Mitigation Selector State
     const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
@@ -579,16 +586,34 @@ export const Timeline: React.FC = () => {
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
 
     const handleAutoPlan = () => {
-        setConfirmDialog({
-            title: 'オートプラン実行',
-            message: '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置と重複する可能性があります。実行しますか？',
-            variant: 'warning',
-            onConfirm: () => {
-                const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
-                newMitigations.forEach(addMitigation);
-                setConfirmDialog(null);
-            },
-        });
+        // オートプランの生成と、先ほど作った「一括上書き＆履歴1回分」の必殺技を呼び出す共通処理
+        const executePlan = () => {
+            const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
+            useMitigationStore.getState().applyAutoPlan(newMitigations);
+        };
+
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            // スマホ用ルート（メニューが閉じるのをほんの少し待ってから、確実に手前に出る純正ダイアログを出す）
+            setTimeout(() => {
+                const isConfirmed = window.confirm(
+                    "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。"
+                );
+                if (isConfirmed) {
+                    executePlan();
+                }
+            }, 150);
+        } else {
+            // PC用ルート（お気に入りのデザインのまま！）
+            setConfirmDialog({
+                title: 'オートプラン実行',
+                message: '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？',
+                variant: 'warning',
+                onConfirm: () => {
+                    executePlan();
+                    setConfirmDialog(null);
+                },
+            });
+        }
     };
 
     const pixelsPerSecond = 50; // Configurable?
@@ -768,6 +793,12 @@ export const Timeline: React.FC = () => {
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
+    };
+
+    // 👇 スマホ専用：Raw/Takenタップで開く処理
+    const handleMobileDamageClick = (time: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
     };
 
     // Mobile: tap RAW/TAKEN column to open mitigation for myMemberId (or first healer)
@@ -1526,7 +1557,8 @@ export const Timeline: React.FC = () => {
                         </div> {/* ◀◀ 追加したラッパーを閉じる */}
                     </div> {/* ◀◀ 追加したラッパーを閉じる */}
 
-                    <div className="flex-1 overflow-auto relative" ref={scrollContainerRef} onScroll={handleScrollSync}>
+                    {/* 👇 修正：スマホ時は横スクロールを禁止(overflow-x-hidden)し、PC時のみ横スクロールを許可(md:overflow-x-auto)する */}
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative" ref={scrollContainerRef} onScroll={handleScrollSync}>
                         {/* ▼▼ md:w-max md:min-w-full を追加 ▼▼ */}
                         {/* Time Grid & Columns */}
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
@@ -1604,6 +1636,7 @@ export const Timeline: React.FC = () => {
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
                                             onDamageClick={handleDamageClick}
+                                            onMobileDamageClick={handleMobileDamageClick} // 👈 これを追加
                                             partySortOrder={partySortOrder}
                                         />
                                     );
@@ -1836,6 +1869,105 @@ export const Timeline: React.FC = () => {
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
                 position={phaseModalPosition}
             />
+
+            {/* 👇 スマホ専用：軽減追加フローの中央ポップアップ */}
+            {mobileMitiFlow.isOpen && (
+                <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
+                    <div className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="p-4 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <h3 className="font-bold text-white text-sm tracking-wider">
+                                {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
+                            </h3>
+                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            {mobileMitiFlow.step === 'job' && (
+                                <div className="grid grid-cols-4 gap-3">
+                                    {partyMembers.map(m => {
+                                        const job = JOBS.find(j => j.id === m.jobId);
+                                        if (!job) return null;
+                                        return (
+                                            <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10 active:bg-blue-500/30 transition-colors">
+                                                <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
+                                                <span className="text-[10px] font-bold text-slate-300">{m.id}</span>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                            {mobileMitiFlow.step === 'skill' && (
+                                <div className="grid grid-cols-4 gap-3">
+                                    {(() => {
+                                        const member = partyMembers.find(m => m.id === mobileMitiFlow.selectedMemberId);
+                                        const job = JOBS.find(j => j.id === member?.jobId);
+                                        if (!member || !job) return null;
+
+                                        const availableMitis = MITIGATIONS.filter(m => {
+                                            if (m.jobId === job.id) return true;
+                                            if (!m.jobId && m.role === job.role) return true;
+                                            return false;
+                                        });
+
+                                        return availableMitis.map(mit => {
+                                            // 👇 修正：PC版と全く同じ「配置可能かどうかのルールチェック」を実行
+                                            const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
+                                            const status = validateMitigationPlacement(
+                                                mit,
+                                                mobileMitiFlow.time,
+                                                memberMitis,
+                                                schAetherflowPatterns[member.id] ?? 1,
+                                                t
+                                            );
+
+                                            return (
+                                                <button
+                                                    key={mit.id}
+                                                    onClick={() => {
+                                                        // 配置不可の場合は理由をアラートで出して中断
+                                                        if (!status.available) {
+                                                            alert(status.message || 'このタイミングには配置できません（リキャスト等）');
+                                                            return;
+                                                        }
+
+                                                        // チェックを通った場合のみ追加
+                                                        addMitigation({
+                                                            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                                            mitigationId: mit.id,
+                                                            time: mobileMitiFlow.time,
+                                                            duration: mit.duration,
+                                                            ownerId: member.id,
+                                                        });
+                                                        setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
+                                                    }}
+                                                    // 配置不可のスキルはアイコンを暗くして押せない感を出す
+                                                    className={clsx(
+                                                        "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-colors",
+                                                        status.available
+                                                            ? "bg-white/5 border-white/10 active:bg-blue-500/30"
+                                                            : "bg-black/40 border-transparent opacity-40"
+                                                    )}
+                                                >
+                                                    <img src={mit.icon} className="w-8 h-8 object-contain rounded drop-shadow-md" />
+                                                    <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{mit.name}</span>
+                                                </button>
+                                            );
+                                        });
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+                        {mobileMitiFlow.step === 'skill' && (
+                            <div className="p-3 border-t border-white/5 bg-black/40">
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-400 hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors">
+                                    ← メンバー選択に戻る
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <MitigationSelector
                 isOpen={mitigationSelectorOpen}
