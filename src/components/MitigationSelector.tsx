@@ -143,10 +143,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 ref={panelRef}
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto shadow-2xl p-2 overflow-hidden flex flex-col transition-transform duration-300 backdrop-blur-xl border",
-                    theme === 'dark'
-                        ? "bg-slate-900 ring-1 ring-white/5 border-white/10"
-                        : "bg-white ring-1 ring-slate-200 border-slate-300",
+                    "pointer-events-auto shadow-2xl p-2 overflow-hidden flex flex-col transition-transform duration-300 glass-panel",
                     isMobile && !isCentered
                         ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
                         : "rounded-xl w-64",
@@ -194,7 +191,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 src={mitigation.icon}
-                                                alt={mitigation.name}
+                                                alt={contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
                                                 className={clsx(
                                                     "w-8 h-8 object-contain rounded border",
                                                     !status.available
@@ -222,8 +219,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                     ? 'text-amber-600 dark:text-amber-300'
                                                     : 'text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white'
                                                 }`}>
-                                                {contentLanguage === 'en' && mitigation.nameEn ? mitigation.nameEn : mitigation.name}
-                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">Remove</span>}
+                                                {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">{t('mitigation.remove')}</span>}
                                                 {SINGLE_TARGET_BUFFS.includes(mitigation.id) && !isAlreadyPlaced && (
                                                     <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-slate-600 dark:text-white/70">▶</span>
                                                 )}
@@ -232,13 +229,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 <div className="text-[10px] text-red-600 dark:text-red-400/80 font-medium">
                                                     {status.message}
                                                 </div>
-                                            ) : status.warning ? (
+                                            ) : status.warning && (
                                                 <div className="text-[10px] text-amber-700 dark:text-amber-400/80 font-medium">
                                                     ⚠ {status.message}
-                                                </div>
-                                            ) : (
-                                                <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                                                    {mitigation.duration}s / {mitigation.cooldown}s ({t('mitigation.cd')})
                                                 </div>
                                             )}
                                         </div>
@@ -263,7 +256,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     )}
                                 >
                                     {job ? (
-                                        <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
+                                        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
                                     ) : (
                                         <div className="w-8 h-8 rounded bg-slate-900/10 dark:bg-white/10 border border-white/20" />
                                     )}

@@ -1,15 +1,6 @@
-// Level 100 Constants (Dawntrail)
 import type { PartyMember } from '../types';
+import { LEVEL_MODIFIERS, type LevelModifier } from '../data/levelModifiers';
 
-const LEVEL_MOD_MAIN = 440;
-const LEVEL_MOD_SUB = 420;
-const LEVEL_MOD_DIV = 2780;
-// const LEVEL_MOD_HP = 3000; // Approximate, varies by job/role
-
-// Job Modifiers (Approximate for Healer/Tank)
-// TODO: These should ideally come from a job data lookup
-// const JOB_MOD_MND = 115;
-// const JOB_MOD_STR = 115; // Tank
 const TRAIT_MOD = 1.3; // Maim and Mend II etc.
 
 interface StatInput {
@@ -32,65 +23,32 @@ const floor = Math.floor;
 /**
  * Calculates f(WD) - Weapon Damage Multiplier
  */
-const getWdMultiplier = (wd: number, jobMod: number = 115): number => {
-    // Formula: floor( (LevelModMain * JobMod / 1000) + WD ) / 100
-    // Actually, widespread formula is: floor( (MAIN * JobMod / 1000) + WD ) / 100 ... Wait.
-    // Etro: f(WD) = floor( (LevelModMain * JobMod / 1000) + WD )
-    // Then multiplier = f(WD) / 100 ? No.
-
-    // Using standard logic:
-    // f(WD) = floor( (LEVEL_MOD_MAIN * jobMod / 1000) + wd )
-    // multiplier = f(WD) / 100
-    const base = floor((LEVEL_MOD_MAIN * jobMod) / 1000) + wd;
+const getWdMultiplier = (wd: number, modifiers: LevelModifier, jobMod: number = 115): number => {
+    const base = floor((modifiers.main * jobMod) / 1000) + wd;
     return base / 100;
 };
 
 /**
  * Calculates f(STR) or f(MND) - Main Stat Multiplier
  */
-const getMainStatMultiplier = (mainStat: number): number => {
-    // Formula: floor( 100 * ( Val - LevelModMain ) / 268 ??? No. )
-
-    // Standard Lv90+: floor( 100 * ( Stat - LevelModMain ) / ( LevelModMain * 13 ??? ) ) ?
-    // Let's use the spreadsheet's hint: "100 * (HMP - Level Lv, MAIN) / 268" -- 268 might be specific coeff?
-
-    // Accepted Formula (Etro): ( 100 + floor( (Stat - LevelModMain) * 195 / LevelModDiv ) ) / 100
-    // * 195 is the AP_DIV coefficient?
-
-    // Let's try to trust the spreadsheet preview logic if visible, but it was cut off or simple.
-    // "⌊ 100 × ( HMP – Level Lv, MAIN ) / 268 ⌋ + 100"
-    // HMP = MAIN STAT (MND/STR)
-    // 268 seems to be a pre-calculated divisor? 
-    // Standard: (Stat - 440) / 440 ? No.
-
-    // Validated Formula for Attack Power / Healing Magic Potency:
-    // f(AP) = floor( 100 * (stat - levelModMain) / levelModMain ) + 100 ??? NO.
-
-    // Switching to the User-Provided Spec Formula which yields ~23.0 multiplier (vs 5.14)
-    // Formula: floor( 100 * (STAT - Lv_MAIN) / 268 ) + 100
-    const val = floor(100 * (mainStat - LEVEL_MOD_MAIN) / 268);
+const getMainStatMultiplier = (mainStat: number, modifiers: LevelModifier): number => {
+    const val = floor(100 * (mainStat - modifiers.main) / 268);
     return (100 + val) / 100;
 };
 
 /**
  * Calculates f(DET) - Determination Multiplier
  */
-const getDetMultiplier = (det: number): number => {
-    // Formula: ( 1000 + floor( 140 * (det - LevelModMain) / LevelModDiv ) ) / 1000
-    // Coeff for DET is 140.
-
-    const val = floor(140 * (det - LEVEL_MOD_MAIN) / LEVEL_MOD_DIV);
+const getDetMultiplier = (det: number, modifiers: LevelModifier): number => {
+    const val = floor(140 * (det - modifiers.main) / modifiers.div);
     return (1000 + val) / 1000;
 };
 
 /**
  * Calculates f(TNC) - Tenacity Multiplier
  */
-const getTenMultiplier = (ten: number): number => {
-    // Formula: ( 1000 + floor( 100 * (ten - LevelModSub) / LevelModDiv ) ) / 1000
-    // Coeff for TNC is 100.
-
-    const val = floor(100 * (ten - LEVEL_MOD_SUB) / LEVEL_MOD_DIV);
+const getTenMultiplier = (ten: number, modifiers: LevelModifier): number => {
+    const val = floor(100 * (ten - modifiers.sub) / modifiers.div);
     return (1000 + val) / 1000;
 };
 
@@ -109,14 +67,14 @@ const getTenMultiplier = (ten: number): number => {
  * Calculate Base Heal / Shield Value
  * potency: Skill potency (e.g. 300)
  */
-export const calculatePotencyValue = (input: StatInput, potency: number, roleOrIsTank: string | boolean = false): number => {
+export const calculatePotencyValue = (input: StatInput, potency: number, roleOrIsTank: string | boolean = false, modifiers: LevelModifier): number => {
     // const fPot = potency / 100;
     const isTank = typeof roleOrIsTank === 'string' ? roleOrIsTank === 'tank' : roleOrIsTank;
 
-    const fWd = getWdMultiplier(input.wd);
-    const fMain = getMainStatMultiplier(input.mainStat);
-    const fDet = getDetMultiplier(input.det);
-    const fTnc = isTank ? getTenMultiplier(input.ten) : 1;
+    const fWd = getWdMultiplier(input.wd, modifiers);
+    const fMain = getMainStatMultiplier(input.mainStat, modifiers);
+    const fDet = getDetMultiplier(input.det, modifiers);
+    const fTnc = isTank ? getTenMultiplier(input.ten, modifiers) : 1;
     const fTrait = TRAIT_MOD; // 1.3 for healers usually
 
     // Formula sequence:
@@ -217,22 +175,21 @@ export const SKILL_DATA = {
     // CSV Names seem to match keys used here.
 };
 
-// Test constants export
+// Test constants export (will be removed in phase 3)
 export const CONSTANTS = {
-    LEVEL_MOD_MAIN,
-    LEVEL_MOD_DIV
+    // Leaving placeholder for any test passing for now
 };
 
-// Extracted for store usage
-export const calculateMemberValues = (member: PartyMember): Record<string, number> => {
+export const calculateMemberValues = (member: PartyMember, currentLevel: number = 100): Record<string, number> => {
     const results: Record<string, number> = {};
+    const modifiers = LEVEL_MODIFIERS[currentLevel] || LEVEL_MODIFIERS[100];
 
     Object.entries(SKILL_DATA).forEach(([name, data]: [string, any]) => {
         if (data.type === 'hp') {
             if (data.percent) results[name] = calculateHpValue(member.stats.hp, data.percent);
         } else if (data.type === 'potency') {
             if (data.potency) {
-                let val = calculatePotencyValue(member.stats, data.potency, member.role);
+                let val = calculatePotencyValue(member.stats, data.potency, member.role, modifiers);
                 if (data.multiplier) val = Math.floor(val * data.multiplier);
                 results[name] = val;
             }

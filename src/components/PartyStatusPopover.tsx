@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
+import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -15,7 +16,7 @@ interface PartyStatusPopoverProps {
 }
 
 export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, onClose }) => {
-    const { partyMembers, updateMemberStats } = useMitigationStore();
+    const { partyMembers, updateMemberStats, currentLevel } = useMitigationStore();
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const popoverRef = useRef<HTMLDivElement>(null);
@@ -114,7 +115,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-glass-border shadow-glass flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
+                    "glass-panel flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
                     // PC: left slide-over
                     "md:absolute md:top-0 md:left-0 md:h-full md:w-[340px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
@@ -152,6 +153,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 </div>
 
                 <div className="p-4 flex-1 space-y-4">
+
+
                     {/* Role Settings Group */}
                     <div className="space-y-3">
                         {/* Tank Settings */}
@@ -227,11 +230,11 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <h5 className="text-[9px] font-bold text-blue-400 opacity-80 mb-1">TANK</h5>
                                     <div className="grid grid-cols-4 gap-1.5">
                                         {[
-                                            "ディヴァインヴェール",
-                                            "シェイクオフ",
-                                            "原初の血気",
-                                            "ブラックナイト",
-                                        ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                            { ja: "ディヴァインヴェール", en: "Divine Veil" },
+                                            { ja: "シェイクオフ", en: "Shake It Off" },
+                                            { ja: "原初の血気", en: "Bloodwhetting" },
+                                            { ja: "ブラックナイト", en: "The Blackest Night" },
+                                        ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
                                     </div>
                                 </div>
                                 {/* DPS Group */}
@@ -239,9 +242,9 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <h5 className="text-[9px] font-bold text-red-400 opacity-80 mb-1">DPS</h5>
                                     <div className="grid grid-cols-2 gap-1.5">
                                         {[
-                                            "インプロビゼーション",
-                                            "テンペラグラッサ",
-                                        ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                            { ja: "インプロビゼーション", en: "Improvisation" },
+                                            { ja: "テンペラグラッサ", en: "Tempera Grassa" },
+                                        ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
                                     </div>
                                 </div>
                             </div>
@@ -251,20 +254,20 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                 <h5 className="text-[9px] font-bold text-green-400 opacity-80 mb-1">HEALER</h5>
                                 <div className="grid grid-cols-6 gap-1.5 mb-1.5">
                                     {[
-                                        "ディヴァインカレス",
-                                        "秘策：展開戦術",
-                                        "コンソレイション",
-                                        "アクセッション",
-                                        "ホーリズム",
-                                        "パンハイマ",
-                                    ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                        { ja: "ディヴァインカレス", en: "Divine Caress" },
+                                        { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" },
+                                        { ja: "コンソレイション", en: "Consolation" },
+                                        { ja: "アクセッション", en: "Accession" },
+                                        { ja: "ホーリズム", en: "Holos" },
+                                        { ja: "パンハイマ", en: "Panhaima" },
+                                    ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
                                 </div>
                                 <div className="grid grid-cols-6 gap-1.5">
                                     {[
-                                        "鼓舞激励の策",
-                                        "意気軒昂の策",
-                                        "エウクラシア・プログノシスII",
-                                    ].map(skillName => renderSkillItem(skillName, tankRep, healerRep, contentLanguage))}
+                                        { ja: "鼓舞激励の策", en: "Adloquium" },
+                                        { ja: "意気軒高の策", en: "Concitation" },
+                                        { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II" },
+                                    ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
                                 </div>
                             </div>
                         </div>
@@ -276,7 +279,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     );
 };
 
-const renderSkillItem = (skillName: string, tankRep: any, healerRep: any, contentLanguage: 'ja' | 'en' = 'ja') => {
+const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, healerRep: any, contentLanguage: 'ja' | 'en' = 'ja', currentLevel: number = 100) => {
+    const skillName = skillNames.ja; // SKILL_DATA keys are currently Japanese
     const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA];
     if (!skill) return null;
 
@@ -289,7 +293,7 @@ const renderSkillItem = (skillName: string, tankRep: any, healerRep: any, conten
     if (skill.type === 'hp' && 'percent' in skill) {
         value = calculateHpValue(stats.hp, skill.percent || 0);
     } else if (skill.type === 'potency' && 'potency' in skill) {
-        let base = calculatePotencyValue(stats, skill.potency || 0, isTankSkill ? 'tank' : 'healer');
+        let base = calculatePotencyValue(stats, skill.potency || 0, isTankSkill ? 'tank' : 'healer', LEVEL_MODIFIERS[currentLevel]);
         const multiplier = 'multiplier' in skill ? skill.multiplier : undefined;
         if (multiplier) base = Math.floor(base * multiplier);
         if ((skill as any).isCrit) base = calculateCriticalValue(base);
@@ -297,7 +301,7 @@ const renderSkillItem = (skillName: string, tankRep: any, healerRep: any, conten
     }
 
     const iconUrl = (skill as any).icon ? `/icons/${(skill as any).icon}` : null;
-    const displayName = contentLanguage === 'en' && (skill as any).nameEn ? (skill as any).nameEn : skillName;
+    const displayName = contentLanguage === 'en' ? skillNames.en : skillNames.ja;
 
     return (
         <div

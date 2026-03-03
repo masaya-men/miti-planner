@@ -62,7 +62,7 @@ function dedupe(events: FFLogsRawEvent[]): FFLogsRawEvent[] {
     return [...m.values(), ...events.filter(e => e.packetID === undefined)];
 }
 
-function isAA(ev: TimelineEvent): boolean { return ev.name === 'AA' || ev.nameEn === 'AA'; }
+function isAA(ev: TimelineEvent): boolean { return ev.name.ja === 'AA' || ev.name.en === 'AA'; }
 function isTankTgt(ev: TimelineEvent): boolean { return ev.target === 'MT' || ev.target === 'ST'; }
 
 interface Norm {
@@ -356,14 +356,14 @@ export function mapFFLogsToTimeline(
             const td = dmgT.get(g) ?? 0;
             for (const tid of new Set(tHits.map(n => n.tgtID))) {
                 tl.push({
-                    id: genId(), time: f.timeSec, name: `${f.jpName} (TB)`,
-                    nameEn: `${f.enName} (TB)`, damageType: mapDamageType(f.aType),
+                    id: genId(), time: f.timeSec, name: { ja: `${f.jpName} (TB)`, en: `${f.enName} (TB)` },
+                    damageType: mapDamageType(f.aType),
                     damageAmount: td > 0 ? td : undefined, target: tid === stId ? 'ST' : 'MT'
                 });
             }
             const pd = dmgP.get(g) ?? 0;
             tl.push({
-                id: genId(), time: f.timeSec + 1, name: f.jpName, nameEn: f.enName,
+                id: genId(), time: f.timeSec + 1, name: { ja: f.jpName, en: f.enName },
                 damageType: mapDamageType(f.aType), damageAmount: pd > 0 ? pd : undefined, target: 'AoE'
             });
 
@@ -372,8 +372,8 @@ export function mapFFLogsToTimeline(
             const td = dmgT.get(g) ?? 0;
             for (const tid of new Set(tHits.map(n => n.tgtID))) {
                 tl.push({
-                    id: genId(), time: f.timeSec, name: `${f.jpName} (TB)`,
-                    nameEn: `${f.enName} (TB)`, damageType: mapDamageType(f.aType),
+                    id: genId(), time: f.timeSec, name: { ja: `${f.jpName} (TB)`, en: `${f.enName} (TB)` },
+                    damageType: mapDamageType(f.aType),
                     damageAmount: td > 0 ? td : undefined, target: tid === stId ? 'ST' : 'MT'
                 });
             }
@@ -382,7 +382,7 @@ export function mapFFLogsToTimeline(
             // Party-only for TB ability
             const pd = dmgP.get(g) ?? 0;
             tl.push({
-                id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
+                id: genId(), time: f.timeSec, name: { ja: f.jpName, en: f.enName },
                 damageType: mapDamageType(f.aType), damageAmount: pd > 0 ? pd : undefined,
                 target: uTgts.size >= 3 ? 'AoE' : 'MT'
             });
@@ -391,7 +391,7 @@ export function mapFFLogsToTimeline(
             // AoE (3+ unique targets = ALWAYS AoE, regardless of who was hit)
             const d = dmgP.get(g) ?? 0;
             tl.push({
-                id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
+                id: genId(), time: f.timeSec, name: { ja: f.jpName, en: f.enName },
                 damageType: mapDamageType(f.aType), damageAmount: d > 0 ? d : undefined, target: 'AoE'
             });
 
@@ -400,7 +400,7 @@ export function mapFFLogsToTimeline(
             const d = dmgP.get(g) ?? 0;
             for (const tid of uTgts) {
                 tl.push({
-                    id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
+                    id: genId(), time: f.timeSec, name: { ja: f.jpName, en: f.enName },
                     damageType: mapDamageType(f.aType), damageAmount: d > 0 ? d : undefined,
                     target: tid === stId ? 'ST' : 'MT'
                 });
@@ -409,7 +409,7 @@ export function mapFFLogsToTimeline(
         } else if (uTgts.size === 2) {
             const d = dmgP.get(g) ?? 0;
             tl.push({
-                id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
+                id: genId(), time: f.timeSec, name: { ja: f.jpName, en: f.enName },
                 damageType: mapDamageType(f.aType), damageAmount: d > 0 ? d : undefined, target: 'AoE'
             });
 
@@ -420,7 +420,7 @@ export function mapFFLogsToTimeline(
             // If target is not a tank, treat as AoE (party-wide attack that hit 1 target)
             const target = tid === stId ? 'ST' : (tid === mtId ? 'MT' : 'AoE');
             tl.push({
-                id: genId(), time: f.timeSec, name: f.jpName, nameEn: f.enName,
+                id: genId(), time: f.timeSec, name: { ja: f.jpName, en: f.enName },
                 damageType: mapDamageType(f.aType), damageAmount: d > 0 ? d : undefined,
                 target
             });
@@ -440,7 +440,7 @@ export function mapFFLogsToTimeline(
         const [s, t] = k.split(':');
         const sec = parseInt(s, 10), tid = parseInt(t, 10);
         tl.push({
-            id: genId(), time: sec, name: gr[0].jpName, nameEn: gr[0].enName,
+            id: genId(), time: sec, name: { ja: gr[0].jpName, en: gr[0].enName },
             damageType: mapDamageType(gr[0].aType), damageAmount: aaBD > 0 ? aaBD : undefined,
             target: tid === stId ? 'ST' : 'MT'
         });

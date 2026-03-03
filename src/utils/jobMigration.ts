@@ -55,7 +55,7 @@ export function migrateMitigations(
                 if (targetNewSkill && !isDuplicate(targetNewSkill.id, mit.time, mit.targetId)) {
                     // Check recast for this skill
                     const lastUse = migrated.filter(m => m.mitigationId === targetNewSkill.id).pop();
-                    if (!lastUse || mit.time >= lastUse.time + targetNewSkill.cooldown) {
+                    if (!lastUse || mit.time >= lastUse.time + targetNewSkill.recast) {
                         migrated.push({
                             ...mit,
                             id: genId(),
@@ -85,7 +85,7 @@ export function migrateMitigations(
                     if (!isSelfOnly && !isDuplicate(skill.id, mit.time, mit.targetId)) {
                         // Recast check
                         const last = migrated.filter(m => m.mitigationId === skill.id).pop();
-                        if (!last || mit.time >= last.time + skill.cooldown) {
+                        if (!last || mit.time >= last.time + skill.recast) {
                             migrated.push({ ...mit, id: genId(), mitigationId: skill.id, duration: skill.duration });
                         }
                     }
@@ -96,7 +96,7 @@ export function migrateMitigations(
                     if (!isDuplicate(sub.id, mit.time, mit.targetId)) {
                         // Recast check (charges are complex, but basic CD check helps)
                         const last = migrated.filter(m => m.mitigationId === sub.id).pop();
-                        if (!last || mit.time >= last.time + sub.cooldown) {
+                        if (!last || mit.time >= last.time + sub.recast) {
                             migrated.push({ ...mit, id: genId(), mitigationId: sub.id, duration: sub.duration });
                         }
                     }
@@ -112,7 +112,7 @@ export function migrateMitigations(
                 if (mainBarriers.length > 0 && !isDuplicate(mainBarriers[0].id, mit.time, mit.targetId)) {
                     const skill = mainBarriers[0];
                     const last = migrated.filter(m => m.mitigationId === skill.id).pop();
-                    if (!last || mit.time >= last.time + skill.cooldown) {
+                    if (!last || mit.time >= last.time + skill.recast) {
                         migrated.push({ ...mit, id: genId(), mitigationId: skill.id, duration: skill.duration });
                     }
                 }
@@ -121,7 +121,7 @@ export function migrateMitigations(
                 const illum = subShields.find(s => s.id === 'fey_illumination');
                 if (illum && !isDuplicate(illum.id, mit.time, mit.targetId)) {
                     const last = migrated.filter(m => m.mitigationId === illum.id).pop();
-                    if (!last || mit.time >= last.time + illum.cooldown) {
+                    if (!last || mit.time >= last.time + illum.recast) {
                         migrated.push({ ...mit, id: genId(), mitigationId: illum.id, duration: illum.duration });
                     }
                 }
@@ -138,7 +138,7 @@ export function migrateMitigations(
                 const skill = replacementSkills[0];
                 if (!isDuplicate(skill.id, mit.time, mit.targetId)) {
                     const last = migrated.filter(m => m.mitigationId === skill.id).pop();
-                    if (!last || mit.time >= last.time + (skill.cooldown || 0)) {
+                    if (!last || mit.time >= last.time + (skill.recast || 0)) {
                         migrated.push({
                             ...mit,
                             id: genId(),

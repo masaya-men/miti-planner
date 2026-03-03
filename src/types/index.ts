@@ -1,7 +1,11 @@
+export type LocalizedString = {
+    ja: string;
+    en: string;
+};
+
 export interface Job {
     id: string;
-    name: string;
-    nameEn?: string;
+    name: LocalizedString;
     role: 'tank' | 'healer' | 'dps';
     icon: string;
 }
@@ -9,17 +13,16 @@ export interface Job {
 export interface Mitigation {
     id: string;
     jobId: string;
-    name: string;
-    nameEn?: string;
+    name: LocalizedString;
     icon: string;
-    cooldown: number; // in seconds
+    recast: number; // in seconds
     duration: number; // in seconds
-    recast?: number; // Optional override or default logic
     type: 'magical' | 'physical' | 'all';
     value: number; // percentage (e.g., 10 for 10%)
     valuePhysical?: number; // Optional override for Physical specific value
     valueMagical?: number; // Optional override for Magical specific value
     isShield?: boolean;
+    valueType?: 'hp' | 'potency'; // Missing valueType field
     note?: string; // Optional description/details
     scope?: 'self' | 'party'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
@@ -42,8 +45,7 @@ export interface AppliedMitigation {
 export interface TimelineEvent {
     id: string;
     time: number; // seconds from start
-    name: string;
-    nameEn?: string;
+    name: LocalizedString;
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';

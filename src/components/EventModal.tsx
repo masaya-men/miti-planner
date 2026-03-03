@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
 import { MITIGATIONS, JOBS } from '../data/mockData';
-import { SKILL_DATA, calculateHpValue, calculatePotencyValue } from '../utils/calculator';
+import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
+import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 
@@ -21,9 +22,9 @@ interface EventModalProps {
 }
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, initialData, initialTime, position }) => {
-    const { theme } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const { t } = useTranslation();
-    const [name, setName] = useState('');
+    const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [time, setTime] = useState(0);
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
     const [damageAmount, setDamageAmount] = useState<number>(0);
@@ -58,7 +59,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 setCalcActualDamage(0);
                 setSelectedMitigations([]);
             } else {
-                setName('');
+                setName({ ja: '', en: '' });
                 setTime(initialTime || 0);
                 setDamageType('magical');
                 setDamageAmount(0);
@@ -76,7 +77,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
     const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
 
-    const { partyMembers } = useMitigationStore();
+    const { partyMembers, currentLevel } = useMitigationStore();
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
@@ -100,7 +101,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
         // 1. Tank
         if (role === 'tank') {
-            const isAoE = TANK_AOE_IDS.includes(mit.id) || mit.name.includes('リプライザル');
+            const isAoE = TANK_AOE_IDS.includes(mit.id) || mit.name.ja.includes('リプライザル');
             // Tank AoE (0) -> Tank Single (1)
             return isAoE ? 0 : 1;
         }
@@ -119,7 +120,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     ];
 
     const sortedMitigations = MITIGATIONS
-        .filter((mit, index, self) => index === self.findIndex((m) => m.name === mit.name))
+        .filter((mit, index, self) => index === self.findIndex((m) => m.id === mit.id))
         .filter(mit => !EXCLUDED_IDS.includes(mit.id))
         .sort((a, b) => {
             const prioA = getSortPriority(a);
@@ -127,8 +128,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
             if (prioA !== prioB) return prioA - prioB;
 
-            // If same priority, sort by cooldown (asc)
-            return a.cooldown - b.cooldown;
+            // If same priority, sort by display order if possible, else name.ja
+            return (a.name.ja || "").localeCompare(b.name.ja || "");
         });
 
     // Calculate Raw Damage
@@ -157,38 +158,37 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
             // Shield Calculation
             if (def.isShield) {
-                const skillName = def.name;
-                const skillData = SKILL_DATA[skillName as keyof typeof SKILL_DATA];
+                const member = partyMembers.find(m => m.jobId === def.jobId);
+                let shieldVal = 0;
 
-                if (skillData) {
-                    // Find a newly compatible member or default
+                if (member && member.computedValues) {
+                    shieldVal = member.computedValues[contentLanguage === 'en' ? def.name.en : def.name.ja] || 0;
+                } else {
+                    // Fallback to average calculation if member not found in computedValues
                     let stats = DEFAULT_HEALER_STATS;
                     let role = 'healer';
 
                     if (def.jobId) {
-                        const member = partyMembers.find(m => m.jobId === def.jobId);
-                        if (member) {
-                            stats = member.stats;
-                            role = member.role;
+                        const m2 = partyMembers.find(m => m.jobId === def.jobId);
+                        if (m2) {
+                            stats = m2.stats;
+                            role = m2.role;
                         } else {
-                            // Fallback based on job role
                             const job = JOBS.find(j => j.id === def.jobId);
                             if (job?.role === 'tank') stats = DEFAULT_TANK_STATS;
                         }
                     }
 
-                    let shieldVal = 0;
-                    const data = skillData as any;
-                    if (data.type === 'hp') {
-                        shieldVal = calculateHpValue(stats.hp, data.percent || 0);
-                    } else if (data.type === 'potency') {
-                        let val = calculatePotencyValue({ ...stats, wd: stats.wd }, data.potency || 0, role);
-                        if (data.multiplier) val = Math.floor(val * data.multiplier);
+                    if (def.valueType === 'hp') {
+                        shieldVal = calculateHpValue(stats.hp, def.value || 0);
+                    } else if (def.valueType === 'potency') {
+                        let val = calculatePotencyValue({ ...stats, wd: stats.wd }, def.value || 0, role, LEVEL_MODIFIERS[currentLevel]);
+                        if (def.healingIncrease) val = Math.floor(val * def.healingIncrease);
                         shieldVal = val;
                     }
-
-                    shieldTotal += shieldVal;
                 }
+
+                shieldTotal += shieldVal;
             }
         });
 
@@ -211,42 +211,43 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const getShieldAmount = (def: typeof MITIGATIONS[0]) => {
         if (!def.isShield) return 0;
 
-        const skillName = def.name;
-        const skillData = SKILL_DATA[skillName as keyof typeof SKILL_DATA];
+        const member = partyMembers.find(m => m.jobId === def.jobId);
+        if (member && member.computedValues) {
+            return member.computedValues[contentLanguage === 'en' ? def.name.en : def.name.ja] || 0;
+        }
 
-        if (skillData) {
-            let stats = DEFAULT_HEALER_STATS;
-            let role = 'healer';
+        let stats = DEFAULT_HEALER_STATS;
+        let role = 'healer';
 
-            if (def.jobId) {
-                const member = partyMembers.find(m => m.jobId === def.jobId);
-                if (member) {
-                    stats = member.stats;
-                    role = member.role;
-                } else {
-                    const job = JOBS.find(j => j.id === def.jobId);
-                    if (job?.role === 'tank') stats = DEFAULT_TANK_STATS;
-                }
-            }
-
-            const data = skillData as any;
-            if (data.type === 'hp') {
-                return calculateHpValue(stats.hp, data.percent || 0);
-            } else if (data.type === 'potency') {
-                let val = calculatePotencyValue({ ...stats, wd: stats.wd }, data.potency || 0, role);
-                if (data.multiplier) val = Math.floor(val * data.multiplier);
-                return val;
+        if (def.jobId) {
+            const m2 = partyMembers.find(m => m.jobId === def.jobId);
+            if (m2) {
+                stats = m2.stats;
+                role = m2.role;
+            } else {
+                const job = JOBS.find(j => j.id === def.jobId);
+                if (job?.role === 'tank') stats = DEFAULT_TANK_STATS;
             }
         }
+
+        if (def.valueType === 'hp') {
+            return calculateHpValue(stats.hp, def.value || 0);
+        } else if (def.valueType === 'potency') {
+            let val = calculatePotencyValue({ ...stats, wd: stats.wd }, def.value || 0, role, LEVEL_MODIFIERS[currentLevel]);
+            if (def.healingIncrease) val = Math.floor(val * def.healingIncrease);
+            return val;
+        }
+
         return 0;
     };
 
     const getTooltipText = (mit: typeof MITIGATIONS[0]) => {
+        const localizedName = contentLanguage === 'en' ? mit.name.en : mit.name.ja;
         if (mit.isShield) {
             const val = getShieldAmount(mit);
-            return `${mit.name} (Barrier: ${val})`;
+            return `${localizedName} (Barrier: ${val})`;
         }
-        return `${mit.name} (Mitigation: ${mit.value}%)`;
+        return `${localizedName} (Mitigation: ${mit.value}%)`;
     };
 
     if (!isOpen) return null;
@@ -264,7 +265,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     };
 
     const handleBackdropClick = () => {
-        if (name.trim()) {
+        if (name.ja.trim() || name.en.trim()) {
             onSave({ name, time, damageType, damageAmount, target });
         }
         onClose();
@@ -283,10 +284,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             <div
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
-                    "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-2xl ring-1 ring-inset",
-                    theme === 'dark'
-                        ? "bg-[#0b0c0d] border border-white/[0.08] ring-white/5"
-                        : "bg-white border border-slate-200 ring-black/[0.02]",
+                    "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-2xl ring-1 ring-inset pointer-events-auto glass-panel",
+                    theme === 'dark' ? "ring-white/5" : "ring-black/[0.02]",
                     isMobile ? "w-full rounded-t-2xl rounded-b-none border-b-0" : "w-[500px] rounded-xl"
                 )}
                 style={style}
@@ -296,7 +295,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                 <div className={clsx(
                     "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
-                    theme === 'dark' ? "border-white/[0.05] bg-black/40" : "border-slate-100 bg-slate-50/50"
+                    theme === 'dark' ? "border-white/[0.05] bg-white/[0.03]" : "border-slate-100 bg-white/40"
                 )}>
                     <h2 className={clsx(
                         "text-sm font-bold transition-colors",
@@ -370,8 +369,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             <input
                                 type="text"
                                 lang={t('app.language') === 'English' ? 'en' : 'ja'}
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                value={contentLanguage === 'en' ? name.en : name.ja}
+                                onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
                                     theme === 'dark'
@@ -526,7 +525,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                             : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100"
                                                 )}
                                             >
-                                                <img src={mit.icon} alt={mit.name} className="w-7 h-7 object-contain drop-shadow" />
+                                                <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
                                             </button>
                                         ))}
                                     </div>
