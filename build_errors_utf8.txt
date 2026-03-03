@@ -1,0 +1,35 @@
+﻿src/components/EventModal.tsx(9,10): error TS6133: 'SKILL_DATA' is declared but its value is never read.
+src/components/Sidebar.tsx(5,1): error TS6133: 'Ripple' is declared but its value is never read.
+src/components/TimelineRow.tsx(47,5): error TS6133: 'partySortOrder' is declared but its value is never read.
+src/data/mockData.ts(74,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(75,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(76,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(77,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(79,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(80,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(81,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(82,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(84,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(85,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(86,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(87,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(88,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(89,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(91,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(92,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(93,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(95,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(96,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(97,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/data/mockData.ts(98,18): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.
+src/utils/autoPlanner.ts(27,25): error TS2551: Property 'nameEn' does not exist on type 'Mitigation'. Did you mean 'name'?
+src/utils/autoPlanner.ts(398,20): error TS2551: Property 'nameEn' does not exist on type 'TimelineEvent'. Did you mean 'name'?
+src/utils/autoPlanner.ts(399,26): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/autoPlanner.ts(399,55): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/autoPlanner.ts(426,70): error TS2551: Property 'nameEn' does not exist on type 'TimelineEvent'. Did you mean 'name'?
+src/utils/autoPlanner.ts(426,120): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/autoPlanner.ts(426,148): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/autoPlanner.ts(432,70): error TS2551: Property 'nameEn' does not exist on type 'TimelineEvent'. Did you mean 'name'?
+src/utils/autoPlanner.ts(432,120): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/autoPlanner.ts(432,148): error TS2339: Property 'includes' does not exist on type 'LocalizedString'.
+src/utils/csvParser.ts(60,13): error TS2322: Type 'string' is not assignable to type 'LocalizedString'.

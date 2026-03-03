@@ -24,7 +24,7 @@ function getMitigation(id: string): Mitigation | undefined {
 }
 
 function getFamily(miti: Mitigation): string {
-    const nameEn = miti.nameEn || miti.name || '';
+    const nameEn = miti.name.en || miti.name.ja || '';
     if (['Tactician', 'Troubadour', 'Shield Samba'].some(m => nameEn.includes(m))) return 'RangedMiti';
     if (nameEn.includes('Reprisal')) return 'Reprisal';
     if (nameEn.includes('Feint')) return 'Feint';
@@ -96,7 +96,7 @@ export function generateAutoPlan(
         const key = `${memberId}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         for (const usedTime of times) {
-            if (Math.abs(time - usedTime) < miti.cooldown) {
+            if (Math.abs(time - usedTime) < miti.recast) {
                 return false;
             }
         }
@@ -395,8 +395,8 @@ export function generateAutoPlan(
         } else if (ev.target === 'MT' || ev.target === 'ST') {
             // ── Tank Buster Handling (unchanged logic) ──────────────
             const isTB = rawDamage >= (safeSettings.tankHp * 0.5) ||
-                ev.nameEn?.toLowerCase().includes('(tb)') ||
-                ev.name?.includes('(TB)') || ev.name?.includes('強攻撃');
+                ev.name.en?.toLowerCase().includes('(tb)') ||
+                ev.name.ja?.includes('(TB)') || ev.name.ja?.includes('強攻撃');
             if (!isTB) continue;
 
             const targetId = ev.target;
@@ -423,13 +423,13 @@ export function generateAutoPlan(
             // Group consecutive TBs
             const previousTB = chronologicalEvents.find(e =>
                 e.target === targetId && e.time < time && time - e.time <= 5 &&
-                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.nameEn?.toLowerCase().includes('(tb)') || e.name?.includes('(TB)') || e.name?.includes('強攻撃'))
+                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.name.en?.toLowerCase().includes('(tb)') || e.name.ja?.includes('(TB)') || e.name.ja?.includes('強攻撃'))
             );
             if (previousTB) continue;
 
             const flurryHits = chronologicalEvents.filter(e =>
                 e.target === targetId && e.time >= time && e.time - time <= 5 &&
-                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.nameEn?.toLowerCase().includes('(tb)') || e.name?.includes('(TB)') || e.name?.includes('強攻撃'))
+                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.name.en?.toLowerCase().includes('(tb)') || e.name.ja?.includes('(TB)') || e.name.ja?.includes('強攻撃'))
             );
             const maxRawDamage = Math.max(...flurryHits.map(e => e.damageAmount || 0));
 

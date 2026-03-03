@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
-import type { PartyMember, TimelineEvent } from '../types';
+import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getColumnWidth } from './Timeline';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -22,14 +22,13 @@ interface TimelineRowProps {
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
     partyMembers: PartyMember[];
+    activeMitigations: AppliedMitigation[]; // 👈 Added
     onPhaseAdd: (time: number, e: React.MouseEvent) => void;
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
     onDamageClick?: (time: number, e: React.MouseEvent) => void;
-    // 👇 追加：スマホ専用の中央ポップアップを開くための関数
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
-    partySortOrder: 'light_party' | 'role';
 }
 
 export const TimelineRow = memo(({
@@ -38,35 +37,31 @@ export const TimelineRow = memo(({
     damages,
     events,
     partyMembers,
+    activeMitigations, // 👈 Added
     onPhaseAdd,
     onAddEventClick,
     onEventClick,
     onCellClick,
     onDamageClick,
-    onMobileDamageClick, // 👈 追加
-    partySortOrder
+    onMobileDamageClick,
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { theme, contentLanguage } = useThemeStore();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
-    // 👇 追加：スマホ版でアイコンを表示するために、現在のアクティブな軽減を取得
-    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
+
+    // 🚀 Performance Optimization: timelineMitigations removed from local state.
+    // Instead, we use activeMitigations passed from parent.
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
 
     // Bilingual event name helper
     const getEventName = (ev: TimelineEvent) =>
-        contentLanguage === 'en' && ev.nameEn ? ev.nameEn : ev.name;
+        contentLanguage === 'en' && ev.name?.en ? ev.name?.en : ev.name?.ja;
 
     const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
     const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
         time < 0 ? `-${displayTimeStr}` :
             displayTimeStr;
-
-    // 👇 追加：この時間にアクティブな軽減をリストアップする関数（スマホ表示用）
-    const getActiveMitigationsForTime = (currentTime: number) => {
-        return timelineMitigations.filter(m => m.time <= currentTime && currentTime < m.time + m.duration);
-    };
 
     return (
         <div
@@ -145,7 +140,7 @@ export const TimelineRow = memo(({
 
                             {/* 👇 スマホ専用：軽減アイコンのリスト（PCでは md:hidden で隠す） */}
                             <div className="flex md:hidden items-center gap-0.5 flex-wrap pl-4">
-                                {getActiveMitigationsForTime(time).map(mit => {
+                                {activeMitigations.map(mit => {
                                     const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
                                     if (!def) return null;
                                     const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
@@ -153,7 +148,7 @@ export const TimelineRow = memo(({
                                         <img
                                             key={mit.id}
                                             src={def.icon}
-                                            alt={def.name}
+                                            alt={def.name?.ja}
                                             className={clsx(
                                                 "w-3.5 h-3.5 object-cover rounded transition-all",
                                                 isDimmed ? "opacity-40 grayscale" : "opacity-90"
@@ -195,7 +190,7 @@ export const TimelineRow = memo(({
                                 e.stopPropagation();
                                 onAddEventClick(time, e);
                             }}
-                            title="Add event"
+                            title={t('timeline.add_event')}
                         >
                             <Plus size={10} className="text-slate-600 dark:text-slate-400 scale-75" />
                         </div>
@@ -220,7 +215,7 @@ export const TimelineRow = memo(({
                                             setClipboardEvent(events[0]);
                                         }}
                                         className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                        title="このイベントをコピーしてスタンプする"
+                                        title={t('timeline.copy_event_hint')}
                                     >
                                         <Copy size={14} />
                                     </button>
@@ -268,7 +263,7 @@ export const TimelineRow = memo(({
                                             setClipboardEvent(events[1]);
                                         }}
                                         className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                        title="このイベントをコピーしてスタンプする"
+                                        title={t('timeline.copy_event_hint')}
                                     >
                                         <Copy size={14} />
                                     </button>
@@ -514,7 +509,12 @@ export const TimelineRow = memo(({
     if (prevProps.events !== nextProps.events) return false;
     if (prevProps.damages !== nextProps.damages) return false;
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.partySortOrder !== nextProps.partySortOrder) return false;
-    if (prevProps.events.length !== nextProps.events.length) return false;
+    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
+        // Shallow check for array contents
+        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
+        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
+            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
+        }
+    }
     return true;
 });

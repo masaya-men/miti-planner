@@ -5,12 +5,14 @@ import { MITIGATIONS, JOBS } from '../data/mockData';
 import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
 import { MitigationSelector } from './MitigationSelector';
+import { useTranslation } from 'react-i18next';
 
 type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime: number };
 
 export const CheatSheetView: React.FC = () => {
-    const { theme } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
+    const { t } = useTranslation();
 
     // 状態管理
     const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
@@ -113,7 +115,8 @@ export const CheatSheetView: React.FC = () => {
                         }
                     });
 
-                    const maxValBase = member.computedValues[def.name] || 0;
+                    const localizedName = contentLanguage === 'en' ? def.name.en : def.name.ja;
+                    const maxValBase = member.computedValues[localizedName] || 0;
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
                     const remainingForDisplay = getShieldState(displayContext, appMit.id, maxVal);
@@ -205,14 +208,14 @@ export const CheatSheetView: React.FC = () => {
                                     "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-white/20",
                                     !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
-                                title={`${def.name} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}
+                                title={`${contentLanguage === 'en' ? def.name.en : def.name.ja} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}
                             >
-                                <img src={def.icon} alt={def.name} className="w-full h-full object-cover" />
+                                <img src={def.icon} alt={contentLanguage === 'en' ? def.name.en : def.name.ja} className="w-full h-full object-cover" />
 
                                 {m.targetId && (
                                     <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-slate-900/90 rounded-tl-[3px] p-[1px] shadow-sm ring-[0.5px] ring-white/30 flex items-center justify-center">
                                         {targetJob ? (
-                                            <img src={targetJob.icon} alt={targetJob.name} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
+                                            <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
                                         ) : (
                                             <span className="text-[6px] font-black text-white px-0.5 block scale-90">{m.targetId}</span>
                                         )}
@@ -228,7 +231,7 @@ export const CheatSheetView: React.FC = () => {
         return (
             <div
                 onClick={handleRowClick}
-                title={event.name}
+                title={contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
                 className={clsx(
                     "flex w-full items-stretch min-h-[44px] border-b transition-colors relative group cursor-pointer",
                     isLethal
@@ -262,13 +265,13 @@ export const CheatSheetView: React.FC = () => {
                                 isLethal ? "text-red-600 dark:text-red-400 font-black" : hasDamage ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"
                             )}
                         >
-                            {event.name}
+                            {contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
                         </span>
                         {/* 連続ヒットバッジ */}
                         {event.hitCount > 1 && (
                             <span
                                 className="text-[7px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
-                                title={`合計 ${event.hitCount} 回のヒット (${event.span}秒間)`}
+                                title={t('ui.total_hits', { count: event.hitCount, span: event.span })}
                             >
                                 ×{event.hitCount}
                             </span>
@@ -283,7 +286,7 @@ export const CheatSheetView: React.FC = () => {
                                 "text-[10px] font-mono font-black drop-shadow-md shrink-0",
                                 isLethal ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-200"
                             )}>
-                                {dmgInfo.isInvincible ? "Invuln" : actualDamage.toLocaleString()}
+                                {dmgInfo.isInvincible ? t('timeline.invuln') : actualDamage.toLocaleString()}
                             </span>
                         )}
 
@@ -310,9 +313,9 @@ export const CheatSheetView: React.FC = () => {
                                             ? "bg-cyan-500/20 border-cyan-500/30"
                                             : "bg-amber-500/20 border-amber-500/30"
                                     )}
-                                    title={`${event.target} (${targetJob.name})`}
+                                    title={`${event.target} (${contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja})`}
                                 >
-                                    <img src={targetJob.icon} alt={targetJob.name} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
+                                    <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
                                 </div>
                             ) : (
                                 <span className={clsx(
@@ -335,7 +338,7 @@ export const CheatSheetView: React.FC = () => {
 
     const damageEvents = useMemo(() => {
         const rawEvents = timelineEvents
-            .filter(e => e.damageAmount && e.damageAmount > 0 && e.name !== 'AA')
+            .filter(e => e.damageAmount && e.damageAmount > 0 && e.name.ja !== 'AA')
             .sort((a, b) => a.time - b.time);
 
         const merged: MergedEvent[] = [];
@@ -343,7 +346,7 @@ export const CheatSheetView: React.FC = () => {
         for (const event of rawEvents) {
             const lastMerge = merged[merged.length - 1];
 
-            if (lastMerge && lastMerge.name === event.name) {
+            if (lastMerge && lastMerge.name.ja === event.name.ja) {
                 const totalSpan = event.time - lastMerge.time;
                 if (totalSpan <= 15) {
                     lastMerge.hitCount += 1;
@@ -394,7 +397,7 @@ export const CheatSheetView: React.FC = () => {
                 <div className="flex-1 flex flex-col">
                     {damageEvents.length === 0 ? (
                         <div className="flex items-center justify-center h-full text-slate-500 text-sm font-medium">
-                            No damage events recorded.
+                            {t('ui.no_damage_events')}
                         </div>
                     ) : (
                         <div className="flex flex-col">
@@ -415,7 +418,7 @@ export const CheatSheetView: React.FC = () => {
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
-                                軽減を追加するメンバー
+                                {t('modal.add_mitigation_to')}
                             </div>
                             <div className="grid grid-cols-4 gap-2">
                                 {partyMembers.map(m => {
@@ -431,7 +434,7 @@ export const CheatSheetView: React.FC = () => {
                                             }}
                                             className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
                                         >
-                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain drop-shadow-md" />
+                                            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
                                             <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
                                         </button>
                                     );

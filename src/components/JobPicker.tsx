@@ -101,8 +101,8 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
                 ? "bg-blue-500/20 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.3)] ring-1 ring-blue-500/30"
                 : "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.08]"
         )}
-        title={contentLanguage === 'en' && job.nameEn ? job.nameEn : job.name}
+        title={contentLanguage === 'en' ? job.name.en : job.name.ja}
     >
-        <img src={job.icon} alt={contentLanguage === 'en' && job.nameEn ? job.nameEn : job.name} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
     </button>
 );

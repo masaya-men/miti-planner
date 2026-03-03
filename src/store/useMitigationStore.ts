@@ -28,6 +28,7 @@ interface MitigationState {
     timelineMitigations: AppliedMitigation[];
     aaSettings: AASettings;
     schAetherflowPatterns: Record<string, 1 | 2>;
+    currentLevel: number; // 👈 マルチレベル対応用
 
     // UI State
     myMemberId: string | null;
@@ -40,6 +41,7 @@ interface MitigationState {
     _future: HistorySnapshot[];
 
     // Actions
+    setCurrentLevel: (level: number) => void;
     updateMemberStats: (memberId: string, stats: Partial<PlayerStats>) => void;
     initializeParty: () => void;
     addEvent: (event: TimelineEvent) => void;
@@ -126,9 +128,10 @@ export const useMitigationStore = create<MitigationState>()(
             };
 
             // Initialize values for default party
+            const currentLevel = 100; // 初期値
             const initialMembers = INITIAL_PARTY.map(m => ({
                 ...m,
-                computedValues: calculateMemberValues(m)
+                computedValues: calculateMemberValues(m, currentLevel)
             }));
 
             return {
@@ -142,6 +145,7 @@ export const useMitigationStore = create<MitigationState>()(
                     type: 'physical',
                     target: 'MT'
                 },
+                currentLevel: currentLevel,
                 schAetherflowPatterns: {} as Record<string, 1 | 2>,
                 myMemberId: null,
                 myJobHighlight: false,
@@ -213,6 +217,17 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
+                setCurrentLevel: (level) => {
+                    pushHistory();
+                    set((state) => ({
+                        currentLevel: level,
+                        // レベルが変更されたら全員の計算値を再計算
+                        partyMembers: state.partyMembers.map(m => ({
+                            ...m,
+                            computedValues: calculateMemberValues(m, level)
+                        }))
+                    }));
+                },
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
@@ -335,7 +350,7 @@ export const useMitigationStore = create<MitigationState>()(
                                 }
 
                                 const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                                const computedValues = calculateMemberValues(updatedMember);
+                                const computedValues = calculateMemberValues(updatedMember, state.currentLevel);
                                 return { ...updatedMember, computedValues };
                             }
                             return m;
@@ -408,7 +423,7 @@ export const useMitigationStore = create<MitigationState>()(
                                     else newStats = { ...DEFAULT_HEALER_STATS };
                                 }
                                 const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                                return { ...updatedMember, computedValues: calculateMemberValues(updatedMember) };
+                                return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
                             }
                             return m;
                         });
@@ -442,7 +457,7 @@ export const useMitigationStore = create<MitigationState>()(
                         partyMembers: state.partyMembers.map(m => {
                             if (m.id === memberId) {
                                 const newStats = { ...m.stats, ...stats };
-                                const computedValues = calculateMemberValues({ ...m, stats: newStats });
+                                const computedValues = calculateMemberValues({ ...m, stats: newStats }, state.currentLevel);
                                 return { ...m, stats: newStats, computedValues };
                             }
                             return m;
@@ -484,6 +499,7 @@ export const useMitigationStore = create<MitigationState>()(
             name: 'mitigation-storage',
             version: 4,
             partialize: (state: MitigationState) => ({
+                currentLevel: state.currentLevel,
                 // Only persist per-member stats (not jobs, not transient data)
                 _memberStats: state.partyMembers.reduce((acc, m) => {
                     acc[m.id] = m.stats;
@@ -497,14 +513,15 @@ export const useMitigationStore = create<MitigationState>()(
             merge: (persisted: any, current: MitigationState) => {
                 if (!persisted || !persisted._memberStats) return current;
                 const statsMap = persisted._memberStats as Record<string, PlayerStats>;
+                const currentLevel = persisted.currentLevel || 100;
                 const newMembers = current.partyMembers.map(m => {
                     if (statsMap[m.id]) {
                         const restored = { ...m, stats: { ...m.stats, ...statsMap[m.id] } };
-                        return { ...restored, computedValues: calculateMemberValues(restored) };
+                        return { ...restored, computedValues: calculateMemberValues(restored, currentLevel) };
                     }
-                    return m;
+                    return { ...m, computedValues: calculateMemberValues(m, currentLevel) };
                 });
-                return { ...current, partyMembers: newMembers };
+                return { ...current, currentLevel, partyMembers: newMembers };
             }
         }
     )

@@ -322,7 +322,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {member.id}
                     </div>
                     {job ? (
-                        <img src={job.icon} alt={job.name} className="w-8 h-8 object-contain drop-shadow-md" />
+                        <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-md" />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-white/10 bg-black/20 flex flex-col items-center justify-center">
                             <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">Select</span>
@@ -396,10 +396,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                                 "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
                                                 `border-white/10 cursor-pointer ${cat.color}`
                                             )}
-                                            title={job.name}
+                                            title={job.name?.ja}
                                         >
                                             <Ripple />
-                                            <img src={job.icon} alt={job.name} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
+                                            <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                         </button>
                                     );
                                 })}
@@ -431,7 +431,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "relative flex flex-col bg-white/70 dark:bg-slate-950/40 backdrop-blur-3xl border-glass-border shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                    "relative flex flex-col glass-panel shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
                     // 👇 変更：スマホ時の高さ上限を 85vh に広げる
@@ -456,9 +456,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <User className="text-blue-500" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-app-text tracking-wider">{t('party.configuration_title', 'パーティ編成')}</h2>
+                            <h2 className="text-xs font-bold text-app-text tracking-wider">{t('party.configuration_title')}</h2>
                             <p className="text-[9px] text-app-text-muted mt-0.5">
-                                スロットをクリックしてフォーカス固定するか、そのままジョブを選んで自動配置します
+                                {t('party.configuration_desc')}
                             </p>
                         </div>
                     </div>
@@ -476,7 +476,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <div className="w-full p-2.5 rounded-lg border bg-app-accent-dim/20 border-app-border-accent flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
                                 <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
                                 <span className="text-[11px] text-sky-200">
-                                    <strong>マニュアルモード:</strong> 次に選んだジョブは <strong>{partyMembers[focusedSlot].id}</strong> に強制配置されます。
+                                    <strong>{t('party.manual_mode')}</strong> {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
                                 </span>
                             </div>
                         )}
@@ -509,7 +509,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
                     {/* 👇 変更：max-h-[50vh]に広げ、pb-8 (下部余白) を追加してセーフエリアを確保 */}
                     <div className="h-auto max-h-[50vh] bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-8 md:pb-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
-                        <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">JOB PALETTE (タップして配置)</h3>
+                        <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">{t('party.job_palette')}</h3>
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
                     </div>

@@ -219,9 +219,9 @@ export function getRemainingCharges(
             const elapsed = use.time - lastTime;
             if (charges < def.maxCharges) {
                 rechargeTimer += elapsed;
-                const recharged = Math.floor(rechargeTimer / def.cooldown);
+                const recharged = Math.floor(rechargeTimer / def.recast);
                 charges = Math.min(def.maxCharges, charges + recharged);
-                rechargeTimer = rechargeTimer % def.cooldown;
+                rechargeTimer = rechargeTimer % def.recast;
                 if (charges >= def.maxCharges) rechargeTimer = 0;
             }
             // Consume
@@ -236,7 +236,7 @@ export function getRemainingCharges(
         const finalElapsed = selectedTime - lastTime;
         if (charges < def.maxCharges) {
             rechargeTimer += finalElapsed;
-            const recharged = Math.floor(rechargeTimer / def.cooldown);
+            const recharged = Math.floor(rechargeTimer / def.recast);
             charges = Math.min(def.maxCharges, charges + recharged);
         }
 
@@ -341,7 +341,7 @@ export function validateMitigationPlacement(
         const prevUses = sameSkillUses.filter(u => u.time <= selectedTime);
         if (prevUses.length > 0) {
             const lastPrev = prevUses[prevUses.length - 1];
-            const cdEnd = lastPrev.time + m.cooldown;
+            const cdEnd = lastPrev.time + m.recast;
             if (selectedTime < cdEnd) {
                 const remaining = Math.ceil(cdEnd - selectedTime);
                 const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
@@ -353,8 +353,8 @@ export function validateMitigationPlacement(
         const nextUses = sameSkillUses.filter(u => u.time > selectedTime);
         if (nextUses.length > 0) {
             const firstNext = nextUses[0];
-            if (selectedTime + m.cooldown > firstNext.time) {
-                const overlap = Math.ceil((selectedTime + m.cooldown) - firstNext.time);
+            if (selectedTime + m.recast > firstNext.time) {
+                const overlap = Math.ceil((selectedTime + m.recast) - firstNext.time);
                 // When dragging, we want to block if we overlap with a future CD
                 if (ignoreInstanceId) {
                     const label = t('mitigation.cd_overlap', { seconds: overlap, defaultValue: `CD overlap (${overlap}s)` });

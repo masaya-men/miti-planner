@@ -144,7 +144,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
 
     const durationHeight = height;
-    const recast = def?.recast || def?.cooldown || 0;
+    const recast = def?.recast || 0;
     const recastPx = recastHeight ?? (recast * pixelsPerSecond);
 
     // 👇 追加：Y座標から、コンパクトモード時でも正確に「どの時間の行を指しているか」を逆算する関数
@@ -361,7 +361,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     };
 
     const iconUrl = def?.icon;
-    const name = contentLanguage === 'en' && def?.nameEn ? def.nameEn : def?.name;
+    const nameStr = def ? (contentLanguage === 'en' ? def.name.en : def.name.ja) : '';
 
     return (
         <>
@@ -406,7 +406,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                     onTouchMove={handleTouchMove}
-                    title={`${name || t('timeline.mitigation', '軽減')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint', '(ドラッグで移動 / 右クリックで削除)')} `}
+                    title={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')} `}
                 >
                     <div className="w-full h-full bg-black/50 overflow-hidden rounded border border-white/20">
                         {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
@@ -419,7 +419,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                         return (
                             <div className="absolute -bottom-2 -right-2 z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
                                 {targetJob ? (
-                                    <img src={targetJob.icon} alt={targetJob.name} className="w-[20px] h-[20px] object-contain rounded-sm" />
+                                    <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-[20px] h-[20px] object-contain rounded-sm" />
                                 ) : (
                                     <div className="bg-black/90 rounded px-1 py-0.5 text-[8px] font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
                                         {mitigation.targetId}
@@ -465,7 +465,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 };
 
 export const Timeline: React.FC = () => {
-    const { theme } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
 
@@ -488,6 +488,7 @@ export const Timeline: React.FC = () => {
         changeMemberJobWithMitigations,
         clipboardEvent,
         setClipboardEvent,
+        hideEmptyRows,
     } = useMitigationStore();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -591,7 +592,7 @@ export const Timeline: React.FC = () => {
         if (typeof window !== 'undefined' && window.innerWidth < 768) {
             setTimeout(() => {
                 const isConfirmed = window.confirm(
-                    "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。"
+                    t('timeline.auto_plan_confirm_mobile', "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。")
                 );
                 if (isConfirmed) {
                     executePlan();
@@ -599,8 +600,8 @@ export const Timeline: React.FC = () => {
             }, 150);
         } else {
             setConfirmDialog({
-                title: 'オートプラン実行',
-                message: '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？',
+                title: t('timeline.auto_plan_title', 'オートプラン実行'),
+                message: t('timeline.auto_plan_confirm', '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？'),
                 variant: 'warning',
                 onConfirm: () => {
                     executePlan();
@@ -653,7 +654,7 @@ export const Timeline: React.FC = () => {
                 addEvent({
                     id: newId,
                     time: time,
-                    name: 'AA',
+                    name: { ja: 'AA', en: 'AA' },
                     damageAmount: aaSettings.damage,
                     damageType: aaSettings.type,
                     target: aaSettings.target
@@ -961,7 +962,7 @@ export const Timeline: React.FC = () => {
                         }
                     });
 
-                    const maxValBase = member.computedValues[def.name] || 0;
+                    const maxValBase = member.computedValues[def.name.en] || member.computedValues[def.name.ja] || 0;
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
                     const remainingForDisplay = getShieldState(displayContext, appMit.id, maxVal);
@@ -1269,7 +1270,7 @@ export const Timeline: React.FC = () => {
                                                         ? "bg-black/50 border-white/10 hover:border-amber-400/40 hover:bg-black/70"
                                                         : "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50"
                                                 )}
-                                                title={isPatternOne ? t('timeline.dissipation_to_post', '転化先 → 転化後に切替') : t('timeline.post_to_dissipation', '転化後 → 転化先に切替')}
+                                                title={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')}
                                             >
                                                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">START</span>
                                                 <div className="flex items-center gap-0.5">
@@ -1343,8 +1344,8 @@ export const Timeline: React.FC = () => {
                                             onClick={() => {
                                                 setClearMenuOpen(false);
                                                 setConfirmDialog({
-                                                    title: '軽減を全て削除',
-                                                    message: '全メンバーの軽減を削除します。この操作はUndoで取り消せます。',
+                                                    title: t('timeline.clear_all'),
+                                                    message: t('timeline.clear_all_confirm'),
                                                     variant: 'danger',
                                                     onConfirm: () => {
                                                         useMitigationStore.getState().clearAllMitigations();
@@ -1371,8 +1372,8 @@ export const Timeline: React.FC = () => {
                                                     onClick={() => {
                                                         setClearMenuOpen(false);
                                                         setConfirmDialog({
-                                                            title: `${m.id} の軽減を削除`,
-                                                            message: `${m.id}（${job.name}）の軽減を削除します。この操作はUndoで取り消せます。`,
+                                                            title: t('timeline.clear_member', { member: m.id }).replace('{{member}}', m.id),
+                                                            message: t('timeline.clear_member_confirm', { member: m.id, job: contentLanguage === 'en' ? job.name.en : job.name.ja }).replace('{{member}}', m.id).replace('{{job}}', contentLanguage === 'en' ? job.name.en : job.name.ja),
                                                             variant: 'danger',
                                                             onConfirm: () => {
                                                                 useMitigationStore.getState().clearMitigationsByMember(m.id);
@@ -1382,9 +1383,9 @@ export const Timeline: React.FC = () => {
                                                     }}
                                                     className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center gap-2"
                                                 >
-                                                    <img src={job.icon} alt={job.name} className="w-4 h-4 rounded" />
+                                                    <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-4 h-4 rounded" />
                                                     <span className="font-medium">{m.id}</span>
-                                                    <span className="text-slate-400 dark:text-slate-500">({job.name})</span>
+                                                    <span className="text-slate-400 dark:text-slate-500">({contentLanguage === 'en' ? job.name.en : job.name.ja})</span>
                                                 </button>
                                             );
                                         })}
@@ -1451,21 +1452,20 @@ export const Timeline: React.FC = () => {
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
-                                const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
-
                                 let maxPopulatedTime = -11;
-                                if (hideEmpty) {
+                                if (hideEmptyRows) {
                                     timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
                                     timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
                                 }
 
                                 gridLines.forEach(time => {
-                                    const hasEvents = (eventsByTime.get(time)?.length ?? 0) > 0;
-                                    const hasMitigations = timelineMitigations.some(m => m.time === time);
+                                    const rowEvents = eventsByTime.get(time) || [];
+                                    const hasEvents = rowEvents.length > 0;
+                                    const hasMitigationStart = timelineMitigations.some(m => m.time === time);
 
-                                    const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
+                                    const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (!hideEmpty || hasEvents || hasMitigations || isBottomEmptyRow) {
+                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow) {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
@@ -1475,26 +1475,36 @@ export const Timeline: React.FC = () => {
                             {(() => {
                                 const renderItems: React.ReactElement[] = [];
                                 let currentY = 0;
-                                const hideEmpty = useMitigationStore.getState()?.hideEmptyRows ?? false;
-
                                 let maxPopulatedTime = -11;
-                                if (hideEmpty) {
+                                if (hideEmptyRows) {
                                     timelineEvents.forEach(e => { if (e.time > maxPopulatedTime) maxPopulatedTime = e.time; });
                                     timelineMitigations.forEach(m => { if (m.time > maxPopulatedTime) maxPopulatedTime = m.time; });
                                 }
 
                                 const timeToYMap = new Map<number, number>();
 
+                                // 🚀 Performance Optimization: Pre-calculate mitigations map
+                                const mitigationsByTime = new Map<number, AppliedMitigation[]>();
+                                const mitStartsByTime = new Map<number, boolean>();
+                                timelineMitigations.forEach(mit => {
+                                    mitStartsByTime.set(mit.time, true);
+                                    for (let t = mit.time; t < mit.time + mit.duration; t++) {
+                                        if (!mitigationsByTime.has(t)) mitigationsByTime.set(t, []);
+                                        mitigationsByTime.get(t)!.push(mit);
+                                    }
+                                });
+
                                 gridLines.forEach((time) => {
                                     const rowEvents = eventsByTime.get(time) || [];
                                     const rowDamages = rowEvents.map(event => damageMap.get(event.id) || null);
 
                                     const hasEvents = rowEvents.length > 0;
-                                    const hasMitigations = timelineMitigations.some(m => m.time === time);
+                                    const activeMitigationsForRow = mitigationsByTime.get(time) || [];
+                                    const hasMitigationStart = mitStartsByTime.has(time);
 
-                                    const isBottomEmptyRow = hideEmpty && time === maxPopulatedTime + 1;
+                                    const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (hideEmpty && !hasEvents && !hasMitigations && !isBottomEmptyRow) {
+                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow) {
                                         timeToYMap.set(time, currentY);
                                         return;
                                     }
@@ -1509,13 +1519,13 @@ export const Timeline: React.FC = () => {
                                             damages={rowDamages}
                                             events={rowEvents}
                                             partyMembers={sortedPartyMembers}
+                                            activeMitigations={activeMitigationsForRow} // 👈 Added prop
                                             onPhaseAdd={handlePhaseAdd}
                                             onAddEventClick={handleAddClick}
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
                                             onDamageClick={handleDamageClick}
                                             onMobileDamageClick={handleMobileDamageClick}
-                                            partySortOrder={partySortOrder}
                                         />
                                     );
 
@@ -1578,7 +1588,7 @@ export const Timeline: React.FC = () => {
                                             Object.entries(mitigationsByOwner).forEach(([, ownerMitigations]) => {
                                                 const getRecast = (mitigationId: string): number => {
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigationId);
-                                                    return def ? (def.recast || def.cooldown || 999) : 999;
+                                                    return def ? (def.recast || def.recast || 999) : 999;
                                                 };
 
                                                 ownerMitigations.sort((a, b) => {
@@ -1641,7 +1651,7 @@ export const Timeline: React.FC = () => {
                                                     const endY = getMappedY(durationEndTime) + 24;
 
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
-                                                    const recast = def?.recast || def?.cooldown || 0;
+                                                    const recast = def?.recast || def?.recast || 0;
                                                     const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
                                                     const recastEndY = getMappedY(recastEndTime) + 24;
                                                     const calculatedRecastHeight = Math.max(0, recastEndY - startY);
@@ -1691,17 +1701,17 @@ export const Timeline: React.FC = () => {
                         <span className="text-xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
                             <span className="font-bold text-sm leading-tight drop-shadow-md">
-                                {clipboardEvent.name || 'イベント'} をコピー中
+                                {clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : 'イベント'} {t('timeline.copying')}
                             </span>
                             <span className="text-[10px] text-blue-100/90 leading-tight">
-                                空行をクリックで連続ペースト
+                                {t('timeline.paste_hint')}
                             </span>
                         </div>
                     </div>
                     <button
                         onClick={() => setClipboardEvent(null)}
                         className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full transition-colors cursor-pointer"
-                        title="コピー状態を解除"
+                        title={t('timeline.cancel_copy')}
                     >
                         <X size={16} />
                     </button>
@@ -1779,7 +1789,6 @@ export const Timeline: React.FC = () => {
 
                                         const availableMitis = MITIGATIONS.filter(m => {
                                             if (m.jobId === job.id) return true;
-                                            if (!m.jobId && m.role === job.role) return true;
                                             return false;
                                         });
 
@@ -1838,7 +1847,7 @@ export const Timeline: React.FC = () => {
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{mit.name}</span>
+                                                    <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
                                                 </button>
                                             );
                                         });

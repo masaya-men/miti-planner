@@ -57,7 +57,7 @@ export const parseCSVToEvents = (csvString: string): TimelineEvent[] => {
         events.push({
             id: crypto.randomUUID(),
             time,
-            name,
+            name: { ja: name, en: name },
             damageAmount: isNaN(damageAmount as number) ? undefined : damageAmount,
             damageType: damageType as any, // Cast to any to bypass strict optional check since interface doesn't allow undefined but it exists in dataset 
             target

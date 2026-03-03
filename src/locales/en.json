@@ -12,27 +12,16 @@
     },
     "party": {
         "title": "Party Composition",
-        "settings_title": "Stat Config",
+        "settings_title": "Parameter Settings",
+        "settings_desc": "Set the base values for barriers and healing.",
         "comp_short": "Party Comp",
         "configuration_title": "Party Composition",
-        "configuration_description": "Manage jobs, roles, and light parties.",
-        "my_job_instruction": "Tap the star on the top right of a slot to set as My Job"
-    },
-    "timeline": {
-        "phase": "PHASE",
-        "time": "TIME",
-        "event": "EVENT",
-        "u_dmg": "U.DMG",
-        "dmg": "DMG",
-        "add_event": "Add Event",
-        "end_phase": "End Phase Here",
-        "click_rename": "Click to Rename",
-        "enter_phase_name": "Enter phase name",
-        "new_phase": "New Phase",
-        "edit_phase": "Edit Phase",
-        "delete_phase_confirm": "Delete this phase?",
-        "remove_mitigation": "Remove this mitigation?",
-        "delete_event_confirm": "Delete this event?"
+        "configuration_desc": "Click a slot to focus or select a job to auto-assign.",
+        "my_job_instruction": "Tap the star on the top right of a slot to set as My Job",
+        "content_level": "Content Level",
+        "job_palette": "JOB PALETTE (Tap to Assign)",
+        "manual_mode": "Manual Mode:",
+        "manual_mode_desc": "The next selected job will be forced into {{slot}}."
     },
     "modal": {
         "add_event": "Add Event",
@@ -60,7 +49,8 @@
         "calc_mitigations": "Mitigations Used (Select)",
         "mode_direct": "Direct Input",
         "mode_reverse": "Reverse Input",
-        "calculated_raw": "Estimated Raw Damage:"
+        "calculated_raw": "Estimated Raw Damage:",
+        "add_mitigation_to": "Add mitigation to:"
     },
     "mitigation": {
         "select": "Select Mitigation",
@@ -75,7 +65,8 @@
         "cd_remaining": "CD {{seconds}}s",
         "next_at": "Next at {{time}}s ({{gap}}s gap)",
         "select_target": "Select Target",
-        "no_skills": "No mitigation skills available for this job."
+        "no_skills": "No mitigation skills available for this job.",
+        "remove": "Remove"
     },
     "settings": {
         "party_stats": "Party Stats Settings",
@@ -87,7 +78,7 @@
         "main_stat_mnd": "Main Stat (MND)",
         "det": "Determination",
         "wd": "Weapon Damage",
-        "shield_preview": "Shield Preview"
+        "shield_preview": "Shield & Heal Preview"
     },
     "roles": {
         "tank": "Tank",
@@ -129,6 +120,32 @@
         "close": "Close",
         "no_job": "No Job",
         "empty": "Empty",
-        "ok": "OK"
+        "ok": "OK",
+        "no_damage_events": "No damage events recorded.",
+        "total_hits": "Total {{count}} hits (over {{span}}s)"
+    },
+    "timeline": {
+        "invalid_placement": "Invalid placement",
+        "mitigation": "Mitigation",
+        "mitigation_drag_hint": "(Drag to move / Right-click to remove)",
+        "delete_event_confirm": "Are you sure you want to delete this event?",
+        "dissipation_to_post": "Pre-Dissipation → Post-Dissipation",
+        "post_to_dissipation": "Post-Dissipation → Pre-Dissipation",
+        "click_rename": "Click to rename",
+        "copying": "Copying",
+        "paste_hint": "Click on an empty row to paste continuously",
+        "cancel_copy": "Cancel Copy",
+        "select_member": "Select a member to add a mitigation:",
+        "select_mitigation": "Select a mitigation to add:",
+        "back_to_member": "← Back to member selection",
+        "invalid_timing": "Cannot place here (due to recast etc.)",
+        "clear_all": "Clear all mitigations",
+        "clear_all_confirm": "Clear mitigations for all members. This can be undone.",
+        "clear_member": "Clear mitigations for {{member}}",
+        "clear_member_confirm": "Clear mitigations for {{member}} ({{job}}). This can be undone.",
+        "all_mitigations": "Clear all mitigations",
+        "member_mitigations": "Clear by member",
+        "copy_event_hint": "Copy this event to stamp",
+        "invuln": "Invuln"
     }
 }

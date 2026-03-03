@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Map, Layers, ChevronRight, Hash } from 'lucide-react';
 import clsx from 'clsx';
-import { Ripple } from './Ripple';
 
 interface SidebarProps {
     isOpen: boolean;
