@@ -49,6 +49,7 @@ export interface TimelineEvent {
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
+    warning?: boolean; // Indicates mitigation is insufficient
 }
 
 export interface Phase {

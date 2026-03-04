@@ -65,7 +65,7 @@ interface MitigationState {
     clearMitigationsByMember: (memberId: string) => void;
     clearAllMitigations: () => void;
     /** 👇追加：既存の軽減をすべて消去し、新しい軽減リストで一括上書きする（Undo1回で戻せる） */
-    applyAutoPlan: (mitigations: AppliedMitigation[]) => void;
+    applyAutoPlan: (result: { mitigations: AppliedMitigation[], warnings: string[] }) => void;
 
     // Undo/Redo
     undo: () => void;
@@ -211,9 +211,15 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 // 👇追加：オートプラン用の一括上書き処理（履歴はここで「1回」だけ保存される）
-                applyAutoPlan: (mitigations) => {
+                applyAutoPlan: ({ mitigations, warnings }) => {
                     pushHistory();
-                    set({ timelineMitigations: mitigations });
+                    set(state => ({
+                        timelineMitigations: mitigations,
+                        timelineEvents: state.timelineEvents.map(e => ({
+                            ...e,
+                            warning: warnings.includes(e.id)
+                        }))
+                    }));
                 },
 
                 setMyMemberId: (memberId) => set({ myMemberId: memberId }),
