@@ -585,8 +585,8 @@ export const Timeline: React.FC = () => {
     const handleAutoPlan = () => {
         const executePlan = () => {
             const { timelineEvents, partyMembers } = useMitigationStore.getState();
-            const newMitigations = generateAutoPlan(timelineEvents, partyMembers);
-            useMitigationStore.getState().applyAutoPlan(newMitigations);
+            const result = generateAutoPlan(timelineEvents, partyMembers);
+            useMitigationStore.getState().applyAutoPlan(result);
         };
 
         if (typeof window !== 'undefined' && window.innerWidth < 768) {

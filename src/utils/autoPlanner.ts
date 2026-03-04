@@ -1,547 +1,404 @@
 import type { TimelineEvent, PartyMember, AppliedMitigation, Mitigation } from '../types';
 import { MITIGATIONS } from '../data/mockData';
 
-// -----------------------------------------------------------------------------
-// FF14 Mitigation Auto-Planner Engine V5
-// — Danger-scored AoE scheduling with healer set rotation
-// — Lethal damage verification loop
-// -----------------------------------------------------------------------------
-
-const EXCLUDED_MITIGATIONS = new Set(['passage_of_arms']);
-
-const DERIVED_SKILLS_MAP: Record<string, string> = {
-    'neutral_sect': 'sun_sign',
-    'temperance': 'divine_caress'
-};
-
-function genId(): string {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-    return 'ap_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+export interface AutoPlannerResult {
+    mitigations: AppliedMitigation[];
+    warnings: string[];
 }
 
-function getMitigation(id: string): Mitigation | undefined {
-    return MITIGATIONS.find(m => m.id === id);
-}
-
-function getFamily(miti: Mitigation): string {
-    const nameEn = miti.name.en || miti.name.ja || '';
-    if (['Tactician', 'Troubadour', 'Shield Samba'].some(m => nameEn.includes(m))) return 'RangedMiti';
-    if (nameEn.includes('Reprisal')) return 'Reprisal';
-    if (nameEn.includes('Feint')) return 'Feint';
-    if (nameEn.includes('Addle')) return 'Addle';
-    return miti.id;
-}
-
-// ─── Healer Set Definitions ─────────────────────────────────────────────
-
-// Scholar sets (ordered by priority: A = most powerful → D = lightest)
-// Set A1: 陣 + 秘策：展開戦術 + サモンセラフィム + フェイイルミネーション
-// Set A2: 陣 + 秘策：展開戦術 + 疾風怒濤  (alternative A when seraph on CD)
-// Set B:  陣 + サモンセラフィム + フェイイルミネーション
-// Set C:  陣 + 疾風怒濤  (same priority as B, alternated)
-// Set D:  陣 + 秘策：展開戦術 (意気軒高)
-const SCH_SETS = {
-    A1: ['sacred_soil', 'recitation_deployment_tactics', 'summon_seraph', 'fey_illumination'],
-    A2: ['sacred_soil', 'recitation_deployment_tactics', 'expedient'],
-    B: ['sacred_soil', 'summon_seraph', 'fey_illumination'],
-    C: ['sacred_soil', 'expedient'],
-    D: ['sacred_soil', 'recitation_deployment_tactics'],
-};
-
-// Sage sets
-// Set A: ケーラコレ + パンハイマ + ホーリズム
-// Set B: ケーラコレ + ホーリズム (same priority as C, alternated)
-// Set C: ケーラコレ + パンハイマ (same priority as B, alternated)
-// Set D: ケーラコレ + エウクラシアプログノシスII
-const SGE_SETS = {
-    A: ['kerachole', 'panhaima', 'holos'],
-    B: ['kerachole', 'holos'],
-    C: ['kerachole', 'panhaima'],
-    D: ['kerachole', 'eukrasian_prognosis_ii'],
-};
-
+// 完全にゼロベースで設計された高精度オートプラン・エンジン
 export function generateAutoPlan(
     timeline: TimelineEvent[],
     party: PartyMember[],
     settings?: { tankHp: number; dpsHp: number }
-): AppliedMitigation[] {
+): AutoPlannerResult {
     const assignments: AppliedMitigation[] = [];
+    const warnings = new Set<string>();
+
+    const defaultTankHp = party.find(m => m.role === 'tank' && m.computedValues?.hp)?.computedValues?.hp ?? 299000;
+    const defaultDpsHp = party.find(m => m.role === 'dps' && m.computedValues?.hp)?.computedValues?.hp ?? 199000;
 
     const safeSettings = {
-        tankHp: settings?.tankHp ?? 299000,
-        dpsHp: settings?.dpsHp ?? 199000,
+        tankHp: settings?.tankHp ?? defaultTankHp,
+        dpsHp: settings?.dpsHp ?? defaultDpsHp,
     };
 
+    // メンバーごとの所持スキル（パッセージ・オブ・アームズは通常計算から除外）
+    const EXCLUDED_MITIGATIONS = new Set(['passage_of_arms']);
     const memberMitigations = new Map<string, Mitigation[]>();
     for (const member of party) {
-        if (member.jobId) {
-            memberMitigations.set(member.id, MITIGATIONS.filter(m =>
-                (m.jobId === member.jobId || m.jobId === member.role) &&
-                !EXCLUDED_MITIGATIONS.has(m.id)
-            ));
-        }
+        const mitis = MITIGATIONS.filter(m => {
+            if (m.jobId === member.jobId) return true;
+            if (m.jobId === member.role) return true;
+            if (m.jobId === 'role_action') return true;
+            return false;
+        }).filter(m => !EXCLUDED_MITIGATIONS.has(m.id));
+        memberMitigations.set(member.id, mitis);
     }
 
-    // ─── Usage Tracking ─────────────────────────────────────────────────
     const usageTimes = new Map<string, number[]>();
+    let dissipationTime = -1;
+    const schMember = party.find(m => m.jobId === 'sch');
 
+    // =========================================================================
+    // ヘルパー関数
+    // =========================================================================
+
+    function genId(): string {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+        return 'ap_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+    }
+
+    function getMitigation(id: string): Mitigation | undefined {
+        return MITIGATIONS.find(m => m.id === id);
+    }
+
+    // リキャスト、妖精ロックアウト、および【前提スキル（requires）】判定
     const isCooldownAvailable = (memberId: string, mitiId: string, time: number): boolean => {
         const miti = getMitigation(mitiId);
         if (!miti) return false;
-        if (!mitiId) return false;
 
-        const memberMitis = memberMitigations.get(memberId) || [];
-        if (!memberMitis.some(m => m.id === mitiId)) return false;
+        // フェーズ5: 学者の妖精ロックアウト（転化後30秒間）
+        if (schMember && memberId === schMember.id && dissipationTime >= 0) {
+            const timeSinceDissipation = time - dissipationTime;
+            if (timeSinceDissipation >= 0 && timeSinceDissipation <= 30) {
+                const schFairySkills = ['summon_seraph', 'fey_illumination', 'whispering_dawn', 'fey_blessing', 'fey_union', 'fey_union_stop', 'consolation'];
+                if (schFairySkills.includes(mitiId) || schFairySkills.includes(mitiId.replace('_sch', ''))) {
+                    return false;
+                }
+            }
+        }
+
+        // 前提スキル（requires）の確認：親スキルが効果時間中であるかチェック
+        if (miti.requires) {
+            const reqUsedTimes = usageTimes.get(`${memberId}_${miti.requires}`) || [];
+            const reqMiti = getMitigation(miti.requires);
+            const reqDuration = reqMiti ? reqMiti.duration : 20;
+            const isReqActive = reqUsedTimes.some(t => time >= t && time <= t + reqDuration);
+            if (!isReqActive) return false;
+        }
 
         const key = `${memberId}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         for (const usedTime of times) {
-            if (Math.abs(time - usedTime) < miti.recast) {
-                return false;
-            }
+            if (Math.abs(time - usedTime) < miti.recast) return false;
         }
 
-        const family = getFamily(miti);
-        const hasFamilyOverlap = assignments.some(a => {
-            const aMiti = getMitigation(a.mitigationId);
-            if (!aMiti || getFamily(aMiti) !== family) return false;
-            return (time < a.time + a.duration) && (a.time < time + miti.duration);
-        });
-
-        if (hasFamilyOverlap) return false;
         return true;
     };
 
-    const useMitigation = (memberId: string, mitiId: string, time: number, targetId?: string) => {
+    // アサインメントの確定
+    const commitMitigation = (memberId: string, mitiId: string, time: number, targetId?: string): void => {
         const miti = getMitigation(mitiId);
-        if (!miti) return null;
+        if (!miti) return;
 
-        const assignment: AppliedMitigation = {
+        // 【修正要求2】 scopeに基づく厳密なターゲット管理
+        // モックデータ上で scope === 'self' または scope === 'party' の場合は targetId を強制的に解除し、UI側の誤爆を防ぐ
+        let finalTargetId = targetId;
+        if (miti.scope === 'self' || miti.scope === 'party') {
+            finalTargetId = undefined;
+        }
+
+        assignments.push({
             id: genId(),
             mitigationId: miti.id,
             time: time,
             duration: miti.duration,
             ownerId: memberId,
-            targetId: targetId,
-        };
-        assignments.push(assignment);
+            targetId: finalTargetId,
+        });
 
         const key = `${memberId}_${mitiId}`;
         const times = usageTimes.get(key) || [];
         times.push(time);
         usageTimes.set(key, times);
 
-        if (DERIVED_SKILLS_MAP[miti.id]) {
-            const derivedId = DERIVED_SKILLS_MAP[miti.id];
-            const dMiti = getMitigation(derivedId);
-            if (dMiti) {
-                assignments.push({
-                    id: genId(),
-                    mitigationId: dMiti.id,
-                    time: time,
-                    duration: dMiti.duration,
-                    ownerId: memberId,
-                });
-                const dKey = `${memberId}_${derivedId}`;
-                const dTimes = usageTimes.get(dKey) || [];
-                dTimes.push(time);
-                usageTimes.set(dKey, dTimes);
-            }
-        }
-
-        return assignment;
-    };
-
-    const cancelAssignment = (targetId: string, mitiId: string, timeToRemove: number) => {
-        const member = party.find(m => m.id === targetId || m.role === targetId);
-        if (!member) return;
-
-        const index = assignments.findIndex(a => a.ownerId === member.id && a.mitigationId === mitiId && a.time === timeToRemove);
-        if (index > -1) {
-            assignments.splice(index, 1);
-        }
-        const key = `${member.id}_${mitiId}`;
-        const times = usageTimes.get(key) || [];
-        const tIndex = times.indexOf(timeToRemove);
-        if (tIndex > -1) {
-            times.splice(tIndex, 1);
-            usageTimes.set(key, times);
-        }
-
-        // Also cancel derived skill
-        if (DERIVED_SKILLS_MAP[mitiId]) {
-            const derivedId = DERIVED_SKILLS_MAP[mitiId];
-            const dIndex = assignments.findIndex(a => a.ownerId === member.id && a.mitigationId === derivedId && a.time === timeToRemove);
-            if (dIndex > -1) assignments.splice(dIndex, 1);
-            const dKey = `${member.id}_${derivedId}`;
-            const dTimes = usageTimes.get(dKey) || [];
-            const dtIndex = dTimes.indexOf(timeToRemove);
-            if (dtIndex > -1) { dTimes.splice(dtIndex, 1); usageTimes.set(dKey, dTimes); }
+        if (mitiId === 'dissipation' || mitiId.startsWith('dissipation_')) {
+            dissipationTime = time;
         }
     };
 
-    // Calculate Real Damage helper
-    const calculateRealDamage = (eventTime: number, rawDamage: number, eventTarget: 'MT' | 'ST' | 'AoE'): number => {
+    // リスト内から該当スキルを探す関数群
+    const getSkillByFamily = (memberId: string | undefined | null, family: string, time: number): string | null => {
+        if (!memberId) return null;
+        const memberMitis = memberMitigations.get(memberId) || [];
+        const miti = memberMitis.find(m => m.family === family && isCooldownAvailable(memberId, m.id, time));
+        return miti ? miti.id : null;
+    };
+
+    const getRoleAction = (memberId: string | undefined | null, baseId: string, time: number): string | null => {
+        if (!memberId) return null;
+        const memberMitis = memberMitigations.get(memberId) || [];
+        const miti = memberMitis.find(m => m.family === 'role_action' && m.id.includes(baseId) && isCooldownAvailable(memberId, m.id, time));
+        return miti ? miti.id : null;
+    };
+
+    const findAvailableSkill = (memberId: string | undefined | null, filterFn: (m: Mitigation) => boolean, time: number): string | null => {
+        if (!memberId) return null;
+        const memberMitis = memberMitigations.get(memberId) || [];
+        const miti = memberMitis.find(m => filterFn(m) && isCooldownAvailable(memberId, m.id, time));
+        return miti ? miti.id : null;
+    };
+
+    // 指定Familyのスキルを"すべて"配置する（イルミとコンソレの同時配置用など）
+    const deployAllByFamily = (memberId: string | undefined | null, family: string, time: number) => {
+        if (!memberId) return;
+        const memberMitis = memberMitigations.get(memberId) || [];
+        const mitis = memberMitis.filter(m => m.family === family && isCooldownAvailable(memberId, m.id, time));
+        for (const m of mitis) {
+            commitMitigation(memberId, m.id, time);
+        }
+    };
+
+    // シミュレーション（致死量判定）
+    const simulateDamage = (eventTime: number, rawDamage: number, eventTarget: 'MT' | 'ST' | 'AoE', simAssignments: AppliedMitigation[]): number => {
         let mitigationMultiplier = 1;
+        let totalShieldValue = 0;
 
-        for (const a of assignments) {
+        for (const a of simAssignments) {
             const miti = getMitigation(a.mitigationId);
             if (!miti) continue;
 
             const isCoveringEvent = eventTime >= a.time && eventTime <= a.time + a.duration;
             if (!isCoveringEvent) continue;
 
-            if (miti.isInvincible && a.ownerId === eventTarget) {
-                return 0;
-            }
+            if (miti.isInvincible && (a.ownerId === eventTarget || a.targetId === eventTarget)) return 0;
 
-            if (!miti.isShield && miti.value > 0) {
-                if (miti.scope === 'party' || miti.scope === undefined || a.ownerId === eventTarget) {
-                    mitigationMultiplier *= (1 - miti.value / 100);
+            if (miti.value > 0 || miti.isShield) {
+                if (miti.scope === 'party' || miti.scope === undefined || a.ownerId === eventTarget || a.targetId === eventTarget) {
+                    if (miti.isShield) {
+                        const targetMaxHp = eventTarget === 'AoE' ? safeSettings.dpsHp : safeSettings.tankHp;
+                        const shieldAmount = targetMaxHp * (miti.value / 100);
+                        totalShieldValue += shieldAmount;
+                    } else if (miti.value > 0) {
+                        mitigationMultiplier *= (1 - miti.value / 100);
+                    }
                 }
             }
         }
 
-        return rawDamage * mitigationMultiplier;
+        let finalDamage = rawDamage * mitigationMultiplier;
+        finalDamage = Math.max(0, finalDamage - totalShieldValue);
+        return finalDamage;
     };
 
-    // ─── Helper Functions ────────────────────────────────────────────────
-
-    const tryAssignMiti = (roleId: string, mitiId: string, time: number, targetId?: string): boolean => {
-        if (!mitiId) return false;
-        const member = party.find(m => m.id === roleId || m.role === roleId);
-        if (member && isCooldownAvailable(member.id, mitiId, time)) {
-            useMitigation(member.id, mitiId, time, targetId);
-            return true;
-        }
-        return false;
+    const isBlockLethal = (events: TimelineEvent[], target: 'MT' | 'ST' | 'AoE', simAssignments: AppliedMitigation[]): boolean => {
+        const hpBase = target === 'AoE' ? safeSettings.dpsHp : safeSettings.tankHp;
+        const totalDamage = events.map(e => simulateDamage(e.time, e.damageAmount || 0, target, simAssignments)).reduce((a, b) => a + b, 0);
+        return totalDamage >= hpBase;
     };
 
-    const tryRoleGeneric = (partyMember: PartyMember | undefined, type: 'reprisal' | '90s_tank' | 'feint' | 'addle' | '90s_ranged', time: number) => {
-        if (!partyMember || !partyMember.jobId) return false;
-
-        let mitiId = '';
-        if (type === 'reprisal') mitiId = `reprisal_${partyMember.jobId}`;
-        else if (type === '90s_tank') mitiId = partyMember.jobId === 'war' ? 'shake_it_off' : partyMember.jobId === 'pld' ? 'divine_veil' : partyMember.jobId === 'drk' ? 'dark_missionary' : 'heart_of_light';
-        else if (type === 'feint') mitiId = `feint_${partyMember.jobId}`;
-        else if (type === 'addle') mitiId = `addle_${partyMember.jobId}`;
-        else if (type === '90s_ranged') mitiId = partyMember.jobId === 'brd' ? 'troubadour' : partyMember.jobId === 'mch' ? 'tactician' : 'shield_samba';
-
-        return tryAssignMiti(partyMember.id, mitiId, time);
-    };
-
-    // ─── Party Role Discovery ────────────────────────────────────────────
-
+    // ポジションマッピング
     const tanks = { mt: party.find(m => m.id === 'MT'), st: party.find(m => m.id === 'ST') };
     const healers = { h1: party.find(m => m.id === 'H1'), h2: party.find(m => m.id === 'H2') };
-    const melees = party.filter(m => m.role === 'dps' && ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(m.jobId!));
-    const casters = party.filter(m => m.role === 'dps' && ['blm', 'smn', 'rdm', 'pct'].includes(m.jobId!));
-    const ranged = party.filter(m => m.role === 'dps' && ['brd', 'mch', 'dnc'].includes(m.jobId!));
+    const d1 = party.find(m => m.id === 'D1');
+    const d2 = party.find(m => m.id === 'D2');
+    const d3 = party.find(m => m.id === 'D3');
+    const d4 = party.find(m => m.id === 'D4');
+    const mtGroupDPS = [d1, d3].filter(Boolean) as PartyMember[];
+    const stGroupDPS = [d2, d4].filter(Boolean) as PartyMember[];
 
-    const tankSkills = {
-        pld: { invuln: 'hallowed_ground', heavy: 'guardian', mid: 'bulwark', short: 'holy_sheltron', partnerShort: 'intervention' },
-        war: { invuln: 'holmgang', heavy: 'damnation', mid: 'thrill_of_battle', short: 'bloodwhetting', partnerShort: 'nascent_flash' },
-        drk: { invuln: 'living_dead', heavy: 'shadowed_vigil', mid: 'dark_mind', short: 'the_blackest_night', partnerShort: 'oblation' },
-        gnb: { invuln: 'superbolide', heavy: 'great_nebula', mid: 'camouflage', short: 'heart_of_corundum', partnerShort: 'heart_of_corundum' },
-    };
-
-    // WHM / AST H1 skills
-    const getH1Short = (job: string) => job === 'whm' ? '' : 'collective_unconscious';
-    const getH1CoverSets = (job: string) => job === 'whm' ? ['temperance'] : ['neutral_sect', 'collective_unconscious'];
-
-    // ─── Damage Events ───────────────────────────────────────────────────
-
-    const damageEvents = timeline.filter(t =>
-        (t.target === 'AoE' || t.target === 'MT' || t.target === 'ST') && (t.damageAmount || 0) > 0
-    );
-    const chronologicalEvents = [...damageEvents].sort((a, b) => a.time - b.time);
-
-    // ═════════════════════════════════════════════════════════════════════
-    // PASS 1: DANGER-SCORED HEALER SET ASSIGNMENT (AoE only)
-    // ═════════════════════════════════════════════════════════════════════
-
-    // Collect unique AoE events (skip consecutive AoEs within 3s)
-    const aoeEvents: TimelineEvent[] = [];
-    for (const ev of chronologicalEvents) {
-        if (ev.target !== 'AoE') continue;
-        const previousAoE = aoeEvents.find(e => ev.time - e.time <= 3 && ev.time > e.time);
-        if (previousAoE) continue;
-        aoeEvents.push(ev);
+    // フェーズ5: 学者の開幕転化強制配置
+    if (schMember) {
+        const diss = memberMitigations.get(schMember.id)?.find(m => m.id.includes('dissipation'));
+        if (diss) commitMitigation(schMember.id, diss.id, 0);
     }
 
-    // Score and sort by danger (descending)
-    const scoredAoEs = aoeEvents.map(ev => ({
-        event: ev,
-        dangerScore: (ev.damageAmount || 0) / safeSettings.dpsHp,
-    })).sort((a, b) => b.dangerScore - a.dangerScore);
+    // =========================================================================
+    // フェーズ1: タイムラインの圧縮とグループ化
+    // =========================================================================
 
-    // Assign healer sets based on danger ranking
-    const h2Job = healers.h2?.jobId;
-    const h2Id = healers.h2?.id;
+    // 大前提1: AAの完全無視を徹底
+    const validEvents = timeline.filter(t => {
+        if ((t.damageType as string) === 'AA' || (t.damageType as string)?.toLowerCase() === 'aa') return false;
+        const lEn = (t.name.en || '').toLowerCase();
+        const lJa = t.name.ja || '';
+        if (lEn.includes('aa') || lEn.includes('auto attack') || lEn.includes('auto-attack')) return false;
+        if (lJa === 'aa' || lJa.includes('オートアタック')) return false;
+        return (t.target === 'AoE' || t.target === 'MT' || t.target === 'ST') && (t.damageAmount || 0) > 0;
+    }).sort((a, b) => a.time - b.time);
 
-    if (h2Id && h2Job) {
-        // Try to assign a set to each AoE (from most dangerous to least)
-        const tryHealerSet = (skills: string[], time: number): boolean => {
-            // Check all skills in the set are available
-            const allAvailable = skills.every(s => isCooldownAvailable(h2Id, s, time));
-            if (!allAvailable) return false;
-            for (const s of skills) {
-                // summon_seraph auto-assigns fey_illumination via DERIVED_SKILLS_MAP? No, it doesn't.
-                // We assign each explicitly
-                useMitigation(h2Id, s, time);
+    interface DamageBlock {
+        id: string;
+        target: 'AoE' | 'MT' | 'ST';
+        startTime: number;
+        endTime: number;
+        events: TimelineEvent[];
+        isTB: boolean;
+        maxDamageRatio: number;
+    }
+
+    const blocks: DamageBlock[] = [];
+    for (const ev of validEvents) {
+        if (!ev.target) continue;
+        const eventTarget = ev.target;
+        const hpBase = eventTarget === 'AoE' ? safeSettings.dpsHp : safeSettings.tankHp;
+        const dmgRatio = (ev.damageAmount || 0) / hpBase;
+
+        // 【修正】名前判定ではなく、ターゲット情報から確実に強攻撃と判定する
+        const isTB = eventTarget === 'MT' || eventTarget === 'ST';
+
+        const lastBlock = blocks.length > 0 ? blocks[blocks.length - 1] : null;
+        if (lastBlock && lastBlock.target === eventTarget && ev.time - lastBlock.endTime <= 4) {
+            lastBlock.events.push(ev);
+            lastBlock.endTime = ev.time;
+            if (dmgRatio > lastBlock.maxDamageRatio) lastBlock.maxDamageRatio = dmgRatio;
+            lastBlock.isTB = isTB;
+        } else {
+            blocks.push({
+                id: ev.id,
+                target: eventTarget,
+                startTime: ev.time,
+                endTime: ev.time,
+                events: [ev],
+                isTB: isTB,
+                maxDamageRatio: dmgRatio,
+            });
+        }
+    }
+
+    // =========================================================================
+    // フェーズ2・3: 全体攻撃（AoE）への固定セット配置
+    // =========================================================================
+    const aoeBlocks = blocks.filter(b => b.target === 'AoE').sort((a, b) => b.maxDamageRatio - a.maxDamageRatio);
+    let aoeRoute: 'A' | 'B' = 'A';
+
+    for (const block of aoeBlocks) {
+        const time = block.startTime;
+        const maxRatio = block.maxDamageRatio;
+
+        if (maxRatio < 1.0) continue;
+
+        const tier = maxRatio >= 1.75 ? 4 : (maxRatio >= 1.2 ? 3 : 2);
+
+        const deploy = (roleId: string | undefined | null, mitiId: string | null) => {
+            if (roleId && mitiId) commitMitigation(roleId, mitiId, time);
+        };
+
+        const deployFlex = (dpsGroup: PartyMember[]) => {
+            for (const dps of dpsGroup) {
+                if (!isBlockLethal(block.events, block.target, assignments)) break;
+                const flexMiti = findAvailableSkill(dps.id, m => m.family !== 'role_action' && m.scope !== 'self', time);
+                if (flexMiti) deploy(dps.id, flexMiti);
+            }
+        };
+
+        if (aoeRoute === 'A') {
+            deploy(tanks.mt?.id, getRoleAction(tanks.mt?.id, 'reprisal', time));
+            deploy(tanks.mt?.id, findAvailableSkill(tanks.mt?.id, m => m.family === 'tank_party_miti' || m.family === 'tank_party_miti_sub', time));
+            deploy(d1?.id, getRoleAction(d1?.id, 'feint', time));
+            deploy(d3?.id, getSkillByFamily(d3?.id, 'ranged_party_15', time));
+            deploy(healers.h1?.id, getSkillByFamily(healers.h1?.id, 'ph_60_aoe', time));
+
+            if (tier >= 3) {
+                deployAllByFamily(healers.h2?.id, 'healer_bubble', time);
+                const bh120a = getSkillByFamily(healers.h2?.id, 'bh_120_a', time);
+                const bh120b = getSkillByFamily(healers.h2?.id, 'bh_120_b', time);
+
+                if (bh120a) {
+                    deploy(healers.h2?.id, bh120a);
+                    // 【修正】親スキル配置後にサブを評価することで、requiresを確実に通過させる
+                    deployAllByFamily(healers.h2?.id, 'bh_sub_a', time);
+                } else if (bh120b) {
+                    deploy(healers.h2?.id, bh120b);
+                }
+            }
+
+            if (tier >= 4) {
+                if (isBlockLethal(block.events, block.target, assignments)) deployFlex(mtGroupDPS);
+                if (isBlockLethal(block.events, block.target, assignments)) deployFlex(stGroupDPS);
+            }
+            aoeRoute = 'B';
+        } else {
+            deploy(tanks.st?.id, getRoleAction(tanks.st?.id, 'reprisal', time));
+            deploy(tanks.st?.id, findAvailableSkill(tanks.st?.id, m => m.family === 'tank_party_miti' || m.family === 'tank_party_miti_sub', time));
+            deploy(d2?.id, getRoleAction(d2?.id, 'feint', time));
+            deploy(d4?.id, getRoleAction(d4?.id, 'addle', time));
+            deploy(healers.h2?.id, getSkillByFamily(healers.h2?.id, 'healer_bubble', time));
+
+            if (tier >= 3) {
+                const ph120 = getSkillByFamily(healers.h1?.id, 'ph_120_aoe', time);
+                if (ph120) {
+                    deploy(healers.h1?.id, ph120);
+                    // 【修正】親スキル配置後にサブを評価する
+                    deployAllByFamily(healers.h1?.id, 'ph_sub_120', time);
+                }
+            }
+
+            if (tier >= 4) {
+                if (isBlockLethal(block.events, block.target, assignments)) deployFlex(stGroupDPS);
+                if (isBlockLethal(block.events, block.target, assignments)) deployFlex(mtGroupDPS);
+            }
+            aoeRoute = 'A';
+        }
+    }
+
+    // =========================================================================
+    // フェーズ4: タンク強攻撃（TB）のバフローテーション
+    // =========================================================================
+    const tbBlocks = blocks.filter(b => b.target !== 'AoE').sort((a, b) => b.maxDamageRatio - a.maxDamageRatio);
+
+    for (const block of tbBlocks) {
+        if (block.target === 'AoE' || !block.isTB) continue;
+
+        const time = block.startTime;
+        const targetId = block.target;
+        const targetTank = targetId === 'MT' ? tanks.mt : tanks.st;
+        if (!targetTank) continue;
+
+        if (block.maxDamageRatio < 1.0) continue;
+
+        const t40 = getSkillByFamily(targetTank.id, 'tank_40', time);
+        const tShort = getSkillByFamily(targetTank.id, 'tank_short', time);
+        const tSubTargeted = getSkillByFamily(targetTank.id, 'tank_sub_targeted', time);
+        const tRoleAction = getRoleAction(targetTank.id, 'rampart', time);
+        const tSubSelf = getSkillByFamily(targetTank.id, 'tank_sub_self', time);
+        const tInvuln = getSkillByFamily(targetTank.id, 'tank_invuln', time);
+
+        const evaluatePattern = (required: (string | null)[], optional: (string | null)[], requireSurvival: boolean): boolean => {
+            if (required.some(r => r === null)) return false;
+
+            let candidateIds = [...(required as string[]), ...(optional.filter(Boolean) as string[])];
+            if (candidateIds.length === 0) return false;
+
+            // 【修正要求3】 1回の強攻撃に対するバフの数は「最大4つまで」という制約を必ず守る
+            candidateIds = candidateIds.slice(0, 4);
+
+            const testAssignments = [...assignments];
+            for (const cId of candidateIds) {
+                const miti = getMitigation(cId);
+                if (miti) {
+                    // ここでの targetId は生存テスト用であり、最終的なUI展開時には commitMitigation 内の scope 洗い替えで処理される
+                    testAssignments.push({ id: 'fake', mitigationId: miti.id, time, duration: miti.duration, ownerId: targetTank.id, targetId: targetId });
+                }
+            }
+
+            if (requireSurvival && isBlockLethal(block.events, targetId, testAssignments)) {
+                return false;
+            }
+
+            for (const cId of candidateIds) {
+                commitMitigation(targetTank.id, cId, time, targetId);
             }
             return true;
         };
 
-        if (h2Job === 'sch') {
-            // Scholar set assignment
-            let bcToggle = false; // false = B first, true = C first
-            for (const scored of scoredAoEs) {
-                const t = scored.event.time;
-                // Try Set A (most powerful) for the most dangerous events
-                if (scored.dangerScore > 0.7) {
-                    if (!tryHealerSet(SCH_SETS.A1, t)) {
-                        tryHealerSet(SCH_SETS.A2, t);
-                    }
-                    continue;
-                }
-                // Alternate B and C for medium danger
-                if (scored.dangerScore > 0.4) {
-                    const first = bcToggle ? SCH_SETS.C : SCH_SETS.B;
-                    const second = bcToggle ? SCH_SETS.B : SCH_SETS.C;
-                    if (!tryHealerSet(first, t)) {
-                        tryHealerSet(second, t);
-                    }
-                    bcToggle = !bcToggle;
-                    continue;
-                }
-                // Set D for lighter events
-                tryHealerSet(SCH_SETS.D, t);
-            }
-        } else if (h2Job === 'sge') {
-            // Sage set assignment
-            let bcToggle = false;
-            for (const scored of scoredAoEs) {
-                const t = scored.event.time;
-                if (scored.dangerScore > 0.7) {
-                    tryHealerSet(SGE_SETS.A, t);
-                    continue;
-                }
-                if (scored.dangerScore > 0.4) {
-                    const first = bcToggle ? SGE_SETS.C : SGE_SETS.B;
-                    const second = bcToggle ? SGE_SETS.B : SGE_SETS.C;
-                    if (!tryHealerSet(first, t)) {
-                        tryHealerSet(second, t);
-                    }
-                    bcToggle = !bcToggle;
-                    continue;
-                }
-                tryHealerSet(SGE_SETS.D, t);
-            }
+        if (evaluatePattern([t40, tShort], [tSubTargeted], true)) continue;
+        if (evaluatePattern([tRoleAction, tSubSelf, tShort], [tSubTargeted], true)) continue;
+        if (evaluatePattern([t40, tRoleAction, tSubSelf, tShort], [tSubTargeted], true)) continue;
+        if (evaluatePattern([t40, tShort], [], true)) continue;
+        if (evaluatePattern([tRoleAction, tSubSelf, tShort], [], true)) continue;
+        if (evaluatePattern([tInvuln], [], false)) continue;
+    }
+
+    // =========================================================================
+    // 最終警告（致死量到達）の判定
+    // =========================================================================
+    for (const block of blocks) {
+        if (isBlockLethal(block.events, block.target, assignments)) {
+            block.events.forEach(e => warnings.add(e.id));
         }
     }
 
-    // H1 sets (WHM / AST) - simpler rotation
-    const h1Job = healers.h1?.jobId;
-    if (healers.h1?.id && h1Job) {
-        const h1CoverSkills = getH1CoverSets(h1Job);
-        let h1SetIdx = 0;
-        for (const scored of scoredAoEs) {
-            if (scored.dangerScore > 0.5) {
-                const skill = h1CoverSkills[h1SetIdx % h1CoverSkills.length];
-                tryAssignMiti('H1', skill, scored.event.time);
-                h1SetIdx++;
-            } else {
-                const shortSkill = getH1Short(h1Job);
-                if (shortSkill) tryAssignMiti('H1', shortSkill, scored.event.time);
-            }
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    // PASS 2: GROUP ROTATION (Tanks + DPS mitigation for AoE)
-    // ═════════════════════════════════════════════════════════════════════
-
-    let currentTurn = 1;
-
-    for (const ev of chronologicalEvents) {
-        const time = ev.time;
-        const rawDamage = ev.damageAmount || 0;
-
-        if (ev.target === 'AoE') {
-            // Skip consecutive AoEs (already handled in healer set pass)
-            const previousAoE = chronologicalEvents.find(e =>
-                e.target === 'AoE' && e.time < time && time - e.time <= 3
-            );
-            if (previousAoE) continue;
-
-            // Group rotation: tanks + DPS
-            if (currentTurn === 1) {
-                // Group 1: MT reprisal+90s, D1 feint, D3 ranged90s
-                tryRoleGeneric(tanks.mt, 'reprisal', time);
-                tryRoleGeneric(tanks.mt, '90s_tank', time);
-                if (melees.length > 0) tryRoleGeneric(melees[0], 'feint', time);
-                if (ranged.length > 0) tryRoleGeneric(ranged[0], '90s_ranged', time);
-            } else {
-                // Group 2: ST reprisal+90s, D2 feint, D4 addle
-                tryRoleGeneric(tanks.st, 'reprisal', time);
-                tryRoleGeneric(tanks.st, '90s_tank', time);
-                if (melees.length > 1) tryRoleGeneric(melees[1], 'feint', time);
-                if (casters.length > 0) tryRoleGeneric(casters[0], 'addle', time);
-            }
-
-            currentTurn = currentTurn === 1 ? 2 : 1;
-
-        } else if (ev.target === 'MT' || ev.target === 'ST') {
-            // ── Tank Buster Handling (unchanged logic) ──────────────
-            const isTB = rawDamage >= (safeSettings.tankHp * 0.5) ||
-                ev.name.en?.toLowerCase().includes('(tb)') ||
-                ev.name.ja?.includes('(TB)') || ev.name.ja?.includes('強攻撃');
-            if (!isTB) continue;
-
-            const targetId = ev.target;
-            const partnerId = targetId === 'MT' ? 'ST' : 'MT';
-            const targetTank = targetId === 'MT' ? tanks.mt : tanks.st;
-            const partnerTank = targetId === 'MT' ? tanks.st : tanks.mt;
-
-            if (!targetTank?.jobId) continue;
-            const skills = tankSkills[targetTank.jobId as keyof typeof tankSkills];
-            if (!skills) continue;
-            const rampart = `rampart_${targetTank.jobId}`;
-
-            // Check if already invincible
-            let hasInvulnActive = false;
-            for (const a of assignments) {
-                if (a.ownerId === targetTank.id && a.mitigationId === skills.invuln &&
-                    time >= a.time && time < a.time + a.duration) {
-                    hasInvulnActive = true;
-                    break;
-                }
-            }
-            if (hasInvulnActive) continue;
-
-            // Group consecutive TBs
-            const previousTB = chronologicalEvents.find(e =>
-                e.target === targetId && e.time < time && time - e.time <= 5 &&
-                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.name.en?.toLowerCase().includes('(tb)') || e.name.ja?.includes('(TB)') || e.name.ja?.includes('強攻撃'))
-            );
-            if (previousTB) continue;
-
-            const flurryHits = chronologicalEvents.filter(e =>
-                e.target === targetId && e.time >= time && e.time - time <= 5 &&
-                (e.damageAmount! >= (safeSettings.tankHp * 0.5) || e.name.en?.toLowerCase().includes('(tb)') || e.name.ja?.includes('(TB)') || e.name.ja?.includes('強攻撃'))
-            );
-            const maxRawDamage = Math.max(...flurryHits.map(e => e.damageAmount || 0));
-
-            // Tank skill assignment
-            const assignedIds: string[] = [];
-
-            if (isCooldownAvailable(targetId, rampart, time)) {
-                if (tryAssignMiti(targetId, rampart, time)) assignedIds.push(rampart);
-                if (tryAssignMiti(targetId, skills.mid, time)) assignedIds.push(skills.mid);
-                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
-            } else if (isCooldownAvailable(targetId, skills.heavy, time)) {
-                if (tryAssignMiti(targetId, skills.heavy, time)) assignedIds.push(skills.heavy);
-                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
-            } else {
-                if (tryAssignMiti(targetId, skills.mid, time)) assignedIds.push(skills.mid);
-                if (tryAssignMiti(targetId, skills.short, time)) assignedIds.push(skills.short);
-            }
-
-            // Partner cover
-            if (partnerTank?.jobId) {
-                const pSkills = tankSkills[partnerTank.jobId as keyof typeof tankSkills];
-                if (pSkills && tryAssignMiti(partnerId, pSkills.partnerShort, time, targetId)) {
-                    assignedIds.push(`partner_${pSkills.partnerShort}`);
-                }
-            }
-
-            // Lethal check → use invuln
-            const realDamage = calculateRealDamage(time, maxRawDamage, targetId);
-            if (realDamage > safeSettings.tankHp || assignedIds.filter(id => !id.startsWith('partner_')).length === 0) {
-                if (isCooldownAvailable(targetId, skills.invuln, time)) {
-                    for (const id of assignedIds) {
-                        if (id.startsWith('partner_')) {
-                            cancelAssignment(partnerId, id.replace('partner_', ''), time);
-                        } else {
-                            cancelAssignment(targetId, id, time);
-                        }
-                    }
-                    useMitigation(targetId, skills.invuln, time);
-                }
-            }
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    // PASS 3: LETHAL DAMAGE VERIFICATION (AoE survivability)
-    // ═════════════════════════════════════════════════════════════════════
-
-    // Check every AoE — if damage still exceeds DPS HP, try to add more mitigation
-    for (const ev of aoeEvents) {
-        const time = ev.time;
-        const rawDamage = ev.damageAmount || 0;
-        let realDamage = calculateRealDamage(time, rawDamage, 'AoE');
-
-        if (realDamage <= safeSettings.dpsHp) continue;
-
-        // Emergency mitigation pool — try whatever is still available
-        const emergencyPool: { role: string; mitiId: string }[] = [];
-
-        // H2 additional skills
-        if (h2Id && h2Job === 'sch') {
-            emergencyPool.push(
-                { role: h2Id, mitiId: 'sacred_soil' },
-                { role: h2Id, mitiId: 'expedient' },
-                { role: h2Id, mitiId: 'recitation_deployment_tactics' },
-                { role: h2Id, mitiId: 'summon_seraph' },
-                { role: h2Id, mitiId: 'fey_illumination' },
-            );
-        } else if (h2Id && h2Job === 'sge') {
-            emergencyPool.push(
-                { role: h2Id, mitiId: 'kerachole' },
-                { role: h2Id, mitiId: 'holos' },
-                { role: h2Id, mitiId: 'panhaima' },
-                { role: h2Id, mitiId: 'eukrasian_prognosis_ii' },
-            );
-        }
-
-        // H1 skills
-        if (healers.h1?.id && h1Job) {
-            for (const skill of getH1CoverSets(h1Job)) {
-                emergencyPool.push({ role: healers.h1.id, mitiId: skill });
-            }
-            const shortSkill = getH1Short(h1Job);
-            if (shortSkill) emergencyPool.push({ role: healers.h1.id, mitiId: shortSkill });
-        }
-
-        // DPS utility
-        const d4 = casters[0];
-        if (d4?.jobId === 'rdm') emergencyPool.push({ role: d4.id, mitiId: 'magick_barrier' });
-        const d3 = ranged[0];
-        if (d3?.jobId === 'brd') emergencyPool.push({ role: d3.id, mitiId: 'nature_s_minne' });
-        else if (d3?.jobId === 'dnc') emergencyPool.push({ role: d3.id, mitiId: 'improvisation' });
-        const mnk = melees.find(m => m.jobId === 'mnk');
-        if (mnk) emergencyPool.push({ role: mnk.id, mitiId: 'mantra' });
-
-        // Tank reprisals and 90s as last resort
-        if (tanks.mt?.jobId) {
-            emergencyPool.push({ role: tanks.mt.id, mitiId: `reprisal_${tanks.mt.jobId}` });
-            tryRoleGeneric(tanks.mt, '90s_tank', time);
-        }
-        if (tanks.st?.jobId) {
-            emergencyPool.push({ role: tanks.st.id, mitiId: `reprisal_${tanks.st.jobId}` });
-            tryRoleGeneric(tanks.st, '90s_tank', time);
-        }
-
-        // Try each emergency skill until we survive
-        for (const skill of emergencyPool) {
-            if (realDamage <= safeSettings.dpsHp) break;
-            if (tryAssignMiti(skill.role, skill.mitiId, time)) {
-                realDamage = calculateRealDamage(time, rawDamage, 'AoE');
-            }
-        }
-    }
-
-    return assignments.sort((a, b) => a.time - b.time);
+    return { mitigations: assignments.sort((a, b) => a.time - b.time), warnings: Array.from(warnings) };
 }
