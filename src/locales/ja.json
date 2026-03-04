@@ -148,5 +148,58 @@
         "member_mitigations": "メンバー別に削除",
         "copy_event_hint": "このイベントをコピーしてスタンプする",
         "invuln": "無敵"
+    },
+    "sidebar": {
+        "new_plan": "＋ 新規作成",
+        "select_content": "コンテンツ選択",
+        "select_content_desc": "軽減表を作成するコンテンツを選びましょう",
+        "custom_create": "カスタム表を作成",
+        "custom_name_placeholder": "コンテンツ名を入力",
+        "select_from_list": "一覧から選ぶ",
+        "enter_custom_name": "自由に入力",
+        "no_content": "コンテンツが選択されていません",
+        "cloud_sync": "クラウド同期 (近日実装)",
+        "manage_plans": "プラン管理",
+        "current_plan": "現在の表"
+    },
+    "portal": {
+        "title": "FF14 ツールボックス",
+        "subtitle": "軽減プランナーやハウジングツアーなど、冒険をサポートするツール群",
+        "tools": {
+            "miti_planner": {
+                "title": "軽減プランナー",
+                "description": "タイムラインベースの軽減計画ツール。パーティ全体の軽減配置を視覚的にシミュレートできます。"
+            },
+            "housing_tour": {
+                "title": "ハウジングツアー",
+                "description": "ハウジングエリアの巡回ルートを計画・共有するためのツールです。"
+            }
+        }
+    },
+    "tutorial": {
+        "portal_select_title": "ツールを選ぼう",
+        "portal_select_desc": "「軽減プランナー」を選んで、軽減表を作ってみましょう！",
+        "new_plan_title": "新しい表を作ろう",
+        "new_plan_desc": "サイドバーの「＋新規作成」をクリックして、軽減表を作り始めましょう！コンテンツ名を選ぶと、他のユーザーが作成したタイムラインを読み込むこともできます。",
+        "content_select_title": "コンテンツを選ぼう",
+        "content_select_desc": "戦いたいボスを選択してタイムラインを読み込みましょう。FFLogsのURLをインポートすることもできます。",
+        "party_slots_title": "パーティを組もう（前半）",
+        "party_slots_desc": "スロットをクリックしてジョブを選びましょう。まずは4人分設定してみてください。",
+        "party_palette_title": "残りの4人を追加しよう",
+        "party_palette_desc": "今度はスロットを選ばなくてOK！光っているジョブアイコンをタップするだけで、それっぽいスロットに自動で入ります。便利でしょう？",
+        "my_job_title": "マイジョブを設定しよう",
+        "my_job_desc": "自分のジョブを選択すると、自分の列がハイライトされて見やすくなります！",
+        "status_title": "ステータスを確認しよう",
+        "status_desc": "コンテンツを読み込むと、実装当時の挑戦時ステータスがテンプレートとして自動設定されます。装備が強くなったら、ここで数値を調整できます。",
+        "add_miti_title": "軽減を追加しよう",
+        "add_miti_desc": "敵の攻撃に合わせて軽減を追加しましょう！明るくなっているマスをクリックしてください。",
+        "add_phase_title": "フェーズを追加しよう",
+        "add_phase_desc": "時間をクリックするとフェーズを区切れます。名前をつけて整理しましょう！",
+        "complete_title": "チュートリアル完了！🎉",
+        "complete_desc": "お疲れ様です！基本操作をマスターしました。FFLogsインポートでタイムラインを自動生成したり、オートプランで軽減を大まかに自動配置することもできます。ぜひ試してみてください！",
+        "next": "次へ",
+        "complete": "はじめる",
+        "skip": "スキップ",
+        "step_of": "{{current}} / {{total}}"
     }
 }

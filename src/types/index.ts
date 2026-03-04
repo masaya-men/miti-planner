@@ -77,3 +77,49 @@ export interface PartyMember {
     stats: PlayerStats;
     computedValues: Record<string, number>; // "Adloquium": 5000, "TBN": 30000
 }
+
+// ─────────────────────────────────────────────
+// Content Registry Types
+// ─────────────────────────────────────────────
+
+/** Content difficulty category */
+export type ContentCategory =
+    | 'extreme'   // 極
+    | 'savage'    // 零式
+    | 'chaotic'   // VD (Chaotic)
+    | 'ultimate'  // 絶
+    | 'raid'      // 大人数コンテンツ
+    | 'custom';   // ユーザー自作
+
+/** Supported level tiers */
+export type ContentLevel = 70 | 80 | 90 | 100;
+
+/** A single piece of content (boss / floor) */
+export interface ContentDefinition {
+    /** Unique ID (e.g. 'aac_lhw_m4s') */
+    id: string;
+    /** Boss / floor name */
+    name: LocalizedString;
+    /** Short name for sidebar display */
+    shortName: LocalizedString;
+    /** Parent series ID */
+    seriesId: string;
+    /** Difficulty category */
+    category: ContentCategory;
+    /** Level tier */
+    level: ContentLevel;
+    /** Sort order within series (1-based) */
+    order: number;
+}
+
+/** A series grouping multiple floors/bosses */
+export interface ContentSeries {
+    /** Unique ID (e.g. 'aac_lhw') */
+    id: string;
+    /** Series display name */
+    name: LocalizedString;
+    /** Difficulty category */
+    category: ContentCategory;
+    /** Level tier */
+    level: ContentLevel;
+}

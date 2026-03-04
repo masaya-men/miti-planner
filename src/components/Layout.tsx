@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Sidebar } from './Sidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
+import { TutorialOverlay } from './TutorialOverlay';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Home, HelpCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface LayoutProps {
@@ -15,6 +18,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
+    const navigate = useNavigate();
     // Default sidebar closed on mobile (< 768px)
     const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
         typeof window !== 'undefined' ? window.innerWidth >= 768 : true
@@ -128,9 +132,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             alt="Logo"
                             className="h-14 w-auto object-contain filter grayscale sepia hue-rotate-[190deg] saturate-[300%] brightness-110 dark:sepia-0 dark:hue-rotate-0 dark:saturate-100 dark:brightness-[1.5] dark:drop-shadow-[0_0_12px_rgba(226,232,240,0.6)] transition-all duration-300 pointer-events-none"
                         />
+
+                        {/* Home / Portal button */}
+                        <button
+                            onClick={() => navigate('/')}
+                            className="p-2 rounded-lg text-slate-400 hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95"
+                            title="ポータルに戻る"
+                        >
+                            <Home size={16} />
+                        </button>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        {/* Tutorial help button */}
+                        <button
+                            onClick={() => useTutorialStore.getState().startTutorial()}
+                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                            title="チュートリアル"
+                        >
+                            <HelpCircle size={18} />
+                        </button>
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
@@ -199,6 +220,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
                 activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : mobilePartyOpen ? 'party' : mobileStatusOpen ? 'status' : undefined}
             />
+
+            {/* Tutorial Overlay — rendered above everything */}
+            <TutorialOverlay />
         </div>
     );
 };
