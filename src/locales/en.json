@@ -147,5 +147,58 @@
         "member_mitigations": "Clear by member",
         "copy_event_hint": "Copy this event to stamp",
         "invuln": "Invuln"
+    },
+    "sidebar": {
+        "new_plan": "+ New Plan",
+        "select_content": "Select Content",
+        "select_content_desc": "Choose the content for your mitigation plan",
+        "custom_create": "Create Custom Plan",
+        "custom_name_placeholder": "Enter content name",
+        "select_from_list": "Select from list",
+        "enter_custom_name": "Enter custom name",
+        "no_content": "No content selected",
+        "cloud_sync": "Cloud sync (coming soon)",
+        "manage_plans": "Manage Plans",
+        "current_plan": "Current Plan"
+    },
+    "portal": {
+        "title": "FFXIV Toolbox",
+        "subtitle": "Tools to support your adventure — mitigation planner, housing tour, and more.",
+        "tools": {
+            "miti_planner": {
+                "title": "Mitigation Planner",
+                "description": "A timeline-based mitigation planning tool. Visually simulate mitigation placement for your entire party."
+            },
+            "housing_tour": {
+                "title": "Housing Tour",
+                "description": "Plan and share housing area tour routes."
+            }
+        }
+    },
+    "tutorial": {
+        "portal_select_title": "Choose a Tool",
+        "portal_select_desc": "Select \"Mitigation Planner\" to start building your mitigation sheet!",
+        "new_plan_title": "Create a New Plan",
+        "new_plan_desc": "Click \"+New Plan\" in the sidebar to start. You can also load timelines created by other users by selecting a content name.",
+        "content_select_title": "Select Content",
+        "content_select_desc": "Choose the boss you want to plan for and load the timeline. You can also import from FFLogs.",
+        "party_slots_title": "Build Your Party (First Half)",
+        "party_slots_desc": "Click on slots to choose jobs. Set up 4 members first.",
+        "party_palette_title": "Add the Remaining 4",
+        "party_palette_desc": "No need to select slots this time! Just tap the glowing job icons and they'll auto-fill into the right slots. Pretty handy, right?",
+        "my_job_title": "Set Your Job",
+        "my_job_desc": "Select your own job to highlight your column, making it easier to focus on your mitigations!",
+        "status_title": "Check Status Settings",
+        "status_desc": "When content is loaded, stats from the time of release are auto-set as templates. Adjust here when your gear improves.",
+        "add_miti_title": "Add a Mitigation",
+        "add_miti_desc": "Add mitigations to counter enemy attacks! Click on the highlighted cell.",
+        "add_phase_title": "Add a Phase",
+        "add_phase_desc": "Click on a time to create a phase marker. Name it to organize your timeline!",
+        "complete_title": "Tutorial Complete! 🎉",
+        "complete_desc": "Great work! You've mastered the basics. Try FFLogs Import for auto-generated timelines, or Auto Plan for automatic mitigation placement!",
+        "next": "Next",
+        "complete": "Get Started",
+        "skip": "Skip",
+        "step_of": "{{current}} / {{total}}"
     }
 }

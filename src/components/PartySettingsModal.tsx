@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
+import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
 import type { Job, PartyMember } from '../types';
 
@@ -24,6 +25,26 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     // Hybrid UI State
     const [focusedSlot, setFocusedSlot] = useState<number | null>(null);
     const [mounted, setMounted] = useState(false);
+
+    // ── Tutorial state (additive only) ──
+    const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
+    const currentTutorialStep = tutorialActive ? TUTORIAL_STEPS[currentStepIndex] : null;
+    const isTutorialSlots = currentTutorialStep?.id === 'party-slots';
+    const isTutorialPalette = currentTutorialStep?.id === 'party-palette';
+
+    // Sub-step sequence for Step 3 (slot-click method)
+    const SLOT_TUTORIAL_SEQUENCE: { type: 'slot' | 'job'; slotIndex?: number; jobId?: string }[] = [
+        { type: 'slot', slotIndex: 0 }, { type: 'job', jobId: 'drk' },
+        { type: 'slot', slotIndex: 2 }, { type: 'job', jobId: 'whm' },
+        { type: 'slot', slotIndex: 4 }, { type: 'job', jobId: 'mnk' },
+        { type: 'slot', slotIndex: 6 }, { type: 'job', jobId: 'dnc' },
+    ];
+    // Step 4 palette jobs
+    const PALETTE_TUTORIAL_JOBS = ['pld', 'sch', 'drg', 'blm'];
+
+    const [tutorialSubStep, setTutorialSubStep] = useState(0);
+    const lastMeleeSlotRef = useRef<number>(0);
+    useEffect(() => { setTutorialSubStep(0); }, [currentStepIndex]);
 
     useEffect(() => {
         setMounted(true);
@@ -163,6 +184,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         const job = JOBS.find(j => j.id === jobId);
         if (!job) return;
 
+        // Tutorial: during slot sub-steps, block direct palette clicks / wrong job
+        if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+            const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+            if (sub.type === 'slot') return;
+            if (sub.type === 'job' && sub.jobId !== jobId) return;
+        }
+        // Tutorial: during palette step, only allow palette tutorial jobs
+        if (isTutorialPalette && !PALETTE_TUTORIAL_JOBS.includes(jobId)) return;
+
         let targetIndex: number | undefined = undefined;
 
         // Mode A: Manual Focus Override
@@ -212,7 +242,22 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     preferredIndices = [stGroupIndices[1], mtGroupIndices[1]];
                 }
             } else if (MELEE_IDS.includes(jobId)) {
-                preferredIndices = [mtGroupIndices[2], stGroupIndices[2]]; // D1 -> D2
+                const d1 = mtGroupIndices[2];
+                const d2 = stGroupIndices[2];
+                const d1Occupied = !!draftMembers[d1].jobId;
+                const d2Occupied = !!draftMembers[d2].jobId;
+                if (!d1Occupied && !d2Occupied) {
+                    preferredIndices = [d1, d2];
+                } else if (!d1Occupied) {
+                    preferredIndices = [d1];
+                } else if (!d2Occupied) {
+                    preferredIndices = [d2];
+                } else {
+                    const last = lastMeleeSlotRef.current;
+                    targetIndex = last === d1 ? d2 : d1;
+                    lastMeleeSlotRef.current = targetIndex;
+                    setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
+                }
             } else if (PHYS_RANGED_IDS.includes(jobId)) {
                 preferredIndices = [mtGroupIndices[3], stGroupIndices[3]]; // D3 -> D4
             } else {
@@ -230,6 +275,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 targetIndex = preferredIndices.find(idx => !draftMembers[idx].jobId);
                 if (targetIndex === undefined) targetIndex = preferredIndices[0];
                 setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId } : m));
+                if (MELEE_IDS.includes(jobId) && targetIndex !== undefined) {
+                    lastMeleeSlotRef.current = targetIndex;
+                }
             }
         }
 
@@ -245,6 +293,24 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
         // Always unfocus after a selection attempt
         setFocusedSlot(null);
+
+        // ── Tutorial sub-step advancement (additive only) ──
+        if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+            const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+            if (sub.type === 'job' && sub.jobId === jobId) {
+                const nextSub = tutorialSubStep + 1;
+                setTutorialSubStep(nextSub);
+                if (nextSub >= SLOT_TUTORIAL_SEQUENCE.length) {
+                    useTutorialStore.getState().completeEvent('party:four-set');
+                }
+            }
+        }
+        if (isTutorialPalette) {
+            const filled = draftMembers.filter(m => m.jobId).length;
+            if (filled >= 7) {
+                setTimeout(() => useTutorialStore.getState().completeEvent('party:eight-set'), 300);
+            }
+        }
     };
 
     // Protected Migration Handlers for Batch Process
@@ -292,14 +358,35 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div
                 key={member.id}
                 id={`party-slot-${index}`}
-                onClick={() => setFocusedSlot(isFocused ? null : index)}
+                onClick={() => {
+                    // Tutorial: block clicks on non-target slots
+                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+                        if (sub.type === 'slot' && sub.slotIndex !== index) return;
+                        if (sub.type === 'job') return;
+                    }
+                    if (isTutorialPalette) return;
+                    setFocusedSlot(isFocused ? null : index);
+                    // Tutorial: advance sub-step when correct slot is clicked
+                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+                        if (sub.type === 'slot' && sub.slotIndex === index && !isFocused) {
+                            setTutorialSubStep(prev => prev + 1);
+                        }
+                    }
+                }}
                 className={clsx(
                     "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot",
                     isFocused
                         ? "bg-app-accent-dim border-app-border-accent shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                         : job
                             ? "bg-slate-800/40 border-white/10 hover:bg-slate-800/60 hover:border-white/20"
-                            : "bg-white/[0.02] border-white/5 hover:bg-white/10 border-dashed"
+                            : "bg-white/[0.02] border-white/5 hover:bg-white/10 border-dashed",
+                    // Tutorial glow on target slot
+                    isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
+                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
+                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index
+                    && "ring-2 ring-cyan-400 animate-tutorial-breathe"
                 )}
             >
                 {/* Background Gradient */}
@@ -351,6 +438,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    if (isTutorialSlots || isTutorialPalette) return;
                                     handleRemoveJob(member.id);
                                     if (isFocused) setFocusedSlot(null);
                                 }}
@@ -378,7 +466,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
         return (
             // 👇 スマホ時にパレット全体がスクロールできるようにし、下部に十分な余白(pb-12)を持たせる
-            <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar pr-1 pb-12">
+            <div className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pb-4">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
@@ -394,7 +482,17 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
-                                                `border-white/10 cursor-pointer ${cat.color}`
+                                                `border-white/10 cursor-pointer ${cat.color}`,
+                                                // Tutorial glow on target job (Step 3)
+                                                (isTutorialSlots
+                                                    && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
+                                                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
+                                                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id
+                                                    && "ring-2 ring-cyan-400 animate-tutorial-breathe")
+                                                || (isTutorialPalette
+                                                    && PALETTE_TUTORIAL_JOBS.includes(job.id)
+                                                    && !draftMembers.some(m => m.jobId === job.id)
+                                                    && "ring-2 ring-amber-400 animate-tutorial-breathe")
                                             )}
                                             title={job.name?.ja}
                                         >
@@ -414,7 +512,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     if (!mounted) return null;
 
     return createPortal(
-        <div className={clsx(
+        <div data-tutorial-modal className={clsx(
             "fixed inset-0 z-[10000] flex",
             isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
@@ -506,9 +604,37 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         </div>
                     </div>
 
-                    {/* 下部セクション：共通ジョブパレット（画面下部に固定配置） */}
-                    {/* 👇 変更：max-h-[50vh]に広げ、pb-8 (下部余白) を追加してセーフエリアを確保 */}
-                    <div className="h-auto max-h-[50vh] bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-8 md:pb-3 flex flex-col gap-1.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
+                    {/* ── Tutorial Banner (positioned outside modal on desktop) ── */}
+                    {(isTutorialSlots || isTutorialPalette) && (
+                        <div className="hidden md:block absolute left-full top-16 ml-4 w-[320px] z-50">
+                            <div className="p-4 rounded-2xl border backdrop-blur-xl bg-slate-900/95 border-cyan-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-1.5">
+                                        {Array.from({ length: TUTORIAL_STEPS.length }, (_, i) => (
+                                            <div
+                                                key={i}
+                                                className={clsx(
+                                                    "h-1.5 rounded-full transition-all duration-300",
+                                                    i === currentStepIndex ? "w-5 bg-cyan-400" : "w-1.5 bg-white/20"
+                                                )}
+                                            />
+                                        ))}
+                                    </div>
+                                    <span className="text-[11px] text-slate-400 font-medium">
+                                        {t('tutorial.step_of', { current: currentStepIndex + 1, total: TUTORIAL_STEPS.length })}
+                                    </span>
+                                </div>
+                                <h3 className="text-white font-bold text-base mb-1">
+                                    {t(isTutorialSlots ? 'tutorial.party_slots_title' : 'tutorial.party_palette_title')}
+                                </h3>
+                                <p className="text-slate-300 text-sm leading-relaxed">
+                                    {t(isTutorialSlots ? 'tutorial.party_slots_desc' : 'tutorial.party_palette_desc')}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div data-tutorial="job-palette" className="h-auto bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
                         <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">{t('party.job_palette')}</h3>
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation } from '../types';
 import { calculateMemberValues } from '../utils/calculator';
 import { JOBS, MITIGATIONS } from '../data/mockData';
+import { useTutorialStore } from './useTutorialStore';
 
 export interface AASettings {
     damage: number;
@@ -222,7 +223,13 @@ export const useMitigationStore = create<MitigationState>()(
                     }));
                 },
 
-                setMyMemberId: (memberId) => set({ myMemberId: memberId }),
+                setMyMemberId: (memberId) => {
+                    set({ myMemberId: memberId });
+                    // Tutorial: notify my job was set
+                    if (memberId) {
+                        useTutorialStore.getState().completeEvent('myjob:set');
+                    }
+                },
                 setCurrentLevel: (level) => {
                     pushHistory();
                     set((state) => ({
@@ -251,6 +258,10 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineEvents: [...events].sort((a, b) => a.time - b.time),
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
                     });
+                    // Tutorial: notify that timeline content has been loaded
+                    if (events.length > 0) {
+                        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+                    }
                 },
 
                 updateEvent: (id, updatedEvent) => {
@@ -279,6 +290,8 @@ export const useMitigationStore = create<MitigationState>()(
                         };
                         return { phases: [...state.phases, newPhase].sort((a, b) => a.endTime - b.endTime) };
                     });
+                    // Tutorial: notify phase added
+                    useTutorialStore.getState().completeEvent('phase:added');
                 },
 
                 updatePhase: (id, name) => {
@@ -300,6 +313,8 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         timelineMitigations: [...state.timelineMitigations, mitigation]
                     }));
+                    // Tutorial: notify that a mitigation has been added
+                    useTutorialStore.getState().completeEvent('mitigation:added');
                 },
 
                 removeMitigation: (id) => {
@@ -412,6 +427,14 @@ export const useMitigationStore = create<MitigationState>()(
 
                         return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
                     });
+                    // Tutorial: detect if 4 or 8 members are set
+                    const updatedMembers = get().partyMembers;
+                    const setCount = updatedMembers.filter(m => m.jobId !== null).length;
+                    if (setCount >= 8) {
+                        useTutorialStore.getState().completeEvent('party:eight-set');
+                    } else if (setCount >= 4) {
+                        useTutorialStore.getState().completeEvent('party:four-set');
+                    }
                 },
 
                 changeMemberJobWithMitigations: (memberId, jobId, mitis) => {

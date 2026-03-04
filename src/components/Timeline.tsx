@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
@@ -1076,6 +1077,7 @@ export const Timeline: React.FC = () => {
 
                     <div className="flex items-center gap-2 relative">
                         <button
+                            data-tutorial="party-comp"
                             onClick={() => setPartySettingsOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
                             title={t('party.title')}
@@ -1085,7 +1087,14 @@ export const Timeline: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => setStatusOpen(!statusOpen)}
+                            data-tutorial="status-settings"
+                            onClick={() => {
+                                setStatusOpen(!statusOpen);
+                                // Tutorial: notify status panel opened
+                                if (!statusOpen) {
+                                    useTutorialStore.getState().completeEvent('status:opened');
+                                }
+                            }}
                             className={clsx(
                                 "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
                                 statusOpen
