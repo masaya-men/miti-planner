@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useThemeStore } from './store/useThemeStore';
 import { PortalPage } from './components/PortalPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
+import { TutorialOverlay } from './components/TutorialOverlay';
 
 /**
  * App — Root component with route definitions.
@@ -27,12 +28,15 @@ function App() {
   }, [theme]);
 
   return (
-    <Routes>
-      <Route path="/" element={<PortalPage />} />
-      <Route path="/miti" element={<MitiPlannerPage />} />
-      {/* Catch-all: redirect unknown paths to portal */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <div className="relative w-full h-full">
+      <Routes>
+        <Route path="/" element={<PortalPage />} />
+        <Route path="/miti" element={<MitiPlannerPage />} />
+        {/* Catch-all: redirect unknown paths to portal */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <TutorialOverlay />
+    </div>
   );
 }
 

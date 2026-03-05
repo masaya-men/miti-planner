@@ -23,41 +23,42 @@ const SPOTLIGHT_PADDING = 8;
 const SPOTLIGHT_RADIUS = 12;
 
 // ─────────────────────────────────────────────
-// Hook: useTargetRect
-// Tracks position/size of a DOM element by selector.
-// Uses ResizeObserver + scroll listeners for reactivity.
+// Hook: useTargetRects
+// Tracks position/size of DOM elements by selector.
+// Uses requestAnimationFrame for reactivity.
 // ─────────────────────────────────────────────
 
-function useTargetRect(selector: string): TargetRect | null {
-    const [rect, setRect] = useState<TargetRect | null>(null);
+function useTargetRects(selector: string): TargetRect[] {
+    const [rects, setRects] = useState<TargetRect[]>([]);
 
-    // ─────────────────────────────────────────────
-    // Measure target element position
-    // ─────────────────────────────────────────────
     useEffect(() => {
         if (!selector) {
-            setRect(null);
+            setRects([]);
             return;
         }
 
         let animationFrameId: number;
-        let lastRectStr = '';
+        let lastRectsStr = '';
 
         const measure = () => {
-            const el = document.querySelector(selector); // Use the hook's selector prop
-            if (el) {
-                const rect = el.getBoundingClientRect();
-                const rectStr = `${rect.x},${rect.y},${rect.width},${rect.height}`;
+            const els = document.querySelectorAll(selector);
+            if (els.length > 0) {
+                const newRects: TargetRect[] = [];
+                let rectsStr = '';
+                els.forEach((el) => {
+                    const rect = el.getBoundingClientRect();
+                    rectsStr += `${rect.x},${rect.y},${rect.width},${rect.height}|`;
+                    newRects.push({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+                });
 
-                // Only update React state if the rect actually changed to prevent infinite loops
-                if (rectStr !== lastRectStr) {
-                    lastRectStr = rectStr;
-                    setRect({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+                if (rectsStr !== lastRectsStr) {
+                    lastRectsStr = rectsStr;
+                    setRects(newRects);
                 }
             } else {
-                if (lastRectStr !== 'null') {
-                    lastRectStr = 'null';
-                    setRect(null);
+                if (lastRectsStr !== 'null') {
+                    lastRectsStr = 'null';
+                    setRects([]);
                 }
             }
             animationFrameId = requestAnimationFrame(measure);
@@ -69,9 +70,9 @@ function useTargetRect(selector: string): TargetRect | null {
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, [selector]); // Dependency on selector
+    }, [selector]);
 
-    return rect;
+    return rects;
 }
 
 // ─────────────────────────────────────────────
@@ -80,13 +81,8 @@ function useTargetRect(selector: string): TargetRect | null {
 // rectangular cutout around the target element.
 // ─────────────────────────────────────────────
 
-const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetRect }) => {
-    if (!targetRect) return null;
-
-    const x = targetRect.left - SPOTLIGHT_PADDING;
-    const y = targetRect.top - SPOTLIGHT_PADDING;
-    const w = targetRect.width + SPOTLIGHT_PADDING * 2;
-    const h = targetRect.height + SPOTLIGHT_PADDING * 2;
+const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: boolean }> = ({ targetRects, isModalTarget }) => {
+    if (!targetRects || targetRects.length === 0) return null;
 
     return (
         <>
@@ -99,40 +95,47 @@ const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetR
                         {/* White = visible (the dark overlay) */}
                         <rect x="0" y="0" width="100%" height="100%" fill="white" />
                         {/* Black = transparent (the cutout) */}
-                        <rect
-                            x={x}
-                            y={y}
-                            width={w}
-                            height={h}
-                            rx={SPOTLIGHT_RADIUS}
-                            ry={SPOTLIGHT_RADIUS}
-                            fill="black"
-                        />
+                        {targetRects.map((rect, idx) => (
+                            <rect
+                                key={`mask-${idx}`}
+                                x={rect.left - SPOTLIGHT_PADDING}
+                                y={rect.top - SPOTLIGHT_PADDING}
+                                width={rect.width + SPOTLIGHT_PADDING * 2}
+                                height={rect.height + SPOTLIGHT_PADDING * 2}
+                                rx={SPOTLIGHT_RADIUS}
+                                ry={SPOTLIGHT_RADIUS}
+                                fill="black"
+                            />
+                        ))}
                     </mask>
                 </defs>
                 {/* Semi-transparent overlay with mask */}
-                <rect
-                    x="0" y="0"
-                    width="100%" height="100%"
-                    fill="rgba(0,0,0,0.75)"
-                    mask="url(#tutorial-spotlight-mask)"
-                />
+                {!isModalTarget && (
+                    <rect
+                        x="0" y="0"
+                        width="100%" height="100%"
+                        fill="rgba(0,0,0,0.75)"
+                        mask="url(#tutorial-spotlight-mask)"
+                    />
+                )}
                 {/* Glow border around cutout */}
-                <rect
-                    x={x}
-                    y={y}
-                    width={w}
-                    height={h}
-                    rx={SPOTLIGHT_RADIUS}
-                    ry={SPOTLIGHT_RADIUS}
-                    fill="none"
-                    stroke="rgba(56, 189, 248, 0.4)"
-                    strokeWidth="2"
-                    className="animate-tutorial-ripple"
-                    style={{ transformOrigin: 'center' }}
-                />
+                {targetRects.map((rect, idx) => (
+                    <rect
+                        key={`glow-${idx}`}
+                        x={rect.left - SPOTLIGHT_PADDING}
+                        y={rect.top - SPOTLIGHT_PADDING}
+                        width={rect.width + SPOTLIGHT_PADDING * 2}
+                        height={rect.height + SPOTLIGHT_PADDING * 2}
+                        rx={SPOTLIGHT_RADIUS}
+                        ry={SPOTLIGHT_RADIUS}
+                        fill="none"
+                        stroke="rgba(56, 189, 248, 0.4)"
+                        strokeWidth="2"
+                        className="animate-tutorial-ripple"
+                        style={{ transformOrigin: 'center' }}
+                    />
+                ))}
             </svg>
-            {/* The ripple effect handles the glow now, so we remove the breathing div */}
         </>
     );
 };
@@ -150,28 +153,34 @@ interface TooltipProps {
     totalSteps: number;
     onSkip: () => void;
     onPrev: () => void;
+    onNext?: () => void;
+    position?: 'top' | 'right' | 'bottom' | 'left' | 'center';
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-    title, description, stepIndex, totalSteps, onSkip, onPrev
+    title, description, stepIndex, totalSteps, onSkip, onPrev, onNext, position = 'center'
 }) => {
     const { t } = useTranslation();
     const theme = useThemeStore((s) => s.theme);
 
-    // Completely centered position, ignoring placement/anchorRect
     const getPosition = (): React.CSSProperties => {
+        if (position === 'bottom') {
+            return {
+                bottom: '24px',
+                left: '50%',
+            };
+        }
         return {
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%)'
         };
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%', transform: 'translate(-50%, -50%)' }}
-            exit={{ opacity: 0, scale: 0.96, x: '-50%' }}
+            initial={{ opacity: 0, scale: 0.96, x: '-50%', y: position === 'bottom' ? 8 : '-45%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: position === 'bottom' ? 0 : '-50%' }}
+            exit={{ opacity: 0, scale: 0.96, x: '-50%', y: position === 'bottom' ? 8 : '-45%' }}
             transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
             className={clsx(
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
@@ -217,12 +226,22 @@ const Tooltip: React.FC<TooltipProps> = ({
                         </button>
                     )}
                 </div>
-                <button
-                    onClick={onSkip}
-                    className="text-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
-                >
-                    {t('tutorial.skip')}
-                </button>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onSkip}
+                        className="text-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                    >
+                        {t('tutorial.skip')}
+                    </button>
+                    {onNext && (
+                        <button
+                            onClick={onNext}
+                            className="text-xs font-bold text-white bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
+                        >
+                            {t('tutorial.next', '次へ')} &rarr;
+                        </button>
+                    )}
+                </div>
             </div>
         </motion.div>
     );
@@ -300,7 +319,7 @@ export const TutorialOverlay: React.FC = () => {
     const { t } = useTranslation();
 
     const currentStep = TUTORIAL_STEPS[currentStepIndex];
-    const targetRect = useTargetRect(isActive && currentStep ? currentStep.targetSelector : '');
+    const targetRects = useTargetRects(isActive && currentStep ? currentStep.targetSelector : '');
 
     // Determine the current route context
     const location = useLocation();
@@ -316,15 +335,22 @@ export const TutorialOverlay: React.FC = () => {
 
         const selector = currentStep.targetSelector;
         let animationFrameId: number;
-        let currentTarget: Element | null = null;
+        let currentTargets: Element[] = [];
 
         const attachClass = () => {
-            const el = document.querySelector(selector);
-            if (el !== currentTarget) {
-                if (currentTarget) currentTarget.classList.remove('tutorial-target-highlight');
-                if (el) el.classList.add('tutorial-target-highlight');
-                currentTarget = el;
-            }
+            const els = Array.from(document.querySelectorAll(selector));
+
+            // Remove class from elements that are no longer targets
+            currentTargets.forEach(el => {
+                if (!els.includes(el)) el.classList.remove('tutorial-target-highlight');
+            });
+
+            // Add class to new targets
+            els.forEach(el => {
+                if (!currentTargets.includes(el)) el.classList.add('tutorial-target-highlight');
+            });
+
+            currentTargets = els;
             animationFrameId = requestAnimationFrame(attachClass);
         };
 
@@ -332,7 +358,7 @@ export const TutorialOverlay: React.FC = () => {
 
         return () => {
             cancelAnimationFrame(animationFrameId);
-            if (currentTarget) currentTarget.classList.remove('tutorial-target-highlight');
+            currentTargets.forEach(el => el.classList.remove('tutorial-target-highlight'));
         };
     }, [currentStep?.targetSelector, isActive, routeMatch]);
 
@@ -352,9 +378,10 @@ export const TutorialOverlay: React.FC = () => {
             // Allow clicks inside tutorial-managed modals (e.g., PartySettingsModal)
             if (target.closest('[data-tutorial-modal]')) return;
 
-            // Allow clicks on the highlighted target element
-            const targetEl = document.querySelector(currentStep.targetSelector);
-            if (targetEl && (targetEl === target || targetEl.contains(target))) return;
+            // Allow clicks on the highlighted target elements
+            const targetEls = Array.from(document.querySelectorAll(currentStep.targetSelector));
+            const isClickInsideTarget = targetEls.some(el => el === target || el.contains(target));
+            if (isClickInsideTarget) return;
 
             // Block all other clicks
             e.preventDefault();
@@ -367,6 +394,11 @@ export const TutorialOverlay: React.FC = () => {
     }, [isActive, currentStep, routeMatch]);
 
     if (!routeMatch) return null;
+
+    // Calculate relative step numbering for the current route
+    const currentRouteSteps = TUTORIAL_STEPS.filter(step => step.route === stepRoute && !step.isDialog);
+    const relativeStepIndex = currentRouteSteps.findIndex(s => s.id === currentStep?.id);
+    const displayStepIndex = relativeStepIndex >= 0 ? relativeStepIndex : 0;
 
     return (
         <AnimatePresence>
@@ -382,15 +414,17 @@ export const TutorialOverlay: React.FC = () => {
                     />
                 ) : (
                     <div key="overlay" data-tutorial-overlay className="fixed inset-0 z-[99999] pointer-events-none">
-                        <SpotlightOverlay targetRect={targetRect} />
+                        <SpotlightOverlay targetRects={targetRects} isModalTarget={currentStep.isModalTarget} />
                         <div data-tutorial-tooltip className="pointer-events-auto">
                             <Tooltip
                                 title={t(currentStep.titleKey)}
                                 description={t(currentStep.descriptionKey)}
-                                stepIndex={currentStepIndex}
-                                totalSteps={TUTORIAL_STEPS.length}
+                                stepIndex={displayStepIndex}
+                                totalSteps={currentRouteSteps.length}
                                 onSkip={skipTutorial}
                                 onPrev={useTutorialStore.getState().prevStep}
+                                onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
+                                position={currentStep.tooltipPosition}
                             />
                         </div>
                     </div>

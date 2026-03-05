@@ -82,6 +82,13 @@ export const PortalPage: React.FC = () => {
 
     const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
 
+    React.useEffect(() => {
+        const { hasCompleted, isActive, startTutorial } = useTutorialStore.getState();
+        if (!hasCompleted && !isActive) {
+            startTutorial();
+        }
+    }, []);
+
     return (
         <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text transition-colors duration-300', bgClass)}>
 

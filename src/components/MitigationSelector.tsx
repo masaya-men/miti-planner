@@ -7,7 +7,7 @@ import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { useTutorialStore } from '../store/useTutorialStore';
+import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -34,6 +34,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const { partyMembers } = useMitigationStore();
+    const tutorialState = useTutorialStore();
 
     const [isMobile, setIsMobile] = React.useState(false);
 
@@ -145,6 +146,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         >
             <div
                 ref={panelRef}
+                data-tutorial-modal
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
                     "pointer-events-auto shadow-2xl p-2 overflow-hidden flex flex-col transition-transform duration-300 glass-panel",
@@ -173,11 +175,37 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
                                 const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
-                                const isClickable = status.available || isAlreadyPlaced;
+
+                                let isClickBlockedByTutorial = false;
+                                let tutorialSkillDataAttr: string | undefined = undefined;
+
+                                if (tutorialState.isActive) {
+                                    const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
+                                    if (currentStep) {
+                                        if (currentStep.id === 'tutorial-7c-aoe-skill') {
+                                            const isAoEMiti = mitigation.family === 'role_action' && mitigation.scope === 'party';
+                                            if (isAoEMiti) {
+                                                tutorialSkillDataAttr = 'tutorial-skill-reprisal';
+                                            } else {
+                                                isClickBlockedByTutorial = true;
+                                            }
+                                        } else if (currentStep.id === 'tutorial-8c-tb-skill') {
+                                            const isTargetBuff = SINGLE_TARGET_BUFFS.includes(mitigation.id);
+                                            if (isTargetBuff) {
+                                                tutorialSkillDataAttr = 'tutorial-skill-intervention';
+                                            } else {
+                                                isClickBlockedByTutorial = true;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                const isClickable = (status.available || isAlreadyPlaced) && !isClickBlockedByTutorial;
 
                                 return (
                                     <button
                                         key={mitigation.id}
+                                        data-tutorial={tutorialSkillDataAttr}
                                         onClick={() => isClickable && handleMitigationClick(mitigation)}
                                         disabled={!isClickable}
                                         className={clsx(
@@ -248,12 +276,30 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                     <div className="flex flex-col gap-2 overflow-y-auto pr-1 shrink">
                         {partyMembers.map((member: import('../types').PartyMember) => {
                             const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+
+                            let isTargetBlockedByTutorial = false;
+                            let tutorialTargetDataAttr: string | undefined = undefined;
+
+                            if (tutorialState.isActive) {
+                                const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
+                                if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
+                                    if (member.id === 'MT') {
+                                        tutorialTargetDataAttr = 'tutorial-target-mt';
+                                    } else {
+                                        isTargetBlockedByTutorial = true;
+                                    }
+                                }
+                            }
+
                             return (
                                 <button
                                     key={member.id}
-                                    onClick={() => handleTargetSelect(member.id)}
+                                    data-tutorial={tutorialTargetDataAttr}
+                                    onClick={() => !isTargetBlockedByTutorial && handleTargetSelect(member.id)}
+                                    disabled={isTargetBlockedByTutorial}
                                     className={clsx(
-                                        "flex items-center gap-4 p-3 rounded-lg border transition-colors cursor-pointer",
+                                        "flex items-center gap-4 p-3 rounded-lg border transition-colors",
+                                        isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
                                         theme === 'dark'
                                             ? "bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05]"
                                             : "bg-slate-50 hover:bg-slate-100 border-slate-200"

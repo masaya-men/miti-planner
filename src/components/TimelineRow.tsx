@@ -329,6 +329,11 @@ export const TimelineRow = memo(({
 
             {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
             <div
+                data-tutorial={
+                    time === 4 && events.length > 0 && events[0].target === 'AoE' ? 'tutorial-damage-cell-4-aoe' :
+                        time === 10 && events.length > 0 && events[0].target === 'MT' ? 'tutorial-damage-cell-10-tb' :
+                            undefined
+                }
                 className={clsx(
                     "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold transition-colors group-hover:text-black dark:group-hover:text-white cursor-pointer md:cursor-default",
                     theme === 'dark' ? "border-white/[0.02] text-slate-200" : "border-slate-200 text-slate-800"
@@ -487,6 +492,10 @@ export const TimelineRow = memo(({
                 partyMembers.map((member) => (
                     <div
                         key={member.id}
+                        data-tutorial={
+                            member.id === 'ST' && time === 4 ? 'miti-cell-st-4' :
+                                member.id === 'ST' && time === 10 ? 'miti-cell-st-10' : undefined
+                        }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer transition-colors border-r",
                             theme === 'dark'
