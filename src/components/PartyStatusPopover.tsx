@@ -8,6 +8,7 @@ import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { FormattedNumberInput } from './ui/FormattedNumberInput';
+import { useTutorialStore } from '../store/useTutorialStore';
 
 interface PartyStatusPopoverProps {
     isOpen: boolean;
@@ -30,6 +31,9 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            // Tutorial: block closing the popover during the tutorial
+            if (useTutorialStore.getState().isActive) return;
+
             if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
                 onClose();
             }

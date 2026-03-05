@@ -70,6 +70,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     }, [isOpen, partyMembers]);
 
     const handleAttemptClose = React.useCallback(() => {
+        // Tutorial: block closing the modal during the tutorial
+        const state = useTutorialStore.getState();
+        if (state.isActive) return;
+
         if (migrationBatch) return;
 
         const pendingMigrations: { memberName: string; oldJob: Job | null; newJob: Job; memberId: string }[] = [];
@@ -354,10 +358,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         };
         const activeColor = getSlotColor();
 
+        const isTutorialTarget = isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
+            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
+            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index;
+
         return (
             <div
                 key={member.id}
                 id={`party-slot-${index}`}
+                data-tutorial={isTutorialTarget ? "party-slots-target" : undefined}
                 onClick={() => {
                     // Tutorial: block clicks on non-target slots
                     if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
@@ -381,12 +390,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         ? "bg-app-accent-dim border-app-border-accent shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                         : job
                             ? "bg-slate-800/40 border-white/10 hover:bg-slate-800/60 hover:border-white/20"
-                            : "bg-white/[0.02] border-white/5 hover:bg-white/10 border-dashed",
-                    // Tutorial glow on target slot
-                    isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
-                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
-                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index
-                    && "ring-2 ring-cyan-400 animate-tutorial-breathe"
+                            : "bg-white/[0.02] border-white/5 hover:bg-white/10 border-dashed"
                 )}
             >
                 {/* Background Gradient */}
@@ -476,23 +480,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                                 {cat.jobs.map(job => {
+                                    const isTutorialTargetJob = isTutorialSlots
+                                        && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
+                                        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
+                                        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id;
+
                                     return (
                                         <button
                                             key={job.id}
+                                            data-tutorial={isTutorialTargetJob ? "party-slots-target" : undefined}
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
-                                                `border-white/10 cursor-pointer ${cat.color}`,
-                                                // Tutorial glow on target job (Step 3)
-                                                (isTutorialSlots
-                                                    && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
-                                                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
-                                                    && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id
-                                                    && "ring-2 ring-cyan-400 animate-tutorial-breathe")
-                                                || (isTutorialPalette
-                                                    && PALETTE_TUTORIAL_JOBS.includes(job.id)
-                                                    && !draftMembers.some(m => m.jobId === job.id)
-                                                    && "ring-2 ring-amber-400 animate-tutorial-breathe")
+                                                `border-white/10 cursor-pointer ${cat.color}`
                                             )}
                                             title={job.name?.ja}
                                         >
@@ -528,6 +528,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
             <div
                 ref={popoverRef}
+                data-tutorial="party-settings"
                 className={clsx(
                     "relative flex flex-col glass-panel shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
@@ -604,35 +605,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         </div>
                     </div>
 
-                    {/* ── Tutorial Banner (positioned outside modal on desktop) ── */}
-                    {(isTutorialSlots || isTutorialPalette) && (
-                        <div className="hidden md:block absolute left-full top-16 ml-4 w-[320px] z-50">
-                            <div className="p-4 rounded-2xl border backdrop-blur-xl bg-slate-900/95 border-cyan-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-1.5">
-                                        {Array.from({ length: TUTORIAL_STEPS.length }, (_, i) => (
-                                            <div
-                                                key={i}
-                                                className={clsx(
-                                                    "h-1.5 rounded-full transition-all duration-300",
-                                                    i === currentStepIndex ? "w-5 bg-cyan-400" : "w-1.5 bg-white/20"
-                                                )}
-                                            />
-                                        ))}
-                                    </div>
-                                    <span className="text-[11px] text-slate-400 font-medium">
-                                        {t('tutorial.step_of', { current: currentStepIndex + 1, total: TUTORIAL_STEPS.length })}
-                                    </span>
-                                </div>
-                                <h3 className="text-white font-bold text-base mb-1">
-                                    {t(isTutorialSlots ? 'tutorial.party_slots_title' : 'tutorial.party_palette_title')}
-                                </h3>
-                                <p className="text-slate-300 text-sm leading-relaxed">
-                                    {t(isTutorialSlots ? 'tutorial.party_slots_desc' : 'tutorial.party_palette_desc')}
-                                </p>
-                            </div>
-                        </div>
-                    )}
+                    {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
 
                     <div data-tutorial="job-palette" className="h-auto bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
                         <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">{t('party.job_palette')}</h3>

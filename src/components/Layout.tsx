@@ -39,23 +39,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* 👇 【修正】アニメーションをより激しく、速く */}
             <style>{`
-                @keyframes float-blob-1 {
-                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-                    25% { transform: translate(15vw, -10vh) scale(1.3); opacity: 0.8; }
-                    50% { transform: translate(25vw, 10vh) scale(1.1); opacity: 0.6; }
-                    75% { transform: translate(10vw, 20vh) scale(1.4); opacity: 0.9; }
-                }
-                @keyframes float-blob-2 {
-                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-                    20% { transform: translate(-20vw, 15vh) scale(1.4); opacity: 0.7; }
-                    40% { transform: translate(-30vw, -10vh) scale(1.2); opacity: 0.5; }
-                    60% { transform: translate(-15vw, -25vh) scale(1.5); opacity: 0.8; }
-                    80% { transform: translate(5vw, -15vh) scale(1.1); opacity: 0.6; }
-                }
+@keyframes float-blob-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    25% { transform: translate(15vw, -10vh) scale(1.3); opacity: 0.8; }
+    50% { transform: translate(25vw, 10vh) scale(1.1); opacity: 0.6; }
+    75% { transform: translate(10vw, 20vh) scale(1.4); opacity: 0.9; }
+}
+@keyframes float-blob-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    20% { transform: translate(-20vw, 15vh) scale(1.4); opacity: 0.7; }
+    40% { transform: translate(-30vw, -10vh) scale(1.2); opacity: 0.5; }
+    60% { transform: translate(-15vw, -25vh) scale(1.5); opacity: 0.8; }
+    80% { transform: translate(5vw, -15vh) scale(1.1); opacity: 0.6; }
+}
                 /* 時間を短縮（12s->6s, 15s->8s）して動きを速く */
                 .animate-blob-1 { animation: float-blob-1 6s ease-in-out infinite; }
                 .animate-blob-2 { animation: float-blob-2 8s ease-in-out infinite; }
-            `}</style>
+`}</style>
 
             {/* 背景Blob */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -146,7 +146,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-2">
                         {/* Tutorial help button */}
                         <button
-                            onClick={() => useTutorialStore.getState().startTutorial()}
+                            onClick={() => {
+                                const path = window.location.pathname;
+                                // If on planner page, skip the portal selection step
+                                if (path === '/' || path === '') {
+                                    useTutorialStore.getState().startTutorial();
+                                } else {
+                                    useTutorialStore.getState().startFromStep(1);
+                                }
+                            }}
                             className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
                             title="チュートリアル"
                         >

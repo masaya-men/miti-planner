@@ -182,6 +182,8 @@
         "new_plan_desc": "Click \"+New Plan\" in the sidebar to start. You can also load timelines created by other users by selecting a content name.",
         "content_select_title": "Select Content",
         "content_select_desc": "Choose the boss you want to plan for and load the timeline. You can also import from FFLogs.",
+        "open_party_settings_title": "Party Setup",
+        "open_party_settings_desc": "Next, let's configure the party. Click the 'Party Settings' button at the top (or 'Party' at the bottom on mobile).",
         "party_slots_title": "Build Your Party (First Half)",
         "party_slots_desc": "Click on slots to choose jobs. Set up 4 members first.",
         "party_palette_title": "Add the Remaining 4",

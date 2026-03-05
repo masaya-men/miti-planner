@@ -10,6 +10,7 @@ import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
 import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
+import { useTutorialStore } from '../store/useTutorialStore';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -265,6 +266,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     };
 
     const handleBackdropClick = () => {
+        // Tutorial: block closing the modal during the tutorial
+        if (useTutorialStore.getState().isActive) return;
+
         if (name.ja.trim() || name.en.trim()) {
             onSave({ name, time, damageType, damageAmount, target });
         }
