@@ -24,8 +24,6 @@ export interface TutorialStep {
     titleKey: string;
     /** i18n key for step description */
     descriptionKey: string;
-    /** Preferred tooltip placement relative to the target */
-    placement: 'top' | 'bottom' | 'left' | 'right';
     /** The event name that triggers completion of this step */
     completionEvent: string;
     /**
@@ -48,7 +46,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         targetSelector: '[data-tutorial="portal-miti-card"]',
         titleKey: 'tutorial.portal_select_title',
         descriptionKey: 'tutorial.portal_select_desc',
-        placement: 'bottom',
         completionEvent: 'portal:tool-selected',
         route: 'portal',
     },
@@ -58,7 +55,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         targetSelector: '[data-tutorial="new-plan"]',
         titleKey: 'tutorial.new_plan_title',
         descriptionKey: 'tutorial.new_plan_desc',
-        placement: 'right',
         completionEvent: 'sidebar:new-plan-clicked',
         route: 'miti',
     },
@@ -68,77 +64,69 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         targetSelector: '[data-tutorial-first-item]',
         titleKey: 'tutorial.content_select_title',
         descriptionKey: 'tutorial.content_select_desc',
-        placement: 'right',
         completionEvent: 'timeline:events-loaded',
+        route: 'miti',
+    },
+    // Step 2.5: Open Party Settings
+    {
+        id: 'open-party-settings',
+        targetSelector: '[data-tutorial="party-comp"]',
+        titleKey: 'tutorial.open_party_settings_title',
+        descriptionKey: 'tutorial.open_party_settings_desc',
+        completionEvent: 'party-settings:opened',
         route: 'miti',
     },
     // Step 3: Party composition — 4 people via slot clicks
     {
         id: 'party-slots',
-        targetSelector: '[data-tutorial="party-comp"]',
+        targetSelector: '[data-tutorial="slots-area"]',
         titleKey: 'tutorial.party_slots_title',
         descriptionKey: 'tutorial.party_slots_desc',
-        placement: 'bottom',
         completionEvent: 'party:four-set',
         route: 'miti',
     },
     // Step 4: Party composition — remaining 4 via palette
     {
         id: 'party-palette',
-        targetSelector: '[data-tutorial="job-palette"]',
+        targetSelector: '[data-tutorial="palette-area"]',
         titleKey: 'tutorial.party_palette_title',
         descriptionKey: 'tutorial.party_palette_desc',
-        placement: 'top',
-        completionEvent: 'party:eight-set',
+        completionEvent: 'party:all-set',
         route: 'miti',
     },
-    // Step 5: My Job selection
+    // Step 5: Save Settings
     {
-        id: 'my-job',
-        targetSelector: '[data-tutorial="my-job"]',
-        titleKey: 'tutorial.my_job_title',
-        descriptionKey: 'tutorial.my_job_desc',
-        placement: 'bottom',
-        completionEvent: 'myjob:set',
+        id: 'party-save',
+        targetSelector: '[data-tutorial="party-save-btn"]',
+        titleKey: 'tutorial.party_save_title',
+        descriptionKey: 'tutorial.party_save_desc',
+        completionEvent: 'party-settings:closed',
         route: 'miti',
     },
-    // Step 6: Status settings (view only)
+    // Step 6: Expand timeline row
     {
-        id: 'status-settings',
-        targetSelector: '[data-tutorial="status-settings"]',
-        titleKey: 'tutorial.status_title',
-        descriptionKey: 'tutorial.status_desc',
-        placement: 'bottom',
-        completionEvent: 'status:opened',
+        id: 'row-expand',
+        targetSelector: '[data-tutorial="row-expand-btn"]',
+        titleKey: 'tutorial.row_expand_title',
+        descriptionKey: 'tutorial.row_expand_desc',
+        completionEvent: 'timeline:row-expanded',
         route: 'miti',
     },
-    // Step 7: Add mitigation to a cell
+    // Step 7: Place mitigation
     {
-        id: 'add-mitigation',
-        targetSelector: '[data-tutorial="first-cell"]',
-        titleKey: 'tutorial.add_miti_title',
-        descriptionKey: 'tutorial.add_miti_desc',
-        placement: 'top',
-        completionEvent: 'mitigation:added',
+        id: 'miti-place',
+        targetSelector: '[data-tutorial="miti-cell"]',
+        titleKey: 'tutorial.miti_place_title',
+        descriptionKey: 'tutorial.miti_place_desc',
+        completionEvent: 'mitigation:placed',
         route: 'miti',
     },
-    // Step 8: Add a phase
-    {
-        id: 'add-phase',
-        targetSelector: '[data-tutorial="phase-add"]',
-        titleKey: 'tutorial.add_phase_title',
-        descriptionKey: 'tutorial.add_phase_desc',
-        placement: 'right',
-        completionEvent: 'phase:added',
-        route: 'miti',
-    },
-    // Step 9: Feature showcase + completion
+    // Step 8: Completion Dialog
     {
         id: 'complete',
         targetSelector: '',
         titleKey: 'tutorial.complete_title',
         descriptionKey: 'tutorial.complete_desc',
-        placement: 'bottom',
         completionEvent: 'tutorial:acknowledged',
         isDialog: true,
         route: 'miti',
@@ -164,6 +152,8 @@ interface TutorialState {
     startFromStep: (stepIndex: number) => void;
     /** Advance to the next step */
     nextStep: () => void;
+    /** Go back to the previous step */
+    prevStep: () => void;
     /** Mark tutorial as completed and deactivate */
     completeTutorial: () => void;
     /** Skip the tutorial (marks as completed) */
@@ -205,6 +195,14 @@ export const useTutorialStore = create<TutorialState>()(
                     get().completeTutorial();
                 } else {
                     set({ currentStepIndex: nextIndex });
+                }
+            },
+
+            prevStep: () => {
+                const { currentStepIndex } = get();
+                const prevIndex = currentStepIndex - 1;
+                if (prevIndex >= 0) {
+                    set({ currentStepIndex: prevIndex });
                 }
             },
 

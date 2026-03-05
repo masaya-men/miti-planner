@@ -106,7 +106,6 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                                                     : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
                                                 // Tutorial: glow first item
                                                 highlightFirst && floor.id === floors[0]?.id
-                                                && "ring-2 ring-cyan-400 animate-tutorial-breathe"
                                             )}
                                         >
                                             <div className={clsx(

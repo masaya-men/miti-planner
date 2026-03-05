@@ -33,6 +33,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             label: t('nav.party', 'パーティ'),
             onClick: onPartyOpen,
             active: false,
+            tutorialId: 'party-comp',
         },
         {
             id: 'status',
@@ -70,6 +71,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             {items.map(item => (
                 <button
                     key={item.id}
+                    data-tutorial={(item as any).tutorialId}
                     onClick={(e) => { e.stopPropagation(); item.onClick(); }}
                     className={clsx(
                         "flex flex-col items-center justify-center gap-0.5 flex-1",

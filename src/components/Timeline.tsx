@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
-import { useTutorialStore } from '../store/useTutorialStore';
+import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
@@ -529,10 +529,19 @@ export const Timeline: React.FC = () => {
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
     const [statusOpen, setStatusOpen] = useState(false);
 
+    // Tutorial auto-open logic
+    const { isActive: tutorialActive, currentStepIndex: tutorialStepIndex } = useTutorialStore();
+    useEffect(() => {
+        if (tutorialActive && TUTORIAL_STEPS[tutorialStepIndex]?.id === 'party-slots' && !partySettingsOpen) {
+            setPartySettingsOpen(true);
+        }
+    }, [tutorialActive, tutorialStepIndex, partySettingsOpen]);
+
     useEffect(() => {
         if (mobilePartyOpen) {
             setPartySettingsOpen(true);
             setMobilePartyOpen(false);
+            useTutorialStore.getState().completeEvent('party-settings:opened');
         }
     }, [mobilePartyOpen]);
     useEffect(() => {
@@ -1078,7 +1087,10 @@ export const Timeline: React.FC = () => {
                     <div className="flex items-center gap-2 relative">
                         <button
                             data-tutorial="party-comp"
-                            onClick={() => setPartySettingsOpen(true)}
+                            onClick={() => {
+                                setPartySettingsOpen(true);
+                                useTutorialStore.getState().completeEvent('party-settings:opened');
+                            }}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
                             title={t('party.title')}
                         >

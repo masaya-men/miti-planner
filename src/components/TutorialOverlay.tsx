@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -21,8 +21,6 @@ interface TargetRect {
 const SPOTLIGHT_PADDING = 8;
 // Border radius for the spotlight cutout (px)
 const SPOTLIGHT_RADIUS = 12;
-// Gap between target element and tooltip (px)
-const TOOLTIP_GAP = 16;
 
 // ─────────────────────────────────────────────
 // Hook: useTargetRect
@@ -32,36 +30,46 @@ const TOOLTIP_GAP = 16;
 
 function useTargetRect(selector: string): TargetRect | null {
     const [rect, setRect] = useState<TargetRect | null>(null);
-    const observerRef = useRef<ResizeObserver | null>(null);
 
-    const measure = useCallback(() => {
-        if (!selector) { setRect(null); return; }
-        const el = document.querySelector(selector);
-        if (!el) { setRect(null); return; }
-        const r = el.getBoundingClientRect();
-        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-    }, [selector]);
-
+    // ─────────────────────────────────────────────
+    // Measure target element position
+    // ─────────────────────────────────────────────
     useEffect(() => {
-        measure();
-
-        // Observe target element resizing
-        const el = selector ? document.querySelector(selector) : null;
-        if (el) {
-            observerRef.current = new ResizeObserver(measure);
-            observerRef.current.observe(el);
+        if (!selector) {
+            setRect(null);
+            return;
         }
 
-        // Re-measure on scroll/resize (any scroll container)
-        window.addEventListener('scroll', measure, true);
-        window.addEventListener('resize', measure);
+        let animationFrameId: number;
+        let lastRectStr = '';
+
+        const measure = () => {
+            const el = document.querySelector(selector); // Use the hook's selector prop
+            if (el) {
+                const rect = el.getBoundingClientRect();
+                const rectStr = `${rect.x},${rect.y},${rect.width},${rect.height}`;
+
+                // Only update React state if the rect actually changed to prevent infinite loops
+                if (rectStr !== lastRectStr) {
+                    lastRectStr = rectStr;
+                    setRect({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+                }
+            } else {
+                if (lastRectStr !== 'null') {
+                    lastRectStr = 'null';
+                    setRect(null);
+                }
+            }
+            animationFrameId = requestAnimationFrame(measure);
+        };
+
+        // Start measurement loop
+        animationFrameId = requestAnimationFrame(measure);
 
         return () => {
-            observerRef.current?.disconnect();
-            window.removeEventListener('scroll', measure, true);
-            window.removeEventListener('resize', measure);
+            cancelAnimationFrame(animationFrameId);
         };
-    }, [selector, measure]);
+    }, [selector]); // Dependency on selector
 
     return rect;
 }
@@ -83,7 +91,7 @@ const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetR
     return (
         <>
             <svg
-                className="fixed inset-0 w-full h-full z-[9998] pointer-events-none"
+                className="fixed inset-0 w-full h-full z-[10001] pointer-events-none"
                 style={{ isolation: 'isolate' }}
             >
                 <defs>
@@ -106,7 +114,7 @@ const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetR
                 <rect
                     x="0" y="0"
                     width="100%" height="100%"
-                    fill="rgba(0,0,0,0.65)"
+                    fill="rgba(0,0,0,0.75)"
                     mask="url(#tutorial-spotlight-mask)"
                 />
                 {/* Glow border around cutout */}
@@ -118,20 +126,13 @@ const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetR
                     rx={SPOTLIGHT_RADIUS}
                     ry={SPOTLIGHT_RADIUS}
                     fill="none"
-                    stroke="rgba(56, 189, 248, 0.5)"
+                    stroke="rgba(56, 189, 248, 0.4)"
                     strokeWidth="2"
+                    className="animate-tutorial-ripple"
+                    style={{ transformOrigin: 'center' }}
                 />
             </svg>
-            {/* Breathing glow div around the target */}
-            <div
-                className="fixed z-[9998] pointer-events-none rounded-xl animate-tutorial-breathe"
-                style={{
-                    top: y,
-                    left: x,
-                    width: w,
-                    height: h,
-                }}
-            />
+            {/* The ripple effect handles the glow now, so we remove the breathing div */}
         </>
     );
 };
@@ -143,68 +144,37 @@ const SpotlightOverlay: React.FC<{ targetRect: TargetRect | null }> = ({ targetR
 // ─────────────────────────────────────────────
 
 interface TooltipProps {
-    targetRect: TargetRect;
-    placement: 'top' | 'bottom' | 'left' | 'right';
     title: string;
     description: string;
     stepIndex: number;
     totalSteps: number;
     onSkip: () => void;
+    onPrev: () => void;
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-    targetRect, placement, title, description, stepIndex, totalSteps, onSkip,
+    title, description, stepIndex, totalSteps, onSkip, onPrev
 }) => {
     const { t } = useTranslation();
     const theme = useThemeStore((s) => s.theme);
 
-    // Calculate tooltip position based on placement, clamped to viewport
+    // Completely centered position, ignoring placement/anchorRect
     const getPosition = (): React.CSSProperties => {
-        const maxWidth = 340;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const pad = 16; // viewport margin
-
-        const clampLeft = (rawLeft: number) =>
-            Math.max(pad, Math.min(rawLeft, vw - maxWidth - pad));
-        const clampTop = (rawTop: number) =>
-            Math.max(pad, Math.min(rawTop, vh - 200 - pad)); // 200 ≈ approx tooltip height
-
-        switch (placement) {
-            case 'bottom':
-                return {
-                    top: clampTop(targetRect.top + targetRect.height + SPOTLIGHT_PADDING + TOOLTIP_GAP),
-                    left: clampLeft(targetRect.left + targetRect.width / 2 - maxWidth / 2),
-                };
-            case 'top':
-                return {
-                    bottom: Math.max(pad, vh - targetRect.top + SPOTLIGHT_PADDING + TOOLTIP_GAP),
-                    left: clampLeft(targetRect.left + targetRect.width / 2 - maxWidth / 2),
-                };
-            case 'right':
-                return {
-                    top: clampTop(targetRect.top + targetRect.height / 2 - 60),
-                    left: Math.min(
-                        targetRect.left + targetRect.width + SPOTLIGHT_PADDING + TOOLTIP_GAP,
-                        vw - maxWidth - pad
-                    ),
-                };
-            case 'left':
-                return {
-                    top: clampTop(targetRect.top + targetRect.height / 2 - 60),
-                    right: Math.max(pad, vw - targetRect.left + SPOTLIGHT_PADDING + TOOLTIP_GAP),
-                };
-        }
+        return {
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)'
+        };
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: placement === 'top' ? 8 : -8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
+            initial={{ opacity: 0, y: 8, scale: 0.96, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%', transform: 'translate(-50%, -50%)' }}
+            exit={{ opacity: 0, scale: 0.96, x: '-50%' }}
+            transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
             className={clsx(
-                "fixed z-[9999] w-[340px] rounded-2xl border p-5",
+                "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
                 "backdrop-blur-xl shadow-2xl",
                 theme === 'dark'
                     ? "bg-slate-900/90 border-cyan-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
@@ -213,31 +183,40 @@ const Tooltip: React.FC<TooltipProps> = ({
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
             {/* Step indicator */}
-            <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                    {Array.from({ length: totalSteps }, (_, i) => (
-                        <div
-                            key={i}
-                            className={clsx(
-                                "h-1.5 rounded-full transition-all duration-300",
-                                i === stepIndex ? "w-6 bg-app-accent" : "w-1.5 bg-app-text-muted/30"
-                            )}
-                        />
-                    ))}
-                </div>
-                <span className="text-[11px] text-app-text-muted font-medium">
-                    {t('tutorial.step_of', { current: stepIndex + 1, total: totalSteps })}
-                </span>
+            <div className="flex items-center justify-center gap-2 mb-4">
+                {Array.from({ length: totalSteps }, (_, i) => (
+                    <div
+                        key={i}
+                        className={clsx(
+                            "h-2 rounded-full transition-all duration-300",
+                            i === stepIndex ? "w-8 bg-app-accent shadow-[0_0_8px_rgba(56,189,248,0.5)]" : "w-2 bg-app-text-muted/30"
+                        )}
+                    />
+                ))}
+            </div>
+
+            <div className="mb-4 text-xs font-bold text-app-accent uppercase tracking-widest">
+                STEP {stepIndex + 1}
             </div>
 
             {/* Title */}
-            <h3 className="text-base font-bold text-app-text mb-2">{title}</h3>
+            <h3 className="text-lg font-bold text-app-text mb-3">{title}</h3>
 
             {/* Description */}
-            <p className="text-sm text-app-text-sec leading-relaxed mb-4">{description}</p>
+            <p className="text-sm text-app-text-sec leading-relaxed mb-6 mx-auto max-w-[90%]">{description}</p>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3">
+            <div className="flex items-center justify-between">
+                <div>
+                    {stepIndex > 0 && (
+                        <button
+                            onClick={onPrev}
+                            className="text-xs text-app-accent hover:text-app-text transition-colors cursor-pointer font-bold"
+                        >
+                            &larr; {t('tutorial.prev', '一つ戻る')}
+                        </button>
+                    )}
+                </div>
                 <button
                     onClick={onSkip}
                     className="text-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
@@ -271,16 +250,16 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
             />
             {/* Dialog */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
                 className={clsx(
-                    "fixed z-[9999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                    "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                     "backdrop-blur-xl shadow-2xl",
                     theme === 'dark'
@@ -331,6 +310,32 @@ export const TutorialOverlay: React.FC = () => {
     const stepRoute = currentStep?.route ?? 'miti';
     const routeMatch = stepRoute === currentRoute;
 
+    // Dynamically apply uniform highlight CSS class to the DOM target
+    useEffect(() => {
+        if (!isActive || !currentStep?.targetSelector || !routeMatch) return;
+
+        const selector = currentStep.targetSelector;
+        let animationFrameId: number;
+        let currentTarget: Element | null = null;
+
+        const attachClass = () => {
+            const el = document.querySelector(selector);
+            if (el !== currentTarget) {
+                if (currentTarget) currentTarget.classList.remove('tutorial-target-highlight');
+                if (el) el.classList.add('tutorial-target-highlight');
+                currentTarget = el;
+            }
+            animationFrameId = requestAnimationFrame(attachClass);
+        };
+
+        animationFrameId = requestAnimationFrame(attachClass);
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            if (currentTarget) currentTarget.classList.remove('tutorial-target-highlight');
+        };
+    }, [currentStep?.targetSelector, isActive, routeMatch]);
+
     // Allow clicking through to the target element while blocking everything else
     useEffect(() => {
         if (!isActive || !currentStep || !routeMatch) return;
@@ -361,46 +366,36 @@ export const TutorialOverlay: React.FC = () => {
         return () => document.removeEventListener('click', handleClick, true);
     }, [isActive, currentStep, routeMatch]);
 
-    if (!isActive || !currentStep || !routeMatch) return null;
+    if (!routeMatch) return null;
 
-    // If a tutorial-managed modal is open, let it handle the UI (no duplicate tooltips)
-    const tutorialModalOpen = !!document.querySelector('[data-tutorial-modal] [data-tutorial="job-palette"]');
-    if (tutorialModalOpen && (currentStep.id === 'party-slots' || currentStep.id === 'party-palette')) return null;
-
-    // Render completion dialog for the final step
-    if (currentStep.isDialog) {
-        return (
-            <AnimatePresence>
-                <CompletionDialog
-                    title={t(currentStep.titleKey)}
-                    description={t(currentStep.descriptionKey)}
-                    onComplete={() => {
-                        completeEvent('tutorial:acknowledged');
-                    }}
-                />
-            </AnimatePresence>
-        );
-    }
-
-    // Render spotlight + tooltip for interactive steps
     return (
         <AnimatePresence>
-            <div data-tutorial-overlay>
-                <SpotlightOverlay targetRect={targetRect} />
-                {targetRect && (
-                    <div data-tutorial-tooltip>
-                        <Tooltip
-                            targetRect={targetRect}
-                            placement={currentStep.placement}
-                            title={t(currentStep.titleKey)}
-                            description={t(currentStep.descriptionKey)}
-                            stepIndex={currentStepIndex}
-                            totalSteps={TUTORIAL_STEPS.length}
-                            onSkip={skipTutorial}
-                        />
+            {isActive && currentStep && (
+                currentStep.isDialog ? (
+                    <CompletionDialog
+                        key="dialog"
+                        title={t(currentStep.titleKey)}
+                        description={t(currentStep.descriptionKey)}
+                        onComplete={() => {
+                            completeEvent('tutorial:acknowledged');
+                        }}
+                    />
+                ) : (
+                    <div key="overlay" data-tutorial-overlay className="fixed inset-0 z-[99999] pointer-events-none">
+                        <SpotlightOverlay targetRect={targetRect} />
+                        <div data-tutorial-tooltip className="pointer-events-auto">
+                            <Tooltip
+                                title={t(currentStep.titleKey)}
+                                description={t(currentStep.descriptionKey)}
+                                stepIndex={currentStepIndex}
+                                totalSteps={TUTORIAL_STEPS.length}
+                                onSkip={skipTutorial}
+                                onPrev={useTutorialStore.getState().prevStep}
+                            />
+                        </div>
                     </div>
-                )}
-            </div>
+                )
+            )}
         </AnimatePresence>
     );
 };

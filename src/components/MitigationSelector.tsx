@@ -7,6 +7,7 @@ import type { Mitigation, AppliedMitigation } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -73,6 +74,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             return;
         }
         const handleMouseDown = (e: MouseEvent) => {
+            // Tutorial: block closing the selector if tutorial is active
+            if (useTutorialStore.getState().isActive) return;
+
             if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
                 onClose();
             }

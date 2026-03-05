@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useTutorialStore } from '../store/useTutorialStore';
 
 interface PhaseModalProps {
     isOpen: boolean;
@@ -60,6 +61,9 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
     };
 
     const handleBackdropClick = () => {
+        // Tutorial: block closing the modal during the tutorial
+        if (useTutorialStore.getState().isActive) return;
+
         if (name.trim()) {
             onSave(name, time);
         }
