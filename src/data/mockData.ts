@@ -353,7 +353,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "plenary_indulgence", jobId: "whm", name: { ja: "インドゥルゲンティア", en: "Plenary Indulgence" }, icon: "/icons/Plenary_Indulgence.png",
-        recast: 60, duration: 10, type: "all", value: 0, isShield: false, family: "ph_60_aoe"
+        recast: 60, duration: 10, type: "all", value: 10, isShield: false, family: "ph_60_aoe"
     },
     {
         id: "temperance", jobId: "whm", name: { ja: "テンパランス", en: "Temperance" }, icon: "/icons/Temperance.png",
