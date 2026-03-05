@@ -1180,6 +1180,7 @@ export const Timeline: React.FC = () => {
 
                     <div className="flex items-center gap-3">
                         <button
+                            data-tutorial="my-job-highlight-btn"
                             onClick={() => setMyJobHighlight(!myJobHighlight)}
                             className={clsx(
                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",

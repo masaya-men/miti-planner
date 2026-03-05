@@ -19,12 +19,11 @@ export const MitiPlannerPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'timeline' | 'cheatsheet'>('timeline');
 
     // Auto-start tutorial if timeline is empty (fresh state)
-    // Shows once per page load — not blocked by previous "skip"
     useEffect(() => {
-        const { isActive, startFromStep } = useTutorialStore.getState();
+        const { isActive, hasCompleted, startFromStep } = useTutorialStore.getState();
         const { timelineEvents } = useMitigationStore.getState();
 
-        if (!isActive && timelineEvents.length === 0) {
+        if (!hasCompleted && !isActive && timelineEvents.length === 0) {
             // Start from step 1 (sidebar new-plan), skipping step 0 (portal)
             const timer = setTimeout(() => startFromStep(1), 500);
             return () => clearTimeout(timer);

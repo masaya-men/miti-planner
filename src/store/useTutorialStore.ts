@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useMitigationStore } from './useMitigationStore';
+import { MITIGATIONS } from '../data/mockData';
 
 // ─────────────────────────────────────────────
 // Tutorial Step Definitions
@@ -37,6 +39,15 @@ export interface TutorialStep {
      * Used by the overlay to know when to render.
      */
     route?: 'portal' | 'miti';
+    /**
+     * If true, the spotlight overlay won't darken the entire screen.
+     * Useful for targets inside an already-darkened modal.
+     */
+    isModalTarget?: boolean;
+    /** If true, the step requires the user to click a "Next" button instead of interacting with the UI. */
+    isAcknowledgeStep?: boolean;
+    /** Forced tooltip position */
+    tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
@@ -79,49 +90,170 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     // Step 3: Party composition — 4 people via slot clicks
     {
         id: 'party-slots',
-        targetSelector: '[data-tutorial="slots-area"]',
+        targetSelector: '[data-tutorial="party-slots-target"]',
         titleKey: 'tutorial.party_slots_title',
         descriptionKey: 'tutorial.party_slots_desc',
         completionEvent: 'party:four-set',
         route: 'miti',
+        isModalTarget: true,
     },
     // Step 4: Party composition — remaining 4 via palette
     {
         id: 'party-palette',
-        targetSelector: '[data-tutorial="palette-area"]',
+        targetSelector: '[data-tutorial="party-palette-target"]',
         titleKey: 'tutorial.party_palette_title',
         descriptionKey: 'tutorial.party_palette_desc',
         completionEvent: 'party:all-set',
         route: 'miti',
+        isModalTarget: true,
     },
-    // Step 5: Save Settings
+    // Step 5: Set My Job
     {
-        id: 'party-save',
-        targetSelector: '[data-tutorial="party-save-btn"]',
-        titleKey: 'tutorial.party_save_title',
-        descriptionKey: 'tutorial.party_save_desc',
+        id: 'party-myjob',
+        targetSelector: '[data-tutorial="my-job-btn-pld"]',
+        titleKey: 'tutorial.party_myjob_title',
+        descriptionKey: 'tutorial.party_myjob_desc',
+        completionEvent: 'my-job:set',
+        route: 'miti',
+        isModalTarget: true,
+    },
+    // Step 6: Close Modal
+    {
+        id: 'party-close',
+        targetSelector: '[data-tutorial="party-settings-close-btn"]',
+        titleKey: 'tutorial.party_close_title',
+        descriptionKey: 'tutorial.party_close_desc',
         completionEvent: 'party-settings:closed',
         route: 'miti',
+        isModalTarget: true,
     },
-    // Step 6: Expand timeline row
+    // ==========================================
+    // Phase 2: Timeline Practical Usage (Steps 7-10)
+    // ==========================================
+
+    // Step 7: AoE Mitigation
     {
-        id: 'row-expand',
-        targetSelector: '[data-tutorial="row-expand-btn"]',
-        titleKey: 'tutorial.row_expand_title',
-        descriptionKey: 'tutorial.row_expand_desc',
-        completionEvent: 'timeline:row-expanded',
+        id: 'tutorial-7a-aoe-danger',
+        targetSelector: '[data-tutorial="tutorial-damage-cell-4-aoe"]',
+        titleKey: 'tutorial.step7a_title',
+        descriptionKey: 'tutorial.step7a_desc',
+        completionEvent: 'tutorial:acknowledged-7a',
+        route: 'miti',
+        isAcknowledgeStep: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-7b-aoe-cell',
+        targetSelector: '[data-tutorial="miti-cell-st-4"]',
+        titleKey: 'tutorial.step7b_title',
+        descriptionKey: 'tutorial.step7b_desc',
+        completionEvent: 'tutorial:opened-miti-selector',
+        route: 'miti',
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-7c-aoe-skill',
+        targetSelector: '[data-tutorial="tutorial-skill-reprisal"]',
+        titleKey: 'tutorial.step7c_title',
+        descriptionKey: 'tutorial.step7c_desc',
+        completionEvent: 'mitigation:added',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-7d-aoe-success',
+        targetSelector: '[data-tutorial="tutorial-damage-cell-4-aoe"]',
+        titleKey: 'tutorial.step7d_title',
+        descriptionKey: 'tutorial.step7d_desc',
+        completionEvent: 'tutorial:acknowledged-7d',
+        route: 'miti',
+        isAcknowledgeStep: true,
+        tooltipPosition: 'bottom',
+    },
+
+    // Step 8: Targeted Mitigation (TB)
+    {
+        id: 'tutorial-8a-tb-danger',
+        targetSelector: '[data-tutorial="tutorial-damage-cell-10-tb"]',
+        titleKey: 'tutorial.step8a_title',
+        descriptionKey: 'tutorial.step8a_desc',
+        completionEvent: 'tutorial:acknowledged-8a',
+        route: 'miti',
+        isAcknowledgeStep: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-8b-tb-cell',
+        targetSelector: '[data-tutorial="miti-cell-st-10"]',
+        titleKey: 'tutorial.step8b_title',
+        descriptionKey: 'tutorial.step8b_desc',
+        completionEvent: 'tutorial:opened-miti-selector',
+        route: 'miti',
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-8c-tb-skill',
+        targetSelector: '[data-tutorial="tutorial-skill-intervention"]',
+        titleKey: 'tutorial.step8c_title',
+        descriptionKey: 'tutorial.step8c_desc',
+        completionEvent: 'tutorial:selected-target-miti',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-8d-tb-target',
+        targetSelector: '[data-tutorial="tutorial-target-mt"]',
+        titleKey: 'tutorial.step8d_title',
+        descriptionKey: 'tutorial.step8d_desc',
+        completionEvent: 'mitigation:added',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-8e-tb-success',
+        targetSelector: '[data-tutorial="tutorial-damage-cell-10-tb"]',
+        titleKey: 'tutorial.step8e_title',
+        descriptionKey: 'tutorial.step8e_desc',
+        completionEvent: 'tutorial:acknowledged-8e',
+        route: 'miti',
+        isAcknowledgeStep: true,
+        tooltipPosition: 'bottom',
+    },
+
+    // Step 9: Add Mechanic
+    {
+        id: 'tutorial-9a-add-mechanic-btn',
+        targetSelector: '[data-tutorial="add-event-btn"]',
+        titleKey: 'tutorial.step9a_title',
+        descriptionKey: 'tutorial.step9a_desc',
+        completionEvent: 'tutorial:opened-add-event-modal',
+        route: 'miti',
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-9b-add-mechanic-modal',
+        targetSelector: '[data-tutorial="add-event-modal"]',
+        titleKey: 'tutorial.step9b_title',
+        descriptionKey: 'tutorial.step9b_desc',
+        completionEvent: 'event:created',
+        route: 'miti',
+        isModalTarget: true,
+    },
+
+    // Step 10: My Job Highlight
+    {
+        id: 'tutorial-10-my-job-highlight',
+        targetSelector: '[data-tutorial="my-job-highlight-btn"]',
+        titleKey: 'tutorial.step10_title',
+        descriptionKey: 'tutorial.step10_desc',
+        completionEvent: 'tutorial:my-job-highlight-toggled',
         route: 'miti',
     },
-    // Step 7: Place mitigation
-    {
-        id: 'miti-place',
-        targetSelector: '[data-tutorial="miti-cell"]',
-        titleKey: 'tutorial.miti_place_title',
-        descriptionKey: 'tutorial.miti_place_desc',
-        completionEvent: 'mitigation:placed',
-        route: 'miti',
-    },
-    // Step 8: Completion Dialog
+
+    // Final Completion Dialog
     {
         id: 'complete',
         targetSelector: '',
@@ -224,6 +356,50 @@ export const useTutorialStore = create<TutorialState>()(
 
                 const currentStep = TUTORIAL_STEPS[currentStepIndex];
                 if (currentStep && currentStep.completionEvent === eventName) {
+                    if (eventName === 'party-settings:closed') {
+                        // Pre-populate timeline for the second half of the tutorial
+                        const mitiState = useMitigationStore.getState();
+                        const party = mitiState.partyMembers;
+                        const h1 = party.find((p) => p.id === 'H1');
+                        const mt = party.find((p) => p.id === 'MT');
+
+                        if (h1 && mt && mt.jobId) {
+                            // 1. AoE Event (108% of H1 HP)
+                            mitiState.addEvent({
+                                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                name: { ja: '全体攻撃サンプル', en: 'AoE Sample' },
+                                time: 4,
+                                damageAmount: Math.floor(h1.stats.hp * 1.08),
+                                damageType: 'unavoidable',
+                                target: 'AoE',
+                            });
+
+                            // 2. TB Event (170% of MT HP)
+                            const tbEventId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
+                            mitiState.addEvent({
+                                id: tbEventId,
+                                name: { ja: 'タンクバスター', en: 'Tank Buster' },
+                                time: 10,
+                                damageAmount: Math.floor(mt.stats.hp * 1.7),
+                                damageType: 'physical',
+                                target: 'MT',
+                            });
+
+                            // 3. Pre-place MT's 120s mitigation
+                            // Find MT's 120s mitigation (e.g. Shadow Wall, Vengeance, Sentinel, Nebula)
+                            const mt120sMiti = MITIGATIONS.find(m => m.jobId === mt.jobId && m.duration >= 10 && m.value >= 30 && m.scope !== 'party' && m.scope !== 'self'); // Sentinel/Shadow Wall have scope undefined
+                            if (mt120sMiti) {
+                                mitiState.addMitigation({
+                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'mit_' + Math.random().toString(36).substring(2, 9),
+                                    mitigationId: mt120sMiti.id,
+                                    time: 10,
+                                    duration: mt120sMiti.duration,
+                                    ownerId: 'MT',
+                                });
+                            }
+                        }
+                    }
+
                     get().nextStep();
                 }
             },

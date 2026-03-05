@@ -31,6 +31,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const currentTutorialStep = tutorialActive ? TUTORIAL_STEPS[currentStepIndex] : null;
     const isTutorialSlots = currentTutorialStep?.id === 'party-slots';
     const isTutorialPalette = currentTutorialStep?.id === 'party-palette';
+    const isTutorialMyJob = currentTutorialStep?.id === 'party-myjob';
+    const isTutorialClose = currentTutorialStep?.id === 'party-close';
 
     // Sub-step sequence for Step 3 (slot-click method)
     const SLOT_TUTORIAL_SEQUENCE: { type: 'slot' | 'job'; slotIndex?: number; jobId?: string }[] = [
@@ -72,7 +74,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const handleAttemptClose = React.useCallback(() => {
         // Tutorial: block closing the modal during the tutorial
         const state = useTutorialStore.getState();
-        if (state.isActive) return;
+        if (state.isActive) {
+            const currentStep = TUTORIAL_STEPS[state.currentStepIndex];
+            if (currentStep?.id !== 'party-close') return;
+        }
 
         if (migrationBatch) return;
 
@@ -105,6 +110,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             safeChanges.forEach(change => {
                 setMemberJob(change.memberId, change.jobId as any);
             });
+            // ── Tutorial: Complete Step 5 ──
+            useTutorialStore.getState().completeEvent('party-settings:closed');
             onClose();
         } else {
             // Unsafe changes
@@ -196,6 +203,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         }
         // Tutorial: during palette step, only allow palette tutorial jobs
         if (isTutorialPalette && !PALETTE_TUTORIAL_JOBS.includes(jobId)) return;
+        // Tutorial: block palette clicks during other steps
+        if (isTutorialMyJob || isTutorialClose) return;
 
         let targetIndex: number | undefined = undefined;
 
@@ -312,7 +321,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         if (isTutorialPalette) {
             const filled = draftMembers.filter(m => m.jobId).length;
             if (filled >= 7) {
-                setTimeout(() => useTutorialStore.getState().completeEvent('party:eight-set'), 300);
+                setTimeout(() => useTutorialStore.getState().completeEvent('party:all-set'), 300);
             }
         }
     };
@@ -374,7 +383,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         if (sub.type === 'slot' && sub.slotIndex !== index) return;
                         if (sub.type === 'job') return;
                     }
-                    if (isTutorialPalette) return;
+                    if (isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
                     setFocusedSlot(isFocused ? null : index);
                     // Tutorial: advance sub-step when correct slot is clicked
                     if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
@@ -426,9 +435,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {job && (
                         <>
                             <button
+                                data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
                                     setMyMemberId(isMyJob ? null : member.id);
+
+                                    if (isTutorialMyJob && member.id === 'ST') {
+                                        useTutorialStore.getState().completeEvent('my-job:set');
+                                    }
                                 }}
                                 className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border",
                                     isMyJob
@@ -442,7 +457,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (isTutorialSlots || isTutorialPalette) return;
+                                    if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
                                     handleRemoveJob(member.id);
                                     if (isFocused) setFocusedSlot(null);
                                 }}
@@ -485,10 +500,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
                                         && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id;
 
+                                    const isTutorialPaletteTarget = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id);
+
                                     return (
                                         <button
                                             key={job.id}
-                                            data-tutorial={isTutorialTargetJob ? "party-slots-target" : undefined}
+                                            data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
@@ -518,6 +535,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         )}>
             {/* Backdrop */}
             <div
+                data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined}
                 className={clsx(
                     "absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
@@ -561,7 +579,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
+                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
                         <X size={18} />
                     </button>
                 </div>

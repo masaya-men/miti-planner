@@ -6,7 +6,6 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { Sidebar } from './Sidebar';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
-import { TutorialOverlay } from './TutorialOverlay';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Sun, Moon, Home, HelpCircle } from 'lucide-react';
@@ -228,9 +227,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
                 activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : mobilePartyOpen ? 'party' : mobileStatusOpen ? 'status' : undefined}
             />
-
-            {/* Tutorial Overlay — rendered above everything */}
-            <TutorialOverlay />
         </div>
     );
 };
