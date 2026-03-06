@@ -242,6 +242,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         descriptionKey: 'tutorial.step9a_desc',
         completionEvent: 'tutorial:opened-add-event-modal',
         route: 'miti',
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {

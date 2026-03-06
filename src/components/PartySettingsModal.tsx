@@ -398,8 +398,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     isFocused
                         ? "bg-app-accent-dim border-app-border-accent shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                         : job
-                            ? "bg-slate-800/40 border-white/10 hover:bg-slate-800/60 hover:border-white/20"
-                            : "bg-white/[0.02] border-white/5 hover:bg-white/10 border-dashed"
+                            ? "bg-glass-card border-glass-border hover:bg-glass-hover"
+                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/10 border-dashed"
                 )}
             >
                 {/* Background Gradient */}
@@ -424,8 +424,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {job ? (
                         <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-md" />
                     ) : (
-                        <div className="w-8 h-8 rounded-full border border-white/10 bg-black/20 flex flex-col items-center justify-center">
-                            <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">Select</span>
+                        <div className="w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-black/20 flex flex-col items-center justify-center">
+                            <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-widest">Select</span>
                         </div>
                     )}
                 </div>
@@ -447,8 +447,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 }}
                                 className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border",
                                     isMyJob
-                                        ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
-                                        : "bg-black/40 text-white/40 border-transparent hover:bg-black/60 hover:text-white/80"
+                                        ? "bg-yellow-500/20 text-yellow-500 dark:text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
+                                        : "bg-black/5 dark:bg-black/40 text-slate-400 dark:text-white/40 border-transparent hover:bg-black/10 hover:text-slate-600 dark:hover:bg-black/60 dark:hover:text-white/80"
                                 )}
                                 title="Set as My Job"
                             >
@@ -570,7 +570,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 </div>
 
                 {/* ヘッダーエリア */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="text-blue-500" size={16} />
@@ -625,7 +625,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                     {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
 
-                    <div data-tutorial="job-palette" className="h-auto bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
+                    <div data-tutorial="job-palette" className="h-auto bg-glass-panel backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
                     </div>

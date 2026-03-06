@@ -139,7 +139,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 </div>
 
                 {/* Header */}
-                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl flex-shrink-0">
+                <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <Shield className="text-blue-500" size={16} />
@@ -191,7 +191,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.hp || 0}
                                         onChange={(val) => updateHealerHP(val)}
-                                        className="w-20 bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-white/20 focus:border-app-accent focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -199,7 +199,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.wd || 0}
                                         onChange={(val) => updateHealerStats({ wd: val })}
-                                        className="w-20 bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-white/20 focus:border-app-accent focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -207,7 +207,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.mainStat || 0}
                                         onChange={(val) => updateHealerStats({ mainStat: val })}
-                                        className="w-20 bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-white/20 focus:border-app-accent focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.det || 0}
                                         onChange={(val) => updateHealerStats({ det: val })}
-                                        className="w-20 bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-white/20 focus:border-app-accent focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                             </div>

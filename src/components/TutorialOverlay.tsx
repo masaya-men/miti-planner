@@ -83,46 +83,94 @@ function useTargetRects(selector: string): TargetRect[] {
 // ─────────────────────────────────────────────
 
 const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: boolean; isTimelineStep?: boolean }> = ({ targetRects, isModalTarget, isTimelineStep }) => {
-    if (!targetRects || targetRects.length === 0) return null;
+    // Removed early return so click blocker/backdrop renders even without targets
+
+    // Build a clip-path that covers the full viewport EXCEPT the target rects (evenodd holes)
+    const buildClickBlockerClipPath = (): string => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        let path = `M0 0 H${vw} V${vh} H0 Z`;
+        for (const rect of targetRects) {
+            const x = rect.left - SPOTLIGHT_PADDING;
+            const y = rect.top - SPOTLIGHT_PADDING;
+            const w = rect.width + SPOTLIGHT_PADDING * 2;
+            const h = rect.height + SPOTLIGHT_PADDING * 2;
+            path += ` M${x} ${y} h${w} v${h} h${-w} Z`;
+        }
+        return `path(evenodd, "${path}")`;
+    };
 
     return (
         <>
+            {/* Spotlight Brightness Effect — only for timeline steps (no dark overlay) */}
+            {isTimelineStep && !isModalTarget && (
+                <div className="fixed inset-0 z-[10001] pointer-events-none overflow-hidden">
+                    {targetRects.map((rect, idx) => (
+                        <div
+                            key={`brightness-${idx}`}
+                            className="absolute transition-all duration-300"
+                            style={{
+                                top: rect.top - SPOTLIGHT_PADDING,
+                                left: rect.left - SPOTLIGHT_PADDING,
+                                width: rect.width + SPOTLIGHT_PADDING * 2,
+                                height: rect.height + SPOTLIGHT_PADDING * 2,
+                                borderRadius: SPOTLIGHT_RADIUS,
+                                backdropFilter: 'brightness(1.8) saturate(1.2)',
+                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Click blocker for timeline steps: transparent wall with holes over target areas */}
+            {isTimelineStep && !isModalTarget && (
+                <div
+                    className="fixed inset-0 z-[10001]"
+                    style={{
+                        pointerEvents: 'auto',
+                        background: 'transparent',
+                        clipPath: buildClickBlockerClipPath(),
+                    }}
+                />
+            )}
+
             <svg
                 className="fixed inset-0 w-full h-full z-[10001] pointer-events-none"
                 style={{ isolation: 'isolate' }}
             >
-                <defs>
-                    <mask id="tutorial-spotlight-mask">
-                        {/* White = visible (the dark overlay) */}
-                        <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                        {/* Black = transparent (the cutout) */}
-                        {targetRects.map((rect, idx) => (
-                            <rect
-                                key={`mask - ${idx} `}
-                                x={rect.left - SPOTLIGHT_PADDING}
-                                y={rect.top - SPOTLIGHT_PADDING}
-                                width={rect.width + SPOTLIGHT_PADDING * 2}
-                                height={rect.height + SPOTLIGHT_PADDING * 2}
-                                rx={SPOTLIGHT_RADIUS}
-                                ry={SPOTLIGHT_RADIUS}
-                                fill="black"
-                            />
-                        ))}
-                    </mask>
-                </defs>
-                {/* Semi-transparent overlay with mask */}
-                {!isModalTarget && (
-                    <rect
-                        x="0" y="0"
-                        width="100%" height="100%"
-                        fill={isTimelineStep ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.75)"}
-                        mask="url(#tutorial-spotlight-mask)"
-                    />
+                {/* Dark overlay ONLY for non-timeline steps (modal-phase steps) */}
+                {!isModalTarget && !isTimelineStep && (
+                    <>
+                        <defs>
+                            <mask id="tutorial-spotlight-mask">
+                                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                                {targetRects.map((rect, idx) => (
+                                    <rect
+                                        key={`mask-${idx}`}
+                                        x={rect.left - SPOTLIGHT_PADDING}
+                                        y={rect.top - SPOTLIGHT_PADDING}
+                                        width={rect.width + SPOTLIGHT_PADDING * 2}
+                                        height={rect.height + SPOTLIGHT_PADDING * 2}
+                                        rx={SPOTLIGHT_RADIUS}
+                                        ry={SPOTLIGHT_RADIUS}
+                                        fill="black"
+                                    />
+                                ))}
+                            </mask>
+                        </defs>
+                        <rect
+                            x="0" y="0"
+                            width="100%" height="100%"
+                            fill="rgba(0,0,0,0.75)"
+                            mask="url(#tutorial-spotlight-mask)"
+                        />
+                    </>
                 )}
-                {/* Glow border around cutout */}
+                {/* Glow border around cutout — always rendered */}
                 {targetRects.map((rect, idx) => (
                     <rect
-                        key={`glow - ${idx} `}
+                        key={`glow-${idx}`}
                         x={rect.left - SPOTLIGHT_PADDING}
                         y={rect.top - SPOTLIGHT_PADDING}
                         width={rect.width + SPOTLIGHT_PADDING * 2}
@@ -130,7 +178,7 @@ const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: bo
                         rx={SPOTLIGHT_RADIUS}
                         ry={SPOTLIGHT_RADIUS}
                         fill="none"
-                        stroke="rgba(56, 189, 248, 0.4)"
+                        stroke="rgba(226, 232, 240, 0.5)"
                         strokeWidth="2"
                         className="animate-tutorial-ripple"
                         style={{ transformOrigin: 'center' }}
@@ -184,8 +232,8 @@ const Tooltip: React.FC<TooltipProps> = ({
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
                 "backdrop-blur-xl shadow-2xl",
                 theme === 'dark'
-                    ? "bg-slate-900/90 border-cyan-500/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-                    : "bg-white/90 border-blue-200/40 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
+                    ? "bg-black/85 border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.8)]"
+                    : "bg-white/90 border-slate-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
             )}
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
@@ -196,7 +244,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                         key={i}
                         className={clsx(
                             "h-2 rounded-full transition-all duration-300",
-                            i === stepIndex ? "w-8 bg-app-accent shadow-[0_0_8px_rgba(56,189,248,0.5)]" : "w-2 bg-app-text-muted/30"
+                            i === stepIndex ? "w-8 bg-app-accent shadow-[0_0_8px_rgba(226,232,240,0.5)]" : "w-2 bg-app-text-muted/30"
                         )}
                     />
                 ))}
@@ -280,8 +328,8 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                     "backdrop-blur-xl shadow-2xl",
                     theme === 'dark'
-                        ? "bg-slate-900/95 border-cyan-500/20 shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
-                        : "bg-white/95 border-blue-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)]"
+                        ? "bg-black/95 border-white/15 shadow-[0_16px_64px_rgba(0,0,0,0.8)]"
+                        : "bg-white/95 border-slate-200/60 shadow-[0_16px_64px_rgba(0,0,0,0.15)]"
                 )}
             >
                 {/* Celebration emoji */}
@@ -379,6 +427,17 @@ export const TutorialOverlay: React.FC = () => {
                     });
                 }
             }, 100);
+        }
+
+        // Auto-focus input fields for mechanic-input steps (no manual click required)
+        if (currentStep.id === 'tutorial-9b-name-input' || currentStep.id === 'tutorial-9c-damage-input') {
+            setTimeout(() => {
+                const input = document.querySelector(currentStep.targetSelector) as HTMLInputElement | null;
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 300);
         }
 
         // Step 10: Scroll to 9s row so the table (with my-job highlight) is visible

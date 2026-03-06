@@ -75,19 +75,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
                 {/* 1. 大きなグレーのBlob */}
                 <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-1",
+                    "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-1",
                     "w-[80vw] h-[80vw] md:w-[60vw] md:h-[60vw] left-[-10%] top-[-10%]",
                     theme === 'dark' ? "bg-slate-700/20" : "bg-slate-300/40"
                 )} />
                 {/* 2. 大きなシルバーのBlob */}
                 <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-2",
+                    "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-2",
                     "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
                     theme === 'dark' ? "bg-zinc-600/15" : "bg-indigo-100/40"
                 )} />
                 {/* 3. 【新規追加】ほんの一部だけ明るめ・激しく動くルミナスなコア */}
                 <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[80px] animate-blob-3",
+                    "absolute rounded-full mix-blend-screen filter blur-[80px] animate-blob-3",
                     "w-[40vw] h-[40vw] md:w-[30vw] md:h-[30vw] left-[30%] top-[30%]",
                     theme === 'dark' ? "bg-slate-400/25" : "bg-white/50"
                 )} />
