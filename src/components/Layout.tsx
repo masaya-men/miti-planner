@@ -30,45 +30,66 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    // ベースの背景色（一番底の色）
-    const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
+    // チュートリアル中ならサイドバーを強制的に開く
+    const isTutorialActive = useTutorialStore((state) => state.isActive);
+    React.useEffect(() => {
+        if (isTutorialActive) {
+            setIsSidebarOpen(true);
+            setMobileMenuOpen(false); // モバイルの場合はサイドメニューを閉じて本体を見せる等（必要に応じて）
+        }
+    }, [isTutorialActive]);
+
+    // ベースの背景色（テーマ変数を参照するように変更）
+    const bgClass = theme === 'dark' ? 'bg-app-bg' : 'bg-slate-50';
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 transition-colors duration-300 ${bgClass} relative`}>
 
-            {/* 👇 【修正】アニメーションをより激しく、速く */}
+            {/* 👇 【修正】アニメーションを「より大きく、ゆったりと」した優雅な動きに変更 */}
             <style>{`
 @keyframes float-blob-1 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-    25% { transform: translate(15vw, -10vh) scale(1.3); opacity: 0.8; }
-    50% { transform: translate(25vw, 10vh) scale(1.1); opacity: 0.6; }
-    75% { transform: translate(10vw, 20vh) scale(1.4); opacity: 0.9; }
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+    25% { transform: translate(30vw, -20vh) scale(1.6); opacity: 0.7; }
+    50% { transform: translate(50vw, 20vh) scale(1.2); opacity: 0.5; }
+    75% { transform: translate(25vw, 40vh) scale(1.8); opacity: 0.8; }
 }
 @keyframes float-blob-2 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-    20% { transform: translate(-20vw, 15vh) scale(1.4); opacity: 0.7; }
-    40% { transform: translate(-30vw, -10vh) scale(1.2); opacity: 0.5; }
-    60% { transform: translate(-15vw, -25vh) scale(1.5); opacity: 0.8; }
-    80% { transform: translate(5vw, -15vh) scale(1.1); opacity: 0.6; }
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+    20% { transform: translate(-40vw, 30vh) scale(1.7); opacity: 0.6; }
+    40% { transform: translate(-60vw, -25vh) scale(1.3); opacity: 0.4; }
+    60% { transform: translate(-30vw, -45vh) scale(1.8); opacity: 0.7; }
+    80% { transform: translate(15vw, -35vh) scale(1.1); opacity: 0.5; }
 }
-                /* 時間を短縮（12s->6s, 15s->8s）して動きを速く */
-                .animate-blob-1 { animation: float-blob-1 6s ease-in-out infinite; }
-                .animate-blob-2 { animation: float-blob-2 8s ease-in-out infinite; }
+@keyframes float-blob-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+    33% { transform: translate(30vw, 30vh) scale(2.0); opacity: 0.8; }
+    66% { transform: translate(-30vw, 15vh) scale(0.9); opacity: 0.6; }
+}
+                /* 時間を長く（遅く）して、ゆったりとした優雅な動きに */
+                .animate-blob-1 { animation: float-blob-1 20s ease-in-out infinite; }
+                .animate-blob-2 { animation: float-blob-2 25s ease-in-out infinite; }
+                .animate-blob-3 { animation: float-blob-3 15s ease-in-out infinite; }
 `}</style>
 
             {/* 背景Blob */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                {/* 1. 大きなグレーのBlob */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-1",
                     "w-[80vw] h-[80vw] md:w-[60vw] md:h-[60vw] left-[-10%] top-[-10%]",
-                    // 👇 透明度を下げて、少し深めの色（より落ち着いた印象）に変更
-                    theme === 'dark' ? "bg-blue-800/20" : "bg-slate-300/40"
+                    theme === 'dark' ? "bg-slate-700/20" : "bg-slate-300/40"
                 )} />
+                {/* 2. 大きなシルバーのBlob */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px] animate-blob-2",
                     "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
-                    // 👇 透明度を下げて、少し深めの色（より落ち着いた印象）に変更
-                    theme === 'dark' ? "bg-indigo-900/20" : "bg-indigo-100/40"
+                    theme === 'dark' ? "bg-zinc-600/15" : "bg-indigo-100/40"
+                )} />
+                {/* 3. 【新規追加】ほんの一部だけ明るめ・激しく動くルミナスなコア */}
+                <div className={clsx(
+                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[80px] animate-blob-3",
+                    "w-[40vw] h-[40vw] md:w-[30vw] md:h-[30vw] left-[30%] top-[30%]",
+                    theme === 'dark' ? "bg-slate-400/25" : "bg-white/50"
                 )} />
             </div>
 
@@ -97,7 +118,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative transition-colors duration-300 shadow-sm",
                     "hidden md:flex",
                     theme === 'dark'
-                        ? "bg-slate-900/40 border-slate-700/50 backdrop-blur-xl"
+                        ? "bg-glass-header border-white/5 backdrop-blur-xl"
                         : "bg-white/40 border-slate-200/50 backdrop-blur-xl"
                 )}>
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />

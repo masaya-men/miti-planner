@@ -101,31 +101,42 @@
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     color-scheme: dark;
 
-    /* Modern Dark & Blue Glass Theme */
-    --color-bg-primary: #18191c;
+    /* Pure Black & Silver Ultra Glass Theme */
+    --color-bg-primary: #000000;
+    /* Pure black */
     --color-bg-secondary: #000000;
-    --color-bg-tertiary: #202124;
+    /* Pure black */
+    --color-bg-tertiary: #050505;
+    /* Barely visible contrast */
 
-    --color-accent-primary: #60a5fa;
-    --color-accent-secondary: #38bdf8;
-    --color-accent-dim: rgba(56, 189, 248, 0.1);
+    --color-accent-primary: #e2e8f0;
+    /* Bright Silver */
+    --color-accent-secondary: #f8fafc;
+    /* White Silver */
+    --color-accent-dim: rgba(226, 232, 240, 0.15);
 
     --color-text-primary: #f8fafc;
     --color-text-secondary: #94a3b8;
     --color-text-muted: #64748b;
 
     /* Glass Borders */
-    --color-border: rgba(56, 189, 248, 0.15);
-    --color-border-accent: rgba(56, 189, 248, 0.4);
+    --color-border: rgba(255, 255, 255, 0.05);
+    /* Even subtler */
+    --color-border-accent: rgba(226, 232, 240, 0.5);
 
-    /* Unified Glassmorphism Variables */
-    --glass-bg-header: rgba(10, 10, 12, 0.8);
-    --glass-bg-panel: rgba(0, 0, 0, 0.4);
-    --glass-bg-card: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-hover: rgba(255, 255, 255, 0.1);
-    --glass-active: rgba(255, 255, 255, 0.15);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    /* Extreme Transparency Glassmorphism Variables - Extremely transparent to show deep background */
+    --glass-bg-header: rgba(0, 0, 0, 0.15);
+    /* Extreme transparency */
+    --glass-bg-panel: rgba(0, 0, 0, 0.2);
+    /* Extreme transparency */
+    --glass-bg-card: rgba(255, 255, 255, 0.01);
+    /* Barely visible */
+    --glass-border: rgba(255, 255, 255, 0.2);
+    /* Stronger, glowing white edge to define shape */
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --glass-active: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
+    /* Added inner glow for glass thickness */
   }
 
   .theme-light {
@@ -145,13 +156,15 @@
     --color-border: rgba(0, 0, 0, 0.1);
     --color-border-accent: rgba(37, 99, 235, 0.4);
 
-    --glass-bg-header: rgba(255, 255, 255, 0.85);
-    --glass-bg-panel: rgba(255, 255, 255, 0.6);
-    --glass-bg-card: rgba(0, 0, 0, 0.03);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --glass-hover: rgba(0, 0, 0, 0.05);
+    --glass-bg-header: rgba(255, 255, 255, 0.2);
+    --glass-bg-panel: rgba(255, 255, 255, 0.25);
+    --glass-bg-card: rgba(0, 0, 0, 0.02);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    /* Very strong reflective white edge */
+    --glass-hover: rgba(0, 0, 0, 0.04);
     --glass-active: rgba(0, 0, 0, 0.08);
-    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 0 1px 1px rgba(255, 255, 255, 0.5);
+    /* Inner reflection */
   }
 
   body {
