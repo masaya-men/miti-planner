@@ -46,8 +46,10 @@ export interface TutorialStep {
     isModalTarget?: boolean;
     /** If true, the step requires the user to click a "Next" button instead of interacting with the UI. */
     isAcknowledgeStep?: boolean;
+    /** If true, uses a lighter overlay to keep the timeline table visible. */
+    isTimelineStep?: boolean;
     /** Forced tooltip position */
-    tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
+    tooltipPosition?: 'top' | 'bottom' | 'left' | 'right' | 'right-center'; // Tooltip placement preference
 }
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
@@ -140,6 +142,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:acknowledged-7a',
         route: 'miti',
         isAcknowledgeStep: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -149,6 +152,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         descriptionKey: 'tutorial.step7b_desc',
         completionEvent: 'tutorial:opened-miti-selector',
         route: 'miti',
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -159,6 +163,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'mitigation:added',
         route: 'miti',
         isModalTarget: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -169,6 +174,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:acknowledged-7d',
         route: 'miti',
         isAcknowledgeStep: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
 
@@ -181,6 +187,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:acknowledged-8a',
         route: 'miti',
         isAcknowledgeStep: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -190,6 +197,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         descriptionKey: 'tutorial.step8b_desc',
         completionEvent: 'tutorial:opened-miti-selector',
         route: 'miti',
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -200,6 +208,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:selected-target-miti',
         route: 'miti',
         isModalTarget: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -210,6 +219,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'mitigation:added',
         route: 'miti',
         isModalTarget: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
     {
@@ -220,13 +230,14 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:acknowledged-8e',
         route: 'miti',
         isAcknowledgeStep: true,
+        isTimelineStep: true,
         tooltipPosition: 'bottom',
     },
 
     // Step 9: Add Mechanic
     {
         id: 'tutorial-9a-add-mechanic-btn',
-        targetSelector: '[data-tutorial="add-event-btn"]',
+        targetSelector: '[data-tutorial="add-event-btn-11"]',
         titleKey: 'tutorial.step9a_title',
         descriptionKey: 'tutorial.step9a_desc',
         completionEvent: 'tutorial:opened-add-event-modal',
@@ -234,13 +245,44 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         tooltipPosition: 'bottom',
     },
     {
-        id: 'tutorial-9b-add-mechanic-modal',
-        targetSelector: '[data-tutorial="add-event-modal"]',
+        id: 'tutorial-9b-name-input',
+        targetSelector: '[data-tutorial="event-name-input"]',
         titleKey: 'tutorial.step9b_title',
         descriptionKey: 'tutorial.step9b_desc',
+        completionEvent: 'tutorial:entered-event-name',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'right-center',
+    },
+    {
+        id: 'tutorial-9c-damage-input',
+        targetSelector: '[data-tutorial="event-actual-damage-input"]',
+        titleKey: 'tutorial.step9c_title',
+        descriptionKey: 'tutorial.step9c_desc',
+        completionEvent: 'tutorial:entered-event-damage',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'right-center',
+    },
+    {
+        id: 'tutorial-9d-miti-select',
+        targetSelector: '[data-tutorial="tutorial-skill-target"]',
+        titleKey: 'tutorial.step9d_title',
+        descriptionKey: 'tutorial.step9d_desc',
+        completionEvent: 'tutorial:selected-event-mitis',
+        route: 'miti',
+        isModalTarget: true,
+        tooltipPosition: 'right-center',
+    },
+    {
+        id: 'tutorial-9e-save-btn',
+        targetSelector: '[data-tutorial="event-save-btn"]',
+        titleKey: 'tutorial.step9e_title',
+        descriptionKey: 'tutorial.step9e_desc',
         completionEvent: 'event:created',
         route: 'miti',
         isModalTarget: true,
+        tooltipPosition: 'right-center',
     },
 
     // Step 10: My Job Highlight
@@ -251,6 +293,19 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         descriptionKey: 'tutorial.step10_desc',
         completionEvent: 'tutorial:my-job-highlight-toggled',
         route: 'miti',
+        isTimelineStep: true,
+        tooltipPosition: 'bottom',
+    },
+    {
+        id: 'tutorial-10b-highlight-result',
+        targetSelector: '',
+        titleKey: 'tutorial.step10b_title',
+        descriptionKey: 'tutorial.step10b_desc',
+        completionEvent: 'tutorial:acknowledged-10b',
+        route: 'miti',
+        isAcknowledgeStep: true,
+        isTimelineStep: true,
+        tooltipPosition: 'bottom',
     },
 
     // Final Completion Dialog
@@ -276,10 +331,18 @@ interface TutorialState {
     currentStepIndex: number;
     /** Whether the user has ever completed the tutorial */
     hasCompleted: boolean;
+    /** Whether a restart confirmation dialog should be shown */
+    pendingTutorialRestart: boolean;
+    /** Step index to start from after restart confirmation */
+    _pendingStepIndex: number;
 
     // ── Actions ──
     /** Start the tutorial from step 0 */
     startTutorial: () => void;
+    /** Confirm the restart after user approval */
+    confirmRestart: () => void;
+    /** Cancel the restart dialog */
+    cancelRestart: () => void;
     /** Start the tutorial from a specific step index */
     startFromStep: (stepIndex: number) => void;
     /** Advance to the next step */
@@ -309,14 +372,45 @@ export const useTutorialStore = create<TutorialState>()(
             isActive: false,
             currentStepIndex: 0,
             hasCompleted: false,
+            pendingTutorialRestart: false,
+            _pendingStepIndex: 0,
 
             startTutorial: () => {
-                set({ isActive: true, currentStepIndex: 0 });
+                // Check if there is existing data that would be lost
+                const mitiState = useMitigationStore.getState();
+                const hasData = mitiState.timelineEvents.length > 0
+                    || mitiState.timelineMitigations.length > 0
+                    || mitiState.partyMembers.some((m: any) => m.jobId !== null);
+
+                if (hasData) {
+                    set({ pendingTutorialRestart: true, _pendingStepIndex: 0 });
+                } else {
+                    set({ isActive: true, currentStepIndex: 0 });
+                }
+            },
+
+            confirmRestart: () => {
+                useMitigationStore.getState().resetForTutorial();
+                const stepIndex = get()._pendingStepIndex;
+                set({ isActive: true, currentStepIndex: stepIndex, pendingTutorialRestart: false, _pendingStepIndex: 0 });
+            },
+
+            cancelRestart: () => {
+                set({ pendingTutorialRestart: false, _pendingStepIndex: 0 });
             },
 
             startFromStep: (stepIndex: number) => {
                 if (stepIndex >= 0 && stepIndex < TUTORIAL_STEPS.length) {
-                    set({ isActive: true, currentStepIndex: stepIndex });
+                    const mitiState = useMitigationStore.getState();
+                    const hasData = mitiState.timelineEvents.length > 0
+                        || mitiState.timelineMitigations.length > 0
+                        || mitiState.partyMembers.some((m: any) => m.jobId !== null);
+
+                    if (hasData) {
+                        set({ pendingTutorialRestart: true, _pendingStepIndex: stepIndex });
+                    } else {
+                        set({ isActive: true, currentStepIndex: stepIndex });
+                    }
                 }
             },
 
@@ -332,6 +426,32 @@ export const useTutorialStore = create<TutorialState>()(
 
             prevStep: () => {
                 const { currentStepIndex } = get();
+                const currentStep = TUTORIAL_STEPS[currentStepIndex];
+
+                // --- Undo Logic for Tutorial Backwards Navigation ---
+                if (currentStep) {
+                    const mitiState = useMitigationStore.getState();
+
+                    if (currentStep.id === 'tutorial-7d-aoe-success') {
+                        // Undo AoE Mitigation added at 4s
+                        const placed = mitiState.timelineMitigations.find(m => m.time === 4 && m.duration >= 10);
+                        if (placed) mitiState.removeMitigation(placed.id);
+                    } else if (currentStep.id === 'tutorial-8e-tb-success' || currentStep.id === 'tutorial-8d-tb-target') {
+                        // Undo targeted buff added at 10s (Not MT's own buff)
+                        const placedBuff = mitiState.timelineMitigations.find(m => m.time === 10 && m.ownerId !== 'MT');
+                        if (placedBuff && currentStep.id === 'tutorial-8e-tb-success') {
+                            mitiState.removeMitigation(placedBuff.id);
+                        }
+                    } else if (currentStep.id === 'tutorial-10-my-job-highlight') {
+                        // Undo manually created event
+                        const createdEvent = mitiState.timelineEvents.find(e => e.time !== 4 && e.time !== 10);
+                        if (createdEvent) mitiState.removeEvent(createdEvent.id);
+                    } else if (currentStep.id === 'tutorial-9a-add-mechanic-btn') {
+                        // Ensure modal is closed if we're backing out of step 9
+                        // The app might not have a direct close from here but it's handled by typical user interactions.
+                    }
+                }
+
                 const prevIndex = currentStepIndex - 1;
                 if (prevIndex >= 0) {
                     set({ currentStepIndex: prevIndex });
@@ -339,10 +459,12 @@ export const useTutorialStore = create<TutorialState>()(
             },
 
             completeTutorial: () => {
+                useMitigationStore.getState().resetForTutorial();
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0 });
             },
 
             skipTutorial: () => {
+                useMitigationStore.getState().resetForTutorial();
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0 });
             },
 
@@ -380,14 +502,15 @@ export const useTutorialStore = create<TutorialState>()(
                                 id: tbEventId,
                                 name: { ja: 'タンクバスター', en: 'Tank Buster' },
                                 time: 10,
-                                damageAmount: Math.floor(mt.stats.hp * 1.7),
+                                // ~195% HP ensures it is still strictly lethal even with ~46% mitigation applied.
+                                damageAmount: Math.floor(mt.stats.hp * 1.95),
                                 damageType: 'physical',
                                 target: 'MT',
                             });
 
-                            // 3. Pre-place MT's 120s mitigation
-                            // Find MT's 120s mitigation (e.g. Shadow Wall, Vengeance, Sentinel, Nebula)
-                            const mt120sMiti = MITIGATIONS.find(m => m.jobId === mt.jobId && m.duration >= 10 && m.value >= 30 && m.scope !== 'party' && m.scope !== 'self'); // Sentinel/Shadow Wall have scope undefined
+                            // 3. Pre-place MT's 120s mitigation (family: 'tank_40')
+                            // All tank 120s mitigations share family 'tank_40' (e.g. Shadowed Vigil, Guardian, Great Nebula)
+                            const mt120sMiti = MITIGATIONS.find(m => m.jobId === mt.jobId && m.family === 'tank_40');
                             if (mt120sMiti) {
                                 mitiState.addMitigation({
                                     id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'mit_' + Math.random().toString(36).substring(2, 9),
@@ -398,6 +521,18 @@ export const useTutorialStore = create<TutorialState>()(
                                 });
                             }
                         }
+
+                        // Auto-scroll to the first tutorial event
+                        setTimeout(() => {
+                            const scrollContainer = document.querySelector('.timeline-scroll-container');
+                            const row = document.querySelector('[data-time-row="3"]') as HTMLElement;
+                            if (scrollContainer && row) {
+                                scrollContainer.scrollTo({
+                                    top: row.offsetTop, // Snap top edge exactly to the container
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }, 300);
                     }
 
                     get().nextStep();
@@ -411,3 +546,4 @@ export const useTutorialStore = create<TutorialState>()(
         }
     )
 );
+

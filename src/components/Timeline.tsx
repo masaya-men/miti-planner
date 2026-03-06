@@ -679,6 +679,7 @@ export const Timeline: React.FC = () => {
         setSelectedTime(time);
         setSelectedEvent(null);
         setIsModalOpen(true);
+        useTutorialStore.getState().completeEvent('tutorial:opened-add-event-modal');
     };
 
     const handlePhaseAdd = (time: number, e: React.MouseEvent) => {
@@ -776,6 +777,7 @@ export const Timeline: React.FC = () => {
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
+        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
     };
 
     const handleMobileDamageClick = (time: number, e: React.MouseEvent) => {
@@ -793,6 +795,7 @@ export const Timeline: React.FC = () => {
         setSelectedMemberId(targetId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
+        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
     };
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
@@ -1181,7 +1184,10 @@ export const Timeline: React.FC = () => {
                     <div className="flex items-center gap-3">
                         <button
                             data-tutorial="my-job-highlight-btn"
-                            onClick={() => setMyJobHighlight(!myJobHighlight)}
+                            onClick={() => {
+                                setMyJobHighlight(!myJobHighlight);
+                                useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
+                            }}
                             className={clsx(
                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                 myJobHighlight
@@ -1470,7 +1476,11 @@ export const Timeline: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative" ref={scrollContainerRef} onScroll={handleScrollSync}>
+                    <div
+                        ref={scrollContainerRef}
+                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar bg-[var(--color-bg-primary)] transition-colors duration-200"
+                        onScroll={handleScrollSync}
+                    >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
@@ -1895,6 +1905,7 @@ export const Timeline: React.FC = () => {
                 isOpen={mitigationSelectorOpen}
                 onClose={() => setMitigationSelectorOpen(false)}
                 onSelect={handleMitigationSelect}
+                onRemove={removeMitigation}
                 jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
                 position={selectorPosition}
                 activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}

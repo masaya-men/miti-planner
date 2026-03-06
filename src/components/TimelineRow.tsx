@@ -65,6 +65,7 @@ export const TimelineRow = memo(({
 
     return (
         <div
+            data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit border-b flex h-[50px] group transition-colors duration-75",
                 theme === 'dark'
@@ -103,6 +104,7 @@ export const TimelineRow = memo(({
             )}>
                 {events.length === 0 ? (
                     <div
+                        data-tutorial={time === 11 ? 'add-event-btn-11' : undefined}
                         className={clsx(
                             "w-full h-full flex items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all opacity-0 group-hover:opacity-100"
                         )}

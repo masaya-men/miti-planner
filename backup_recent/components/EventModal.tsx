@@ -106,7 +106,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     // Calculate Raw Damage
     const handleCalculate = () => {
-        let actual = calcActualDamage;
+        const actual = calcActualDamage;
         let shieldTotal = 0;
         let mitigationMult = 1;
 

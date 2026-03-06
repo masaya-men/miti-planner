@@ -65,6 +65,8 @@ interface MitigationState {
     // Bulk delete
     clearMitigationsByMember: (memberId: string) => void;
     clearAllMitigations: () => void;
+    /** Reset all state for tutorial restart/completion */
+    resetForTutorial: () => void;
     /** 👇追加：既存の軽減をすべて消去し、新しい軽減リストで一括上書きする（Undo1回で戻せる） */
     applyAutoPlan: (result: { mitigations: AppliedMitigation[], warnings: string[] }) => void;
 
@@ -250,6 +252,7 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
                     }));
+                    useTutorialStore.getState().completeEvent('event:created');
                 },
 
                 importTimelineEvents: (events) => {
@@ -461,7 +464,7 @@ export const useMitigationStore = create<MitigationState>()(
                         const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
 
                         // Auto-insert Dissipation for Scholar if missing
-                        let finalMitis = [...mitis];
+                        const finalMitis = [...mitis];
                         if (jobId === 'sch') {
                             const pattern = state.schAetherflowPatterns[memberId] ?? 1;
                             const hasInitialDissipation = finalMitis.some(m => m.mitigationId === 'dissipation' && m.time <= 15);
@@ -521,7 +524,25 @@ export const useMitigationStore = create<MitigationState>()(
 
                 initializeParty: () => {
                     // Handled in initial state
-                }
+                },
+
+                resetForTutorial: () => {
+                    const currentLevel = get().currentLevel;
+                    const freshMembers = INITIAL_PARTY.map(m => ({
+                        ...m,
+                        computedValues: calculateMemberValues(m, currentLevel)
+                    }));
+                    set({
+                        timelineEvents: [],
+                        timelineMitigations: [],
+                        phases: [],
+                        partyMembers: freshMembers,
+                        myMemberId: null,
+                        myJobHighlight: false,
+                        _history: [],
+                        _future: [],
+                    });
+                },
             };
         },
         {
