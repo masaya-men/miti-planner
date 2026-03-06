@@ -115,6 +115,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
         if (SINGLE_TARGET_BUFFS.includes(mitigation.id)) {
             setSelectedSingleTargetMit(mitigation);
+            useTutorialStore.getState().completeEvent('tutorial:selected-target-miti');
         } else {
             onSelect(mitigation);
         }

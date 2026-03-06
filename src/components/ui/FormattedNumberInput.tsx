@@ -12,7 +12,7 @@ export const FormattedNumberInput: React.FC<FormattedNumberInputProps> = ({ valu
     const toHalfWidth = (str: string) => str.replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let rawValue = toHalfWidth(e.target.value).replace(/,/g, '');
+        const rawValue = toHalfWidth(e.target.value).replace(/,/g, '');
         if (rawValue === '' || /^-?\d*$/.test(rawValue)) {
             onChange(Number(rawValue));
         }

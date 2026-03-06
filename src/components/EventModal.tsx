@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
 import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
-import { useTutorialStore } from '../store/useTutorialStore';
+import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -31,6 +31,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const [damageAmount, setDamageAmount] = useState<number>(0);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
 
+    // Visible mitigations state for Tutorial Step 20
+    const [visibleMitigations, setVisibleMitigations] = useState<Set<string>>(new Set());
+
     // Mobile Detection
     const [isMobile, setIsMobile] = useState(false);
     useEffect(() => {
@@ -39,6 +42,48 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    // IntersectionObserver for tracking visible mitigations
+    useEffect(() => {
+        if (!isOpen) {
+            setVisibleMitigations(new Set());
+            return;
+        }
+
+        const container = document.getElementById('mitigation-grid-container');
+        if (!container) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            setVisibleMitigations(prev => {
+                const next = new Set(prev);
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('data-mitigation-id');
+                    if (id) {
+                        if (entry.isIntersecting) {
+                            next.add(id);
+                        } else {
+                            next.delete(id);
+                        }
+                    }
+                });
+                return next;
+            });
+        }, {
+            root: container,
+            threshold: 0.1 // 10% visible is enough
+        });
+
+        // Small delay to ensure DOM is ready
+        const timeoutId = setTimeout(() => {
+            const items = container.querySelectorAll('[data-mitigation-id]');
+            items.forEach(item => observer.observe(item));
+        }, 100);
+
+        return () => {
+            clearTimeout(timeoutId);
+            observer.disconnect();
+        };
+    }, [isOpen]);
 
     // ... (rest of logic same until return)
 
@@ -80,8 +125,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     const { partyMembers, currentLevel } = useMitigationStore();
 
+    const tutorialState = useTutorialStore();
+    const isTutorialActive = tutorialState.isActive;
+    const currentStep = isTutorialActive ? TUTORIAL_STEPS[tutorialState.currentStepIndex] : null;
+
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
+        if (isTutorialActive && currentStep?.id === 'tutorial-9d-miti-select') {
+            const mit = MITIGATIONS.find(m => m.id === id);
+            const isTargetSkill = mit && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en);
+            if (!isTargetSkill) return; // Block clicks on other mitigations during this step
+        }
         setSelectedMitigations(prev =>
             prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
         );
@@ -120,10 +174,22 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         'mantra', 'nature_s_minne', 'deployment_tactics'
     ];
 
-    const sortedMitigations = MITIGATIONS
-        .filter((mit, index, self) => index === self.findIndex((m) => m.id === mit.id))
-        .filter(mit => !EXCLUDED_IDS.includes(mit.id))
-        .sort((a, b) => {
+    // Deduplicate mitigations by English name so role actions (Addle, Feint, Reprisal) only appear once
+    const uniqueMitigations = useMemo(() => {
+        const seenNames = new Set<string>();
+        return MITIGATIONS.filter(mit => {
+            // Filter out excluded IDs first
+            if (EXCLUDED_IDS.includes(mit.id)) return false;
+
+            const nameEN = mit.name.en;
+            if (seenNames.has(nameEN)) return false;
+            seenNames.add(nameEN);
+            return true;
+        });
+    }, []);
+
+    const sortedMitigations = useMemo(() => {
+        return [...uniqueMitigations].sort((a, b) => {
             const prioA = getSortPriority(a);
             const prioB = getSortPriority(b);
 
@@ -132,10 +198,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             // If same priority, sort by display order if possible, else name.ja
             return (a.name.ja || "").localeCompare(b.name.ja || "");
         });
+    }, [uniqueMitigations]);
 
     // Calculate Raw Damage
     const handleCalculate = () => {
-        let actual = calcActualDamage;
+        const actual = calcActualDamage;
         let shieldTotal = 0;
         let mitigationMult = 1;
 
@@ -207,6 +274,69 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             setDamageAmount(calculated);
         }
     }, [calcActualDamage, selectedMitigations, damageType, inputMode, target]);
+
+    // --- Tutorial Progression Logic ---
+    const [targetActualDamage, setTargetActualDamage] = useState(0);
+
+    // Compute expected damage for Step 9C
+    useEffect(() => {
+        if (isTutorialActive && currentStep?.id === 'tutorial-9c-damage-input') {
+            const h1 = partyMembers.find(m => m.id === 'H1');
+            setTargetActualDamage(Math.floor(h1 ? h1.stats.hp * 0.8 : 80000));
+        }
+    }, [isTutorialActive, currentStep?.id, partyMembers]);
+
+    // Watchers for tutorial steps
+    useEffect(() => {
+        if (!isTutorialActive) return;
+
+        // 9B: Name Input
+        if (currentStep?.id === 'tutorial-9b-name-input') {
+            setInputMode('reverse');
+            const val = (contentLanguage === 'en' ? name.en : name.ja).toLowerCase();
+            if (val.includes('アルテマ') || val.includes('ultima')) {
+                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:entered-event-name'), 500);
+                return () => clearTimeout(tId);
+            }
+        }
+
+        // 9C: Damage Input
+        if (currentStep?.id === 'tutorial-9c-damage-input' && targetActualDamage > 0) {
+            if (calcActualDamage === targetActualDamage) {
+                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:entered-event-damage'), 500);
+                return () => clearTimeout(tId);
+            }
+        }
+
+        // 9D: Mitigation Selection
+        if (currentStep?.id === 'tutorial-9d-miti-select') {
+            const selectedENNames = selectedMitigations.map(id => MITIGATIONS.find(m => m.id === id)?.name.en);
+            const hasReprisal = selectedENNames.includes('Reprisal');
+            const hasAddle = selectedENNames.includes('Addle');
+            const hasSoil = selectedENNames.includes('Sacred Soil');
+
+            if (hasReprisal && hasAddle && hasSoil) {
+                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:selected-event-mitis'), 500);
+                return () => clearTimeout(tId);
+            }
+        }
+
+        // 9D: Auto-scroll to mitigations area
+        if (currentStep?.id === 'tutorial-9d-miti-select') {
+            const container = document.getElementById('event-modal-form');
+            if (container) {
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }
+        }
+
+        // 9E: Auto-scroll to bottom (save button)
+        if (currentStep?.id === 'tutorial-9e-save-btn') {
+            const container = document.getElementById('event-modal-form');
+            if (container) {
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }
+        }
+    }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 
     // Helper to calculate single shield value
     const getShieldAmount = (def: typeof MITIGATIONS[0]) => {
@@ -312,7 +442,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar">
+                <form id="event-modal-form" onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar">
                     {/* Input Mode Toggle (Segmented Control) */}
                     <div className={clsx(
                         "flex p-1 rounded-lg border mb-6 transition-colors",
@@ -371,6 +501,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <div>
                             <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.name')}</label>
                             <input
+                                data-tutorial="event-name-input"
                                 type="text"
                                 lang={t('app.language') === 'English' ? 'en' : 'ja'}
                                 value={contentLanguage === 'en' ? name.en : name.ja}
@@ -481,6 +612,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.actual_damage', '実際に受けたダメージ (軽減後)')}</label>
                                             <div className="flex gap-2">
                                                 <input
+                                                    data-tutorial="event-actual-damage-input"
                                                     type="number"
                                                     value={calcActualDamage}
                                                     onChange={(e) => setCalcActualDamage(Number(e.target.value))}
@@ -510,29 +642,50 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         <label className="block text-xs font-medium text-slate-400">{t('modal.calc_mitigations', '使用された軽減・バリア (選択)')}</label>
                                         <span className="text-[10px] text-slate-400 bg-white/10 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
                                     </div>
-                                    <div className={clsx(
-                                        "grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors",
-                                        theme === 'dark' ? "bg-black/20 border-white/5" : "bg-slate-100 border-slate-200"
-                                    )}>
-                                        {sortedMitigations.map((mit) => (
-                                            <button
-                                                key={mit.id}
-                                                type="button"
-                                                onClick={() => toggleMitigation(mit.id)}
-                                                title={getTooltipText(mit)}
-                                                className={clsx(
-                                                    "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95",
-                                                    selectedMitigations.includes(mit.id)
-                                                        ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
-                                                        : theme === 'dark'
-                                                            ? "bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20 opacity-60 hover:opacity-100"
-                                                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100"
-                                                )}
-                                            >
-                                                <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
-                                            </button>
-                                        ))}
+                                    <div
+                                        id="mitigation-grid-container"
+                                        className={clsx(
+                                            "grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
+                                            theme === 'dark' ? "bg-black/20 border-white/5" : "bg-slate-100 border-slate-200"
+                                        )}
+                                    >
+                                        {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
+                                            const isTutorialTarget = ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id);
+                                            const shouldHighlight = isTutorialTarget && visibleMitigations.has(mit.id);
+
+                                            return (
+                                                <button
+                                                    key={mit.id}
+                                                    data-mitigation-id={mit.id}
+                                                    data-tutorial={shouldHighlight ? 'tutorial-skill-target' : undefined}
+                                                    type="button"
+                                                    onClick={() => toggleMitigation(mit.id)}
+                                                    title={getTooltipText(mit)}
+                                                    className={clsx(
+                                                        "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95",
+                                                        selectedMitigations.includes(mit.id)
+                                                            ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
+                                                            : theme === 'dark'
+                                                                ? "bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20 opacity-60 hover:opacity-100"
+                                                                : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100"
+                                                    )}
+                                                >
+                                                    <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
+                                                </button>
+                                            );
+                                        })}
                                     </div>
+                                    {/* Tutorial scroll hint for Step 9D */}
+                                    {currentStep?.id === 'tutorial-9d-miti-select' && selectedMitigations.length < 3 && (
+                                        <div className="flex flex-col items-center gap-1 py-2 text-cyan-400 animate-bounce">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 5v14M5 12l7 7 7-7" />
+                                            </svg>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
+                                                {t('modal.scroll_hint', 'スクロールして探す')}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -560,6 +713,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         ) : <div className="hidden sm:block"></div>}
 
                         <button
+                            data-tutorial="event-save-btn"
                             type="submit"
                             className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider"
                         >

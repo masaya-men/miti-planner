@@ -484,8 +484,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         ];
 
         return (
-            // 👇 スマホ時にパレット全体がスクロールできるようにし、下部に十分な余白(pb-12)を持たせる
-            <div className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pb-4">
+            // 👇 スマホ時にパレット全体がスクロールできるようにする
+            <div className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
@@ -500,16 +500,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
                                         && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id;
 
-                                    const isTutorialPaletteTarget = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id);
+                                    const isAlreadyPlacedPaletteJob = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id) && draftMembers.some(m => m.jobId === job.id);
+                                    const isTutorialPaletteTarget = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id) && !isAlreadyPlacedPaletteJob;
 
                                     return (
                                         <button
                                             key={job.id}
                                             data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
                                             onClick={() => handleJobSelect(job.id)}
+                                            disabled={isAlreadyPlacedPaletteJob}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
-                                                `border-white/10 cursor-pointer ${cat.color}`
+                                                `border-white/10 ${cat.color}`,
+                                                isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
                                             )}
                                             title={job.name?.ja}
                                         >
@@ -575,7 +578,13 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <div>
                             <h2 className="text-xs font-bold text-app-text tracking-wider">{t('party.configuration_title')}</h2>
                             <p className="text-[9px] text-app-text-muted mt-0.5">
-                                {t('party.configuration_desc')}
+                                {focusedSlot !== null
+                                    ? <span className="flex items-center gap-1.5 text-sky-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse inline-block" />
+                                        {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
+                                    </span>
+                                    : t('party.configuration_desc')
+                                }
                             </p>
                         </div>
                     </div>
@@ -588,15 +597,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
                     <div className="flex-1 overflow-y-auto p-4 pb-20 flex flex-col gap-6 bg-transparent">
 
-                        {/* Status Info Box inside scroll area, just above groups */}
-                        {focusedSlot !== null && (
-                            <div className="w-full p-2.5 rounded-lg border bg-app-accent-dim/20 border-app-border-accent flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-                                <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                                <span className="text-[11px] text-sky-200">
-                                    <strong>{t('party.manual_mode')}</strong> {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
-                                </span>
-                            </div>
-                        )}
 
                         {/* MTグループ */}
                         <div>
@@ -626,7 +626,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
 
                     <div data-tutorial="job-palette" className="h-auto bg-white/50 dark:bg-slate-900/40 backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
-                        <h3 className="text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-widest mb-1.5">{t('party.job_palette')}</h3>
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
                     </div>

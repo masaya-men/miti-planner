@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
+import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
 
 // ─────────────────────────────────────────────
@@ -47,7 +48,7 @@ function useTargetRects(selector: string): TargetRect[] {
                 let rectsStr = '';
                 els.forEach((el) => {
                     const rect = el.getBoundingClientRect();
-                    rectsStr += `${rect.x},${rect.y},${rect.width},${rect.height}|`;
+                    rectsStr += `${rect.x},${rect.y},${rect.width},${rect.height}| `;
                     newRects.push({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
                 });
 
@@ -81,7 +82,7 @@ function useTargetRects(selector: string): TargetRect[] {
 // rectangular cutout around the target element.
 // ─────────────────────────────────────────────
 
-const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: boolean }> = ({ targetRects, isModalTarget }) => {
+const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: boolean; isTimelineStep?: boolean }> = ({ targetRects, isModalTarget, isTimelineStep }) => {
     if (!targetRects || targetRects.length === 0) return null;
 
     return (
@@ -97,7 +98,7 @@ const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: bo
                         {/* Black = transparent (the cutout) */}
                         {targetRects.map((rect, idx) => (
                             <rect
-                                key={`mask-${idx}`}
+                                key={`mask - ${idx} `}
                                 x={rect.left - SPOTLIGHT_PADDING}
                                 y={rect.top - SPOTLIGHT_PADDING}
                                 width={rect.width + SPOTLIGHT_PADDING * 2}
@@ -114,14 +115,14 @@ const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: bo
                     <rect
                         x="0" y="0"
                         width="100%" height="100%"
-                        fill="rgba(0,0,0,0.75)"
+                        fill={isTimelineStep ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.75)"}
                         mask="url(#tutorial-spotlight-mask)"
                     />
                 )}
                 {/* Glow border around cutout */}
                 {targetRects.map((rect, idx) => (
                     <rect
-                        key={`glow-${idx}`}
+                        key={`glow - ${idx} `}
                         x={rect.left - SPOTLIGHT_PADDING}
                         y={rect.top - SPOTLIGHT_PADDING}
                         width={rect.width + SPOTLIGHT_PADDING * 2}
@@ -154,7 +155,7 @@ interface TooltipProps {
     onSkip: () => void;
     onPrev: () => void;
     onNext?: () => void;
-    position?: 'top' | 'right' | 'bottom' | 'left' | 'center';
+    position?: 'top' | 'right' | 'bottom' | 'left' | 'center' | 'right-center';
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
@@ -165,22 +166,19 @@ const Tooltip: React.FC<TooltipProps> = ({
 
     const getPosition = (): React.CSSProperties => {
         if (position === 'bottom') {
-            return {
-                bottom: '24px',
-                left: '50%',
-            };
+            return { bottom: '24px', left: '50%' };
         }
-        return {
-            top: '50%',
-            left: '50%',
-        };
+        if (position === 'right-center') {
+            return { top: '50%', right: '24px' };
+        }
+        return { top: '50%', left: '50%' };
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.96, x: '-50%', y: position === 'bottom' ? 8 : '-45%' }}
-            animate={{ opacity: 1, scale: 1, x: '-50%', y: position === 'bottom' ? 0 : '-50%' }}
-            exit={{ opacity: 0, scale: 0.96, x: '-50%', y: position === 'bottom' ? 8 : '-45%' }}
+            initial={{ opacity: 0, scale: 0.96, x: position === 'right-center' ? 16 : '-50%', y: position === 'bottom' ? 8 : '-45%' }}
+            animate={{ opacity: 1, scale: 1, x: position === 'right-center' ? 0 : '-50%', y: position === 'bottom' ? 0 : '-50%' }}
+            exit={{ opacity: 0, scale: 0.96, x: position === 'right-center' ? 16 : '-50%', y: position === 'bottom' ? 8 : '-45%' }}
             transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
             className={clsx(
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
@@ -317,6 +315,7 @@ export const TutorialOverlay: React.FC = () => {
     const { isActive, currentStepIndex, skipTutorial, completeEvent } =
         useTutorialStore();
     const { t } = useTranslation();
+    const theme = useThemeStore((s) => s.theme);
 
     const currentStep = TUTORIAL_STEPS[currentStepIndex];
     const targetRects = useTargetRects(isActive && currentStep ? currentStep.targetSelector : '');
@@ -362,6 +361,42 @@ export const TutorialOverlay: React.FC = () => {
         };
     }, [currentStep?.targetSelector, isActive, routeMatch]);
 
+    // Automatically scroll timeline for specific tutorial steps like the 10s TB Threat
+    useEffect(() => {
+        if (!isActive || !currentStep) return;
+
+        if (currentStep.id === 'tutorial-8a-tb-danger') {
+            setTimeout(() => {
+                const scrollContainer = document.querySelector('.timeline-scroll-container');
+                const row9 = document.querySelector('[data-time-row="9"]') as HTMLElement;
+                const row10 = document.querySelector('[data-time-row="10"]') as HTMLElement;
+
+                if (scrollContainer && (row9 || row10)) {
+                    const targetTop = row9 ? row9.offsetTop : (row10 ? row10.offsetTop - 50 : 0);
+                    scrollContainer.scrollTo({
+                        top: targetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }
+
+        // Step 10: Scroll to 9s row so the table (with my-job highlight) is visible
+        if (currentStep.id === 'tutorial-10-my-job-highlight') {
+            setTimeout(() => {
+                const scrollContainer = document.querySelector('.timeline-scroll-container');
+                const row9 = document.querySelector('[data-time-row="9"]') as HTMLElement;
+
+                if (scrollContainer && row9) {
+                    scrollContainer.scrollTo({
+                        top: row9.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }
+    }, [currentStep?.id, isActive]);
+
     // Allow clicking through to the target element while blocking everything else
     useEffect(() => {
         if (!isActive || !currentStep || !routeMatch) return;
@@ -393,7 +428,10 @@ export const TutorialOverlay: React.FC = () => {
         return () => document.removeEventListener('click', handleClick, true);
     }, [isActive, currentStep, routeMatch]);
 
-    if (!routeMatch) return null;
+    // Restart confirmation dialog
+    const pendingRestart = useTutorialStore(s => s.pendingTutorialRestart);
+
+    if (!routeMatch && !pendingRestart) return null;
 
     // Calculate relative step numbering for the current route
     const currentRouteSteps = TUTORIAL_STEPS.filter(step => step.route === stepRoute && !step.isDialog);
@@ -401,35 +439,108 @@ export const TutorialOverlay: React.FC = () => {
     const displayStepIndex = relativeStepIndex >= 0 ? relativeStepIndex : 0;
 
     return (
-        <AnimatePresence>
-            {isActive && currentStep && (
-                currentStep.isDialog ? (
-                    <CompletionDialog
-                        key="dialog"
-                        title={t(currentStep.titleKey)}
-                        description={t(currentStep.descriptionKey)}
-                        onComplete={() => {
-                            completeEvent('tutorial:acknowledged');
-                        }}
-                    />
-                ) : (
-                    <div key="overlay" data-tutorial-overlay className="fixed inset-0 z-[99999] pointer-events-none">
-                        <SpotlightOverlay targetRects={targetRects} isModalTarget={currentStep.isModalTarget} />
-                        <div data-tutorial-tooltip className="pointer-events-auto">
-                            <Tooltip
-                                title={t(currentStep.titleKey)}
-                                description={t(currentStep.descriptionKey)}
-                                stepIndex={displayStepIndex}
-                                totalSteps={currentRouteSteps.length}
-                                onSkip={skipTutorial}
-                                onPrev={useTutorialStore.getState().prevStep}
-                                onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
-                                position={currentStep.tooltipPosition}
-                            />
+        <>
+            {/* Restart Confirmation Dialog */}
+            <AnimatePresence>
+                {pendingRestart && (
+                    <>
+                        <motion.div
+                            key="restart-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                            onClick={() => useTutorialStore.getState().cancelRestart()}
+                        />
+                        <motion.div
+                            key="restart-dialog"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
+                            className={clsx(
+                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                                "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
+                                "backdrop-blur-xl shadow-2xl",
+                                theme === 'dark'
+                                    ? "bg-slate-900/95 border-cyan-500/20 shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
+                                    : "bg-white/95 border-blue-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)]"
+                            )}
+                        >
+                            <div className="text-4xl mb-4">⚠️</div>
+                            <h3 className="text-lg font-bold text-app-text mb-3">
+                                {t('tutorial.restart_title', 'チュートリアルを再開しますか？')}
+                            </h3>
+                            <p className="text-sm text-app-text-sec leading-relaxed mb-6">
+                                {t('tutorial.restart_desc', '現在の軽減表・パーティ設定はすべてリセットされます。チュートリアル用のまっさらな状態から再スタートします。')}
+                            </p>
+                            <div className="flex gap-3 justify-center">
+                                <button
+                                    onClick={() => useTutorialStore.getState().cancelRestart()}
+                                    className={clsx(
+                                        "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
+                                        theme === 'dark'
+                                            ? "border-white/10 text-slate-300 hover:bg-white/10"
+                                            : "border-slate-200 text-slate-600 hover:bg-slate-100"
+                                    )}
+                                >
+                                    {t('tutorial.restart_cancel', 'キャンセル')}
+                                </button>
+                                <button
+                                    onClick={() => useTutorialStore.getState().confirmRestart()}
+                                    className={clsx(
+                                        "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer",
+                                        "bg-app-accent text-white hover:brightness-110 active:scale-95",
+                                        "shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
+                                    )}
+                                >
+                                    {t('tutorial.restart_confirm', 'リセットして開始')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Main Tutorial Overlay */}
+            <AnimatePresence>
+                {isActive && currentStep && (
+                    currentStep.isDialog ? (
+                        <CompletionDialog
+                            key="dialog"
+                            title={t(currentStep.titleKey)}
+                            description={t(currentStep.descriptionKey)}
+                            onComplete={() => {
+                                completeEvent('tutorial:acknowledged');
+                            }}
+                        />
+                    ) : (
+                        <div key="overlay" data-tutorial-overlay className="fixed inset-0 z-[99999] pointer-events-none">
+                            <SpotlightOverlay targetRects={targetRects} isModalTarget={currentStep.isModalTarget} isTimelineStep={currentStep.isTimelineStep} />
+                            <div data-tutorial-tooltip className="pointer-events-auto">
+                                <Tooltip
+                                    title={t(currentStep.titleKey)}
+                                    description={(() => {
+                                        let desc = t(currentStep.descriptionKey);
+                                        if (currentStep.id === 'tutorial-9c-damage-input' || currentStep.id === 'tutorial-9e-save-btn') {
+                                            const h1 = useMitigationStore.getState().partyMembers.find((m: any) => m.id === 'H1');
+                                            const targetNum = Math.floor(h1 ? h1.stats.hp * 0.8 : 80000);
+                                            desc = desc.replace('{{damage}}', targetNum.toLocaleString());
+                                        }
+                                        return desc;
+                                    })()}
+                                    stepIndex={displayStepIndex}
+                                    totalSteps={currentRouteSteps.length}
+                                    onSkip={skipTutorial}
+                                    onPrev={useTutorialStore.getState().prevStep}
+                                    onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
+                                    position={currentStep.tooltipPosition}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )
-            )}
-        </AnimatePresence>
+                    )
+                )}
+            </AnimatePresence>
+        </>
     );
 };
