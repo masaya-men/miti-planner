@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import {
     CATEGORY_LABELS,
-    LEVEL_LABELS,
     getContentBySeries,
     getCategoriesByLevel,
     getSeriesByLevel,
 } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
-import { Plus, ChevronDown, ChevronRight, Layers, Sword, Hash } from 'lucide-react';
+import type { MultiSelectState } from '../types/sidebarTypes';
+import type { ContentLanguage } from '../store/useThemeStore';
+import { MOCK_RECENT_PLANS } from '../data/sidebarMockData';
+import {
+    Plus,
+    ChevronRight,
+    Layers,
+    Sword,
+    History,
+    FileText,
+    CheckSquare,
+    Square,
+    Link
+} from 'lucide-react';
 import clsx from 'clsx';
 
 // ─────────────────────────────────────────────
@@ -21,41 +33,104 @@ interface SidebarProps {
     isOpen: boolean;
 }
 
-// ─────────────────────────────────────────────
-// Available level tiers (descending = newest first)
-// ─────────────────────────────────────────────
-
 const LEVEL_TIERS: ContentLevel[] = [100, 90, 80, 70];
 
 // ─────────────────────────────────────────────
+// Sub-component: ContentTreeItem
+// ─────────────────────────────────────────────
+
+interface ContentTreeItemProps {
+    content: ContentDefinition;
+    isActive: boolean;
+    multiSelect: MultiSelectState;
+    onToggleSelect: (id: string) => void;
+    onSelect: (content: ContentDefinition) => void;
+    highlightFirst?: boolean;
+    lang: ContentLanguage;
+}
+
+const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
+    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang
+}) => {
+    const isSelected = multiSelect.selectedIds.includes(content.id);
+    const isDisabled = multiSelect.isEnabled && !isSelected && multiSelect.selectedIds.length >= 10;
+
+    const floorName = content.name[lang as ContentLanguage] || content.name.ja;
+    const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
+
+    return (
+        <button
+            onClick={() => {
+                if (multiSelect.isEnabled) {
+                    if (!isDisabled) onToggleSelect(content.id);
+                } else {
+                    onSelect(content);
+                }
+            }}
+            disabled={isDisabled}
+            className={clsx(
+                "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer",
+                isActive && !multiSelect.isEnabled
+                    ? "bg-app-accent-dim border border-app-border-accent text-app-accent shadow-sm"
+                    : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
+                isDisabled && "opacity-40 cursor-not-allowed grayscale",
+                highlightFirst && "ring-2 ring-app-accent ring-offset-2 ring-offset-transparent animate-pulse"
+            )}
+            data-tutorial-first-item={highlightFirst ? '' : undefined}
+        >
+            {/* Multi-select Checkbox */}
+            {multiSelect.isEnabled && (
+                <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
+                    {isSelected ? (
+                        <CheckSquare size={16} className="text-app-accent" />
+                    ) : (
+                        <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                    )}
+                </div>
+            )}
+
+            <div className={clsx(
+                "w-6 h-6 rounded flex items-center justify-center font-black text-[10px] transition-colors shrink-0",
+                isActive && !multiSelect.isEnabled
+                    ? "bg-app-accent/20 text-app-accent-bold"
+                    : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
+            )}>
+                {shortName}
+            </div>
+            <div className="flex-1 truncate text-[12px] font-medium">
+                {floorName}
+            </div>
+            {isActive && !multiSelect.isEnabled && <ChevronRight size={14} className="text-app-accent/70 shrink-0" />}
+        </button>
+    );
+};
+
+// ─────────────────────────────────────────────
 // Sub-component: CategoryAccordion
-// Renders an expandable category section with series + floor items.
 // ─────────────────────────────────────────────
 
 interface CategoryAccordionProps {
     level: ContentLevel;
     category: ContentCategory;
     selectedContentId: string | null;
+    multiSelect: MultiSelectState;
+    onToggleSelect: (id: string) => void;
     onSelectContent: (content: ContentDefinition) => void;
-    highlightFirst?: boolean;  // Tutorial: glow first item
+    highlightFirst?: boolean;
+    lang: ContentLanguage;
 }
 
 const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
-    level, category, selectedContentId, onSelectContent, highlightFirst,
+    level, category, selectedContentId, multiSelect, onToggleSelect, onSelectContent, highlightFirst, lang
 }) => {
-    const [isExpanded, setIsExpanded] = useState(category === 'savage');
-    const { contentLanguage } = useThemeStore();
-    const lang = contentLanguage ?? 'ja';
-    const categoryLabel = CATEGORY_LABELS[category][lang] || CATEGORY_LABELS[category].ja;
-
-    // Get all series in this category + level
+    const [isExpanded, setIsExpanded] = useState(true);
+    const categoryLabel = CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
     const seriesList = getSeriesByLevel(level).filter(s => s.category === category);
 
     if (seriesList.length === 0) return null;
 
     return (
-        <div className="mb-1">
-            {/* Category Header */}
+        <div className="mb-2">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
@@ -63,66 +138,42 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                     "text-app-text-muted hover:text-app-text hover:bg-glass-hover",
                     "font-bold text-[10px] tracking-widest uppercase"
                 )}
+                data-tutorial="sidebar-category"
             >
-                {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                <div className="transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                    <ChevronRight size={12} />
+                </div>
                 <Sword size={11} className="text-app-accent/70" />
                 <span>{categoryLabel}</span>
             </button>
 
-            {/* Expanded content */}
             {isExpanded && (
-                <div className="ml-4 space-y-0.5">
+                <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2">
                     {seriesList.map(series => {
                         const floors = getContentBySeries(series.id);
-                        const seriesName = series.name[lang] || series.name.ja;
+                        const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
 
                         return (
-                            <div key={series.id}>
-                                {/* Series label (only if more than 1 series in this category) */}
+                            <div key={series.id} className="mb-2">
                                 {seriesList.length > 1 && (
-                                    <div className="text-[10px] text-app-text-muted/60 font-medium px-2 pt-1.5 pb-0.5 truncate">
+                                    <div className="text-[10px] text-app-text-muted/60 font-medium px-2 py-1 truncate">
                                         {seriesName}
                                     </div>
                                 )}
-
-                                {/* Floor buttons */}
-                                {floors.map(floor => {
-                                    const isActive = floor.id === selectedContentId;
-                                    const shortName = floor.shortName[lang] || floor.shortName.ja;
-                                    const floorName = floor.name[lang] || floor.name.ja;
-
-                                    return (
-                                        <button
+                                <div className="space-y-0.5">
+                                    {floors.map((floor, idx) => (
+                                        <ContentTreeItem
                                             key={floor.id}
-                                            data-tutorial-first-item={highlightFirst && floor.id === floors[0]?.id ? '' : undefined}
-                                            onClick={() => {
-                                                if (highlightFirst && floor.id !== floors[0]?.id) return;
-                                                onSelectContent(floor);
-                                            }}
-                                            className={clsx(
-                                                "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 text-left group relative overflow-hidden active:scale-[0.98] cursor-pointer",
-                                                isActive
-                                                    ? "bg-app-accent-dim border border-app-border-accent text-app-accent shadow-[inset_0_1px_0_var(--color-border-accent)]"
-                                                    : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
-                                                // Tutorial: glow first item
-                                                highlightFirst && floor.id === floors[0]?.id
-                                            )}
-                                        >
-                                            <div className={clsx(
-                                                "w-6 h-6 rounded flex items-center justify-center font-black text-[10px] transition-colors shrink-0",
-                                                isActive
-                                                    ? "bg-app-accent-dim text-app-accent-bold"
-                                                    : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
-                                            )}>
-                                                {shortName}
-                                            </div>
-                                            <div className="flex-1 truncate text-[12px] font-medium">
-                                                {floorName}
-                                            </div>
-                                            {isActive && <ChevronRight size={14} className="text-app-accent/70 shrink-0" />}
-                                        </button>
-                                    );
-                                })}
+                                            content={floor}
+                                            isActive={floor.id === selectedContentId}
+                                            multiSelect={multiSelect}
+                                            onToggleSelect={onToggleSelect}
+                                            onSelect={onSelectContent}
+                                            lang={lang}
+                                            highlightFirst={highlightFirst && idx === 0}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         );
                     })}
@@ -140,50 +191,73 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
-    const lang = contentLanguage ?? 'ja';
+    const lang = contentLanguage;
 
-    // Currently selected level tier tab
     const [activeLevel, setActiveLevel] = useState<ContentLevel>(100);
-
-    // Currently selected content (persisted elsewhere in the future)
+    const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
     const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
-    // Handle content selection
+    // Multi-select state
+    const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
+        isEnabled: false,
+        selectedIds: []
+    });
+
     const handleSelectContent = (content: ContentDefinition) => {
         setSelectedContentId(content.id);
-        // Tutorial: notify content was selected
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
-        // TODO: In the future, this will trigger loading the content's timeline data
     };
 
-    // Get categories available for the active level
-    const categories = getCategoriesByLevel(activeLevel);
+    const toggleMultiSelectMode = () => {
+        setMultiSelect(prev => ({
+            isEnabled: !prev.isEnabled,
+            selectedIds: []
+        }));
+    };
 
-    // Tutorial: check if we should highlight the first content item
-    const isTutorialContentSelect = tutorialActive
-        && TUTORIAL_STEPS[currentStepIndex]?.id === 'content-select';
+    const toggleItemId = (id: string) => {
+        setMultiSelect(prev => {
+            const isSelected = prev.selectedIds.includes(id);
+            if (isSelected) {
+                return { ...prev, selectedIds: prev.selectedIds.filter(i => i !== id) };
+            } else if (prev.selectedIds.length < 10) {
+                return { ...prev, selectedIds: [...prev.selectedIds, id] };
+            }
+            return prev;
+        });
+    };
+
+    // Filter categories based on level
+    const availableCategories = useMemo(() => getCategoriesByLevel(activeLevel), [activeLevel]);
+
+    // Ensure active category is valid for new level
+    useMemo(() => {
+        if (activeCategory !== 'all' && !availableCategories.includes(activeCategory)) {
+            setActiveCategory('all');
+        }
+    }, [availableCategories, activeCategory]);
+
+    // Tutorial checks
+    const isTutorialContentSelect = tutorialActive && TUTORIAL_STEPS[currentStepIndex]?.id === 'content-select';
 
     return (
         <aside
             className={clsx(
-                "h-full bg-glass-header backdrop-blur-xl border-r border-glass-border flex flex-col transition-all duration-300 overflow-hidden z-40 relative",
+                "h-full bg-glass-header backdrop-blur-3xl border-r border-glass-border flex flex-col transition-all duration-300 overflow-hidden z-40 relative",
                 isOpen ? "w-64" : "w-0 border-r-0"
             )}
         >
-            <div className="w-64 flex flex-col h-full">
+            <div className="w-64 flex flex-col h-full overflow-hidden">
 
-                {/* ── New Plan Button ── */}
+                {/* [A] 新規作成セクション */}
                 <div className="p-3 border-b border-glass-border shrink-0">
                     <button
-                        onClick={() => {
-                            // Tutorial: notify sidebar new plan clicked
-                            useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
-                            // TODO: Open content selection dialog
-                        }}
+                        onClick={() => useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked')}
                         className={clsx(
                             "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
                             "bg-app-accent/15 text-app-accent border border-app-accent/20",
-                            "hover:bg-app-accent/25 hover:border-app-accent/40 active:scale-[0.97]"
+                            "hover:bg-app-accent/25 hover:border-app-accent/40 active:scale-[0.97]",
+                            "tutorial-create-btn"
                         )}
                         data-tutorial="new-plan"
                     >
@@ -192,17 +266,74 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     </button>
                 </div>
 
-                {/* ── Level Tier Tabs ── */}
-                <div className="px-3 pt-3 pb-1 shrink-0">
-                    <div className="flex gap-1 bg-glass-card rounded-lg p-0.5 border border-glass-border">
+                {/* [B] 最近のアクティビティ (Recent Activity) */}
+                {!multiSelect.isEnabled && (
+                    <div className="px-3 pb-3 shrink-0">
+                        <div className="flex items-center gap-1.5 mb-2 px-1">
+                            <History size={11} className="text-app-text-muted/60" />
+                            <span className="text-[10px] font-bold text-app-text-muted/60 uppercase tracking-tighter">
+                                {t('sidebar.recent_activity')}
+                            </span>
+                        </div>
+                        <div className="space-y-1">
+                            {MOCK_RECENT_PLANS.map(plan => (
+                                <button
+                                    key={plan.id}
+                                    className="w-full flex items-center gap-2 group p-1.5 rounded-lg hover:bg-glass-hover text-left transition-colors cursor-pointer"
+                                >
+                                    <div className="p-1.5 rounded bg-glass-card border border-glass-border group-hover:border-app-accent/30 transition-colors">
+                                        <FileText size={12} className="text-app-text-muted group-hover:text-app-accent" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-bold text-app-text truncate">
+                                            {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
+                                        </p>
+                                        <p className="text-[9px] text-app-text-muted truncate opacity-70">
+                                            {plan.planName}
+                                        </p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* [C] エクスプローラー領域 */}
+                <div className="px-3 flex items-center justify-between mb-2 shrink-0">
+                    <div className="flex items-center gap-1.5 px-1">
+                        <Layers size={11} className="text-app-text-muted/60" />
+                        <span className="text-[10px] font-bold text-app-text-muted/60 uppercase tracking-tighter">
+                            EXPLORER
+                        </span>
+                    </div>
+
+                    {/* Multi-Select Toggle */}
+                    <button
+                        onClick={toggleMultiSelectMode}
+                        className={clsx(
+                            "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-bold transition-all border cursor-pointer",
+                            multiSelect.isEnabled
+                                ? "bg-app-accent text-white border-white/10"
+                                : "bg-glass-card text-app-text-muted border-glass-border hover:bg-glass-hover hover:text-app-text"
+                        )}
+                    >
+                        {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
+                        {t('sidebar.multi_select_mode')}
+                    </button>
+                </div>
+
+                {/* 1. フィルター領域 (2段水平タブ) */}
+                <div className="px-3 space-y-2 shrink-0 mb-3">
+                    {/* 上段（レベル） */}
+                    <div className="flex gap-1 bg-glass-card/50 rounded-lg p-0.5 border border-glass-border">
                         {LEVEL_TIERS.map(level => (
                             <button
                                 key={level}
                                 onClick={() => setActiveLevel(level)}
                                 className={clsx(
-                                    "flex-1 py-1.5 rounded-md text-[10px] font-bold transition-all duration-200 cursor-pointer",
+                                    "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
                                     activeLevel === level
-                                        ? "bg-app-accent/20 text-app-accent shadow-sm"
+                                        ? "bg-app-accent/20 text-app-accent shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
                                         : "text-app-text-muted hover:text-app-text hover:bg-glass-hover"
                                 )}
                             >
@@ -210,46 +341,97 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                             </button>
                         ))}
                     </div>
-                </div>
 
-                {/* ── Level Label ── */}
-                <div className="px-3 py-2 shrink-0">
-                    <div className="flex items-center gap-2 text-app-text-muted font-bold text-[10px] tracking-widest uppercase">
-                        <Layers size={12} />
-                        <span>{LEVEL_LABELS[activeLevel][lang] || LEVEL_LABELS[activeLevel].ja}</span>
+                    {/* 下段（カテゴリ） */}
+                    <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth pb-1">
+                        <button
+                            onClick={() => setActiveCategory('all')}
+                            className={clsx(
+                                "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer",
+                                activeCategory === 'all'
+                                    ? "bg-glass-hover text-app-accent border-app-accent/30"
+                                    : "bg-transparent text-app-text-muted border-transparent hover:border-glass-border hover:bg-glass-hover"
+                            )}
+                        >
+                            ALL
+                        </button>
+                        {availableCategories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={clsx(
+                                    "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-bold transition-all border cursor-pointer",
+                                    activeCategory === cat
+                                        ? "bg-glass-hover text-app-accent border-app-accent/30"
+                                        : "bg-transparent text-app-text-muted border-transparent hover:border-glass-border hover:bg-glass-hover"
+                                )}
+                            >
+                                {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* ── Content List (scrollable) ── */}
-                <div data-tutorial="content-select" className="flex-1 overflow-y-auto px-3 pb-3 space-y-1">
-                    {categories.map(category => (
-                        <CategoryAccordion
-                            key={`${activeLevel}-${category}`}
-                            level={activeLevel}
-                            category={category}
-                            selectedContentId={selectedContentId}
-                            onSelectContent={handleSelectContent}
-                            highlightFirst={isTutorialContentSelect && category === categories[0]}
-                        />
-                    ))}
+                {/* 2. コンテンツツリー */}
+                <div className="flex-1 overflow-y-auto px-3 pb-20 space-y-1 custom-scrollbar">
+                    {availableCategories
+                        .filter(c => activeCategory === 'all' || activeCategory === c)
+                        .map(category => (
+                            <CategoryAccordion
+                                key={`${activeLevel}-${category}`}
+                                level={activeLevel}
+                                category={category}
+                                selectedContentId={selectedContentId}
+                                multiSelect={multiSelect}
+                                onToggleSelect={toggleItemId}
+                                onSelectContent={handleSelectContent}
+                                lang={lang}
+                                highlightFirst={isTutorialContentSelect && category === availableCategories[0]}
+                            />
+                        ))}
+                </div>
 
-                    {categories.length === 0 && (
-                        <div className="text-center text-app-text-muted text-xs py-8 opacity-50">
-                            {t('sidebar.no_content')}
+                {/* [3] フローティング・アクションバー (Multi-select) */}
+                {multiSelect.isEnabled && (
+                    <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
+                        <div className="bg-glass-header backdrop-blur-xl border border-app-accent/30 rounded-2xl shadow-2xl p-3 flex items-center justify-between gap-3 overflow-hidden group">
+                            {/* Decorative background pulse */}
+                            <div className="absolute inset-0 bg-app-accent/5 animate-pulse" />
+
+                            <div className="relative flex flex-col">
+                                <span className="text-[10px] font-bold text-app-accent">
+                                    {t('sidebar.selected_count', { count: multiSelect.selectedIds.length })}
+                                </span>
+                                {multiSelect.selectedIds.length >= 10 && (
+                                    <span className="text-[8px] text-app-accent-bold/80 font-medium whitespace-nowrap">
+                                        {t('sidebar.limit_reached_warning')}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="relative flex items-center gap-2">
+                                <button
+                                    onClick={toggleMultiSelectMode}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                                >
+                                    {t('sidebar.cancel')}
+                                </button>
+                                <button
+                                    disabled={multiSelect.selectedIds.length === 0}
+                                    className={clsx(
+                                        "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-md cursor-pointer",
+                                        multiSelect.selectedIds.length > 0
+                                            ? "bg-app-accent text-white hover:brightness-110 active:scale-95"
+                                            : "bg-glass-card text-app-text-muted border border-glass-border grayscale opacity-50 cursor-not-allowed"
+                                    )}
+                                >
+                                    <Link size={14} />
+                                    <span>{t('sidebar.share_together')}</span>
+                                </button>
+                            </div>
                         </div>
-                    )}
-                </div>
-
-                {/* ── Footer ── */}
-                <div className="p-3 border-t border-glass-border bg-glass-card shrink-0">
-                    <div className="text-[10px] text-app-text-muted mb-2 font-medium">
-                        {t('sidebar.cloud_sync')}
                     </div>
-                    <button className="w-full py-2 bg-glass-card hover:bg-glass-hover text-app-text rounded text-xs font-bold transition-colors border border-glass-border flex items-center justify-center gap-2 cursor-pointer">
-                        <Hash size={14} />
-                        {t('sidebar.manage_plans')}
-                    </button>
-                </div>
+                )}
             </div>
         </aside>
     );
