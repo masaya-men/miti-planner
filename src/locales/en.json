@@ -150,7 +150,15 @@
         "invuln": "Invuln"
     },
     "sidebar": {
-        "new_plan": "+ New Plan",
+        "new_plan": "Create New",
+        "create_new_list": "Create New List",
+        "recent_activity": "Recent Activity",
+        "level_select": "Level",
+        "category_select": "Category",
+        "multi_select_mode": "Multi-Select",
+        "selected_count": "{{count}}/10 Selected",
+        "share_together": "Share Together",
+        "limit_reached_warning": "Up to 10 items can be selected",
         "select_content": "Select Content",
         "select_content_desc": "Choose the content for your mitigation plan",
         "custom_create": "Create Custom Plan",
@@ -158,9 +166,10 @@
         "select_from_list": "Select from list",
         "enter_custom_name": "Enter custom name",
         "no_content": "No content selected",
-        "cloud_sync": "Cloud sync (coming soon)",
+        "cloud_sync": "Cloud Sync",
         "manage_plans": "Manage Plans",
-        "current_plan": "Current Plan"
+        "current_plan": "Current Plan",
+        "cancel": "Cancel"
     },
     "portal": {
         "title": "FFXIV Toolbox",

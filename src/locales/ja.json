@@ -151,7 +151,15 @@
         "invuln": "無敵"
     },
     "sidebar": {
-        "new_plan": "＋ 新規作成",
+        "new_plan": "新規作成",
+        "create_new_list": "新規リスト作成",
+        "recent_activity": "最近のアクティビティ",
+        "level_select": "レベル選択",
+        "category_select": "カテゴリ選択",
+        "multi_select_mode": "複数選択",
+        "selected_count": "{{count}}/10 選択中",
+        "share_together": "まとめて共有",
+        "limit_reached_warning": "最大10件まで選択可能です",
         "select_content": "コンテンツ選択",
         "select_content_desc": "軽減表を作成するコンテンツを選びましょう",
         "custom_create": "カスタム表を作成",
@@ -159,9 +167,10 @@
         "select_from_list": "一覧から選ぶ",
         "enter_custom_name": "自由に入力",
         "no_content": "コンテンツが選択されていません",
-        "cloud_sync": "クラウド同期 (近日実装)",
+        "cloud_sync": "クラウド同期",
         "manage_plans": "プラン管理",
-        "current_plan": "現在の表"
+        "current_plan": "現在の表",
+        "cancel": "キャンセル"
     },
     "portal": {
         "title": "FF14 ツールボックス",

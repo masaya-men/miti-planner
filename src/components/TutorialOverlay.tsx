@@ -181,7 +181,7 @@ const SpotlightOverlay: React.FC<{ targetRects: TargetRect[]; isModalTarget?: bo
                         stroke="rgba(226, 232, 240, 0.5)"
                         strokeWidth="2"
                         className="animate-tutorial-ripple"
-                        style={{ transformOrigin: 'center' }}
+                        style={{ transformOrigin: 'center', transformBox: 'fill-box' }}
                     />
                 ))}
             </svg>

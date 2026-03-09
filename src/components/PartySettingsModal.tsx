@@ -538,7 +538,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         )}>
             {/* Backdrop */}
             <div
-                data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined}
                 className={clsx(
                     "absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
