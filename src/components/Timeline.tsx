@@ -1242,20 +1242,7 @@ export const Timeline: React.FC = () => {
                                 </button>
                             </div>
 
-                            <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto mx-1" />
-                            <button
-                                onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
-                                className={clsx(
-                                    "flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                    useMitigationStore.getState().hideEmptyRows
-                                        ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
-                                        : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
-                                )}
-                                title={t('ui.compact_view')}
-                            >
-                                <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
-                                {t('ui.compact_view')}
-                            </button>
+
                         </div>
                     </div>
                 </div >
@@ -1269,7 +1256,22 @@ export const Timeline: React.FC = () => {
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 transition-colors",
                             theme === 'dark' ? "bg-[#111214]/90 border-white/[0.03]" : "bg-slate-50/90 border-slate-200"
                         )}>
-                        <div className="flex items-center relative flex-1">
+                        <button
+                            onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
+                            className={clsx(
+                                "flex items-center gap-1.5 px-2.5 py-0.5 my-auto ml-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer shrink-0 hover:scale-[1.03] active:scale-[0.97]",
+                                useMitigationStore.getState().hideEmptyRows
+                                    ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                                    : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
+                            )}
+                            title={t('ui.compact_view')}
+                        >
+                            <AlignJustify size={13} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
+                            <span className="tracking-tight">
+                                {t('ui.compact_view')}
+                            </span>
+                        </button>
+                        <div className="absolute inset-0 pointer-events-none flex items-center">
                             {(() => {
                                 const schMembers = sortedPartyMembers
                                     .map((m, idx) => ({ member: m, idx }))
@@ -1292,7 +1294,7 @@ export const Timeline: React.FC = () => {
                                             <button
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className={clsx(
-                                                    "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg",
+                                                    "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
                                                     theme === 'dark'
                                                         ? "bg-black/50 border-white/10 hover:border-amber-400/40 hover:bg-black/70"
                                                         : "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50"
