@@ -445,7 +445,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         useTutorialStore.getState().completeEvent('my-job:set');
                                     }
                                 }}
-                                className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border",
+                                className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border cursor-pointer",
                                     isMyJob
                                         ? "bg-yellow-500/20 text-yellow-500 dark:text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
                                         : "bg-black/5 dark:bg-black/40 text-slate-400 dark:text-white/40 border-transparent hover:bg-black/10 hover:text-slate-600 dark:hover:bg-black/60 dark:hover:text-white/80"
@@ -462,7 +462,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     if (isFocused) setFocusedSlot(null);
                                 }}
                                 // 👇 変更：スマホでも常に表示され、少し大きく押しやすいように調整
-                                className="p-2 rounded-lg bg-red-500/10 text-red-400/80 hover:bg-red-500/20 hover:text-red-400 transition-colors md:opacity-0 group-hover/slot:md:opacity-100 flex items-center justify-center ml-1"
+                                className="p-2 rounded-lg bg-red-500/10 text-red-400/80 hover:bg-red-500/20 hover:text-red-400 transition-colors md:opacity-0 group-hover/slot:md:opacity-100 flex items-center justify-center ml-1 cursor-pointer"
                                 title="Remove Job"
                             >
                                 <Trash2 size={16} />

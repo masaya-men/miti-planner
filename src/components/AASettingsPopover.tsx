@@ -64,7 +64,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors"
+                    className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors cursor-pointer"
                 >
                     <X size={14} />
                 </button>
@@ -81,7 +81,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                             <button
                                 key={target}
                                 className={clsx(
-                                    "flex-1 py-1 px-2 text-xs font-bold rounded transition-colors",
+                                    "flex-1 py-1 px-2 text-xs font-bold rounded transition-colors cursor-pointer",
                                     settings.target === target
                                         ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
                                         : "text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-900/ dark:hover:bg-white/"
@@ -127,7 +127,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                             <button
                                 key={type.id}
                                 className={clsx(
-                                    "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1",
+                                    "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1 cursor-pointer",
                                     settings.type === type.id
                                         ? `bg-blue-500/10 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.2)]`
                                         : "bg-slate-900/ dark:bg-white/ border-white/5 hover:bg-slate-900/ dark:hover:bg-white/ hover:border-white/10"
