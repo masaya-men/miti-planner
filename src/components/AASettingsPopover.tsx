@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Settings, X, Info } from 'lucide-react';
 import clsx from 'clsx';
 import type { AASettings } from '../store/useMitigationStore';
@@ -42,6 +43,22 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
         };
     }, [isOpen, onClose, triggerRef]);
 
+    const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
+    const [isPositioned, setIsPositioned] = useState(false);
+
+    useLayoutEffect(() => {
+        if (isOpen && triggerRef?.current) {
+            const rect = triggerRef.current.getBoundingClientRect();
+            setPopoverPosition({
+                top: rect.bottom + 8,
+                left: rect.left
+            });
+            setIsPositioned(true);
+        } else if (!isOpen) {
+            setIsPositioned(false);
+        }
+    }, [isOpen, triggerRef]);
+
     if (!isOpen) return null;
 
     const handleChange = (field: keyof AASettings, value: any) => {
@@ -51,13 +68,20 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
         });
     };
 
-    return (
+    return createPortal(
         <div
             ref={popoverRef}
-            className="w-[280px] bg-[#1a1b1e] border border-white/10 rounded-lg shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className={clsx(
+                "fixed w-[280px] glass-panel rounded-lg z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 shadow-2xl transition-opacity",
+                !isPositioned ? "opacity-0" : "opacity-100"
+            )}
+            style={{
+                top: `${popoverPosition.top}px`,
+                left: `${popoverPosition.left}px`,
+            }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-900/ dark:bg-white/ border-b border-white/5">
+            <div className="flex items-center justify-between px-4 py-3 bg-glass-header border-b border-glass-border">
                 <div className="flex items-center gap-2">
                     <Settings size={14} className="text-slate-600 dark:text-slate-400" />
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">AA Settings</span>
@@ -76,7 +100,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Target */}
                 <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Target</label>
-                    <div className="flex bg-black/30 p-1 rounded-md border border-white/5">
+                    <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
                         {['MT', 'ST'].map((target) => (
                             <button
                                 key={target}
@@ -110,7 +134,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-black/30 border border-white/10 rounded-md px-3 py-1.5 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors"
+                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>
@@ -130,7 +154,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                     "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1 cursor-pointer",
                                     settings.type === type.id
                                         ? `bg-blue-500/10 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.2)]`
-                                        : "bg-slate-900/ dark:bg-white/ border-white/5 hover:bg-slate-900/ dark:hover:bg-white/ hover:border-white/10"
+                                        : "bg-glass-card border-glass-border hover:bg-glass-hover hover:border-white/10"
                                 )}
                                 onClick={() => handleChange('type', type.id)}
                             >
@@ -142,6 +166,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
 
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

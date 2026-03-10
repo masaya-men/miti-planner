@@ -97,7 +97,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                             <h2 className="text-sm font-bold text-slate-200">
                                 {isEdit ? t('timeline.edit_phase') : t('timeline.new_phase')}
                             </h2>
-                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10">
+                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
                                 <X size={16} />
                             </button>
                         </div>
@@ -124,7 +124,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                             onDelete();
                                             onClose();
                                         }}
-                                        className="px-3 py-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md flex items-center gap-1.5 transition-colors text-xs"
+                                        className="px-3 py-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md flex items-center gap-1.5 transition-colors text-xs cursor-pointer"
                                     >
                                         <Trash2 size={14} />
                                         <span>{t('modal.delete')}</span>
@@ -135,13 +135,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium"
+                                        className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium cursor-pointer"
                                     >
                                         {t('common.cancel', 'キャンセル')}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase"
+                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase cursor-pointer"
                                     >
                                         {t('common.ok', 'OK')}
                                     </button>
