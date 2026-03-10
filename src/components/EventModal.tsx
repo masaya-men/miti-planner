@@ -499,7 +499,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.name')}</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('mechanic_modal.name_label')}</label>
                             <input
                                 data-tutorial="event-name-input"
                                 type="text"
@@ -513,7 +513,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10"
                                 )}
                                 required
-                                placeholder={t('modal.enter_event_name')}
+                                placeholder={t('mechanic_modal.placeholder')}
                             />
                         </div>
                     </div>
@@ -609,7 +609,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 )}>
                                     <div className="flex flex-col gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.actual_damage', '実際に受けたダメージ (軽減後)')}</label>
+                                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('mechanic_modal.actual_damage')}</label>
                                             <div className="flex gap-2">
                                                 <input
                                                     data-tutorial="event-actual-damage-input"
@@ -631,7 +631,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             "flex items-center justify-between p-3 rounded-lg border transition-colors",
                                             theme === 'dark' ? "bg-blue-500/10 border-blue-500/20" : "bg-blue-50 border-blue-200"
                                         )}>
-                                            <span className="text-xs font-bold text-blue-500 dark:text-blue-300 uppercase tracking-widest">{t('modal.calculated_raw', '推計Rawダメージ:')}</span>
+                                            <span className="text-xs font-bold text-blue-500 dark:text-blue-300 uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
                                             <span className="text-xl font-mono font-bold text-blue-700 dark:text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
                                         </div>
                                     </div>
@@ -639,7 +639,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <label className="block text-xs font-medium text-slate-400">{t('modal.calc_mitigations', '使用された軽減・バリア (選択)')}</label>
+                                        <label className="block text-xs font-medium text-slate-400">{t('mechanic_modal.calc_mitigations')}</label>
                                         <span className="text-[10px] text-slate-400 bg-white/10 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
                                     </div>
                                     <div
@@ -682,7 +682,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 <path d="M12 5v14M5 12l7 7 7-7" />
                                             </svg>
                                             <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
-                                                {t('modal.scroll_hint', 'スクロールして探す')}
+                                                {t('mechanic_modal.scroll_hint')}
                                             </span>
                                         </div>
                                     )}
@@ -718,7 +718,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
                         >
                             <Save size={16} />
-                            {t('common.save', 'SAVE')}
+                            {t('mechanic_modal.add_button')}
                         </button>
                     </div>
                 </form>

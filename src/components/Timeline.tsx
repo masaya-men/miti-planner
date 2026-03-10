@@ -1131,10 +1131,10 @@ export const Timeline: React.FC = () => {
                                         ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
                                         : "bg-transparent border-transparent water-drop text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10"
                                 )}
-                                title="AA Registration Mode"
+                                title={t('app.aa_mode')}
                             >
                                 <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-slate-600 dark:text-slate-300 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white")} />
-                                <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">AA Mode</span>
+                                <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('aa_settings.title')}</span>
                             </button>
                             <button
                                 ref={aaSettingsButtonRef}
@@ -1143,7 +1143,7 @@ export const Timeline: React.FC = () => {
                                     "px-1.5 py-2 rounded-r-2xl border-l-[1px] border-black/10 dark:border-white/10 transition-colors cursor-pointer hover:bg-black/10 dark:hover:bg-white/10",
                                     isAaModeEnabled ? "bg-blue-600 border-blue-500 text-white" : "bg-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                                 )}
-                                title="AA Settings"
+                                title={t('aa_settings.title')}
                             >
                                 <Settings size={12} />
                             </button>
@@ -1163,10 +1163,10 @@ export const Timeline: React.FC = () => {
                         <button
                             onClick={handleAutoPlan}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
-                            title="Auto Plan Mitigations"
+                            title={t('mitigation.auto_plan')}
                         >
                             <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">Auto Plan</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">{t('mitigation.auto_plan')}</span>
                         </button>
 
                         <button
@@ -1200,7 +1200,7 @@ export const Timeline: React.FC = () => {
                             ) : (
                                 <EyeOff size={14} className="text-slate-500 dark:text-slate-400 group-hover/btn:text-slate-800 dark:group-hover/btn:text-slate-200" />
                             )}
-                            <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">MY JOB HIGHLIGHT</span>
+                            <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
                             <div className={clsx(
                                 "w-7 h-4 rounded-full flex items-center p-0.5 transition-colors ml-1",
                                 myJobHighlight ? "bg-yellow-500" : "bg-black/20 dark:bg-white/10"
@@ -1226,7 +1226,7 @@ export const Timeline: React.FC = () => {
                                             : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                     )}
                                 >
-                                    LIGHT PARTY
+                                    {t('ui.sort_light_party')}
                                 </button>
                                 <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto" />
                                 <button
@@ -1238,7 +1238,7 @@ export const Timeline: React.FC = () => {
                                             : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                     )}
                                 >
-                                    Role Order
+                                    {t('ui.sort_role')}
                                 </button>
                             </div>
 
@@ -1251,10 +1251,10 @@ export const Timeline: React.FC = () => {
                                         ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
                                         : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                                 )}
-                                title="Toggle Empty Rows"
+                                title={t('ui.compact_view')}
                             >
                                 <AlignJustify size={14} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
-                                COMPACT
+                                {t('ui.compact_view')}
                             </button>
                         </div>
                     </div>
@@ -1383,11 +1383,11 @@ export const Timeline: React.FC = () => {
                                             className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
                                         >
                                             <Trash2 size={12} />
-                                            全ての軽減を削除
+                                            {t('timeline.all_mitigations')}
                                         </button>
                                         <div className="h-[1px] bg-slate-200/50 dark:bg-white/5 my-1" />
                                         <div className="px-3 py-1 text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">
-                                            メンバー別に削除
+                                            {t('timeline.member_mitigations')}
                                         </div>
                                         {partyMembers.map(m => {
                                             const job = JOBS.find(j => j.id === m.jobId);
@@ -1430,12 +1430,12 @@ export const Timeline: React.FC = () => {
                     >
                         <div className="flex items-center h-full w-full md:w-max md:min-w-full">
                             <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent text-[8px] md:text-[11px]">
-                                PH
+                                {t('timeline.header_phase')}
                             </div>
-                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[8px] md:text-[10px]">TIME</div>
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[9px] md:text-[10px] pl-2 justify-start font-bold">MECHANIC</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">RAW</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">TAKEN</div>
+                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[9px] md:text-[10px] pl-2 justify-start font-bold">{t('timeline.header_mechanic')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">{t('timeline.header_raw')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">{t('timeline.header_taken')}</div>
 
                             {sortedPartyMembers.map((member, index) => (
                                 <div
@@ -1747,7 +1747,8 @@ export const Timeline: React.FC = () => {
                         <X size={16} />
                     </button>
                 </div>
-            )}
+            )
+            }
 
             <EventModal
                 isOpen={isModalOpen}
@@ -1770,135 +1771,137 @@ export const Timeline: React.FC = () => {
                 position={phaseModalPosition}
             />
 
-            {mobileMitiFlow.isOpen && (
-                <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
-                    <div className={clsx(
-                        "rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col transition-all duration-200",
-                        theme === 'dark' ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"
-                    )} onClick={e => e.stopPropagation()}>
+            {
+                mobileMitiFlow.isOpen && (
+                    <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                         <div className={clsx(
-                            "p-4 border-b flex justify-between items-center transition-colors",
-                            theme === 'dark' ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50/50"
-                        )}>
-                            <h3 className={clsx(
-                                "font-bold text-sm tracking-wider transition-colors",
-                                theme === 'dark' ? "text-white" : "text-slate-800"
-                            )}>
-                                {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
-                            </h3>
-                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                                <X size={16} />
-                            </button>
-                        </div>
-                        <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                            {mobileMitiFlow.step === 'job' && (
-                                <div className="grid grid-cols-4 gap-3">
-                                    {partyMembers.map(m => {
-                                        const job = JOBS.find(j => j.id === m.jobId);
-                                        if (!job) return null;
-                                        return (
-                                            <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
-                                                "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
-                                                theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
-                                            )}>
-                                                <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
-                                                <span className={clsx(
-                                                    "text-[10px] font-bold transition-colors",
-                                                    theme === 'dark' ? "text-slate-300" : "text-slate-600"
-                                                )}>{m.id}</span>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            )}
-                            {mobileMitiFlow.step === 'skill' && (
-                                <div className="grid grid-cols-4 gap-3">
-                                    {(() => {
-                                        const member = partyMembers.find(m => m.id === mobileMitiFlow.selectedMemberId);
-                                        const job = JOBS.find(j => j.id === member?.jobId);
-                                        if (!member || !job) return null;
-
-                                        const availableMitis = MITIGATIONS.filter(m => {
-                                            if (m.jobId === job.id) return true;
-                                            return false;
-                                        });
-
-                                        return availableMitis.map(mit => {
-                                            const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
-                                            const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                            const status = validateMitigationPlacement(
-                                                mit,
-                                                mobileMitiFlow.time,
-                                                memberMitis,
-                                                schAetherflowPatterns[member.id] ?? 1,
-                                                t
-                                            );
-                                            const isClickable = status.available || isAlreadyPlaced;
-
-                                            return (
-                                                <button
-                                                    key={mit.id}
-                                                    disabled={!isClickable}
-                                                    onClick={() => {
-                                                        if (isAlreadyPlaced) {
-                                                            const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                                            if (amToRemove) removeMitigation(amToRemove.id);
-                                                            setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
-                                                            return;
-                                                        }
-
-                                                        if (!status.available) {
-                                                            alert(status.message || 'このタイミングには配置できません（リキャスト等）');
-                                                            return;
-                                                        }
-
-                                                        addMitigation({
-                                                            id: genId(),
-                                                            mitigationId: mit.id,
-                                                            time: mobileMitiFlow.time,
-                                                            duration: mit.duration,
-                                                            ownerId: member.id,
-                                                        });
-                                                        setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
-                                                    }}
-                                                    className={clsx(
-                                                        "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all relative overflow-hidden",
-                                                        isAlreadyPlaced
-                                                            ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
-                                                            : status.available
-                                                                ? theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
-                                                                : "bg-black/40 border-transparent opacity-40"
-                                                    )}
-                                                >
-                                                    <div className="relative">
-                                                        <img src={mit.icon} className={clsx("w-8 h-8 object-contain rounded drop-shadow-md", isAlreadyPlaced ? "ring-2 ring-red-500 ring-offset-1 ring-offset-transparent" : "opacity-90")} />
-                                                        {isAlreadyPlaced && (
-                                                            <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-0.5">
-                                                                <X size={10} className="text-white" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
-                                                </button>
-                                            );
-                                        });
-                                    })()}
-                                </div>
-                            )}
-                        </div>
-                        {mobileMitiFlow.step === 'skill' && (
+                            "rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col transition-all duration-200",
+                            theme === 'dark' ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"
+                        )} onClick={e => e.stopPropagation()}>
                             <div className={clsx(
-                                "p-3 border-t transition-colors",
-                                theme === 'dark' ? "border-white/5 bg-black/40" : "border-slate-100 bg-slate-50"
+                                "p-4 border-b flex justify-between items-center transition-colors",
+                                theme === 'dark' ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50/50"
                             )}>
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors">
-                                    ← メンバー選択に戻る
+                                <h3 className={clsx(
+                                    "font-bold text-sm tracking-wider transition-colors",
+                                    theme === 'dark' ? "text-white" : "text-slate-800"
+                                )}>
+                                    {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
+                                </h3>
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                    <X size={16} />
                                 </button>
                             </div>
-                        )}
+                            <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                {mobileMitiFlow.step === 'job' && (
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {partyMembers.map(m => {
+                                            const job = JOBS.find(j => j.id === m.jobId);
+                                            if (!job) return null;
+                                            return (
+                                                <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
+                                                    "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
+                                                    theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
+                                                )}>
+                                                    <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
+                                                    <span className={clsx(
+                                                        "text-[10px] font-bold transition-colors",
+                                                        theme === 'dark' ? "text-slate-300" : "text-slate-600"
+                                                    )}>{m.id}</span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                                {mobileMitiFlow.step === 'skill' && (
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {(() => {
+                                            const member = partyMembers.find(m => m.id === mobileMitiFlow.selectedMemberId);
+                                            const job = JOBS.find(j => j.id === member?.jobId);
+                                            if (!member || !job) return null;
+
+                                            const availableMitis = MITIGATIONS.filter(m => {
+                                                if (m.jobId === job.id) return true;
+                                                return false;
+                                            });
+
+                                            return availableMitis.map(mit => {
+                                                const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
+                                                const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                const status = validateMitigationPlacement(
+                                                    mit,
+                                                    mobileMitiFlow.time,
+                                                    memberMitis,
+                                                    schAetherflowPatterns[member.id] ?? 1,
+                                                    t
+                                                );
+                                                const isClickable = status.available || isAlreadyPlaced;
+
+                                                return (
+                                                    <button
+                                                        key={mit.id}
+                                                        disabled={!isClickable}
+                                                        onClick={() => {
+                                                            if (isAlreadyPlaced) {
+                                                                const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                                if (amToRemove) removeMitigation(amToRemove.id);
+                                                                setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
+                                                                return;
+                                                            }
+
+                                                            if (!status.available) {
+                                                                alert(status.message || 'このタイミングには配置できません（リキャスト等）');
+                                                                return;
+                                                            }
+
+                                                            addMitigation({
+                                                                id: genId(),
+                                                                mitigationId: mit.id,
+                                                                time: mobileMitiFlow.time,
+                                                                duration: mit.duration,
+                                                                ownerId: member.id,
+                                                            });
+                                                            setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
+                                                        }}
+                                                        className={clsx(
+                                                            "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all relative overflow-hidden",
+                                                            isAlreadyPlaced
+                                                                ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
+                                                                : status.available
+                                                                    ? theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
+                                                                    : "bg-black/40 border-transparent opacity-40"
+                                                        )}
+                                                    >
+                                                        <div className="relative">
+                                                            <img src={mit.icon} className={clsx("w-8 h-8 object-contain rounded drop-shadow-md", isAlreadyPlaced ? "ring-2 ring-red-500 ring-offset-1 ring-offset-transparent" : "opacity-90")} />
+                                                            {isAlreadyPlaced && (
+                                                                <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-0.5">
+                                                                    <X size={10} className="text-white" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
+                                                    </button>
+                                                );
+                                            });
+                                        })()}
+                                    </div>
+                                )}
+                            </div>
+                            {mobileMitiFlow.step === 'skill' && (
+                                <div className={clsx(
+                                    "p-3 border-t transition-colors",
+                                    theme === 'dark' ? "border-white/5 bg-black/40" : "border-slate-100 bg-slate-50"
+                                )}>
+                                    <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors">
+                                        ← メンバー選択に戻る
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <MitigationSelector
                 isOpen={mitigationSelectorOpen}

@@ -95,7 +95,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-black/40 shrink-0">
                             <h2 className="text-sm font-bold text-slate-200">
-                                {isEdit ? t('timeline.edit_phase') : t('timeline.new_phase')}
+                                {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
                             <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
                                 <X size={16} />
@@ -104,14 +104,14 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('timeline.phase')}</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('phase_modal.name_label')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
-                                    placeholder={t('timeline.enter_phase_name')}
+                                    placeholder={t('phase_modal.placeholder')}
                                     autoFocus
                                 />
                             </div>
@@ -137,13 +137,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                         onClick={onClose}
                                         className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium cursor-pointer"
                                     >
-                                        {t('common.cancel', 'キャンセル')}
+                                        {t('modal.cancel')}
                                     </button>
                                     <button
                                         type="submit"
                                         className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase cursor-pointer"
                                     >
-                                        {t('common.ok', 'OK')}
+                                        {t('phase_modal.add_button')}
                                     </button>
                                 </div>
                             </div>
