@@ -1,0 +1,352 @@
+[
+  {
+    "f": "components\\AASettingsPopover.tsx",
+    "l": 66,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\AASettingsPopover.tsx",
+    "l": 89,
+    "c": "onClick={() => handleChange('target', target)}"
+  },
+  {
+    "f": "components\\AASettingsPopover.tsx",
+    "l": 135,
+    "c": "onClick={() => handleChange('type', type.id)}"
+  },
+  {
+    "f": "components\\CheatSheetView.tsx",
+    "l": 414,
+    "c": "onClick={() => setMemberSelectOpen(false)}"
+  },
+  {
+    "f": "components\\CheatSheetView.tsx",
+    "l": 418,
+    "c": "onClick={e => e.stopPropagation()}"
+  },
+  {
+    "f": "components\\ConfirmDialog.tsx",
+    "l": 34,
+    "c": "onClick={onCancel}"
+  },
+  {
+    "f": "components\\ConfirmDialog.tsx",
+    "l": 55,
+    "c": "onClick={onCancel}"
+  },
+  {
+    "f": "components\\ConfirmDialog.tsx",
+    "l": 68,
+    "c": "onClick={onCancel}"
+  },
+  {
+    "f": "components\\ConfirmDialog.tsx",
+    "l": 74,
+    "c": "onClick={onConfirm}"
+  },
+  {
+    "f": "components\\CsvImportModal.tsx",
+    "l": 44,
+    "c": "<div className=\"fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6\" onClick={onClose}>"
+  },
+  {
+    "f": "components\\CsvImportModal.tsx",
+    "l": 59,
+    "c": "onClick={(e) => e.stopPropagation()}"
+  },
+  {
+    "f": "components\\CsvImportModal.tsx",
+    "l": 68,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\CsvImportModal.tsx",
+    "l": 110,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\ErrorBoundary.tsx",
+    "l": 38,
+    "c": "onClick={() => this.setState({ hasError: false })}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 416,
+    "c": "<div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 419,
+    "c": "onClick={(e) => e.stopPropagation()}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 440,
+    "c": "<button onClick={onClose} className=\"text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10\">"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 453,
+    "c": "onClick={() => setInputMode('reverse')}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 468,
+    "c": "onClick={() => setInputMode('direct')}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 535,
+    "c": "onClick={() => setDamageType(item.type as any)}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 565,
+    "c": "onClick={() => setTarget(t.value as any)}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 662,
+    "c": "onClick={() => toggleMitigation(mit.id)}"
+  },
+  {
+    "f": "components\\EventModal.tsx",
+    "l": 702,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\FFLogsImportModal.tsx",
+    "l": 261,
+    "c": "<div className=\"fixed inset-0 z-[200] flex md:items-center md:justify-center\" onClick={handleClose}>"
+  },
+  {
+    "f": "components\\FFLogsImportModal.tsx",
+    "l": 271,
+    "c": "<div className=\"md:hidden fixed bottom-0 left-0 right-0 z-[201]\" onClick={(e) => e.stopPropagation()}>"
+  },
+  {
+    "f": "components\\FFLogsImportModal.tsx",
+    "l": 376,
+    "c": "onClick={(e) => e.stopPropagation()}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 44,
+    "c": "onClick={onCancel}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 75,
+    "c": "onClick={() => setSelectedMode('inherit')}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 99,
+    "c": "onClick={() => setSelectedMode('common_only')}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 123,
+    "c": "onClick={() => setSelectedMode('reset')}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 152,
+    "c": "onClick={onCancel}"
+  },
+  {
+    "f": "components\\JobMigrationModal.tsx",
+    "l": 158,
+    "c": "onClick={() => onConfirm(selectedMode)}"
+  },
+  {
+    "f": "components\\JobPicker.tsx",
+    "l": 40,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\JobPicker.tsx",
+    "l": 55,
+    "c": "<button onClick={onClose} className=\"text-app-text-muted hover:text-slate-800 dark:text-white transition-colors\">"
+  },
+  {
+    "f": "components\\JobPicker.tsx",
+    "l": 97,
+    "c": "onClick={onSelect}"
+  },
+  {
+    "f": "components\\Layout.tsx",
+    "l": 169,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\MitigationSelector.tsx",
+    "l": 146,
+    "c": "onClick={isCentered ? onClose : undefined} // 背景クリックで閉じる"
+  },
+  {
+    "f": "components\\MitigationSelector.tsx",
+    "l": 151,
+    "c": "onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように"
+  },
+  {
+    "f": "components\\MobileBottomSheet.tsx",
+    "l": 88,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\PartySettingsModal.tsx",
+    "l": 379,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\PartySettingsModal.tsx",
+    "l": 439,
+    "c": "onClick={(e) => {"
+  },
+  {
+    "f": "components\\PartySettingsModal.tsx",
+    "l": 458,
+    "c": "onClick={(e) => {"
+  },
+  {
+    "f": "components\\PartySettingsModal.tsx",
+    "l": 545,
+    "c": "onClick={handleAttemptClose}"
+  },
+  {
+    "f": "components\\PartyStatusPopover.tsx",
+    "l": 115,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\PartyStatusPopover.tsx",
+    "l": 154,
+    "c": "<button onClick={onClose} className=\"text-app-text-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10\">"
+  },
+  {
+    "f": "components\\PhaseModal.tsx",
+    "l": 82,
+    "c": "<div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />"
+  },
+  {
+    "f": "components\\PhaseModal.tsx",
+    "l": 89,
+    "c": "onClick={(e) => e.stopPropagation()}"
+  },
+  {
+    "f": "components\\PhaseModal.tsx",
+    "l": 100,
+    "c": "<button onClick={onClose} className=\"text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10\">"
+  },
+  {
+    "f": "components\\PhaseModal.tsx",
+    "l": 123,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\PhaseModal.tsx",
+    "l": 137,
+    "c": "onClick={onClose}"
+  },
+  {
+    "f": "components\\PortalPage.tsx",
+    "l": 170,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Sidebar.tsx",
+    "l": 63,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1106,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1372,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1400,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1463,
+    "c": "onClick={(e) => handleJobIconClick(member.id, e)}"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1596,
+    "c": "onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1775,
+    "c": "<div className=\"fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in\" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1779,
+    "c": ")} onClick={e => e.stopPropagation()}>"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1790,
+    "c": "<button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className=\"text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors\">"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1801,
+    "c": "<button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx("
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1843,
+    "c": "onClick={() => {"
+  },
+  {
+    "f": "components\\Timeline.tsx",
+    "l": 1895,
+    "c": "<button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className=\"text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors\">"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 84,
+    "c": "onClick={(e) => onPhaseAdd(time, e)}"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 115,
+    "c": "onClick={(e) => onAddEventClick(time, e)}"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 200,
+    "c": "onClick={(e) => {"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 317,
+    "c": "onClick={(e) => {"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 353,
+    "c": "onClick={(e) => {"
+  },
+  {
+    "f": "components\\TimelineRow.tsx",
+    "l": 517,
+    "c": "onClick={(e) => onCellClick(member.id, time, e)}"
+  },
+  {
+    "f": "components\\TutorialOverlay.tsx",
+    "l": 516,
+    "c": "onClick={() => useTutorialStore.getState().cancelRestart()}"
+  }
+]

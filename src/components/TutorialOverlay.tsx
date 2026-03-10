@@ -30,11 +30,15 @@ const SPOTLIGHT_RADIUS = 12;
 // ─────────────────────────────────────────────
 
 function useTargetRects(selector: string): TargetRect[] {
-    const [rects, setRects] = useState<TargetRect[]>([]);
+    // 座標（rects）と一緒に、「どのセレクター（目印）の座標か」もセットで記憶する
+    const [state, setState] = useState<{ selector: string, rects: TargetRect[] }>({ selector, rects: [] });
+
+    // 【最重要】今探している目印と、記憶している目印が違う＝「切り替わった直後の古いデータ（名残）」と判定
+    const isStale = state.selector !== selector;
 
     useEffect(() => {
         if (!selector) {
-            setRects([]);
+            setState({ selector, rects: [] });
             return;
         }
 
@@ -54,18 +58,17 @@ function useTargetRects(selector: string): TargetRect[] {
 
                 if (rectsStr !== lastRectsStr) {
                     lastRectsStr = rectsStr;
-                    setRects(newRects);
+                    setState({ selector, rects: newRects }); // 新しい座標と目印を保存
                 }
             } else {
                 if (lastRectsStr !== 'null') {
                     lastRectsStr = 'null';
-                    setRects([]);
+                    setState({ selector, rects: [] });
                 }
             }
             animationFrameId = requestAnimationFrame(measure);
         };
 
-        // Start measurement loop
         animationFrameId = requestAnimationFrame(measure);
 
         return () => {
@@ -73,7 +76,8 @@ function useTargetRects(selector: string): TargetRect[] {
         };
     }, [selector]);
 
-    return rects;
+    // 古いデータ（名残）の場合は、強制的に空っぽ（何も光らせない）にしてUIから消し去る！
+    return isStale ? [] : state.rects;
 }
 
 // ─────────────────────────────────────────────

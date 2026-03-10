@@ -106,11 +106,20 @@ export const TimelineRow = memo(({
                     <div
                         data-tutorial={time === 11 ? 'add-event-btn-11' : undefined}
                         className={clsx(
-                            "w-full h-full flex items-center justify-center cursor-pointer hover:bg-white/[0.05] transition-all opacity-0 group-hover:opacity-100"
+                            "w-full h-full flex items-center justify-center cursor-pointer transition-all",
+                            // ▼ 通常時の挙動（ホバーで表示）
+                            "opacity-0 group-hover:opacity-100 hover:bg-white/[0.05]",
+                            // ▼ チュートリアルでターゲットに指定された瞬間だけ強制表示＆ハイライト！
+                            "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-sky-500/20"
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
-                        <Plus size={16} className="text-slate-600 hover:text-slate-600 dark:text-slate-400 transition-colors" />
+                        <Plus size={16} className={clsx(
+                            "transition-colors",
+                            "text-slate-600 hover:text-slate-600 dark:text-slate-400",
+                            // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
+                            "[.tutorial-target-highlight_&]:text-sky-400"
+                        )} />
                     </div>
                 ) : events.length === 1 ? (
                     <div className="w-full h-full relative group/slot">

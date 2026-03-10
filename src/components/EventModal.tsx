@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, FormEvent, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -437,7 +437,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     )}>
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10">
+                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
                         <X size={16} />
                     </button>
                 </div>
@@ -452,7 +452,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             type="button"
                             onClick={() => setInputMode('reverse')}
                             className={clsx(
-                                "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center",
+                                "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'reverse'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
                                     : theme === 'dark'
@@ -467,7 +467,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             type="button"
                             onClick={() => setInputMode('direct')}
                             className={clsx(
-                                "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center",
+                                "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'direct'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
                                     : theme === 'dark'
@@ -534,7 +534,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         type="button"
                                         onClick={() => setDamageType(item.type as any)}
                                         className={`
-                                            relative group p-1.5 rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all h-[52px]
+                                            relative group p-1.5 rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all h-[52px] cursor-pointer
                                             ${damageType === item.type
                                                 ? 'border-blue-500/50 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
                                                 : 'border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.1]'}
@@ -564,7 +564,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         type="button"
                                         onClick={() => setTarget(t.value as any)}
                                         className={`
-                                            h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center
+                                            h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center cursor-pointer
                                             ${target === t.value
                                                 ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.15)]'
                                                 : 'bg-white/[0.02] border-white/10 text-slate-400 hover:bg-white/[0.05] hover:text-slate-200'}
@@ -662,7 +662,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     onClick={() => toggleMitigation(mit.id)}
                                                     title={getTooltipText(mit)}
                                                     className={clsx(
-                                                        "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95",
+                                                        "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
                                                         selectedMitigations.includes(mit.id)
                                                             ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
                                                             : theme === 'dark'
@@ -705,7 +705,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         onClose();
                                     }
                                 }}
-                                className="w-full sm:w-auto px-4 py-2 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold"
+                                className="w-full sm:w-auto px-4 py-2 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold cursor-pointer"
                             >
                                 <Trash2 size={16} />
                                 <span>{t('modal.delete')}</span>
@@ -715,7 +715,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <button
                             data-tutorial="event-save-btn"
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
                         >
                             <Save size={16} />
                             {t('common.save', 'SAVE')}
