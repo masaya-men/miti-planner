@@ -61,6 +61,8 @@ interface MitigationState {
     importTimelineEvents: (events: TimelineEvent[]) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
+    /** 👇追加：複数のメンバーのジョブ変更を一括で適用する（履歴は1回だけ保存） */
+    updatePartyBulk: (updates: { memberId: string, jobId: string | null, mitigations?: AppliedMitigation[] }[]) => void;
 
     // Bulk delete
     clearMitigationsByMember: (memberId: string) => void;
@@ -481,6 +483,95 @@ export const useMitigationStore = create<MitigationState>()(
 
                         return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
                     });
+                },
+
+                updatePartyBulk: (updates) => {
+                    pushHistory();
+                    set((state) => {
+                        let currentMembers = [...state.partyMembers];
+                        let currentMitigations = [...state.timelineMitigations];
+
+                        updates.forEach(({ memberId, jobId, mitigations }) => {
+                            // 1. メンバー情報の更新
+                            currentMembers = currentMembers.map(m => {
+                                if (m.id === memberId) {
+                                    const job = JOBS.find(j => j.id === jobId);
+                                    const newRole = job ? job.role : m.role;
+                                    let newStats = { ...m.stats };
+                                    if (job && job.role !== m.role) {
+                                        if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                                        else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                                        else newStats = { ...DEFAULT_HEALER_STATS };
+                                    }
+                                    const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+                                    return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
+                                }
+                                return m;
+                            });
+
+                            // 2. 軽減スキルの更新
+                            if (mitigations) {
+                                // 指定されたスキルリストで上書き
+                                currentMitigations = currentMitigations.filter(mit => mit.ownerId !== memberId);
+                                currentMitigations = [...currentMitigations, ...mitigations];
+                            } else {
+                                // jobIdが変更された場合のみ、簡易フィルタリング（setMemberJobと同じロジック）を実行
+                                const originalMember = state.partyMembers.find(m => m.id === memberId);
+                                if (originalMember && originalMember.jobId !== jobId) {
+                                    currentMitigations = currentMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
+                                        if (mit.ownerId !== memberId) {
+                                            acc.push(mit);
+                                            return acc;
+                                        }
+                                        const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                                        if (def?.jobId === jobId) {
+                                            acc.push(mit);
+                                            return acc;
+                                        }
+                                        if (def && def.jobId !== jobId) {
+                                            const baseId = def.id.replace(`_${def.jobId}`, '');
+                                            const newId = `${baseId}_${jobId}`;
+                                            const newDef = MITIGATIONS.find(m => m.id === newId);
+                                            if (newDef && newDef.jobId === jobId) {
+                                                acc.push({ ...mit, mitigationId: newId });
+                                                return acc;
+                                            }
+                                        }
+                                        return acc;
+                                    }, []);
+                                }
+                            }
+
+                            // 3. 学者の場合の転化自動挿入（既存ロジックと同期）
+                            if (jobId === 'sch') {
+                                const pattern = state.schAetherflowPatterns[memberId] ?? 1;
+                                const hasInitialDissipation = currentMitigations.some(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15);
+                                if (!hasInitialDissipation) {
+                                    currentMitigations.push({
+                                        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
+                                        mitigationId: 'dissipation',
+                                        ownerId: memberId,
+                                        time: pattern === 1 ? 1 : 14,
+                                        duration: 30
+                                    });
+                                }
+                            }
+                        });
+
+                        return {
+                            partyMembers: currentMembers,
+                            timelineMitigations: currentMitigations
+                        };
+                    });
+
+                    // チュートリアルイベントのチェック
+                    const updatedMembers = get().partyMembers;
+                    const setCount = updatedMembers.filter(m => m.jobId !== null).length;
+                    if (setCount >= 8) {
+                        useTutorialStore.getState().completeEvent('party:eight-set');
+                    } else if (setCount >= 4) {
+                        useTutorialStore.getState().completeEvent('party:four-set');
+                    }
                 },
 
                 updateMemberStats: (memberId, stats) => {
