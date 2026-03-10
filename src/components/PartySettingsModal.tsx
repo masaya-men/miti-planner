@@ -10,7 +10,7 @@ import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
-import type { Job, PartyMember } from '../types';
+import type { Job, PartyMember, AppliedMitigation } from '../types';
 
 interface PartySettingsModalProps {
     isOpen: boolean;
@@ -19,7 +19,7 @@ interface PartySettingsModalProps {
 
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { partyMembers, setMemberJob, timelineMitigations, myMemberId, setMyMemberId } = useMitigationStore();
+    const { partyMembers, updatePartyBulk, timelineMitigations, myMemberId, setMyMemberId } = useMitigationStore();
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
     // Hybrid UI State
@@ -107,9 +107,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
         // Apply safe changes immediately if there are no pending migrations
         if (pendingMigrations.length === 0) {
-            safeChanges.forEach(change => {
-                setMemberJob(change.memberId, change.jobId as any);
-            });
+            if (safeChanges.length > 0) {
+                updatePartyBulk(safeChanges.map(c => ({ memberId: c.memberId, jobId: c.jobId! })));
+            }
             // ── Tutorial: Complete Step 5 ──
             useTutorialStore.getState().completeEvent('party-settings:closed');
             onClose();
@@ -117,7 +117,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             // Unsafe changes
             setMigrationBatch(pendingMigrations);
         }
-    }, [partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, setMemberJob]);
+    }, [partyMembers, draftMembers, timelineMitigations, migrationBatch, onClose, updatePartyBulk]);
 
     // ①：画面が完全に閉じた時だけ、状態をリセットする（点滅バグの防止）
     React.useEffect(() => {
@@ -330,19 +330,24 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const handleBatchMigrationConfirm = (mode: MigrationMode) => {
         if (!migrationBatch) return;
 
-        // Apply any safe changes first
+        const bulkUpdates: { memberId: string, jobId: string | null, mitigations?: AppliedMitigation[] }[] = [];
+
+        // Add any safe changes first
         draftMembers.forEach(draftMember => {
             const originalMember = partyMembers.find(m => m.id === draftMember.id);
             if (originalMember && originalMember.jobId !== draftMember.jobId && !migrationBatch.some(b => b.memberId === draftMember.id)) {
-                setMemberJob(draftMember.id, draftMember.jobId as any);
+                bulkUpdates.push({ memberId: draftMember.id, jobId: draftMember.jobId });
             }
         });
 
+        // Add migrated changes
         migrationBatch.forEach(({ memberId, oldJob, newJob }) => {
             const memberMitis = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === memberId);
             const newMitis = migrateMitigations(oldJob?.id || '', newJob.id, memberId, memberMitis, mode);
-            useMitigationStore.getState().changeMemberJobWithMitigations(memberId, newJob.id, newMitis);
+            bulkUpdates.push({ memberId, jobId: newJob.id, mitigations: newMitis });
         });
+
+        updatePartyBulk(bulkUpdates);
 
         setMigrationBatch(null);
         onClose();
