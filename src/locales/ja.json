@@ -11,6 +11,17 @@
         "import_export": "インポート/エクスポート",
         "aa_mode": "オートアタック追加モード"
     },
+    "aa_settings": {
+        "title": "オートアタック追加モード",
+        "popover_header": "オートアタック設定",
+        "target": "対象タンク",
+        "damage": "基本ダメージ量",
+        "type": "ダメージ属性",
+        "phys": "物理",
+        "magic": "魔法",
+        "dark": "ユニーク",
+        "help_text": "バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。"
+    },
     "party": {
         "title": "パーティ構成",
         "settings_title": "パラメータ設定",
@@ -255,15 +266,6 @@
         "restart_confirm": "リセットして開始",
         "restart_cancel": "キャンセル",
         "step_of": "{{current}} / {{total}}"
-    },
-    "aa_settings": {
-        "title": "オートアタック設定",
-        "target": "対象",
-        "damage": "ダメージ",
-        "type": "ダメージタイプ",
-        "phys": "物理",
-        "magic": "魔法",
-        "unique": "特殊"
     },
     "phase_modal": {
         "title": "フェーズを追加",

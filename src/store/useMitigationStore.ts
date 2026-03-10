@@ -147,7 +147,7 @@ export const useMitigationStore = create<MitigationState>()(
                 timelineMitigations: [],
                 aaSettings: {
                     damage: 0,
-                    type: 'physical',
+                    type: 'magical',
                     target: 'MT'
                 },
                 currentLevel: currentLevel,
