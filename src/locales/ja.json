@@ -8,7 +8,8 @@
         "defense": "防御ステータス",
         "shield": "バリア",
         "settings": "設定",
-        "import_export": "インポート/エクスポート"
+        "import_export": "インポート/エクスポート",
+        "aa_mode": "オートアタック追加モード"
     },
     "party": {
         "title": "パーティ構成",
@@ -17,7 +18,7 @@
         "composition": "パーティ",
         "comp_short": "パーティ編成",
         "configuration_title": "パーティ編成",
-        "configuration_desc": "アイコンをタップするか、スロットを選択してジョブを配置しましょう",
+        "configuration_desc": "ジョブアイコンをクリックするか、スロットを選択してジョブを配置しましょう",
         "my_job_instruction": "スロット右上の星をタップして自ジョブに設定",
         "content_level": "コンテンツレベル",
         "job_palette": "ジョブパレット (タップして配置)",
@@ -25,14 +26,15 @@
         "manual_mode_desc": "次に選んだジョブは {{slot}} に強制配置されます。"
     },
     "modal": {
-        "add_event": "イベント追加",
+        "add_event": "イベントを追加",
         "edit_event": "イベント編集",
         "name": "イベント名",
         "time": "時間 (秒)",
         "damage_type": "ダメージタイプ",
         "magical": "魔法",
         "physical": "物理",
-        "unavoidable": "貫通/割合",
+        "unavoidable": "ユニーク",
+        "unique": "特殊",
         "enrage": "時間切れ",
         "damage_amount": "ダメージ量",
         "target": "対象",
@@ -42,19 +44,12 @@
         "cancel": "キャンセル",
         "save": "保存",
         "delete": "削除",
-        "enter_event_name": "イベント名を入力",
-        "scroll_hint": "スクロールして探す",
-        "reverse_calc": "ダメージ逆算機 (Beta)",
-        "actual_damage": "実際に受けたダメージ (軽減後)",
-        "calc_and_apply": "計算 & 登録",
-        "calc_overwrite_warning": "※ 適用すると上の「ダメージ量」が上書きされます",
-        "calc_mitigations": "使用された軽減・バリア (選択)",
         "mode_direct": "直接入力 (Direct)",
         "mode_reverse": "逆算入力 (Reverse)",
-        "calculated_raw": "推計Rawダメージ:",
         "add_mitigation_to": "軽減を追加するメンバー"
     },
     "mitigation": {
+        "auto_plan": "軽減自動組み立て",
         "select": "軽減スキル選択",
         "no_mitigations": "軽減スキルが見つかりません",
         "cd": "リキャスト",
@@ -80,7 +75,7 @@
         "main_stat_mnd": "メインステータス (MND)",
         "det": "意志力",
         "wd": "武器性能",
-        "shield_preview": "シールド・ヒール量 プレビュー"
+        "shield_preview": "バリア量・ヒール量 プレビュー"
     },
     "roles": {
         "tank": "タンク",
@@ -113,6 +108,10 @@
     },
     "ui": {
         "sort": "並び替え",
+        "sort_light_party": "ライトパーティ",
+        "sort_role": "ロール別",
+        "highlight_my_job": "自分のジョブをハイライト",
+        "compact_view": "攻撃や軽減がある行だけを表示",
         "no_jobs": "ジョブが選択されていません",
         "select_jobs": "上のパネルからジョブを選択して計画を開始してください",
         "seconds": "秒",
@@ -148,7 +147,12 @@
         "all_mitigations": "全ての軽減を削除",
         "member_mitigations": "メンバー別に削除",
         "copy_event_hint": "このイベントをコピーしてスタンプする",
-        "invuln": "無敵"
+        "invuln": "無敵",
+        "header_phase": "フェーズ",
+        "header_time": "時間",
+        "header_mechanic": "敵の攻撃",
+        "header_raw": "元のダメージ",
+        "header_taken": "軽減後ダメージ"
     },
     "sidebar": {
         "new_plan": "新規作成",
@@ -251,5 +255,29 @@
         "restart_confirm": "リセットして開始",
         "restart_cancel": "キャンセル",
         "step_of": "{{current}} / {{total}}"
+    },
+    "aa_settings": {
+        "title": "オートアタック設定",
+        "target": "対象",
+        "damage": "ダメージ",
+        "type": "ダメージタイプ",
+        "phys": "物理",
+        "magic": "魔法",
+        "unique": "特殊"
+    },
+    "phase_modal": {
+        "title": "フェーズを追加",
+        "name_label": "フェーズ名",
+        "placeholder": "フェーズ名を入力してください",
+        "add_button": "追加"
+    },
+    "mechanic_modal": {
+        "name_label": "攻撃名",
+        "placeholder": "攻撃名を入力",
+        "actual_damage": "実際に受けたダメージ（軽減込み）",
+        "estimated_raw": "推定ダメージ（軽減なし）",
+        "calc_mitigations": "使用された軽減・バリア (選択)",
+        "scroll_hint": "スクロールして探す",
+        "add_button": "追加"
     }
 }

@@ -8,7 +8,8 @@
         "defense": "Defense Stats",
         "shield": "Shields",
         "settings": "Settings",
-        "import_export": "Import/Export"
+        "import_export": "Import/Export",
+        "aa_mode": "Auto-Attack Mode"
     },
     "party": {
         "title": "Party Composition",
@@ -31,7 +32,8 @@
         "damage_type": "Damage Type",
         "magical": "Magical",
         "physical": "Physical",
-        "unavoidable": "Unavoidable",
+        "unavoidable": "Unique",
+        "unique": "Unique",
         "enrage": "Enrage",
         "damage_amount": "Damage Amount",
         "target": "Target",
@@ -41,19 +43,12 @@
         "cancel": "Cancel",
         "save": "Save",
         "delete": "Delete",
-        "enter_event_name": "Enter event name",
-        "scroll_hint": "Scroll to find",
-        "reverse_calc": "Reverse Calculator (Beta)",
-        "actual_damage": "Actual Damage Taken (After Mitigation)",
-        "calc_and_apply": "Calc & Save",
-        "calc_overwrite_warning": "* Applying will overwrite the Damage Amount above",
-        "calc_mitigations": "Mitigations Used (Select)",
         "mode_direct": "Direct Input",
         "mode_reverse": "Reverse Input",
-        "calculated_raw": "Estimated Raw Damage:",
         "add_mitigation_to": "Add mitigation to:"
     },
     "mitigation": {
+        "auto_plan": "Auto-Mitigate",
         "select": "Select Mitigation",
         "no_mitigations": "No mitigations found",
         "cd": "CD",
@@ -73,13 +68,13 @@
         "party_stats": "Party Stats Settings",
         "config_short": "Stat Config",
         "base_heal": "Base Heal",
-        "base_shield": "Base Shield",
+        "base_shield": "Base Barrier",
         "hp": "HP",
         "main_stat": "Main Stat",
         "main_stat_mnd": "Main Stat (MND)",
         "det": "Determination",
         "wd": "Weapon Damage",
-        "shield_preview": "Shield & Heal Preview"
+        "shield_preview": "Barrier & Heal Preview"
     },
     "roles": {
         "tank": "Tank",
@@ -112,6 +107,10 @@
     },
     "ui": {
         "sort": "SORT",
+        "sort_light_party": "Light Party",
+        "sort_role": "Role Order",
+        "highlight_my_job": "Highlight My Job",
+        "compact_view": "Show Active Rows Only",
         "no_jobs": "No jobs selected",
         "select_jobs": "Select jobs from the panel above to start planning",
         "seconds": "s",
@@ -147,7 +146,12 @@
         "all_mitigations": "Clear all mitigations",
         "member_mitigations": "Clear by member",
         "copy_event_hint": "Copy this event to stamp",
-        "invuln": "Invuln"
+        "invuln": "Invuln",
+        "header_phase": "PHASE",
+        "header_time": "TIME",
+        "header_mechanic": "MECHANIC",
+        "header_raw": "RAW DAMAGE",
+        "header_taken": "DAMAGE TAKEN"
     },
     "sidebar": {
         "new_plan": "Create New",
@@ -250,5 +254,29 @@
         "restart_confirm": "Reset & Start",
         "restart_cancel": "Cancel",
         "step_of": "{{current}} / {{total}}"
+    },
+    "aa_settings": {
+        "title": "Auto-Attack Settings",
+        "target": "Target",
+        "damage": "Damage",
+        "type": "Damage Type",
+        "phys": "Physical",
+        "magic": "Magical",
+        "unique": "Unique"
+    },
+    "phase_modal": {
+        "title": "Add Phase",
+        "name_label": "Phase Name",
+        "placeholder": "Enter phase name...",
+        "add_button": "Add"
+    },
+    "mechanic_modal": {
+        "name_label": "Mechanic Name",
+        "placeholder": "Enter attack name...",
+        "actual_damage": "Actual Damage Taken",
+        "estimated_raw": "Estimated Raw Damage",
+        "calc_mitigations": "Mitigations & Barriers used (Select)",
+        "scroll_hint": "Scroll to find",
+        "add_button": "Add"
     }
 }
