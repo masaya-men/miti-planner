@@ -1148,16 +1148,15 @@ export const Timeline: React.FC = () => {
                                 <Settings size={12} />
                             </button>
 
-                            <div className="absolute top-0 left-full ml-2 z-[101] origin-top-left">
-                                <AASettingsPopover
-                                    isOpen={aaSettingsOpen}
-                                    onClose={() => setAaSettingsOpen(false)}
-                                    settings={aaSettings}
-                                    onSettingsChange={setAaSettings}
-                                    triggerRef={aaSettingsButtonRef}
-                                />
-                            </div>
                         </div>
+
+                        <AASettingsPopover
+                            isOpen={aaSettingsOpen}
+                            onClose={() => setAaSettingsOpen(false)}
+                            settings={aaSettings}
+                            onSettingsChange={setAaSettings}
+                            triggerRef={aaSettingsButtonRef}
+                        />
 
                         <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
 
