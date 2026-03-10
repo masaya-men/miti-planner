@@ -84,7 +84,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
             <div className="flex items-center justify-between px-4 py-3 bg-glass-header border-b border-glass-border">
                 <div className="flex items-center gap-2">
                     <Settings size={14} className="text-slate-600 dark:text-slate-400" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">AA Settings</span>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
                 </div>
                 <button
                     onClick={onClose}
@@ -99,7 +99,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Target */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Target</label>
+                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.target')}</label>
                     <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
                         {['MT', 'ST'].map((target) => (
                             <button
@@ -121,11 +121,11 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Damage</label>
+                        <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.damage')}</label>
                         <div className="group relative">
                             <Info size={12} className="text-slate-600 cursor-help" />
                             <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-slate-700 dark:text-slate-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                                {t('aa_settings.help_text', 'バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。')}
+                                {t('aa_settings.help_text')}
                             </div>
                         </div>
                     </div>
@@ -141,12 +141,12 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Damage Type */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">Type</label>
+                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.type')}</label>
                     <div className="flex gap-2">
                         {[
-                            { id: 'physical', label: 'Phys', icon: '/icons/type_phys.png', color: 'text-orange-300' },
-                            { id: 'magical', label: 'Magic', icon: '/icons/type_magic.png', color: 'text-cyan-300' },
-                            { id: 'unavoidable', label: 'Dark', icon: '/icons/type_dark.png', color: 'text-purple-300' }
+                            { id: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png', color: 'text-cyan-300' },
+                            { id: 'physical', label: t('aa_settings.phys'), icon: '/icons/type_phys.png', color: 'text-orange-300' },
+                            { id: 'unavoidable', label: t('aa_settings.dark'), icon: '/icons/type_dark.png', color: 'text-purple-300' }
                         ].map((type) => (
                             <button
                                 key={type.id}
@@ -158,7 +158,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                 )}
                                 onClick={() => handleChange('type', type.id)}
                             >
-                                <img src={type.icon} alt={type.label} className="w-5 h-5 object-contain opacity-90" />
+                                <img src={type.icon} alt={String(type.label)} className="w-5 h-5 object-contain opacity-90" />
                                 <span className={clsx("text-[9px] font-bold", settings.type === type.id ? 'text-blue-300' : 'text-slate-500')}>{type.label}</span>
                             </button>
                         ))}

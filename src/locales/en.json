@@ -11,6 +11,17 @@
         "import_export": "Import/Export",
         "aa_mode": "Auto-Attack Mode"
     },
+    "aa_settings": {
+        "title": "Auto-Attack Mode",
+        "popover_header": "Auto-Attack Settings",
+        "target": "Target Tank",
+        "damage": "Raw Damage",
+        "type": "Damage Type",
+        "phys": "Physical",
+        "magic": "Magical",
+        "dark": "Unique",
+        "help_text": "Enter the raw damage value received without any buffs or debuffs applied."
+    },
     "party": {
         "title": "Party Composition",
         "settings_title": "Parameter Settings",
@@ -254,15 +265,6 @@
         "restart_confirm": "Reset & Start",
         "restart_cancel": "Cancel",
         "step_of": "{{current}} / {{total}}"
-    },
-    "aa_settings": {
-        "title": "Auto-Attack Settings",
-        "target": "Target",
-        "damage": "Damage",
-        "type": "Damage Type",
-        "phys": "Physical",
-        "magic": "Magical",
-        "unique": "Unique"
     },
     "phase_modal": {
         "title": "Add Phase",

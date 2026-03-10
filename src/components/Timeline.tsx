@@ -1122,32 +1122,42 @@ export const Timeline: React.FC = () => {
                             <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
                         </button>
 
-                        <div className="flex items-center gap-0.5 relative">
+                        <div className={clsx(
+                            "flex items-center gap-0 relative rounded-2xl transition-all duration-300 overflow-hidden",
+                            isAaModeEnabled
+                                ? "bg-blue-600 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                                : "water-drop border border-transparent"
+                        )}>
                             <button
                                 onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
                                 className={clsx(
-                                    "flex items-center gap-2 px-3 py-2 rounded-l-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    "flex items-center gap-2 px-3 py-2 text-sm transition-all duration-300 group/btn cursor-pointer",
                                     isAaModeEnabled
-                                        ? "bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
-                                        : "bg-transparent border-transparent water-drop text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10"
+                                        ? "text-white hover:bg-blue-500"
+                                        : "text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
                                 )}
-                                title={t('app.aa_mode')}
+                                title={t('aa_settings.title')}
                             >
-                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-slate-600 dark:text-slate-300 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white")} />
+                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-slate-600 dark:text-slate-300")} />
                                 <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('aa_settings.title')}</span>
                             </button>
+                            <div className={clsx(
+                                "h-4 w-[1px]",
+                                isAaModeEnabled ? "bg-blue-400/50" : "bg-slate-300/50 dark:bg-white/10"
+                            )} />
                             <button
                                 ref={aaSettingsButtonRef}
                                 onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
                                 className={clsx(
-                                    "px-1.5 py-2 rounded-r-2xl border-l-[1px] border-black/10 dark:border-white/10 transition-colors cursor-pointer hover:bg-black/10 dark:hover:bg-white/10",
-                                    isAaModeEnabled ? "bg-blue-600 border-blue-500 text-white" : "bg-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                                    "px-2.5 py-2 transition-all duration-300 cursor-pointer flex items-center justify-center",
+                                    isAaModeEnabled
+                                        ? "text-white hover:bg-blue-500"
+                                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                                 )}
-                                title={t('aa_settings.title')}
+                                title={t('aa_settings.popover_header')}
                             >
-                                <Settings size={12} />
+                                <Settings size={14} className="transition-transform duration-300 hover:rotate-45" />
                             </button>
-
                         </div>
 
                         <AASettingsPopover
