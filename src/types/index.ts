@@ -108,6 +108,8 @@ export interface ContentDefinition {
     category: ContentCategory;
     /** Level tier */
     level: ContentLevel;
+    /** Patch introduced */
+    patch: string;
     /** Sort order within series (1-based) */
     order: number;
 }
