@@ -223,7 +223,7 @@ export const MITIGATIONS: Mitigation[] = [
 
     {
         id: "dissipation", jobId: "sch", name: { ja: "転化", en: "Dissipation" }, icon: "/icons/Dissipation.png",
-        recast: 180, duration: 30, type: "all", value: 0, isShield: false, healingIncrease: 20, family: "sch_dissipation"
+        recast: 180, duration: 30, type: "all", value: 0, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, family: "sch_dissipation"
     },
     {
         id: "expedient", jobId: "sch", name: { ja: "疾風怒濤の計", en: "Expedient" }, icon: "/icons/Expedient.png",
@@ -311,7 +311,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "neutral_sect", jobId: "ast", name: { ja: "ニュートラルセクト", en: "Neutral Sect" }, icon: "/icons/Neutral_Sect.png",
-        recast: 120, duration: 20, type: "all", value: 0, isShield: false, healingIncrease: 20, family: "ph_120_aoe"
+        recast: 120, duration: 20, type: "all", value: 0, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, family: "ph_120_aoe"
     },
     {
         id: "sun_sign", jobId: "ast", name: { ja: "サンサイン", en: "Sun Sign" }, icon: "/icons/Sun_Sign.png",
