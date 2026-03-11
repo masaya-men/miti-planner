@@ -68,6 +68,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                 }
             }}
             disabled={isDisabled}
+            title={floorName}
             className={clsx(
                 "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer",
                 isActive && !multiSelect.isEnabled
