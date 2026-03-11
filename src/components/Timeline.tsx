@@ -1266,22 +1266,123 @@ export const Timeline: React.FC = () => {
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 transition-colors",
                             theme === 'dark' ? "bg-[#111214]/90 border-white/[0.03]" : "bg-slate-50/90 border-slate-200"
                         )}>
-                        <button
-                            onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
-                            className={clsx(
-                                "flex items-center gap-1.5 px-2.5 py-0.5 my-auto ml-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer shrink-0 hover:scale-[1.03] active:scale-[0.97]",
-                                useMitigationStore.getState().hideEmptyRows
-                                    ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
-                                    : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
-                            )}
-                            title={t('ui.compact_view')}
-                        >
-                            <AlignJustify size={13} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
-                            <span className="tracking-tight">
-                                {t('ui.compact_view')}
-                            </span>
-                        </button>
-                        <div className="absolute inset-0 pointer-events-none flex items-center">
+                        <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                                onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
+                                className={clsx(
+                                    "flex items-center gap-1.5 px-2.5 py-0.5 my-auto ml-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer shrink-0 hover:scale-[1.03] active:scale-[0.97]",
+                                    useMitigationStore.getState().hideEmptyRows
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                                        : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
+                                )}
+                                title={t('ui.compact_view')}
+                            >
+                                <AlignJustify size={13} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
+                                <span className="tracking-tight">
+                                    {t('ui.compact_view')}
+                                </span>
+                            </button>
+
+                            <div className="flex items-center gap-0.5 ml-2 border-l border-white/10 pl-2">
+                                <button
+                                    onClick={() => useMitigationStore.getState().undo()}
+                                    disabled={useMitigationStore.getState()._history.length === 0}
+                                    className={clsx(
+                                        "p-1 rounded transition-all duration-150 cursor-pointer",
+                                        useMitigationStore.getState()._history.length > 0
+                                            ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                            : "text-slate-700 cursor-default"
+                                    )}
+                                    title="Undo (Ctrl+Z)"
+                                >
+                                    <Undo2 size={12} />
+                                </button>
+                                <button
+                                    onClick={() => useMitigationStore.getState().redo()}
+                                    disabled={useMitigationStore.getState()._future.length === 0}
+                                    className={clsx(
+                                        "p-1 rounded transition-all duration-150 cursor-pointer",
+                                        useMitigationStore.getState()._future.length > 0
+                                            ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                            : "text-slate-700 cursor-default"
+                                    )}
+                                    title="Redo (Ctrl+Shift+Z)"
+                                >
+                                    <Redo2 size={12} />
+                                </button>
+                                <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setClearMenuOpen(!clearMenuOpen)}
+                                        className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
+                                        title="Clear Mitigations"
+                                    >
+                                        <Trash2 size={12} />
+                                        <ChevronDown size={7} />
+                                    </button>
+                                    {clearMenuOpen && (
+                                        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 rounded-xl shadow-2xl z-[200] py-1">
+                                            <button
+                                                onClick={() => {
+                                                    setClearMenuOpen(false);
+                                                    setConfirmDialog({
+                                                        title: t('timeline.clear_all'),
+                                                        message: t('timeline.clear_all_confirm'),
+                                                        variant: 'danger',
+                                                        onConfirm: () => {
+                                                            useMitigationStore.getState().clearAllMitigations();
+                                                            setConfirmDialog(null);
+                                                        },
+                                                    });
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                            >
+                                                <Trash2 size={12} />
+                                                {t('timeline.all_mitigations')}
+                                            </button>
+                                            <div className="h-[1px] bg-slate-200/50 dark:bg-white/5 my-1" />
+                                            <div className="px-3 py-1 text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">
+                                                {t('timeline.member_mitigations')}
+                                            </div>
+                                            {partyMembers.map(m => {
+                                                const job = JOBS.find(j => j.id === m.jobId);
+                                                const count = timelineMitigations.filter(mit => mit.ownerId === m.id).length;
+                                                if (!job || count === 0) return null;
+                                                return (
+                                                    <button
+                                                        key={m.id}
+                                                        onClick={() => {
+                                                            setClearMenuOpen(false);
+                                                            setConfirmDialog({
+                                                                title: t('timeline.clear_member', { member: m.id }).replace('{{member}}', m.id),
+                                                                message: t('timeline.clear_member_confirm', { member: m.id, job: contentLanguage === 'en' ? job.name.en : job.name.ja }).replace('{{member}}', m.id).replace('{{job}}', contentLanguage === 'en' ? job.name.en : job.name.ja),
+                                                                variant: 'danger',
+                                                                onConfirm: () => {
+                                                                    useMitigationStore.getState().clearMitigationsByMember(m.id);
+                                                                    setConfirmDialog(null);
+                                                                },
+                                                            });
+                                                        }}
+                                                        className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center gap-2"
+                                                    >
+                                                        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-4 h-4 rounded" />
+                                                        <span className="font-medium">{m.id}</span>
+                                                        <span className="text-slate-400 dark:text-slate-500">({contentLanguage === 'en' ? job.name.en : job.name.ja})</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        ref={schBarRef}
+                        className="pointer-events-none absolute left-0 right-0 h-7 z-[51] overflow-hidden"
+                    >
+                        <div className="relative h-full w-full md:w-max md:min-w-full">
                             {(() => {
                                 const schMembers = sortedPartyMembers
                                     .map((m, idx) => ({ member: m, idx }))
@@ -1340,98 +1441,7 @@ export const Timeline: React.FC = () => {
                             })()}
                         </div>
 
-                        <div className="flex items-center gap-0.5 shrink-0">
-                            <button
-                                onClick={() => useMitigationStore.getState().undo()}
-                                disabled={useMitigationStore.getState()._history.length === 0}
-                                className={clsx(
-                                    "p-1 rounded transition-all duration-150 cursor-pointer",
-                                    useMitigationStore.getState()._history.length > 0
-                                        ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                        : "text-slate-700 cursor-default"
-                                )}
-                                title="Undo (Ctrl+Z)"
-                            >
-                                <Undo2 size={12} />
-                            </button>
-                            <button
-                                onClick={() => useMitigationStore.getState().redo()}
-                                disabled={useMitigationStore.getState()._future.length === 0}
-                                className={clsx(
-                                    "p-1 rounded transition-all duration-150 cursor-pointer",
-                                    useMitigationStore.getState()._future.length > 0
-                                        ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                        : "text-slate-700 cursor-default"
-                                )}
-                                title="Redo (Ctrl+Shift+Z)"
-                            >
-                                <Redo2 size={12} />
-                            </button>
-                            <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
-                            <div className="relative">
-                                <button
-                                    onClick={() => setClearMenuOpen(!clearMenuOpen)}
-                                    className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                                    title="Clear Mitigations"
-                                >
-                                    <Trash2 size={12} />
-                                    <ChevronDown size={7} />
-                                </button>
-                                {clearMenuOpen && (
-                                    <div className="absolute top-full right-0 mt-1 min-w-[180px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 rounded-xl shadow-2xl z-[200] py-1">
-                                        <button
-                                            onClick={() => {
-                                                setClearMenuOpen(false);
-                                                setConfirmDialog({
-                                                    title: t('timeline.clear_all'),
-                                                    message: t('timeline.clear_all_confirm'),
-                                                    variant: 'danger',
-                                                    onConfirm: () => {
-                                                        useMitigationStore.getState().clearAllMitigations();
-                                                        setConfirmDialog(null);
-                                                    },
-                                                });
-                                            }}
-                                            className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
-                                        >
-                                            <Trash2 size={12} />
-                                            {t('timeline.all_mitigations')}
-                                        </button>
-                                        <div className="h-[1px] bg-slate-200/50 dark:bg-white/5 my-1" />
-                                        <div className="px-3 py-1 text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">
-                                            {t('timeline.member_mitigations')}
-                                        </div>
-                                        {partyMembers.map(m => {
-                                            const job = JOBS.find(j => j.id === m.jobId);
-                                            const count = timelineMitigations.filter(mit => mit.ownerId === m.id).length;
-                                            if (!job || count === 0) return null;
-                                            return (
-                                                <button
-                                                    key={m.id}
-                                                    onClick={() => {
-                                                        setClearMenuOpen(false);
-                                                        setConfirmDialog({
-                                                            title: t('timeline.clear_member', { member: m.id }).replace('{{member}}', m.id),
-                                                            message: t('timeline.clear_member_confirm', { member: m.id, job: contentLanguage === 'en' ? job.name.en : job.name.ja }).replace('{{member}}', m.id).replace('{{job}}', contentLanguage === 'en' ? job.name.en : job.name.ja),
-                                                            variant: 'danger',
-                                                            onConfirm: () => {
-                                                                useMitigationStore.getState().clearMitigationsByMember(m.id);
-                                                                setConfirmDialog(null);
-                                                            },
-                                                        });
-                                                    }}
-                                                    className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center gap-2"
-                                                >
-                                                    <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-4 h-4 rounded" />
-                                                    <span className="font-medium">{m.id}</span>
-                                                    <span className="text-slate-400 dark:text-slate-500">({contentLanguage === 'en' ? job.name.en : job.name.ja})</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+
                     </div>
 
                     <div
@@ -1489,7 +1499,7 @@ export const Timeline: React.FC = () => {
 
                     <div
                         ref={scrollContainerRef}
-                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar bg-[var(--color-bg-primary)] transition-colors duration-200"
+                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-[var(--color-bg-primary)] transition-colors duration-200"
                         onScroll={handleScrollSync}
                     >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
