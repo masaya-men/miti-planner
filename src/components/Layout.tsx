@@ -43,7 +43,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const bgClass = "bg-slate-50 dark:bg-app-bg";
 
     return (
-        <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 transition-colors duration-300 ${bgClass} relative`}>
+        <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
             {/* 👇 【修正】アニメーションを「より大きく、ゆったりと」した優雅な動きに変更 */}
             <style>{`
@@ -115,7 +115,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* ── PC Header ── */}
                 <header className={clsx(
-                    "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative transition-colors duration-300 shadow-sm",
+                    "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative shadow-sm",
                     "hidden md:flex",
                     "bg-white/40 border-slate-200/50 backdrop-blur-xl dark:bg-glass-header dark:border-white/5 dark:backdrop-blur-xl"
                 )}>
@@ -125,7 +125,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         {/* ハンバーガーメニュー */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="relative w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex justify-center items-center active:scale-90 group"
+                            className="relative w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer flex justify-center items-center active:scale-90 group"
                         >
                             <div className={clsx("relative w-5 h-4 flex justify-center items-center pointer-events-none transition-transform duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]", isSidebarOpen ? "rotate-[180deg]" : "rotate-0")}>
                                 <span className={clsx(
@@ -173,14 +173,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                     useTutorialStore.getState().startFromStep(1);
                                 }
                             }}
-                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
                             title="チュートリアル"
                         >
                             <HelpCircle size={18} />
                         </button>
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
                         >
                             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                         </button>
@@ -190,7 +190,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
-                    "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative transition-colors duration-300",
+                    "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative",
                     "bg-white/60 border-slate-200/50 backdrop-blur-xl dark:bg-slate-900/60 dark:border-slate-700/50 dark:backdrop-blur-xl"
                 )}>
                     <img
@@ -202,7 +202,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer"
+                            className="p-1.5 w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
                         >
                             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                         </button>
@@ -211,7 +211,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </header>
 
                 {/* Main content — add bottom padding on mobile for bottom nav */}
-                <main className="flex-1 flex flex-col relative overflow-hidden transition-colors duration-300 pb-16 md:pb-0">
+                <main className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0">
                     <MobileTriggersContext.Provider value={{
                         mobilePartyOpen, setMobilePartyOpen,
                         mobileStatusOpen, setMobileStatusOpen,
@@ -224,7 +224,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
-                    "h-6 shrink-0 backdrop-blur-md border-t hidden md:flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
+                    "h-6 shrink-0 backdrop-blur-md border-t hidden md:flex items-center justify-center z-50 pointer-events-none",
                     "border-white/20 dark:border-white/10",
                     "bg-white/40 dark:bg-slate-900/40"
                 )}>

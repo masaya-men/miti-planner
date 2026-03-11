@@ -67,7 +67,7 @@ export const TimelineRow = memo(({
         <div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full md:w-fit border-b flex h-[50px] group transition-colors duration-75",
+                "absolute left-0 w-full md:w-fit border-b flex h-[50px] group  duration-75",
                 "border-slate-200 hover:bg-slate-100 dark:border-white/[0.03] dark:hover:bg-white/[0.04]"
             )}
             style={{ top: `${top}px` }}
@@ -76,7 +76,7 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100",
+                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-slate-900 dark:group-hover:text-slate-100",
                         "border-slate-200 dark:border-white/[0.02]"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
@@ -89,7 +89,7 @@ export const TimelineRow = memo(({
 
             {/* Time Column */}
             <div className={clsx(
-                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100 group-hover:font-bold",
+                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-slate-900 dark:group-hover:text-slate-100 group-hover:font-bold",
                 "border-slate-200 text-slate-600 dark:border-white/[0.02] dark:text-slate-400"
             )}>
                 {formattedTime}
@@ -97,7 +97,7 @@ export const TimelineRow = memo(({
 
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
-                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col transition-colors",
+                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col ",
                 "border-slate-200 group-hover:bg-slate-50 dark:border-white/[0.02] dark:group-hover:bg-white/[0.02]"
             )}>
                 {events.length === 0 ? (
@@ -113,7 +113,7 @@ export const TimelineRow = memo(({
                         onClick={(e) => onAddEventClick(time, e)}
                     >
                         <Plus size={16} className={clsx(
-                            "transition-colors",
+                            "",
                             "text-slate-600 hover:text-slate-600 dark:text-slate-400",
                             // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
                             "[.tutorial-target-highlight_&]:text-sky-400"
@@ -123,7 +123,7 @@ export const TimelineRow = memo(({
                     <div className="w-full h-full relative group/slot">
                         <div
                             // 👇 スマホ表示用に少し padding や flex-col を調整
-                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-0.5 md:gap-2"
+                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-0.5 md:gap-2"
                             onClick={(e) => onEventClick(events[0], e)}
                             title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                         >
@@ -208,7 +208,7 @@ export const TimelineRow = memo(({
                     <>
                         <div className="flex-1 w-full border-b border-white/[0.02] relative group/slot">
                             <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
+                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
                                 onClick={(e) => onEventClick(events[0], e)}
                                 title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                             >
@@ -256,7 +256,7 @@ export const TimelineRow = memo(({
 
                         <div className="flex-1 w-full relative group/slot">
                             <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05] transition-colors gap-2"
+                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
                                 onClick={(e) => onEventClick(events[1], e)}
                                 title={`${getEventName(events[1])} (${events[1].damageAmount?.toLocaleString()})`}
                             >
@@ -308,7 +308,7 @@ export const TimelineRow = memo(({
             {/* U.Dmg Column (Vertical Stack) */}
             <div
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100 cursor-pointer md:cursor-default",
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold  group-hover:text-slate-900 dark:group-hover:text-slate-100 cursor-pointer md:cursor-default",
                     "border-slate-200 text-slate-500 dark:border-white/[0.02] dark:text-slate-300"
                 )}
                 // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
@@ -344,7 +344,7 @@ export const TimelineRow = memo(({
                             undefined
                 }
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold transition-colors group-hover:text-black dark:group-hover:text-white cursor-pointer md:cursor-default",
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold  group-hover:text-black dark:group-hover:text-white cursor-pointer md:cursor-default",
                     "border-slate-200 text-slate-800 dark:border-white/[0.02] dark:text-slate-200"
                 )}
                 // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
@@ -506,7 +506,7 @@ export const TimelineRow = memo(({
                                 member.id === 'ST' && time === 10 ? 'miti-cell-st-10' : undefined
                         }
                         className={clsx(
-                            "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer transition-colors border-r",
+                            "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
                             "border-slate-200 hover:bg-slate-100 dark:border-white/[0.02] dark:hover:bg-white/[0.05]"
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}

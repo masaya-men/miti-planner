@@ -90,7 +90,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
             )}
 
             <div className={clsx(
-                "w-6 h-6 rounded flex items-center justify-center font-black text-[10px] transition-colors shrink-0",
+                "w-6 h-6 rounded flex items-center justify-center font-black text-[10px]  shrink-0",
                 isActive && !multiSelect.isEnabled
                     ? "bg-app-accent/20 text-app-accent-bold"
                     : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
@@ -134,7 +134,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
-                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition-colors cursor-pointer",
+                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left  cursor-pointer",
                     "text-app-text-muted hover:text-app-text hover:bg-glass-hover",
                     "font-bold text-[10px] tracking-widest uppercase"
                 )}
@@ -279,9 +279,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                             {MOCK_RECENT_PLANS.map(plan => (
                                 <button
                                     key={plan.id}
-                                    className="w-full flex items-center gap-2 group p-1.5 rounded-lg hover:bg-glass-hover text-left transition-colors cursor-pointer"
+                                    className="w-full flex items-center gap-2 group p-1.5 rounded-lg hover:bg-glass-hover text-left  cursor-pointer"
                                 >
-                                    <div className="p-1.5 rounded bg-glass-card border border-glass-border group-hover:border-app-accent/30 transition-colors">
+                                    <div className="p-1.5 rounded bg-glass-card border border-glass-border group-hover:border-app-accent/30 ">
                                         <FileText size={12} className="text-app-text-muted group-hover:text-app-accent" />
                                     </div>
                                     <div className="min-w-0">
@@ -412,7 +412,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                             <div className="relative flex items-center gap-2">
                                 <button
                                     onClick={toggleMultiSelectMode}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text  cursor-pointer"
                                 >
                                     {t('sidebar.cancel')}
                                 </button>

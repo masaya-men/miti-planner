@@ -233,7 +233,7 @@ export const CheatSheetView: React.FC = () => {
                 onClick={handleRowClick}
                 title={contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
                 className={clsx(
-                    "flex w-full items-stretch min-h-[44px] border-b transition-colors relative group cursor-pointer",
+                    "flex w-full items-stretch min-h-[44px] border-b  relative group cursor-pointer",
                     isLethal
                         ? ("bg-red-50/50 hover:bg-red-100/50 dark:bg-red-500/10 dark:hover:bg-red-500/20")
                         : ("hover:bg-slate-50 dark:hover:bg-white/[0.02]"),
@@ -244,7 +244,7 @@ export const CheatSheetView: React.FC = () => {
                 </div>
 
                 <div className={clsx(
-                    "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none transition-colors",
+                    "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none ",
                     "bg-slate-100/80 border-slate-200 dark:bg-black/40 dark:border-white/10"
                 )}>
                     {/* 1段目: 時間 */}
@@ -367,11 +367,11 @@ export const CheatSheetView: React.FC = () => {
 
     return (
         <div className={clsx(
-            "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-2xl transition-colors",
+            "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-2xl ",
             "bg-white/90 backdrop-blur-md border-slate-200 dark:bg-slate-950/40 dark:backdrop-blur-3xl dark:border-white/10"
         )}>
             <div className={clsx(
-                "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl transition-colors [scrollbar-gutter:stable] overflow-y-hidden",
+                "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl  [scrollbar-gutter:stable] overflow-y-hidden",
                 "bg-slate-50 border-slate-200 dark:bg-slate-900/60 dark:border-white/10"
             )}>
                 <div className="flex-1 flex items-center justify-center border-r border-slate-300/20 bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
@@ -428,7 +428,7 @@ export const CheatSheetView: React.FC = () => {
                                                 setMemberSelectOpen(false);
                                                 setMitigationSelectorOpen(true);
                                             }}
-                                            className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 transition-colors shadow-sm cursor-pointer"
+                                            className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10  shadow-sm cursor-pointer"
                                         >
                                             <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
                                             <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
