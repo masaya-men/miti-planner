@@ -80,7 +80,7 @@ export const PortalPage: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const bgClass = theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50';
+    const bgClass = "bg-slate-50 dark:bg-slate-950";
 
     React.useEffect(() => {
         const { hasCompleted, isActive, startTutorial } = useTutorialStore.getState();
@@ -98,19 +98,19 @@ export const PortalPage: React.FC = () => {
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px]",
                     "w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] left-[-15%] top-[-20%]",
                     "animate-[float-blob-1_8s_ease-in-out_infinite]",
-                    theme === 'dark' ? "bg-blue-800/25" : "bg-sky-300/30"
+                    "bg-sky-300/30 dark:bg-blue-800/25"
                 )} />
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px]",
                     "w-[70vw] h-[70vw] md:w-[45vw] md:h-[45vw] right-[-15%] bottom-[-15%]",
                     "animate-[float-blob-2_10s_ease-in-out_infinite]",
-                    theme === 'dark' ? "bg-indigo-900/25" : "bg-indigo-200/30"
+                    "bg-indigo-200/30 dark:bg-indigo-900/25"
                 )} />
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px]",
                     "w-[40vw] h-[40vw] left-[30%] top-[50%]",
                     "animate-[float-blob-1_12s_ease-in-out_infinite_reverse]",
-                    theme === 'dark' ? "bg-purple-900/15" : "bg-rose-200/20"
+                    "bg-rose-200/20 dark:bg-purple-900/15"
                 )} />
             </div>
 
@@ -119,7 +119,7 @@ export const PortalPage: React.FC = () => {
                 <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     className="p-2.5 rounded-xl bg-glass-panel backdrop-blur-xl border border-glass-border text-app-text-sec hover:text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
-                    aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                    aria-label={"Switch to dark mode dark:Switch dark:to dark:light dark:mode"}
                 >
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>

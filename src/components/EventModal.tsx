@@ -23,7 +23,7 @@ interface EventModalProps {
 }
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, initialData, initialTime, position }) => {
-    const { theme, contentLanguage } = useThemeStore();
+    const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [time, setTime] = useState(0);
@@ -419,7 +419,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
                     "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-2xl ring-1 ring-inset pointer-events-auto glass-panel",
-                    theme === 'dark' ? "ring-white/5" : "ring-black/[0.02]",
+                    "ring-black/[0.02] dark:ring-white/5",
                     isMobile ? "w-full rounded-t-2xl rounded-b-none border-b-0" : "w-[500px] rounded-xl"
                 )}
                 style={style}
@@ -429,11 +429,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                 <div className={clsx(
                     "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
-                    theme === 'dark' ? "border-white/[0.05] bg-white/[0.03]" : "border-slate-100 bg-white/40"
+                    "border-slate-100 bg-white/40 dark:border-white/[0.05] dark:bg-white/[0.03]"
                 )}>
                     <h2 className={clsx(
                         "text-sm font-bold transition-colors",
-                        theme === 'dark' ? "text-slate-200" : "text-slate-700"
+                        "text-slate-700 dark:text-slate-200"
                     )}>
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
@@ -446,7 +446,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Input Mode Toggle (Segmented Control) */}
                     <div className={clsx(
                         "flex p-1 rounded-lg border mb-6 transition-colors",
-                        theme === 'dark' ? "bg-black/30 border-white/10" : "bg-slate-100 border-slate-200"
+                        "bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/10"
                     )}>
                         <button
                             type="button"
@@ -455,9 +455,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'reverse'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                    : theme === 'dark'
-                                        ? "text-slate-400 hover:text-slate-200 border border-transparent"
-                                        : "text-slate-500 hover:text-slate-900 border border-transparent"
+                                    : "text-slate-500 hover:text-slate-900 border border-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border dark:border-transparent"
                             )}
                         >
                             <Calculator size={14} className="inline-block mr-2" />
@@ -470,9 +468,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'direct'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                    : theme === 'dark'
-                                        ? "text-slate-400 hover:text-slate-200 border border-transparent"
-                                        : "text-slate-500 hover:text-slate-900 border border-transparent"
+                                    : "text-slate-500 hover:text-slate-900 border border-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border dark:border-transparent"
                             )}
                         >
                             {t('modal.mode_direct', '直接入力 (Direct)')}
@@ -491,9 +487,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
-                                    theme === 'dark'
-                                        ? "bg-white/[0.05] border-white/[0.1] text-slate-100 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:ring-blue-500/20"
-                                        : "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10"
+                                    "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                 )}
                                 required
                             />
@@ -508,9 +502,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
-                                    theme === 'dark'
-                                        ? "bg-white/[0.05] border-white/[0.1] text-slate-100 placeholder-slate-500 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:ring-blue-500/20"
-                                        : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10"
+                                    "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                 )}
                                 required
                                 placeholder={t('mechanic_modal.placeholder')}
@@ -579,7 +571,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                     <div className={clsx(
                         "w-full h-px my-6 transition-colors",
-                        theme === 'dark' ? "bg-white/[0.05]" : "bg-slate-100"
+                        "bg-slate-100 dark:bg-white/[0.05]"
                     )} />
 
                     {/* Dynamic Inputs Area */}
@@ -595,9 +587,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
                                         "w-full rounded-lg p-2.5 text-lg font-mono transition-all font-bold border focus:outline-none focus:ring-1",
-                                        theme === 'dark'
-                                            ? "bg-white/[0.05] border-white/[0.1] text-slate-100 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:ring-blue-500/20"
-                                            : "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10"
+                                        "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                     )}
                                 />
                             </div>
@@ -605,7 +595,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                 <div className={clsx(
                                     "p-5 rounded-xl border shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] transition-colors",
-                                    theme === 'dark' ? "bg-white/[0.02] border-white/10" : "bg-slate-50 border-slate-200"
+                                    "bg-slate-50 border-slate-200 dark:bg-white/[0.02] dark:border-white/10"
                                 )}>
                                     <div className="flex flex-col gap-4">
                                         <div>
@@ -619,9 +609,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     onFocus={(e) => e.target.select()}
                                                     className={clsx(
                                                         "flex-1 border rounded-lg px-4 py-2.5 text-lg font-mono outline-none transition-all",
-                                                        theme === 'dark'
-                                                            ? "bg-black/40 border-white/10 text-white focus:border-blue-500/50"
-                                                            : "bg-white border-slate-200 text-slate-900 focus:border-blue-500/50"
+                                                        "bg-white border-slate-200 text-slate-900 focus:border-blue-500/50 dark:bg-black/40 dark:border-white/10 dark:text-white dark:focus:border-blue-500/50"
                                                     )}
                                                     placeholder="0"
                                                 />
@@ -629,7 +617,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         </div>
                                         <div className={clsx(
                                             "flex items-center justify-between p-3 rounded-lg border transition-colors",
-                                            theme === 'dark' ? "bg-blue-500/10 border-blue-500/20" : "bg-blue-50 border-blue-200"
+                                            "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20"
                                         )}>
                                             <span className="text-xs font-bold text-blue-500 dark:text-blue-300 uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
                                             <span className="text-xl font-mono font-bold text-blue-700 dark:text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
@@ -646,7 +634,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         id="mitigation-grid-container"
                                         className={clsx(
                                             "grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
-                                            theme === 'dark' ? "bg-black/20 border-white/5" : "bg-slate-100 border-slate-200"
+                                            "bg-slate-100 border-slate-200 dark:bg-black/20 dark:border-white/5"
                                         )}
                                     >
                                         {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
@@ -665,9 +653,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                         "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
                                                         selectedMitigations.includes(mit.id)
                                                             ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
-                                                            : theme === 'dark'
-                                                                ? "bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20 opacity-60 hover:opacity-100"
-                                                                : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100"
+                                                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20 dark:opacity-60 dark:hover:opacity-100"
                                                     )}
                                                 >
                                                     <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
@@ -694,7 +680,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Actions */}
                     <div className={clsx(
                         "flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-6 border-t transition-colors",
-                        theme === 'dark' ? "border-white/5" : "border-slate-100"
+                        "border-slate-100 dark:border-white/5"
                     )}>
                         {onDelete && initialData ? (
                             <button

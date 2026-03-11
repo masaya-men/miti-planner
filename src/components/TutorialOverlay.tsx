@@ -214,7 +214,7 @@ const Tooltip: React.FC<TooltipProps> = ({
     title, description, stepIndex, totalSteps, onSkip, onPrev, onNext, position = 'center'
 }) => {
     const { t } = useTranslation();
-    const theme = useThemeStore((s) => s.theme);
+    
 
     const getPosition = (): React.CSSProperties => {
         if (position === 'bottom') {
@@ -235,9 +235,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             className={clsx(
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
                 "backdrop-blur-xl shadow-2xl",
-                theme === 'dark'
-                    ? "bg-black/85 border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.8)]"
-                    : "bg-white/90 border-slate-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
+                "bg-white/90 border-slate-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:bg-black/85 dark:border-white/15 dark:shadow-[0_8px_32px_rgba(0,0,0,0.8)]"
             )}
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
@@ -310,7 +308,7 @@ interface CompletionDialogProps {
 
 const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description, onComplete }) => {
     const { t } = useTranslation();
-    const theme = useThemeStore((s) => s.theme);
+    
 
     return (
         <>
@@ -331,9 +329,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                     "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                     "backdrop-blur-xl shadow-2xl",
-                    theme === 'dark'
-                        ? "bg-black/95 border-white/15 shadow-[0_16px_64px_rgba(0,0,0,0.8)]"
-                        : "bg-white/95 border-slate-200/60 shadow-[0_16px_64px_rgba(0,0,0,0.15)]"
+                    "bg-white/95 border-slate-200/60 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-black/95 dark:border-white/15 dark:shadow-[0_16px_64px_rgba(0,0,0,0.8)]"
                 )}
             >
                 {/* Celebration emoji */}
@@ -367,7 +363,7 @@ export const TutorialOverlay: React.FC = () => {
     const { isActive, currentStepIndex, skipTutorial, completeEvent } =
         useTutorialStore();
     const { t } = useTranslation();
-    const theme = useThemeStore((s) => s.theme);
+    
 
     const currentStep = TUTORIAL_STEPS[currentStepIndex];
     const targetRects = useTargetRects(isActive && currentStep ? currentStep.targetSelector : '');
@@ -525,9 +521,7 @@ export const TutorialOverlay: React.FC = () => {
                                 "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                                 "backdrop-blur-xl shadow-2xl",
-                                theme === 'dark'
-                                    ? "bg-slate-900/95 border-cyan-500/20 shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
-                                    : "bg-white/95 border-blue-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)]"
+                                "bg-white/95 border-blue-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-slate-900/95 dark:border-cyan-500/20 dark:shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
                             )}
                         >
                             <div className="text-4xl mb-4">⚠️</div>
@@ -542,9 +536,7 @@ export const TutorialOverlay: React.FC = () => {
                                     onClick={() => useTutorialStore.getState().cancelRestart()}
                                     className={clsx(
                                         "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
-                                        theme === 'dark'
-                                            ? "border-white/10 text-slate-300 hover:bg-white/10"
-                                            : "border-slate-200 text-slate-600 hover:bg-slate-100"
+                                        "border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
                                     )}
                                 >
                                     {t('tutorial.restart_cancel', 'キャンセル')}

@@ -466,7 +466,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 };
 
 export const Timeline: React.FC = () => {
-    const { theme, contentLanguage } = useThemeStore();
+    const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
 
@@ -1259,12 +1259,12 @@ export const Timeline: React.FC = () => {
 
                 <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border transition-colors",
-                    theme === 'dark' ? "border-white/5" : "border-slate-200"
+                    "border-slate-200 dark:border-white/5"
                 )}>
                     <div
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 transition-colors",
-                            theme === 'dark' ? "bg-[#111214]/90 border-white/[0.03]" : "bg-slate-50/90 border-slate-200"
+                            "bg-slate-50/90 border-slate-200 dark:bg-[#111214]/90 dark:border-white/[0.03]"
                         )}>
                         <div className="flex items-center gap-1.5 shrink-0">
                             <button
@@ -1406,9 +1406,7 @@ export const Timeline: React.FC = () => {
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className={clsx(
                                                     "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
-                                                    theme === 'dark'
-                                                        ? "bg-black/50 border-white/10 hover:border-amber-400/40 hover:bg-black/70"
-                                                        : "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50"
+                                                    "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50 dark:bg-black/50 dark:border-white/10 dark:hover:border-amber-400/40 dark:hover:bg-black/70"
                                                 )}
                                                 title={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')}
                                             >
@@ -1798,15 +1796,15 @@ export const Timeline: React.FC = () => {
                     <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                         <div className={clsx(
                             "rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col transition-all duration-200",
-                            theme === 'dark' ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"
+                            "bg-white border border-slate-200 dark:bg-slate-900 dark:border dark:border-white/10"
                         )} onClick={e => e.stopPropagation()}>
                             <div className={clsx(
                                 "p-4 border-b flex justify-between items-center transition-colors",
-                                theme === 'dark' ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50/50"
+                                "border-slate-100 bg-slate-50/50 dark:border-white/5 dark:bg-white/5"
                             )}>
                                 <h3 className={clsx(
                                     "font-bold text-sm tracking-wider transition-colors",
-                                    theme === 'dark' ? "text-white" : "text-slate-800"
+                                    "text-slate-800 dark:text-white"
                                 )}>
                                     {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
                                 </h3>
@@ -1823,12 +1821,12 @@ export const Timeline: React.FC = () => {
                                             return (
                                                 <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
                                                     "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
-                                                    theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
+                                                    "bg-slate-50 border-slate-200 active:bg-blue-100 dark:bg-white/5 dark:border-white/10 dark:active:bg-blue-500/30"
                                                 )}>
                                                     <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
                                                     <span className={clsx(
                                                         "text-[10px] font-bold transition-colors",
-                                                        theme === 'dark' ? "text-slate-300" : "text-slate-600"
+                                                        "text-slate-600 dark:text-slate-300"
                                                     )}>{m.id}</span>
                                                 </button>
                                             )
@@ -1890,7 +1888,7 @@ export const Timeline: React.FC = () => {
                                                             isAlreadyPlaced
                                                                 ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
                                                                 : status.available
-                                                                    ? theme === 'dark' ? "bg-white/5 border-white/10 active:bg-blue-500/30" : "bg-slate-50 border-slate-200 active:bg-blue-100"
+                                                                    ? "bg-slate-50 border-slate-200 active:bg-blue-100 dark:bg-white/5 dark:border-white/10 dark:active:bg-blue-500/30"
                                                                     : "bg-black/40 border-transparent opacity-40"
                                                         )}
                                                     >
@@ -1913,7 +1911,7 @@ export const Timeline: React.FC = () => {
                             {mobileMitiFlow.step === 'skill' && (
                                 <div className={clsx(
                                     "p-3 border-t transition-colors",
-                                    theme === 'dark' ? "border-white/5 bg-black/40" : "border-slate-100 bg-slate-50"
+                                    "border-slate-100 bg-slate-50 dark:border-white/5 dark:bg-black/40"
                                 )}>
                                     <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors">
                                         ← メンバー選択に戻る
@@ -1995,9 +1993,7 @@ export const Timeline: React.FC = () => {
                                 "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
                                 useMitigationStore.getState().hideEmptyRows
                                     ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-300"
-                                    : theme === 'dark'
-                                        ? "bg-white/5 border-white/10 text-slate-400"
-                                        : "bg-slate-50 border-slate-200 text-slate-500"
+                                    : "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
                             )}
                         >
                             <AlignJustify size={16} />
@@ -2008,7 +2004,7 @@ export const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._history.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
-                                theme === 'dark' ? "bg-white/5 border-white/10 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-500"
+                                "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
                             )}
                         >
                             <Undo2 size={16} />
@@ -2018,7 +2014,7 @@ export const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._future.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
-                                theme === 'dark' ? "bg-white/5 border-white/10 text-slate-400" : "bg-slate-50 border-slate-200 text-slate-500"
+                                "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
                             )}
                         >
                             <Redo2 size={16} />
@@ -2027,7 +2023,7 @@ export const Timeline: React.FC = () => {
 
                     <div className={clsx(
                         "h-px transition-colors",
-                        theme === 'dark' ? "bg-white/10" : "bg-slate-100"
+                        "bg-slate-100 dark:bg-white/10"
                     )} />
 
                     <button
