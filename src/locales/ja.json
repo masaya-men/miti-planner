@@ -122,7 +122,7 @@
         "sort_light_party": "ライトパーティ",
         "sort_role": "ロール別",
         "highlight_my_job": "自分のジョブをハイライト",
-        "compact_view": "攻撃や軽減がある行だけを表示",
+        "compact_view": "攻撃や軽減がある行だけ表示",
         "no_jobs": "ジョブが選択されていません",
         "select_jobs": "上のパネルからジョブを選択して計画を開始してください",
         "seconds": "秒",
