@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 
@@ -16,7 +17,7 @@ import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, X } from 'lucide-react';
+import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, X, Pencil } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -496,6 +497,7 @@ export const Timeline: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
     const [selectedTime, setSelectedTime] = useState<number>(0);
     const [eventModalPosition, setEventModalPosition] = useState({ x: 0, y: 0 });
+    const [eventPopover, setEventPopover] = useState<{ event: TimelineEvent; position: { x: number; y: number } } | null>(null);
 
     const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
     const [selectedPhase, setSelectedPhase] = useState<{ id: string, name: string } | null>(null);
@@ -722,9 +724,41 @@ export const Timeline: React.FC = () => {
             setIsAaModeEnabled(false);
         }
 
-        setEventModalPosition({ x: e.clientX, y: e.clientY });
+        setEventPopover({ event, position: { x: e.clientX, y: e.clientY } });
+    };
+
+    const handlePopoverEdit = () => {
+        if (!eventPopover) return;
+        const { event, position } = eventPopover;
+        setEventPopover(null);
+        setEventModalPosition(position);
         setSelectedEvent(event);
         setIsModalOpen(true);
+    };
+
+    const handlePopoverAdd = () => {
+        if (!eventPopover) return;
+        const { event, position } = eventPopover;
+        setEventPopover(null);
+        setEventModalPosition(position);
+        setSelectedTime(event.time);
+        setSelectedEvent(null);
+        setIsModalOpen(true);
+    };
+
+    const handlePopoverDelete = () => {
+        if (!eventPopover) return;
+        const event = eventPopover.event;
+        setEventPopover(null);
+        setConfirmDialog({
+            title: t('timeline.event_delete'),
+            message: t('timeline.delete_event_confirm'),
+            variant: 'danger',
+            onConfirm: () => {
+                removeEvent(event.id);
+                setConfirmDialog(null);
+            },
+        });
     };
 
     const handleSave = (eventData: Omit<TimelineEvent, 'id'>) => {
@@ -762,10 +796,16 @@ export const Timeline: React.FC = () => {
 
     const handleDelete = () => {
         if (selectedEvent) {
-            if (confirm(t('timeline.delete_event_confirm'))) {
-                removeEvent(selectedEvent.id);
-                setIsModalOpen(false);
-            }
+            setConfirmDialog({
+                title: t('timeline.event_delete'),
+                message: t('timeline.delete_event_confirm'),
+                variant: 'danger',
+                onConfirm: () => {
+                    removeEvent(selectedEvent.id);
+                    setIsModalOpen(false);
+                    setConfirmDialog(null);
+                },
+            });
         }
     };
 
@@ -2056,6 +2096,57 @@ export const Timeline: React.FC = () => {
                     </button>
                 </div>
             </MobileBottomSheet>
+            {eventPopover && createPortal(
+                <div
+                    className="fixed inset-0 z-[9998]"
+                    onClick={() => setEventPopover(null)}
+                >
+                    <div
+                        className={clsx(
+                            "absolute min-w-[200px] rounded-xl py-1.5 glass-panel",
+                            "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
+                        )}
+                        style={{
+                            left: Math.min(eventPopover.position.x, window.innerWidth - 220),
+                            top: Math.min(eventPopover.position.y, window.innerHeight - 160),
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={handlePopoverEdit}
+                            className={clsx(
+                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-white/10"
+                            )}
+                        >
+                            <Pencil size={15} className="text-blue-500 dark:text-blue-400 shrink-0" />
+                            <span>{t('timeline.event_edit')}</span>
+                        </button>
+                        <button
+                            onClick={handlePopoverAdd}
+                            className={clsx(
+                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-white/10"
+                            )}
+                        >
+                            <Plus size={15} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
+                            <span>{t('timeline.event_add_here')}</span>
+                        </button>
+                        <div className={clsx("h-px mx-3 my-1", "bg-slate-200/60 dark:bg-white/10")} />
+                        <button
+                            onClick={handlePopoverDelete}
+                            className={clsx(
+                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "text-red-500 hover:bg-red-50/80 dark:text-red-400 dark:hover:bg-red-500/10"
+                            )}
+                        >
+                            <Trash2 size={15} className="shrink-0" />
+                            <span>{t('timeline.event_delete')}</span>
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </>
     );
 };

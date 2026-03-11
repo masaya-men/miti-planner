@@ -162,7 +162,10 @@
         "header_time": "TIME",
         "header_mechanic": "MECHANIC",
         "header_raw": "RAW DAMAGE",
-        "header_taken": "DAMAGE TAKEN"
+        "header_taken": "DAMAGE TAKEN",
+        "event_edit": "Edit Event",
+        "event_add_here": "Add Event Here",
+        "event_delete": "Delete Event"
     },
     "sidebar": {
         "new_plan": "Create New",

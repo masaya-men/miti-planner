@@ -163,7 +163,10 @@
         "header_time": "時間",
         "header_mechanic": "敵の攻撃",
         "header_raw": "元のダメージ",
-        "header_taken": "軽減後ダメージ"
+        "header_taken": "軽減後ダメージ",
+        "event_edit": "イベントを編集",
+        "event_add_here": "この時間にイベントを追加",
+        "event_delete": "イベントを削除"
     },
     "sidebar": {
         "new_plan": "新規作成",
