@@ -90,7 +90,7 @@ export const PortalPage: React.FC = () => {
     }, []);
 
     return (
-        <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text transition-colors duration-300', bgClass)}>
+        <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text', bgClass)}>
 
             {/* ── Animated Background Blobs ── */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

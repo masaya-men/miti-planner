@@ -1098,7 +1098,7 @@ export const Timeline: React.FC = () => {
                             title={t('party.title')}
                         >
                             <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
-                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-colors shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
+                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white  shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
                         </button>
 
                         <button
@@ -1212,7 +1212,7 @@ export const Timeline: React.FC = () => {
                             )}
                             <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
                             <div className={clsx(
-                                "w-7 h-4 rounded-full flex items-center p-0.5 transition-colors ml-1",
+                                "w-7 h-4 rounded-full flex items-center p-0.5  ml-1",
                                 myJobHighlight ? "bg-yellow-500" : "bg-black/20 dark:bg-white/10"
                             )}>
                                 <div className={clsx(
@@ -1258,12 +1258,12 @@ export const Timeline: React.FC = () => {
                 </div >
 
                 <div className={clsx(
-                    "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border transition-colors",
+                    "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border ",
                     "border-slate-200 dark:border-white/5"
                 )}>
                     <div
                         className={clsx(
-                            "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 transition-colors",
+                            "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 ",
                             "bg-slate-50/90 border-slate-200 dark:bg-[#111214]/90 dark:border-white/[0.03]"
                         )}>
                         <div className="flex items-center gap-1.5 shrink-0">
@@ -1335,7 +1335,7 @@ export const Timeline: React.FC = () => {
                                                         },
                                                     });
                                                 }}
-                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10  flex items-center gap-2"
                                             >
                                                 <Trash2 size={12} />
                                                 {t('timeline.all_mitigations')}
@@ -1363,7 +1363,7 @@ export const Timeline: React.FC = () => {
                                                                 },
                                                             });
                                                         }}
-                                                        className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center gap-2"
+                                                        className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10  flex items-center gap-2"
                                                     >
                                                         <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-4 h-4 rounded" />
                                                         <span className="font-medium">{m.id}</span>
@@ -1485,7 +1485,7 @@ export const Timeline: React.FC = () => {
                                         {member.jobId ? (
                                             <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
                                         ) : (
-                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ transition-colors">
+                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ ">
                                                 <Plus size={10} className="text-app-text-muted" />
                                             </div>
                                         )}
@@ -1497,7 +1497,7 @@ export const Timeline: React.FC = () => {
 
                     <div
                         ref={scrollContainerRef}
-                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-[var(--color-bg-primary)] transition-colors duration-200"
+                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-[var(--color-bg-primary)]  duration-200"
                         onScroll={handleScrollSync}
                     >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
@@ -1610,7 +1610,7 @@ export const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-slate-900/40 dark:bg-white/5 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10 transition-colors pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-slate-900/40 dark:bg-white/5 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10  pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                     title={t('timeline.click_rename', 'クリックして名前を変更')}
@@ -1761,7 +1761,7 @@ export const Timeline: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setClipboardEvent(null)}
-                        className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full transition-colors cursor-pointer"
+                        className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full  cursor-pointer"
                         title={t('timeline.cancel_copy')}
                     >
                         <X size={16} />
@@ -1799,16 +1799,16 @@ export const Timeline: React.FC = () => {
                             "bg-white border border-slate-200 dark:bg-slate-900 dark:border dark:border-white/10"
                         )} onClick={e => e.stopPropagation()}>
                             <div className={clsx(
-                                "p-4 border-b flex justify-between items-center transition-colors",
+                                "p-4 border-b flex justify-between items-center ",
                                 "border-slate-100 bg-slate-50/50 dark:border-white/5 dark:bg-white/5"
                             )}>
                                 <h3 className={clsx(
-                                    "font-bold text-sm tracking-wider transition-colors",
+                                    "font-bold text-sm tracking-wider ",
                                     "text-slate-800 dark:text-white"
                                 )}>
                                     {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
                                 </h3>
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg ">
                                     <X size={16} />
                                 </button>
                             </div>
@@ -1825,7 +1825,7 @@ export const Timeline: React.FC = () => {
                                                 )}>
                                                     <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
                                                     <span className={clsx(
-                                                        "text-[10px] font-bold transition-colors",
+                                                        "text-[10px] font-bold ",
                                                         "text-slate-600 dark:text-slate-300"
                                                     )}>{m.id}</span>
                                                 </button>
@@ -1910,10 +1910,10 @@ export const Timeline: React.FC = () => {
                             </div>
                             {mobileMitiFlow.step === 'skill' && (
                                 <div className={clsx(
-                                    "p-3 border-t transition-colors",
+                                    "p-3 border-t ",
                                     "border-slate-100 bg-slate-50 dark:border-white/5 dark:bg-black/40"
                                 )}>
-                                    <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 transition-colors">
+                                    <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 ">
                                         ← メンバー選択に戻る
                                     </button>
                                 </div>
@@ -1990,7 +1990,7 @@ export const Timeline: React.FC = () => {
                                 store.setHideEmptyRows(!store.hideEmptyRows);
                             }}
                             className={clsx(
-                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
+                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 useMitigationStore.getState().hideEmptyRows
                                     ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-300"
                                     : "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
@@ -2003,7 +2003,7 @@ export const Timeline: React.FC = () => {
                             onClick={() => useMitigationStore.getState().undo()}
                             disabled={useMitigationStore.getState()._history.length === 0}
                             className={clsx(
-                                "px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
+                                "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
                             )}
                         >
@@ -2013,7 +2013,7 @@ export const Timeline: React.FC = () => {
                             onClick={() => useMitigationStore.getState().redo()}
                             disabled={useMitigationStore.getState()._future.length === 0}
                             className={clsx(
-                                "px-3 py-2.5 rounded-xl border transition-colors cursor-pointer",
+                                "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
                             )}
                         >
@@ -2022,7 +2022,7 @@ export const Timeline: React.FC = () => {
                     </div>
 
                     <div className={clsx(
-                        "h-px transition-colors",
+                        "h-px ",
                         "bg-slate-100 dark:bg-white/10"
                     )} />
 
@@ -2031,7 +2031,7 @@ export const Timeline: React.FC = () => {
                             setMobileToolsSheetOpen(false);
                             setImportModalOpen(true);
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 transition-colors cursor-pointer"
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 hover:bg-blue-500/20 dark:hover:bg-blue-500/30  cursor-pointer"
                     >
                         <CloudDownload size={20} />
                         <div className="text-left">
@@ -2044,7 +2044,7 @@ export const Timeline: React.FC = () => {
                             setMobileToolsSheetOpen(false);
                             handleAutoPlan();
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30 transition-colors cursor-pointer"
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30  cursor-pointer"
                     >
                         <Sparkles size={20} />
                         <div className="text-left">
