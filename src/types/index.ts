@@ -27,6 +27,7 @@ export interface Mitigation {
     scope?: 'self' | 'party'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
     healingIncrease?: number; // Healing potency increase (e.g. 10 for 10%)
+    healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)
     requires?: string; // Prerequisite mitigation ID that must be active
     resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)

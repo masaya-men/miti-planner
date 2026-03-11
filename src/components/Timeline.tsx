@@ -971,6 +971,8 @@ export const Timeline: React.FC = () => {
                         const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
                         if (bDef && bDef.healingIncrease) {
                             if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
+                            // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
+                            if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;
                             healingMultiplier += (bDef.healingIncrease / 100);
                         }
                     });
