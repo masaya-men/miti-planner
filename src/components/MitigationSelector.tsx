@@ -26,7 +26,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     isOpen, onClose, onSelect, onRemove, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
     isCentered = false // 👈 デフォルトはfalse（今まで通り）
 }) => {
-    const { theme, contentLanguage } = useThemeStore();
+    const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
 
     const panelRef = React.useRef<HTMLDivElement>(null);
@@ -212,12 +212,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         className={clsx(
                                             "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border",
                                             isAlreadyPlaced
-                                                ? (theme === 'dark' ? "bg-red-500/10 border-red-500/40 hover:bg-red-500/20" : "bg-red-50 border-red-200 hover:bg-red-100")
+                                                ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
                                                 : !status.available
-                                                    ? (theme === 'dark' ? 'border-red-500/20 bg-red-500/[0.06] cursor-not-allowed opacity-70' : 'border-red-100 bg-red-50/50 cursor-not-allowed opacity-50')
+                                                    ? ("border-red-100 bg-red-50/50 cursor-not-allowed opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:cursor-not-allowed dark:opacity-70")
                                                     : status.warning
-                                                        ? (theme === 'dark' ? 'hover:bg-amber-500/[0.06] border-amber-500/30' : 'hover:bg-amber-50 border-amber-200')
-                                                        : (theme === 'dark' ? 'hover:bg-white/[0.08] border-transparent hover:border-white/[0.03]' : 'hover:bg-slate-50 border-transparent hover:border-slate-200'),
+                                                        ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
+                                                        : ("hover:bg-slate-50 border-transparent hover:border-slate-200 dark:hover:bg-white/[0.08] dark:border-transparent dark:hover:border-white/[0.03]"),
                                             isClickable ? "cursor-pointer" : "cursor-not-allowed"
                                         )}
                                     >
@@ -228,10 +228,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 className={clsx(
                                                     "w-8 h-8 object-contain rounded border",
                                                     !status.available
-                                                        ? (theme === 'dark' ? 'bg-red-900/30 border-red-500/30' : 'bg-red-50 border-red-200')
+                                                        ? ("bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-500/30")
                                                         : status.warning
-                                                            ? (theme === 'dark' ? 'bg-amber-900/20 border-amber-500/30' : 'bg-amber-50 border-amber-200')
-                                                            : (theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-slate-100 border-slate-200')
+                                                            ? ("bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-500/30")
+                                                            : ("bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5")
                                                 )}
                                             />
                                             {status.badge && (
@@ -301,9 +301,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     className={clsx(
                                         "flex items-center gap-4 p-3 rounded-lg border transition-colors",
                                         isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
-                                        theme === 'dark'
-                                            ? "bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.05]"
-                                            : "bg-slate-50 hover:bg-slate-100 border-slate-200"
+                                        "bg-slate-50 hover:bg-slate-100 border-slate-200 dark:bg-white/[0.03] dark:hover:bg-white/[0.08] dark:border-white/[0.05]"
                                     )}
                                 >
                                     {job ? (

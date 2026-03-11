@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime: number };
 
 export const CheatSheetView: React.FC = () => {
-    const { theme, contentLanguage } = useThemeStore();
+    const { contentLanguage } = useThemeStore();
     const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
     const { t } = useTranslation();
 
@@ -235,9 +235,9 @@ export const CheatSheetView: React.FC = () => {
                 className={clsx(
                     "flex w-full items-stretch min-h-[44px] border-b transition-colors relative group cursor-pointer",
                     isLethal
-                        ? (theme === 'dark' ? "bg-red-500/10 hover:bg-red-500/20" : "bg-red-50/50 hover:bg-red-100/50")
-                        : (theme === 'dark' ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"),
-                    theme === 'dark' ? "border-white/5" : "border-slate-200"
+                        ? ("bg-red-50/50 hover:bg-red-100/50 dark:bg-red-500/10 dark:hover:bg-red-500/20")
+                        : ("hover:bg-slate-50 dark:hover:bg-white/[0.02]"),
+                    "border-slate-200 dark:border-white/5"
                 )}>
                 <div className="flex-1 p-1.5 flex items-center justify-end border-r border-white/5 pr-3">
                     {renderMitigationGroup(mtGroupMitigations, true)}
@@ -245,9 +245,7 @@ export const CheatSheetView: React.FC = () => {
 
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none transition-colors",
-                    theme === 'dark'
-                        ? "bg-black/40 border-white/10"
-                        : "bg-slate-100/80 border-slate-200"
+                    "bg-slate-100/80 border-slate-200 dark:bg-black/40 dark:border-white/10"
                 )}>
                     {/* 1段目: 時間 */}
                     <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
@@ -370,20 +368,18 @@ export const CheatSheetView: React.FC = () => {
     return (
         <div className={clsx(
             "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-2xl transition-colors",
-            theme === 'dark'
-                ? "bg-slate-950/40 backdrop-blur-3xl border-white/10"
-                : "bg-white/90 backdrop-blur-md border-slate-200"
+            "bg-white/90 backdrop-blur-md border-slate-200 dark:bg-slate-950/40 dark:backdrop-blur-3xl dark:border-white/10"
         )}>
             <div className={clsx(
                 "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl transition-colors [scrollbar-gutter:stable] overflow-y-hidden",
-                theme === 'dark' ? "bg-slate-900/60 border-white/10" : "bg-slate-50 border-slate-200"
+                "bg-slate-50 border-slate-200 dark:bg-slate-900/60 dark:border-white/10"
             )}>
                 <div className="flex-1 flex items-center justify-center border-r border-slate-300/20 bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
                     <span className="text-[10px] font-black text-blue-700 dark:text-cyan-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">MT Group</span>
                 </div>
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
-                    theme === 'dark' ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-100/50"
+                    "border-slate-200 bg-slate-100/50 dark:border-white/10 dark:bg-white/5"
                 )}>
                     <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>

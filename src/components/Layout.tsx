@@ -40,7 +40,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, [isTutorialActive]);
 
     // ベースの背景色（テーマ変数を参照するように変更）
-    const bgClass = theme === 'dark' ? 'bg-app-bg' : 'bg-slate-50';
+    const bgClass = "bg-slate-50 dark:bg-app-bg";
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 transition-colors duration-300 ${bgClass} relative`}>
@@ -77,19 +77,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-1",
                     "w-[80vw] h-[80vw] md:w-[60vw] md:h-[60vw] left-[-10%] top-[-10%]",
-                    theme === 'dark' ? "bg-slate-700/20" : "bg-slate-300/40"
+                    "bg-slate-300/40 dark:bg-slate-700/20"
                 )} />
                 {/* 2. 大きなシルバーのBlob */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-2",
                     "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
-                    theme === 'dark' ? "bg-zinc-600/15" : "bg-indigo-100/40"
+                    "bg-indigo-100/40 dark:bg-zinc-600/15"
                 )} />
                 {/* 3. 【新規追加】ほんの一部だけ明るめ・激しく動くルミナスなコア */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[80px] animate-blob-3",
                     "w-[40vw] h-[40vw] md:w-[30vw] md:h-[30vw] left-[30%] top-[30%]",
-                    theme === 'dark' ? "bg-slate-400/25" : "bg-white/50"
+                    "bg-white/50 dark:bg-slate-400/25"
                 )} />
             </div>
 
@@ -117,9 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <header className={clsx(
                     "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative transition-colors duration-300 shadow-sm",
                     "hidden md:flex",
-                    theme === 'dark'
-                        ? "bg-glass-header border-white/5 backdrop-blur-xl"
-                        : "bg-white/40 border-slate-200/50 backdrop-blur-xl"
+                    "bg-white/40 border-slate-200/50 backdrop-blur-xl dark:bg-glass-header dark:border-white/5 dark:backdrop-blur-xl"
                 )}>
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
@@ -193,9 +191,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
                     "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative transition-colors duration-300",
-                    theme === 'dark'
-                        ? "bg-slate-900/60 border-slate-700/50 backdrop-blur-xl"
-                        : "bg-white/60 border-slate-200/50 backdrop-blur-xl"
+                    "bg-white/60 border-slate-200/50 backdrop-blur-xl dark:bg-slate-900/60 dark:border-slate-700/50 dark:backdrop-blur-xl"
                 )}>
                     <img
                         src="/icons/logo.png"
@@ -230,7 +226,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <footer className={clsx(
                     "h-6 shrink-0 backdrop-blur-md border-t hidden md:flex items-center justify-center z-50 pointer-events-none transition-colors duration-300",
                     "border-white/20 dark:border-white/10",
-                    theme === 'dark' ? "bg-slate-900/40" : "bg-white/40"
+                    "bg-white/40 dark:bg-slate-900/40"
                 )}>
                     <p className="text-[8px] text-slate-500 dark:text-slate-600 tracking-wide">
                         (C) SQUARE ENIX CO., LTD. All Rights Reserved. · 当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
