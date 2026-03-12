@@ -396,13 +396,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                             {MOCK_RECENT_PLANS.map(plan => (
                                 <button
                                     key={plan.id}
-                                    className="w-full flex items-center gap-2 group p-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
+                                    className="w-full flex items-center gap-2 group py-1 px-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
                                 >
                                     <div className="min-w-0">
-                                        <p className="text-[11px] font-black text-app-text truncate">
+                                        <p className="text-[9.5px] font-black text-app-text truncate leading-tight">
                                             {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
                                         </p>
-                                        <p className="text-[9px] text-app-text-secondary font-medium truncate">
+                                        <p className="text-[8px] text-app-text-secondary font-medium truncate leading-tight mt-0.5">
                                             {plan.planName}
                                         </p>
                                     </div>
