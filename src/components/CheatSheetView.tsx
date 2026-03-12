@@ -247,7 +247,7 @@ export const CheatSheetView: React.FC = () => {
 
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none ",
-                    "bg-slate-100/80 border-slate-200 dark:bg-black/40 dark:border-white/10"
+                    "bg-slate-100/90 border-slate-300 dark:bg-black/60 dark:border-white/20"
                 )}>
                     {/* 1段目: 時間 */}
                     <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
@@ -261,8 +261,8 @@ export const CheatSheetView: React.FC = () => {
                         {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt="Dark" />}
                         <span
                             className={clsx(
-                                "text-[10px] leading-tight truncate font-bold drop-shadow-md cursor-help",
-                                isLethal ? "text-red-600 dark:text-red-400 font-black" : hasDamage ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"
+                                "text-[10px] leading-tight truncate font-black drop-shadow-md cursor-help",
+                                isLethal ? "text-red-600 dark:text-red-400" : hasDamage ? "text-green-600 dark:text-green-400" : "text-app-text"
                             )}
                         >
                             {contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
@@ -292,7 +292,7 @@ export const CheatSheetView: React.FC = () => {
 
                         {/* 軽減率・バリア量（超省略表記） */}
                         {dmgInfo && !dmgInfo.isInvincible && (dmgInfo.mitigationPercent > 0 || dmgInfo.shieldTotal > 0) && (
-                            <span className="text-[8px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
+                            <span className="text-[8px] text-app-text-secondary font-black whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
                                 {[
                                     dmgInfo.mitigationPercent > 0 ? `▼-${dmgInfo.mitigationPercent}%` : null,
                                     dmgInfo.shieldTotal > 0 ? `🛡️${Math.floor(dmgInfo.shieldTotal / 1000)}k` : null
@@ -383,7 +383,7 @@ export const CheatSheetView: React.FC = () => {
                     "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
                     "border-slate-200 bg-slate-100/50 dark:border-white/10 dark:bg-white/5"
                 )}>
-                    <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
+                    <span className="text-[9px] font-black text-app-text-secondary uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center border-l border-slate-300/20 bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent">
                     <span className="text-[10px] font-black text-orange-700 dark:text-amber-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">ST Group</span>
@@ -433,7 +433,7 @@ export const CheatSheetView: React.FC = () => {
                                             className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10  shadow-sm cursor-pointer"
                                         >
                                             <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
-                                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 mt-1">{m.id}</span>
+                                            <span className="text-[9px] font-black text-app-text-secondary mt-1">{m.id}</span>
                                         </button>
                                     );
                                 })}

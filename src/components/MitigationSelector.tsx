@@ -158,20 +158,23 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 )}
                 style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
             >
-                {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-900/10 dark:bg-white/10 rounded-full mx-auto mb-3 shrink-0" />}
+                {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0">
-                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                    <span className="text-xs font-black text-app-text-secondary uppercase tracking-wider">
                         {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
                     </span>
-                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
+                    <button onClick={handleClose} className="text-app-text-muted hover:text-app-text transition-colors cursor-pointer">
                         <X size={14} />
                     </button>
                 </div>
 
                 {!selectedSingleTargetMit ? (
                     <div className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
+                        <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
+                            <div className="w-10 h-1 rounded-full bg-app-text-muted" />
+                        </div>
                         {availableMitigations.length === 0 ? (
-                            <div className="text-xs text-slate-400 p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                            <div className="text-xs text-app-text-secondary p-4 text-center">{t('mitigation.no_mitigations')}</div>
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
@@ -246,24 +249,24 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             )}
                                         </div>
                                         <div>
-                                            <div className={`text-xs font-bold transition-colors ${!status.available
+                                            <div className={`text-xs font-black transition-colors ${!status.available
                                                 ? 'text-red-600 dark:text-red-400'
                                                 : status.warning
                                                     ? 'text-amber-600 dark:text-amber-300'
-                                                    : 'text-slate-800 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white'
+                                                    : 'text-app-text'
                                                 }`}>
                                                 {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
                                                 {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">{t('mitigation.remove')}</span>}
                                                 {SINGLE_TARGET_BUFFS.includes(mitigation.id) && !isAlreadyPlaced && (
-                                                    <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-slate-600 dark:text-white/70">▶</span>
+                                                    <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-app-text-secondary">▶</span>
                                                 )}
                                             </div>
                                             {!status.available ? (
-                                                <div className="text-[10px] text-red-600 dark:text-red-400/80 font-medium">
+                                                <div className="text-[10px] text-red-600 dark:text-red-400 font-bold">
                                                     {status.message}
                                                 </div>
                                             ) : status.warning && (
-                                                <div className="text-[10px] text-amber-700 dark:text-amber-400/80 font-medium">
+                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
                                                     ⚠ {status.message}
                                                 </div>
                                             )}
@@ -301,7 +304,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     className={clsx(
                                         "flex items-center gap-4 p-3 rounded-lg border transition-colors",
                                         isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
-                                        "bg-slate-50 hover:bg-slate-100 border-slate-200 dark:bg-white/[0.03] dark:hover:bg-white/[0.08] dark:border-white/[0.05]"
+                                        "bg-glass-card hover:bg-glass-hover border-glass-border"
                                     )}
                                 >
                                     {job ? (

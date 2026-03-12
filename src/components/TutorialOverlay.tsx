@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
-import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
 
@@ -284,7 +283,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                     {onNext && (
                         <button
                             onClick={onNext}
-                            className="text-xs font-bold text-white bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
+                            className="text-xs font-black text-app-text-on-accent bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
                         >
                             {t('tutorial.next', '次へ')} &rarr;
                         </button>
@@ -341,8 +340,8 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 <button
                     onClick={onComplete}
                     className={clsx(
-                        "px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
-                        "bg-app-accent text-white hover:brightness-110 active:scale-95",
+                        "px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-200 cursor-pointer",
+                        "bg-app-accent text-app-text-on-accent hover:brightness-110 active:scale-95",
                         "shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
                     )}
                 >
@@ -544,8 +543,8 @@ export const TutorialOverlay: React.FC = () => {
                                 <button
                                     onClick={() => useTutorialStore.getState().confirmRestart()}
                                     className={clsx(
-                                        "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer",
-                                        "bg-app-accent text-white hover:brightness-110 active:scale-95",
+                                        "px-5 py-2 rounded-xl text-sm font-black transition-all cursor-pointer",
+                                        "bg-app-accent text-app-text-on-accent hover:brightness-110 active:scale-95",
                                         "shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
                                     )}
                                 >

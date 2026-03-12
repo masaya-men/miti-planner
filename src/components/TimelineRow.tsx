@@ -89,8 +89,8 @@ export const TimelineRow = memo(({
 
             {/* Time Column */}
             <div className={clsx(
-                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-slate-900 dark:group-hover:text-slate-100 group-hover:font-bold",
-                "border-slate-200 text-slate-600 dark:border-white/[0.02] dark:text-slate-400"
+                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-app-text group-hover:font-black",
+                "border-slate-200 text-app-text-secondary dark:border-white/[0.02]"
             )}>
                 {formattedTime}
             </div >
@@ -133,14 +133,14 @@ export const TimelineRow = memo(({
                                 {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                 {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
-                                <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setClipboardEvent(events[0]);
                                     }}
-                                    className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                    className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
                                     title="このイベントをコピーしてスタンプする"
                                 >
                                     <Copy size={14} />
@@ -216,14 +216,14 @@ export const TimelineRow = memo(({
                                     {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[11px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                                    <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setClipboardEvent(events[0]);
                                         }}
-                                        className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
                                         title={t('timeline.copy_event_hint')}
                                     >
                                         <Copy size={14} />
@@ -264,14 +264,14 @@ export const TimelineRow = memo(({
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
                                     {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-none pt-0.5">{getEventName(events[1])}</span>
+                                    <span className="text-[10px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[1])}</span>
 
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setClipboardEvent(events[1]);
                                         }}
-                                        className="ml-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
                                         title={t('timeline.copy_event_hint')}
                                     >
                                         <Copy size={14} />
@@ -308,8 +308,8 @@ export const TimelineRow = memo(({
             {/* U.Dmg Column (Vertical Stack) */}
             <div
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold  group-hover:text-slate-900 dark:group-hover:text-slate-100 cursor-pointer md:cursor-default",
-                    "border-slate-200 text-slate-500 dark:border-white/[0.02] dark:text-slate-300"
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "border-slate-200 text-app-text-secondary dark:border-white/[0.02]"
                 )}
                 // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
                 onClick={(e) => {
@@ -344,8 +344,8 @@ export const TimelineRow = memo(({
                             undefined
                 }
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-bold  group-hover:text-black dark:group-hover:text-white cursor-pointer md:cursor-default",
-                    "border-slate-200 text-slate-800 dark:border-white/[0.02] dark:text-slate-200"
+                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "border-slate-200 text-app-text-primary dark:border-white/[0.02]"
                 )}
                 // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
                 onClick={(e) => {
@@ -386,11 +386,11 @@ export const TimelineRow = memo(({
                                     {damages[0].mitigated.toLocaleString()}
                                 </span>
                                 {damages[0].isInvincible ? (
-                                    <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                    <span className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
                                         Invuln
                                     </span>
                                 ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) && (
-                                    <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline">
+                                    <span className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:inline">
                                         {[
                                             damages[0].mitigationPercent > 0 ? `▼ ${damages[0].mitigationPercent}%` : null,
                                             damages[0].shieldTotal > 0 ? `🛡️ ${damages[0].shieldTotal.toLocaleString()}` : null

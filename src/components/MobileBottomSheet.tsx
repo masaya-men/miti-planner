@@ -105,18 +105,18 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
             >
                 {/* Drag handle — visual cue for swipe */}
                 <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
-                    <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                    <div className="w-10 h-1 rounded-full bg-slate-400 dark:bg-slate-500" />
                 </div>
 
                 {/* Title bar */}
                 {title && (
                     <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-200/50 dark:border-white/5">
-                        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">{title}</h3>
+                        <h3 className="text-sm font-black text-app-text tracking-wide">{title}</h3>
                         <button
                             onClick={onClose}
                             className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
                         >
-                            <X size={16} className="text-slate-400" />
+                            <X size={16} className="text-app-text-secondary" />
                         </button>
                     </div>
                 )}
