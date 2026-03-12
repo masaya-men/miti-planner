@@ -8,6 +8,7 @@ import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
+import { ClearMitigationsPopover } from './ClearMitigationsPopover';
 import { PhaseModal } from './PhaseModal';
 
 import { MitigationSelector } from './MitigationSelector';
@@ -1070,6 +1071,7 @@ const Timeline: React.FC = () => {
 
     const [partySortOrder, setPartySortOrder] = useState<'light_party' | 'role'>('light_party');
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
+    const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -1388,6 +1390,7 @@ const Timeline: React.FC = () => {
                                 <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
                                 <div className="relative">
                                     <button
+                                        ref={clearMenuButtonRef}
                                         onClick={() => setClearMenuOpen(!clearMenuOpen)}
                                         className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
                                         title="Clear Mitigations"
@@ -1396,57 +1399,15 @@ const Timeline: React.FC = () => {
                                         <ChevronDown size={7} />
                                     </button>
                                     {clearMenuOpen && (
-                                        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/50 dark:border-white/10 rounded-xl shadow-2xl z-[200] py-1">
-                                            <button
-                                                onClick={() => {
-                                                    setClearMenuOpen(false);
-                                                    setConfirmDialog({
-                                                        title: t('timeline.clear_all'),
-                                                        message: t('timeline.clear_all_confirm'),
-                                                        variant: 'danger',
-                                                        onConfirm: () => {
-                                                            useMitigationStore.getState().clearAllMitigations();
-                                                            setConfirmDialog(null);
-                                                        },
-                                                    });
-                                                }}
-                                                className="w-full text-left px-3 py-2 text-[11px] font-bold text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10  flex items-center gap-2"
-                                            >
-                                                <Trash2 size={12} />
-                                                {t('timeline.all_mitigations')}
-                                            </button>
-                                            <div className="h-[1px] bg-slate-200/50 dark:bg-white/5 my-1" />
-                                            <div className="px-3 py-1 text-[9px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">
-                                                {t('timeline.member_mitigations')}
-                                            </div>
-                                            {partyMembers.map(m => {
-                                                const job = JOBS.find(j => j.id === m.jobId);
-                                                const count = timelineMitigations.filter(mit => mit.ownerId === m.id).length;
-                                                if (!job || count === 0) return null;
-                                                return (
-                                                    <button
-                                                        key={m.id}
-                                                        onClick={() => {
-                                                            setClearMenuOpen(false);
-                                                            setConfirmDialog({
-                                                                title: t('timeline.clear_member', { member: m.id }).replace('{{member}}', m.id),
-                                                                message: t('timeline.clear_member_confirm', { member: m.id, job: contentLanguage === 'en' ? job.name.en : job.name.ja }).replace('{{member}}', m.id).replace('{{job}}', contentLanguage === 'en' ? job.name.en : job.name.ja),
-                                                                variant: 'danger',
-                                                                onConfirm: () => {
-                                                                    useMitigationStore.getState().clearMitigationsByMember(m.id);
-                                                                    setConfirmDialog(null);
-                                                                },
-                                                            });
-                                                        }}
-                                                        className="w-full text-left px-3 py-1.5 text-[11px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10  flex items-center gap-2"
-                                                    >
-                                                        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-4 h-4 rounded" />
-                                                        <span className="font-medium">{m.id}</span>
-                                                        <span className="text-slate-400 dark:text-slate-500">({contentLanguage === 'en' ? job.name.en : job.name.ja})</span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                        <ClearMitigationsPopover
+                                            isOpen={clearMenuOpen}
+                                            onClose={() => setClearMenuOpen(false)}
+                                            triggerRef={clearMenuButtonRef}
+                                            partyMembers={partyMembers}
+                                            timelineMitigations={timelineMitigations}
+                                            contentLanguage={contentLanguage}
+                                            setConfirmDialog={setConfirmDialog}
+                                        />
                                     )}
                                 </div>
                             </div>
