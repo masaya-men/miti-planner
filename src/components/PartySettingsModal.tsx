@@ -409,49 +409,27 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             : "bg-white/5 dark:bg-white/[0.02] border-white/10 dark:border-white/10 hover:bg-white/10 dark:hover:bg-white/5 border-dashed"
                 )}
             >
-                {/* 高透明・高彩色クリアガラス背景レイヤー */}
+                {/* 最高透明度ガラス背景（軽減自動組み立てボタン基準） */}
                 <div className={clsx(
-                    "absolute inset-0 transition-all duration-300 rounded-xl overflow-hidden backdrop-blur-sm border",
+                    "absolute inset-0 transition-all duration-300 rounded-full overflow-hidden backdrop-blur-[2px] border",
                     focusedSlot === index 
-                        ? "ring-2 ring-blue-500 shadow-[0_0_20px_rgba(56,189,248,0.4)] z-30 border-blue-400" 
+                        ? "ring-2 ring-blue-500 shadow-[0_0_20px_rgba(56,189,248,0.3)] z-30 border-blue-400/50" 
                         : theme === 'dark' 
-                            ? "bg-black/10 border-white/20" 
-                            : "bg-white/10 border-slate-400/30 shadow-sm"
+                            ? "bg-white/[0.03] border-white/20" 
+                            : "bg-black/[0.03] border-slate-400/30 shadow-sm"
                 )}>
-                    {/* ロールカラーの鮮やかな光彩（全体への薄い彩色とエッジの強調） */}
-                    {job && (
-                        <>
-                            {/* 全体への薄い彩色ベース */}
-                            <div className={clsx(
-                                "absolute inset-0 opacity-20 transition-opacity duration-700",
-                                activeColor === 'blue' ? "bg-blue-500" :
-                                activeColor === 'green' ? "bg-emerald-500" :
-                                "bg-rose-500"
-                            )} />
-                            
-                            {/* 上下の強い光彩アクセント */}
-                            <div className={clsx(
-                                "absolute inset-x-0 top-0 h-2/3 opacity-40 transition-opacity duration-1000",
-                                activeColor === 'blue' ? "bg-gradient-to-b from-blue-400 to-transparent" :
-                                activeColor === 'green' ? "bg-gradient-to-b from-emerald-400 to-transparent" :
-                                "bg-gradient-to-b from-rose-400 to-transparent"
-                            )} />
-                            
-                            {/* 内側の鮮やかなグロウ（ロールカラーを際立たせる） */}
-                            <div className={clsx(
-                                "absolute inset-0 opacity-50 mix-blend-screen transition-opacity duration-700",
-                                activeColor === 'blue' ? "shadow-[inset_0_0_15px_rgba(59,130,246,0.5)]" :
-                                activeColor === 'green' ? "shadow-[inset_0_0_15px_rgba(16,185,129,0.5)]" :
-                                "shadow-[inset_0_0_15px_rgba(244,63,94,0.5)]"
-                            )} />
-                        </>
-                    )}
+                    {/* ガラス表面の反射（極めて薄く） */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
 
-                    {/* ガラスの厚みを感じさせるハイライト（上端のみ鋭く） */}
-                    <div className={clsx(
-                        "absolute inset-x-0 top-0 h-[1px]",
-                        theme === 'dark' ? "bg-white/40" : "bg-white/80"
-                    )} />
+                    {/* ロールカラーのエッジ光彩（透明感を損なわない極細ライン） */}
+                    {job && (
+                        <div className={clsx(
+                            "absolute inset-0 opacity-60 transition-opacity duration-700",
+                            activeColor === 'blue' ? "shadow-[inset_0_0_10px_rgba(59,130,246,0.4)] border-blue-500/40" :
+                            activeColor === 'green' ? "shadow-[inset_0_0_10px_rgba(16,185,129,0.4)] border-emerald-500/40" :
+                            "shadow-[inset_0_0_10px_rgba(244,63,94,0.4)] border-rose-500/40"
+                        )} />
+                    )}
                 </div>
 
                 <Ripple />

@@ -15,9 +15,9 @@ export const LanguageSwitcher: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center bg-black/40 rounded-full pl-2 pr-1 py-1 border border-white/10 relative h-[32px] select-none shadow-inner group transition-colors hover:border-white/20">
+        <div className="flex items-center bg-slate-200/50 dark:bg-black/40 rounded-full pl-2 pr-1 py-1 border border-slate-300 dark:border-white/10 relative h-[32px] select-none shadow-inner group transition-colors hover:border-slate-400 dark:hover:border-white/20">
             {/* Globe Icon - Left */}
-            <div className="pr-2 border-r border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-400 group-hover:text-blue-300 transition-colors mr-1">
+            <div className="pr-2 border-r border-slate-300 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors mr-1">
                 <Globe size={14} />
             </div>
 
@@ -34,14 +34,14 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Labels */}
                 <button
                     onClick={() => handleLanguageChange('ja')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60 dark:hover:text-white'
                         }`}
                 >
                     JP
                 </button>
                 <button
                     onClick={() => handleLanguageChange('en')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60 dark:hover:text-white'
                         }`}
                 >
                     EN
