@@ -34,14 +34,14 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Labels */}
                 <button
                     onClick={() => handleLanguageChange('ja')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-text-on-accent shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60'
                         }`}
                 >
                     JP
                 </button>
                 <button
                     onClick={() => handleLanguageChange('en')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-text-on-accent shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-white/60'
                         }`}
                 >
                     EN
