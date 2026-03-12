@@ -10,6 +10,7 @@ export interface AutoPlannerResult {
 export function generateAutoPlan(
     timeline: TimelineEvent[],
     party: PartyMember[],
+    level: number, // Added level for skill selection
     settings?: { tankHp: number; dpsHp: number }
 ): AutoPlannerResult {
     const assignments: AppliedMitigation[] = [];
@@ -28,6 +29,10 @@ export function generateAutoPlan(
     const memberMitigations = new Map<string, Mitigation[]>();
     for (const member of party) {
         const mitis = MITIGATIONS.filter(m => {
+            // Level filtering
+            if (m.minLevel !== undefined && level < m.minLevel) return false;
+            if (m.maxLevel !== undefined && level > m.maxLevel) return false;
+
             if (m.jobId === member.jobId) return true;
             if (m.jobId === member.role) return true;
             if (m.jobId === 'role_action') return true;

@@ -610,8 +610,8 @@ const Timeline: React.FC = () => {
 
     const handleAutoPlan = () => {
         const executePlan = () => {
-            const { timelineEvents, partyMembers } = useMitigationStore.getState();
-            const result = generateAutoPlan(timelineEvents, partyMembers);
+            const { timelineEvents, partyMembers, currentLevel } = useMitigationStore.getState();
+            const result = generateAutoPlan(timelineEvents, partyMembers, currentLevel);
             useMitigationStore.getState().applyAutoPlan(result);
         };
 

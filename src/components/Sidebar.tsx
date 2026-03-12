@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useMitigationStore } from '../store/useMitigationStore';
 import {
     CATEGORY_LABELS,
     getContentBySeries,
@@ -323,6 +324,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
     const handleSelectContent = (content: ContentDefinition) => {
         setSelectedContentId(content.id);
+        useMitigationStore.getState().setCurrentLevel(content.level);
+        setActiveLevel(content.level);
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
     };
 
@@ -442,7 +445,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         {LEVEL_TIERS.map(level => (
                             <button
                                 key={level}
-                                onClick={() => setActiveLevel(level)}
+                                onClick={() => {
+                                    setActiveLevel(level);
+                                    useMitigationStore.getState().setCurrentLevel(level);
+                                }}
                                 className={clsx(
                                     "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
                                     activeLevel === level

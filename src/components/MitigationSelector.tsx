@@ -33,7 +33,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const [adjustedPos, setAdjustedPos] = React.useState(position);
 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
-    const { partyMembers } = useMitigationStore();
+    const { partyMembers, currentLevel } = useMitigationStore();
     const tutorialState = useTutorialStore();
 
     const [isMobile, setIsMobile] = React.useState(false);
@@ -97,6 +97,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const SINGLE_TARGET_BUFFS = ['the_blackest_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima', 'aurora', 'nascent_flash'];
 
     const availableMitigations = allJobMitigations.filter(m => {
+        // Level sync filtering
+        if (m.minLevel !== undefined && currentLevel < m.minLevel) return false;
+        if (m.maxLevel !== undefined && currentLevel > m.maxLevel) return false;
+
         if (!m.requires) return true;
         return activeMitigations.some(am => {
             if (am.mitigationId !== m.requires) return false;

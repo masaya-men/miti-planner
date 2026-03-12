@@ -22,7 +22,11 @@ export interface Mitigation {
     valuePhysical?: number; // Optional override for Physical specific value
     valueMagical?: number; // Optional override for Magical specific value
     isShield?: boolean;
-    valueType?: 'hp' | 'potency'; // Missing valueType field
+    valueType?: 'hp' | 'potency';
+    shieldPotency?: number; // Added for recovery-based shields
+    shieldScale?: string;   // Added for HP-based shields (e.g., "10% HP")
+    minLevel?: number;      // Added for level sync
+    maxLevel?: number;      // Added for level sync
     note?: string; // Optional description/details
     scope?: 'self' | 'party'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
