@@ -33,7 +33,7 @@
         "content_level": "Content Level",
         "job_palette": "JOB PALETTE (Tap to Assign)",
         "manual_mode": "Manual Mode:",
-        "manual_mode_desc": "The next selected job will be forced into {{slot}}."
+        "manual_mode_desc": "The next selected job will be placed into {{slot}}."
     },
     "modal": {
         "add_event": "Add Event",
