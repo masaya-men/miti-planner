@@ -138,32 +138,30 @@ export const CRIT_MULTIPLIER = 1.60;
 
 export const SKILL_DATA = {
     // --- Paladin ---
-    "ディヴァインヴェール": { "percent": 10, "type": "hp", "jobs": ["pld"], "icon": "Divine_Veil.png", "nameEn": "Divine Veil" },
-
-    // --- Pictomancer ---
-    "テンペラグラッサ": { "percent": 10, "type": "hp", "jobs": ["pct"], "icon": "Tempera_Grassa.png", "nameEn": "Tempera Grassa" },
+    "ディヴァインヴェール": { "percent": 10, "type": "hp", "jobs": ["pld"], "icon": "Divine_Veil.png", "nameEn": "Divine Veil", "minLevel": 56 },
+    "テンペラグラッサ": { "percent": 10, "type": "hp", "jobs": ["pct"], "icon": "Tempera_Grassa.png", "nameEn": "Tempera Grassa", "minLevel": 88 },
 
     // --- Dark Knight ---
     "ブラックナイト": { "percent": 25, "type": "hp", "jobs": ["drk"], "icon": "The_Blackest_Night.png", "nameEn": "The Blackest Night" },
 
-    // --- Scholar ---
-    // Note: CSV lists Accession, Concitation, Consolation, Adloquium
-    "アクセッション": { "potency": 240, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Accession.png", "nameEn": "Accession" },
-    "意気軒高の策": { "potency": 200, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Concitation.png", "nameEn": "Concitation" },
-    "コンソレイション": { "potency": 250, "type": "potency", "multiplier": 1, "jobs": ["sch"], "icon": "Consolation.png", "nameEn": "Consolation" },
-    "鼓舞激励の策": { "potency": 300, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Adloquium.png", "nameEn": "Adloquium" },
+    "アクセッション": { "potency": 240, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Accession.png", "nameEn": "Accession", "minLevel": 100 },
+    "意気軒高の策": { "potency": 200, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Concitation.png", "nameEn": "Concitation", "minLevel": 92 },
+    "士気高揚の策": { "potency": 180, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Succor.png", "nameEn": "Succor", "maxLevel": 91, "minLevel": 35 },
+    "コンソレイション": { "potency": 250, "type": "potency", "multiplier": 1, "jobs": ["sch"], "icon": "Consolation.png", "nameEn": "Consolation", "minLevel": 80 },
+    "鼓舞激励の策": { "potency": 300, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Adloquium.png", "nameEn": "Adloquium", "minLevel": 30 },
     "展開戦術": { "jobs": ["sch"], "type": "special", "note": "鼓舞の1.6倍", "icon": "Deployment_Tactics.png", "nameEn": "Deployment Tactics" }, // Custom handling logic needed
     "秘策：展開戦術": { "potency": 300, "type": "potency", "multiplier": 2.88, "jobs": ["sch"], "icon": "Deployment_Tactics.png", "nameEn": "Recitation Deployment" }, // 300 * 1.6 (Crit) * 1.8 (Galvanize) = 864 (2.88x)
 
     // --- Sage ---
-    "エウクラシア・プログノシスII": { "potency": 100, "type": "potency", "multiplier": 3.6, "jobs": ["sge"], "icon": "Eukrasian_Prognosis_II.png", "nameEn": "Eukrasian Prognosis II" },
-    "ホーリズム": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Holos.png", "nameEn": "Holos" },
-    "パンハイマ": { "potency": 200, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Panhaima.png", "nameEn": "Panhaima" },
+    "エウクラシア・プログノシスII": { "potency": 100, "type": "potency", "multiplier": 3.6, "jobs": ["sge"], "icon": "Eukrasian_Prognosis_II.png", "nameEn": "Eukrasian Prognosis II", "minLevel": 96 },
+    "エウクラシア・プログノシス": { "potency": 100, "type": "potency", "multiplier": 3.2, "jobs": ["sge"], "icon": "Eukrasian_Prognosis.png", "nameEn": "Eukrasian Prognosis", "maxLevel": 95, "minLevel": 30 },
+    "ホーリズム": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Holos.png", "nameEn": "Holos", "minLevel": 86 },
+    "パンハイマ": { "potency": 200, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Panhaima.png", "nameEn": "Panhaima", "minLevel": 80 },
 
     // --- Warrior ---
-    "原初の血気": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Bloodwhetting.png", "nameEn": "Bloodwhetting" },
-    "シェイクオフ": { "percent": 15, "type": "hp", "jobs": ["war"], "icon": "Shake_It_Off.png", "nameEn": "Shake It Off" },
-    "原初の猛り": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Nascent_Flash.png", "nameEn": "Nascent Flash" },
+    "原初の血気": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Bloodwhetting.png", "nameEn": "Bloodwhetting", "minLevel": 82 },
+    "シェイクオフ": { "percent": 15, "type": "hp", "jobs": ["war"], "icon": "Shake_It_Off.png", "nameEn": "Shake It Off", "minLevel": 68 },
+    "原初の猛り": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Nascent_Flash.png", "nameEn": "Nascent Flash", "minLevel": 76 },
 
     // --- White Mage ---
     "ディヴァインカレス": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["whm"], "icon": "Divine_Caress.png", "nameEn": "Divine Caress" },
@@ -171,8 +169,8 @@ export const SKILL_DATA = {
     // --- Dancer ---
     "インプロビゼーション": { "percent": 5, "type": "hp", "jobs": ["dnc"], "icon": "Improvisation.png", "nameEn": "Improvisation" },
 
-    // --- Astrologian ---
-    "コンジャンクション・ヘリオス": { "potency": 250, "type": "potency", "multiplier": 1.25, "jobs": ["ast"], "icon": "Helios_Conjunction.png", "nameEn": "Helios Conjunction" },
+    "アスペクト・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Aspected_Helios.png", "nameEn": "Aspected Helios (Neutral)", "maxLevel": 95, "minLevel": 80 },
+    "コンジャンクション・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Helios_Conjunction.png", "nameEn": "Helios Conjunction (Neutral)", "minLevel": 96 },
 
     // --- Others from CSV ---
     // e.g. Divine Veil (listed above), Tempera Grassa (above), TBN (above)
