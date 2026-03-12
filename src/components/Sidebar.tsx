@@ -90,14 +90,26 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                 </div>
             )}
 
-            <div className={clsx(
-                "w-6 h-6 rounded flex items-center justify-center font-black text-[10px]  shrink-0",
-                isActive && !multiSelect.isEnabled
-                    ? "bg-app-accent/20 text-app-accent-bold"
-                    : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
-            )}>
-                {shortName}
-            </div>
+            {(() => {
+                const [main, ...subs] = shortName.split('\n');
+                return (
+                    <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
+                        <div className={clsx(
+                            "w-6 h-6 rounded flex items-center justify-center font-black text-[10px] shrink-0",
+                            isActive && !multiSelect.isEnabled
+                                ? "bg-app-accent/20 text-app-accent-bold"
+                                : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
+                        )}>
+                            {main}
+                        </div>
+                        {subs.length > 0 && (
+                            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[7px] font-bold text-app-text-muted/90 leading-none whitespace-nowrap overflow-visible pointer-events-none drop-shadow-sm">
+                                {subs.join(' ')}
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
             <div className="flex-1 truncate text-[12px] font-medium">
                 {floorName}
             </div>

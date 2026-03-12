@@ -35,42 +35,70 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
 
     // Match patterns like "m4s", "p12s_p1", "o8s_p2"
     const floorMatch = id.match(/(\d+)s(?:_p(\d+))?$/);
-    let order = 1;
+    let absoluteOrder = 1;
     let phaseOffset = 0;
     
     if (floorMatch) {
-        order = parseInt(floorMatch[1], 10);
+        absoluteOrder = parseInt(floorMatch[1], 10);
         if (floorMatch[2]) {
             phaseOffset = parseInt(floorMatch[2], 10) * 0.1; // e.g. .1 or .2 to maintain sorting
-            order += phaseOffset;
         }
     }
     
-    const shortJa = Math.floor(order) + '層' + (phaseOffset === 0.1 ? '前半' : phaseOffset === 0.2 ? '後半' : '');
-    const shortEn = id.toUpperCase();
+    let relativeOrder = absoluteOrder;
+    let seriesInfo = { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc' };
 
     if (id.startsWith('m')) {
-        if (order < 5) return { seriesId: 'aac_lhw', seriesJa: 'AAC ライトヘビー級', seriesEn: 'AAC Light Heavyweight', order: Math.floor(order), shortJa, shortEn };
-        if (order < 9) return { seriesId: 'aac_cruiser', seriesJa: 'AAC クルーザー級', seriesEn: 'AAC Cruiserweight', order: Math.floor(order) - 4 + phaseOffset, shortJa, shortEn };
-        return { seriesId: 'aac_heavy', seriesJa: 'AAC ヘビー級', seriesEn: 'AAC Heavyweight', order: Math.floor(order) - 8 + phaseOffset, shortJa, shortEn };
-    }
-    if (id.startsWith('p')) {
-        if (order <= 4) return { seriesId: 'pandaemonium_asphodelos', seriesJa: '万魔殿パンデモニウム：辺獄編', seriesEn: 'Pandaemonium: Asphodelos', order, shortJa, shortEn };
-        if (order <= 8) return { seriesId: 'pandaemonium_abyssos', seriesJa: '万魔殿パンデモニウム：煉獄編', seriesEn: 'Pandaemonium: Abyssos', order, shortJa, shortEn };
-        return { seriesId: 'pandaemonium_anabaseios', seriesJa: '万魔殿パンデモニウム：天獄編', seriesEn: 'Pandaemonium: Anabaseios', order, shortJa, shortEn };
-    }
-    if (id.startsWith('e')) {
-        if (order <= 4) return { seriesId: 'eden_gate', seriesJa: '希望の園エデン：覚醒編', seriesEn: 'Eden\'s Gate', order, shortJa, shortEn };
-        if (order <= 8) return { seriesId: 'eden_verse', seriesJa: '希望の園エデン：共鳴編', seriesEn: 'Eden\'s Verse', order, shortJa, shortEn };
-        return { seriesId: 'eden_promise', seriesJa: '希望の園エデン：再生編', seriesEn: 'Eden\'s Promise', order, shortJa, shortEn };
-    }
-    if (id.startsWith('o')) {
-        if (order <= 4) return { seriesId: 'omega_deltascape', seriesJa: '次元の狭間オメガ：デルタ編', seriesEn: 'Omega: Deltascape', order, shortJa, shortEn };
-        if (order <= 8) return { seriesId: 'omega_sigmascape', seriesJa: '次元の狭間オメガ：シグマ編', seriesEn: 'Omega: Sigmascape', order, shortJa, shortEn };
-        return { seriesId: 'omega_alphascape', seriesJa: '次元の狭間オメガ：アルファ編', seriesEn: 'Omega: Alphascape', order, shortJa, shortEn };
+        if (absoluteOrder < 5) {
+            seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'AAC ライトヘビー級', seriesEn: 'AAC Light Heavyweight' };
+            relativeOrder = absoluteOrder;
+        } else if (absoluteOrder < 9) {
+            seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'AAC クルーザー級', seriesEn: 'AAC Cruiserweight' };
+            relativeOrder = absoluteOrder - 4;
+        } else {
+            seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'AAC ヘビー級', seriesEn: 'AAC Heavyweight' };
+            relativeOrder = absoluteOrder - 8;
+        }
+    } else if (id.startsWith('p')) {
+        if (absoluteOrder <= 4) {
+            seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '万魔殿パンデモニウム：辺獄編', seriesEn: 'Pandaemonium: Asphodelos' };
+            relativeOrder = absoluteOrder;
+        } else if (absoluteOrder <= 8) {
+            seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '万魔殿パンデモニウム：煉獄編', seriesEn: 'Pandaemonium: Abyssos' };
+            relativeOrder = absoluteOrder - 4;
+        } else {
+            seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '万魔殿パンデモニウム：天獄編', seriesEn: 'Pandaemonium: Anabaseios' };
+            relativeOrder = absoluteOrder - 8;
+        }
+    } else if (id.startsWith('e')) {
+        if (absoluteOrder <= 4) {
+            seriesInfo = { seriesId: 'eden_gate', seriesJa: '希望の園エデン：覚醒編', seriesEn: 'Eden\'s Gate' };
+            relativeOrder = absoluteOrder;
+        } else if (absoluteOrder <= 8) {
+            seriesInfo = { seriesId: 'eden_verse', seriesJa: '希望の園エデン：共鳴編', seriesEn: 'Eden\'s Verse' };
+            relativeOrder = absoluteOrder - 4;
+        } else {
+            seriesInfo = { seriesId: 'eden_promise', seriesJa: '希望の園エデン：再生編', seriesEn: 'Eden\'s Promise' };
+            relativeOrder = absoluteOrder - 8;
+        }
+    } else if (id.startsWith('o')) {
+        if (absoluteOrder <= 4) {
+            seriesInfo = { seriesId: 'omega_deltascape', seriesJa: '次元の狭間オメガ：デルタ編', seriesEn: 'Omega: Deltascape' };
+            relativeOrder = absoluteOrder;
+        } else if (absoluteOrder <= 8) {
+            seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: '次元の狭間オメガ：シグマ編', seriesEn: 'Omega: Sigmascape' };
+            relativeOrder = absoluteOrder - 4;
+        } else {
+            seriesInfo = { seriesId: 'omega_alphascape', seriesJa: '次元の狭間オメガ：アルファ編', seriesEn: 'Omega: Alphascape' };
+            relativeOrder = absoluteOrder - 8;
+        }
     }
 
-    return { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc', order: 1, shortJa, shortEn };
+    const shortJa = Math.floor(relativeOrder) + '層' + (phaseOffset === 0.1 ? '\n前半' : phaseOffset === 0.2 ? '\n後半' : '');
+    const shortEn = id.toUpperCase().replace('_', '\n').replace(' ', '\n');
+    const orderForSorting = relativeOrder + phaseOffset;
+
+    return { ...seriesInfo, order: orderForSorting, shortJa, shortEn };
 }
 
 // Map flat RawContentData into strictly-typed ContentDefinitions
