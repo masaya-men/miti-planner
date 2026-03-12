@@ -34,7 +34,9 @@
         "content_level": "コンテンツレベル",
         "job_palette": "ジョブパレット (タップして配置)",
         "manual_mode": "マニュアルモード:",
-        "manual_mode_desc": "次に選んだジョブは {{slot}} に配置されます。"
+        "manual_mode_desc": "次に選んだジョブは {{slot}} に配置されます。",
+        "my_job": "自ジョブ",
+        "my_job_instruction_new": "星マークをクリックして自分のジョブに設定できます"
     },
     "modal": {
         "add_event": "イベントを追加",

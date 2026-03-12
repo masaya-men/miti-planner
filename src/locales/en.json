@@ -33,7 +33,9 @@
         "content_level": "Content Level",
         "job_palette": "JOB PALETTE (Tap to Assign)",
         "manual_mode": "Manual Mode:",
-        "manual_mode_desc": "The next selected job will be placed into {{slot}}."
+        "manual_mode_desc": "The next selected job will be placed into {{slot}}.",
+        "my_job": "My Job",
+        "my_job_instruction_new": "Click the star to set as your primary job"
     },
     "modal": {
         "add_event": "Add Event",
