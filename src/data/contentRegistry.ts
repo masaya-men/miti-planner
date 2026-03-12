@@ -22,6 +22,13 @@ export const LEVEL_LABELS: Record<ContentLevel, LocalizedString> = {
     100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)' },
 };
 
+export const PROJECT_LABELS: Record<string, LocalizedString> = {
+    'aac': { ja: '至天の座アルカディア零式', en: 'AAC' },
+    'pandaemonium': { ja: '万魔殿パンデモニウム零式', en: 'Pandaemonium' },
+    'eden': { ja: '希望の園エデン零式', en: 'Eden' },
+    'omega': { ja: '次元の狭間オメガ零式', en: 'Omega' },
+};
+
 // ==========================================
 // Dynamic Series Generation Logic
 // ==========================================
@@ -49,46 +56,46 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
 
     if (id.startsWith('m')) {
         if (absoluteOrder < 5) {
-            seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'AAC ライトヘビー級', seriesEn: 'AAC Light Heavyweight' };
+            seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'ライトヘビー級', seriesEn: 'Light-heavyweight' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder < 9) {
-            seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'AAC クルーザー級', seriesEn: 'AAC Cruiserweight' };
+            seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'クルーザー級', seriesEn: 'Cruiserweight' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'AAC ヘビー級', seriesEn: 'AAC Heavyweight' };
+            seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'ヘビー級', seriesEn: 'Heavyweight' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('p')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '万魔殿パンデモニウム：辺獄編', seriesEn: 'Pandaemonium: Asphodelos' };
+            seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '辺獄編', seriesEn: 'Asphodelos' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '万魔殿パンデモニウム：煉獄編', seriesEn: 'Pandaemonium: Abyssos' };
+            seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '煉獄編', seriesEn: 'Abyssos' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '万魔殿パンデモニウム：天獄編', seriesEn: 'Pandaemonium: Anabaseios' };
+            seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '天獄編', seriesEn: 'Anabaseios' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('e')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'eden_gate', seriesJa: '希望の園エデン：覚醒編', seriesEn: 'Eden\'s Gate' };
+            seriesInfo = { seriesId: 'eden_gate', seriesJa: '覚醒編', seriesEn: 'Gate' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'eden_verse', seriesJa: '希望の園エデン：共鳴編', seriesEn: 'Eden\'s Verse' };
+            seriesInfo = { seriesId: 'eden_verse', seriesJa: '共鳴編', seriesEn: 'Verse' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'eden_promise', seriesJa: '希望の園エデン：再生編', seriesEn: 'Eden\'s Promise' };
+            seriesInfo = { seriesId: 'eden_promise', seriesJa: '再生編', seriesEn: 'Promise' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('o')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'omega_deltascape', seriesJa: '次元の狭間オメガ：デルタ編', seriesEn: 'Omega: Deltascape' };
+            seriesInfo = { seriesId: 'omega_deltascape', seriesJa: 'デルタ編', seriesEn: 'Deltascape' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: '次元の狭間オメガ：シグマ編', seriesEn: 'Omega: Sigmascape' };
+            seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: 'シグマ編', seriesEn: 'Sigmascape' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'omega_alphascape', seriesJa: '次元の狭間オメガ：アルファ編', seriesEn: 'Omega: Alphascape' };
+            seriesInfo = { seriesId: 'omega_alphascape', seriesJa: 'アルファ編', seriesEn: 'Alphascape' };
             relativeOrder = absoluteOrder - 8;
         }
     }
@@ -157,4 +164,22 @@ export function getContentById(contentId: string): ContentDefinition | undefined
 export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
     // Return all standard categories in preferred order, even if empty
     return ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
+}
+
+/**
+ * Gets the project label (e.g. "至天の座アルカディア") for a given level and category.
+ */
+export function getProjectLabel(level: ContentLevel, category: ContentCategory): LocalizedString | null {
+    if (category !== 'savage') return null;
+    
+    // Savage projects map strictly to levels
+    const levelToProjectKey: Record<number, string> = {
+        100: 'aac',
+        90: 'pandaemonium',
+        80: 'eden',
+        70: 'omega'
+    };
+    
+    const key = levelToProjectKey[level];
+    return key ? PROJECT_LABELS[key] : null;
 }

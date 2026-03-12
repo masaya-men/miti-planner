@@ -7,6 +7,7 @@ import {
     getContentBySeries,
     getCategoriesByLevel,
     getSeriesByLevel,
+    getProjectLabel,
 } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import type { MultiSelectState } from '../types/sidebarTypes';
@@ -15,10 +16,6 @@ import { MOCK_RECENT_PLANS } from '../data/sidebarMockData';
 import {
     Plus,
     ChevronRight,
-    Layers,
-    Sword,
-    History,
-    FileText,
     CheckSquare,
     Square,
     Link
@@ -58,74 +55,183 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     const floorName = content.name[lang as ContentLanguage] || content.name.ja;
     const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
 
+    // 軽減プランのリスト（将来的に Store から取得する形へ移行可能）
+    const plans = [{ id: content.id, name: floorName }];
+
     return (
-        <button
-            onClick={() => {
-                if (multiSelect.isEnabled) {
-                    if (!isDisabled) onToggleSelect(content.id);
-                } else {
-                    onSelect(content);
-                }
-            }}
-            disabled={isDisabled}
-            title={floorName}
-            className={clsx(
-                "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer",
-                isActive && !multiSelect.isEnabled
-                    ? "bg-app-accent-dim border border-app-border-accent/30 text-app-accent shadow-sm"
-                    : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
-                isDisabled && "opacity-40 cursor-not-allowed grayscale",
-                highlightFirst && "ring-2 ring-app-accent ring-offset-2 ring-offset-transparent animate-pulse"
-            )}
-            data-tutorial-first-item={highlightFirst ? '' : undefined}
-        >
-            {/* Active Indicator Line */}
-            {isActive && !multiSelect.isEnabled && (
-                <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
-            )}
+        <div className="w-full flex flex-col">
+            {plans.map((plan, index) => {
+                const isFirst = index === 0;
+                const isPlanActive = isActive && isFirst;
 
-            {/* Multi-select Checkbox */}
-            {multiSelect.isEnabled && (
-                <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
-                    {isSelected ? (
-                        <CheckSquare size={16} className="text-app-accent" />
-                    ) : (
-                        <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
-                    )}
-                </div>
-            )}
-
-            {(() => {
-                const [main, ...subs] = shortName.split('\n');
                 return (
-                    <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
-                        <div className={clsx(
-                            "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
-                            isActive && !multiSelect.isEnabled
-                                ? "bg-app-accent/20 text-app-accent-bold"
-                                : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
-                        )}>
-                            {main}
+                    <button
+                        key={plan.id}
+                        onClick={() => {
+                            if (multiSelect.isEnabled) {
+                                if (!isDisabled && isFirst) onToggleSelect(content.id);
+                            } else {
+                                onSelect(content);
+                            }
+                        }}
+                        disabled={isDisabled}
+                        title={plan.name}
+                        {...(highlightFirst && isFirst ? { "data-tutorial-first-item": "true" } : {})}
+                        className={clsx(
+                            "w-full flex items-center gap-2.5 px-2.5 py-1 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer min-h-[32px]", // 高さを 32px に固定
+                            isPlanActive && !multiSelect.isEnabled
+                                ? "bg-app-accent-dim border border-app-border-accent/30 text-app-accent shadow-sm"
+                                : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
+                            isDisabled && "opacity-40 cursor-not-allowed grayscale"
+                        )}
+                    >
+                        {/* Active Indicator Line */}
+                        {isPlanActive && !multiSelect.isEnabled && (
+                            <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
+                        )}
+
+                        {/* Floor Label Icon (only for first plan) */}
+                        <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                            {isFirst ? (
+                                (() => {
+                                    const [main, ...subs] = shortName.split('\n');
+                                    const isFloorActive = isActive && !multiSelect.isEnabled;
+                                    return (
+                                        <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
+                                            <div className={clsx(
+                                                "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
+                                                isFloorActive 
+                                                    ? "bg-app-accent/20 text-app-accent-bold"
+                                                    : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
+                                            )}>
+                                                {main}
+                                            </div>
+                                            {subs.length > 0 && (
+                                                <div className={clsx(
+                                                    "absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[6px] font-bold leading-none whitespace-nowrap overflow-visible pointer-events-none drop-shadow-sm",
+                                                    isFloorActive ? "text-app-accent-bold" : "text-app-text-muted/90"
+                                                )}>
+                                                    {subs.join(' ')}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()
+                            ) : null}
                         </div>
-                        {subs.length > 0 && (
-                            <div className={clsx(
-                                "absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[6px] font-bold leading-none whitespace-nowrap overflow-visible pointer-events-none drop-shadow-sm",
-                                isActive && !multiSelect.isEnabled ? "text-app-accent-bold" : "text-app-text-muted/90"
-                            )}>
-                                {subs.join(' ')}
+
+                        {/* Multi-select Checkbox */}
+                        {isFirst && multiSelect.isEnabled && (
+                            <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
+                                {isSelected ? (
+                                    <CheckSquare size={16} className="text-app-accent" />
+                                ) : (
+                                    <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                                )}
                             </div>
                         )}
-                    </div>
+
+                        <div className={clsx(
+                            "flex-1 min-w-0 flex flex-col justify-center",
+                            isPlanActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
+                        )}>
+                            <div className={clsx(
+                                "truncate leading-tight text-[9px]", // さらに小さく 9px に設定
+                                isPlanActive && !multiSelect.isEnabled ? "text-app-accent-bold" : "text-inherit"
+                            )}>
+                                {plan.name}
+                            </div>
+                        </div>
+
+                        {isPlanActive && !multiSelect.isEnabled && <ChevronRight size={14} className="text-app-accent/70 shrink-0 self-center" />}
+                    </button>
                 );
-            })()}
-            <div className={clsx(
-                "flex-1 truncate text-[12px]",
-                isActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
-            )}>
-                {floorName}
+            })}
+        </div>
+    );
+};
+
+
+// ─────────────────────────────────────────────
+// Sub-component: SeriesAccordion
+// ─────────────────────────────────────────────
+
+interface SeriesAccordionProps {
+    series: any;
+    floors: ContentDefinition[];
+    selectedContentId: string | null;
+    multiSelect: MultiSelectState;
+    onToggleSelect: (id: string) => void;
+    onSelectContent: (content: ContentDefinition) => void;
+    lang: ContentLanguage;
+    highlightFirst?: boolean;
+    showLabel: boolean;
+}
+
+const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
+    series, floors, selectedContentId, multiSelect, onToggleSelect, onSelectContent, lang, highlightFirst, showLabel
+}) => {
+    const hasActiveFloor = React.useMemo(() => floors.some(f => f.id === selectedContentId), [floors, selectedContentId]);
+    const [isExpanded, setIsExpanded] = React.useState(true);
+
+    // Auto-expand if a floor within becomes active
+    React.useEffect(() => {
+        if (hasActiveFloor) {
+            setIsExpanded(true);
+        }
+    }, [hasActiveFloor]);
+
+    const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
+
+    if (!showLabel) {
+        return (
+            <div className="space-y-0.5">
+                {floors.map((floor, idx) => (
+                    <ContentTreeItem
+                        key={floor.id}
+                        content={floor}
+                        isActive={floor.id === selectedContentId}
+                        multiSelect={multiSelect}
+                        onToggleSelect={onToggleSelect}
+                        onSelect={onSelectContent}
+                        lang={lang}
+                        highlightFirst={highlightFirst && idx === 0}
+                    />
+                ))}
             </div>
-            {isActive && !multiSelect.isEnabled && <ChevronRight size={14} className="text-app-accent/70 shrink-0" />}
-        </button>
+        );
+    }
+
+    return (
+        <div className="mb-1">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full text-[10px] text-app-text-secondary font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer"
+            >
+                <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                    <ChevronRight size={10} className="text-app-text-muted" />
+                </div>
+                <span className={clsx("flex-1 text-left truncate", isExpanded ? "text-app-text" : "text-app-text-secondary")}>
+                    {seriesName}
+                </span>
+            </button>
+            {isExpanded && (
+                <div className="space-y-0.5 mt-0.5 animate-in fade-in slide-in-from-left-1 duration-200">
+                    {floors.map((floor, idx) => (
+                        <ContentTreeItem
+                            key={floor.id}
+                            content={floor}
+                            isActive={floor.id === selectedContentId}
+                            multiSelect={multiSelect}
+                            onToggleSelect={onToggleSelect}
+                            onSelect={onSelectContent}
+                            lang={lang}
+                            highlightFirst={highlightFirst && idx === 0}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -148,7 +254,10 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
     level, category, selectedContentId, multiSelect, onToggleSelect, onSelectContent, highlightFirst, lang
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
-    const categoryLabel = CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
+    const projectLabel = getProjectLabel(level, category);
+    const categoryLabel = projectLabel 
+        ? `${CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja}：${projectLabel[lang as ContentLanguage] || projectLabel.ja}`
+        : CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
     const seriesList = getSeriesByLevel(level).filter(s => s.category === category);
 
     if (seriesList.length === 0) return null;
@@ -167,41 +276,25 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                 <div className="transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                     <ChevronRight size={12} />
                 </div>
-                <Sword size={11} className={clsx(isExpanded ? "text-app-accent" : "text-app-accent/70")} />
                 <span>{categoryLabel}</span>
             </button>
 
             {isExpanded && (
                 <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2 animate-in fade-in slide-in-from-left-1 duration-200">
-                    {seriesList.map(series => {
-                        const floors = getContentBySeries(series.id);
-                        const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
-
-                        return (
-                            <div key={series.id} className="mb-2">
-                                {seriesList.length > 1 && (
-                                    <div className="text-[10px] text-app-text-secondary font-bold px-2 py-1 truncate flex items-center gap-1.5 group/series">
-                                        <div className="w-1 h-1 rounded-full bg-app-accent-dim group-hover/series:bg-app-accent transition-colors" />
-                                        {seriesName}
-                                    </div>
-                                )}
-                                <div className="space-y-0.5">
-                                    {floors.map((floor, idx) => (
-                                        <ContentTreeItem
-                                            key={floor.id}
-                                            content={floor}
-                                            isActive={floor.id === selectedContentId}
-                                            multiSelect={multiSelect}
-                                            onToggleSelect={onToggleSelect}
-                                            onSelect={onSelectContent}
-                                            lang={lang}
-                                            highlightFirst={highlightFirst && idx === 0}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
+                    {seriesList.map(series => (
+                        <SeriesAccordion
+                            key={series.id}
+                            series={series}
+                            floors={getContentBySeries(series.id)}
+                            selectedContentId={selectedContentId}
+                            multiSelect={multiSelect}
+                            onToggleSelect={onToggleSelect}
+                            onSelectContent={onSelectContent}
+                            lang={lang}
+                            highlightFirst={highlightFirst}
+                            showLabel={seriesList.length > 1}
+                        />
+                    ))}
                 </div>
             )}
         </div>
@@ -294,8 +387,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                 {/* [B] 最近のアクティビティ (Recent Activity) */}
                 {!multiSelect.isEnabled && (
                     <div className="px-3 pb-3 shrink-0">
-                        <div className="flex items-center gap-1.5 mb-2 px-1">
-                            <History size={11} className="text-app-text-secondary" />
+                        <div className="flex items-center mb-2 px-1">
                             <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
                                 {t('sidebar.recent_activity')}
                             </span>
@@ -306,9 +398,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                                     key={plan.id}
                                     className="w-full flex items-center gap-2 group p-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
                                 >
-                                    <div className="p-1.5 rounded bg-glass-card border border-glass-border group-hover:border-app-accent/40 shadow-sm transition-all">
-                                        <FileText size={12} className="text-app-text-secondary group-hover:text-app-accent" />
-                                    </div>
                                     <div className="min-w-0">
                                         <p className="text-[11px] font-black text-app-text truncate">
                                             {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
@@ -325,8 +414,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
                 {/* [C] エクスプローラー領域 */}
                 <div className="px-3 flex items-center justify-between mb-2 shrink-0">
-                    <div className="flex items-center gap-1.5 px-1">
-                        <Layers size={11} className="text-app-text-secondary" />
+                    <div className="flex items-center px-1">
                         <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
                             EXPLORER
                         </span>
