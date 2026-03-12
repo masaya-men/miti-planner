@@ -16,6 +16,12 @@ interface StatInput {
 // Math.floor logic for FF14 (truncates to integer)
 const floor = Math.floor;
 
+// Helper for column widths
+export const getColumnWidth = (role: string) => {
+    if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
+    return 50; // 25px * 2 slots for DPS
+};
+
 /**
  * Calculates the function f(POT) - Potency Multiplier (always 1 for base calcs, but conceptually exists)
  */

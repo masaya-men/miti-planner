@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Layout } from './Layout';
-import { Timeline } from './Timeline';
+import Timeline from './Timeline';
 import { MitigationGrid } from './MitigationGrid';
 import { CheatSheetView } from './CheatSheetView';
 import { ErrorBoundary } from './ErrorBoundary';

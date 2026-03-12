@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
-import { getColumnWidth } from './Timeline';
+import { getColumnWidth } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { JOBS, MITIGATIONS } from '../data/mockData';

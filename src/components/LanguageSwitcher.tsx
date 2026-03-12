@@ -26,7 +26,7 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Sliding Highlight Background */}
                 <div className="absolute inset-y-0.5 inset-x-0.5 pointer-events-none">
                     <div
-                        className={`w-1/2 h-full rounded-[4px] bg-app-accent shadow-[0_0_10px_rgba(37,99,235,0.3)] dark:shadow-none transform transition-transform duration-300 ease-out skew-x-[-12deg] ${currentLang === 'en' ? 'translate-x-full' : 'translate-x-0'
+                        className={`w-1/2 h-full rounded-[4px] bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)] transform transition-transform duration-300 ease-out skew-x-[-12deg] ${currentLang === 'en' ? 'translate-x-full' : 'translate-x-0'
                             }`}
                     />
                 </div>
