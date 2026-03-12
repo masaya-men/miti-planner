@@ -270,7 +270,11 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     {[
                                         { ja: "鼓舞激励の策", en: "Adloquium" },
                                         { ja: "意気軒高の策", en: "Concitation" },
+                                        { ja: "士気高揚の策", en: "Succor" },
                                         { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II" },
+                                        { ja: "エウクラシア・プログノシス", en: "Eukrasian Prognosis" },
+                                        { ja: "アスペクト・ヘリオス (Nセクト)", en: "Aspected Helios (Neutral)" },
+                                        { ja: "コンジャンクション・ヘリオス (Nセクト)", en: "Helios Conjunction (Neutral)" },
                                     ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
                                 </div>
                             </div>
@@ -284,9 +288,13 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
 };
 
 const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, healerRep: any, contentLanguage: 'ja' | 'en' = 'ja', currentLevel: number = 100) => {
-    const skillName = skillNames.ja; // SKILL_DATA keys are currently Japanese
-    const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA];
+    const skillName = skillNames.ja;
+    const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as any;
     if (!skill) return null;
+
+    // Level check
+    if (skill.minLevel && currentLevel < skill.minLevel) return null;
+    if (skill.maxLevel && currentLevel > skill.maxLevel) return null;
 
     const isTankSkill = ['pld', 'war', 'drk', 'gnb'].some(job => skill.jobs?.includes(job));
     const stats = isTankSkill ? tankRep?.stats : healerRep?.stats;
