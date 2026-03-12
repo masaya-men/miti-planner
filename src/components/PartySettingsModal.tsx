@@ -10,6 +10,7 @@ import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
+import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
 
 interface PartySettingsModalProps {
@@ -19,6 +20,7 @@ interface PartySettingsModalProps {
 
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
+    const { theme } = useThemeStore();
     const { partyMembers, updatePartyBulk, timelineMitigations, myMemberId, setMyMemberId } = useMitigationStore();
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
@@ -401,36 +403,69 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 className={clsx(
                     "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot",
                     isFocused
-                        ? "bg-app-accent-dim border-app-border-accent shadow-[0_0_15px_rgba(56,189,248,0.2)]"
+                        ? "bg-blue-500/20 border-blue-400/50 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                         : job
-                            ? "bg-glass-card border-glass-border hover:bg-glass-hover"
-                            : "bg-black/[0.02] dark:bg-white/[0.02] border-black/10 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/10 border-dashed"
+                            ? "bg-white/20 dark:bg-white/10 border-white/20 dark:border-white/10 hover:bg-white/30 dark:hover:bg-white/20"
+                            : "bg-white/5 dark:bg-white/[0.02] border-white/10 dark:border-white/10 hover:bg-white/10 dark:hover:bg-white/5 border-dashed"
                 )}
             >
-                {/* Background Gradient */}
-                {job && (
-                    <div className={clsx("absolute inset-0 opacity-20 pointer-events-none transition-opacity group-hover/slot:opacity-30",
-                        activeColor === 'blue' ? 'bg-gradient-to-r from-blue-500/50 to-transparent' :
-                            activeColor === 'green' ? 'bg-gradient-to-r from-green-500/50 to-transparent' :
-                                'bg-gradient-to-r from-red-500/50 to-transparent'
+                {/* 高透明・高彩色クリアガラス背景レイヤー */}
+                <div className={clsx(
+                    "absolute inset-0 transition-all duration-300 rounded-xl overflow-hidden backdrop-blur-sm border",
+                    focusedSlot === index 
+                        ? "ring-2 ring-blue-500 shadow-[0_0_20px_rgba(56,189,248,0.4)] z-30 border-blue-400" 
+                        : theme === 'dark' 
+                            ? "bg-black/10 border-white/20" 
+                            : "bg-white/10 border-slate-400/30 shadow-sm"
+                )}>
+                    {/* ロールカラーの鮮やかな光彩（全体への薄い彩色とエッジの強調） */}
+                    {job && (
+                        <>
+                            {/* 全体への薄い彩色ベース */}
+                            <div className={clsx(
+                                "absolute inset-0 opacity-20 transition-opacity duration-700",
+                                activeColor === 'blue' ? "bg-blue-500" :
+                                activeColor === 'green' ? "bg-emerald-500" :
+                                "bg-rose-500"
+                            )} />
+                            
+                            {/* 上下の強い光彩アクセント */}
+                            <div className={clsx(
+                                "absolute inset-x-0 top-0 h-2/3 opacity-40 transition-opacity duration-1000",
+                                activeColor === 'blue' ? "bg-gradient-to-b from-blue-400 to-transparent" :
+                                activeColor === 'green' ? "bg-gradient-to-b from-emerald-400 to-transparent" :
+                                "bg-gradient-to-b from-rose-400 to-transparent"
+                            )} />
+                            
+                            {/* 内側の鮮やかなグロウ（ロールカラーを際立たせる） */}
+                            <div className={clsx(
+                                "absolute inset-0 opacity-50 mix-blend-screen transition-opacity duration-700",
+                                activeColor === 'blue' ? "shadow-[inset_0_0_15px_rgba(59,130,246,0.5)]" :
+                                activeColor === 'green' ? "shadow-[inset_0_0_15px_rgba(16,185,129,0.5)]" :
+                                "shadow-[inset_0_0_15px_rgba(244,63,94,0.5)]"
+                            )} />
+                        </>
+                    )}
+
+                    {/* ガラスの厚みを感じさせるハイライト（上端のみ鋭く） */}
+                    <div className={clsx(
+                        "absolute inset-x-0 top-0 h-[1px]",
+                        theme === 'dark' ? "bg-white/40" : "bg-white/80"
                     )} />
-                )}
+                </div>
 
                 <Ripple />
 
                 {/* Left side: Tag and Icon */}
                 <div className="flex items-center gap-3 z-10 pointer-events-none">
-                    <div className={clsx("text-xs font-black tracking-widest w-6",
-                        activeColor === 'blue' ? 'text-blue-400' :
-                            activeColor === 'green' ? 'text-green-400' : 'text-red-400'
-                    )}>
+                    <div className="text-[10px] font-black tracking-tighter w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">
                         {member.id}
                     </div>
                     {job ? (
-                        <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-md" />
+                        <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
                     ) : (
-                        <div className="w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-black/20 flex flex-col items-center justify-center">
-                            <span className="text-[8px] text-app-text-muted font-black uppercase tracking-widest">Select</span>
+                        <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
+                            <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
                         </div>
                     )}
                 </div>
@@ -450,14 +485,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         useTutorialStore.getState().completeEvent('my-job:set');
                                     }
                                 }}
-                                className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border cursor-pointer",
+                                className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
-                                        ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
-                                        : "bg-black/5 dark:bg-black/40 text-app-text-secondary border-transparent hover:bg-black/10 hover:text-app-text dark:hover:bg-black/60"
+                                        ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
+                                        : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
                                 )}
-                                title="Set as My Job"
+                                title={t('party.my_job')}
                             >
-                                {isMyJob && <Star size={10} className="fill-yellow-400" />}<span className="hidden md:inline"> My Job</span>
+                                <Star size={16} className={clsx("transition-all duration-300",
+                                    isMyJob
+                                        ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                                        : "group-hover/star:scale-110"
+                                )} />
                             </button>
                             <button
                                 onClick={(e) => {
@@ -467,7 +506,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     if (isFocused) setFocusedSlot(null);
                                 }}
                                 // 👇 変更：スマホでも常に表示され、少し大きく押しやすいように調整
-                                className="px-4 py-2 rounded-xl text-[11px] font-black text-app-text-secondary hover:text-app-text hover:bg-black/5 dark:hover:bg-white/10 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer"
+                                className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
                                 title="Remove Job"
                             >
                                 <Trash2 size={16} />
@@ -495,7 +534,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
                         <div className="flex items-center gap-3">
-                            <div className="w-12 text-right text-[9px] font-black text-app-text-secondary uppercase tracking-wider shrink-0">
+                            <div className="w-12 text-right text-[9px] font-black text-white uppercase tracking-wider shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                                 {cat.name}
                             </div>
                             <div className="flex flex-wrap gap-1.5">
@@ -515,9 +554,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             onClick={() => handleJobSelect(job.id)}
                                             disabled={isAlreadyPlacedPaletteJob}
                                             className={clsx(
-                                                "btn-tactile w-9 h-9 rounded-lg border bg-black/40 flex items-center justify-center relative group/btn",
-                                                `border-white/10 ${cat.color}`,
-                                                isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
+                                                "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
+                                                "bg-white/10 border-white/10 hover:bg-white/20 hover:border-white/30 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20",
+                                                cat.color,
+                                                isAlreadyPlacedPaletteJob ? "cursor-default opacity-20" : "cursor-pointer"
                                             )}
                                             title={job.name?.ja}
                                         >
@@ -580,14 +620,14 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <User className="text-blue-500" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-xs font-black text-app-text tracking-wider">{t('party.configuration_title')}</h2>
-                            <p className="text-[9px] text-app-text-secondary mt-0.5">
+                            <h2 className="text-sm font-black text-white tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
+                            <p className="text-[10px] mt-0.5 font-bold">
                                 {focusedSlot !== null
-                                    ? <span className="flex items-center gap-1.5 text-sky-400">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse inline-block" />
+                                    ? <span className="flex items-center gap-1.5 text-blue-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-black">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse inline-block shadow-[0_0_8px_rgba(147,197,253,0.8)]" />
                                         {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
                                     </span>
-                                    : t('party.configuration_desc')
+                                    : <span className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>
                                 }
                             </p>
                         </div>
@@ -604,9 +644,14 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                         {/* MTグループ */}
                         <div>
-                            <div className="flex items-center gap-2 mb-2 pl-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]"></span>
-                                <h3 className="text-app-text-secondary text-[11px] font-black tracking-widest">MT GROUP</h3>
+                            <div className="flex items-center justify-between mb-2 pl-1 pr-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-300 shadow-[0_0_10px_rgba(147,197,253,0.8)]"></span>
+                                    <h3 className="text-white text-[11px] font-black tracking-widest uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">MT Group</h3>
+                                </div>
+                                <span className="text-[9px] text-white font-bold hidden md:inline-block drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                                    {t('party.my_job_instruction_new')}
+                                </span>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (MT, H1, D1, D3) */}
@@ -617,8 +662,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {/* STグループ */}
                         <div>
                             <div className="flex items-center gap-2 mb-2 pl-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.6)]"></span>
-                                <h3 className="text-app-text-secondary text-[11px] font-black tracking-widest">ST GROUP</h3>
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-300 shadow-[0_0_10px_rgba(216,180,254,0.8)]"></span>
+                                <h3 className="text-white text-[11px] font-black tracking-widest uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">ST Group</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (ST, H2, D2, D4) */}
@@ -629,7 +674,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                     {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
 
-                    <div data-tutorial="job-palette" className="h-auto bg-glass-panel backdrop-blur-2xl border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] md:shadow-[0_10px_30px_rgba(0,0,0,0.1)] z-10">
+                    <div data-tutorial="job-palette" className="h-auto bg-transparent border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 z-10">
                         {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
                         {renderJobPalette()}
                     </div>
