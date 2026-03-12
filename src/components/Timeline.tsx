@@ -1140,7 +1140,7 @@ export const Timeline: React.FC = () => {
                             title={t('party.title')}
                         >
                             <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
-                            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-200 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white  shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
+                            <span className="font-black text-[10px] uppercase tracking-wider text-app-text-secondary group-hover/btn:text-app-text  shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
                         </button>
 
                         <button
@@ -1155,13 +1155,13 @@ export const Timeline: React.FC = () => {
                             className={clsx(
                                 "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
                                 statusOpen
-                                    ? "bg-blue-500/40 border-blue-400 text-slate-900 dark:text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
-                                    : "water-drop text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+                                    ? "bg-blue-500/40 border-blue-400 text-app-text shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
+                                    : "water-drop text-app-text-secondary hover:text-app-text"
                             )}
                             title={t('settings.party_stats')}
                         >
-                            <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-slate-900 dark:text-white" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
-                            <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
+                            <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-app-text" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
+                            <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
                         </button>
 
                         <div className={clsx(
@@ -1176,12 +1176,12 @@ export const Timeline: React.FC = () => {
                                     "flex items-center gap-2 px-3 py-2 text-sm transition-all duration-300 group/btn cursor-pointer",
                                     isAaModeEnabled
                                         ? "text-white hover:bg-blue-500"
-                                        : "text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+                                        : "text-app-text-secondary hover:text-app-text"
                                 )}
                                 title={t('aa_settings.title')}
                             >
-                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-slate-600 dark:text-slate-300")} />
-                                <span className="font-bold text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('aa_settings.title')}</span>
+                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-app-text-secondary")} />
+                                <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('aa_settings.title')}</span>
                             </button>
                             <div className={clsx(
                                 "h-4 w-[1px]",
@@ -1250,9 +1250,9 @@ export const Timeline: React.FC = () => {
                             {myJobHighlight ? (
                                 <Eye size={14} className="text-yellow-600 dark:text-yellow-400" />
                             ) : (
-                                <EyeOff size={14} className="text-slate-500 dark:text-slate-400 group-hover/btn:text-slate-800 dark:group-hover/btn:text-slate-200" />
+                                <EyeOff size={14} className="text-app-text-secondary group-hover/btn:text-app-text" />
                             )}
-                            <span className="font-bold text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
+                            <span className="font-black text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
                             <div className={clsx(
                                 "w-7 h-4 rounded-full flex items-center p-0.5  ml-1",
                                 myJobHighlight ? "bg-yellow-500" : "bg-black/20 dark:bg-white/10"
@@ -1266,7 +1266,7 @@ export const Timeline: React.FC = () => {
 
                         <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
                             <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
-                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+                            <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
 
                             <div className="flex gap-1 bg-slate-300/50 dark:bg-black/30 p-1 rounded-xl border border-slate-400/30 dark:border-white/10">
                                 <button
@@ -1491,13 +1491,13 @@ export const Timeline: React.FC = () => {
                         )}
                     >
                         <div className="flex items-center h-full w-full md:w-max md:min-w-full">
-                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent-secondary/80 font-bold bg-transparent text-[8px] md:text-[11px]">
+                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent font-black bg-transparent text-[8px] md:text-[11px]">
                                 {t('timeline.header_phase')}
                             </div>
-                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 font-bold text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[9px] md:text-[10px] pl-2 justify-start font-bold">{t('timeline.header_mechanic')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">{t('timeline.header_raw')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-slate-700 dark:text-app-text-muted/70 text-[8px] md:text-[10px] font-bold">{t('timeline.header_taken')}</div>
+                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-app-text-secondary text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_raw')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_taken')}</div>
 
                             {sortedPartyMembers.map((member, index) => (
                                 <div

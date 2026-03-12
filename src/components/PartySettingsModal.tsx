@@ -430,7 +430,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-md" />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-black/10 dark:border-white/10 bg-black/5 dark:bg-black/20 flex flex-col items-center justify-center">
-                            <span className="text-[8px] text-slate-400 dark:text-white/30 font-bold uppercase tracking-widest">Select</span>
+                            <span className="text-[8px] text-app-text-muted font-black uppercase tracking-widest">Select</span>
                         </div>
                     )}
                 </div>
@@ -452,8 +452,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 }}
                                 className={clsx("px-2 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all flex items-center gap-1 border cursor-pointer",
                                     isMyJob
-                                        ? "bg-yellow-500/20 text-yellow-500 dark:text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
-                                        : "bg-black/5 dark:bg-black/40 text-slate-400 dark:text-white/40 border-transparent hover:bg-black/10 hover:text-slate-600 dark:hover:bg-black/60 dark:hover:text-white/80"
+                                        ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-300 border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]"
+                                        : "bg-black/5 dark:bg-black/40 text-app-text-secondary border-transparent hover:bg-black/10 hover:text-app-text dark:hover:bg-black/60"
                                 )}
                                 title="Set as My Job"
                             >
@@ -467,7 +467,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     if (isFocused) setFocusedSlot(null);
                                 }}
                                 // 👇 変更：スマホでも常に表示され、少し大きく押しやすいように調整
-                                className="p-2 rounded-lg bg-red-500/10 text-red-400/80 hover:bg-red-500/20 hover:text-red-400 transition-colors md:opacity-0 group-hover/slot:md:opacity-100 flex items-center justify-center ml-1 cursor-pointer"
+                                className="px-4 py-2 rounded-xl text-[11px] font-black text-app-text-secondary hover:text-app-text hover:bg-black/5 dark:hover:bg-white/10 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer"
                                 title="Remove Job"
                             >
                                 <Trash2 size={16} />
@@ -495,7 +495,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
                         <div className="flex items-center gap-3">
-                            <div className="w-12 text-right text-[9px] font-bold text-app-text-muted uppercase tracking-wider shrink-0">
+                            <div className="w-12 text-right text-[9px] font-black text-app-text-secondary uppercase tracking-wider shrink-0">
                                 {cat.name}
                             </div>
                             <div className="flex flex-wrap gap-1.5">
@@ -570,7 +570,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     onTouchMove={handleSheetTouchMove}
                     onTouchEnd={handleSheetTouchEnd}
                 >
-                    <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                    <div className="w-10 h-1 rounded-full bg-slate-400 dark:bg-slate-500" />
                 </div>
 
                 {/* ヘッダーエリア */}
@@ -580,8 +580,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <User className="text-blue-500" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-app-text tracking-wider">{t('party.configuration_title')}</h2>
-                            <p className="text-[9px] text-app-text-muted mt-0.5">
+                            <h2 className="text-xs font-black text-app-text tracking-wider">{t('party.configuration_title')}</h2>
+                            <p className="text-[9px] text-app-text-secondary mt-0.5">
                                 {focusedSlot !== null
                                     ? <span className="flex items-center gap-1.5 text-sky-400">
                                         <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse inline-block" />
@@ -606,7 +606,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <div>
                             <div className="flex items-center gap-2 mb-2 pl-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]"></span>
-                                <h3 className="text-slate-800 dark:text-blue-200/90 text-[11px] font-bold tracking-widest">MT GROUP</h3>
+                                <h3 className="text-app-text-secondary text-[11px] font-black tracking-widest">MT GROUP</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (MT, H1, D1, D3) */}
@@ -618,7 +618,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <div>
                             <div className="flex items-center gap-2 mb-2 pl-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.6)]"></span>
-                                <h3 className="text-slate-800 dark:text-purple-200/90 text-[11px] font-bold tracking-widest">ST GROUP</h3>
+                                <h3 className="text-app-text-secondary text-[11px] font-black tracking-widest">ST GROUP</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {/* h-14 の大きなスロットを4つ並べる (ST, H2, D2, D4) */}

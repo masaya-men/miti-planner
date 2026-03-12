@@ -77,15 +77,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                         "relative",
                         item.active
                             ? "text-blue-500 dark:text-blue-400"
-                            : "text-slate-400 dark:text-slate-500"
+                            : "text-app-text-muted hover:text-app-text-secondary"
                     )}
                 >
                     {/* Active indicator dot */}
                     {item.active && (
-                        <div className="absolute top-1 w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400" />
+                        <div className="absolute top-1 w-1 h-1 rounded-full bg-app-primary dark:bg-app-primary-dark" />
                     )}
                     <div className="mt-1">{item.icon}</div>
-                    <span className="text-[9px] font-semibold tracking-tight leading-none">{item.label}</span>
+                    <span className="text-[9px] font-black tracking-tight leading-none">{item.label}</span>
                 </button>
             ))}
         </nav>

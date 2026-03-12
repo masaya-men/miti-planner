@@ -26,7 +26,7 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Sliding Highlight Background */}
                 <div className="absolute inset-y-0.5 inset-x-0.5 pointer-events-none">
                     <div
-                        className={`w-1/2 h-full rounded-[4px] bg-blue-600/90 shadow-[0_0_10px_rgba(37,99,235,0.5)] transform transition-transform duration-300 ease-out skew-x-[-12deg] ${currentLang === 'en' ? 'translate-x-full' : 'translate-x-0'
+                        className={`w-1/2 h-full rounded-[4px] bg-app-accent shadow-[0_0_10px_rgba(37,99,235,0.3)] dark:shadow-none transform transition-transform duration-300 ease-out skew-x-[-12deg] ${currentLang === 'en' ? 'translate-x-full' : 'translate-x-0'
                             }`}
                     />
                 </div>
@@ -34,14 +34,14 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Labels */}
                 <button
                     onClick={() => handleLanguageChange('ja')}
-                    className={`flex-1 relative z-10 text-[10px] font-bold transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-slate-800 dark:text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-text-on-accent shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
                         }`}
                 >
                     JP
                 </button>
                 <button
                     onClick={() => handleLanguageChange('en')}
-                    className={`flex-1 relative z-10 text-[10px] font-bold transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-slate-800 dark:text-white shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-text-on-accent shadow-black/50 drop-shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'
                         }`}
                 >
                     EN

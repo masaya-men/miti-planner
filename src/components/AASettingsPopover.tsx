@@ -83,12 +83,12 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-glass-header border-b border-glass-border">
                 <div className="flex items-center gap-2">
-                    <Settings size={14} className="text-slate-600 dark:text-slate-400" />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
+                    <Settings size={14} className="text-app-text-secondary" />
+                    <span className="text-xs font-black text-app-text uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-slate-500 hover:text-slate-800 dark:text-white transition-colors cursor-pointer"
+                    className="text-app-text-muted hover:text-app-text-light dark:text-white transition-colors cursor-pointer"
                 >
                     <X size={14} />
                 </button>
@@ -99,16 +99,16 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Target */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.target')}</label>
+                    <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.target')}</label>
                     <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
                         {['MT', 'ST'].map((target) => (
                             <button
                                 key={target}
                                 className={clsx(
-                                    "flex-1 py-1 px-2 text-xs font-bold rounded transition-colors cursor-pointer",
+                                    "flex-1 py-1 px-2 text-xs font-black rounded transition-colors cursor-pointer",
                                     settings.target === target
                                         ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                        : "text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-900/ dark:hover:bg-white/"
+                                        : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover"
                                 )}
                                 onClick={() => handleChange('target', target)}
                             >
@@ -121,10 +121,10 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.damage')}</label>
+                        <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.damage')}</label>
                         <div className="group relative">
-                            <Info size={12} className="text-slate-600 cursor-help" />
-                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-slate-700 dark:text-slate-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            <Info size={12} className="text-app-text-secondary cursor-help" />
+                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-app-text-secondary leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {t('aa_settings.help_text')}
                             </div>
                         </div>
@@ -134,14 +134,14 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors"
+                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-black font-mono text-app-text focus:outline-none focus:border-blue-500/50 transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>
 
                 {/* Damage Type */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider block">{t('aa_settings.type')}</label>
+                    <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.type')}</label>
                     <div className="flex gap-2">
                         {[
                             { id: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png', color: 'text-cyan-300' },
@@ -159,7 +159,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                 onClick={() => handleChange('type', type.id)}
                             >
                                 <img src={type.icon} alt={String(type.label)} className="w-5 h-5 object-contain opacity-90" />
-                                <span className={clsx("text-[9px] font-bold", settings.type === type.id ? 'text-blue-300' : 'text-slate-500')}>{type.label}</span>
+                                <span className={clsx("text-[9px] font-black", settings.type === type.id ? 'text-blue-300' : 'text-app-text-muted')}>{type.label}</span>
                             </button>
                         ))}
                     </div>
