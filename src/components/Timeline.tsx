@@ -23,6 +23,7 @@ import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
+import { getColumnWidth } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MobileBottomSheet } from './MobileBottomSheet';
@@ -32,11 +33,6 @@ function genId(): string {
     return 'id_' + Math.random().toString(36).substring(2, 9);
 }
 
-// Helper for column widths
-export const getColumnWidth = (role: string) => {
-    if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
-    return 50; // 25px * 2 slots for DPS
-};
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;
@@ -466,7 +462,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     );
 };
 
-export const Timeline: React.FC = () => {
+const Timeline: React.FC = () => {
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
@@ -566,14 +562,31 @@ export const Timeline: React.FC = () => {
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
+    const controlBarRef = useRef<HTMLDivElement>(null);
     const schBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
 
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
         const scrollLeft = scrollContainerRef.current.scrollLeft;
-        if (headerRef.current) headerRef.current.scrollLeft = scrollLeft;
-        if (schBarRef.current) schBarRef.current.scrollLeft = scrollLeft;
+        
+        // Use transform for more reliable sync across different content widths
+        const containers = [
+            { ref: headerRef, id: 'timeline-header-inner' },
+            { ref: controlBarRef, id: 'timeline-controls-inner' },
+            { ref: schBarRef, id: 'timeline-sch-inner' }
+        ];
+
+        containers.forEach(({ ref, id }) => {
+            if (ref.current) {
+                const inner = ref.current.querySelector(`#${id}`) as HTMLElement;
+                if (inner) {
+                    inner.style.transform = `translateX(-${scrollLeft}px)`;
+                } else if (ref.current.firstElementChild) {
+                    (ref.current.firstElementChild as HTMLElement).style.transform = `translateX(-${scrollLeft}px)`;
+                }
+            }
+        });
     };
 
     useEffect(() => {
@@ -581,6 +594,7 @@ export const Timeline: React.FC = () => {
             if (scrollContainerRef.current && headerRef.current) {
                 const scrollbarWidth = scrollContainerRef.current.offsetWidth - scrollContainerRef.current.clientWidth;
                 headerRef.current.style.paddingRight = `${scrollbarWidth}px`;
+                if (controlBarRef.current) controlBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
                 if (schBarRef.current) schBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
             }
         };
@@ -1164,54 +1178,6 @@ export const Timeline: React.FC = () => {
                             <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
                         </button>
 
-                        <div className={clsx(
-                            "flex items-center gap-0 relative rounded-2xl transition-all duration-300 overflow-hidden",
-                            isAaModeEnabled
-                                ? "bg-blue-600 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.6)]"
-                                : "water-drop border border-transparent"
-                        )}>
-                            <button
-                                onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
-                                className={clsx(
-                                    "flex items-center gap-2 px-3 py-2 text-sm transition-all duration-300 group/btn cursor-pointer",
-                                    isAaModeEnabled
-                                        ? "text-white hover:bg-blue-500"
-                                        : "text-app-text-secondary hover:text-app-text"
-                                )}
-                                title={t('aa_settings.title')}
-                            >
-                                <Sword size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-app-text-secondary")} />
-                                <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('aa_settings.title')}</span>
-                            </button>
-                            <div className={clsx(
-                                "h-4 w-[1px]",
-                                isAaModeEnabled ? "bg-blue-400/50" : "bg-slate-300/50 dark:bg-white/10"
-                            )} />
-                            <button
-                                ref={aaSettingsButtonRef}
-                                onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
-                                className={clsx(
-                                    "px-2.5 py-2 transition-all duration-300 cursor-pointer flex items-center justify-center",
-                                    isAaModeEnabled
-                                        ? "text-white hover:bg-blue-500"
-                                        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                                )}
-                                title={t('aa_settings.popover_header')}
-                            >
-                                <Settings size={14} className="transition-transform duration-300 hover:rotate-45" />
-                            </button>
-                        </div>
-
-                        <AASettingsPopover
-                            isOpen={aaSettingsOpen}
-                            onClose={() => setAaSettingsOpen(false)}
-                            settings={aaSettings}
-                            onSettingsChange={setAaSettings}
-                            triggerRef={aaSettingsButtonRef}
-                        />
-
-                        <div className="w-[1px] h-6 bg-slate-900/ dark:bg-white/ mx-1" />
-
                         <button
                             onClick={handleAutoPlan}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
@@ -1242,20 +1208,20 @@ export const Timeline: React.FC = () => {
                             className={clsx(
                                 "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                 myJobHighlight
-                                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-700 dark:text-yellow-100 shadow-[inset_0_1px_0_rgba(250,204,21,0.2)]"
+                                    ? "bg-blue-600/20 border-blue-500/50 text-blue-600 dark:text-blue-300 shadow-[inset_0_1px_0_rgba(37,99,235,0.2)]"
                                     : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
                             )}
                             title={t('party.my_job_select')}
                         >
                             {myJobHighlight ? (
-                                <Eye size={14} className="text-yellow-600 dark:text-yellow-400" />
+                                <Eye size={14} className="text-blue-600 dark:text-blue-400" />
                             ) : (
                                 <EyeOff size={14} className="text-app-text-secondary group-hover/btn:text-app-text" />
                             )}
                             <span className="font-black text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
                             <div className={clsx(
-                                "w-7 h-4 rounded-full flex items-center p-0.5  ml-1",
-                                myJobHighlight ? "bg-yellow-500" : "bg-black/20 dark:bg-white/10"
+                                "w-7 h-4 rounded-full flex items-center p-0.5  ml-1 transition-colors duration-300",
+                                myJobHighlight ? "bg-blue-600" : "bg-black/20 dark:bg-white/10"
                             )}>
                                 <div className={clsx(
                                     "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
@@ -1304,28 +1270,95 @@ export const Timeline: React.FC = () => {
                     "border-slate-200 dark:border-white/5"
                 )}>
                     <div
+                        ref={controlBarRef}
                         className={clsx(
-                            "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b flex items-center justify-between px-1 ",
+                            "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b select-none overflow-hidden",
                             "bg-slate-50/90 border-slate-200 dark:bg-[#111214]/90 dark:border-white/[0.03]"
-                        )}>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                            <button
-                                onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
-                                className={clsx(
-                                    "flex items-center gap-1.5 px-2.5 py-0.5 my-auto ml-1.5 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer shrink-0 hover:scale-[1.03] active:scale-[0.97]",
-                                    useMitigationStore.getState().hideEmptyRows
-                                        ? "bg-emerald-100 text-emerald-700 border-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]"
-                                        : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
-                                )}
-                                title={t('ui.compact_view')}
-                            >
-                                <AlignJustify size={13} className={useMitigationStore.getState().hideEmptyRows ? "text-emerald-700 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"} />
-                                <span className="tracking-tight">
-                                    {t('ui.compact_view')}
-                                </span>
-                            </button>
+                        )}
+                    >
+                        <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
+                            {/* Area A: PHASE(100) + TIME(70) = 170px */}
+                            <div className="w-[30px] min-w-[30px] md:w-[170px] md:min-w-[170px] flex-none flex items-center px-1 md:px-2">
+                                <button
+                                    onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
+                                    className={clsx(
+                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-full text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
+                                        useMitigationStore.getState().hideEmptyRows
+                                            ? "bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                                            : "water-drop text-slate-700 dark:text-slate-200 border border-white/20"
+                                    )}
+                                    title={t('ui.compact_view')}
+                                >
+                                    <AlignJustify
+                                        size={14}
+                                        className={clsx(
+                                            "transition-all duration-300 group-hover/btn:scale-110",
+                                            useMitigationStore.getState().hideEmptyRows
+                                                ? "text-white"
+                                                : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white shrink-0"
+                                        )}
+                                    />
+                                    <span className={clsx(
+                                        "uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block",
+                                        useMitigationStore.getState().hideEmptyRows
+                                            ? "text-white"
+                                            : "text-app-text-secondary group-hover/btn:text-app-text"
+                                    )}>
+                                        {t('ui.compact_view')}
+                                    </span>
+                                </button>
+                            </div>
 
-                            <div className="flex items-center gap-0.5 ml-2 border-l border-white/10 pl-2">
+                            {/* Area B: MECHANIC(200) */}
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] flex items-center px-1 md:px-2">
+                                <div className={clsx(
+                                    "flex items-center gap-0 relative rounded-full transition-all duration-300 overflow-hidden h-6 w-full",
+                                    isAaModeEnabled
+                                        ? "bg-blue-600 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                                        : "water-drop border border-white/20"
+                                )}>
+                                    <button
+                                        onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
+                                        className={clsx(
+                                            "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
+                                            isAaModeEnabled
+                                                ? "text-white hover:bg-blue-500"
+                                                : "text-app-text-secondary hover:text-app-text"
+                                        )}
+                                        title={t('aa_settings.title')}
+                                    >
+                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-app-text-secondary shadow-black/50 drop-shadow-sm shrink-0")} />
+                                        <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block">{t('aa_settings.title')}</span>
+                                    </button>
+                                    <div className={clsx(
+                                        "h-3 w-[1px]",
+                                        isAaModeEnabled ? "bg-blue-400/50" : "bg-slate-300/50 dark:bg-white/10"
+                                    )} />
+                                    <button
+                                        ref={aaSettingsButtonRef}
+                                        onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
+                                        className={clsx(
+                                            "px-2 h-full transition-all duration-300 cursor-pointer flex items-center justify-center group/opt",
+                                            isAaModeEnabled
+                                                ? "text-white hover:bg-blue-500"
+                                                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                                        )}
+                                        title={t('aa_settings.popover_header')}
+                                    >
+                                        <Settings size={12} className="transition-transform duration-300 group-hover/opt:rotate-45" />
+                                    </button>
+                                </div>
+                                <AASettingsPopover
+                                    isOpen={aaSettingsOpen}
+                                    onClose={() => setAaSettingsOpen(false)}
+                                    settings={aaSettings}
+                                    onSettingsChange={setAaSettings}
+                                    triggerRef={aaSettingsButtonRef}
+                                />
+                            </div>
+
+                            {/* Area C: Remaining (RAW/TAKEN/Columns) */}
+                            <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-white/5 pl-2 h-full">
                                 <button
                                     onClick={() => useMitigationStore.getState().undo()}
                                     disabled={useMitigationStore.getState()._history.length === 0}
@@ -1424,7 +1457,7 @@ export const Timeline: React.FC = () => {
                         ref={schBarRef}
                         className="pointer-events-none absolute left-0 right-0 h-7 z-[51] overflow-hidden"
                     >
-                        <div className="relative h-full w-full md:w-max md:min-w-full">
+                        <div id="timeline-sch-inner" className="relative h-full w-full md:w-max md:min-w-max will-change-transform">
                             {(() => {
                                 const schMembers = sortedPartyMembers
                                     .map((m, idx) => ({ member: m, idx }))
@@ -1490,7 +1523,7 @@ export const Timeline: React.FC = () => {
                             "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
                         )}
                     >
-                        <div className="flex items-center h-full w-full md:w-max md:min-w-full">
+                        <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
                             <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent font-black bg-transparent text-[8px] md:text-[11px]">
                                 {t('timeline.header_phase')}
                             </div>
@@ -1512,8 +1545,8 @@ export const Timeline: React.FC = () => {
                                                     "bg-gradient-to-b from-red-500/20 via-red-500/5 to-transparent shadow-[inset_0_1px_0_rgba(239,68,68,0.5)]"
                                         ) : (
                                             ['MT', 'H1', 'D1', 'D3'].includes(member.id)
-                                                ? "bg-gradient-to-b from-cyan-500/20 via-blue-500/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]"
-                                                : "bg-gradient-to-b from-amber-500/20 via-orange-500/5 to-transparent shadow-[inset_0_1px_0_rgba(245,158,11,0.5)]"
+                                                ? "bg-gradient-to-b from-blue-500/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(59,130,246,0.5)]"
+                                                : "bg-gradient-to-b from-cyan-500/20 via-cyan-600/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]"
                                         )
                                     )}
                                 >

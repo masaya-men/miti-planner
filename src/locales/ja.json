@@ -9,10 +9,10 @@
         "shield": "バリア",
         "settings": "設定",
         "import_export": "インポート/エクスポート",
-        "aa_mode": "オートアタック追加モード"
+        "aa_mode": "AA追加モード"
     },
     "aa_settings": {
-        "title": "オートアタック追加モード",
+        "title": "AA追加モード",
         "popover_header": "オートアタック設定",
         "target": "対象タンク",
         "damage": "基本ダメージ量",
@@ -122,7 +122,7 @@
         "sort_light_party": "ライトパーティ",
         "sort_role": "ロール別",
         "highlight_my_job": "自分のジョブをハイライト",
-        "compact_view": "攻撃や軽減がある行だけ表示",
+        "compact_view": "コンパクトに表示",
         "no_jobs": "ジョブが選択されていません",
         "select_jobs": "上のパネルからジョブを選択して計画を開始してください",
         "seconds": "秒",

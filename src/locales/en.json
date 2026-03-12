@@ -9,10 +9,10 @@
         "shield": "Shields",
         "settings": "Settings",
         "import_export": "Import/Export",
-        "aa_mode": "Auto-Attack Mode"
+        "aa_mode": "Add AA Mode"
     },
     "aa_settings": {
-        "title": "Auto-Attack Mode",
+        "title": "Add AA Mode",
         "popover_header": "Auto-Attack Settings",
         "target": "Target Tank",
         "damage": "Raw Damage",
@@ -121,7 +121,7 @@
         "sort_light_party": "Light Party",
         "sort_role": "Role Order",
         "highlight_my_job": "Highlight My Job",
-        "compact_view": "Show Active Rows Only",
+        "compact_view": "Compact Mode",
         "no_jobs": "No jobs selected",
         "select_jobs": "Select jobs from the panel above to start planning",
         "seconds": "s",
