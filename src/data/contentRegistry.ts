@@ -8,12 +8,11 @@ import type {
 } from '../types';
 
 export const CATEGORY_LABELS: Record<ContentCategory, LocalizedString> = {
-    extreme: { ja: '極', en: 'Extreme' },
     savage: { ja: '零式', en: 'Savage' },
-    chaotic: { ja: 'ヴァリアントD', en: 'Chaotic' },
     ultimate: { ja: '絶', en: 'Ultimate' },
-    raid: { ja: '大人数コンテンツ', en: 'Large-Scale' },
-    custom: { ja: 'カスタム', en: 'Custom' },
+    dungeon: { ja: 'ダンジョン', en: 'Dungeon' },
+    raid: { ja: 'レイド', en: 'Raid' },
+    custom: { ja: 'その他', en: 'Misc' },
 };
 
 export const LEVEL_LABELS: Record<ContentLevel, LocalizedString> = {
@@ -155,8 +154,7 @@ export function getContentById(contentId: string): ContentDefinition | undefined
     return CONTENT_DEFINITIONS.find(c => c.id === contentId);
 }
 
-export function getCategoriesByLevel(level: ContentLevel): ContentCategory[] {
-    const categories = new Set(CONTENT_SERIES.filter(s => s.level === level).map(s => s.category));
-    const order: ContentCategory[] = ['savage', 'ultimate', 'extreme', 'chaotic', 'raid', 'custom'];
-    return order.filter(c => categories.has(c));
+export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
+    // Return all standard categories in preferred order, even if empty
+    return ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 }

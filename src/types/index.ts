@@ -85,9 +85,8 @@ export interface PartyMember {
 
 /** Content difficulty category */
 export type ContentCategory =
-    | 'extreme'   // 極
     | 'savage'    // 零式
-    | 'chaotic'   // VD (Chaotic)
+    | 'dungeon'   // ダンジョン
     | 'ultimate'  // 絶
     | 'raid'      // 大人数コンテンツ
     | 'custom';   // ユーザー自作
