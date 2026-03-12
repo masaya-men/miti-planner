@@ -178,6 +178,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const uniqueMitigations = useMemo(() => {
         const seenNames = new Set<string>();
         return MITIGATIONS.filter(mit => {
+            // Level sync filtering
+            if (mit.minLevel !== undefined && currentLevel < mit.minLevel) return false;
+            if (mit.maxLevel !== undefined && currentLevel > mit.maxLevel) return false;
+
             // Filter out excluded IDs first
             if (EXCLUDED_IDS.includes(mit.id)) return false;
 
@@ -186,7 +190,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             seenNames.add(nameEN);
             return true;
         });
-    }, []);
+    }, [currentLevel]);
 
     const sortedMitigations = useMemo(() => {
         return [...uniqueMitigations].sort((a, b) => {
