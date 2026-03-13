@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation } from '../types';
 import { calculateMemberValues } from '../utils/calculator';
 import { JOBS, MITIGATIONS } from '../data/mockData';
+import { LEVEL_MODIFIERS } from '../data/levelModifiers';
+import { DEFAULT_STATS_BY_LEVEL, ALL_PATCH_STATS } from '../data/defaultStats';
 import { useTutorialStore } from './useTutorialStore';
 
 export interface AASettings {
@@ -43,6 +45,7 @@ interface MitigationState {
 
     // Actions
     setCurrentLevel: (level: number) => void;
+    applyDefaultStats: (level: number, patch?: string) => void;
     updateMemberStats: (memberId: string, stats: Partial<PlayerStats>) => void;
     initializeParty: () => void;
     addEvent: (event: TimelineEvent) => void;
@@ -83,25 +86,16 @@ interface MitigationState {
     setClipboardEvent: (event: TimelineEvent | null) => void;
 }
 
-export const DEFAULT_TANK_STATS: PlayerStats = {
-    hp: 296194,
-    mainStat: 6317,
-    det: 3141,
-    crt: 2000,
-    ten: 1000,
-    ss: 400,
-    wd: 130
-};
+const subBase100 = LEVEL_MODIFIERS[100].sub;
+const fillDefaultStats = (partial: any): PlayerStats => ({
+    ...partial,
+    crt: subBase100,
+    ten: subBase100,
+    ss: subBase100
+});
 
-export const DEFAULT_HEALER_STATS: PlayerStats = {
-    hp: 186816,
-    mainStat: 6355,
-    det: 2434,
-    crt: 2000,
-    ten: 400,
-    ss: 400,
-    wd: 154
-};
+export const DEFAULT_TANK_STATS: PlayerStats = fillDefaultStats(DEFAULT_STATS_BY_LEVEL[100].tank);
+export const DEFAULT_HEALER_STATS: PlayerStats = fillDefaultStats(DEFAULT_STATS_BY_LEVEL[100].other);
 
 // Initial Party Slots
 const INITIAL_PARTY: PartyMember[] = [
@@ -235,15 +229,52 @@ export const useMitigationStore = create<MitigationState>()(
                     }
                 },
                 setCurrentLevel: (level) => {
+                    const prevState = get();
+                    // レベルが変わる場合のみ処理
+                    if (prevState.currentLevel === level) return;
+
                     pushHistory();
                     set((state) => ({
                         currentLevel: level,
-                        // レベルが変更されたら全員の計算値を再計算
                         partyMembers: state.partyMembers.map(m => ({
                             ...m,
                             computedValues: calculateMemberValues(m, level)
                         }))
                     }));
+                },
+                applyDefaultStats: (level, patch) => {
+                    pushHistory();
+                    set((state) => {
+                        // 1. パッチ情報があれば優先的に検索
+                        // 2. なければレベルごとのデフォルトを使用
+                        const patchData = patch ? ALL_PATCH_STATS[patch] : null;
+                        const template = patchData || DEFAULT_STATS_BY_LEVEL[level] || DEFAULT_STATS_BY_LEVEL[100];
+                        
+                        // 不足項目(crt, ten, ss)をベース値で補完
+                        const subBase = LEVEL_MODIFIERS[level]?.sub || 420;
+                        const fillStats = (partial: any): PlayerStats => ({
+                            ...partial,
+                            crt: subBase,
+                            ten: subBase,
+                            ss: subBase
+                        });
+
+                        const newDefaults = {
+                            tank: fillStats(template.tank),
+                            other: fillStats(template.other)
+                        };
+
+                        return {
+                            partyMembers: state.partyMembers.map(m => {
+                                const stats = m.role === 'tank' ? newDefaults.tank : newDefaults.other;
+                                return {
+                                    ...m,
+                                    stats: { ...stats },
+                                    computedValues: calculateMemberValues({ ...m, stats }, level)
+                                };
+                            })
+                        };
+                    });
                 },
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
