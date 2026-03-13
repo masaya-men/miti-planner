@@ -146,8 +146,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         </div>
                         <div>
                             <h2 className="text-xs font-bold text-white tracking-wider">{t('party.settings_title', 'パラメータ設定')}</h2>
-                            <p className="text-[9px] text-white mt-0.5">
-                                バリアやヒールの基準となる数値を設定します
+                            <p className="text-[9px] text-white mt-0.5 whitespace-pre-line">
+                                {t('party.settings_desc')}
                             </p>
                         </div>
                     </div>

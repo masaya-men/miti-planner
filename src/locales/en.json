@@ -25,7 +25,7 @@
     "party": {
         "title": "Party Composition",
         "settings_title": "Parameter Settings",
-        "settings_desc": "Set the base values for barriers and healing.",
+        "settings_desc": "Stats from the content release are automatically applied.\nPlease edit as needed.",
         "comp_short": "Party Comp",
         "configuration_title": "Party Composition",
         "configuration_desc": "Tap a job icon or select a slot to assign jobs.",
@@ -87,7 +87,7 @@
         "main_stat_mnd": "Main Stat (MND)",
         "det": "Determination",
         "wd": "Weapon Damage",
-        "shield_preview": "Barrier & Heal Preview"
+        "shield_preview": "Barrier Preview"
     },
     "roles": {
         "tank": "Tank",

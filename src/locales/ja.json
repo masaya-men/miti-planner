@@ -25,7 +25,7 @@
     "party": {
         "title": "パーティ構成",
         "settings_title": "パラメータ設定",
-        "settings_desc": "バリアやヒールの基準となる数値を設定します",
+        "settings_desc": "コンテンツ挑戦当時のステータスが自動適用されています。\n必要に応じて編集してください。",
         "composition": "パーティ",
         "comp_short": "パーティ編成",
         "configuration_title": "パーティ編成",
@@ -88,7 +88,7 @@
         "main_stat_mnd": "メインステータス (MND)",
         "det": "意志力",
         "wd": "武器性能",
-        "shield_preview": "バリア量・ヒール量 プレビュー"
+        "shield_preview": "バリア量 プレビュー"
     },
     "roles": {
         "tank": "タンク",
@@ -96,7 +96,7 @@
         "dps": "DPS"
     },
     "jobs": {
-        "select_job": "ジョブ選択",
+        "select_job": "ジョブを選択",
         "pld": "ナイト",
         "war": "戦士",
         "drk": "暗黒騎士",

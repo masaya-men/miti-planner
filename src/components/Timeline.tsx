@@ -359,7 +359,48 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
         }
     };
 
-    const iconUrl = def?.icon;
+    const getEffectiveIcon = () => {
+        if (!def) return "/icons/Placeholder.png";
+
+        // ホロスコープの動的変化判定
+        if (def.id === 'horoscope') {
+            // ホロスコープ配置後に同じオーナーがヘリオス系スキルを使用しているか確認
+            const hasHeliosAfter = activeMitigations.some(am => 
+                (am.mitigationId === 'helios_conjunction' || am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction_base') &&
+                am.ownerId === mitigation.ownerId &&
+                am.time >= mitigation.time &&
+                am.time <= mitigation.time + 10 // ホロスコープ待機時間内
+            );
+            if (hasHeliosAfter) return "/icons/Horoscope_2.png";
+        }
+
+        // アーサリースターの動的変化判定 (設置後10秒で変化)
+        if (def.id === 'earthly_star') {
+            // タイムライン上の表示位置（selectedTimeではない、個別のアイテム位置）
+            // ここでは簡易的に現在の配置時間からの経過で判定するロジックを想定
+            // シミュレーターとして「10秒後の位置」を特定するのは描画ロジックに依存するため
+            // 配置されたオブジェクト自体は1つのため、アイコン1つを表示する
+            // ユーザー要望: 10秒後に巨星へ。表示を分ける場合は別ロジックだが
+            // ここでは「配置したスターが10s経過位置にあるか」ではなく「スター自体」を表示
+        }
+
+        // 学者: サモン・セラフィム中のアイコン置換
+        const isSeraphActive = activeMitigations.some(am => 
+            am.mitigationId === 'summon_seraph' &&
+            am.ownerId === mitigation.ownerId &&
+            mitigation.time >= am.time &&
+            mitigation.time < am.time + am.duration
+        );
+
+        if (isSeraphActive) {
+            if (def.id === 'whispering_dawn') return "/icons/Angel's_Whisper.png";
+            if (def.id === 'fey_illumination') return "/icons/Seraphic_Illumination.png";
+        }
+
+        return def.icon;
+    };
+
+    const iconUrl = getEffectiveIcon();
     const nameStr = def ? (contentLanguage === 'en' ? def.name.en : def.name.ja) : '';
 
     return (
@@ -919,9 +960,10 @@ const Timeline: React.FC = () => {
     };
 
     const damageMap = useMemo(() => {
-        const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean }>();
+        const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean, mitigationStates?: Record<string, { stacks?: number }> }>();
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
         const shieldStates = new Map<string, Map<string, number>>();
+        const stackStates = new Map<string, Map<string, number>>(); // 🚀 Added for Haima/Panhaima
 
         const getShieldState = (context: string, instanceId: string, maxValue: number) => {
             if (!shieldStates.has(context)) {
@@ -941,6 +983,25 @@ const Timeline: React.FC = () => {
             shieldStates.get(context)!.set(instanceId, newValue);
         };
 
+        // 🚀 Helper to manage stack states
+        const getStackState = (context: string, instanceId: string, maxStacks: number) => {
+            if (!stackStates.has(context)) {
+                stackStates.set(context, new Map());
+            }
+            const contextMap = stackStates.get(context)!;
+            if (!contextMap.has(instanceId)) {
+                contextMap.set(instanceId, maxStacks);
+            }
+            return contextMap.get(instanceId)!;
+        };
+
+        const updateStackState = (context: string, instanceId: string, newValue: number) => {
+            if (!stackStates.has(context)) {
+                stackStates.set(context, new Map());
+            }
+            stackStates.get(context)!.set(instanceId, newValue);
+        };
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
@@ -954,8 +1015,8 @@ const Timeline: React.FC = () => {
             let currentDamage = event.damageAmount;
             let mitigationMultipliers = 1;
             let displayShieldTotal = 0;
-            let displayShieldAbsorbed = 0;
             let isInvincibleForEvent = false;
+            const eventMitigationStates: Record<string, { stacks?: number }> = {}; // 🚀 Store per-event mitigation states
 
             const activeMitigations = timelineMitigations.filter(m =>
                 m.time <= event.time && event.time < m.time + m.duration
@@ -1035,20 +1096,32 @@ const Timeline: React.FC = () => {
                     const maxValBase = member.computedValues[def.name.en] || member.computedValues[def.name.ja] || 0;
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
-                    const remainingForDisplay = getShieldState(displayContext, appMit.id, maxVal);
-                    displayShieldTotal += remainingForDisplay;
-
-                    if (remainingForDisplay > 0 && currentDamage > 0) {
-                        const absorbed = Math.min(remainingForDisplay, currentDamage);
-                        currentDamage -= absorbed;
-                        displayShieldAbsorbed += absorbed;
-                    }
-
+                    // 🚀 Handle stacks (Haima/Panhaima)
                     affectedContexts.forEach(ctx => {
-                        const remaining = getShieldState(ctx, appMit.id, maxVal);
-                        if (remaining > 0) {
-                            const absorbed = Math.min(remaining, damageForShields);
-                            updateShieldState(ctx, appMit.id, remaining - absorbed);
+                        let shieldRemaining = getShieldState(ctx, appMit.id, maxVal);
+                        let stacksRemaining = def.stacks !== undefined ? getStackState(ctx, appMit.id, def.stacks) : undefined;
+
+                        if (shieldRemaining > 0) {
+                            const absorbed = Math.min(shieldRemaining, damageForShields);
+                            const isBroken = absorbed >= shieldRemaining;
+                            
+                            let finalShield = shieldRemaining - absorbed;
+                            let finalStacks = stacksRemaining;
+
+                            // 🚨 仕様修正：1回の着弾で複数スタックを一気に消費しない
+                            if (isBroken && finalStacks !== undefined && finalStacks > 0 && def.reapplyOnAbsorption) {
+                                finalStacks -= 1;
+                                finalShield = maxVal; // 貼り直されたので次は新品
+                            }
+
+                            updateShieldState(ctx, appMit.id, finalShield);
+                            if (finalStacks !== undefined) updateStackState(ctx, appMit.id, finalStacks);
+                            
+                            if (ctx === displayContext) {
+                                displayShieldTotal += shieldRemaining; 
+                                eventMitigationStates[appMit.id] = { stacks: finalStacks };
+                                currentDamage = Math.max(0, currentDamage - absorbed);
+                            }
                         }
                     });
                 });
@@ -1062,7 +1135,8 @@ const Timeline: React.FC = () => {
                 mitigated: finalTaken,
                 mitigationPercent: percentMod,
                 shieldTotal: displayShieldTotal,
-                isInvincible: isInvincibleForEvent
+                isInvincible: isInvincibleForEvent,
+                mitigationStates: eventMitigationStates // 🚀 Store for UI
             });
         });
 
@@ -1766,7 +1840,7 @@ const Timeline: React.FC = () => {
                                                             activeMitigations={ownerMitigations}
                                                             schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
                                                             overlapOffset={0}
-                                                            timeToYMap={timeToYMap} /* 👈 追加：マップを渡す */
+                                                            timeToYMap={timeToYMap}
                                                         />
                                                     );
                                                 });

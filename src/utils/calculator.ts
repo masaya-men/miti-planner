@@ -157,6 +157,7 @@ export const SKILL_DATA = {
     "エウクラシア・プログノシス": { "potency": 100, "type": "potency", "multiplier": 3.2, "jobs": ["sge"], "icon": "Eukrasian_Prognosis.png", "nameEn": "Eukrasian Prognosis", "maxLevel": 95, "minLevel": 30 },
     "ホーリズム": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Holos.png", "nameEn": "Holos", "minLevel": 86 },
     "パンハイマ": { "potency": 200, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Panhaima.png", "nameEn": "Panhaima", "minLevel": 80 },
+    "ハイマ": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Haima.png", "nameEn": "Haima", "minLevel": 70 },
 
     // --- Warrior ---
     "原初の血気": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Bloodwhetting.png", "nameEn": "Bloodwhetting", "minLevel": 82 },

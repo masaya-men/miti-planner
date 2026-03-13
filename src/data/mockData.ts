@@ -13,6 +13,8 @@ export const MITIGATION_DISPLAY_ORDER = [
     'temperance',
     'divine_caress',
     'liturgy_of_the_bell',
+    'divine_benison',
+    'aquaveil',
     'sacred_soil',
     'succor',
     'concitation',
@@ -23,19 +25,32 @@ export const MITIGATION_DISPLAY_ORDER = [
     'seraphism',
     'accession',
     'dissipation',
+    'whispering_dawn',
+    'fey_blessing',
+    'indomitability',
+    'aetherpact',
     'collective_unconscious',
     'neutral_sect',
     'sun_sign',
     'helios_conjunction_base',
     'helios_conjunction',
     'macrocosmos',
+    'earthly_star',
+    'horoscope',
+    'celestial_intersection',
+    'exaltation',
     'kerachole',
     'holos',
     'panhaima',
     'philosophia',
+    'physis',
+    'ixochole',
+    'haima',
+    'pneuma',
     'feint_base',
     'feint',
     'mantra',
+    'riddle_of_earth',
     'troubadour_base',
     'troubadour',
     'nature_s_minne',
@@ -119,7 +134,11 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Gunbreaker ---
     {
         id: "aurora", jobId: "gnb", name: { ja: "オーロラ", en: "Aurora" }, icon: "/icons/Aurora.png",
-        recast: 60, duration: 18, type: "all", value: 0, isShield: false, scope: "self", family: "tank_sub_targeted"
+        recast: 60, duration: 18, type: "all", value: 0, isShield: false, scope: "target", maxLevel: 83, family: "tank_sub_targeted"
+    },
+    {
+        id: "aurora_v2", jobId: "gnb", name: { ja: "オーロラ", en: "Aurora" }, icon: "/icons/Aurora.png",
+        recast: 60, duration: 18, type: "all", value: 0, isShield: false, scope: "target", maxCharges: 2, minLevel: 84, family: "tank_sub_targeted"
     },
     {
         id: "camouflage", jobId: "gnb", name: { ja: "カモフラージュ", en: "Camouflage" }, icon: "/icons/Camouflage.png",
@@ -214,6 +233,10 @@ export const MITIGATIONS: Mitigation[] = [
         id: "weapon_break", jobId: "mnk", name: { ja: "ウェポンブレイク", en: "Weapon Break" }, icon: "/icons/Dismantle.png",
         recast: 90, duration: 15, type: "all", value: 10, isShield: false, minLevel: 88, family: "melee_target_10"
     },
+    {
+        id: "riddle_of_earth", jobId: "mnk", name: { ja: "金剛の極意", en: "Riddle of Earth" }, icon: "/icons/Riddle_of_Earth.png",
+        recast: 120, duration: 10, type: "all", value: 20, isShield: false, scope: "self", minLevel: 64, family: "melee_self_miti"
+    },
 
     // --- Dark Knight ---
     {
@@ -287,6 +310,22 @@ export const MITIGATIONS: Mitigation[] = [
         recast: 30, duration: 17, type: "all", value: 10, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, family: "healer_bubble"
     },
     {
+        id: "whispering_dawn", jobId: "sch", name: { ja: "光の囁き", en: "Whispering Dawn" }, icon: "/icons/Whispering_Dawn.png",
+        recast: 60, duration: 21, type: "all", value: 0, isShield: false, family: "bh_sub_a"
+    },
+    {
+        id: "indomitability", jobId: "sch", name: { ja: "不撓不屈の策", en: "Indomitability" }, icon: "/icons/Indomitability.png",
+        recast: 30, duration: 1, type: "all", value: 0, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, family: "bh_sub_b"
+    },
+    {
+        id: "fey_blessing", jobId: "sch", name: { ja: "フェイブレッシング", en: "Fey Blessing" }, icon: "/icons/Fey_Blessing.png",
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, minLevel: 76, family: "bh_sub_b"
+    },
+    {
+        id: "aetherpact", jobId: "sch", name: { ja: "エーテルパクト", en: "Aetherpact" }, icon: "/icons/Aetherpact.png",
+        recast: 1, duration: 15, type: "all", value: 0, isShield: false, note: "15秒固定", minLevel: 70, family: "bh_sub_c"
+    },
+    {
         id: "seraphism", jobId: "sch", name: { ja: "セラフィズム", en: "Seraphism" }, icon: "/icons/Seraphism.png",
         recast: 180, duration: 20, type: "all", value: 0, isShield: false, family: "bh_180_big"
     },
@@ -342,11 +381,29 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "panhaima", jobId: "sge", name: { ja: "パンハイマ", en: "Panhaima" }, icon: "/icons/Panhaima.png",
-        recast: 120, duration: 15, type: "all", value: 0, isShield: true, family: "bh_120_a"
+        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 200, 
+        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 100, minLevel: 80, family: "bh_120_a"
     },
     {
         id: "philosophia", jobId: "sge", name: { ja: "フィロソフィア", en: "Philosophia" }, icon: "/icons/Philosophia.png",
         recast: 180, duration: 20, type: "all", value: 0, isShield: false, family: "bh_180_big"
+    },
+    {
+        id: "physis", jobId: "sge", name: { ja: "ピュシスII", en: "Physis II" }, icon: "/icons/Physis_II.png",
+        recast: 60, duration: 15, type: "all", value: 0, isShield: false, note: "PH2持続15s", minLevel: 60, family: "bh_sub_a"
+    },
+    {
+        id: "ixochole", jobId: "sge", name: { ja: "イックソコレ", en: "Ixochole" }, icon: "/icons/Ixochole.png",
+        recast: 30, duration: 1, type: "all", value: 0, isShield: false, resourceCost: { type: 'addersgall', amount: 1 }, minLevel: 52, family: "bh_sub_b"
+    },
+    {
+        id: "haima", jobId: "sge", name: { ja: "ハイマ", en: "Haima" }, icon: "/icons/Haima.png",
+        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 300, 
+        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 150, note: "300x(1+5)回分", scope: "target", minLevel: 70, family: "bh_sub_c"
+    },
+    {
+        id: "pneuma", jobId: "sge", name: { ja: "プネウマ", en: "Pneuma" }, icon: "/icons/Pneuma.png",
+        recast: 120, duration: 1, type: "all", value: 0, isShield: false, note: "リキャスト管理のみ", minLevel: 90, family: "bh_target_shield"
     },
 
     // --- Red Mage ---
@@ -380,6 +437,22 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "sun_sign", jobId: "ast", name: { ja: "サンサイン", en: "Sun Sign" }, icon: "/icons/Sun_Sign.png",
         recast: 1, duration: 15, type: "all", value: 10, isShield: false, requires: "neutral_sect", maxCharges: 1, minLevel: 100, family: "ph_sub_120"
+    },
+    {
+        id: "earthly_star", jobId: "ast", name: { ja: "アーサリースター", en: "Earthly Star" }, icon: "/icons/Earthly_Star.png",
+        recast: 60, duration: 20, type: "all", value: 0, isShield: false, minLevel: 62, family: "ph_60_aoe"
+    },
+    {
+        id: "horoscope", jobId: "ast", name: { ja: "ホロスコープ", en: "Horoscope" }, icon: "/icons/Horoscope_1.png",
+        recast: 60, duration: 10, type: "all", value: 0, isShield: false, minLevel: 70, family: "ph_60_aoe"
+    },
+    {
+        id: "exaltation", jobId: "ast", name: { ja: "エクザルテーション", en: "Exaltation" }, icon: "/icons/Exaltation.png",
+        recast: 60, duration: 8, type: "all", value: 10, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
+    },
+    {
+        id: "celestial_intersection", jobId: "ast", name: { ja: "星天交差", en: "Celestial Intersection" }, icon: "/icons/Celestial_Intersection.png",
+        recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, minLevel: 74, family: "ph_target_shield"
     },
 
     // --- Warrior ---
@@ -432,6 +505,14 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "temperance", jobId: "whm", name: { ja: "テンパランス", en: "Temperance" }, icon: "/icons/Temperance.png",
         recast: 120, duration: 20, type: "all", value: 10, isShield: false, minLevel: 80, family: "ph_120_aoe"
+    },
+    {
+        id: "aquaveil", jobId: "whm", name: { ja: "アクアヴェール", en: "Aquaveil" }, icon: "/icons/Aquaveil.png",
+        recast: 90, duration: 8, type: "all", value: 15, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
+    },
+    {
+        id: "divine_benison", jobId: "whm", name: { ja: "ディヴァインベニゾン", en: "Divine Benison" }, icon: "/icons/Divine_Benison.png",
+        recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, minLevel: 66, family: "ph_target_shield"
     },
 
     // --- Dancer ---

@@ -94,21 +94,39 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         return validateMitigationPlacement(m, selectedTime, activeMitigations, schAetherflowPattern, t);
     };
 
-    const SINGLE_TARGET_BUFFS = ['the_blackest_night', 'heart_of_corundum', 'intervention', 'oblation', 'aquaveil', 'exaltation', 'protraction', 'taurochole', 'haima', 'aurora', 'nascent_flash'];
+    const isSeraphActive = jobId === 'sch' && activeMitigations.some(am =>
+        am.mitigationId === 'summon_seraph' &&
+        selectedTime >= am.time &&
+        selectedTime < am.time + am.duration
+    );
 
-    const availableMitigations = allJobMitigations.filter(m => {
-        // Level sync filtering
-        if (m.minLevel !== undefined && currentLevel < m.minLevel) return false;
-        if (m.maxLevel !== undefined && currentLevel > m.maxLevel) return false;
+    const availableMitigations = allJobMitigations
+        .filter((m: Mitigation) => {
+            // Level sync filtering
+            if (m.minLevel !== undefined && currentLevel < m.minLevel) return false;
+            if (m.maxLevel !== undefined && currentLevel > m.maxLevel) return false;
 
-        if (!m.requires) return true;
-        return activeMitigations.some(am => {
-            if (am.mitigationId !== m.requires) return false;
-            const start = am.time;
-            const end = am.time + am.duration;
-            return selectedTime >= start && selectedTime < end;
-        });
-    }).sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
+            if (!m.requires) return true;
+            return activeMitigations.some(am => {
+                if (am.mitigationId !== m.requires) return false;
+                const start = am.time;
+                const end = am.time + am.duration;
+                return selectedTime >= start && selectedTime < end;
+            });
+        })
+        .map((m: Mitigation) => {
+            // Scholar Seraph dynamic changes
+            if (isSeraphActive) {
+                if (m.id === 'whispering_dawn') {
+                    return { ...m, name: { ...m.name, ja: '光輝の囁き', en: 'Angel\'s Whisper' }, icon: '/icons/Angel\'s_Whisper.png' };
+                }
+                if (m.id === 'fey_illumination') {
+                    return { ...m, name: { ...m.name, ja: 'セラフィックイルミネーション', en: 'Seraphic Illumination' }, icon: '/icons/Seraphic_Illumination.png' };
+                }
+            }
+            return m;
+        })
+        .sort((a: Mitigation, b: Mitigation) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
 
     const handleMitigationClick = (mitigation: Mitigation) => {
         const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
@@ -117,7 +135,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             return;
         }
 
-        if (SINGLE_TARGET_BUFFS.includes(mitigation.id)) {
+        if (mitigation.scope === 'target') {
             setSelectedSingleTargetMit(mitigation);
             useTutorialStore.getState().completeEvent('tutorial:selected-target-miti');
         } else {
@@ -198,7 +216,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 isClickBlockedByTutorial = true;
                                             }
                                         } else if (currentStep.id === 'tutorial-8c-tb-skill') {
-                                            const isTargetBuff = SINGLE_TARGET_BUFFS.includes(mitigation.id);
+                                            const isTargetBuff = mitigation.scope === 'target';
                                             if (isTargetBuff) {
                                                 tutorialSkillDataAttr = 'tutorial-skill-intervention';
                                             } else {
@@ -261,7 +279,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 }`}>
                                                 {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
                                                 {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">{t('mitigation.remove')}</span>}
-                                                {SINGLE_TARGET_BUFFS.includes(mitigation.id) && !isAlreadyPlaced && (
+                                                {mitigation.scope === 'target' && !isAlreadyPlaced && (
                                                     <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-app-text-secondary">▶</span>
                                                 )}
                                             </div>
