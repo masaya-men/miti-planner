@@ -324,7 +324,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
     const handleSelectContent = (content: ContentDefinition) => {
         setSelectedContentId(content.id);
-        useMitigationStore.getState().setCurrentLevel(content.level);
+        const store = useMitigationStore.getState();
+        store.setCurrentLevel(content.level);
+        store.applyDefaultStats(content.level, content.patch);
         setActiveLevel(content.level);
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
     };
