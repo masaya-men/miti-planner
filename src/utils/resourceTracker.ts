@@ -270,18 +270,32 @@ export function validateMitigationPlacement(
         const parentInstances = relevantMitigations.filter(am => am.mitigationId === m.requires);
 
         // 移動させようとしている時間が、前提スキルの効果時間内に収まっているかチェック
-        const isActiveParent = parentInstances.some(p => {
+        let isActiveParent = parentInstances.some(p => {
             return selectedTime >= p.time && selectedTime < (p.time + p.duration);
         });
+
+        // AST SpecialCase: Horoscope also allows Helios skills (which normally require Neutral Sect)
+        // This check must run even if Neutral Sect (parentInstances) is empty.
+        if (!isActiveParent && m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
+            const horoscopeInstances = relevantMitigations.filter(am => am.mitigationId === 'horoscope');
+            isActiveParent = horoscopeInstances.some(h => selectedTime >= h.time && selectedTime < (h.time + h.duration));
+        }
 
         // 収まっていない場合は、エラーメッセージを返して配置をブロック！
         if (!isActiveParent) {
             const parentDef = MITIGATIONS.find(d => d.id === m.requires);
-            const parentName = parentDef ? parentDef.name : '前提スキル';
-            return {
-                available: false,
-                message: t('mitigation.requires_parent', { parent: parentName, defaultValue: `${parentName}の効果中のみ使用可能` })
-            };
+            // Fix: parentDef.name is a LocalizedString object { ja: string, en: string }. 
+            // We must extract the string based on context or use i18next's capabilities.
+            const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };
+            const lang = t('lang_info', 'ja'); // Simple heuristic to detect current lang from t
+            const parentNameStr = (lang === 'en' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
+
+            let message = t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` });
+            if (m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
+                message = t('mitigation.ast_helios_requires', 'ニュートラルセクトまたはホロスコープの効果中のみ使用可能');
+            }
+
+            return { available: false, message };
         }
     }
     // 👆 追加ここまで
