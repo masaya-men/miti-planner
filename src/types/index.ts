@@ -28,7 +28,7 @@ export interface Mitigation {
     minLevel?: number;      // Added for level sync
     maxLevel?: number;      // Added for level sync
     note?: string; // Optional description/details
-    scope?: 'self' | 'party'; // Scope of the mitigation
+    scope?: 'self' | 'party' | 'target'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
     healingIncrease?: number; // Healing potency increase (e.g. 10 for 10%)
     healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)
@@ -36,6 +36,9 @@ export interface Mitigation {
     resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
     family?: string; // Compatibility family for job migration mappings
+    stacks?: number; // Max stacks for multi-layer barriers (e.g. Haima=5)
+    reapplyOnAbsorption?: boolean; // If true, shield reapplies using a stack when broken
+    onExpiryHealingPotency?: number; // Healing per remaining stack when duration expires
 }
 
 export interface AppliedMitigation {
