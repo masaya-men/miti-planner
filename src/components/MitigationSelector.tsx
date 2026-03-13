@@ -108,10 +108,22 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
             if (!m.requires) return true;
             return activeMitigations.some(am => {
-                if (am.mitigationId !== m.requires) return false;
-                const start = am.time;
-                const end = am.time + am.duration;
-                return selectedTime >= start && selectedTime < end;
+                const isNeutSect = am.mitigationId === 'neutral_sect';
+                const isHoroscope = am.mitigationId === 'horoscope';
+                const isActive = selectedTime >= am.time && selectedTime < am.time + am.duration;
+                if (!isActive) return false;
+
+                // Special handling for Astrologian conditional skills
+                if (m.requires === 'neutral_sect') {
+                    // Sun Sign MUST have Neutral Sect active
+                    if (m.id === 'sun_sign') {
+                        return isNeutSect;
+                    }
+                    // Helios-based skills can use either Neutral Sect or Horoscope
+                    return isNeutSect || isHoroscope;
+                }
+
+                return am.mitigationId === m.requires;
             });
         })
         .map((m: Mitigation) => {

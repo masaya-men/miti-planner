@@ -51,7 +51,9 @@ interface MitigationItemProps {
     schAetherflowPattern: 1 | 2;
     overlapOffset?: number;
     recastHeight?: number;
-    timeToYMap: Map<number, number>; // 👈 追加：コンパクトモードの吸着計算用
+    timeToYMap: Map<number, number>;
+    isVirtual?: boolean;
+    iconOverride?: string;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -123,7 +125,8 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight, timeToYMap
+        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight, timeToYMap,
+        isVirtual = false, iconOverride
     } = props;
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
@@ -244,7 +247,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const handleContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (dragStartRef.current) return;
+        if (dragStartRef.current || isVirtual) return;
         onRemove(mitigation.id);
     };
 
@@ -305,7 +308,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     };
 
     const handlePointerDown = (e: React.PointerEvent) => {
-        if (e.button !== 0) return;
+        if (e.button !== 0 || isVirtual) return;
         e.preventDefault();
         e.stopPropagation();
         (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -360,19 +363,8 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     };
 
     const getEffectiveIcon = () => {
+        if (iconOverride) return iconOverride;
         if (!def) return "/icons/Placeholder.png";
-
-        // ホロスコープの動的変化判定
-        if (def.id === 'horoscope') {
-            // ホロスコープ配置後に同じオーナーがヘリオス系スキルを使用しているか確認
-            const hasHeliosAfter = activeMitigations.some(am => 
-                (am.mitigationId === 'helios_conjunction' || am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction_base') &&
-                am.ownerId === mitigation.ownerId &&
-                am.time >= mitigation.time &&
-                am.time <= mitigation.time + 10 // ホロスコープ待機時間内
-            );
-            if (hasHeliosAfter) return "/icons/Horoscope_2.png";
-        }
 
         // アーサリースターの動的変化判定 (設置後10秒で変化)
         if (def.id === 'earthly_star') {
@@ -385,7 +377,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
         }
 
         // 学者: サモン・セラフィム中のアイコン置換
-        const isSeraphActive = activeMitigations.some(am => 
+        const isSeraphActive = activeMitigations.some(am =>
             am.mitigationId === 'summon_seraph' &&
             am.ownerId === mitigation.ownerId &&
             mitigation.time >= am.time &&
@@ -436,7 +428,10 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 />
                 <div
                     className={clsx(
-                        "w-6 h-6 rounded shadow-md relative z-20 cursor-grab hover:scale-110 transition-transform pointer-events-auto",
+                        "rounded shadow-md relative z-20 transition-transform flex items-center justify-center",
+                        "w-6 h-6",
+                        !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
+                        isVirtual && "cursor-default pointer-events-none",
                         myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
                     )}
                     onContextMenu={handleContextMenu}
@@ -448,11 +443,21 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     onTouchMove={handleTouchMove}
                     title={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')} `}
                 >
-                    <div className="w-full h-full bg-black/50 overflow-hidden rounded border border-white/20">
-                        {iconUrl ? <img src={iconUrl} className="w-full h-full object-cover pointer-events-none" draggable={false} /> : <div className="w-full h-full bg-slate-500"></div>}
+                    <div className={clsx(
+                        "w-full h-full bg-black/50 overflow-hidden rounded border border-white/20 flex items-center justify-center",
+                        isVirtual && "bg-transparent border-none shadow-none"
+                    )}>
+                        <img 
+                            src={getEffectiveIcon()} 
+                            alt="" 
+                            className={clsx(
+                                "object-contain",
+                                isVirtual ? "w-5 h-5" : "w-full h-full rounded"
+                            )} 
+                        />
                     </div>
 
-                    {mitigation.targetId && (() => {
+                    {!isVirtual && mitigation.targetId && (() => {
                         const members = useMitigationStore.getState().partyMembers;
                         const targetMember = members.find((m: import('../types').PartyMember) => m.id === mitigation.targetId);
                         const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
@@ -611,7 +616,7 @@ const Timeline: React.FC = () => {
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
         const scrollLeft = scrollContainerRef.current.scrollLeft;
-        
+
         // Use transform for more reliable sync across different content widths
         const containers = [
             { ref: headerRef, id: 'timeline-header-inner' },
@@ -1104,7 +1109,7 @@ const Timeline: React.FC = () => {
                         if (shieldRemaining > 0) {
                             const absorbed = Math.min(shieldRemaining, damageForShields);
                             const isBroken = absorbed >= shieldRemaining;
-                            
+
                             let finalShield = shieldRemaining - absorbed;
                             let finalStacks = stacksRemaining;
 
@@ -1116,9 +1121,9 @@ const Timeline: React.FC = () => {
 
                             updateShieldState(ctx, appMit.id, finalShield);
                             if (finalStacks !== undefined) updateStackState(ctx, appMit.id, finalStacks);
-                            
+
                             if (ctx === displayContext) {
-                                displayShieldTotal += shieldRemaining; 
+                                displayShieldTotal += shieldRemaining;
                                 eventMitigationStates[appMit.id] = { stacks: finalStacks };
                                 currentDamage = Math.max(0, currentDamage - absorbed);
                             }
@@ -1753,6 +1758,14 @@ const Timeline: React.FC = () => {
                                                 };
 
                                                 ownerMitigations.sort((a, b) => {
+                                                    // 同一タイミングの場合、ホロスコープやアーサリースターを左側に寄せたい
+                                                    if (a.time === b.time) {
+                                                        const isA_Base = a.mitigationId === 'horoscope' || a.mitigationId === 'earthly_star';
+                                                        const isB_Base = b.mitigationId === 'horoscope' || b.mitigationId === 'earthly_star';
+                                                        if (isA_Base && !isB_Base) return -1;
+                                                        if (!isA_Base && isB_Base) return 1;
+                                                    }
+                                                    
                                                     const rA = getRecast(a.mitigationId);
                                                     const rB = getRecast(b.mitigationId);
                                                     if (rA !== rB) return rA - rB;
@@ -1818,7 +1831,27 @@ const Timeline: React.FC = () => {
                                                     const calculatedRecastHeight = Math.max(0, recastEndY - startY);
 
                                                     const top = startY;
-                                                    const height = Math.max(0, Math.round(endY - startY));
+                                                    let height = Math.max(0, Math.round(endY - startY));
+
+                                                    // 👇 AST: ホロスコープの効果バーを五角形アイコンの上辺の少し上で切る（隠間あり）
+                                                    if (def?.id === 'horoscope') {
+                                                        const heliosInHoro = timelineMitigations.filter((am: import('../types').AppliedMitigation) =>
+                                                            (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
+                                                            am.ownerId === mitigation.ownerId &&
+                                                            am.time >= mitigation.time &&
+                                                            am.time < mitigation.time + durationSeconds
+                                                        ).sort((a: import('../types').AppliedMitigation, b: import('../types').AppliedMitigation) => a.time - b.time);
+                                                        if (heliosInHoro.length > 0) {
+                                                            const cutY = getMappedY(heliosInHoro[0].time);
+                                                            height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                        }
+                                                    }
+
+                                                    // 👇 AST: アーサリースターの効果バーを10秒（巨星変化ポイント）の少し上で切る（隠間あり）
+                                                    if (def?.id === 'earthly_star' && durationSeconds > 10) {
+                                                        const cutY = getMappedY(mitigation.time + 10);
+                                                        height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                    }
 
                                                     const absoluteLeft = colStart + 2 + candidateLeft;
 
@@ -1843,6 +1876,75 @@ const Timeline: React.FC = () => {
                                                             timeToYMap={timeToYMap}
                                                         />
                                                     );
+
+                                                    // 👇 AST: ホロスコープ効果中のヘリオス使用時に五角形アイコンを通常サイズで表示
+                                                    if (def?.id === 'horoscope') {
+                                                        const heliosEvents = timelineMitigations.filter((am: import('../types').AppliedMitigation) =>
+                                                            (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
+                                                            am.ownerId === mitigation.ownerId &&
+                                                            am.time >= mitigation.time &&
+                                                            am.time < durationEndTime
+                                                        );
+
+                                                        heliosEvents.forEach((he: import('../types').AppliedMitigation) => {
+                                                            // 同一タイミングの場合は1秒ずらす
+                                                            const displayTime = he.time === mitigation.time ? he.time + 1 : he.time;
+                                                            const iconY = getMappedY(displayTime);
+                                                            const horoHeliosEndTime = displayTime + 30 - 1;
+                                                            const horoHeliosEndY = getMappedY(horoHeliosEndTime) + 24;
+                                                            const horoHeliosHeight = Math.max(0, Math.round(horoHeliosEndY - iconY));
+                                                            renderedItems.push(
+                                                                <MitigationItem
+                                                                    key={`${mitigation.id}-horo-helios-${he.id}`}
+                                                                    mitigation={{...he, id: `virtual-horo-${he.id}`, time: displayTime, mitigationId: mitigation.mitigationId}}
+                                                                    pixelsPerSecond={pixelsPerSecond}
+                                                                    onRemove={() => {}}
+                                                                    onUpdateTime={() => {}}
+                                                                    top={iconY}
+                                                                    height={horoHeliosHeight}
+                                                                    left={absoluteLeft}
+                                                                    partySortOrder={partySortOrder}
+                                                                    offsetTime={offsetTime}
+                                                                    scrollContainerRef={scrollContainerRef}
+                                                                    activeMitigations={ownerMitigations}
+                                                                    schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
+                                                                    timeToYMap={timeToYMap}
+                                                                    isVirtual={true}
+                                                                    iconOverride="/icons/horoscope_helios.png"
+                                                                />
+                                                            );
+                                                        });
+                                                    }
+
+                                                    // 👇 AST: アーサリースター設置から10秒後に「巨星」アイコンを通常サイズで表示
+                                                    if (def?.id === 'earthly_star') {
+                                                        const giantTime = mitigation.time + 10;
+                                                        if (giantTime < durationEndTime) {
+                                                            const giantY = getMappedY(giantTime);
+                                                            const giantEndY = getMappedY(durationEndTime) + 24;
+                                                            const giantHeight = Math.max(0, Math.round(giantEndY - giantY));
+                                                            renderedItems.push(
+                                                                <MitigationItem
+                                                                    key={`${mitigation.id}-giant-star`}
+                                                                    mitigation={{...mitigation, id: `virtual-giant-${mitigation.id}`, time: giantTime}}
+                                                                    pixelsPerSecond={pixelsPerSecond}
+                                                                    onRemove={() => {}}
+                                                                    onUpdateTime={() => {}}
+                                                                    top={giantY}
+                                                                    height={giantHeight}
+                                                                    left={absoluteLeft}
+                                                                    partySortOrder={partySortOrder}
+                                                                    offsetTime={offsetTime}
+                                                                    scrollContainerRef={scrollContainerRef}
+                                                                    activeMitigations={ownerMitigations}
+                                                                    schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
+                                                                    timeToYMap={timeToYMap}
+                                                                    isVirtual={true}
+                                                                    iconOverride="/icons/Giant_Dominance.png"
+                                                                />
+                                                            );
+                                                        }
+                                                    }
                                                 });
                                             });
 
