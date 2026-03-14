@@ -1,5 +1,6 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { MITIGATIONS, getMitigationPriority, JOBS } from '../data/mockData';
@@ -46,29 +47,33 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    React.useEffect(() => {
-        if (!isOpen || !panelRef.current || isCentered) { // 👈 isCenteredの時は座標計算をスキップ
-            setAdjustedPos(position);
+    // ビューポート内に収めるための計算
+    React.useLayoutEffect(() => {
+        if (!isOpen || !panelRef.current || isCentered || isMobile) {
             return;
         }
-        if (isMobile) return;
 
-        requestAnimationFrame(() => {
-            if (!panelRef.current) return;
-            const rect = panelRef.current.getBoundingClientRect();
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-            let x = position.x;
-            let y = position.y;
-            if (y + rect.height > vh - 8) {
-                y = Math.max(8, vh - rect.height - 8);
-            }
-            if (x + rect.width > vw - 8) {
-                x = Math.max(8, vw - rect.width - 8);
-            }
-            setAdjustedPos({ x, y });
-        });
-    }, [isOpen, position, isMobile, isCentered]);
+        const rect = panelRef.current.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        
+        let nx = position.x;
+        let ny = position.y;
+
+        // 右端チェック
+        if (nx + rect.width > vw - 12) {
+            nx = Math.max(12, vw - rect.width - 12);
+        }
+        // 下端チェック
+        if (ny + rect.height > vh - 12) {
+            ny = Math.max(12, vh - rect.height - 12);
+        }
+
+        // 差分がある場合のみ更新
+        if (Math.abs(nx - adjustedPos.x) > 1 || Math.abs(ny - adjustedPos.y) > 1) {
+            setAdjustedPos({ x: nx, y: ny });
+        }
+    }, [isOpen, position.x, position.y, isMobile, isCentered]);
 
     React.useEffect(() => {
         if (!isOpen) {
@@ -195,175 +200,239 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 data-tutorial-modal
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto shadow-2xl p-2 overflow-hidden flex flex-col transition-transform duration-300 glass-panel",
+                    "pointer-events-auto shadow-2xl p-2 flex flex-col glass-panel",
                     isMobile && !isCentered
                         ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
                         : "rounded-xl w-64",
-                    !isCentered && !isMobile ? "fixed" : "relative animate-in zoom-in-95 fade-in duration-200"
+                    !isCentered && !isMobile ? "fixed" : "relative"
                 )}
-                style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x, top: adjustedPos.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
+                style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x || position.x, top: adjustedPos.y || position.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
             >
                 {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto mb-3 shrink-0" />}
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0">
-                    <span className="text-xs font-black text-app-text-secondary uppercase tracking-wider">
-                        {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択してください') : t('mitigation.select')}
-                    </span>
-                    <button onClick={handleClose} className="text-app-text-muted hover:text-app-text transition-colors cursor-pointer">
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0 relative z-[101]">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        {selectedSingleTargetMit ? (
+                            <button 
+                                onClick={() => setSelectedSingleTargetMit(null)}
+                                className="p-1 -ml-1 hover:bg-white/10 rounded-full transition-colors text-app-text-muted hover:text-app-text"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                        ) : null}
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter leading-none mb-0.5">
+                                {selectedSingleTargetMit ? t('mitigation.select_target', '対象を選択') : t('mitigation.select')}
+                            </span>
+                            {selectedSingleTargetMit && (
+                                <div className="flex items-center gap-1.5 animate-in slide-in-from-left-2 duration-200">
+                                    <img src={selectedSingleTargetMit.icon} className="w-3.5 h-3.5 object-contain" alt="" />
+                                    <span className="text-[11px] font-bold text-app-text truncate">
+                                        {contentLanguage === 'en' ? selectedSingleTargetMit.name.en : selectedSingleTargetMit.name.ja}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <button onClick={handleClose} className="text-app-text-muted hover:text-app-text transition-colors cursor-pointer shrink-0">
                         <X size={14} />
                     </button>
                 </div>
 
-                {!selectedSingleTargetMit ? (
-                    <div ref={scrollContainerRef} key="mitigations-list" className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
-                        {availableMitigations.length === 0 ? (
-                            <div className="text-xs text-app-text-secondary p-4 text-center">{t('mitigation.no_mitigations')}</div>
-                        ) : (
-                            availableMitigations.map(mitigation => {
-                                const status = getResourceStatus(mitigation);
-                                const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+                <div className="relative h-[280px] sm:h-[320px] overflow-hidden">
+                    <AnimatePresence initial={false} mode="wait">
+                        {!selectedSingleTargetMit ? (
+                            <motion.div 
+                                key="list"
+                                initial={{ x: 0, opacity: 1 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: -20, opacity: 0 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="absolute inset-0 flex flex-col"
+                            >
+                                <div ref={scrollContainerRef} className="space-y-1 overflow-y-auto pr-1 custom-scrollbar">
+                                    {availableMitigations.length === 0 ? (
+                                        <div className="text-xs text-app-text-secondary p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                                    ) : (
+                                        availableMitigations.map(mitigation => {
+                                            const status = getResourceStatus(mitigation);
+                                            const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
 
-                                let isClickBlockedByTutorial = false;
-                                let tutorialSkillDataAttr: string | undefined = undefined;
+                                            let isClickBlockedByTutorial = false;
+                                            let tutorialSkillDataAttr: string | undefined = undefined;
 
-                                if (tutorialState.isActive) {
-                                    const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
-                                    if (currentStep) {
-                                        if (currentStep.id === 'tutorial-7c-aoe-skill') {
-                                            const isAoEMiti = mitigation.family === 'role_action' && mitigation.scope === 'party';
-                                            if (isAoEMiti) {
-                                                tutorialSkillDataAttr = 'tutorial-skill-reprisal';
-                                            } else {
-                                                isClickBlockedByTutorial = true;
+                                            if (tutorialState.isActive) {
+                                                const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
+                                                if (currentStep) {
+                                                    if (currentStep.id === 'tutorial-7c-aoe-skill') {
+                                                        const isAoEMiti = mitigation.family === 'role_action' && mitigation.scope === 'party';
+                                                        if (isAoEMiti) {
+                                                            tutorialSkillDataAttr = 'tutorial-skill-reprisal';
+                                                        } else {
+                                                            isClickBlockedByTutorial = true;
+                                                        }
+                                                    } else if (currentStep.id === 'tutorial-8c-tb-skill') {
+                                                        const isTargetBuff = mitigation.scope === 'target';
+                                                        if (isTargetBuff) {
+                                                            tutorialSkillDataAttr = 'tutorial-skill-intervention';
+                                                        } else {
+                                                            isClickBlockedByTutorial = true;
+                                                        }
+                                                    }
+                                                }
                                             }
-                                        } else if (currentStep.id === 'tutorial-8c-tb-skill') {
-                                            const isTargetBuff = mitigation.scope === 'target';
-                                            if (isTargetBuff) {
-                                                tutorialSkillDataAttr = 'tutorial-skill-intervention';
-                                            } else {
-                                                isClickBlockedByTutorial = true;
+
+                                            const isClickable = (status.available || isAlreadyPlaced) && !isClickBlockedByTutorial;
+
+                                            return (
+                                                <button
+                                                    key={mitigation.id}
+                                                    data-tutorial={tutorialSkillDataAttr}
+                                                    onClick={() => isClickable && handleMitigationClick(mitigation)}
+                                                    disabled={!isClickable}
+                                                    className={clsx(
+                                                        "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border",
+                                                        isAlreadyPlaced
+                                                            ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
+                                                            : !status.available
+                                                                ? ("border-red-100 bg-red-50/50 cursor-not-allowed opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:cursor-not-allowed dark:opacity-70")
+                                                                : status.warning
+                                                                    ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
+                                                                    : ("hover:bg-slate-50 border-transparent hover:border-slate-200 dark:hover:bg-white/[0.08] dark:border-transparent dark:hover:border-white/[0.03]"),
+                                                        isClickable ? "cursor-pointer" : "cursor-not-allowed"
+                                                    )}
+                                                >
+                                                    <div className="relative flex-shrink-0">
+                                                        <img
+                                                            src={mitigation.icon}
+                                                            alt={contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                                            className={clsx(
+                                                                "w-8 h-8 object-contain rounded border",
+                                                                !status.available
+                                                                    ? ("bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-500/30")
+                                                                    : status.warning
+                                                                        ? ("bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-500/30")
+                                                                        : ("bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5")
+                                                            )}
+                                                        />
+                                                        {status.badge && (
+                                                            <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
+                                                                ? 'bg-red-600/90 text-red-100 ring-red-400/50'
+                                                                : status.badgeColor === 'amber'
+                                                                    ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
+                                                                    : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
+                                                                }`}>
+                                                                {status.badge}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <div className={`text-xs font-black transition-colors ${!status.available
+                                                            ? 'text-red-600 dark:text-red-400'
+                                                            : status.warning
+                                                                ? 'text-amber-600 dark:text-amber-300'
+                                                                : 'text-app-text'
+                                                            }`}>
+                                                            {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                                            {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">{t('mitigation.remove')}</span>}
+                                                            {mitigation.scope === 'target' && !isAlreadyPlaced && (
+                                                                <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-app-text-secondary font-normal">▶</span>
+                                                            )}
+                                                        </div>
+                                                        {!status.available ? (
+                                                            <div className="text-[10px] text-red-600 dark:text-red-400 font-bold">
+                                                                {status.message}
+                                                            </div>
+                                                        ) : status.warning && (
+                                                            <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                                                                ⚠ {status.message}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div 
+                                key="targets"
+                                initial={{ x: 40, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: 40, opacity: 0 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                                className="absolute inset-0 flex flex-col"
+                            >
+                                <div className="space-y-1.5 overflow-y-auto pr-1 custom-scrollbar">
+                                    {partyMembers.map((member: PartyMember) => {
+                                        const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+
+                                        let isTargetBlockedByTutorial = false;
+                                        let tutorialTargetDataAttr: string | undefined = undefined;
+
+                                        if (tutorialState.isActive) {
+                                            const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
+                                            if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
+                                                if (member.id === 'MT') {
+                                                    tutorialTargetDataAttr = 'tutorial-target-mt';
+                                                } else {
+                                                    isTargetBlockedByTutorial = true;
+                                                }
                                             }
                                         }
-                                    }
-                                }
 
-                                const isClickable = (status.available || isAlreadyPlaced) && !isClickBlockedByTutorial;
-
-                                return (
-                                    <button
-                                        key={mitigation.id}
-                                        data-tutorial={tutorialSkillDataAttr}
-                                        onClick={() => isClickable && handleMitigationClick(mitigation)}
-                                        disabled={!isClickable}
-                                        className={clsx(
-                                            "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left group border",
-                                            isAlreadyPlaced
-                                                ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
-                                                : !status.available
-                                                    ? ("border-red-100 bg-red-50/50 cursor-not-allowed opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:cursor-not-allowed dark:opacity-70")
-                                                    : status.warning
-                                                        ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
-                                                        : ("hover:bg-slate-50 border-transparent hover:border-slate-200 dark:hover:bg-white/[0.08] dark:border-transparent dark:hover:border-white/[0.03]"),
-                                            isClickable ? "cursor-pointer" : "cursor-not-allowed"
-                                        )}
-                                    >
-                                        <div className="relative flex-shrink-0">
-                                            <img
-                                                src={mitigation.icon}
-                                                alt={contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                        return (
+                                            <button
+                                                key={member.id}
+                                                data-tutorial={tutorialTargetDataAttr}
+                                                onClick={() => !isTargetBlockedByTutorial && handleTargetSelect(member.id)}
+                                                disabled={isTargetBlockedByTutorial}
                                                 className={clsx(
-                                                    "w-8 h-8 object-contain rounded border",
-                                                    !status.available
-                                                        ? ("bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-500/30")
-                                                        : status.warning
-                                                            ? ("bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-500/30")
-                                                            : ("bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5")
+                                                    "w-full flex items-center gap-3 p-1.5 rounded-lg border transition-all duration-200 text-left group",
+                                                    isTargetBlockedByTutorial ? "opacity-20 cursor-not-allowed scale-95" : "cursor-pointer hover:scale-[1.02] active:scale-[0.98]",
+                                                    "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.08] hover:border-app-accent/30"
                                                 )}
-                                            />
-                                            {status.badge && (
-                                                <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
-                                                    ? 'bg-red-600/90 text-red-100 ring-red-400/50'
-                                                    : status.badgeColor === 'amber'
-                                                        ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
-                                                        : 'bg-cyan-600/90 text-cyan-100 ring-cyan-400/50'
-                                                    }`}>
-                                                    {status.badge}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <div className={`text-xs font-black transition-colors ${!status.available
-                                                ? 'text-red-600 dark:text-red-400'
-                                                : status.warning
-                                                    ? 'text-amber-600 dark:text-amber-300'
-                                                    : 'text-app-text'
-                                                }`}>
-                                                {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
-                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase">{t('mitigation.remove')}</span>}
-                                                {mitigation.scope === 'target' && !isAlreadyPlaced && (
-                                                    <span className="ml-1 text-[9px] bg-black/5 dark:bg-white/10 px-1 rounded text-app-text-secondary">▶</span>
-                                                )}
-                                            </div>
-                                            {!status.available ? (
-                                                <div className="text-[10px] text-red-600 dark:text-red-400 font-bold">
-                                                    {status.message}
+                                            >
+                                                <div className={clsx(
+                                                    "w-10 h-10 rounded-lg border flex-shrink-0 flex items-center justify-center transition-shadow duration-300",
+                                                    job 
+                                                      ? "bg-black/20 border-white/10 group-hover:shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.2)]" 
+                                                      : "bg-black/10 border-white/5",
+                                                    member.role === 'tank' && job && "group-hover:border-blue-500/40 group-hover:shadow-blue-500/20",
+                                                    member.role === 'healer' && job && "group-hover:border-green-500/40 group-hover:shadow-green-500/20",
+                                                    member.role === 'dps' && job && "group-hover:border-red-500/40 group-hover:shadow-red-500/20"
+                                                )}>
+                                                    {job ? (
+                                                        <img src={job.icon} alt="" className="w-8 h-8 object-contain drop-shadow-md transition-transform group-hover:scale-110" />
+                                                    ) : (
+                                                        <span className="text-[10px] font-black text-app-text-muted opacity-50 tracking-tighter">
+                                                            {member.id}
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            ) : status.warning && (
-                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
-                                                    ⚠ {status.message}
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className={clsx(
+                                                        "text-[10px] font-black tracking-widest leading-none mb-0.5 transition-colors",
+                                                        member.role === 'tank' ? 'text-blue-400 group-hover:text-blue-300' : 
+                                                        member.role === 'healer' ? 'text-green-400 group-hover:text-green-300' : 
+                                                        'text-red-400 group-hover:text-red-300'
+                                                    )}>
+                                                        {member.id}
+                                                    </span>
+                                                    {job && (
+                                                        <span className="text-[9px] text-app-text-muted font-bold truncate">
+                                                            {contentLanguage === 'en' ? job.name.en : job.name.ja}
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                    </button>
-                                );
-                            })
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>
                         )}
-                    </div>
-                ) : (
-                    <div key="targets-list" className="flex flex-col gap-1.5 overflow-y-auto pr-1 custom-scrollbar shrink">
-                        {partyMembers.map((member: PartyMember) => {
-                            const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-
-                            let isTargetBlockedByTutorial = false;
-                            let tutorialTargetDataAttr: string | undefined = undefined;
-
-                            if (tutorialState.isActive) {
-                                const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
-                                if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
-                                    if (member.id === 'MT') {
-                                        tutorialTargetDataAttr = 'tutorial-target-mt';
-                                    } else {
-                                        isTargetBlockedByTutorial = true;
-                                    }
-                                }
-                            }
-
-                            return (
-                                <button
-                                    key={member.id}
-                                    data-tutorial={tutorialTargetDataAttr}
-                                    onClick={() => !isTargetBlockedByTutorial && handleTargetSelect(member.id)}
-                                    disabled={isTargetBlockedByTutorial}
-                                    className={clsx(
-                                        "w-full flex items-center gap-3 p-2 rounded-lg border transition-colors text-left",
-                                        isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.08]",
-                                        "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/[0.03]"
-                                    )}
-                                >
-                                    {job ? (
-                                        <div className="w-8 h-8 rounded border bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5 flex-shrink-0 flex items-center justify-center">
-                                            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm" />
-                                        </div>
-                                    ) : (
-                                        <div className="w-8 h-8 rounded border bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5 flex items-center justify-center opacity-50" />
-                                    )}
-                                    <span className={`text-xs font-black tracking-widest ${member.role === 'tank' ? 'text-blue-500' : member.role === 'healer' ? 'text-green-500' : 'text-red-500'}`}>
-                                        {member.id}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     );
