@@ -346,9 +346,30 @@ export const useMitigationStore = create<MitigationState>()(
 
                 addMitigation: (mitigation) => {
                     pushHistory();
-                    set((state) => ({
-                        timelineMitigations: [...state.timelineMitigations, mitigation]
-                    }));
+                    set((state) => {
+                        let currentMitigations = [...state.timelineMitigations];
+
+                        // 副作用：サモン・セラフィムを配置した場合、重複する同一学者の「転化」を削除する
+                        if (mitigation.mitigationId === 'summon_seraph') {
+                            const seraphDuration = 22;
+                            const seraphStart = mitigation.time;
+                            const seraphEnd = seraphStart + seraphDuration;
+
+                            currentMitigations = currentMitigations.filter(m => {
+                                if (m.mitigationId === 'dissipation' && m.ownerId === mitigation.ownerId) {
+                                    const dissStart = m.time;
+                                    const dissEnd = m.time + m.duration;
+                                    // 重複判定
+                                    return (dissEnd <= seraphStart || dissStart >= seraphEnd);
+                                }
+                                return true;
+                            });
+                        }
+
+                        return {
+                            timelineMitigations: [...currentMitigations, mitigation]
+                        };
+                    });
                     // Tutorial: notify that a mitigation has been added
                     useTutorialStore.getState().completeEvent('mitigation:added');
                 },
@@ -383,11 +404,33 @@ export const useMitigationStore = create<MitigationState>()(
 
                 updateMitigationTime: (id, newTime) => {
                     pushHistory();
-                    set((state) => ({
-                        timelineMitigations: state.timelineMitigations.map(m =>
+                    set((state) => {
+                        let currentMitigations = state.timelineMitigations.map(m =>
                             m.id === id ? { ...m, time: newTime } : m
-                        )
-                    }));
+                        );
+
+                        const moved = currentMitigations.find(m => m.id === id);
+                        if (moved && moved.mitigationId === 'summon_seraph') {
+                            const seraphDuration = 22;
+                            const seraphStart = moved.time;
+                            const seraphEnd = seraphStart + seraphDuration;
+
+                            currentMitigations = currentMitigations.filter(m => {
+                                if (m.id === id) return true; // 自分自身は残す
+                                if (m.mitigationId === 'dissipation' && m.ownerId === moved.ownerId) {
+                                    const dissStart = m.time;
+                                    const dissEnd = m.time + m.duration;
+                                    // 重複判定
+                                    return (dissEnd <= seraphStart || dissStart >= seraphEnd);
+                                }
+                                return true;
+                            });
+                        }
+
+                        return {
+                            timelineMitigations: currentMitigations
+                        };
+                    });
                 },
 
                 setMemberJob: (memberId, jobId) => {
