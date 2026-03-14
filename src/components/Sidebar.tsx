@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
@@ -16,6 +17,7 @@ import type { ContentLanguage } from '../store/useThemeStore';
 import { MOCK_RECENT_PLANS } from '../data/sidebarMockData';
 import {
     Plus,
+    ChevronLeft,
     ChevronRight,
     CheckSquare,
     Square,
@@ -29,6 +31,8 @@ import clsx from 'clsx';
 
 interface SidebarProps {
     isOpen: boolean;
+    onToggle?: () => void;
+    onClose?: () => void;
 }
 
 const LEVEL_TIERS: ContentLevel[] = [100, 90, 80, 70];
@@ -79,19 +83,17 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         title={plan.name}
                         {...(highlightFirst && isFirst ? { "data-tutorial-first-item": "true" } : {})}
                         className={clsx(
-                            "w-full flex items-center gap-2.5 px-2.5 py-1 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer min-h-[32px]", // 高さを 32px に固定
+                            "w-full flex items-center gap-2.5 px-2.5 py-1 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer min-h-[32px]",
                             isPlanActive && !multiSelect.isEnabled
                                 ? "bg-app-accent-dim border border-app-border-accent/30 text-app-accent shadow-sm"
                                 : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
                             isDisabled && "opacity-40 cursor-not-allowed grayscale"
                         )}
                     >
-                        {/* Active Indicator Line */}
                         {isPlanActive && !multiSelect.isEnabled && (
                             <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
                         )}
 
-                        {/* Floor Label Icon (only for first plan) */}
                         <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                             {isFirst ? (
                                 (() => {
@@ -121,7 +123,6 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                             ) : null}
                         </div>
 
-                        {/* Multi-select Checkbox */}
                         {isFirst && multiSelect.isEnabled && (
                             <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
                                 {isSelected ? (
@@ -137,7 +138,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                             isPlanActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
                         )}>
                             <div className={clsx(
-                                "truncate leading-tight text-[9px]", // さらに小さく 9px に設定
+                                "truncate leading-tight text-[9px]",
                                 isPlanActive && !multiSelect.isEnabled ? "text-app-accent-bold" : "text-inherit"
                             )}>
                                 {plan.name}
@@ -151,7 +152,6 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
         </div>
     );
 };
-
 
 // ─────────────────────────────────────────────
 // Sub-component: SeriesAccordion
@@ -175,7 +175,6 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
     const hasActiveFloor = React.useMemo(() => floors.some(f => f.id === selectedContentId), [floors, selectedContentId]);
     const [isExpanded, setIsExpanded] = React.useState(true);
 
-    // Auto-expand if a floor within becomes active
     React.useEffect(() => {
         if (hasActiveFloor) {
             setIsExpanded(true);
@@ -306,7 +305,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -316,7 +315,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
     const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
 
-    // Multi-select state
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
         selectedIds: []
@@ -329,6 +327,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         store.applyDefaultStats(content.level, content.patch);
         setActiveLevel(content.level);
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
+        if (tutorialActive) {
+            useTutorialStore.getState().completeEvent('sidebar:content-selected');
+        }
     };
 
     const toggleMultiSelectMode = () => {
@@ -350,210 +351,280 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
         });
     };
 
-    // Filter categories based on level
     const availableCategories = useMemo(() => getCategoriesByLevel(activeLevel), [activeLevel]);
 
-    // Ensure active category is valid for new level
     useMemo(() => {
         if (activeCategory !== 'all' && !availableCategories.includes(activeCategory)) {
             setActiveCategory('all');
         }
     }, [availableCategories, activeCategory]);
 
-    // Tutorial checks
     const isTutorialContentSelect = tutorialActive && TUTORIAL_STEPS[currentStepIndex]?.id === 'content-select';
 
+    // Proximity and hover state for the handle
+    const [isNear, setIsNear] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
-        <aside
-            className={clsx(
-                "h-full bg-glass-header backdrop-blur-3xl border-r border-glass-border flex flex-col transition-all duration-300 overflow-hidden z-40 relative",
-                isOpen ? "w-64" : "w-0 border-r-0"
-            )}
+        <motion.aside
+            initial={false}
+            animate={{ width: isOpen ? 300 : 24 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="h-full bg-glass-header backdrop-blur-3xl flex z-40 relative group/sidebar shadow-2xl"
         >
-            <div className="w-64 flex flex-col h-full overflow-hidden">
+            {/* [1] サイドバー本体 (コンテンツエリア) */}
+            <motion.div 
+                animate={{ width: isOpen ? 276 : 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="h-full flex flex-col overflow-hidden"
+            >
+                {/* ... existing content ... */}
+                <div className="w-[276px] flex flex-col h-full overflow-hidden">
+                    <div className="p-3 border-b border-glass-border shrink-0">
+                        <button
+                            onClick={() => useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked')}
+                            className={clsx(
+                                "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
+                                "bg-app-accent/15 text-app-accent border border-app-accent/20",
+                                "hover:bg-app-accent/25 hover:border-app-accent/40 active:scale-[0.97]",
+                                "tutorial-create-btn"
+                            )}
+                            data-tutorial="new-plan"
+                        >
+                            <Plus size={16} />
+                            {t('sidebar.new_plan')}
+                        </button>
+                    </div>
 
-                {/* [A] 新規作成セクション */}
-                <div className="p-3 border-b border-glass-border shrink-0">
-                    <button
-                        onClick={() => useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked')}
-                        className={clsx(
-                            "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
-                            "bg-app-accent/15 text-app-accent border border-app-accent/20",
-                            "hover:bg-app-accent/25 hover:border-app-accent/40 active:scale-[0.97]",
-                            "tutorial-create-btn"
-                        )}
-                        data-tutorial="new-plan"
-                    >
-                        <Plus size={16} />
-                        {t('sidebar.new_plan')}
-                    </button>
-                </div>
+                    {!multiSelect.isEnabled && (
+                        <div className="px-3 pb-3 shrink-0 mt-3">
+                            <div className="flex items-center mb-2 px-1">
+                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
+                                    {t('sidebar.recent_activity')}
+                                </span>
+                            </div>
+                            <div className="space-y-1">
+                                {MOCK_RECENT_PLANS.slice(0, 3).map((plan) => (
+                                    <button
+                                        key={plan.id}
+                                        className="w-full flex items-center gap-2 group py-1 px-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="text-[9.5px] font-black text-app-text truncate leading-tight">
+                                                {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
+                                            </p>
+                                            <p className="text-[8px] text-app-text-secondary font-medium truncate leading-tight mt-0.5">
+                                                {plan.planName}
+                                            </p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                {/* [B] 最近のアクティビティ (Recent Activity) */}
-                {!multiSelect.isEnabled && (
-                    <div className="px-3 pb-3 shrink-0">
-                        <div className="flex items-center mb-2 px-1">
+                    <div className="px-3 flex items-center justify-between mb-2 shrink-0">
+                        <div className="flex items-center px-1">
                             <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
-                                {t('sidebar.recent_activity')}
+                                EXPLORER
                             </span>
                         </div>
-                        <div className="space-y-1">
-                            {MOCK_RECENT_PLANS.map(plan => (
+                        <button
+                            onClick={toggleMultiSelectMode}
+                            className={clsx(
+                                "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
+                                multiSelect.isEnabled
+                                    ? "bg-app-accent text-app-text-on-accent border-white/20 shadow-md"
+                                    : "bg-glass-card text-app-text-secondary border-glass-border hover:bg-glass-hover hover:text-app-text shadow-sm"
+                            )}
+                        >
+                            {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
+                            {t('sidebar.multi_select_mode').toUpperCase()}
+                        </button>
+                    </div>
+
+                    <div className="px-3 space-y-2 shrink-0 mb-3">
+                        <div className="flex gap-1 bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
+                            {LEVEL_TIERS.map(level => (
                                 <button
-                                    key={plan.id}
-                                    className="w-full flex items-center gap-2 group py-1 px-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
+                                    key={level}
+                                    onClick={() => {
+                                        setActiveLevel(level);
+                                        useMitigationStore.getState().setCurrentLevel(level);
+                                    }}
+                                    className={clsx(
+                                        "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
+                                        activeLevel === level
+                                            ? "bg-app-accent text-app-text-on-accent shadow-lg scale-[1.02] z-10"
+                                            : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover"
+                                    )}
                                 >
-                                    <div className="min-w-0">
-                                        <p className="text-[9.5px] font-black text-app-text truncate leading-tight">
-                                            {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
-                                        </p>
-                                        <p className="text-[8px] text-app-text-secondary font-medium truncate leading-tight mt-0.5">
-                                            {plan.planName}
-                                        </p>
-                                    </div>
+                                    {level}
                                 </button>
                             ))}
                         </div>
-                    </div>
-                )}
 
-                {/* [C] エクスプローラー領域 */}
-                <div className="px-3 flex items-center justify-between mb-2 shrink-0">
-                    <div className="flex items-center px-1">
-                        <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
-                            EXPLORER
-                        </span>
-                    </div>
-
-                    {/* Multi-Select Toggle */}
-                    <button
-                        onClick={toggleMultiSelectMode}
-                        className={clsx(
-                            "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
-                            multiSelect.isEnabled
-                                ? "bg-app-accent text-app-text-on-accent border-white/20 shadow-md"
-                                : "bg-glass-card text-app-text-secondary border-glass-border hover:bg-glass-hover hover:text-app-text shadow-sm"
-                        )}
-                    >
-                        {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
-                        {t('sidebar.multi_select_mode').toUpperCase()}
-                    </button>
-                </div>
-
-                {/* 1. フィルター領域 (2段水平タブ) */}
-                <div className="px-3 space-y-2 shrink-0 mb-3">
-                    {/* 上段（レベル） */}
-                    <div className="flex gap-1 bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
-                        {LEVEL_TIERS.map(level => (
+                        <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth pb-1">
                             <button
-                                key={level}
-                                onClick={() => {
-                                    setActiveLevel(level);
-                                    useMitigationStore.getState().setCurrentLevel(level);
-                                }}
-                                className={clsx(
-                                    "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
-                                    activeLevel === level
-                                        ? "bg-app-accent text-app-text-on-accent shadow-lg scale-[1.02] z-10"
-                                        : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover"
-                                )}
-                            >
-                                {level}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* 下段（カテゴリ） */}
-                    <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth pb-1">
-                        <button
-                            onClick={() => setActiveCategory('all')}
-                            className={clsx(
-                                "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
-                                activeCategory === 'all'
-                                    ? "bg-app-accent text-app-text-on-accent border-app-accent shadow-md"
-                                    : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
-                            )}
-                        >
-                            ALL
-                        </button>
-                        {availableCategories.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
+                                onClick={() => setActiveCategory('all')}
                                 className={clsx(
                                     "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
-                                    activeCategory === cat
+                                    activeCategory === 'all'
                                         ? "bg-app-accent text-app-text-on-accent border-app-accent shadow-md"
                                         : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
                                 )}
                             >
-                                {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
+                                ALL
                             </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* 2. コンテンツツリー */}
-                <div className="flex-1 overflow-y-auto px-3 pb-20 space-y-1 custom-scrollbar">
-                    {availableCategories
-                        .filter(c => activeCategory === 'all' || activeCategory === c)
-                        .map(category => (
-                            <CategoryAccordion
-                                key={`${activeLevel}-${category}`}
-                                level={activeLevel}
-                                category={category}
-                                selectedContentId={selectedContentId}
-                                multiSelect={multiSelect}
-                                onToggleSelect={toggleItemId}
-                                onSelectContent={handleSelectContent}
-                                lang={lang}
-                                highlightFirst={isTutorialContentSelect && category === availableCategories[0]}
-                            />
-                        ))}
-                </div>
-
-                {/* [3] フローティング・アクションバー (Multi-select) */}
-                {multiSelect.isEnabled && (
-                    <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
-                        <div className="bg-glass-header backdrop-blur-xl border border-app-accent/30 rounded-2xl shadow-2xl p-3 flex items-center justify-between gap-3 overflow-hidden group">
-                            {/* Decorative background pulse */}
-                            <div className="absolute inset-0 bg-app-accent/5 animate-pulse" />
-
-                            <div className="relative flex flex-col">
-                                <span className="text-[10px] font-bold text-app-accent">
-                                    {t('sidebar.selected_count', { count: multiSelect.selectedIds.length })}
-                                </span>
-                                {multiSelect.selectedIds.length >= 10 && (
-                                    <span className="text-[8px] text-app-accent-bold/80 font-medium whitespace-nowrap">
-                                        {t('sidebar.limit_reached_warning')}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="relative flex items-center gap-2">
+                            {availableCategories.map(cat => (
                                 <button
-                                    onClick={toggleMultiSelectMode}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text  cursor-pointer"
-                                >
-                                    {t('sidebar.cancel')}
-                                </button>
-                                <button
-                                    disabled={multiSelect.selectedIds.length === 0}
+                                    key={cat}
+                                    onClick={() => setActiveCategory(cat)}
                                     className={clsx(
-                                        "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all shadow-md cursor-pointer",
-                                        multiSelect.selectedIds.length > 0
-                                            ? "bg-app-accent text-app-text-on-accent hover:brightness-110 active:scale-95"
-                                            : "bg-glass-card text-app-text-muted border border-glass-border grayscale opacity-50 cursor-not-allowed"
+                                        "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
+                                        activeCategory === cat
+                                            ? "bg-app-accent text-app-text-on-accent border-app-accent shadow-md"
+                                            : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
                                     )}
                                 >
-                                    <Link size={14} />
-                                    <span>{t('sidebar.share_together')}</span>
+                                    {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
                                 </button>
-                            </div>
+                            ))}
                         </div>
                     </div>
-                )}
+
+                    <div className="flex-1 overflow-y-auto px-3 pb-20 space-y-1 custom-scrollbar">
+                        {availableCategories
+                            .filter(c => activeCategory === 'all' || activeCategory === c)
+                            .map(category => (
+                                <CategoryAccordion
+                                    key={`${activeLevel}-${category}`}
+                                    level={activeLevel}
+                                    category={category}
+                                    selectedContentId={selectedContentId}
+                                    multiSelect={multiSelect}
+                                    onToggleSelect={toggleItemId}
+                                    onSelectContent={handleSelectContent}
+                                    lang={lang}
+                                    highlightFirst={isTutorialContentSelect && category === availableCategories[0]}
+                                />
+                            ))}
+                    </div>
+
+                    {multiSelect.isEnabled && (
+                        <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
+                            <div className="bg-glass-header backdrop-blur-xl border border-app-accent/30 rounded-2xl shadow-2xl p-3 flex items-center justify-between gap-3 overflow-hidden group">
+                                <div className="absolute inset-0 bg-app-accent/5 animate-pulse" />
+                                <div className="relative flex flex-col">
+                                    <span className="text-[10px] font-bold text-app-accent">
+                                        {t('sidebar.selected_count', { count: multiSelect.selectedIds.length })}
+                                    </span>
+                                </div>
+                                <div className="relative flex items-center gap-2">
+                                    <button
+                                        onClick={toggleMultiSelectMode}
+                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text cursor-pointer"
+                                    >
+                                        {t('sidebar.cancel')}
+                                    </button>
+                                    <button
+                                        disabled={multiSelect.selectedIds.length === 0}
+                                        className={clsx(
+                                            "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all shadow-md cursor-pointer",
+                                            multiSelect.selectedIds.length > 0
+                                                ? "bg-app-accent text-app-text-on-accent hover:brightness-110 active:scale-95"
+                                                : "bg-glass-card text-app-text-muted border border-glass-border grayscale opacity-50 cursor-not-allowed"
+                                        )}
+                                    >
+                                        <Link size={14} />
+                                        <span>{t('sidebar.share_together')}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+
+            {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
+            <div 
+                className="h-full w-6 z-50 flex items-center justify-center shrink-0 shadow-[inset_1px_0_0_0_rgba(255,255,255,0.05)] relative"
+                onMouseEnter={() => setIsNear(true)}
+                onMouseLeave={() => setIsNear(false)}
+            >
+                {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
+                <div 
+                    className="absolute inset-y-0 -left-10 w-[120px] pointer-events-auto cursor-pointer" 
+                    onMouseEnter={() => setIsNear(true)}
+                />
+
+                <motion.div
+                    className={clsx(
+                        "absolute left-0 h-full bg-glass-header z-50",
+                        tutorialActive && currentStepIndex <= 2 ? "opacity-0 pointer-events-none" : "opacity-100"
+                    )}
+                    initial={false}
+                    animate={{ width: isNear ? 36 : 24 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                >
+                    <button
+                        onClick={() => onToggle?.()}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        className={clsx(
+                            "relative w-full h-full cursor-pointer overflow-hidden group/btn",
+                            "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
+                        )}
+                        title={isOpen ? "メニューを閉じる" : "メニューを開く"}
+                    >
+                        {/* 迫り出し感のある背景 */}
+                        <motion.div 
+                            className={clsx(
+                                "absolute inset-0 bg-gradient-to-r from-transparent via-app-accent/[0.08] to-transparent",
+                                isOpen ? "opacity-0" : "opacity-10"
+                            )}
+                            animate={{ opacity: isNear ? 0.3 : 0.1 }}
+                            transition={{ duration: 0.15 }}
+                        />
+
+                        {/* 左端の固定ライン */}
+                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-accent/40 group-hover/btn:bg-app-accent/70 transition-colors duration-200" />
+
+                        <div className="relative flex items-center justify-center h-full">
+                            <motion.div
+                                className="flex items-center justify-center"
+                                animate={{ 
+                                    rotate: isOpen ? 0 : 180,
+                                    x: isHovered ? (isOpen ? [-2, 2, -2] : [2, -2, 2]) : 0,
+                                    scale: isHovered ? 1.8 : 1
+                                }}
+                                transition={{
+                                    rotate: { type: "spring", stiffness: 260, damping: 20 },
+                                    x: isHovered ? { repeat: Infinity, duration: 1.2, ease: "easeInOut" } : { duration: 0.2 },
+                                    scale: { duration: 0.2 }
+                                }}
+                            >
+                                <ChevronLeft 
+                                    size={18} 
+                                    className={clsx(
+                                        "transition-all duration-200",
+                                        isOpen 
+                                            ? "text-app-text-muted group-hover/btn:text-app-accent" 
+                                            : "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]",
+                                        isHovered && "drop-shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.6)]"
+                                    )}
+                                />
+                            </motion.div>
+                        </div>
+
+                        {/* 右端の境界線 (拡張に合わせて移動) */}
+                        <div className={clsx(
+                            "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
+                            isOpen ? "bg-glass-border" : "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]"
+                        )} />
+                    </button>
+                </motion.div>
             </div>
-        </aside>
+        </motion.aside>
     );
 };
