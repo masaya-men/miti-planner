@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { MITIGATIONS, getMitigationPriority, JOBS } from '../data/mockData';
-import type { Mitigation, AppliedMitigation } from '../types';
+import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -33,6 +33,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const [adjustedPos, setAdjustedPos] = React.useState(position);
 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const { partyMembers, currentLevel } = useMitigationStore();
     const tutorialState = useTutorialStore();
 
@@ -86,6 +87,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         return () => document.removeEventListener('mousedown', handleMouseDown);
     }, [isOpen, onClose]);
 
+    React.useEffect(() => {
+        if (isOpen && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+        }
+    }, [isOpen, selectedSingleTargetMit]);
+
     if (!isOpen) return null;
 
     const allJobMitigations = jobId ? MITIGATIONS.filter(m => m.jobId === jobId) : [];
@@ -105,6 +112,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             // Level sync filtering
             if (m.minLevel !== undefined && currentLevel < m.minLevel) return false;
             if (m.maxLevel !== undefined && currentLevel > m.maxLevel) return false;
+
+            // Filter out hidden skills (e.g., Adloquium)
+            if (m.hidden) return false;
 
             if (!m.requires) return true;
             return activeMitigations.some(am => {
@@ -141,9 +151,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         .sort((a: Mitigation, b: Mitigation) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
 
     const handleMitigationClick = (mitigation: Mitigation) => {
-        const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
-        if (isAlreadyPlaced && onRemove) {
-            onRemove(mitigation.id);
+        const existingInstance = activeMitigations.find(am => am.mitigationId === mitigation.id && am.time === selectedTime);
+        if (existingInstance && onRemove) {
+            onRemove(existingInstance.id);
             return;
         }
 
@@ -180,6 +190,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             onClick={isCentered ? onClose : undefined} // 背景クリックで閉じる
         >
             <div
+                key="mitigation-modal-content" // アニメーション等のために全体コンテナにも念のため付与
                 ref={panelRef}
                 data-tutorial-modal
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
@@ -203,10 +214,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 </div>
 
                 {!selectedSingleTargetMit ? (
-                    <div className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
-                        <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
-                            <div className="w-10 h-1 rounded-full bg-app-text-muted" />
-                        </div>
+                    <div ref={scrollContainerRef} key="mitigations-list" className="space-y-1 overflow-y-auto pr-1 custom-scrollbar shrink">
                         {availableMitigations.length === 0 ? (
                             <div className="text-xs text-app-text-secondary p-4 text-center">{t('mitigation.no_mitigations')}</div>
                         ) : (
@@ -311,8 +319,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         )}
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-2 overflow-y-auto pr-1 shrink">
-                        {partyMembers.map((member: import('../types').PartyMember) => {
+                    <div key="targets-list" className="flex flex-col gap-1.5 overflow-y-auto pr-1 custom-scrollbar shrink">
+                        {partyMembers.map((member: PartyMember) => {
                             const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
 
                             let isTargetBlockedByTutorial = false;
@@ -336,17 +344,19 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     onClick={() => !isTargetBlockedByTutorial && handleTargetSelect(member.id)}
                                     disabled={isTargetBlockedByTutorial}
                                     className={clsx(
-                                        "flex items-center gap-4 p-3 rounded-lg border transition-colors",
-                                        isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
-                                        "bg-glass-card hover:bg-glass-hover border-glass-border"
+                                        "w-full flex items-center gap-3 p-2 rounded-lg border transition-colors text-left",
+                                        isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.08]",
+                                        "bg-transparent border-transparent hover:border-slate-200 dark:hover:border-white/[0.03]"
                                     )}
                                 >
                                     {job ? (
-                                        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-8 h-8 object-contain opacity-90 drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
+                                        <div className="w-8 h-8 rounded border bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5 flex-shrink-0 flex items-center justify-center">
+                                            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm" />
+                                        </div>
                                     ) : (
-                                        <div className="w-8 h-8 rounded bg-slate-900/10 dark:bg-white/10 border border-white/20" />
+                                        <div className="w-8 h-8 rounded border bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5 flex items-center justify-center opacity-50" />
                                     )}
-                                    <span className={`text-sm font-black tracking-widest ${member.role === 'tank' ? 'text-blue-400' : member.role === 'healer' ? 'text-green-400' : 'text-red-400'}`}>
+                                    <span className={`text-xs font-black tracking-widest ${member.role === 'tank' ? 'text-blue-500' : member.role === 'healer' ? 'text-green-500' : 'text-red-500'}`}>
                                         {member.id}
                                     </span>
                                 </button>

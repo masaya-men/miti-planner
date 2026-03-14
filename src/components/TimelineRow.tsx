@@ -397,20 +397,20 @@ export const TimelineRow = memo(({
                                     {damages[0].mitigated.toLocaleString()}
                                 </span>
                                     {damages[0].isInvincible ? (
-                                        <span className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
+                                        <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
                                             Invuln
-                                        </span>
-                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) && (
-                                        <span className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:inline flex items-center gap-1">
+                                        </div>
+                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
+                                        <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                             {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
-                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span>|</span>}
+                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                             {damages[0].shieldTotal > 0 && (
                                                 <span className="flex items-center gap-0.5">
                                                     🛡️ {damages[0].shieldTotal.toLocaleString()}
                                                 </span>
                                             )}
-                                        </span>
-                                    )}
+                                        </div>
+                                    ) : null}
                             </>
                         ) : ''}
                     </div>
@@ -447,20 +447,20 @@ export const TimelineRow = memo(({
                                         {damages[0].mitigated.toLocaleString()}
                                     </span>
                                     {damages[0].isInvincible ? (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
                                             Invuln
-                                        </span>
-                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) && (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline flex items-center gap-1">
+                                        </div>
+                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
+                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                             {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
-                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span>|</span>}
+                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                             {damages[0].shieldTotal > 0 && (
                                                 <span className="flex items-center gap-0.5">
                                                     🛡️ {damages[0].shieldTotal.toLocaleString()}
                                                 </span>
                                             )}
-                                        </span>
-                                    )}
+                                        </div>
+                                    ) : null}
                                 </>
                             ) : ''}
                         </div>
@@ -495,20 +495,20 @@ export const TimelineRow = memo(({
                                         {damages[1].mitigated.toLocaleString()}
                                     </span>
                                     {damages[1].isInvincible ? (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
                                             Invuln
-                                        </span>
-                                    ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) && (
-                                        <span className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:inline flex items-center gap-1">
+                                        </div>
+                                    ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) ? (
+                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                             {damages[1].mitigationPercent > 0 && <span>▼ {damages[1].mitigationPercent}%</span>}
-                                            {damages[1].mitigationPercent > 0 && damages[1].shieldTotal > 0 && <span>|</span>}
+                                            {damages[1].mitigationPercent > 0 && damages[1].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                             {damages[1].shieldTotal > 0 && (
                                                 <span className="flex items-center gap-0.5">
                                                     🛡️ {damages[1].shieldTotal.toLocaleString()}
                                                 </span>
                                             )}
-                                        </span>
-                                    )}
+                                        </div>
+                                    ) : null}
                                 </>
                             ) : ''}
                         </div>
