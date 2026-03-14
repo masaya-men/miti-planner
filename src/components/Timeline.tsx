@@ -1732,10 +1732,8 @@ const Timeline: React.FC = () => {
                                             const effectiveEndTime = Math.max(endTime, offsetTime);
 
                                             const startY = timeToYMap.get(effectiveStartTime) ?? (Math.max(0, effectiveStartTime - offsetTime) * pixelsPerSecond);
-                                            const endY = timeToYMap.get(effectiveEndTime) ?? (Math.max(0, effectiveEndTime - offsetTime) * pixelsPerSecond);
-
                                             const top = startY;
-                                            const height = Math.max(0, endY - startY);
+                                            const height = Math.max(0, (timeToYMap.get(effectiveEndTime) ?? (Math.max(0, effectiveEndTime - offsetTime) * pixelsPerSecond)) - startY);
 
                                             return (
                                                 <div
@@ -1772,15 +1770,55 @@ const Timeline: React.FC = () => {
                                                     return def ? (def.recast || def.recast || 999) : 999;
                                                 };
 
-                                                ownerMitigations.sort((a, b) => {
-                                                    // 同一タイミングの場合、ホロスコープやアーサリースターを左側に寄せたい
+                                                const displayItems: any[] = [];
+                                                ownerMitigations.forEach(m => {
+                                                    const def = MITIGATIONS.find((d: any) => d.id === m.mitigationId);
+                                                    displayItems.push({ ...m, isVirtual: false, parentId: null });
+
+                                                    if (def?.id === 'horoscope') {
+                                                        const heliosEvents = ownerMitigations.filter((am: any) =>
+                                                            (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
+                                                            am.ownerId === m.ownerId &&
+                                                            am.time >= m.time &&
+                                                            am.time < m.time + m.duration
+                                                        );
+                                                        heliosEvents.forEach(he => {
+                                                            const displayTime = he.time + 1;
+                                                            displayItems.push({
+                                                                ...he,
+                                                                id: `virtual-horo-${he.id}`,
+                                                                time: displayTime,
+                                                                duration: 29,
+                                                                mitigationId: m.mitigationId,
+                                                                isVirtual: true,
+                                                                iconOverride: "/icons/horoscope_helios.png",
+                                                                parentId: m.id
+                                                            });
+                                                        });
+                                                    }
+                                                    if (def?.id === 'earthly_star') {
+                                                        const giantTime = m.time + 10;
+                                                        if (giantTime < m.time + m.duration) {
+                                                            displayItems.push({
+                                                                ...m,
+                                                                id: `virtual-giant-${m.id}`,
+                                                                time: giantTime,
+                                                                duration: m.duration - 10,
+                                                                isVirtual: true,
+                                                                iconOverride: "/icons/Giant_Dominance.png",
+                                                                parentId: m.id
+                                                            });
+                                                        }
+                                                    }
+                                                });
+
+                                                displayItems.sort((a, b) => {
                                                     if (a.time === b.time) {
                                                         const isA_Base = a.mitigationId === 'horoscope' || a.mitigationId === 'earthly_star';
                                                         const isB_Base = b.mitigationId === 'horoscope' || b.mitigationId === 'earthly_star';
                                                         if (isA_Base && !isB_Base) return -1;
                                                         if (!isA_Base && isB_Base) return 1;
                                                     }
-                                                    
                                                     const rA = getRecast(a.mitigationId);
                                                     const rB = getRecast(b.mitigationId);
                                                     if (rA !== rB) return rA - rB;
@@ -1797,48 +1835,52 @@ const Timeline: React.FC = () => {
                                                 const colWidth = (member?.role === 'tank' || member?.role === 'healer') ? 120 : 60;
                                                 const MAX_LEFT = colWidth - 24;
 
-                                                const assignedPositions: { m: typeof timelineMitigations[0], left: number }[] = [];
+                                                const assignedPositions: { m: any, left: number }[] = [];
 
-                                                ownerMitigations.forEach(mitigation => {
+                                                displayItems.forEach(mitigation => {
                                                     const timeOverlaps = assignedPositions.filter(a =>
                                                         (a.m.time < mitigation.time + mitigation.duration) &&
                                                         (a.m.time + a.m.duration > mitigation.time)
                                                     );
 
                                                     let candidateLeft = 0;
-                                                    while (candidateLeft <= MAX_LEFT) {
-                                                        const hasCollision = timeOverlaps.some(a => {
-                                                            const isSameTime = a.m.time === mitigation.time;
-                                                            const threshold = isSameTime ? FULL_LANE_WIDTH : HALF_LANE_WIDTH;
-                                                            return Math.abs(a.left - candidateLeft) < threshold;
-                                                        });
-                                                        if (!hasCollision) break;
-                                                        candidateLeft += PLACEMENT_STEP;
+                                                    if (mitigation.isVirtual) {
+                                                        const parentPos = assignedPositions.find(a => a.m.id === mitigation.parentId);
+                                                        if (parentPos) {
+                                                            candidateLeft = parentPos.left;
+                                                        }
+                                                    } else {
+                                                        while (candidateLeft <= MAX_LEFT) {
+                                                            const hasCollision = timeOverlaps.some(a => {
+                                                                if (a.m.isVirtual && a.m.parentId === mitigation.id) return false;
+                                                                const isSameTime = Math.abs(a.m.time - mitigation.time) < 1;
+                                                                const threshold = isSameTime ? FULL_LANE_WIDTH : HALF_LANE_WIDTH;
+                                                                return Math.abs(a.left - candidateLeft) < threshold;
+                                                            });
+                                                            if (!hasCollision) break;
+                                                            candidateLeft += PLACEMENT_STEP;
+                                                        }
                                                     }
 
-                                                    if (candidateLeft > MAX_LEFT) {
-                                                        candidateLeft = MAX_LEFT;
-                                                    }
+                                                    if (candidateLeft > MAX_LEFT) candidateLeft = MAX_LEFT;
 
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
 
                                                     const offsetTime = showPreStart ? -10 : 0;
-
                                                     const durationSeconds = Math.max(1, mitigation.duration);
                                                     const durationEndTime = mitigation.time + durationSeconds - 1;
-                                                    const startY = timeToYMap.get(mitigation.time) ?? (Math.max(0, mitigation.time - offsetTime) * pixelsPerSecond);
-
-                                                    const gridKeys = Array.from(timeToYMap.keys());
-                                                    const maxGridTime = gridKeys.length > 0 ? Math.max(...gridKeys) : 0;
-                                                    const maxGridY = timeToYMap.get(maxGridTime) ?? 0;
+                                                    
                                                     const getMappedY = (t: number) => {
                                                         if (timeToYMap.has(t)) return timeToYMap.get(t)!;
+                                                        const gridKeys = Array.from(timeToYMap.keys());
+                                                        const maxGridTime = gridKeys.length > 0 ? Math.max(...gridKeys) : 0;
+                                                        const maxGridY = timeToYMap.get(maxGridTime) ?? 0;
                                                         if (t > maxGridTime) return maxGridY + (t - maxGridTime) * pixelsPerSecond;
                                                         return Math.max(0, t - offsetTime) * pixelsPerSecond;
                                                     };
 
+                                                    const startY = getMappedY(mitigation.time);
                                                     const endY = getMappedY(durationEndTime) + 24;
-
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
                                                     const recast = def?.recast || def?.recast || 0;
                                                     const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
@@ -1848,24 +1890,20 @@ const Timeline: React.FC = () => {
                                                     const top = startY;
                                                     let height = Math.max(0, Math.round(endY - startY));
 
-                                                    // 👇 AST: ホロスコープの効果バーを五角形アイコンの上辺の少し上で切る（隠間あり）
-                                                    if (def?.id === 'horoscope') {
-                                                        const heliosInHoro = timelineMitigations.filter((am: import('../types').AppliedMitigation) =>
-                                                            (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
-                                                            am.ownerId === mitigation.ownerId &&
-                                                            am.time >= mitigation.time &&
-                                                            am.time < mitigation.time + durationSeconds
-                                                        ).sort((a: import('../types').AppliedMitigation, b: import('../types').AppliedMitigation) => a.time - b.time);
-                                                        if (heliosInHoro.length > 0) {
-                                                            const cutY = getMappedY(heliosInHoro[0].time);
+                                                    if (!mitigation.isVirtual) {
+                                                        if (def?.id === 'horoscope') {
+                                                            const heliosInHoro = displayItems.filter((am: any) =>
+                                                                am.isVirtual && am.parentId === mitigation.id
+                                                            ).sort((a: any, b: any) => a.time - b.time);
+                                                            if (heliosInHoro.length > 0) {
+                                                                const cutY = getMappedY(heliosInHoro[0].time);
+                                                                height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                            }
+                                                        }
+                                                        if (def?.id === 'earthly_star' && durationSeconds > 10) {
+                                                            const cutY = getMappedY(mitigation.time + 10);
                                                             height = Math.max(0, Math.round(cutY - startY) - 8);
                                                         }
-                                                    }
-
-                                                    // 👇 AST: アーサリースターの効果バーを10秒（巨星変化ポイント）の少し上で切る（隠間あり）
-                                                    if (def?.id === 'earthly_star' && durationSeconds > 10) {
-                                                        const cutY = getMappedY(mitigation.time + 10);
-                                                        height = Math.max(0, Math.round(cutY - startY) - 8);
                                                     }
 
                                                     const absoluteLeft = colStart + 2 + candidateLeft;
@@ -1875,11 +1913,11 @@ const Timeline: React.FC = () => {
                                                             key={mitigation.id}
                                                             mitigation={mitigation}
                                                             pixelsPerSecond={pixelsPerSecond}
-                                                            onRemove={removeMitigation}
-                                                            onUpdateTime={updateMitigationTime}
+                                                            onRemove={mitigation.isVirtual ? () => {} : removeMitigation}
+                                                            onUpdateTime={mitigation.isVirtual ? () => {} : updateMitigationTime}
                                                             top={top}
                                                             height={height}
-                                                            recastHeight={calculatedRecastHeight}
+                                                            recastHeight={mitigation.isVirtual ? 0 : calculatedRecastHeight}
                                                             left={absoluteLeft}
                                                             laneIndex={candidateLeft / PLACEMENT_STEP}
                                                             partySortOrder={partySortOrder}
@@ -1889,80 +1927,12 @@ const Timeline: React.FC = () => {
                                                             schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
                                                             overlapOffset={0}
                                                             timeToYMap={timeToYMap}
+                                                            isVirtual={mitigation.isVirtual}
+                                                            iconOverride={mitigation.iconOverride}
                                                         />
                                                     );
-
-                                                    // 👇 AST: ホロスコープ効果中のヘリオス使用時に五角形アイコンを通常サイズで表示
-                                                    if (def?.id === 'horoscope') {
-                                                        const heliosEvents = timelineMitigations.filter((am: import('../types').AppliedMitigation) =>
-                                                            (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
-                                                            am.ownerId === mitigation.ownerId &&
-                                                            am.time >= mitigation.time &&
-                                                            am.time <= durationEndTime
-                                                        );
-
-                                                        heliosEvents.forEach((he: import('../types').AppliedMitigation) => {
-                                                            // 同一タイミングの場合は1秒ずらす
-                                                            const displayTime = he.time === mitigation.time ? he.time + 1 : he.time;
-                                                            const iconY = getMappedY(displayTime);
-                                                            const horoHeliosEndTime = displayTime + 30 - 1;
-                                                            const horoHeliosEndY = getMappedY(horoHeliosEndTime) + 24;
-                                                            const horoHeliosHeight = Math.max(0, Math.round(horoHeliosEndY - iconY));
-                                                            renderedItems.push(
-                                                                <MitigationItem
-                                                                    key={`${mitigation.id}-horo-helios-${he.id}`}
-                                                                    mitigation={{...he, id: `virtual-horo-${he.id}`, time: displayTime, mitigationId: mitigation.mitigationId}}
-                                                                    pixelsPerSecond={pixelsPerSecond}
-                                                                    onRemove={() => {}}
-                                                                    onUpdateTime={() => {}}
-                                                                    top={iconY}
-                                                                    height={horoHeliosHeight}
-                                                                    left={absoluteLeft}
-                                                                    partySortOrder={partySortOrder}
-                                                                    offsetTime={offsetTime}
-                                                                    scrollContainerRef={scrollContainerRef}
-                                                                    activeMitigations={ownerMitigations}
-                                                                    schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
-                                                                    timeToYMap={timeToYMap}
-                                                                    isVirtual={true}
-                                                                    iconOverride="/icons/horoscope_helios.png"
-                                                                />
-                                                            );
-                                                        });
-                                                    }
-
-                                                    // 👇 AST: アーサリースター設置から10秒後に「巨星」アイコンを通常サイズで表示
-                                                    if (def?.id === 'earthly_star') {
-                                                        const giantTime = mitigation.time + 10;
-                                                        if (giantTime < durationEndTime) {
-                                                            const giantY = getMappedY(giantTime);
-                                                            const giantEndY = getMappedY(durationEndTime) + 24;
-                                                            const giantHeight = Math.max(0, Math.round(giantEndY - giantY));
-                                                            renderedItems.push(
-                                                                <MitigationItem
-                                                                    key={`${mitigation.id}-giant-star`}
-                                                                    mitigation={{...mitigation, id: `virtual-giant-${mitigation.id}`, time: giantTime}}
-                                                                    pixelsPerSecond={pixelsPerSecond}
-                                                                    onRemove={() => {}}
-                                                                    onUpdateTime={() => {}}
-                                                                    top={giantY}
-                                                                    height={giantHeight}
-                                                                    left={absoluteLeft}
-                                                                    partySortOrder={partySortOrder}
-                                                                    offsetTime={offsetTime}
-                                                                    scrollContainerRef={scrollContainerRef}
-                                                                    activeMitigations={ownerMitigations}
-                                                                    schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
-                                                                    timeToYMap={timeToYMap}
-                                                                    isVirtual={true}
-                                                                    iconOverride="/icons/Giant_Dominance.png"
-                                                                />
-                                                            );
-                                                        }
-                                                    }
                                                 });
                                             });
-
 
                                             return renderedItems;
                                         })()}
@@ -1972,7 +1942,7 @@ const Timeline: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div >
+            </div>
 
             {clipboardEvent && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
