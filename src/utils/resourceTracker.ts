@@ -156,17 +156,9 @@ export function isFairyAvailable(time: number, placedMitigations: AppliedMitigat
  * Summon Seraph availability (must not overlap its duration with Dissipation)
  */
 export function canUseSummonSeraph(time: number, placedMitigations: AppliedMitigation[]): boolean {
-    const duration = 22; // Seraph duration
-    const end = time + duration;
-
-    const activeDissipations = placedMitigations.filter(m => m.mitigationId === 'dissipation');
-    for (const d of activeDissipations) {
-        if (!(end <= d.time || time >= d.time + d.duration)) {
-            return false;
-        }
-    }
-
-    return true;
+    // Summon Seraph requires the fairy to be available at the time of summoning.
+    // Future Dissipations do not block summoning Seraph (as per real game mechanics).
+    return isFairyAvailable(time, placedMitigations);
 }
 
 /**
@@ -264,6 +256,8 @@ export function validateMitigationPlacement(
         ? activeMitigations.filter(am => am.id !== ignoreInstanceId)
         : activeMitigations;
 
+    // 👆 追加ここまで
+
     // 👇 ここから追加：前提スキル（requires）の完全ブロック制約
     if (m.requires) {
         // 配置済みの軽減の中から、前提スキル（例：ニュートラルセクト）を探す
@@ -300,12 +294,44 @@ export function validateMitigationPlacement(
     }
     // 👆 追加ここまで
 
-    // Fairy-dependent skill restrictions (Dissipation dismisses fairy)
-    if (m.id === 'fey_illumination' && !isFairyAvailable(selectedTime, relevantMitigations)) {
-        return { available: false, message: t('mitigation.unavailable_dissipation', 'Unavailable (Dissipation)') };
+    // Combat-only skills check (Dissipation, Aetherpact, Seraphism)
+    if (m.id === 'dissipation' || m.id === 'aetherpact' || m.id === 'seraphism') {
+        if (selectedTime < 0) {
+            return { available: false, message: t('mitigation.combat_only', 'Available only during combat') };
+        }
     }
-    if (m.id === 'summon_seraph' && !canUseSummonSeraph(selectedTime, relevantMitigations)) {
-        return { available: false, message: t('mitigation.unavailable_dissipation_dup', 'Unavailable (Dissipation)') };
+
+    // Fairy-dependent skill restrictions (Dissipation dismisses fairy)
+    if (m.requiresFairy) {
+        // We only check if the fairy is available at the activation time.
+        // Even if the fairy is dismissed later (e.g., by Dissipation), the skill remains active.
+        if (m.id === 'summon_seraph') {
+            if (!canUseSummonSeraph(selectedTime, relevantMitigations)) {
+                return { available: false, message: t('mitigation.unavailable_dissipation', 'フェアリ一不在 (転化中)') };
+            }
+        } else {
+            if (!isFairyAvailable(selectedTime, relevantMitigations)) {
+                return { available: false, message: t('mitigation.unavailable_dissipation', 'フェアリ一不在 (転化中)') };
+            }
+        }
+    }
+
+    // Dissipation is blocked while Seraph is active (requires normal fairy)
+    if (m.id === 'dissipation') {
+        const isSeraphActive = relevantMitigations.some(am => am.mitigationId === 'summon_seraph' && selectedTime >= am.time && selectedTime < am.time + am.duration);
+        if (isSeraphActive) {
+            return { available: false, message: t('mitigation.requires_fairy_not_seraph', 'フェアリーが必要なため、セラフィム中は使用できません') };
+        }
+
+        // Seraphism is canceled by Dissipation (Warning)
+        const isSeraphismActive = relevantMitigations.some(am => am.mitigationId === 'seraphism' && selectedTime >= am.time && selectedTime < am.time + am.duration);
+        if (isSeraphismActive) {
+            return { 
+                available: true, 
+                warning: true, 
+                message: t('mitigation.cancels_seraphism', '転化を使用するとセラフィズムが解除されます') 
+            };
+        }
     }
 
     // Resource cost check (Aetherflow / Addersgall)

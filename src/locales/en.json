@@ -72,6 +72,7 @@
         "no_addersgall": "No Addersgall",
         "no_charges": "No charges",
         "cd_remaining": "CD {{seconds}}s",
+        "combat_only": "Available only during combat",
         "next_at": "Next at {{time}}s ({{gap}}s gap)",
         "select_target": "Select Target",
         "no_skills": "No mitigation skills available for this job.",

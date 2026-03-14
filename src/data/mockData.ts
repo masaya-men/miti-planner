@@ -142,7 +142,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "camouflage", jobId: "gnb", name: { ja: "カモフラージュ", en: "Camouflage" }, icon: "/icons/Camouflage.png",
-        recast: 90, duration: 20, type: "all", value: 10, isShield: false, scope: "self", family: "tank_sub_self"
+        recast: 90, duration: 20, type: "all", value: 10, isShield: false, scope: "self", minLevel: 6, family: "tank_sub_self"
     },
     {
         id: "great_nebula", jobId: "gnb", name: { ja: "グレートネビュラ", en: "Great Nebula" }, icon: "/icons/Great_Nebula.png",
@@ -169,17 +169,17 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "superbolide", jobId: "gnb", name: { ja: "ボーライド", en: "Superbolide" }, icon: "/icons/Superbolide.png",
-        recast: 360, duration: 10, type: "all", value: 0, isShield: false, note: "HP減少無視", scope: "self", isInvincible: true, family: "tank_invuln"
+        recast: 360, duration: 10, type: "all", value: 0, isShield: false, note: "HP減少無視", scope: "self", isInvincible: true, minLevel: 50, family: "tank_invuln"
     },
 
     // --- Paladin ---
     {
         id: "bulwark", jobId: "pld", name: { ja: "ブルワーク", en: "Bulwark" }, icon: "/icons/Bulwark.png",
-        recast: 90, duration: 10, type: "all", value: 20, isShield: false, note: "DOTダメージは軽減不可", scope: "self", family: "tank_sub_self"
+        recast: 90, duration: 10, type: "all", value: 20, isShield: false, note: "DOTダメージは軽減不可", scope: "self", minLevel: 44, family: "tank_sub_self"
     },
     {
         id: "divine_veil", jobId: "pld", name: { ja: "ディヴァインヴェール", en: "Divine Veil" }, icon: "/icons/Divine_Veil.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "party", family: "tank_party_miti"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "party", minLevel: 56, family: "tank_party_miti"
     },
     {
         id: "guardian", jobId: "pld", name: { ja: "エクストリームガード", en: "Guardian" }, icon: "/icons/Guardian.png",
@@ -191,7 +191,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "hallowed_ground", jobId: "pld", name: { ja: "インビンシブル", en: "Hallowed Ground" }, icon: "/icons/Hallowed_Ground.png",
-        recast: 420, duration: 10, type: "all", value: 0, isShield: false, scope: "self", isInvincible: true, family: "tank_invuln"
+        recast: 420, duration: 10, type: "all", value: 0, isShield: false, scope: "self", isInvincible: true, minLevel: 50, family: "tank_invuln"
     },
     {
         id: "holy_sheltron", jobId: "pld", name: { ja: "ホーリーシェルトロン", en: "Holy Sheltron" }, icon: "/icons/Holy_Sheltron.png",
@@ -215,7 +215,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "passage_of_arms", jobId: "pld", name: { ja: "パッセージ・オブ・アームズ", en: "Passage of Arms" }, icon: "/icons/Passage_of_Arms.png",
-        recast: 120, duration: 5, type: "all", value: 15, isShield: false, scope: "party", family: "tank_party_miti_sub"
+        recast: 120, duration: 5, type: "all", value: 15, isShield: false, scope: "party", minLevel: 70, family: "tank_party_miti_sub"
     },
 
     // --- Pictomancer ---
@@ -227,7 +227,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Monk ---
     {
         id: "mantra", jobId: "mnk", name: { ja: "マントラ", en: "Mantra" }, icon: "/icons/Mantra.png",
-        recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "回復効果10%上昇", healingIncrease: 10, family: "melee_heal_up"
+        recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "回復効果10%上昇", healingIncrease: 10, minLevel: 42, family: "melee_heal_up"
     },
     {
         id: "riddle_of_earth", jobId: "mnk", name: { ja: "金剛の極意", en: "Riddle of Earth" }, icon: "/icons/Riddle_of_Earth.png",
@@ -238,7 +238,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "dark_mind", jobId: "drk", name: { ja: "ダークマインド", en: "Dark Mind" }, icon: "/icons/Dark_Mind.png",
         recast: 60, duration: 10, type: "magical", value: 20, isShield: false,
-        valueMagical: 20, valuePhysical: 10, scope: "self", family: "tank_sub_self"
+        valueMagical: 20, valuePhysical: 10, scope: "self", minLevel: 45, family: "tank_sub_self"
     },
     {
         id: "shadowed_vigil", jobId: "drk", name: { ja: "シャドウヴィジル", en: "Shadowed Vigil" }, icon: "/icons/Shadowed_Vigil.png",
@@ -259,7 +259,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "the_blackest_night", jobId: "drk", name: { ja: "ブラックナイト", en: "The Blackest Night" }, icon: "/icons/The_Blackest_Night.png",
-        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "target", family: "tank_short"
+        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "target", minLevel: 70, family: "tank_short"
+    },
+    {
+        id: "living_dead", jobId: "drk", name: { ja: "リビングデッド", en: "Living Dead" }, icon: "/icons/Living_Dead.png",
+        recast: 300, duration: 10, type: "all", value: 0, isShield: false, scope: "self", isInvincible: true, minLevel: 50, family: "tank_invuln"
     },
 
     // --- Scholar ---
@@ -277,11 +281,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "consolation", jobId: "sch", name: { ja: "コンソレイション", en: "Consolation" }, icon: "/icons/Consolation.png",
-        recast: 1, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 250, requires: "summon_seraph", maxCharges: 2, minLevel: 80, family: "bh_sub_a"
+        recast: 1, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 250, requires: "summon_seraph", maxCharges: 2, minLevel: 80, family: "bh_sub_a", requiresFairy: true
     },
     {
         id: "adloquium", jobId: "sch", name: { ja: "鼓舞激励の策", en: "Adloquium" }, icon: "/icons/Adloquium.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, minLevel: 30, family: "healer_gcd_target_shield"
     },
     {
         id: "recitation_deployment_tactics", jobId: "sch", name: { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" }, icon: "/icons/Deployment_Tactics.png",
@@ -290,7 +294,7 @@ export const MITIGATIONS: Mitigation[] = [
 
     {
         id: "dissipation", jobId: "sch", name: { ja: "転化", en: "Dissipation" }, icon: "/icons/Dissipation.png",
-        recast: 180, duration: 30, type: "all", value: 0, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, family: "sch_dissipation"
+        recast: 180, duration: 30, type: "all", value: 0, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, minLevel: 60, family: "sch_dissipation"
     },
     {
         id: "expedient", jobId: "sch", name: { ja: "疾風怒濤の計", en: "Expedient" }, icon: "/icons/Expedient.png",
@@ -299,41 +303,41 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "fey_illumination", jobId: "sch", name: { ja: "フェイイルミネーション", en: "Fey Illumination" }, icon: "/icons/Fey_Illumination.png",
         recast: 120, duration: 20, type: "magical", value: 5, isShield: false,
-        note: "被魔法5%軽減, 回復効果10%上昇", healingIncrease: 10, family: "bh_sub_a"
+        note: "被魔法5%軽減, 回復効果10%上昇", healingIncrease: 10, family: "bh_sub_a", requiresFairy: true
     },
     {
         id: "sacred_soil", jobId: "sch", name: { ja: "野戦治療の陣", en: "Sacred Soil" }, icon: "/icons/Sacred_Soil.png",
-        recast: 30, duration: 17, type: "all", value: 10, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, family: "healer_bubble"
+        recast: 30, duration: 17, type: "all", value: 10, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, minLevel: 45, family: "healer_bubble"
     },
     {
         id: "whispering_dawn", jobId: "sch", name: { ja: "光の囁き", en: "Whispering Dawn" }, icon: "/icons/Whispering_Dawn.png",
-        recast: 60, duration: 21, type: "all", value: 0, isShield: false, family: "bh_sub_a"
+        recast: 60, duration: 21, type: "all", value: 0, isShield: false, family: "bh_sub_a", requiresFairy: true
     },
     {
         id: "indomitability", jobId: "sch", name: { ja: "不撓不屈の策", en: "Indomitability" }, icon: "/icons/Indomitability.png",
-        recast: 30, duration: 1, type: "all", value: 0, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, family: "bh_sub_b"
+        recast: 30, duration: 1, type: "all", value: 0, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, minLevel: 52, family: "bh_sub_b"
     },
     {
         id: "fey_blessing", jobId: "sch", name: { ja: "フェイブレッシング", en: "Fey Blessing" }, icon: "/icons/Fey_Blessing.png",
-        recast: 60, duration: 1, type: "all", value: 0, isShield: false, minLevel: 76, family: "bh_sub_b"
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, minLevel: 76, family: "bh_sub_b", requiresFairy: true
     },
     {
         id: "aetherpact", jobId: "sch", name: { ja: "エーテルパクト", en: "Aetherpact" }, icon: "/icons/Aetherpact.png",
-        recast: 1, duration: 15, type: "all", value: 0, isShield: false, note: "15秒固定", scope: "target", minLevel: 70, family: "bh_sub_c"
+        recast: 1, duration: 15, type: "all", value: 0, isShield: false, note: "15秒固定", scope: "target", minLevel: 70, family: "bh_sub_c", requiresFairy: true
     },
     {
         id: "seraphism", jobId: "sch", name: { ja: "セラフィズム", en: "Seraphism" }, icon: "/icons/Seraphism.png",
-        recast: 180, duration: 20, type: "all", value: 0, isShield: false, family: "bh_180_big"
+        recast: 180, duration: 20, type: "all", value: 0, isShield: false, family: "bh_180_big", minLevel: 100, requiresFairy: true
     },
     {
         id: "summon_seraph", jobId: "sch", name: { ja: "サモン・セラフィム", en: "Summon Seraph" }, icon: "/icons/Summon_Seraph.png",
-        recast: 120, duration: 22, type: "all", value: 0, isShield: false, minLevel: 80, family: "bh_120_a"
+        recast: 120, duration: 22, type: "all", value: 0, isShield: false, minLevel: 80, family: "bh_120_a", requiresFairy: true
     },
 
     // --- Machinist ---
     {
         id: "dismantle", jobId: "mch", name: { ja: "ウェポンブレイク", en: "Dismantle" }, icon: "/icons/Dismantle.png",
-        recast: 120, duration: 10, type: "all", value: 10, isShield: false, family: "ranged_target_10"
+        recast: 120, duration: 10, type: "all", value: 10, isShield: false, minLevel: 62, family: "ranged_target_10"
     },
     {
         id: "tactician", jobId: "mch", name: { ja: "タクティシャン", en: "Tactician" }, icon: "/icons/Tactician.png",
@@ -347,7 +351,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Bard ---
     {
         id: "nature_s_minne", jobId: "brd", name: { ja: "地神のミンネ", en: "Nature's Minne" }, icon: "/icons/Nature's_Minne.png",
-        recast: 120, duration: 15, type: "all", value: 0, isShield: false, note: "回復効果15%上昇", healingIncrease: 15, family: "ranged_heal_up"
+        recast: 120, duration: 15, type: "all", value: 0, isShield: false, note: "回復効果15%上昇", healingIncrease: 15, minLevel: 66, family: "ranged_heal_up"
     },
     {
         id: "troubadour", jobId: "brd", name: { ja: "トルバドゥール", en: "Troubadour" }, icon: "/icons/Troubadour.png",
@@ -373,7 +377,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "kerachole", jobId: "sge", name: { ja: "ケーラコレ", en: "Kerachole" }, icon: "/icons/Kerachole.png",
-        recast: 30, duration: 15, type: "all", value: 10, isShield: false, resourceCost: { type: 'addersgall', amount: 1 }, family: "healer_bubble"
+        recast: 30, duration: 15, type: "all", value: 10, isShield: false, resourceCost: { type: 'addersgall', amount: 1 }, minLevel: 50, family: "healer_bubble"
     },
     {
         id: "panhaima", jobId: "sge", name: { ja: "パンハイマ", en: "Panhaima" }, icon: "/icons/Panhaima.png",
@@ -382,7 +386,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "philosophia", jobId: "sge", name: { ja: "フィロソフィア", en: "Philosophia" }, icon: "/icons/Philosophia.png",
-        recast: 180, duration: 20, type: "all", value: 0, isShield: false, family: "bh_180_big"
+        recast: 180, duration: 20, type: "all", value: 0, isShield: false, minLevel: 100, family: "bh_180_big"
     },
     {
         id: "physis", jobId: "sge", name: { ja: "ピュシスII", en: "Physis II" }, icon: "/icons/Physis_II.png",
@@ -403,7 +407,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "eukrasian_diagnosis", jobId: "sge", name: { ja: "エウクラシア・ディアグノシス", en: "Eukrasian Diagnosis" }, icon: "/icons/Eukrasian_Diagnosis.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, minLevel: 30, family: "healer_gcd_target_shield"
     },
 
     // --- Red Mage ---
@@ -416,7 +420,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Astrologian ---
     {
         id: "collective_unconscious", jobId: "ast", name: { ja: "運命の輪", en: "Collective Unconscious" }, icon: "/icons/Collective_Unconscious.png",
-        recast: 60, duration: 10, type: "all", value: 10, isShield: false, family: "ph_60_aoe"
+        recast: 60, duration: 10, type: "all", value: 10, isShield: false, minLevel: 58, family: "ph_60_aoe"
     },
     {
         id: "helios_conjunction", jobId: "ast", name: { ja: "コンジャンクション・ヘリオス", en: "Helios Conjunction" }, icon: "/icons/Helios_Conjunction.png",
@@ -486,11 +490,15 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "shake_it_off", jobId: "war", name: { ja: "シェイクオフ", en: "Shake It Off" }, icon: "/icons/Shake_It_Off.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "15% HP", scope: "party", family: "tank_party_miti"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "15% HP", scope: "party", minLevel: 68, family: "tank_party_miti"
+    },
+    {
+        id: "holmgang", jobId: "war", name: { ja: "ホルムギャング", en: "Holmgang" }, icon: "/icons/Holmgang.png",
+        recast: 240, duration: 10, type: "all", value: 0, isShield: false, note: "HP1以下にならない", scope: "self", isInvincible: true, minLevel: 42, family: "tank_invuln"
     },
     {
         id: "thrill_of_battle", jobId: "war", name: { ja: "スリル・オブ・バトル", en: "Thrill of Battle" }, icon: "/icons/Thrill_of_Battle.png",
-        recast: 90, duration: 10, type: "all", value: 0, isShield: false, scope: "self", family: "tank_sub_self"
+        recast: 90, duration: 10, type: "all", value: 0, isShield: false, scope: "self", minLevel: 30, family: "tank_sub_self"
     },
 
     // --- White Mage ---
@@ -500,7 +508,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "plenary_indulgence", jobId: "whm", name: { ja: "インドゥルゲンティア", en: "Plenary Indulgence" }, icon: "/icons/Plenary_Indulgence.png",
-        recast: 60, duration: 10, type: "all", value: 10, isShield: false, family: "ph_60_aoe"
+        recast: 60, duration: 10, type: "all", value: 10, isShield: false, minLevel: 70, family: "ph_60_aoe"
     },
     {
         id: "temperance", jobId: "whm", name: { ja: "テンパランス", en: "Temperance" }, icon: "/icons/Temperance.png",
@@ -533,7 +541,7 @@ export const MITIGATIONS: Mitigation[] = [
     // Rampart (Tanks)
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `rampart_${job}`, jobId: job, name: { ja: "ランパート", en: "Rampart" }, icon: "/icons/Rampart.png",
-        recast: 90, duration: 20, type: "all" as const, value: 20, isShield: false, scope: "self" as const, family: "role_action"
+        recast: 90, duration: 20, type: "all" as const, value: 20, isShield: false, scope: "self" as const, minLevel: 8, family: "role_action"
     })),
     // Reprisal (Tanks)
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
