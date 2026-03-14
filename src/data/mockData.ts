@@ -401,6 +401,10 @@ export const MITIGATIONS: Mitigation[] = [
         id: "pneuma", jobId: "sge", name: { ja: "プネウマ", en: "Pneuma" }, icon: "/icons/Pneuma.png",
         recast: 120, duration: 1, type: "all", value: 0, isShield: false, note: "リキャスト管理のみ", minLevel: 90, family: "bh_target_shield"
     },
+    {
+        id: "eukrasian_diagnosis", jobId: "sge", name: { ja: "エウクラシア・ディアグノシス", en: "Eukrasian Diagnosis" }, icon: "/icons/Eukrasian_Diagnosis.png",
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, family: "healer_gcd_target_shield"
+    },
 
     // --- Red Mage ---
     {
