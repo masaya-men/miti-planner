@@ -96,7 +96,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
             {/* PC sidebar */}
             <div className="hidden md:block">
-                <Sidebar isOpen={isSidebarOpen} />
+                <Sidebar 
+                    isOpen={isSidebarOpen} 
+                    onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onClose={() => setIsSidebarOpen(false)} 
+                />
             </div>
 
             {/* Mobile sidebar — slides up from bottom as a sheet */}
@@ -122,29 +126,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-3">
-                        {/* ハンバーガーメニュー */}
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="relative w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer flex justify-center items-center active:scale-90 group"
-                        >
-                            <div className={clsx("relative w-5 h-4 flex justify-center items-center pointer-events-none transition-transform duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]", isSidebarOpen ? "rotate-[180deg]" : "rotate-0")}>
-                                <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
-                                    isSidebarOpen ? "rotate-45" : "-translate-y-[6px]",
-                                    isSidebarOpen ? "text-app-accent" : "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
-                                )} />
-                                <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]",
-                                    isSidebarOpen ? "opacity-0 scale-x-0 rotate-90" : "opacity-100 rotate-0",
-                                    "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
-                                )} />
-                                <span className={clsx(
-                                    "absolute h-[2px] w-full bg-current rounded-full transition-all duration-700 ease-[cubic-bezier(0.87,0,0.13,1)]",
-                                    isSidebarOpen ? "-rotate-45" : "translate-y-[6px]",
-                                    isSidebarOpen ? "text-app-accent" : "text-slate-500 dark:text-slate-400 group-hover:text-app-text"
-                                )} />
-                            </div>
-                        </button>
+                        {/* 従来のハンバーガーメニューは、サイドバーの常設ハンドルに集約するため削除 */}
                         <img
                             src="/icons/logo.png"
                             alt="Logo"
