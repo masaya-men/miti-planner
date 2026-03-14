@@ -158,6 +158,7 @@ export const SKILL_DATA = {
     "ホーリズム": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Holos.png", "nameEn": "Holos", "minLevel": 86 },
     "パンハイマ": { "potency": 200, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Panhaima.png", "nameEn": "Panhaima", "minLevel": 80 },
     "ハイマ": { "potency": 300, "type": "potency", "multiplier": 1, "jobs": ["sge"], "icon": "Haima.png", "nameEn": "Haima", "minLevel": 70 },
+    "エウクラシア・ディアグノシス": { "potency": 300, "type": "potency", "multiplier": 1.8, "jobs": ["sge"], "icon": "Eukrasian_Diagnosis.png", "nameEn": "Eukrasian Diagnosis" },
 
     // --- Warrior ---
     "原初の血気": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["war"], "icon": "Bloodwhetting.png", "nameEn": "Bloodwhetting", "minLevel": 82 },
@@ -166,12 +167,14 @@ export const SKILL_DATA = {
 
     // --- White Mage ---
     "ディヴァインカレス": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["whm"], "icon": "Divine_Caress.png", "nameEn": "Divine Caress" },
+    "ディヴァインベニゾン": { "potency": 500, "type": "potency", "multiplier": 1, "jobs": ["whm"], "icon": "Divine_Benison.png", "nameEn": "Divine Benison", "minLevel": 66 },
 
     // --- Dancer ---
     "インプロビゼーション": { "percent": 5, "type": "hp", "jobs": ["dnc"], "icon": "Improvisation.png", "nameEn": "Improvisation" },
 
     "アスペクト・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Aspected_Helios.png", "nameEn": "Aspected Helios (Neutral)", "maxLevel": 95, "minLevel": 80 },
     "コンジャンクション・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Helios_Conjunction.png", "nameEn": "Helios Conjunction (Neutral)", "minLevel": 96 },
+    "星天交差": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["ast"], "icon": "Celestial_Intersection.png", "nameEn": "Celestial Intersection", "minLevel": 74 },
 
     // --- Others from CSV ---
     // e.g. Divine Veil (listed above), Tempera Grassa (above), TBN (above)
