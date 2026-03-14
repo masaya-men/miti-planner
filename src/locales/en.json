@@ -73,6 +73,7 @@
         "no_charges": "No charges",
         "cd_remaining": "CD {{seconds}}s",
         "combat_only": "Available only during combat",
+        "seraph_cancels_dissipation": "Dissipation during the effect will be removed upon placement.",
         "next_at": "Next at {{time}}s ({{gap}}s gap)",
         "select_target": "Select Target",
         "no_skills": "No mitigation skills available for this job.",

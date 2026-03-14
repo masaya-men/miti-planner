@@ -73,6 +73,7 @@
         "requires_fairy_not_seraph": "フェアリーが必要なため、セラフィム中は使用できません",
         "cancels_seraphism": "転化を使用するとセラフィズムが解除されます",
         "combat_only": "戦闘中のみ使用可能です",
+        "seraph_cancels_dissipation": "効果中の転化を削除して設置します",
         "no_aetherflow": "AF不足",
         "no_addersgall": "アダーガル不足",
         "no_charges": "チャージ不足",

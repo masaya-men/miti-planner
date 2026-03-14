@@ -309,6 +309,20 @@ export function validateMitigationPlacement(
             if (!canUseSummonSeraph(selectedTime, relevantMitigations)) {
                 return { available: false, message: t('mitigation.unavailable_dissipation', 'フェアリ一不在 (転化中)') };
             }
+            // Check for future Dissipations during the effect duration (22s)
+            const seraphDuration = 22;
+            const hasFutureDissipation = relevantMitigations.some(am => 
+                am.mitigationId === 'dissipation' && 
+                am.time > selectedTime && 
+                am.time < selectedTime + seraphDuration
+            );
+            if (hasFutureDissipation) {
+                return { 
+                    available: true, 
+                    warning: true, 
+                    message: t('mitigation.seraph_cancels_dissipation', '効果中の転化を削除して設置します') 
+                };
+            }
         } else {
             if (!isFairyAvailable(selectedTime, relevantMitigations)) {
                 return { available: false, message: t('mitigation.unavailable_dissipation', 'フェアリ一不在 (転化中)') };
