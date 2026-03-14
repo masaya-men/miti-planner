@@ -448,11 +448,15 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                         isVirtual && "bg-transparent border-none shadow-none"
                     )}>
                         <img 
-                            src={getEffectiveIcon()} 
+                            src={iconUrl} 
                             alt="" 
                             className={clsx(
                                 "object-contain",
-                                isVirtual ? "w-5 h-5" : "w-full h-full rounded"
+                                isVirtual ? (
+                                    (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
+                                        ? "w-3 h-auto" 
+                                        : "w-5 h-5"
+                                ) : "w-full h-full rounded"
                             )} 
                         />
                     </div>
@@ -1958,6 +1962,7 @@ const Timeline: React.FC = () => {
                                                     }
                                                 });
                                             });
+
 
                                             return renderedItems;
                                         })()}
