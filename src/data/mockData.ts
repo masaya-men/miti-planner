@@ -154,13 +154,13 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "heart_of_corundum", jobId: "gnb", name: { ja: "ハート・オブ・コランダム", en: "Heart of Corundum" }, icon: "/icons/Heart_of_Corundum.png",
-        recast: 25, duration: 8, type: "all", value: 15, isShield: false,
-        note: "最初4秒15%*15%, 残り4秒15％", scope: "self", minLevel: 82, family: "tank_short"
+        recast: 25, duration: 8, type: "all", value: 15, burstValue: 15, burstDuration: 4, isShield: false,
+        note: "最初4秒15%*15%, 残り4秒15％", scope: "target", minLevel: 82, family: "tank_short"
     },
     {
         id: "heart_of_stone", jobId: "gnb", name: { ja: "ハート・オブ・ストーン", en: "Heart of Stone" }, icon: "/icons/Heart_of_Corundum.png",
         recast: 25, duration: 7, type: "all", value: 15, isShield: false,
-        scope: "self", maxLevel: 81, family: "tank_short"
+        scope: "target", maxLevel: 81, family: "tank_short"
     },
     {
         id: "heart_of_light", jobId: "gnb", name: { ja: "ハート・オブ・ライト", en: "Heart of Light" }, icon: "/icons/Heart_of_Light.png",
@@ -195,7 +195,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "holy_sheltron", jobId: "pld", name: { ja: "ホーリーシェルトロン", en: "Holy Sheltron" }, icon: "/icons/Holy_Sheltron.png",
-        recast: 23, duration: 8, type: "all", value: 15, isShield: false,
+        recast: 23, duration: 8, type: "all", value: 15, burstValue: 15, burstDuration: 4, isShield: false,
         note: "最初4秒15%*15%, 残り4秒15％", scope: "self", minLevel: 82, family: "tank_short"
     },
     {
@@ -205,13 +205,13 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "intervention", jobId: "pld", name: { ja: "インターベンション", en: "Intervention" }, icon: "/icons/Intervention.png",
-        recast: 23, duration: 8, type: "all", value: 10, isShield: false,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "self", minLevel: 82, family: "tank_sub_targeted"
+        recast: 23, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: false,
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted"
     },
     {
         id: "intervention_base", jobId: "pld", name: { ja: "インターベンション", en: "Intervention" }, icon: "/icons/Intervention.png",
         recast: 23, duration: 6, type: "all", value: 10, isShield: false,
-        scope: "self", maxLevel: 81, family: "tank_sub_targeted"
+        scope: "target", maxLevel: 81, family: "tank_sub_targeted"
     },
     {
         id: "passage_of_arms", jobId: "pld", name: { ja: "パッセージ・オブ・アームズ", en: "Passage of Arms" }, icon: "/icons/Passage_of_Arms.png",
@@ -228,10 +228,6 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "mantra", jobId: "mnk", name: { ja: "マントラ", en: "Mantra" }, icon: "/icons/Mantra.png",
         recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "回復効果10%上昇", healingIncrease: 10, family: "melee_heal_up"
-    },
-    {
-        id: "weapon_break", jobId: "mnk", name: { ja: "ウェポンブレイク", en: "Weapon Break" }, icon: "/icons/Dismantle.png",
-        recast: 90, duration: 15, type: "all", value: 10, isShield: false, minLevel: 88, family: "melee_target_10"
     },
     {
         id: "riddle_of_earth", jobId: "mnk", name: { ja: "金剛の極意", en: "Riddle of Earth" }, icon: "/icons/Riddle_of_Earth.png",
@@ -259,11 +255,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "oblation", jobId: "drk", name: { ja: "オブレーション", en: "Oblation" }, icon: "/icons/Oblation.png",
-        recast: 60, duration: 10, type: "all", value: 10, isShield: false, scope: "self", maxCharges: 2, minLevel: 82, family: "tank_sub_targeted"
+        recast: 60, duration: 10, type: "all", value: 10, isShield: false, scope: "target", maxCharges: 2, minLevel: 82, family: "tank_sub_targeted"
     },
     {
         id: "the_blackest_night", jobId: "drk", name: { ja: "ブラックナイト", en: "The Blackest Night" }, icon: "/icons/The_Blackest_Night.png",
-        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "self", family: "tank_short"
+        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "target", family: "tank_short"
     },
 
     // --- Scholar ---
@@ -285,7 +281,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "adloquium", jobId: "sch", name: { ja: "鼓舞激励の策", en: "Adloquium" }, icon: "/icons/Adloquium.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, family: "healer_gcd_target_shield"
     },
     {
         id: "recitation_deployment_tactics", jobId: "sch", name: { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" }, icon: "/icons/Deployment_Tactics.png",
@@ -323,7 +319,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "aetherpact", jobId: "sch", name: { ja: "エーテルパクト", en: "Aetherpact" }, icon: "/icons/Aetherpact.png",
-        recast: 1, duration: 15, type: "all", value: 0, isShield: false, note: "15秒固定", minLevel: 70, family: "bh_sub_c"
+        recast: 1, duration: 15, type: "all", value: 0, isShield: false, note: "15秒固定", scope: "target", minLevel: 70, family: "bh_sub_c"
     },
     {
         id: "seraphism", jobId: "sch", name: { ja: "セラフィズム", en: "Seraphism" }, icon: "/icons/Seraphism.png",
@@ -466,7 +462,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "bloodwhetting", jobId: "war", name: { ja: "原初の血気", en: "Bloodwhetting" }, icon: "/icons/Bloodwhetting.png",
-        recast: 25, duration: 8, type: "all", value: 20, isShield: true, valueType: 'potency', shieldPotency: 400,
+        recast: 25, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: true, valueType: 'potency', shieldPotency: 400,
         note: "最初4秒10%*10%, 残り4秒10％", scope: "self", minLevel: 82, family: "tank_short"
     },
     {
@@ -476,13 +472,13 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "nascent_flash", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash" }, icon: "/icons/Nascent_Flash.png",
-        recast: 25, duration: 8, type: "all", value: 20, isShield: true, valueType: 'potency', shieldPotency: 400,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "self", minLevel: 82, family: "tank_sub_targeted"
+        recast: 25, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: true, valueType: 'potency', shieldPotency: 400,
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted"
     },
     {
         id: "nascent_flash_base", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash" }, icon: "/icons/Nascent_Flash.png",
         recast: 25, duration: 6, type: "all", value: 10, isShield: false,
-        scope: "self", maxLevel: 81, family: "tank_sub_targeted"
+        scope: "target", maxLevel: 81, family: "tank_sub_targeted"
     },
     {
         id: "shake_it_off", jobId: "war", name: { ja: "シェイクオフ", en: "Shake It Off" }, icon: "/icons/Shake_It_Off.png",

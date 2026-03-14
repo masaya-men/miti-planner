@@ -39,6 +39,9 @@ export interface Mitigation {
     stacks?: number; // Max stacks for multi-layer barriers (e.g. Haima=5)
     reapplyOnAbsorption?: boolean; // If true, shield reapplies using a stack when broken
     onExpiryHealingPotency?: number; // Healing per remaining stack when duration expires
+    burstValue?: number; // Additional mitigation % during initial burst window (e.g., 10 for extra 10%)
+    burstDuration?: number; // Duration in seconds for the burst mitigation window (e.g., 4)
+    hidden?: boolean; // If true, the mitigation is not shown in the selector modal
 }
 
 export interface AppliedMitigation {

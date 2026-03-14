@@ -903,7 +903,7 @@ const Timeline: React.FC = () => {
         if (!selectedMemberId) return;
 
         addMitigation({
-            id: globalThis.crypto?.randomUUID() || Math.random().toString(36).substring(2, 15),
+            id: genId(),
             mitigationId: mitigation.id,
             time: selectedMitigationTime,
             duration: mitigation.duration,
@@ -1029,7 +1029,7 @@ const Timeline: React.FC = () => {
 
             activeMitigations.forEach(appMit => {
                 const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
-                if (!def || def.isShield) return;
+                if (!def) return;
 
                 if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
@@ -1051,7 +1051,12 @@ const Timeline: React.FC = () => {
                     if (def.type === 'magical' && event.damageType === 'physical') return;
                 }
 
-                const multiplier = (1 - mitigationValue / 100);
+                let burstMultiplier = 1;
+                if (def.burstValue && def.burstDuration && event.time < appMit.time + def.burstDuration) {
+                    burstMultiplier = (1 - def.burstValue / 100);
+                }
+
+                const multiplier = (1 - mitigationValue / 100) * burstMultiplier;
                 currentDamage *= multiplier;
                 mitigationMultipliers *= multiplier;
             });
@@ -1098,7 +1103,13 @@ const Timeline: React.FC = () => {
                         }
                     });
 
-                    const maxValBase = member.computedValues[def.name.en] || member.computedValues[def.name.ja] || 0;
+                    const localizedName = contentLanguage === 'en' ? def.name.en : def.name.ja;
+                    let maxValBase = member.computedValues[localizedName] || 0;
+
+                    if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
+                        maxValBase = member.computedValues[`${def.name.en} (Neutral)`] || member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
+                    }
+
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
                     // 🚀 Handle stacks (Haima/Panhaima)
@@ -1883,7 +1894,7 @@ const Timeline: React.FC = () => {
                                                             (am.mitigationId === 'aspected_helios' || am.mitigationId === 'helios_conjunction') &&
                                                             am.ownerId === mitigation.ownerId &&
                                                             am.time >= mitigation.time &&
-                                                            am.time < durationEndTime
+                                                            am.time <= durationEndTime
                                                         );
 
                                                         heliosEvents.forEach((he: import('../types').AppliedMitigation) => {

@@ -58,7 +58,7 @@ export const CheatSheetView: React.FC = () => {
 
             activeMitigations.forEach(appMit => {
                 const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
-                if (!def || def.isShield) return;
+                if (!def) return;
                 if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
@@ -76,7 +76,12 @@ export const CheatSheetView: React.FC = () => {
                     if (def.type === 'magical' && event.damageType === 'physical') return;
                 }
 
-                const multiplier = (1 - mitigationValue / 100);
+                let burstMultiplier = 1;
+                if (def.burstValue && def.burstDuration && event.time < appMit.time + def.burstDuration) {
+                    burstMultiplier = (1 - def.burstValue / 100);
+                }
+
+                const multiplier = (1 - mitigationValue / 100) * burstMultiplier;
                 currentDamage *= multiplier;
                 mitigationMultipliers *= multiplier;
             });
@@ -118,7 +123,12 @@ export const CheatSheetView: React.FC = () => {
                     });
 
                     const localizedName = contentLanguage === 'en' ? def.name.en : def.name.ja;
-                    const maxValBase = member.computedValues[localizedName] || 0;
+                    let maxValBase = member.computedValues[localizedName] || 0;
+
+                    if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
+                        maxValBase = member.computedValues[`${def.name.en} (Neutral)`] || member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
+                    }
+
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
 
                     const remainingForDisplay = getShieldState(displayContext, appMit.id, maxVal);

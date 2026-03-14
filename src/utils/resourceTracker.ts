@@ -287,8 +287,8 @@ export function validateMitigationPlacement(
             // Fix: parentDef.name is a LocalizedString object { ja: string, en: string }. 
             // We must extract the string based on context or use i18next's capabilities.
             const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };
-            const lang = t('lang_info', 'ja'); // Simple heuristic to detect current lang from t
-            const parentNameStr = (lang === 'en' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
+            const lang = t('lang_info', 'ja'); 
+            const parentNameStr = (lang === 'en' || lang === 'en-US' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
 
             let message = t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` });
             if (m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
