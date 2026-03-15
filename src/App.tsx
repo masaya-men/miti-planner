@@ -4,6 +4,7 @@ import { useThemeStore } from './store/useThemeStore';
 import { PortalPage } from './components/PortalPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { TutorialOverlay } from './components/TutorialOverlay';
+import { useTranslation } from 'react-i18next';
 
 /**
  * App — Root component with route definitions.
@@ -19,6 +20,7 @@ import { TutorialOverlay } from './components/TutorialOverlay';
  */
 function App() {
   const theme = useThemeStore((state) => state.theme);
+  const { i18n } = useTranslation();
 
   // Sync theme class on <html> so Tailwind dark: variants work
   useEffect(() => {
@@ -26,6 +28,14 @@ function App() {
     root.classList.remove('theme-dark', 'theme-light');
     root.classList.add(`theme-${theme}`);
   }, [theme]);
+
+  // Update document title based on language
+  useEffect(() => {
+    const title = i18n.language.startsWith('ja')
+      ? '軽減表│FFXIV'
+      : 'Mitigation Table│FFXIV';
+    document.title = title;
+  }, [i18n.language]);
 
   return (
     <div className="relative w-full h-full">
