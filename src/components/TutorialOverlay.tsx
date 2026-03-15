@@ -269,7 +269,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                             onClick={onPrev}
                             className="text-xs text-app-accent hover:text-app-text transition-colors cursor-pointer font-bold"
                         >
-                            &larr; {t('tutorial.prev', '一つ戻る')}
+                            &larr; {t('tutorial.prev')}
                         </button>
                     )}
                 </div>
@@ -285,7 +285,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                             onClick={onNext}
                             className="text-xs font-black text-app-text-on-accent bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
                         >
-                            {t('tutorial.next', '次へ')} &rarr;
+                            {t('tutorial.next')} &rarr;
                         </button>
                     )}
                 </div>
@@ -525,10 +525,10 @@ export const TutorialOverlay: React.FC = () => {
                         >
                             <div className="text-4xl mb-4">⚠️</div>
                             <h3 className="text-lg font-bold text-app-text mb-3">
-                                {t('tutorial.restart_title', 'チュートリアルを再開しますか？')}
+                                {t('tutorial.restart_title')}
                             </h3>
                             <p className="text-sm text-app-text-sec leading-relaxed mb-6">
-                                {t('tutorial.restart_desc', '現在の軽減表・パーティ設定はすべてリセットされます。チュートリアル用のまっさらな状態から再スタートします。')}
+                                {t('tutorial.restart_desc')}
                             </p>
                             <div className="flex gap-3 justify-center">
                                 <button
@@ -538,7 +538,7 @@ export const TutorialOverlay: React.FC = () => {
                                         "border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
                                     )}
                                 >
-                                    {t('tutorial.restart_cancel', 'キャンセル')}
+                                    {t('tutorial.restart_cancel')}
                                 </button>
                                 <button
                                     onClick={() => useTutorialStore.getState().confirmRestart()}
@@ -548,7 +548,7 @@ export const TutorialOverlay: React.FC = () => {
                                         "shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
                                     )}
                                 >
-                                    {t('tutorial.restart_confirm', 'リセットして開始')}
+                                    {t('tutorial.restart_confirm')}
                                 </button>
                             </div>
                         </motion.div>

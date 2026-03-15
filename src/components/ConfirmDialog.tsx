@@ -1,5 +1,5 @@
-import React from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -20,10 +20,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     onCancel,
     title,
     message,
-    confirmLabel = '実行',
-    cancelLabel = 'キャンセル',
+    confirmLabel,
+    cancelLabel,
     variant = 'danger',
 }) => {
+    const { t } = useTranslation();
+    const finalConfirmLabel = confirmLabel || t('ui.ok');
+    const finalCancelLabel = cancelLabel || t('modal.cancel');
+
     if (!isOpen) return null;
 
     return createPortal(
@@ -66,7 +70,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                         onClick={onCancel}
                         className="px-4 py-2 rounded-xl text-[11px] font-black text-app-text-secondary hover:text-app-text hover:bg-black/5 dark:hover:bg-white/10 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-white/10 cursor-pointer"
                     >
-                        {cancelLabel}
+                        {finalCancelLabel}
                     </button>
                     <button
                         onClick={onConfirm}
@@ -77,7 +81,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                                 : "bg-amber-500 hover:bg-amber-600 shadow-amber-500/25"
                         )}
                     >
-                        {confirmLabel}
+                        {finalConfirmLabel}
                     </button>
                 </div>
             </div>
