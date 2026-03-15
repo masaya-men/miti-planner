@@ -469,6 +469,7 @@ export const CheatSheetView: React.FC = () => {
                         setMitigationSelectorOpen(false);
                     }}
                     jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
+                    ownerId={selectedMemberId}
                     position={selectorPosition}
                     activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
                     selectedTime={selectedMitigationTime}

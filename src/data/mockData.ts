@@ -134,7 +134,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Gunbreaker ---
     {
         id: "aurora", jobId: "gnb", name: { ja: "オーロラ", en: "Aurora" }, icon: "/icons/Aurora.png",
-        recast: 60, duration: 18, type: "all", value: 0, isShield: false, scope: "target", maxLevel: 83, family: "tank_sub_targeted"
+        recast: 60, duration: 18, type: "all", value: 0, isShield: false, scope: "target", minLevel: 45, maxLevel: 83, family: "tank_sub_targeted"
     },
     {
         id: "aurora_v2", jobId: "gnb", name: { ja: "オーロラ", en: "Aurora" }, icon: "/icons/Aurora.png",
@@ -150,7 +150,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "nebula", jobId: "gnb", name: { ja: "ネビュラ", en: "Nebula" }, icon: "/icons/Nebula.png",
-        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", maxLevel: 91, family: "tank_40"
+        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", minLevel: 38, maxLevel: 91, family: "tank_40"
     },
     {
         id: "heart_of_corundum", jobId: "gnb", name: { ja: "ハート・オブ・コランダム", en: "Heart of Corundum" }, icon: "/icons/Heart_of_Corundum.png",
@@ -160,7 +160,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "heart_of_stone", jobId: "gnb", name: { ja: "ハート・オブ・ストーン", en: "Heart of Stone" }, icon: "/icons/Heart_of_Corundum.png",
         recast: 25, duration: 7, type: "all", value: 15, isShield: false,
-        scope: "target", maxLevel: 81, family: "tank_short"
+        scope: "target", minLevel: 68, maxLevel: 81, family: "tank_short"
     },
     {
         id: "heart_of_light", jobId: "gnb", name: { ja: "ハート・オブ・ライト", en: "Heart of Light" }, icon: "/icons/Heart_of_Light.png",
@@ -187,7 +187,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "sentinel", jobId: "pld", name: { ja: "センチネル", en: "Sentinel" }, icon: "/icons/Sentinel.png",
-        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", maxLevel: 91, family: "tank_40"
+        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", minLevel: 38, maxLevel: 91, family: "tank_40"
     },
     {
         id: "hallowed_ground", jobId: "pld", name: { ja: "インビンシブル", en: "Hallowed Ground" }, icon: "/icons/Hallowed_Ground.png",
@@ -201,17 +201,17 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "sheltron", jobId: "pld", name: { ja: "シェルトロン", en: "Sheltron" }, icon: "/icons/Holy_Sheltron.png",
         recast: 23, duration: 6, type: "all", value: 15, isShield: false,
-        scope: "self", maxLevel: 81, family: "tank_short"
+        scope: "self", minLevel: 35, maxLevel: 81, family: "tank_short"
     },
     {
         id: "intervention", jobId: "pld", name: { ja: "インターベンション", en: "Intervention" }, icon: "/icons/Intervention.png",
         recast: 23, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: false,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted"
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
         id: "intervention_base", jobId: "pld", name: { ja: "インターベンション", en: "Intervention" }, icon: "/icons/Intervention.png",
         recast: 23, duration: 6, type: "all", value: 10, isShield: false,
-        scope: "target", maxLevel: 81, family: "tank_sub_targeted"
+        scope: "target", minLevel: 62, maxLevel: 81, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
         id: "passage_of_arms", jobId: "pld", name: { ja: "パッセージ・オブ・アームズ", en: "Passage of Arms" }, icon: "/icons/Passage_of_Arms.png",
@@ -246,7 +246,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "shadow_wall", jobId: "drk", name: { ja: "シャドウウォール", en: "Shadow Wall" }, icon: "/icons/Shadow_Wall.png",
-        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", maxLevel: 91, family: "tank_40"
+        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", minLevel: 38, maxLevel: 91, family: "tank_40"
     },
     {
         id: "dark_missionary", jobId: "drk", name: { ja: "ダークミッショナリー", en: "Dark Missionary" }, icon: "/icons/Dark_Missionary.png",
@@ -345,7 +345,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "tactician_base", jobId: "mch", name: { ja: "タクティシャン", en: "Tactician" }, icon: "/icons/Tactician.png",
-        recast: 90, duration: 15, type: "all", value: 10, isShield: false, maxLevel: 97, family: "ranged_party_15"
+        recast: 90, duration: 15, type: "all", value: 10, isShield: false, minLevel: 58, maxLevel: 97, family: "ranged_party_15"
     },
 
     // --- Bard ---
@@ -359,7 +359,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "troubadour_base", jobId: "brd", name: { ja: "トルバドゥール", en: "Troubadour" }, icon: "/icons/Troubadour.png",
-        recast: 90, duration: 15, type: "all", value: 10, isShield: false, maxLevel: 97, family: "ranged_party_15"
+        recast: 90, duration: 15, type: "all", value: 10, isShield: false, minLevel: 62, maxLevel: 97, family: "ranged_party_15"
     },
 
     // --- Sage ---
@@ -466,7 +466,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "vengeance", jobId: "war", name: { ja: "ヴェンジェンス", en: "Vengeance" }, icon: "/icons/Vengeance.png",
-        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", maxLevel: 91, family: "tank_40"
+        recast: 120, duration: 15, type: "all", value: 30, isShield: false, scope: "self", minLevel: 38, maxLevel: 91, family: "tank_40"
     },
     {
         id: "bloodwhetting", jobId: "war", name: { ja: "原初の血気", en: "Bloodwhetting" }, icon: "/icons/Bloodwhetting.png",
@@ -476,17 +476,17 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "raw_intuition", jobId: "war", name: { ja: "原初の直感", en: "Raw Intuition" }, icon: "/icons/Bloodwhetting.png",
         recast: 25, duration: 6, type: "all", value: 10, isShield: false,
-        scope: "self", maxLevel: 81, family: "tank_short"
+        scope: "self", minLevel: 56, maxLevel: 81, family: "tank_short"
     },
     {
         id: "nascent_flash", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash" }, icon: "/icons/Nascent_Flash.png",
         recast: 25, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: true, valueType: 'potency', shieldPotency: 400,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted"
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
         id: "nascent_flash_base", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash" }, icon: "/icons/Nascent_Flash.png",
         recast: 25, duration: 6, type: "all", value: 10, isShield: false,
-        scope: "target", maxLevel: 81, family: "tank_sub_targeted"
+        scope: "target", minLevel: 76, maxLevel: 81, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
         id: "shake_it_off", jobId: "war", name: { ja: "シェイクオフ", en: "Shake It Off" }, icon: "/icons/Shake_It_Off.png",
@@ -534,7 +534,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "shield_samba_base", jobId: "dnc", name: { ja: "守りのサンバ", en: "Shield Samba" }, icon: "/icons/Shield_Samba.png",
-        recast: 90, duration: 15, type: "all", value: 10, isShield: false, maxLevel: 97, family: "ranged_party_15"
+        recast: 90, duration: 15, type: "all", value: 10, isShield: false, minLevel: 58, maxLevel: 97, family: "ranged_party_15"
     },
 
     // --- Role Actions ---
@@ -550,7 +550,7 @@ export const MITIGATIONS: Mitigation[] = [
     })),
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `reprisal_base_${job}`, jobId: job, name: { ja: "リプライザル", en: "Reprisal" }, icon: "/icons/Reprisal.png",
-        recast: 60, duration: 10, type: "all" as const, value: 10, isShield: false, scope: "party" as const, maxLevel: 97, family: "role_action"
+        recast: 60, duration: 10, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 22, maxLevel: 97, family: "role_action"
     })),
     // Addle (Casters: blm, smn, rdm, pct)
     ...['blm', 'smn', 'rdm', 'pct'].map(job => ({
@@ -561,7 +561,7 @@ export const MITIGATIONS: Mitigation[] = [
     ...['blm', 'smn', 'rdm', 'pct'].map(job => ({
         id: `addle_base_${job}`, jobId: job, name: { ja: "アドル", en: "Addle" }, icon: "/icons/Addle.png",
         recast: 90, duration: 10, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 10, valuePhysical: 5, scope: "party" as const, maxLevel: 97, family: "role_action"
+        valueMagical: 10, valuePhysical: 5, scope: "party" as const, minLevel: 8, maxLevel: 97, family: "role_action"
     })),
     // Feint (Melee: mnk, drg, nin, sam, rpr, vpr)
     ...['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].map(job => ({
@@ -572,6 +572,6 @@ export const MITIGATIONS: Mitigation[] = [
     ...['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].map(job => ({
         id: `feint_base_${job}`, jobId: job, name: { ja: "牽制", en: "Feint" }, icon: "/icons/Feint.png",
         recast: 90, duration: 10, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 5, valuePhysical: 10, scope: "party" as const, maxLevel: 97, family: "role_action"
+        valueMagical: 5, valuePhysical: 10, scope: "party" as const, minLevel: 22, maxLevel: 97, family: "role_action"
     })),
 ];
