@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
@@ -305,7 +305,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -426,7 +426,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) =
                     <div className="px-3 flex items-center justify-between mb-2 shrink-0">
                         <div className="flex items-center px-1">
                             <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
-                                EXPLORER
+                                {t('ui.explorer')}
                             </span>
                         </div>
                         <button
@@ -474,7 +474,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) =
                                         : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
                                 )}
                             >
-                                ALL
+                                {t('ui.all').toUpperCase()}
                             </button>
                             {availableCategories.map(cat => (
                                 <button
@@ -575,7 +575,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose }) =
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
                         )}
-                        title={isOpen ? "メニューを閉じる" : "メニューを開く"}
+                        title={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景 */}
                         <motion.div 

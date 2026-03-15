@@ -54,6 +54,12 @@
         "aoe": "全体",
         "mt": "MT",
         "st": "ST",
+        "h1": "H1",
+        "h2": "H2",
+        "d1": "D1",
+        "d2": "D2",
+        "d3": "D3",
+        "d4": "D4",
         "cancel": "キャンセル",
         "save": "保存",
         "delete": "削除",
@@ -81,7 +87,9 @@
         "next_at": "{{time}}sに配置済 ({{gap}}s間隔)",
         "select_target": "対象を選択",
         "no_skills": "このジョブの軽減スキルはありません。",
-        "remove": "削除"
+        "remove": "削除",
+        "whispering_dawn_seraph": "光輝の囁き",
+        "fey_illumination_seraph": "セラフィックイルミネーション"
     },
     "settings": {
         "party_stats": "パーティステータス設定",
@@ -141,7 +149,9 @@
         "empty": "空き",
         "ok": "OK",
         "no_damage_events": "ダメージイベントが記録されていません。",
-        "total_hits": "合計 {{count}} 回のヒット ({{span}}秒間)"
+        "total_hits": "合計 {{count}} 回のヒット ({{span}}秒間)",
+        "explorer": "エクスプローラー",
+        "all": "すべて"
     },
     "timeline": {
         "invalid_placement": "このタイミングには配置できません",
@@ -195,7 +205,9 @@
         "cloud_sync": "クラウド同期",
         "manage_plans": "プラン管理",
         "current_plan": "現在の表",
-        "cancel": "キャンセル"
+        "cancel": "キャンセル",
+        "close_menu": "メニューを閉じる",
+        "open_menu": "メニューを開く"
     },
     "portal": {
         "title": "FF14 ツールボックス",
