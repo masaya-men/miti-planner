@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore } from '../store/useTutorialStore';
@@ -79,6 +79,11 @@ export const PortalPage: React.FC = () => {
     const { theme, setTheme } = useThemeStore();
     const { t } = useTranslation();
     const navigate = useNavigate();
+
+    // Set page title
+    useEffect(() => {
+        document.title = "FF14 Toolbox";
+    }, []);
 
     const bgClass = "bg-slate-50 dark:bg-slate-950";
 
@@ -212,6 +217,18 @@ export const PortalPage: React.FC = () => {
                                 <p className="relative z-10 text-sm text-app-text-sec text-center leading-relaxed">
                                     {t(`portal.tools.${card.id}.description`, '')}
                                 </p>
+
+                                {/* Tool Badge (for Housing Tour) */}
+                                {card.id === 'housing_tour' && (
+                                    <div className="relative z-10 flex items-center justify-between mt-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                                                <Home size={20} />
+                                            </div>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-orange-500/80">TOURxiv</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Coming Soon badge */}
                                 {!card.enabled && (

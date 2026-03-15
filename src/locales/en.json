@@ -14,7 +14,9 @@
         "shield": "Shields",
         "settings": "Settings",
         "import_export": "Import/Export",
-        "aa_mode": "Add AA Mode"
+        "aa_mode": "Add AA Mode",
+        "return_home": "Back to Portal",
+        "view_tutorial": "View Tutorial"
     },
     "aa_settings": {
         "title": "Add AA Mode",

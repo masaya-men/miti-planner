@@ -18,6 +18,11 @@ import { List, LayoutGrid } from 'lucide-react';
 export const MitiPlannerPage: React.FC = () => {
     const [viewMode, setViewMode] = useState<'timeline' | 'cheatsheet'>('timeline');
 
+    // Set page title
+    useEffect(() => {
+        document.title = "MitiXIV | FF14 Toolbox";
+    }, []);
+
     // Auto-start tutorial if timeline is empty (fresh state)
     useEffect(() => {
         const { isActive, hasCompleted, startFromStep } = useTutorialStore.getState();
