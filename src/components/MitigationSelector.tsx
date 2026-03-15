@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ChevronLeft } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { MITIGATIONS, getMitigationPriority, JOBS } from '../data/mockData';
@@ -169,12 +169,13 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 const el = document.getElementById(`miti-btn-${mitigation.id}`);
                 const container = scrollContainerRef.current;
                 if (el && container) {
+                    const topPos = el.offsetTop - 4;
                     container.scrollTo({
-                        top: el.offsetTop - 4,
+                        top: topPos,
                         behavior: 'smooth'
                     });
                 }
-            }, 10);
+            }, 50);
         } else {
             onSelect(mitigation);
         }
@@ -220,19 +221,20 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             >
                 {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto mb-3 shrink-0" />}
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0 relative z-[101]">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        {selectedSingleTargetMit ? (
-                            <button 
-                                onClick={() => setSelectedSingleTargetMit(null)}
-                                className="p-1 -ml-1 hover:bg-white/10 rounded-full transition-colors text-app-text-muted hover:text-app-text"
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
-                        ) : null}
+                    <div className="flex items-center overflow-hidden">
                         <div className="flex flex-col justify-center min-w-0">
-                            <span className="text-[14px] font-black text-app-text uppercase tracking-tighter leading-none">
-                                {t('mitigation.select')}
-                            </span>
+                            {selectedSingleTargetMit ? (
+                                <button
+                                    onClick={() => setSelectedSingleTargetMit(null)}
+                                    className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
+                                >
+                                    ＜ {t('mitigation.select_target', '対象を選択')}
+                                </button>
+                            ) : (
+                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter leading-none">
+                                    {t('mitigation.select')}
+                                </span>
+                            )}
                         </div>
                     </div>
                     <button onClick={handleClose} className="text-app-text-muted hover:text-app-text transition-colors cursor-pointer shrink-0">
@@ -245,7 +247,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                     <div 
                         className={clsx(
                             "absolute inset-0 flex flex-col transition-all duration-300 pr-1 custom-scrollbar overflow-y-auto space-y-1",
-                            selectedSingleTargetMit ? "pointer-events-none" : "opacity-100 blur-0"
+                            selectedSingleTargetMit ? "pointer-events-none pb-[140px]" : "opacity-100 blur-0 pb-1"
                         )}
                         ref={scrollContainerRef}
                     >
@@ -285,8 +287,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                 const isBlurred = selectedSingleTargetMit !== null && !isSelectedTargetMit;
 
                                 return (
+                                    <React.Fragment key={mitigation.id}>
                                     <button
-                                        key={mitigation.id}
                                         id={`miti-btn-${mitigation.id}`}
                                         data-tutorial={tutorialSkillDataAttr}
                                         onClick={() => isClickable && handleMitigationClick(mitigation)}
@@ -355,78 +357,79 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             )}
                                         </div>
                                     </button>
+                                    
+                                    {/* 💥 修正：選択されたスキルの直下にインラインでパネルを展開する */}
+                                    {isSelectedTargetMit && (
+                                        <div
+                                            className={clsx(
+                                                "w-full mt-1 mb-2 p-3 rounded-xl border-t-white/20",
+                                                "glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]",
+                                                "animate-in slide-in-from-top-2 fade-in duration-300 relative z-20"
+                                            )}
+                                            style={{ pointerEvents: 'auto' }}
+                                        >
+                                            <div className="grid grid-cols-4 grid-rows-2 gap-2 pb-1 pt-1">
+                                                {partyMembers.map((member: PartyMember) => {
+                                                    const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+                                                    let isTargetBlockedByTutorial = false;
+                                                    let tutorialTargetDataAttr: string | undefined = undefined;
+
+                                                    if (tutorialState.isActive) {
+                                                        const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
+                                                        if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
+                                                            if (member.id === 'MT') {
+                                                                tutorialTargetDataAttr = 'tutorial-target-mt';
+                                                            } else {
+                                                                isTargetBlockedByTutorial = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            key={`target-${member.id}`}
+                                                            data-tutorial={tutorialTargetDataAttr}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (!isTargetBlockedByTutorial) handleTargetSelect(member.id);
+                                                            }}
+                                                            disabled={isTargetBlockedByTutorial}
+                                                            className={clsx(
+                                                                "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
+                                                                "bg-slate-100/50 dark:bg-white/[0.03] border-black/5 dark:border-white/5",
+                                                                "hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10",
+                                                                "shadow-sm dark:shadow-none hover:shadow-md",
+                                                                isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
+                                                            )}
+                                                        >
+                                                            {job ? (
+                                                                <img 
+                                                                    src={job.icon} 
+                                                                    alt={job.name?.en || job.id} 
+                                                                    className="w-8 h-8 object-contain drop-shadow-md" 
+                                                                />
+                                                            ) : (
+                                                                <span className={clsx(
+                                                                    "text-[14px] font-black tracking-tighter uppercase drop-shadow-sm",
+                                                                    member.role === 'tank' ? 'text-blue-500 dark:text-blue-400' : 
+                                                                    member.role === 'healer' ? 'text-green-500 dark:text-green-400' : 
+                                                                    'text-red-500 dark:text-red-400'
+                                                                )}>
+                                                                    {t(`modal.${member.id.toLowerCase()}`, member.id)}
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                    </React.Fragment>
                                 );
                             })
                         )}
                     </div>
 
-                    {/* スキル直下にせり上がる対象選択パネル */}
-                    <div
-                        className={clsx(
-                            "absolute inset-x-0 z-[105] flex flex-col p-3 rounded-xl border-t-white/20",
-                            "glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]",
-                            "transition-all duration-300 ease-out",
-                            selectedSingleTargetMit ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
-                        )}
-                        style={{
-                            // トップから48ピクセル（選択されたスキルの高さ分）だけ下げた位置に配置
-                            top: '48px',
-                            pointerEvents: selectedSingleTargetMit ? 'auto' : 'none'
-                        }}
-                    >
-                        <div className="grid grid-cols-4 grid-rows-2 gap-2 pb-1 pt-1">
-                            {partyMembers.map((member: PartyMember) => {
-                                const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-
-                                let isTargetBlockedByTutorial = false;
-                                let tutorialTargetDataAttr: string | undefined = undefined;
-
-                                if (tutorialState.isActive) {
-                                    const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
-                                    if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
-                                        if (member.id === 'MT') {
-                                            tutorialTargetDataAttr = 'tutorial-target-mt';
-                                        } else {
-                                            isTargetBlockedByTutorial = true;
-                                        }
-                                    }
-                                }
-
-                                return (
-                                    <button
-                                        key={member.id}
-                                        data-tutorial={tutorialTargetDataAttr}
-                                        onClick={() => !isTargetBlockedByTutorial && handleTargetSelect(member.id)}
-                                        disabled={isTargetBlockedByTutorial}
-                                        className={clsx(
-                                            "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
-                                            "bg-slate-100/50 dark:bg-white/[0.03] border-black/5 dark:border-white/5",
-                                            "hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10",
-                                            "shadow-sm dark:shadow-none hover:shadow-md",
-                                            isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
-                                        )}
-                                    >
-                                        {job ? (
-                                            <img 
-                                                src={job.icon} 
-                                                alt={job.name?.en || job.id} 
-                                                className="w-8 h-8 object-contain drop-shadow-md" 
-                                            />
-                                        ) : (
-                                            <span className={clsx(
-                                                "text-[14px] font-black tracking-tighter uppercase drop-shadow-sm",
-                                                member.role === 'tank' ? 'text-blue-500 dark:text-blue-400' : 
-                                                member.role === 'healer' ? 'text-green-500 dark:text-green-400' : 
-                                                'text-red-500 dark:text-red-400'
-                                            )}>
-                                                {t(`modal.${member.id.toLowerCase()}`, member.id)}
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
