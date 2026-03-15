@@ -128,6 +128,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
         scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight, timeToYMap,
         isVirtual = false, iconOverride
     } = props;
+
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -428,7 +429,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 />
                 <div
                     className={clsx(
-                        "rounded shadow-md relative z-20 transition-transform flex items-center justify-center",
+                        "rounded shadow-md relative z-20 flex items-center justify-center",
                         "w-6 h-6",
                         !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
                         isVirtual && "cursor-default pointer-events-none",
