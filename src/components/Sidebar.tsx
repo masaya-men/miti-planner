@@ -103,7 +103,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                         <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
                                             <div className={clsx(
                                                 "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
-                                                isFloorActive 
+                                                isFloorActive
                                                     ? "bg-app-accent/20 text-app-accent-bold"
                                                     : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
                                             )}>
@@ -255,7 +255,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const projectLabel = getProjectLabel(level, category);
-    const categoryLabel = projectLabel 
+    const categoryLabel = projectLabel
         ? `${CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja}：${projectLabel[lang as ContentLanguage] || projectLabel.ja}`
         : CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
     const seriesList = getSeriesByLevel(level).filter(s => s.category === category);
@@ -368,12 +368,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     return (
         <motion.aside
             initial={false}
-            animate={{ width: isOpen ? 300 : 24 }}
+            animate={{ width: isOpen ? 300 : (isNear ? 36 : 24) }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full bg-glass-header backdrop-blur-3xl flex z-40 relative group/sidebar shadow-2xl"
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
-            <motion.div 
+            <motion.div
                 animate={{ width: isOpen ? 276 : 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="h-full flex flex-col overflow-hidden"
@@ -547,15 +547,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </motion.div>
 
             {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
-            <div 
+            <div
                 className="h-full w-6 z-50 flex items-center justify-center shrink-0 shadow-[inset_1px_0_0_0_rgba(255,255,255,0.05)] relative"
                 onMouseEnter={() => setIsNear(true)}
                 onMouseLeave={() => setIsNear(false)}
             >
                 {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
                 {/* ── 修正: ヘッダー領域(h-14)に干渉しないよう、上端をずらす ── */}
-                <div 
-                    className="absolute top-14 bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer" 
+                <div
+                    className="absolute top-14 bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer"
                     onMouseEnter={() => setIsNear(true)}
                 />
 
@@ -579,7 +579,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         title={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景 */}
-                        <motion.div 
+                        <motion.div
                             className={clsx(
                                 "absolute inset-0 bg-gradient-to-r from-transparent via-app-accent/[0.08] to-transparent",
                                 isOpen ? "opacity-0" : "opacity-10"
@@ -594,7 +594,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div
                                 className="flex items-center justify-center"
-                                animate={{ 
+                                animate={{
                                     rotate: isOpen ? 0 : 180,
                                     x: isHovered ? (isOpen ? [-2, 2, -2] : [2, -2, 2]) : 0,
                                     scale: isHovered ? 1.8 : 1
@@ -605,12 +605,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                     scale: { duration: 0.2 }
                                 }}
                             >
-                                <ChevronLeft 
-                                    size={18} 
+                                <ChevronLeft
+                                    size={18}
                                     className={clsx(
                                         "transition-all duration-200",
-                                        isOpen 
-                                            ? "text-app-text-muted group-hover/btn:text-app-accent" 
+                                        isOpen
+                                            ? "text-app-text-muted group-hover/btn:text-app-accent"
                                             : "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]",
                                         isHovered && "drop-shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.6)]"
                                     )}
