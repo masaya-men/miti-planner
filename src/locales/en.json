@@ -179,7 +179,11 @@
         "header_taken": "DAMAGE TAKEN",
         "event_edit": "Edit Event",
         "event_add_here": "Add Event Here",
-        "event_delete": "Delete Event"
+        "event_delete": "Delete Event",
+        "undo": "Undo (Ctrl+Z)",
+        "redo": "Redo (Ctrl+Shift+Z)",
+        "clear_mitigations": "Remove mitigations",
+        "import_fflogs": "Import from FFLogs"
     },
     "sidebar": {
         "new_plan": "Create New",

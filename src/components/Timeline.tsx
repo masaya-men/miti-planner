@@ -1247,7 +1247,6 @@ const Timeline: React.FC = () => {
                                 useTutorialStore.getState().completeEvent('party-settings:opened');
                             }}
                             className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
-                            title={t('party.title')}
                         >
                             <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
                             <span className="font-black text-[10px] uppercase tracking-wider text-app-text-secondary group-hover/btn:text-app-text  shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
@@ -1268,7 +1267,6 @@ const Timeline: React.FC = () => {
                                     ? "bg-blue-500/40 border-blue-400 text-app-text shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
                                     : "water-drop text-app-text-secondary hover:text-app-text"
                             )}
-                            title={t('settings.party_stats')}
                         >
                             <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-app-text" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
                             <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
@@ -1277,7 +1275,6 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={handleAutoPlan}
                             className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
-                            title={t('mitigation.auto_plan')}
                         >
                             <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
                             <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">{t('mitigation.auto_plan')}</span>
@@ -1286,7 +1283,7 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={() => setImportModalOpen(true)}
                             className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
-                            title="Import from FFLogs"
+                            title={t('timeline.import_fflogs')}
                         >
                             <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
                         </button>
@@ -1383,7 +1380,6 @@ const Timeline: React.FC = () => {
                                             ? "bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
                                             : "water-drop text-slate-700 dark:text-slate-200 border border-white/20"
                                     )}
-                                    title={t('ui.compact_view')}
                                 >
                                     <AlignJustify
                                         size={14}
@@ -1421,7 +1417,6 @@ const Timeline: React.FC = () => {
                                                 ? "text-white hover:bg-blue-500"
                                                 : "text-app-text-secondary hover:text-app-text"
                                         )}
-                                        title={t('aa_settings.title')}
                                     >
                                         <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-app-text-secondary shadow-black/50 drop-shadow-sm shrink-0")} />
                                         <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block">{t('aa_settings.title')}</span>
@@ -1439,7 +1434,6 @@ const Timeline: React.FC = () => {
                                                 ? "text-white hover:bg-blue-500"
                                                 : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                                         )}
-                                        title={t('aa_settings.popover_header')}
                                     >
                                         <Settings size={12} className="transition-transform duration-300 group-hover/opt:rotate-45" />
                                     </button>
@@ -1464,7 +1458,7 @@ const Timeline: React.FC = () => {
                                             ? "text-slate-400 hover:bg-white/10 hover:text-white"
                                             : "text-slate-700 cursor-default"
                                     )}
-                                    title="Undo (Ctrl+Z)"
+                                    title={t('timeline.undo')}
                                 >
                                     <Undo2 size={12} />
                                 </button>
@@ -1477,7 +1471,7 @@ const Timeline: React.FC = () => {
                                             ? "text-slate-400 hover:bg-white/10 hover:text-white"
                                             : "text-slate-700 cursor-default"
                                     )}
-                                    title="Redo (Ctrl+Shift+Z)"
+                                    title={t('timeline.redo')}
                                 >
                                     <Redo2 size={12} />
                                 </button>
@@ -1487,7 +1481,7 @@ const Timeline: React.FC = () => {
                                         ref={clearMenuButtonRef}
                                         onClick={() => setClearMenuOpen(!clearMenuOpen)}
                                         className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                                        title="Clear Mitigations"
+                                        title={t('timeline.clear_mitigations')}
                                     >
                                         <Trash2 size={12} />
                                         <ChevronDown size={7} />
