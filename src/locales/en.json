@@ -1,4 +1,9 @@
 {
+    "common": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "unassigned": "Unassigned"
+    },
     "app": {
         "title": "FFXIV Mitigation Sim",
         "language": "Language",
@@ -184,6 +189,44 @@
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
         "import_fflogs": "Import from FFLogs"
+    },
+    "migration": {
+        "title": "Job Change Skill Migration",
+        "batch_desc": "Changing jobs for {{count}} members at once.",
+        "individual_desc": "Changing {{member}} from {{oldJob}} to {{newJob}}.",
+        "description": "Please select how to handle actions already placed on the timeline.",
+        "mode": {
+            "inherit": {
+                "title": "Inherit Compatible Actions (Recommended)",
+                "desc": "Automatically converts corresponding actions for the new job. Special transformations like Summon Seraph + Fey Illumination are also applied."
+            },
+            "common": {
+                "title": "Keep Common Actions (Role Actions) Only",
+                "desc": "Keeps only common actions like Reprisal, Feint, or Addle, and removes job-specific actions."
+            },
+            "reset": {
+                "title": "Clear All Placements",
+                "desc": "Removes all actions placed by this member from the timeline."
+            }
+        },
+        "confirm": "Execute Changes"
+    },
+    "fflogs": {
+        "title": "Import from FFLogs",
+        "description": "Paste your FFLogs log URL to automatically generate a timeline.",
+        "url_format": "Format: https://fflogs.com/reports/reportId#fight=fightId",
+        "placeholder": "https://fflogs.com/reports/...",
+        "invalid_url": "Invalid FFLogs URL. Expected format: https://fflogs.com/reports/...",
+        "resolving": "Resolving fight...",
+        "fetching": "Fetching events ({{lang}}) and deaths ({{name}})...",
+        "mapping": "Mapping data to timeline...",
+        "ready": "Ready to generate",
+        "fight": "Fight",
+        "duration": "Duration",
+        "warning_overwrite": "Current timeline will be cleared and replaced with this log's content.",
+        "fetch_button": "Generate Timeline",
+        "fetching_button": "Generating...",
+        "import_button": "Import to Timeline"
     },
     "sidebar": {
         "new_plan": "Create New",
