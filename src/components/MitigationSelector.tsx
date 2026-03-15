@@ -14,6 +14,7 @@ interface MitigationSelectorProps {
     onClose: () => void;
     onSelect: (mitigation: Mitigation & { _targetId?: string }) => void;
     onRemove?: (mitigationId: string) => void; // 👈 追加：削除用コールバック
+    ownerId?: string | null; // 👈 追加：使用者自身（自己対象不可の判定用）
     jobId: string | null;
     position: { x: number; y: number };
     activeMitigations?: AppliedMitigation[];
@@ -23,7 +24,7 @@ interface MitigationSelectorProps {
 }
 
 export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
-    isOpen, onClose, onSelect, onRemove, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
+    isOpen, onClose, onSelect, onRemove, ownerId, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
     isCentered = false // 👈 デフォルトはfalse（今まで通り）
 }) => {
     const { contentLanguage } = useThemeStore();
@@ -389,21 +390,24 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                         }
                                                     }
 
+                                                    const isSelfTargetRestricted = selectedSingleTargetMit?.targetCannotBeSelf && member.id === ownerId;
+                                                    const isDisabled = isTargetBlockedByTutorial || isSelfTargetRestricted;
+
                                                     return (
                                                         <button
                                                             key={`target-${member.id}`}
                                                             data-tutorial={tutorialTargetDataAttr}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                if (!isTargetBlockedByTutorial) handleTargetSelect(member.id);
+                                                                if (!isDisabled) handleTargetSelect(member.id);
                                                             }}
-                                                            disabled={isTargetBlockedByTutorial}
+                                                            disabled={isDisabled}
                                                             className={clsx(
                                                                 "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
                                                                 "bg-slate-100/50 dark:bg-white/[0.03] border-black/5 dark:border-white/5",
                                                                 "hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10",
                                                                 "shadow-sm dark:shadow-none hover:shadow-md",
-                                                                isTargetBlockedByTutorial ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
+                                                                isDisabled ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
                                                             )}
                                                         >
                                                             {job ? (

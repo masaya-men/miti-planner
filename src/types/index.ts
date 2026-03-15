@@ -43,6 +43,7 @@ export interface Mitigation {
     burstDuration?: number; // Duration in seconds for the burst mitigation window (e.g., 4)
     hidden?: boolean; // If true, the mitigation is not shown in the selector modal
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
+    targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves
 }
 
 export interface AppliedMitigation {

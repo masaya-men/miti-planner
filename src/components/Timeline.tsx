@@ -2121,6 +2121,7 @@ const Timeline: React.FC = () => {
                 onClose={() => setMitigationSelectorOpen(false)}
                 onSelect={handleMitigationSelect}
                 onRemove={removeMitigation}
+                ownerId={selectedMemberId}
                 jobId={selectedMemberId ? partyMembers.find(m => m.id === selectedMemberId)?.jobId || null : null}
                 position={selectorPosition}
                 activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
