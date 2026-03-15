@@ -18,7 +18,11 @@ import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
-import { Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, X, Pencil } from 'lucide-react';
+import {
+    Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, ChevronUp, X, Pencil,
+    ChevronLeft, ChevronRight, Search, Filter, MoreVertical, Edit2, Clock, Zap, Timer, Activity, Info
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -448,17 +452,17 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                         "w-full h-full bg-black/50 overflow-hidden rounded border border-white/20 flex items-center justify-center",
                         isVirtual && "bg-transparent border-none shadow-none"
                     )}>
-                        <img 
-                            src={iconUrl} 
-                            alt="" 
+                        <img
+                            src={iconUrl}
+                            alt=""
                             className={clsx(
                                 "object-contain",
                                 isVirtual ? (
                                     (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
-                                        ? "w-3 h-auto" 
+                                        ? "w-3 h-auto"
                                         : "w-5 h-5"
                                 ) : "w-full h-full rounded"
-                            )} 
+                            )}
                         />
                     </div>
 
@@ -517,7 +521,13 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 const Timeline: React.FC = () => {
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
-    const { mobilePartyOpen, setMobilePartyOpen, mobileStatusOpen, setMobileStatusOpen, mobileToolsOpen, setMobileToolsOpen } = useContext(MobileTriggersContext);
+    const {
+        mobilePartyOpen, setMobilePartyOpen,
+        mobileStatusOpen, setMobileStatusOpen,
+        mobileToolsOpen, setMobileToolsOpen,
+        isHeaderCollapsed, setIsHeaderCollapsed,
+        isHeaderNear, setIsHeaderNear
+    } = useContext(MobileTriggersContext);
 
     const {
         addEvent, updateEvent, removeEvent, addMitigation,
@@ -1234,134 +1244,201 @@ const Timeline: React.FC = () => {
 
     return (
         <>
-            <div className="flex flex-col h-full w-full bg-transparent px-2 md:px-6 pt-1 md:pt-2 pb-16 md:pb-6 overflow-auto relative z-[1]">
+            {/* ── Main Content Column ── */}
+            <div className="flex flex-col h-full w-full bg-transparent pb-16 md:pb-6 overflow-hidden relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                <div className="mb-4 hidden md:flex items-center justify-between bg-glass-panel backdrop-blur-xl p-2 rounded-2xl shadow-glass border border-glass-border relative z-[100] group/bar">
-                    <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+                {/* ── Toolbar Area (Plainer, no inner box) ── */}
+                <motion.div
+                    className="hidden md:block overflow-hidden"
+                    initial={false}
+                    animate={{
+                        height: isHeaderCollapsed ? 0 : 'auto',
+                        opacity: isHeaderCollapsed ? 0 : 1
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                    <div className="flex items-center justify-between px-3 md:px-6 py-2 relative z-[100] group/bar">
+                        <div className="flex items-center gap-2 relative">
+                            <button
+                                data-tutorial="party-comp"
+                                onClick={() => {
+                                    setPartySettingsOpen(true);
+                                    useTutorialStore.getState().completeEvent('party-settings:opened');
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
+                            >
+                                <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
+                                <span className="font-black text-[10px] uppercase tracking-wider text-app-text-secondary group-hover/btn:text-app-text shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
+                            </button>
 
-                    <div className="flex items-center gap-2 relative">
-                        <button
-                            data-tutorial="party-comp"
-                            onClick={() => {
-                                setPartySettingsOpen(true);
-                                useTutorialStore.getState().completeEvent('party-settings:opened');
-                            }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
-                        >
-                            <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
-                            <span className="font-black text-[10px] uppercase tracking-wider text-app-text-secondary group-hover/btn:text-app-text  shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
-                        </button>
+                            <button
+                                data-tutorial="status-settings"
+                                onClick={() => {
+                                    setStatusOpen(!statusOpen);
+                                    if (!statusOpen) {
+                                        useTutorialStore.getState().completeEvent('status:opened');
+                                    }
+                                }}
+                                className={clsx(
+                                    "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
+                                    statusOpen
+                                        ? "bg-blue-500/40 border-blue-400 text-app-text shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
+                                        : "water-drop text-app-text-secondary hover:text-app-text"
+                                )}
+                            >
+                                <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-app-text" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
+                                <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
+                            </button>
 
-                        <button
-                            data-tutorial="status-settings"
-                            onClick={() => {
-                                setStatusOpen(!statusOpen);
-                                // Tutorial: notify status panel opened
-                                if (!statusOpen) {
-                                    useTutorialStore.getState().completeEvent('status:opened');
-                                }
-                            }}
-                            className={clsx(
-                                "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
-                                statusOpen
-                                    ? "bg-blue-500/40 border-blue-400 text-app-text shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
-                                    : "water-drop text-app-text-secondary hover:text-app-text"
-                            )}
-                        >
-                            <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-app-text" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
-                            <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
-                        </button>
+                            <button
+                                onClick={handleAutoPlan}
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
+                            >
+                                <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
+                                <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">{t('mitigation.auto_plan')}</span>
+                            </button>
 
-                        <button
-                            onClick={handleAutoPlan}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
-                        >
-                            <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">{t('mitigation.auto_plan')}</span>
-                        </button>
+                            <button
+                                onClick={() => setImportModalOpen(true)}
+                                className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
+                                title={t('timeline.import_fflogs')}
+                            >
+                                <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                            </button>
+                        </div>
 
-                        <button
-                            onClick={() => setImportModalOpen(true)}
-                            className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
-                            title={t('timeline.import_fflogs')}
-                        >
-                            <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
-                        </button>
-                    </div>
+                        <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
 
-                    <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            data-tutorial="my-job-highlight-btn"
-                            onClick={() => {
-                                setMyJobHighlight(!myJobHighlight);
-                                useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
-                            }}
-                            className={clsx(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                myJobHighlight
-                                    ? "bg-blue-600/20 border-blue-500/50 text-blue-600 dark:text-blue-300 shadow-[inset_0_1px_0_rgba(37,99,235,0.2)]"
-                                    : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
-                            )}
-                            title={t('party.my_job_select')}
-                        >
-                            {myJobHighlight ? (
-                                <Eye size={14} className="text-blue-600 dark:text-blue-400" />
-                            ) : (
-                                <EyeOff size={14} className="text-app-text-secondary group-hover/btn:text-app-text" />
-                            )}
-                            <span className="font-black text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
-                            <div className={clsx(
-                                "w-7 h-4 rounded-full flex items-center p-0.5  ml-1 transition-colors duration-300",
-                                myJobHighlight ? "bg-blue-600" : "bg-black/20 dark:bg-white/10"
-                            )}>
+                        <div className="flex items-center gap-3">
+                            <button
+                                data-tutorial="my-job-highlight-btn"
+                                onClick={() => {
+                                    setMyJobHighlight(!myJobHighlight);
+                                    useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
+                                }}
+                                className={clsx(
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    myJobHighlight
+                                        ? "bg-blue-600/20 border-blue-500/50 text-blue-600 dark:text-blue-300 shadow-[inset_0_1px_0_rgba(37,99,235,0.2)]"
+                                        : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                                )}
+                                title={t('party.my_job_select')}
+                            >
+                                {myJobHighlight ? (
+                                    <Eye size={14} className="text-blue-600 dark:text-blue-400" />
+                                ) : (
+                                    <EyeOff size={14} className="text-app-text-secondary group-hover/btn:text-app-text" />
+                                )}
+                                <span className="font-black text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
                                 <div className={clsx(
-                                    "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
-                                    myJobHighlight ? "translate-x-3" : "translate-x-0"
-                                )} />
+                                    "w-7 h-4 rounded-full flex items-center p-0.5  ml-1 transition-colors duration-300",
+                                    myJobHighlight ? "bg-blue-600" : "bg-black/20 dark:bg-white/10"
+                                )}>
+                                    <div className={clsx(
+                                        "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
+                                        myJobHighlight ? "translate-x-3" : "translate-x-0"
+                                    )} />
+                                </div>
+                            </button>
+
+                            <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
+                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
+                                <div className="flex gap-1 bg-slate-300/50 dark:bg-black/30 p-1 rounded-xl border border-slate-400/30 dark:border-white/10">
+                                    <button
+                                        onClick={() => setPartySortOrder('role')}
+                                        className={clsx(
+                                            "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                            partySortOrder === 'role'
+                                                ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
+                                                : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
+                                        )}
+                                    >
+                                        {t('ui.sort_role')}
+                                    </button>
+                                </div>
                             </div>
-                        </button>
-
-                        <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
-                            <div className="absolute inset-x-0 top-0 h-[1px] bg-white/[0.05] pointer-events-none" />
-                            <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
-
-                            <div className="flex gap-1 bg-slate-300/50 dark:bg-black/30 p-1 rounded-xl border border-slate-400/30 dark:border-white/10">
-                                <button
-                                    onClick={() => setPartySortOrder('light_party')}
-                                    className={clsx(
-                                        "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                        partySortOrder === 'light_party'
-                                            ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
-                                            : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
-                                    )}
-                                >
-                                    {t('ui.sort_light_party')}
-                                </button>
-                                <div className="w-[1px] h-4 bg-slate-400/50 dark:bg-white/10 my-auto" />
-                                <button
-                                    onClick={() => setPartySortOrder('role')}
-                                    className={clsx(
-                                        "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
-                                        partySortOrder === 'role'
-                                            ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
-                                            : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
-                                    )}
-                                >
-                                    {t('ui.sort_role')}
-                                </button>
-                            </div>
-
-
                         </div>
                     </div>
-                </div >
+                </motion.div>
+
+                {/* ── Refined Handle Region (Proximity Sense) ── */}
+                <div className="hidden md:block relative z-[110]">
+                    {/* Proximity Sensing Area */}
+                    <div
+                        className="absolute -top-4 bottom-0 left-0 right-0 h-[40px] z-[1] cursor-pointer"
+                        onMouseEnter={() => setIsHeaderNear(true)}
+                        onMouseLeave={() => setIsHeaderNear(false)}
+                        onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                    />
+
+                    <motion.div
+                        className={clsx(
+                            "relative w-full z-[2] overflow-hidden",
+                            "bg-glass-header transition-colors duration-200 shadow-sm"
+                        )}
+                        initial={false}
+                        animate={{ height: isHeaderNear ? 32 : 16 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                    >
+                        <button
+                            onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                            className={clsx(
+                                "w-full h-full cursor-pointer overflow-hidden group/handle",
+                                "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
+                            )}
+                            title={isHeaderCollapsed ? t('sidebar.open_menu') : t('sidebar.close_menu')}
+                        >
+                            {/* Proximity bulge/glow bg */}
+                            <motion.div
+                                className={clsx(
+                                    "absolute inset-0 bg-gradient-to-b from-transparent via-app-accent/[0.08] to-transparent",
+                                    isHeaderCollapsed ? "opacity-10" : "opacity-0"
+                                )}
+                                animate={{ opacity: isHeaderNear ? 0.3 : 0.1 }}
+                                transition={{ duration: 0.15 }}
+                            />
+
+                            {/* Horizontal Frame Line (Connects to Sidebar) */}
+                            <div className="absolute inset-x-0 top-0 h-[1px] bg-app-accent/40 group-hover/handle:bg-app-accent/70 transition-colors duration-200" />
+
+                            <div className="relative flex items-center justify-center h-full">
+                                <motion.div
+                                    animate={{
+                                        rotate: isHeaderCollapsed ? 180 : 0,
+                                        y: isHeaderNear ? (isHeaderCollapsed ? [2, -2, 2] : [-2, 2, -2]) : 0,
+                                        scale: isHeaderNear ? 1.8 : 1
+                                    }}
+                                    transition={{
+                                        rotate: { type: "spring", stiffness: 260, damping: 20 },
+                                        y: isHeaderNear ? { repeat: Infinity, duration: 1.2, ease: "easeInOut" } : { duration: 0.2 },
+                                        scale: { duration: 0.2 }
+                                    }}
+                                >
+                                    <ChevronUp
+                                        size={18}
+                                        className={clsx(
+                                            "transition-all duration-200",
+                                            !isHeaderCollapsed
+                                                ? "text-app-text-muted group-hover/handle:text-app-accent"
+                                                : "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]"
+                                        )}
+                                    />
+                                </motion.div>
+                            </div>
+
+                            {/* Bottom Frame Line */}
+                            <div className={clsx(
+                                "absolute bottom-0 inset-x-0 h-[1px] transition-all duration-200",
+                                isHeaderCollapsed ? "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]" : "bg-glass-border"
+                            )} />
+                        </button>
+                    </motion.div>
+                </div>
 
                 <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border ",
-                    "border-slate-200 dark:border-white/5"
+                    "border-slate-200 dark:border-white/5 mx-2 md:mx-6 mt-2 md:mt-4 mb-2"
                 )}>
                     <div
                         ref={controlBarRef}
@@ -1864,7 +1941,7 @@ const Timeline: React.FC = () => {
                                                     const offsetTime = showPreStart ? -10 : 0;
                                                     const durationSeconds = Math.max(1, mitigation.duration);
                                                     const durationEndTime = mitigation.time + durationSeconds - 1;
-                                                    
+
                                                     const getMappedY = (t: number) => {
                                                         if (timeToYMap.has(t)) return timeToYMap.get(t)!;
                                                         const gridKeys = Array.from(timeToYMap.keys());
@@ -1908,8 +1985,8 @@ const Timeline: React.FC = () => {
                                                             key={mitigation.id}
                                                             mitigation={mitigation}
                                                             pixelsPerSecond={pixelsPerSecond}
-                                                            onRemove={mitigation.isVirtual ? () => {} : removeMitigation}
-                                                            onUpdateTime={mitigation.isVirtual ? () => {} : updateMitigationTime}
+                                                            onRemove={mitigation.isVirtual ? () => { } : removeMitigation}
+                                                            onUpdateTime={mitigation.isVirtual ? () => { } : updateMitigationTime}
                                                             top={top}
                                                             height={height}
                                                             recastHeight={mitigation.isVirtual ? 0 : calculatedRecastHeight}
