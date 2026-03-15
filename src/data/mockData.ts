@@ -1,7 +1,6 @@
 import type { Job, Mitigation } from '../types';
 
 export const MITIGATION_DISPLAY_ORDER = [
-    'rampart',
     'reprisal_base',
     'reprisal',
     'divine_veil',
@@ -77,6 +76,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'heart_of_stone',
     'heart_of_corundum',
     'aurora',
+    'rampart',
     'bulwark',
     'thrill_of_battle',
     'dark_mind',
@@ -381,7 +381,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "panhaima", jobId: "sge", name: { ja: "パンハイマ", en: "Panhaima" }, icon: "/icons/Panhaima.png",
-        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 200, 
+        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 200,
         stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 100, minLevel: 80, family: "bh_120_a"
     },
     {
@@ -398,7 +398,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "haima", jobId: "sge", name: { ja: "ハイマ", en: "Haima" }, icon: "/icons/Haima.png",
-        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 300, 
+        recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 300,
         stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 150, note: "300x(1+5)回分", scope: "target", minLevel: 70, family: "bh_sub_c"
     },
     {
