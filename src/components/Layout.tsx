@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -31,13 +32,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileStatusOpen, setMobileStatusOpen] = useState(false);
     const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+    const [isHeaderNear, setIsHeaderNear] = useState(false);
     // チュートリアル中ならサイドバーを強制的に開く
     const isTutorialActive = useTutorialStore((state) => state.isActive);
     React.useEffect(() => {
         if (isTutorialActive) {
             setIsSidebarOpen(true);
-            setMobileMenuOpen(false); // モバイルの場合はサイドメニューを閉じて本体を見せる等（必要に応じて）
+            setIsHeaderCollapsed(false);
+            setMobileMenuOpen(false);
         }
     }, [isTutorialActive]);
 
@@ -120,9 +123,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden relative z-10">
 
                 {/* ── PC Header ── */}
+                <motion.div
+                    className="hidden md:block overflow-hidden shrink-0"
+                    initial={false}
+                    animate={{ height: isHeaderCollapsed ? 0 : 56 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
                 <header className={clsx(
                     "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative shadow-sm",
-                    "hidden md:flex",
                     "bg-white/40 border-slate-200/50 backdrop-blur-xl dark:bg-glass-header dark:border-white/5 dark:backdrop-blur-xl"
                 )}>
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
@@ -167,6 +175,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <LanguageSwitcher />
                     </div>
                 </header>
+                </motion.div>
 
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
@@ -198,7 +207,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         mobilePartyOpen, setMobilePartyOpen,
                         mobileStatusOpen, setMobileStatusOpen,
                         mobileToolsOpen, setMobileToolsOpen,
-                        mobileMenuOpen, setMobileMenuOpen
+                        mobileMenuOpen, setMobileMenuOpen,
+                        isHeaderCollapsed, setIsHeaderCollapsed,
+                        isHeaderNear, setIsHeaderNear
                     }}>
                         {children}
                     </MobileTriggersContext.Provider>

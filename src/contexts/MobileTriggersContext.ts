@@ -11,6 +11,10 @@ export const MobileTriggersContext = createContext<{
     setMobileToolsOpen: (v: boolean) => void;
     mobileMenuOpen: boolean;
     setMobileMenuOpen: (v: boolean) => void;
+    isHeaderCollapsed: boolean;
+    setIsHeaderCollapsed: (v: boolean) => void;
+    isHeaderNear: boolean;
+    setIsHeaderNear: (v: boolean) => void;
 }>({
     mobilePartyOpen: false,
     setMobilePartyOpen: () => { },
@@ -20,4 +24,8 @@ export const MobileTriggersContext = createContext<{
     setMobileToolsOpen: () => { },
     mobileMenuOpen: false,
     setMobileMenuOpen: () => { },
+    isHeaderCollapsed: false,
+    setIsHeaderCollapsed: () => { },
+    isHeaderNear: false,
+    setIsHeaderNear: () => { },
 });

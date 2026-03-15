@@ -368,7 +368,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     return (
         <motion.aside
             initial={false}
-            animate={{ width: isOpen ? 300 : (isNear ? 36 : 24) }}
+            animate={{ width: isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="h-full bg-glass-header backdrop-blur-3xl flex z-40 relative group/sidebar shadow-2xl"
         >
@@ -380,7 +380,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             >
                 {/* ... existing content ... */}
                 <div className="w-[276px] flex flex-col h-full overflow-hidden">
-                    <div className="p-3 border-b border-glass-border shrink-0">
+                    <div className="p-3 border-b border-glass-border">
                         <button
                             onClick={() => useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked')}
                             className={clsx(
