@@ -383,7 +383,7 @@ export const CheatSheetView: React.FC = () => {
             "bg-white/90 backdrop-blur-md border-slate-200 dark:bg-slate-950/40 dark:backdrop-blur-3xl dark:border-white/10"
         )}>
             <div className={clsx(
-                "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl  [scrollbar-gutter:stable] overflow-y-hidden",
+                "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl  [scrollbar-gutter:stable] overflow-hidden",
                 "bg-slate-50 border-slate-200 dark:bg-slate-900/60 dark:border-white/10"
             )}>
                 <div className="flex-1 flex items-center justify-center border-r border-slate-300/20 bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
@@ -395,7 +395,8 @@ export const CheatSheetView: React.FC = () => {
                 )}>
                     <span className="text-[9px] font-black text-app-text-secondary uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
-                <div className="flex-1 flex items-center justify-center border-l border-slate-300/20 bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent">
+                <div className="flex-1 flex items-center justify-center border-l border-slate-300/20 bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent relative">
+                    <div className="absolute inset-y-0 left-full w-20 bg-orange-600/30 pointer-events-none" />
                     <span className="text-[10px] font-black text-orange-700 dark:text-amber-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">ST Group</span>
                 </div>
             </div>
