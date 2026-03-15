@@ -553,8 +553,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 onMouseLeave={() => setIsNear(false)}
             >
                 {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
+                {/* ── 修正: ヘッダー領域(h-14)に干渉しないよう、上端をずらす ── */}
                 <div 
-                    className="absolute inset-y-0 -left-10 w-[120px] pointer-events-auto cursor-pointer" 
+                    className="absolute top-14 bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer" 
                     onMouseEnter={() => setIsNear(true)}
                 />
 

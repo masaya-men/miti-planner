@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -16,6 +17,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
+    const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
     const navigate = useNavigate();
     // Default sidebar closed on mobile (< 768px)
@@ -96,10 +98,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
             {/* PC sidebar */}
             <div className="hidden md:block">
-                <Sidebar 
-                    isOpen={isSidebarOpen} 
+                <Sidebar
+                    isOpen={isSidebarOpen}
                     onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                    onClose={() => setIsSidebarOpen(false)} 
+                    onClose={() => setIsSidebarOpen(false)}
                 />
             </div>
 
@@ -126,25 +128,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
                     <div className="flex items-center gap-3">
-                        {/* 従来のハンバーガーメニューは、サイドバーの常設ハンドルに集約するため削除 */}
-                        <img
-                            src="/icons/logo.png"
-                            alt="Logo"
-                            className="h-14 w-auto object-contain filter grayscale sepia hue-rotate-[190deg] saturate-[300%] brightness-110 dark:sepia-0 dark:hue-rotate-0 dark:saturate-100 dark:brightness-[1.5] dark:drop-shadow-[0_0_12px_rgba(226,232,240,0.6)] transition-all duration-300 pointer-events-none"
-                        />
-
-                        {/* Home / Portal button */}
+                        {/* Home / Portal button - Icon only */}
                         <button
                             onClick={() => navigate('/')}
-                            className="p-2 rounded-lg text-slate-400 hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95"
-                            title="ポータルに戻る"
+                            className="p-2 rounded-lg text-slate-500 hover:text-app-accent hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95 group"
+                            title={t('app.return_home')}
                         >
-                            <Home size={16} />
+                            <Home size={18} className="group-hover:scale-110 transition-transform" />
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        {/* Tutorial help button */}
+                    <div className="flex items-center gap-3">
+                        {/* Tutorial help button - Enhanced with text */}
                         <button
                             onClick={() => {
                                 const path = window.location.pathname;
@@ -155,11 +150,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                     useTutorialStore.getState().startFromStep(1);
                                 }
                             }}
-                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-app-accent dark:text-slate-400 dark:hover:text-app-accent hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
-                            title="チュートリアル"
+                            className="relative px-3 py-1.5 bg-app-accent/10 hover:bg-app-accent/20 border border-app-accent/20 rounded-full text-app-accent flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 group"
                         >
-                            <HelpCircle size={18} />
+                            <HelpCircle size={16} className="group-hover:rotate-12 transition-transform" />
+                            <span className="text-xs font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
                         </button>
+
+                        <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10 mx-1" />
+
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
@@ -175,11 +173,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative",
                     "bg-white/60 border-slate-200/50 backdrop-blur-xl dark:bg-slate-900/60 dark:border-slate-700/50 dark:backdrop-blur-xl"
                 )}>
-                    <img
-                        src="/icons/logo.png"
-                        alt="Logo"
-                        className="h-8 w-auto object-contain filter grayscale sepia hue-rotate-[190deg] saturate-[300%] brightness-110 dark:sepia-0 dark:hue-rotate-0 dark:saturate-100 dark:brightness-[1.5] dark:drop-shadow-[0_0_8px_rgba(226,232,240,0.6)] transition-all duration-300 pointer-events-none"
-                    />
+                    {/* Home button for mobile */}
+                    <button
+                        onClick={() => navigate('/')}
+                        className="p-1.5 text-slate-500 dark:text-slate-400 flex items-center gap-1"
+                    >
+                        <Home size={18} />
+                    </button>
 
                     <div className="flex items-center gap-2">
                         <button

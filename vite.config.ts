@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/logo.png'],
       manifest: {
-        name: 'Miti Planner — FF14 軽減シミュレーター',
-        short_name: 'Miti Planner',
-        description: 'FF14の軽減プランを構築・共有するためのツール',
+        name: 'FF14 Toolbox — FF14 ツールボックス',
+        short_name: 'FF14 Toolbox',
+        description: 'FF14の冒険をサポートするツール（軽減プランナー、ハウジングツアー等）',
         theme_color: '#0f172a',
         background_color: '#020617',
         display: 'standalone',

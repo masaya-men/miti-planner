@@ -28,7 +28,7 @@ const slideUp = {
 };
 
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
 
     const [url, setUrl] = useState('');

@@ -14,7 +14,9 @@
         "shield": "バリア",
         "settings": "設定",
         "import_export": "インポート/エクスポート",
-        "aa_mode": "AA追加モード"
+        "aa_mode": "AA追加モード",
+        "return_home": "ポータルに戻る",
+        "view_tutorial": "チュートリアルを見る"
     },
     "aa_settings": {
         "title": "AA追加モード",
