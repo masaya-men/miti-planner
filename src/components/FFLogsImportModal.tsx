@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, Swords, Zap, Users } from 'lucide-react';
+import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { resolveFight, fetchFightEvents, fetchDeathEvents } from '../api/fflogs';
@@ -28,7 +28,7 @@ const slideUp = {
 };
 
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
 
     const [url, setUrl] = useState('');
@@ -54,7 +54,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 fightId: fightMatch ? fightMatch[1] : null,
             });
         } else {
-            setUrlError('Invalid FFLogs URL. Expected format: https://fflogs.com/reports/...');
+            setUrlError(t('fflogs.invalid_url'));
         }
     };
 
@@ -62,19 +62,22 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         if (!parsedData) return;
 
         try {
-            setStatus({ phase: 'loading', message: 'Resolving fight...' });
-            const fight = await resolveFight(parsedData.reportId, parsedData.fightId);
+            setStatus({ phase: 'loading', message: t('fflogs.resolving') });
+            const fight = await resolveFight(
+                parsedData.reportId, 
+                parsedData.fightId
+            );
 
-            setStatus({ phase: 'loading', message: `Fetching events (native) for "${fight.name}"...` });
+            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP', name: fight.name }) });
             const eventsJp = await fetchFightEvents(parsedData.reportId, fight, false);
 
-            setStatus({ phase: 'loading', message: `Fetching events (EN) + deaths for "${fight.name}"...` });
+            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'EN', name: fight.name }) });
             const [eventsEn, deaths] = await Promise.all([
                 fetchFightEvents(parsedData.reportId, fight, true),
                 fetchDeathEvents(parsedData.reportId, fight),
             ]);
 
-            setStatus({ phase: 'loading', message: 'Mapping data to timeline...' });
+            setStatus({ phase: 'loading', message: t('fflogs.mapping') });
             const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths);
 
             setStatus({ phase: 'preview', fight, events: eventsEn, mapped });
@@ -141,16 +144,18 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                     <div className="flex items-center gap-2 text-emerald-400 text-sm font-bold mb-3">
                         <CheckCircle2 size={16} />
-                        Ready to import
+                        {t('fflogs.ready')}
                     </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div className="space-y-4">
                         <div>
-                            <span className="text-slate-500 block text-xs mb-0.5">Fight</span>
-                            <span className="text-slate-200 font-medium">{status.fight.name}</span>
+                            <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
+                            <span className="text-lg font-bold text-slate-100">
+                                {status.fight.name}
+                            </span>
                         </div>
                         <div>
-                            <span className="text-slate-500 block text-xs mb-0.5">Duration</span>
-                            <span className="text-slate-200 font-medium">
+                            <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
+                            <span className="text-slate-100 font-bold">
                                 {Math.floor((status.fight.endTime - status.fight.startTime) / 1000 / 60)}m{' '}
                                 {Math.floor(((status.fight.endTime - status.fight.startTime) / 1000) % 60)}s
                             </span>
@@ -158,35 +163,11 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
                 </div>
 
-                {/* Mapped stats */}
-                <div className="grid grid-cols-3 gap-2">
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-                        <Users size={14} className="text-purple-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-slate-200">
-                            {status.mapped.stats.timelineEventCount.toLocaleString()}
-                        </div>
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">Timeline Rows</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-                        <Swords size={14} className="text-orange-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-slate-200">
-                            {status.mapped.stats.aaCount.toLocaleString()}
-                        </div>
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">AA Events</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-                        <Zap size={14} className="text-yellow-400 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-slate-200">
-                            {(status.mapped.stats.timelineEventCount - status.mapped.stats.aaCount).toLocaleString()}
-                        </div>
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">Mechanics</div>
-                    </div>
-                </div>
 
                 {/* Warning about overwrite */}
                 <div className="flex items-start gap-2 text-amber-400/80 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 text-xs">
                     <AlertCircle size={13} className="shrink-0 mt-0.5" />
-                    <span>Existing timeline events and mitigations will be replaced.</span>
+                    <span>{t('fflogs.warning_overwrite')}</span>
                 </div>
             </div>
         );
@@ -196,10 +177,10 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     const renderUrlInput = () => (
         <>
             <p className="text-sm text-slate-400 mb-1 leading-relaxed">
-                Paste your FFLogs log URL to automatically generate a timeline.
+                {t('fflogs.description')}
             </p>
             <p className="text-xs text-slate-500 mb-4 font-mono">
-                https://ja.fflogs.com/reports/<span className="text-slate-400">reportId</span>#fight=<span className="text-slate-400">fightId</span>
+                {t('fflogs.url_format')}
             </p>
 
             <div className="relative">
@@ -212,7 +193,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
                     className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 placeholder:text-slate-600 disabled:opacity-50"
-                    placeholder="https://fflogs.com/reports/..."
+                    placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />
             </div>
@@ -224,21 +205,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 </div>
             )}
 
-            {parsedData && !urlError && status.phase === 'idle' && (
-                <div className="mt-4 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                    <h3 className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">Detected</h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                            <span className="text-slate-500 block text-xs">Report ID</span>
-                            <span className="font-mono text-slate-300">{parsedData.reportId}</span>
-                        </div>
-                        <div>
-                            <span className="text-slate-500 block text-xs">Fight ID</span>
-                            <span className="font-mono text-slate-300">{parsedData.fightId ?? 'Auto (Latest kill)'}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {status.phase === 'loading' && (
                 <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm">
@@ -291,7 +257,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
                             <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
                                 <CloudDownload size={18} className="text-purple-400" />
-                                Import from FFLogs
+                                {t('fflogs.title')}
                             </h2>
                             <button
                                 onClick={handleClose}
@@ -314,7 +280,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                             className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CloudDownload size={18} />
-                                            Fetch Timeline
+                                            {t('fflogs.fetch_button')}
                                         </button>
                                         <button
                                             onClick={handleClose}
@@ -335,7 +301,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                             className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-purple-600/50 text-white/70 cursor-wait"
                                         >
                                             <Loader2 size={18} className="animate-spin" />
-                                            Fetching...
+                                            {t('fflogs.fetching_button')}
                                         </button>
                                     </motion.div>
                                 )}
@@ -352,7 +318,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                             className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CheckCircle2 size={18} />
-                                            Import to Timeline
+                                            {t('fflogs.import_button')}
                                         </button>
                                         <button
                                             onClick={handleClose}
@@ -379,7 +345,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
                             <CloudDownload size={18} className="text-purple-400" />
-                            Import from FFLogs
+                            {t('fflogs.title')}
                         </h2>
                         <button
                             onClick={handleClose}
@@ -424,7 +390,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     ? <Loader2 size={16} className="animate-spin" />
                                     : <CloudDownload size={16} />
                                 }
-                                {isLoading ? 'Fetching...' : 'Fetch Timeline'}
+                                {isLoading ? t('fflogs.fetching_button') : t('fflogs.fetch_button')}
                             </button>
                         ) : (
                             <button
@@ -432,7 +398,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                 className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] cursor-pointer"
                             >
                                 <CheckCircle2 size={16} />
-                                Import to Timeline
+                                {t('fflogs.import_button')}
                             </button>
                         )}
                     </div>

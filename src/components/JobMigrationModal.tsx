@@ -24,7 +24,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
     onConfirm,
     onCancel
 }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [selectedMode, setSelectedMode] = React.useState<MigrationMode>('inherit');
 
     // Reset selection when opened
@@ -54,12 +54,16 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                     </div>
                     <div>
                         <h2 className="text-sm font-bold text-white tracking-wide">
-                            {t('migration.title', 'ジョブ変更に伴うスキル引き継ぎ')}
+                            {t('migration.title')}
                         </h2>
                         <p className="text-[10px] text-slate-400 mt-0.5">
                             {batchTasks && batchTasks.length >= 2
-                                ? `${batchTasks.length}名のジョブを一括で変更します。`
-                                : `${memberName} のジョブを ${oldJob?.name || '未設定'} から ${newJob?.name} に変更します。`}
+                                ? t('migration.batch_desc', { count: batchTasks.length })
+                                : t('migration.individual_desc', { 
+                                    member: memberName, 
+                                    oldJob: oldJob ? (i18n.language === 'en' ? oldJob.name.en : oldJob.name.ja) : t('common.unassigned', '未設定'),
+                                    newJob: newJob ? (i18n.language === 'en' ? newJob.name.en : newJob.name.ja) : ''
+                                  })}
                         </p>
                     </div>
                 </div>
@@ -74,7 +78,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                     <button
                         onClick={() => setSelectedMode('inherit')}
                         className={clsx(
-                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group",
+                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'inherit'
                                 ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
                                 : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
@@ -98,7 +102,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                     <button
                         onClick={() => setSelectedMode('common_only')}
                         className={clsx(
-                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group",
+                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'common_only'
                                 ? "bg-yellow-500/10 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
                                 : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
@@ -122,7 +126,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                     <button
                         onClick={() => setSelectedMode('reset')}
                         className={clsx(
-                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group",
+                            "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'reset'
                                 ? "bg-red-500/10 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
                                 : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
@@ -150,14 +154,14 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 <div className="px-5 py-3 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                        className="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                     >
                         {t('common.cancel', 'キャンセル')}
                     </button>
                     <button
                         onClick={() => onConfirm(selectedMode)}
                         className={clsx(
-                            "px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg hover:scale-105 active:scale-95",
+                            "px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
                             selectedMode === 'inherit' ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30" :
                                 selectedMode === 'common_only' ? "bg-yellow-600 hover:bg-yellow-500 text-white shadow-yellow-500/30" :
                                     "bg-red-600 hover:bg-red-500 text-white shadow-red-500/30"

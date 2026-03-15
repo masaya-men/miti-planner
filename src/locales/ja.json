@@ -1,4 +1,9 @@
 {
+    "common": {
+        "cancel": "キャンセル",
+        "close": "閉じる",
+        "unassigned": "未設定"
+    },
     "app": {
         "title": "FF14 軽減シミュレーター",
         "language": "言語",
@@ -188,6 +193,44 @@
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
         "import_fflogs": "FFLogsからインポート"
+    },
+    "migration": {
+        "title": "ジョブ変更に伴うスキル引き継ぎ",
+        "batch_desc": "{{count}}名のジョブを一括で変更します。",
+        "individual_desc": "{{member}} のジョブを {{oldJob}} から {{newJob}} に変更します。",
+        "description": "すでに配置されているタイムライン上のスキルをどのように処理するか選択してください。",
+        "mode": {
+            "inherit": {
+                "title": "互換スキルを引き継ぐ (推奨)",
+                "desc": "新しいジョブの対応するスキルに自動で変換します。1対多の専用変換（サモン・セラフィム＋フェイイルミネーションへの置換等）も適用されます。"
+            },
+            "common": {
+                "title": "共通スキル（ロールアクション）のみ残す",
+                "desc": "リプライザルや牽制・アドルなど、全ジョブ共通で持つアクションのみを残し、固有スキルは削除します。"
+            },
+            "reset": {
+                "title": "配置をすべてリセットする",
+                "desc": "このメンバーが配置しているすべてのスキルをタイムラインから削除します。"
+            }
+        },
+        "confirm": "変更を実行"
+    },
+    "fflogs": {
+        "title": "FFLogsからインポート",
+        "description": "FFLogsのログURLを貼り付けて、タイムラインを自動生成します。",
+        "url_format": "形式: https://ja.fflogs.com/reports/レポートID#fight=戦闘ID",
+        "placeholder": "https://fflogs.com/reports/...",
+        "invalid_url": "無効なFFLogsのURLです。形式例: https://fflogs.com/reports/...",
+        "resolving": "戦闘データを特定中...",
+        "fetching": "イベント（{{lang}}）とデスログを取得中 ({{name}})...",
+        "mapping": "データをタイムライン形式に変換中...",
+        "ready": "生成の準備ができました",
+        "fight": "戦闘",
+        "duration": "戦闘時間",
+        "warning_overwrite": "現在のタイムラインをクリアして、このログの内容に置き換えます。",
+        "fetch_button": "タイムラインを生成",
+        "fetching_button": "生成中...",
+        "import_button": "タイムラインに取り込む"
     },
     "sidebar": {
         "new_plan": "新規作成",
