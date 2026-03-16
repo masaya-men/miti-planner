@@ -54,26 +54,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <style>{`
 @keyframes float-blob-1 {
     0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-    25% { transform: translate(30vw, -20vh) scale(1.6); opacity: 0.7; }
-    50% { transform: translate(50vw, 20vh) scale(1.2); opacity: 0.5; }
-    75% { transform: translate(25vw, 40vh) scale(1.8); opacity: 0.8; }
+    25% { transform: translate(40vw, -25vh) scale(1.8); opacity: 0.7; }
+    50% { transform: translate(70vw, 15vh) scale(1.3); opacity: 0.5; }
+    75% { transform: translate(35vw, 45vh) scale(2.0); opacity: 0.8; }
 }
 @keyframes float-blob-2 {
     0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-    20% { transform: translate(-40vw, 30vh) scale(1.7); opacity: 0.6; }
-    40% { transform: translate(-60vw, -25vh) scale(1.3); opacity: 0.4; }
-    60% { transform: translate(-30vw, -45vh) scale(1.8); opacity: 0.7; }
-    80% { transform: translate(15vw, -35vh) scale(1.1); opacity: 0.5; }
+    20% { transform: translate(-50vw, 35vh) scale(1.9); opacity: 0.6; }
+    40% { transform: translate(-75vw, -30vh) scale(1.4); opacity: 0.4; }
+    60% { transform: translate(-40vw, -55vh) scale(2.2); opacity: 0.7; }
+    80% { transform: translate(25vw, -45vh) scale(1.2); opacity: 0.5; }
 }
 @keyframes float-blob-3 {
     0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-    33% { transform: translate(30vw, 30vh) scale(2.0); opacity: 0.8; }
-    66% { transform: translate(-30vw, 15vh) scale(0.9); opacity: 0.6; }
+    33% { transform: translate(45vw, 35vh) scale(2.5); opacity: 0.8; }
+    66% { transform: translate(-45vw, 20vh) scale(0.8); opacity: 0.6; }
 }
-                /* 時間を長く（遅く）して、ゆったりとした優雅な動きに */
-                .animate-blob-1 { animation: float-blob-1 20s ease-in-out infinite; }
-                .animate-blob-2 { animation: float-blob-2 25s ease-in-out infinite; }
-                .animate-blob-3 { animation: float-blob-3 15s ease-in-out infinite; }
+                /* 優雅さを保ちつつ、動きを実感できる速さに調整 */
+                .animate-blob-1 { animation: float-blob-1 16s ease-in-out infinite; }
+                .animate-blob-2 { animation: float-blob-2 20s ease-in-out infinite; }
+                .animate-blob-3 { animation: float-blob-3 12s ease-in-out infinite; }
 `}</style>
 
             {/* 背景Blob */}
@@ -81,20 +81,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* 1. 大きなグレーのBlob */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-1",
-                    "w-[80vw] h-[80vw] md:w-[60vw] md:h-[60vw] left-[-10%] top-[-10%]",
-                    "bg-slate-300/40 dark:bg-slate-700/20"
+                    "w-[90vw] h-[90vw] md:w-[70vw] md:h-[70vw] left-[-15%] top-[-15%]",
+                    "bg-slate-300/40 dark:bg-slate-700/30"
                 )} />
                 {/* 2. 大きなシルバーのBlob */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-2",
-                    "w-[70vw] h-[70vw] md:w-[50vw] md:h-[50vw] right-[-10%] bottom-[-10%]",
-                    "bg-indigo-100/40 dark:bg-zinc-600/15"
+                    "w-[85vw] h-[85vw] md:w-[65vw] md:h-[65vw] right-[-15%] bottom-[-15%]",
+                    "bg-indigo-100/40 dark:bg-zinc-600/20"
                 )} />
                 {/* 3. 【新規追加】ほんの一部だけ明るめ・激しく動くルミナスなコア */}
                 <div className={clsx(
                     "absolute rounded-full mix-blend-screen filter blur-[80px] animate-blob-3",
-                    "w-[40vw] h-[40vw] md:w-[30vw] md:h-[30vw] left-[30%] top-[30%]",
-                    "bg-white/50 dark:bg-slate-400/25"
+                    "w-[50vw] h-[50vw] md:w-[40vw] md:h-[40vw] left-[25%] top-[20%]",
+                    "bg-white/60 dark:bg-slate-400/35"
                 )} />
             </div>
 
@@ -124,14 +124,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* ── PC Header ── */}
                 <motion.div
-                    className="hidden md:block overflow-hidden shrink-0"
+                    className="hidden md:block overflow-hidden shrink-0 relative z-40"
                     initial={false}
-                    animate={{ height: isHeaderCollapsed ? 0 : 56 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    animate={{ 
+                        height: isHeaderCollapsed ? 0 : 56,
+                        y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                 <header className={clsx(
-                    "h-14 shrink-0 border-b flex items-center justify-between px-4 z-40 relative shadow-sm",
-                    "bg-white/40 border-slate-200/50 backdrop-blur-xl dark:bg-glass-header dark:border-white/5 dark:backdrop-blur-xl"
+                    "h-14 shrink-0 border-b flex items-center justify-between px-4 relative shadow-sm",
+                    "bg-white/40 border-slate-200/50 backdrop-blur-2xl dark:bg-glass-header dark:border-white/10 dark:backdrop-blur-3xl"
                 )}>
                     <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
