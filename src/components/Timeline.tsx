@@ -19,10 +19,9 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, ChevronUp, X, Pencil,
-    ChevronLeft, ChevronRight, Search, Filter, MoreVertical, Edit2, Clock, Zap, Timer, Activity, Info
+    Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, ChevronUp, X, Pencil
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -1249,29 +1248,48 @@ const Timeline: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 {/* ── Toolbar Area (Plainer, no inner box) ── */}
+                {/* ── Toolbar Area (Linear & Framed) ── */}
+                {/* ── Toolbar Area (Linear & Framed) ── */}
                 <motion.div
-                    className="hidden md:block overflow-hidden"
+                    className="hidden md:block overflow-hidden relative z-[101]"
                     initial={false}
                     animate={{
                         height: isHeaderCollapsed ? 0 : 'auto',
-                        opacity: isHeaderCollapsed ? 0 : 1
+                        opacity: isHeaderCollapsed ? 0 : 1,
+                        y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
-                    <div className="flex items-center justify-between px-3 md:px-6 py-2 relative z-[100] group/bar">
-                        <div className="flex items-center gap-2 relative">
+                    <div className="flex items-center justify-between px-6 h-12 relative z-[100] border-b border-glass-border bg-glass-header backdrop-blur-md">
+                        {/* Moving Silver Glow (WOW effect) */}
+                        <motion.div 
+                            className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent z-[1]"
+                            animate={{
+                                x: ['-100%', '100%'],
+                                opacity: [0, 1, 0]
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                        />
+
+                        <div className="flex items-center h-full relative z-[2] gap-1.5 px-3">
+                            {/* Party Settings Group */}
                             <button
                                 data-tutorial="party-comp"
                                 onClick={() => {
                                     setPartySettingsOpen(true);
                                     useTutorialStore.getState().completeEvent('party-settings:opened');
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer water-drop"
+                                className="flex items-center gap-2 px-3 h-7 rounded-md text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer bg-glass-card hover:bg-glass-hover border border-glass-border transition-all duration-300"
                             >
-                                <User size={16} className="text-blue-600 dark:text-blue-300 opacity-100 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white group-hover/btn:scale-110 transition-all duration-300" />
-                                <span className="font-black text-[10px] uppercase tracking-wider text-app-text-secondary group-hover/btn:text-app-text shadow-black/50 drop-shadow-sm">{t('party.comp_short')}</span>
+                                <User size={13} className="text-blue-500 opacity-80 group-hover/btn:opacity-100 group-hover/btn:scale-110 transition-all duration-300" />
+                                <span className="font-black text-[9px] uppercase tracking-[0.1em] text-app-text-secondary group-hover/btn:text-app-text">{t('party.comp_short')}</span>
                             </button>
 
+                            {/* Status Settings Group */}
                             <button
                                 data-tutorial="status-settings"
                                 onClick={() => {
@@ -1281,36 +1299,39 @@ const Timeline: React.FC = () => {
                                     }
                                 }}
                                 className={clsx(
-                                    "flex items-center gap-2 px-4 py-2 rounded-2xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer",
-                                    statusOpen
-                                        ? "bg-blue-500/40 border-blue-400 text-app-text shadow-[0_0_20px_rgba(59,130,246,0.5)] border"
-                                        : "water-drop text-app-text-secondary hover:text-app-text"
+                                    "flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    statusOpen 
+                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]" 
+                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
                                 )}
                             >
-                                <Shield size={16} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-app-text" : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white")} />
-                                <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm">{t('settings.config_short')}</span>
+                                <Shield size={13} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-white" : "text-blue-500 opacity-80")} />
+                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", statusOpen ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
                             </button>
 
+                            {/* Auto Plan Group */}
                             <button
                                 onClick={handleAutoPlan}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-2xl transition-all duration-300 cursor-pointer bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/40 hover:text-slate-800 dark:hover:text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] group/btn"
+                                className="flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
                             >
-                                <Sparkles size={16} className="text-blue-400 group-hover/btn:scale-110 transition-transform" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider mt-[1px]">{t('mitigation.auto_plan')}</span>
+                                <Sparkles size={13} className="text-blue-400 opacity-80 group-hover/btn:scale-110 transition-transform" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
                             </button>
 
+                            {/* Import Group */}
                             <button
                                 onClick={() => setImportModalOpen(true)}
-                                className="p-2 rounded-2xl transition-all duration-300 flex items-center justify-center cursor-pointer text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 group/btn border border-transparent hover:border-black/5 dark:hover:border-white/10"
+                                className="px-3 h-7 rounded-md transition-all duration-300 flex items-center justify-center cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
                                 title={t('timeline.import_fflogs')}
                             >
-                                <CloudDownload size={16} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                                <CloudDownload size={14} className="group-hover/btn:-translate-y-0.5 transition-transform" />
                             </button>
                         </div>
 
                         <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center h-full relative z-[2] gap-1.5 px-3">
+                            {/* My Job Highlight Group */}
                             <button
                                 data-tutorial="my-job-highlight-btn"
                                 onClick={() => {
@@ -1318,43 +1339,57 @@ const Timeline: React.FC = () => {
                                     useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
                                 }}
                                 className={clsx(
-                                    "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                    myJobHighlight
-                                        ? "bg-blue-600/20 border-blue-500/50 text-blue-600 dark:text-blue-300 shadow-[inset_0_1px_0_rgba(37,99,235,0.2)]"
-                                        : "bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/10 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                                    "flex items-center gap-3 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    myJobHighlight 
+                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]" 
+                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
                                 )}
                                 title={t('party.my_job_select')}
                             >
                                 {myJobHighlight ? (
-                                    <Eye size={14} className="text-blue-600 dark:text-blue-400" />
+                                    <Eye size={13} className="text-white" />
                                 ) : (
-                                    <EyeOff size={14} className="text-app-text-secondary group-hover/btn:text-app-text" />
+                                    <EyeOff size={13} className="text-app-text-secondary group-hover/btn:text-app-text" />
                                 )}
-                                <span className="font-black text-[10px] uppercase tracking-wider mt-[1px]">{t('ui.highlight_my_job')}</span>
+                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", myJobHighlight ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
                                 <div className={clsx(
-                                    "w-7 h-4 rounded-full flex items-center p-0.5  ml-1 transition-colors duration-300",
-                                    myJobHighlight ? "bg-blue-600" : "bg-black/20 dark:bg-white/10"
+                                    "w-5 h-2.5 rounded-full flex items-center p-0.5 transition-colors duration-300",
+                                    myJobHighlight ? "bg-white/30" : "bg-app-accent/20"
                                 )}>
                                     <div className={clsx(
-                                        "w-3 h-3 rounded-full bg-white transition-transform shadow-sm",
-                                        myJobHighlight ? "translate-x-3" : "translate-x-0"
+                                        "w-1.5 h-1.5 rounded-full bg-white transition-transform",
+                                        myJobHighlight ? "translate-x-2.5" : "translate-x-0"
                                     )} />
                                 </div>
                             </button>
 
-                            <div className="flex items-center gap-3 px-4 py-2 bg-slate-200/50 dark:bg-black/50 rounded-2xl border border-slate-300/50 dark:border-white/15 relative shadow-inner">
-                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-widest mr-2 shadow-black/50 drop-shadow-sm">{t('ui.sort')}:</span>
-                                <div className="flex gap-1 bg-slate-300/50 dark:bg-black/30 p-1 rounded-xl border border-slate-400/30 dark:border-white/10">
+                            <div className="w-[1px] h-6 bg-glass-border mx-1" />
+
+                            {/* Sort Group */}
+                            <div className="flex items-center h-full gap-2 px-4">
+                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.15em]">{t('ui.sort')}:</span>
+                                <div className="flex h-7 bg-black/10 dark:bg-white/5 rounded-md p-0.5 border border-glass-border">
+                                    <button
+                                        onClick={() => setPartySortOrder('light_party')}
+                                        className={clsx(
+                                            "px-3 h-full rounded-sm text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer",
+                                            partySortOrder === 'light_party'
+                                                ? "bg-app-accent text-app-text-on-accent shadow-sm"
+                                                : "text-app-text-secondary hover:text-app-text"
+                                        )}
+                                    >
+                                        LP
+                                    </button>
                                     <button
                                         onClick={() => setPartySortOrder('role')}
                                         className={clsx(
-                                            "px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-300 border cursor-pointer",
+                                            "px-3 h-full rounded-sm text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer",
                                             partySortOrder === 'role'
-                                                ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30"
-                                                : "text-slate-600 border-transparent hover:text-slate-900 hover:bg-black/5 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
+                                                ? "bg-app-accent text-app-text-on-accent shadow-sm"
+                                                : "text-app-text-secondary hover:text-app-text"
                                         )}
                                     >
-                                        {t('ui.sort_role')}
+                                        ROLE
                                     </button>
                                 </div>
                             </div>
@@ -1364,9 +1399,9 @@ const Timeline: React.FC = () => {
 
                 {/* ── Refined Handle Region (Proximity Sense) ── */}
                 <div className="hidden md:block relative z-[110]">
-                    {/* Proximity Sensing Area */}
+                    {/* One-way Proximity Area (Only from below, timeline side) */}
                     <div
-                        className="absolute -top-4 bottom-0 left-0 right-0 h-[40px] z-[1] cursor-pointer"
+                        className="absolute -bottom-8 left-0 right-0 h-[32px] z-[1] cursor-pointer"
                         onMouseEnter={() => setIsHeaderNear(true)}
                         onMouseLeave={() => setIsHeaderNear(false)}
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
@@ -1374,11 +1409,14 @@ const Timeline: React.FC = () => {
 
                     <motion.div
                         className={clsx(
-                            "relative w-full z-[2] overflow-hidden",
-                            "bg-glass-header transition-colors duration-200 shadow-sm"
+                            "relative w-full z-[2] overflow-hidden shadow-sm",
+                            isHeaderCollapsed ? "bg-glass-header backdrop-blur-md" : "bg-transparent"
                         )}
                         initial={false}
-                        animate={{ height: isHeaderNear ? 32 : 16 }}
+                        animate={{ 
+                            height: isHeaderNear ? 28 : 12,
+                            y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
+                        }}
                         transition={{ type: "spring", stiffness: 400, damping: 40 }}
                     >
                         <button
@@ -1444,7 +1482,7 @@ const Timeline: React.FC = () => {
                         ref={controlBarRef}
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b select-none overflow-hidden",
-                            "bg-slate-50/90 border-slate-200 dark:bg-[#111214]/90 dark:border-white/[0.03]"
+                            "bg-white/20 border-slate-200/50 dark:bg-glass-header dark:border-white/10"
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
@@ -1453,10 +1491,10 @@ const Timeline: React.FC = () => {
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
-                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-full text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
+                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full border",
                                         useMitigationStore.getState().hideEmptyRows
-                                            ? "bg-blue-600 border border-blue-400 text-white shadow-[0_0_15px_rgba(37,99,235,0.6)]"
-                                            : "water-drop text-slate-700 dark:text-slate-200 border border-white/20"
+                                            ? "bg-app-accent border-app-accent text-white shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                            : "water-drop text-slate-700 dark:text-slate-200 border-white/20"
                                     )}
                                 >
                                     <AlignJustify
@@ -1482,17 +1520,17 @@ const Timeline: React.FC = () => {
                             {/* Area B: MECHANIC(200) */}
                             <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] flex items-center px-1 md:px-2">
                                 <div className={clsx(
-                                    "flex items-center gap-0 relative rounded-full transition-all duration-300 overflow-hidden h-6 w-full",
+                                    "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full border",
                                     isAaModeEnabled
-                                        ? "bg-blue-600 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.6)]"
-                                        : "water-drop border border-white/20"
+                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                        : "water-drop border-white/20"
                                 )}>
                                     <button
                                         onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
                                         className={clsx(
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
-                                                ? "text-white hover:bg-blue-500"
+                                                ? "text-white hover:bg-white/10"
                                                 : "text-app-text-secondary hover:text-app-text"
                                         )}
                                     >
@@ -1509,7 +1547,7 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "px-2 h-full transition-all duration-300 cursor-pointer flex items-center justify-center group/opt",
                                             isAaModeEnabled
-                                                ? "text-white hover:bg-blue-500"
+                                                ? "text-white hover:bg-white/10"
                                                 : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                                         )}
                                     >
