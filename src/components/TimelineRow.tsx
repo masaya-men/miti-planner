@@ -142,7 +142,7 @@ export const TimelineRow = memo(({
                                         setClipboardEvent(events[0]);
                                     }}
                                     className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                    title="このイベントをコピーしてスタンプする"
+                                    title={t('timeline.copy_event_hint')}
                                 >
                                     <Copy size={14} />
                                 </button>
@@ -158,7 +158,7 @@ export const TimelineRow = memo(({
                                         <div key={mit.id} className="relative">
                                             <img
                                                 src={def.icon}
-                                                alt={def.name?.ja}
+                                                alt={contentLanguage === 'en' ? def.name?.en : def.name?.ja}
                                                 className={clsx(
                                                     "w-3.5 h-3.5 object-cover rounded transition-all",
                                                     isDimmed ? "opacity-40 grayscale" : "opacity-90"
@@ -398,7 +398,7 @@ export const TimelineRow = memo(({
                                 </span>
                                     {damages[0].isInvincible ? (
                                         <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
-                                            Invuln
+                                            {t('timeline.invuln', 'Invuln')}
                                         </div>
                                     ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
                                         <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
@@ -448,7 +448,7 @@ export const TimelineRow = memo(({
                                     </span>
                                     {damages[0].isInvincible ? (
                                         <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
-                                            Invuln
+                                            {t('timeline.invuln', 'Invuln')}
                                         </div>
                                     ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
                                         <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
@@ -496,7 +496,7 @@ export const TimelineRow = memo(({
                                     </span>
                                     {damages[1].isInvincible ? (
                                         <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
-                                            Invuln
+                                            {t('timeline.invuln', 'Invuln')}
                                         </div>
                                     ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) ? (
                                         <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">

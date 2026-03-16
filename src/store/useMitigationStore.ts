@@ -38,6 +38,7 @@ interface MitigationState {
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
     clipboardEvent: TimelineEvent | null;
+    timelineSortOrder: 'light_party' | 'role';
 
     // Undo/Redo History (not persisted)
     _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
@@ -84,6 +85,7 @@ interface MitigationState {
     setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
+    setTimelineSortOrder: (order: 'light_party' | 'role') => void;
 }
 
 const subBase100 = LEVEL_MODIFIERS[100].sub;
@@ -150,6 +152,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myJobHighlight: false,
                 hideEmptyRows: false,
                 clipboardEvent: null,
+                timelineSortOrder: 'light_party',
                 _history: [],
                 _future: [],
 
@@ -279,6 +282,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
+                setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
 
                 addEvent: (event) => {
                     pushHistory();
@@ -715,28 +719,31 @@ export const useMitigationStore = create<MitigationState>()(
             version: 4,
             partialize: (state: MitigationState) => ({
                 currentLevel: state.currentLevel,
-                // Only persist per-member stats (not jobs, not transient data)
-                _memberStats: state.partyMembers.reduce((acc, m) => {
-                    acc[m.id] = m.stats;
-                    return acc;
-                }, {} as Record<string, PlayerStats>),
+                timelineEvents: state.timelineEvents,
+                timelineMitigations: state.timelineMitigations,
+                phases: state.phases,
+                partyMembers: state.partyMembers,
+                schAetherflowPatterns: state.schAetherflowPatterns,
+                aaSettings: state.aaSettings,
+                myMemberId: state.myMemberId,
+                myJobHighlight: state.myJobHighlight,
+                hideEmptyRows: state.hideEmptyRows,
+                timelineSortOrder: state.timelineSortOrder
             }),
-            migrate: () => {
-                // All previous versions: just return empty, let merge handle it
-                return {};
+            migrate: (persistedState: any, _version: number) => {
+                return persistedState;
             },
             merge: (persisted: any, current: MitigationState) => {
-                if (!persisted || !persisted._memberStats) return current;
-                const statsMap = persisted._memberStats as Record<string, PlayerStats>;
-                const currentLevel = persisted.currentLevel || 100;
-                const newMembers = current.partyMembers.map(m => {
-                    if (statsMap[m.id]) {
-                        const restored = { ...m, stats: { ...m.stats, ...statsMap[m.id] } };
-                        return { ...restored, computedValues: calculateMemberValues(restored, currentLevel) };
-                    }
-                    return { ...m, computedValues: calculateMemberValues(m, currentLevel) };
-                });
-                return { ...current, currentLevel, partyMembers: newMembers };
+                if (!persisted) return current;
+                return { 
+                    ...current, 
+                    ...persisted,
+                    // Re-calculate computed values just in case
+                    partyMembers: (persisted.partyMembers || current.partyMembers).map((m: any) => ({
+                        ...m,
+                        computedValues: calculateMemberValues(m, persisted.currentLevel || current.currentLevel)
+                    }))
+                };
             }
         }
     )

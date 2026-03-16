@@ -2,6 +2,7 @@
     "common": {
         "cancel": "キャンセル",
         "close": "閉じる",
+        "start": "スタート",
         "unassigned": "未設定"
     },
     "app": {
@@ -80,6 +81,8 @@
         "no_mitigations": "軽減スキルが見つかりません",
         "cd": "リキャスト",
         "details": "軽減: {{mit}}%, バリア: {{shield}}",
+        "dissipation": "転化",
+        "aetherflow": "エーテルフロー",
         "unavailable_dissipation": "フェアリ一不在 (転化中)",
         "unavailable_dissipation_dup": "転化重複不可",
         "fairy_dismissed_during_effect": "効果中に転化があるためフェアリーが帰還します",
@@ -255,6 +258,7 @@
         "manage_plans": "プラン管理",
         "current_plan": "現在の表",
         "cancel": "キャンセル",
+        "menu": "メニュー",
         "close_menu": "メニューを閉じる",
         "open_menu": "メニューを開く"
     },
