@@ -2,6 +2,7 @@
     "common": {
         "cancel": "Cancel",
         "close": "Close",
+        "start": "START",
         "unassigned": "Unassigned"
     },
     "app": {
@@ -79,6 +80,8 @@
         "no_mitigations": "No mitigations found",
         "cd": "CD",
         "details": "Mitigation: {{mit}}%, Barrier: {{shield}}",
+        "dissipation": "Dissipation",
+        "aetherflow": "Aetherflow",
         "unavailable_dissipation": "Unavailable (Dissipation)",
         "unavailable_dissipation_dup": "Unavailable (Dissipation)",
         "no_aetherflow": "No Aetherflow",
@@ -251,6 +254,7 @@
         "manage_plans": "Manage Plans",
         "current_plan": "Current Plan",
         "cancel": "Cancel",
+        "menu": "Menu",
         "close_menu": "Close Menu",
         "open_menu": "Open Menu"
     },

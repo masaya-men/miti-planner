@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layout } from './Layout';
 import Timeline from './Timeline';
 import { MitigationGrid } from './MitigationGrid';
@@ -16,6 +17,7 @@ import { List, LayoutGrid } from 'lucide-react';
  * Timeline / CheatSheet の表示切替を管理する。
  */
 export const MitiPlannerPage: React.FC = () => {
+    const { t } = useTranslation();
     const [viewMode, setViewMode] = useState<'timeline' | 'cheatsheet'>('timeline');
 
     // Set page title
@@ -50,7 +52,7 @@ export const MitiPlannerPage: React.FC = () => {
                                     ? "bg-blue-500/40 text-blue-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
                                     : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                             )}
-                            title="Timeline View"
+                            title={t('app.timeline')}
                         >
                             <LayoutGrid size={18} />
                         </button>
@@ -62,7 +64,7 @@ export const MitiPlannerPage: React.FC = () => {
                                     ? "bg-amber-500/40 text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
                                     : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-900/ dark:hover:bg-white/"
                             )}
-                            title="Cheat Sheet View"
+                            title={t('app.cheat_sheet', 'Cheat Sheet')}
                         >
                             <List size={18} />
                         </button>

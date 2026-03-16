@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
@@ -13,15 +13,13 @@ import { PhaseModal } from './PhaseModal';
 
 import { MitigationSelector } from './MitigationSelector';
 import { JobPicker } from './JobPicker';
-import { PartyStatusPopover } from './PartyStatusPopover';
 import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Plus, Settings, Shield, User, Sword, AlignJustify, Eye, EyeOff, Sparkles, CloudDownload, Undo2, Redo2, Trash2, ChevronDown, ChevronUp, X, Pencil
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -522,10 +520,7 @@ const Timeline: React.FC = () => {
     const { t } = useTranslation();
     const {
         mobilePartyOpen, setMobilePartyOpen,
-        mobileStatusOpen, setMobileStatusOpen,
         mobileToolsOpen, setMobileToolsOpen,
-        isHeaderCollapsed, setIsHeaderCollapsed,
-        isHeaderNear, setIsHeaderNear
     } = useContext(MobileTriggersContext);
 
     const {
@@ -542,12 +537,11 @@ const Timeline: React.FC = () => {
         updatePhase,
         removePhase,
         phases,
-        myJobHighlight,
-        setMyJobHighlight,
         changeMemberJobWithMitigations,
         clipboardEvent,
         setClipboardEvent,
         hideEmptyRows,
+        timelineSortOrder: partySortOrder,
     } = useMitigationStore();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -577,7 +571,6 @@ const Timeline: React.FC = () => {
     const [jobPickerPosition, setJobPickerPosition] = useState({ x: 0, y: 0 });
     const [jobPickerMemberId, setJobPickerMemberId] = useState<string | null>(null);
 
-    type MigrationMode = 'inherit' | 'common_only' | 'reset';
     const [migrationConfig, setMigrationConfig] = useState<{
         isOpen: boolean;
         memberId: string;
@@ -585,8 +578,51 @@ const Timeline: React.FC = () => {
         newJobId: string;
     } | null>(null);
 
+    const pixelsPerSecond = 50;
+    const fightDuration = 1200;
+
+    const handleAutoPlan = useCallback(() => {
+        const executePlan = () => {
+            const { timelineEvents, partyMembers, currentLevel } = useMitigationStore.getState();
+            const result = generateAutoPlan(timelineEvents, partyMembers, currentLevel);
+            useMitigationStore.getState().applyAutoPlan(result);
+        };
+
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            setTimeout(() => {
+                const isConfirmed = window.confirm(
+                    t('timeline.auto_plan_confirm_mobile', "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。")
+                );
+                if (isConfirmed) {
+                    executePlan();
+                }
+            }, 150);
+        } else {
+            setConfirmDialog({
+                title: t('timeline.auto_plan_title', 'オートプラン実行'),
+                message: t('timeline.auto_plan_confirm', '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？'),
+                variant: 'warning',
+                onConfirm: () => {
+                    executePlan();
+                    setConfirmDialog(null);
+                },
+            });
+        }
+    }, [t]);
+
+    // Consolidated Header Event Listeners
+    useEffect(() => {
+        const handleAutoPlanEvent = () => handleAutoPlan();
+        const handleImportEvent = () => setImportModalOpen(true);
+        window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
+        window.addEventListener('timeline:import', handleImportEvent);
+        return () => {
+            window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
+            window.removeEventListener('timeline:import', handleImportEvent);
+        };
+    }, [handleAutoPlan]); 
+
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
-    const [statusOpen, setStatusOpen] = useState(false);
 
     // Tutorial auto-open logic
     const { isActive: tutorialActive, currentStepIndex: tutorialStepIndex } = useTutorialStore();
@@ -604,11 +640,12 @@ const Timeline: React.FC = () => {
         }
     }, [mobilePartyOpen]);
     useEffect(() => {
-        if (mobileStatusOpen) {
-            setStatusOpen(true);
-            setMobileStatusOpen(false);
+        if (mobilePartyOpen) {
+            setPartySettingsOpen(true);
+            setMobilePartyOpen(false);
+            useTutorialStore.getState().completeEvent('party-settings:opened');
         }
-    }, [mobileStatusOpen]);
+    }, [mobilePartyOpen]);
 
     const [mobileToolsSheetOpen, setMobileToolsSheetOpen] = useState(false);
     useEffect(() => {
@@ -669,37 +706,7 @@ const Timeline: React.FC = () => {
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
 
-    const handleAutoPlan = () => {
-        const executePlan = () => {
-            const { timelineEvents, partyMembers, currentLevel } = useMitigationStore.getState();
-            const result = generateAutoPlan(timelineEvents, partyMembers, currentLevel);
-            useMitigationStore.getState().applyAutoPlan(result);
-        };
 
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-            setTimeout(() => {
-                const isConfirmed = window.confirm(
-                    t('timeline.auto_plan_confirm_mobile', "オートプランを実行しますか？\n\n※現在の軽減の配置はすべて削除され、新しく上書きされます。")
-                );
-                if (isConfirmed) {
-                    executePlan();
-                }
-            }, 150);
-        } else {
-            setConfirmDialog({
-                title: t('timeline.auto_plan_title', 'オートプラン実行'),
-                message: t('timeline.auto_plan_confirm', '現在のタイムラインに基づいて軽減プランを自動生成します。\n既存の配置はすべて削除され、新しく上書きされます。実行しますか？'),
-                variant: 'warning',
-                onConfirm: () => {
-                    executePlan();
-                    setConfirmDialog(null);
-                },
-            });
-        }
-    };
-
-    const pixelsPerSecond = 50;
-    const fightDuration = 1200;
 
     const gridLines = useMemo(() => {
         const lines = [];
@@ -934,6 +941,7 @@ const Timeline: React.FC = () => {
         setJobPickerOpen(true);
     };
 
+    type MigrationMode = 'inherit' | 'common_only' | 'reset';
     const handleJobSelect = (jobId: string) => {
         if (jobPickerMemberId) {
             const targetMember = partyMembers.find(m => m.id === jobPickerMemberId);
@@ -1173,7 +1181,6 @@ const Timeline: React.FC = () => {
         return map;
     }, [eventsByTime, timelineMitigations, partyMembers]);
 
-    const [partySortOrder, setPartySortOrder] = useState<'light_party' | 'role'>('light_party');
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -1244,237 +1251,13 @@ const Timeline: React.FC = () => {
     return (
         <>
             {/* ── Main Content Column ── */}
-            <div className="flex flex-col h-full w-full bg-transparent pb-16 md:pb-6 overflow-hidden relative z-[1]">
+            <div className="flex flex-col h-full w-full bg-transparent pb-16 md:pb-0 overflow-hidden relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                {/* ── Toolbar Area (Plainer, no inner box) ── */}
-                {/* ── Toolbar Area (Linear & Framed) ── */}
-                {/* ── Toolbar Area (Linear & Framed) ── */}
-                <motion.div
-                    className="hidden md:block overflow-hidden relative z-[101]"
-                    initial={false}
-                    animate={{
-                        height: isHeaderCollapsed ? 0 : 'auto',
-                        opacity: isHeaderCollapsed ? 0 : 1,
-                        y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
-                    }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                >
-                    <div className="flex items-center justify-between px-6 h-12 relative z-[100] border-b border-glass-border bg-glass-header backdrop-blur-md">
-                        {/* Moving Silver Glow (WOW effect) */}
-                        <motion.div 
-                            className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent z-[1]"
-                            animate={{
-                                x: ['-100%', '100%'],
-                                opacity: [0, 1, 0]
-                            }}
-                            transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                        />
-
-                        <div className="flex items-center h-full relative z-[2] gap-1.5 px-3">
-                            {/* Party Settings Group */}
-                            <button
-                                data-tutorial="party-comp"
-                                onClick={() => {
-                                    setPartySettingsOpen(true);
-                                    useTutorialStore.getState().completeEvent('party-settings:opened');
-                                }}
-                                className="flex items-center gap-2 px-3 h-7 rounded-md text-slate-700 dark:text-slate-200 group/btn relative overflow-hidden cursor-pointer bg-glass-card hover:bg-glass-hover border border-glass-border transition-all duration-300"
-                            >
-                                <User size={13} className="text-blue-500 opacity-80 group-hover/btn:opacity-100 group-hover/btn:scale-110 transition-all duration-300" />
-                                <span className="font-black text-[9px] uppercase tracking-[0.1em] text-app-text-secondary group-hover/btn:text-app-text">{t('party.comp_short')}</span>
-                            </button>
-
-                            {/* Status Settings Group */}
-                            <button
-                                data-tutorial="status-settings"
-                                onClick={() => {
-                                    setStatusOpen(!statusOpen);
-                                    if (!statusOpen) {
-                                        useTutorialStore.getState().completeEvent('status:opened');
-                                    }
-                                }}
-                                className={clsx(
-                                    "flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                    statusOpen 
-                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]" 
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
-                                )}
-                            >
-                                <Shield size={13} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-white" : "text-blue-500 opacity-80")} />
-                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", statusOpen ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
-                            </button>
-
-                            {/* Auto Plan Group */}
-                            <button
-                                onClick={handleAutoPlan}
-                                className="flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
-                            >
-                                <Sparkles size={13} className="text-blue-400 opacity-80 group-hover/btn:scale-110 transition-transform" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
-                            </button>
-
-                            {/* Import Group */}
-                            <button
-                                onClick={() => setImportModalOpen(true)}
-                                className="px-3 h-7 rounded-md transition-all duration-300 flex items-center justify-center cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
-                                title={t('timeline.import_fflogs')}
-                            >
-                                <CloudDownload size={14} className="group-hover/btn:-translate-y-0.5 transition-transform" />
-                            </button>
-                        </div>
-
-                        <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
-
-                        <div className="flex items-center h-full relative z-[2] gap-1.5 px-3">
-                            {/* My Job Highlight Group */}
-                            <button
-                                data-tutorial="my-job-highlight-btn"
-                                onClick={() => {
-                                    setMyJobHighlight(!myJobHighlight);
-                                    useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
-                                }}
-                                className={clsx(
-                                    "flex items-center gap-3 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                    myJobHighlight 
-                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]" 
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
-                                )}
-                                title={t('party.my_job_select')}
-                            >
-                                {myJobHighlight ? (
-                                    <Eye size={13} className="text-white" />
-                                ) : (
-                                    <EyeOff size={13} className="text-app-text-secondary group-hover/btn:text-app-text" />
-                                )}
-                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", myJobHighlight ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
-                                <div className={clsx(
-                                    "w-5 h-2.5 rounded-full flex items-center p-0.5 transition-colors duration-300",
-                                    myJobHighlight ? "bg-white/30" : "bg-app-accent/20"
-                                )}>
-                                    <div className={clsx(
-                                        "w-1.5 h-1.5 rounded-full bg-white transition-transform",
-                                        myJobHighlight ? "translate-x-2.5" : "translate-x-0"
-                                    )} />
-                                </div>
-                            </button>
-
-                            <div className="w-[1px] h-6 bg-glass-border mx-1" />
-
-                            {/* Sort Group */}
-                            <div className="flex items-center h-full gap-2 px-4">
-                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.15em]">{t('ui.sort')}:</span>
-                                <div className="flex h-7 bg-black/10 dark:bg-white/5 rounded-md p-0.5 border border-glass-border">
-                                    <button
-                                        onClick={() => setPartySortOrder('light_party')}
-                                        className={clsx(
-                                            "px-3 h-full rounded-sm text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer",
-                                            partySortOrder === 'light_party'
-                                                ? "bg-app-accent text-app-text-on-accent shadow-sm"
-                                                : "text-app-text-secondary hover:text-app-text"
-                                        )}
-                                    >
-                                        LP
-                                    </button>
-                                    <button
-                                        onClick={() => setPartySortOrder('role')}
-                                        className={clsx(
-                                            "px-3 h-full rounded-sm text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer",
-                                            partySortOrder === 'role'
-                                                ? "bg-app-accent text-app-text-on-accent shadow-sm"
-                                                : "text-app-text-secondary hover:text-app-text"
-                                        )}
-                                    >
-                                        ROLE
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* ── Refined Handle Region (Proximity Sense) ── */}
-                <div className="hidden md:block relative h-0 z-[110] overflow-visible">
-                    {/* One-way Proximity Area (Trigger from ABOVE/Home side) */}
-                    <div
-                        className="absolute -top-8 left-0 right-0 h-[40px] z-[1] cursor-pointer"
-                        onMouseEnter={() => setIsHeaderNear(true)}
-                        onMouseLeave={() => setIsHeaderNear(false)}
-                        onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-                    />
-
-                    <motion.div
-                        className={clsx(
-                            "absolute bottom-0 left-0 right-0 z-[2] shadow-sm",
-                            isHeaderCollapsed ? "bg-glass-header backdrop-blur-md" : "bg-transparent"
-                        )}
-                        initial={false}
-                        animate={{ 
-                            height: isHeaderNear ? 36 : 24
-                        }}
-                        transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                    >
-                        <button
-                            onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-                            className={clsx(
-                                "w-full h-full cursor-pointer overflow-hidden group/handle",
-                                "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
-                            )}
-                            title={isHeaderCollapsed ? t('sidebar.open_menu') : t('sidebar.close_menu')}
-                        >
-                            {/* Proximity bulge/glow bg */}
-                            <motion.div
-                                className={clsx(
-                                    "absolute inset-0 bg-gradient-to-b from-transparent via-app-accent/[0.08] to-transparent",
-                                    isHeaderCollapsed ? "opacity-10" : "opacity-0"
-                                )}
-                                animate={{ opacity: isHeaderNear ? 0.3 : 0.1 }}
-                                transition={{ duration: 0.15 }}
-                            />
-
-                            {/* No Top Frame Line here to avoid double lines with toolbar */}
-
-                            <div className="relative flex items-center justify-center h-full">
-                                <motion.div
-                                    animate={{
-                                        rotate: isHeaderCollapsed ? 180 : 0,
-                                        y: isHeaderNear ? (isHeaderCollapsed ? [2, -2, 2] : [-2, 2, -2]) : 0,
-                                        scale: isHeaderNear ? 1.8 : 1
-                                    }}
-                                    transition={{
-                                        rotate: { type: "spring", stiffness: 260, damping: 20 },
-                                        y: isHeaderNear ? { repeat: Infinity, duration: 1.2, ease: "easeInOut" } : { duration: 0.2 },
-                                        scale: { duration: 0.2 }
-                                    }}
-                                >
-                                    <ChevronUp
-                                        size={18}
-                                        className={clsx(
-                                            "transition-all duration-200",
-                                            !isHeaderCollapsed
-                                                ? "text-app-text-muted group-hover/handle:text-app-accent"
-                                                : "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]"
-                                        )}
-                                    />
-                                </motion.div>
-                            </div>
-
-                            {/* Bottom Frame Line */}
-                            <div className={clsx(
-                                "absolute bottom-0 inset-x-0 h-[1px] transition-all duration-200",
-                                isHeaderCollapsed ? "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]" : "bg-glass-border"
-                            )} />
-                        </button>
-                    </motion.div>
-                </div>
-
                 <div className={clsx(
-                    "relative flex-1 flex flex-col pt-0 glass-panel rounded-xl overflow-hidden shadow-2xl border ",
-                    "border-slate-200 dark:border-white/5 mx-2 md:mx-6 mt-2 md:mt-4 mb-2"
+                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-2xl border transition-all duration-300 ease-out",
+                    "border-slate-200 dark:border-white/5 h-full z-[1]",
+                    "mx-2 md:mx-6 mt-2 md:mt-4 mb-2 rounded-xl"
                 )}>
                     <div
                         ref={controlBarRef}
@@ -1648,7 +1431,7 @@ const Timeline: React.FC = () => {
                                                 )}
                                                 title={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')}
                                             >
-                                                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">START</span>
+                                                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1656,7 +1439,7 @@ const Timeline: React.FC = () => {
                                                             ? "ring-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]"
                                                             : "ring-white/10 opacity-60"
                                                     )}>
-                                                        <img src="/icons/Dissipation.png" alt="転化" className="w-full h-full object-contain" />
+                                                        <img src="/icons/Dissipation.png" alt={t('mitigation.dissipation', 'Dissipation')} className="w-full h-full object-contain" />
                                                     </div>
                                                 </div>
                                                 <div className="w-[1px] h-3.5 bg-slate-900/ dark:bg-white/ mx-0.5" />
@@ -1667,7 +1450,7 @@ const Timeline: React.FC = () => {
                                                             ? "ring-cyan-400/60 shadow-[0_0_8px_rgba(34,211,238,0.3)]"
                                                             : "ring-white/10 opacity-60"
                                                     )}>
-                                                        <img src="/icons/Aetherflow.png" alt="AF" className="w-full h-full object-contain" />
+                                                        <img src="/icons/Aetherflow.png" alt={t('mitigation.aetherflow', 'Aetherflow')} className="w-full h-full object-contain" />
                                                     </div>
                                                 </div>
                                             </button>
@@ -2046,11 +1829,11 @@ const Timeline: React.FC = () => {
                                         })()}
                                     </>
                                 );
-                            })()}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                             })()}
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             {clipboardEvent && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
@@ -2112,7 +1895,7 @@ const Timeline: React.FC = () => {
                                     "font-bold text-sm tracking-wider ",
                                     "text-slate-800 dark:text-white"
                                 )}>
-                                    {mobileMitiFlow.step === 'job' ? '誰の軽減を追加しますか？' : '追加する軽減を選択'}
+                                    {mobileMitiFlow.step === 'job' ? t('timeline.select_member') : t('timeline.select_mitigation')}
                                 </h3>
                                 <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg ">
                                     <X size={16} />

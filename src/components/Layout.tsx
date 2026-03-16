@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Sidebar } from './Sidebar';
+import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
-import { Sun, Moon, Home, HelpCircle } from 'lucide-react';
+import { Sun, Moon, Home } from 'lucide-react';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
 
 interface LayoutProps {
@@ -22,18 +23,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
     const navigate = useNavigate();
     // Default sidebar closed on mobile (< 768px)
-    const [isSidebarOpen, setIsSidebarOpen] = useState(() =>
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(() =>
         typeof window !== 'undefined' ? window.innerWidth >= 768 : true
     );
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
 
     // Mobile modal triggers — these are read by Timeline.tsx via the store
-    const [mobilePartyOpen, setMobilePartyOpen] = useState(false);
-    const [mobileStatusOpen, setMobileStatusOpen] = useState(false);
-    const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-    const [isHeaderNear, setIsHeaderNear] = useState(false);
+    const [mobilePartyOpen, setMobilePartyOpen] = React.useState(false);
+    const [mobileStatusOpen, setMobileStatusOpen] = React.useState(false);
+    const [mobileToolsOpen, setMobileToolsOpen] = React.useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+    const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore();
+    const [isHeaderCollapsed, setIsHeaderCollapsed] = React.useState(false);
+    const [isHeaderNear, setIsHeaderNear] = React.useState(false);
     // チュートリアル中ならサイドバーを強制的に開く
     const isTutorialActive = useTutorialStore((state) => state.isActive);
     React.useEffect(() => {
@@ -112,7 +114,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <MobileBottomSheet
                 isOpen={mobileMenuOpen}
                 onClose={() => setMobileMenuOpen(false)}
-                title="メニュー"
+                title={t('sidebar.menu')}
                 height="80vh"
             >
                 <div className="-mx-4 -mt-3">
@@ -122,62 +124,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden relative z-10">
 
-                {/* ── PC Header ── */}
-                <motion.div
-                    className="hidden md:block shrink-0 relative z-[120]"
-                    initial={false}
-                    animate={{
-                        height: isHeaderCollapsed ? 0 : 56
-                    }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                >
-                    <header className={clsx(
-                        "h-14 shrink-0 border-b flex items-center justify-between px-4 relative shadow-sm",
-                        "bg-white/40 border-slate-200/50 backdrop-blur-2xl dark:bg-transparent dark:border-white/5"
-                    )}>
-                        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-
-                        <div className="flex items-center gap-3">
-                            {/* Home / Portal button - Icon only */}
-                            <button
-                                onClick={() => navigate('/')}
-                                className="p-2 rounded-lg text-slate-500 hover:text-app-accent hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95 group"
-                                title={t('app.return_home')}
-                            >
-                                <Home size={18} className="group-hover:scale-110 transition-transform" />
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            {/* Tutorial help button - Enhanced with text */}
-                            <button
-                                onClick={() => {
-                                    const path = window.location.pathname;
-                                    // If on planner page, skip the portal selection step
-                                    if (path === '/' || path === '') {
-                                        useTutorialStore.getState().startTutorial();
-                                    } else {
-                                        useTutorialStore.getState().startFromStep(1);
-                                    }
-                                }}
-                                className="relative px-3 py-1.5 bg-app-accent/10 hover:bg-app-accent/20 border border-app-accent/20 rounded-full text-app-accent flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 group"
-                            >
-                                <HelpCircle size={16} className="group-hover:rotate-12 transition-transform" />
-                                <span className="text-xs font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
-                            </button>
-
-                            <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10 mx-1" />
-
-                            <button
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
-                            >
-                                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                            </button>
-                            <LanguageSwitcher />
-                        </div>
-                    </header>
-                </motion.div>
+                <MobileTriggersContext.Provider value={{
+                    mobilePartyOpen, setMobilePartyOpen,
+                    mobileStatusOpen, setMobileStatusOpen,
+                    mobileToolsOpen, setMobileToolsOpen,
+                    mobileMenuOpen, setMobileMenuOpen,
+                    isHeaderCollapsed, setIsHeaderCollapsed,
+                    isHeaderNear, setIsHeaderNear
+                }}>
+                    {/* ── PC Header ── */}
+                    {/* ── Consolidated Floating Header (on PC) ── */}
+                    <div className="hidden md:block h-0 relative z-[120]">
+                        <ConsolidatedHeader
+                        onAutoPlan={() => {
+                            // Dispatch a custom event for Timeline.tsx or use a shared store
+                            window.dispatchEvent(new CustomEvent('timeline:autoplan'));
+                        }}
+                        onImportLogs={() => {
+                            window.dispatchEvent(new CustomEvent('timeline:import'));
+                        }}
+                        partySortOrder={timelineSortOrder}
+                        setPartySortOrder={setTimelineSortOrder}
+                        statusOpen={mobileStatusOpen}
+                        setStatusOpen={setMobileStatusOpen}
+                        setPartySettingsOpen={setMobilePartyOpen}
+                    />
+                </div>
 
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
@@ -204,18 +176,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </header>
 
                 {/* Main content — add bottom padding on mobile for bottom nav */}
-                <main className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0">
-                    <MobileTriggersContext.Provider value={{
-                        mobilePartyOpen, setMobilePartyOpen,
-                        mobileStatusOpen, setMobileStatusOpen,
-                        mobileToolsOpen, setMobileToolsOpen,
-                        mobileMenuOpen, setMobileMenuOpen,
-                        isHeaderCollapsed, setIsHeaderCollapsed,
-                        isHeaderNear, setIsHeaderNear
-                    }}>
-                        {children}
-                    </MobileTriggersContext.Provider>
-                </main>
+                <motion.main
+                    className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0"
+                    initial={false}
+                    animate={{ paddingTop: isHeaderCollapsed ? 36 : 132 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                    {children}
+                </motion.main>
 
                 {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
@@ -227,6 +195,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         (C) SQUARE ENIX CO., LTD. All Rights Reserved. · 当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
                     </p>
                 </footer>
+                </MobileTriggersContext.Provider>
             </div>
 
             {/* Mobile Bottom Nav */}
