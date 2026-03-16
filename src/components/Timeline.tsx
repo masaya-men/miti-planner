@@ -1398,10 +1398,10 @@ const Timeline: React.FC = () => {
                 </motion.div>
 
                 {/* ── Refined Handle Region (Proximity Sense) ── */}
-                <div className="hidden md:block relative z-[110]">
-                    {/* One-way Proximity Area (Only from below, timeline side) */}
+                <div className="hidden md:block relative h-0 z-[110] overflow-visible">
+                    {/* One-way Proximity Area (Trigger from ABOVE/Home side) */}
                     <div
-                        className="absolute -bottom-8 left-0 right-0 h-[32px] z-[1] cursor-pointer"
+                        className="absolute -top-8 left-0 right-0 h-[40px] z-[1] cursor-pointer"
                         onMouseEnter={() => setIsHeaderNear(true)}
                         onMouseLeave={() => setIsHeaderNear(false)}
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
@@ -1409,13 +1409,12 @@ const Timeline: React.FC = () => {
 
                     <motion.div
                         className={clsx(
-                            "relative w-full z-[2] overflow-hidden shadow-sm",
+                            "absolute bottom-0 left-0 right-0 z-[2] shadow-sm",
                             isHeaderCollapsed ? "bg-glass-header backdrop-blur-md" : "bg-transparent"
                         )}
                         initial={false}
                         animate={{ 
-                            height: isHeaderNear ? 28 : 12,
-                            y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
+                            height: isHeaderNear ? 36 : 24
                         }}
                         transition={{ type: "spring", stiffness: 400, damping: 40 }}
                     >
@@ -1437,8 +1436,7 @@ const Timeline: React.FC = () => {
                                 transition={{ duration: 0.15 }}
                             />
 
-                            {/* Horizontal Frame Line (Connects to Sidebar) */}
-                            <div className="absolute inset-x-0 top-0 h-[1px] bg-app-accent/40 group-hover/handle:bg-app-accent/70 transition-colors duration-200" />
+                            {/* No Top Frame Line here to avoid double lines with toolbar */}
 
                             <div className="relative flex items-center justify-center h-full">
                                 <motion.div
@@ -1482,7 +1480,7 @@ const Timeline: React.FC = () => {
                         ref={controlBarRef}
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b select-none overflow-hidden",
-                            "bg-white/20 border-slate-200/50 dark:bg-glass-header dark:border-white/10"
+                            "bg-white/10 border-slate-200/50 dark:bg-transparent dark:border-white/10"
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">

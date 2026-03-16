@@ -124,60 +124,59 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* ── PC Header ── */}
                 <motion.div
-                    className="hidden md:block overflow-hidden shrink-0 relative z-40"
+                    className="hidden md:block shrink-0 relative z-[120]"
                     initial={false}
-                    animate={{ 
-                        height: isHeaderCollapsed ? 0 : 56,
-                        y: isHeaderNear && !isHeaderCollapsed ? -16 : 0
+                    animate={{
+                        height: isHeaderCollapsed ? 0 : 56
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
-                <header className={clsx(
-                    "h-14 shrink-0 border-b flex items-center justify-between px-4 relative shadow-sm",
-                    "bg-white/40 border-slate-200/50 backdrop-blur-2xl dark:bg-glass-header dark:border-white/10 dark:backdrop-blur-3xl"
-                )}>
-                    <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                    <header className={clsx(
+                        "h-14 shrink-0 border-b flex items-center justify-between px-4 relative shadow-sm",
+                        "bg-white/40 border-slate-200/50 backdrop-blur-2xl dark:bg-transparent dark:border-white/5"
+                    )}>
+                        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
-                    <div className="flex items-center gap-3">
-                        {/* Home / Portal button - Icon only */}
-                        <button
-                            onClick={() => navigate('/')}
-                            className="p-2 rounded-lg text-slate-500 hover:text-app-accent hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95 group"
-                            title={t('app.return_home')}
-                        >
-                            <Home size={18} className="group-hover:scale-110 transition-transform" />
-                        </button>
-                    </div>
+                        <div className="flex items-center gap-3">
+                            {/* Home / Portal button - Icon only */}
+                            <button
+                                onClick={() => navigate('/')}
+                                className="p-2 rounded-lg text-slate-500 hover:text-app-accent hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/10 transition-all duration-200 cursor-pointer active:scale-95 group"
+                                title={t('app.return_home')}
+                            >
+                                <Home size={18} className="group-hover:scale-110 transition-transform" />
+                            </button>
+                        </div>
 
-                    <div className="flex items-center gap-3">
-                        {/* Tutorial help button - Enhanced with text */}
-                        <button
-                            onClick={() => {
-                                const path = window.location.pathname;
-                                // If on planner page, skip the portal selection step
-                                if (path === '/' || path === '') {
-                                    useTutorialStore.getState().startTutorial();
-                                } else {
-                                    useTutorialStore.getState().startFromStep(1);
-                                }
-                            }}
-                            className="relative px-3 py-1.5 bg-app-accent/10 hover:bg-app-accent/20 border border-app-accent/20 rounded-full text-app-accent flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 group"
-                        >
-                            <HelpCircle size={16} className="group-hover:rotate-12 transition-transform" />
-                            <span className="text-xs font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
-                        </button>
+                        <div className="flex items-center gap-3">
+                            {/* Tutorial help button - Enhanced with text */}
+                            <button
+                                onClick={() => {
+                                    const path = window.location.pathname;
+                                    // If on planner page, skip the portal selection step
+                                    if (path === '/' || path === '') {
+                                        useTutorialStore.getState().startTutorial();
+                                    } else {
+                                        useTutorialStore.getState().startFromStep(1);
+                                    }
+                                }}
+                                className="relative px-3 py-1.5 bg-app-accent/10 hover:bg-app-accent/20 border border-app-accent/20 rounded-full text-app-accent flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 group"
+                            >
+                                <HelpCircle size={16} className="group-hover:rotate-12 transition-transform" />
+                                <span className="text-xs font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
+                            </button>
 
-                        <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10 mx-1" />
+                            <div className="h-4 w-[1px] bg-slate-200 dark:bg-white/10 mx-1" />
 
-                        <button
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
-                        >
-                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
-                        <LanguageSwitcher />
-                    </div>
-                </header>
+                            <button
+                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                className="relative p-1.5 w-9 h-9 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer active:scale-95"
+                            >
+                                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                            </button>
+                            <LanguageSwitcher />
+                        </div>
+                    </header>
                 </motion.div>
 
                 {/* ── Mobile Header ── */}
