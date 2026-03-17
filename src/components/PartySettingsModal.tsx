@@ -463,7 +463,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {member.id}
                     </div>
                     {job ? (
-                        <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                        <img
+                          src={job.icon}
+                          alt={job.name?.ja}
+                          className={clsx(
+                            "w-8 h-8 object-contain",
+                            activeColor === 'blue'
+                              ? "drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]"
+                              : activeColor === 'green'
+                                ? "drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]"
+                                : "drop-shadow-[0_0_6px_rgba(244,63,94,0.5)]"
+                          )}
+                        />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
                             <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
