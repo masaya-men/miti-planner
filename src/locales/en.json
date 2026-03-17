@@ -299,7 +299,8 @@
         "complete_desc": "Great work! You've mastered the basics. Try FFLogs Import for auto-generated timelines, or Auto Plan for automatic mitigation placement!",
         "next": "Next",
         "complete": "Get Started",
-        "skip": "Skip",
+        "prev": "Prev",
+        "skip": "End Tutorial",
         "step7a_title": "Countering Enemy Attacks",
         "step7a_desc": "An \"AoE Sample\" has been added to the timeline. When an AoE hits, the HP bar turns red, warning you that the damage is lethal!",
         "step7b_title": "Preparing Mitigation",
@@ -336,6 +337,10 @@
         "restart_desc": "All current mitigation data and party settings will be reset. The tutorial will start fresh from a clean state.",
         "restart_confirm": "Reset & Start",
         "restart_cancel": "Cancel",
+        "exit_title": "End Tutorial?",
+        "exit_desc": "You can restart the tutorial anytime from the 'View Tutorial' button on the top right.",
+        "exit_confirm": "End Tutorial",
+        "exit_cancel": "Continue",
         "step_of": "{{current}} / {{total}}"
     },
     "phase_modal": {

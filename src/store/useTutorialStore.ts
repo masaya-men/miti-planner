@@ -334,6 +334,8 @@ interface TutorialState {
     hasCompleted: boolean;
     /** Whether a restart confirmation dialog should be shown */
     pendingTutorialRestart: boolean;
+    /** Whether an exit confirmation dialog should be shown */
+    pendingTutorialExit: boolean;
     /** Step index to start from after restart confirmation */
     _pendingStepIndex: number;
 
@@ -354,6 +356,12 @@ interface TutorialState {
     completeTutorial: () => void;
     /** Skip the tutorial (marks as completed) */
     skipTutorial: () => void;
+    /** Request to exit the tutorial (shows confirmation) */
+    requestExit: () => void;
+    /** Confirm the exit */
+    confirmExit: () => void;
+    /** Cancel the exit dialog */
+    cancelExit: () => void;
     /** Reset tutorial state (for debugging/testing) */
     resetTutorial: () => void;
     /**
@@ -374,6 +382,7 @@ export const useTutorialStore = create<TutorialState>()(
             currentStepIndex: 0,
             hasCompleted: false,
             pendingTutorialRestart: false,
+            pendingTutorialExit: false,
             _pendingStepIndex: 0,
 
             startTutorial: () => {
@@ -466,7 +475,19 @@ export const useTutorialStore = create<TutorialState>()(
 
             skipTutorial: () => {
                 useMitigationStore.getState().resetForTutorial();
-                set({ isActive: false, hasCompleted: true, currentStepIndex: 0 });
+                set({ isActive: false, hasCompleted: true, currentStepIndex: 0, pendingTutorialExit: false });
+            },
+
+            requestExit: () => {
+                set({ pendingTutorialExit: true });
+            },
+
+            confirmExit: () => {
+                get().skipTutorial();
+            },
+
+            cancelExit: () => {
+                set({ pendingTutorialExit: false });
             },
 
             resetTutorial: () => {

@@ -412,7 +412,21 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     // Right-side positioning logic (offset by 20px from cursor)
     const x = position ? Math.min(position.x + 20, window.innerWidth - 520) : '50%';
     const y = position ? Math.min(position.y, window.innerHeight - 600) : '50%'; // Approx height
-    const style = isMobile ? { maxHeight: '85vh', bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' } : (position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' });
+    
+    // Style logic: 
+    // 1. Mobile -> Full width bottom sheet
+    // 2. Tutorial Active -> Force Center
+    // 3. Desktop with position -> Follow cursor
+    // 4. Desktop without position -> Center
+    const style = isMobile 
+        ? { maxHeight: '85vh', bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' } 
+        : (isTutorialActive 
+            ? { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
+            : (position 
+                ? { left: x, top: y } 
+                : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
+            )
+        );
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none display-flex flex-col justify-end">

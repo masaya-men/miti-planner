@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
+import { X, AlertTriangle } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Types
@@ -203,24 +204,23 @@ interface TooltipProps {
     description: string;
     stepIndex: number;
     totalSteps: number;
-    onSkip: () => void;
     onPrev: () => void;
     onNext?: () => void;
     position?: 'top' | 'right' | 'bottom' | 'left' | 'center' | 'right-center';
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-    title, description, stepIndex, totalSteps, onSkip, onPrev, onNext, position = 'center'
+    title, description, stepIndex, totalSteps, onPrev, onNext, position = 'center'
 }) => {
     const { t } = useTranslation();
-    
+    const { requestExit } = useTutorialStore();
 
     const getPosition = (): React.CSSProperties => {
         if (position === 'bottom') {
             return { bottom: '24px', left: '50%' };
         }
         if (position === 'right-center') {
-            return { top: '50%', right: '24px' };
+            return { top: '50%', right: '80px' };
         }
         return { top: '50%', left: '50%' };
     };
@@ -238,8 +238,17 @@ const Tooltip: React.FC<TooltipProps> = ({
             )}
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
+            {/* Close button (Top Right) */}
+            <button
+                onClick={requestExit}
+                className="absolute top-4 right-4 p-1 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
+                title={t('common.close')}
+            >
+                <X size={16} />
+            </button>
+
             {/* Step indicator */}
-            <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="flex items-center justify-center gap-2 mb-4 pr-6">
                 {Array.from({ length: totalSteps }, (_, i) => (
                     <div
                         key={i}
@@ -261,8 +270,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             {/* Description */}
             <p className="text-sm text-app-text-sec leading-relaxed mb-6 mx-auto max-w-[90%]">{description}</p>
 
-            {/* Actions */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
                 <div>
                     {stepIndex > 0 && (
                         <button
@@ -273,22 +281,16 @@ const Tooltip: React.FC<TooltipProps> = ({
                         </button>
                     )}
                 </div>
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onSkip}
-                        className="text-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
-                    >
-                        {t('tutorial.skip')}
-                    </button>
-                    {onNext && (
+                {onNext && (
+                    <div className="ml-auto">
                         <button
                             onClick={onNext}
                             className="text-xs font-black text-app-text-on-accent bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
                         >
                             {t('tutorial.next')} &rarr;
                         </button>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </motion.div>
     );
@@ -359,7 +361,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
 // ─────────────────────────────────────────────
 
 export const TutorialOverlay: React.FC = () => {
-    const { isActive, currentStepIndex, skipTutorial, completeEvent } =
+    const { isActive, currentStepIndex, completeEvent } =
         useTutorialStore();
     const { t } = useTranslation();
     
@@ -486,10 +488,11 @@ export const TutorialOverlay: React.FC = () => {
         return () => document.removeEventListener('click', handleClick, true);
     }, [isActive, currentStep, routeMatch]);
 
-    // Restart confirmation dialog
+    // Restart/Exit confirmation dialogs
     const pendingRestart = useTutorialStore(s => s.pendingTutorialRestart);
+    const pendingExit = useTutorialStore(s => s.pendingTutorialExit);
 
-    if (!routeMatch && !pendingRestart) return null;
+    if (!routeMatch && !pendingRestart && !pendingExit) return null;
 
     // Calculate relative step numbering for the current route
     const currentRouteSteps = TUTORIAL_STEPS.filter(step => step.route === stepRoute && !step.isDialog);
@@ -585,7 +588,6 @@ export const TutorialOverlay: React.FC = () => {
                                     })()}
                                     stepIndex={displayStepIndex}
                                     totalSteps={currentRouteSteps.length}
-                                    onSkip={skipTutorial}
                                     onPrev={useTutorialStore.getState().prevStep}
                                     onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
                                     position={currentStep.tooltipPosition}
@@ -593,6 +595,73 @@ export const TutorialOverlay: React.FC = () => {
                             </div>
                         </div>
                     )
+                )}
+            </AnimatePresence>
+
+            {/* Exit Confirmation Dialog */}
+            <AnimatePresence>
+                {pendingExit && (
+                    <>
+                        <motion.div
+                            key="exit-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                            onClick={() => useTutorialStore.getState().cancelExit()}
+                        />
+                        <motion.div
+                            key="exit-dialog"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
+                            className={clsx(
+                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                                "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
+                                "backdrop-blur-xl shadow-2xl overflow-hidden",
+                                "bg-white/95 border-amber-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-slate-900/95 dark:border-amber-500/20 dark:shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
+                            )}
+                        >
+                            <div className="flex items-center gap-3 mb-6 pr-6">
+                                <div className="p-2.5 bg-amber-500/10 rounded-xl shrink-0">
+                                    <AlertTriangle className="text-amber-500" size={20} />
+                                </div>
+                                <h3 className="text-lg font-bold text-app-text text-left leading-tight">
+                                    {t('tutorial.exit_title')}
+                                </h3>
+                                <button
+                                    onClick={() => useTutorialStore.getState().cancelExit()}
+                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/10 transition-colors cursor-pointer"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <p className="text-sm text-app-text-sec leading-relaxed mb-10 text-left px-1 font-medium">
+                                {t('tutorial.exit_desc')}
+                            </p>
+
+                            <div className="flex gap-4 justify-end items-center">
+                                <button
+                                    onClick={() => useTutorialStore.getState().cancelExit()}
+                                    className="px-6 py-2 text-sm font-bold text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                                >
+                                    {t('tutorial.exit_cancel')}
+                                </button>
+                                <button
+                                    onClick={() => useTutorialStore.getState().confirmExit()}
+                                    className={clsx(
+                                        "px-8 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer",
+                                        "bg-amber-500 text-white hover:brightness-110 active:scale-95",
+                                        "shadow-[0_4px_12px_rgba(245,158,11,0.3)]"
+                                    )}
+                                >
+                                    {t('tutorial.exit_confirm')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </>

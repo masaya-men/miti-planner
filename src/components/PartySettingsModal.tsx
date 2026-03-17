@@ -529,17 +529,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         <button
                                             key={job.id}
                                             data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
-                                            onClick={() => handleJobSelect(job.id)}
-                                            disabled={isAlreadyPlacedPaletteJob}
+                                            onClick={() => {
+                                                if (isAlreadyPlacedPaletteJob) return;
+                                                handleJobSelect(job.id);
+                                            }}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
                                                 "bg-white/10 border-white/10 hover:bg-white/20 hover:border-white/30 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20",
                                                 cat.color,
-                                                isAlreadyPlacedPaletteJob ? "cursor-default opacity-20" : "cursor-pointer"
+                                                isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
                                             )}
                                             title={job.name?.ja}
                                         >
-                                            <Ripple />
+                                            {!isAlreadyPlacedPaletteJob && <Ripple />}
                                             <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                         </button>
                                     );
