@@ -473,6 +473,10 @@ export const TutorialOverlay: React.FC = () => {
             // Allow clicks inside tutorial-managed modals (e.g., PartySettingsModal)
             if (target.closest('[data-tutorial-modal]')) return;
 
+            // Allow clicks inside exit/restart confirmation dialogs
+            if (target.closest('[data-tutorial-exit-dialog]')) return;
+            if (target.closest('[data-tutorial-restart-dialog]')) return;
+
             // Allow clicks on the highlighted target elements
             const targetEls = Array.from(document.querySelectorAll(currentStep.targetSelector));
             const isClickInsideTarget = targetEls.some(el => el === target || el.contains(target));
@@ -515,6 +519,7 @@ export const TutorialOverlay: React.FC = () => {
                         />
                         <motion.div
                             key="restart-dialog"
+                            data-tutorial-restart-dialog
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
@@ -612,6 +617,7 @@ export const TutorialOverlay: React.FC = () => {
                         />
                         <motion.div
                             key="exit-dialog"
+                            data-tutorial-exit-dialog
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
