@@ -13,6 +13,7 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Sun, Moon, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
+import { ParticleBackground } from './ParticleBackground';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -52,53 +53,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
-            {/* 👇 【修正】アニメーションを「より大きく、ゆったりと」した優雅な動きに変更 */}
-            <style>{`
-@keyframes float-blob-1 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-    25% { transform: translate(40vw, -25vh) scale(1.8); opacity: 0.7; }
-    50% { transform: translate(70vw, 15vh) scale(1.3); opacity: 0.5; }
-    75% { transform: translate(35vw, 45vh) scale(2.0); opacity: 0.8; }
-}
-@keyframes float-blob-2 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-    20% { transform: translate(-50vw, 35vh) scale(1.9); opacity: 0.6; }
-    40% { transform: translate(-75vw, -30vh) scale(1.4); opacity: 0.4; }
-    60% { transform: translate(-40vw, -55vh) scale(2.2); opacity: 0.7; }
-    80% { transform: translate(25vw, -45vh) scale(1.2); opacity: 0.5; }
-}
-@keyframes float-blob-3 {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-    33% { transform: translate(45vw, 35vh) scale(2.5); opacity: 0.8; }
-    66% { transform: translate(-45vw, 20vh) scale(0.8); opacity: 0.6; }
-}
-                /* 優雅さを保ちつつ、動きを実感できる速さに調整 */
-                .animate-blob-1 { animation: float-blob-1 16s ease-in-out infinite; }
-                .animate-blob-2 { animation: float-blob-2 20s ease-in-out infinite; }
-                .animate-blob-3 { animation: float-blob-3 12s ease-in-out infinite; }
-`}</style>
-
-            {/* 背景Blob */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                {/* 1. 大きなグレーのBlob */}
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-1",
-                    "w-[90vw] h-[90vw] md:w-[70vw] md:h-[70vw] left-[-15%] top-[-15%]",
-                    "bg-slate-300/40 dark:bg-slate-700/30"
-                )} />
-                {/* 2. 大きなシルバーのBlob */}
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen filter blur-[100px] animate-blob-2",
-                    "w-[85vw] h-[85vw] md:w-[65vw] md:h-[65vw] right-[-15%] bottom-[-15%]",
-                    "bg-indigo-100/40 dark:bg-zinc-600/20"
-                )} />
-                {/* 3. 【新規追加】ほんの一部だけ明るめ・激しく動くルミナスなコア */}
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen filter blur-[80px] animate-blob-3",
-                    "w-[50vw] h-[50vw] md:w-[40vw] md:h-[40vw] left-[25%] top-[20%]",
-                    "bg-white/60 dark:bg-slate-400/35"
-                )} />
-            </div>
+            {/* 背景粒子 (Three.js) */}
+            <ParticleBackground />
 
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
             {/* PC sidebar */}
