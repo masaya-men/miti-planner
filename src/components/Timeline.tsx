@@ -627,6 +627,13 @@ const Timeline: React.FC = () => {
     // Tutorial auto-open logic
     const { isActive: tutorialActive, currentStepIndex: tutorialStepIndex } = useTutorialStore();
     useEffect(() => {
+        if (tutorialActive && tutorialStepIndex === 0) {
+            setIsAaModeEnabled(false);
+            setAaSettingsOpen(false);
+        }
+    }, [tutorialActive, tutorialStepIndex]);
+
+    useEffect(() => {
         if (tutorialActive && TUTORIAL_STEPS[tutorialStepIndex]?.id === 'party-slots' && !partySettingsOpen) {
             setPartySettingsOpen(true);
         }
@@ -1204,6 +1211,16 @@ const Timeline: React.FC = () => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    useEffect(() => {
+        const handleReset = () => {
+            setIsAaModeEnabled(false);
+        };
+        window.addEventListener('tutorial:reset-ui', handleReset);
+        return () => {
+            window.removeEventListener('tutorial:reset-ui', handleReset);
+        };
     }, []);
 
     useEffect(() => {

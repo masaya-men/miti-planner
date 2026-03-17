@@ -708,9 +708,11 @@ export const useMitigationStore = create<MitigationState>()(
                         partyMembers: freshMembers,
                         myMemberId: null,
                         myJobHighlight: false,
+                        hideEmptyRows: false,
                         _history: [],
                         _future: [],
                     });
+                    window.dispatchEvent(new CustomEvent('tutorial:reset-ui'));
                 },
             };
         },
