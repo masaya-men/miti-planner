@@ -401,42 +401,65 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     }
                 }}
                 className={clsx(
-                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot",
+                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
                     isFocused
-                        ? "bg-blue-500/20 border-blue-400/50 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
+                        ? activeColor === 'blue'
+                            ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.6),inset_0_0_24px_rgba(59,130,246,0.2),0_0_20px_rgba(59,130,246,0.35),0_0_0_3px_rgba(59,130,246,0.2)]"
+                            : activeColor === 'green'
+                                ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.6),inset_0_0_24px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.35),0_0_0_3px_rgba(16,185,129,0.2)]"
+                                : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.6),inset_0_0_24px_rgba(244,63,94,0.2),0_0_20px_rgba(244,63,94,0.35),0_0_0_3px_rgba(244,63,94,0.2)]"
                         : job
-                            ? "bg-white/20 dark:bg-white/10 border-white/20 dark:border-white/10 hover:bg-white/30 dark:hover:bg-white/20"
-                            : "bg-white/5 dark:bg-white/[0.02] border-white/10 dark:border-white/10 hover:bg-white/10 dark:hover:bg-white/5 border-dashed"
+                            ? activeColor === 'blue'
+                                ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.4),inset_0_0_20px_rgba(59,130,246,0.12),0_0_12px_rgba(59,130,246,0.15)] hover:bg-blue-500/[0.10] hover:border-blue-300/70"
+                                : activeColor === 'green'
+                                    ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.4),inset_0_0_20px_rgba(16,185,129,0.12),0_0_12px_rgba(16,185,129,0.15)] hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
+                                    : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.4),inset_0_0_20px_rgba(244,63,94,0.12),0_0_12px_rgba(244,63,94,0.15)] hover:bg-rose-500/[0.10] hover:border-rose-300/70"
+                            : activeColor === 'blue'
+                                ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
+                                : activeColor === 'green'
+                                    ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
+                                    : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
                 )}
             >
-                {/* 最高透明度ガラス背景（軽減自動組み立てボタン基準） */}
-                <div className={clsx(
-                    "absolute inset-0 transition-all duration-300 rounded-full overflow-hidden backdrop-blur-[2px] border",
-                    focusedSlot === index 
-                        ? "ring-2 ring-blue-500 shadow-[0_0_20px_rgba(56,189,248,0.3)] z-30 border-blue-400/50" 
-                        : theme === 'dark' 
-                            ? "bg-white/[0.03] border-white/20" 
-                            : "bg-black/[0.03] border-slate-400/30 shadow-sm"
-                )}>
-                    {/* ガラス表面の反射（極めて薄く） */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
-
-                    {/* ロールカラーのエッジ光彩（透明感を損なわない極細ライン） */}
-                    {job && (
-                        <div className={clsx(
-                            "absolute inset-0 opacity-60 transition-opacity duration-700",
-                            activeColor === 'blue' ? "shadow-[inset_0_0_10px_rgba(59,130,246,0.4)] border-blue-500/40" :
-                            activeColor === 'green' ? "shadow-[inset_0_0_10px_rgba(16,185,129,0.4)] border-emerald-500/40" :
-                            "shadow-[inset_0_0_10px_rgba(244,63,94,0.4)] border-rose-500/40"
-                        )} />
-                    )}
-                </div>
+                {/* 光の反射グラデーション */}
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: activeColor === 'blue'
+                      ? 'linear-gradient(135deg,rgba(147,197,253,0.12) 0%,rgba(59,130,246,0.02) 50%,transparent 100%)'
+                      : activeColor === 'green'
+                        ? 'linear-gradient(135deg,rgba(110,231,183,0.12) 0%,rgba(16,185,129,0.02) 50%,transparent 100%)'
+                        : 'linear-gradient(135deg,rgba(253,164,175,0.12) 0%,rgba(244,63,94,0.02) 50%,transparent 100%)'
+                  }}
+                />
+                {/* 上端の輝くライン */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
+                  style={{
+                    background: activeColor === 'blue'
+                      ? 'linear-gradient(90deg,transparent,rgba(147,197,253,0.8),transparent)'
+                      : activeColor === 'green'
+                        ? 'linear-gradient(90deg,transparent,rgba(110,231,183,0.8),transparent)'
+                        : 'linear-gradient(90deg,transparent,rgba(253,164,175,0.8),transparent)'
+                  }}
+                />
 
                 <Ripple />
 
                 {/* Left side: Tag and Icon */}
                 <div className="flex items-center gap-3 z-10 pointer-events-none">
-                    <div className="text-[10px] font-black tracking-tighter w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">
+                    <div className={clsx(
+                        "text-[10px] font-black tracking-tighter w-6 z-10",
+                        theme === 'dark'
+                            ? activeColor === 'blue'
+                                ? "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
+                                : activeColor === 'green'
+                                    ? "text-emerald-200 drop-shadow-[0_0_8px_rgba(110,231,183,0.6)]"
+                                    : "text-rose-200 drop-shadow-[0_0_8px_rgba(253,164,175,0.6)]"
+                            : activeColor === 'blue'
+                                ? "text-blue-800"
+                                : activeColor === 'green'
+                                    ? "text-emerald-800"
+                                    : "text-rose-800"
+                    )}>
                         {member.id}
                     </div>
                     {job ? (
