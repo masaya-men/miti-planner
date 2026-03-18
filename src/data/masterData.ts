@@ -1,7 +1,27 @@
-// ファイル名: masterData.js
+// ファイル名: masterData.ts
+
+// サーバーマスターデータの型
+interface ServerData {
+  aliases: string[];
+  servers: Record<string, string[]>;
+}
+
+// ハウジングエリアの型
+interface HousingAreaData {
+  name_jp: string;
+  apartment_name: string;
+  aliases: string[];
+}
+
+// ハウジングサイズの型
+interface HousingSizeData {
+  id: string;
+  label: string;
+  aliases: string[];
+}
 
 // 1. データセンターとサーバーのマスターデータ（英略称を徹底網羅）
-export const serverMasterData = {
+export const serverMasterData: Record<string, ServerData> = {
   // --- 日本 (JP) ---
   "Elemental": {
     "aliases": ["エレ", "エレメンタル", "Elemental", "Ele", "Elem"],
@@ -161,7 +181,7 @@ export const serverMasterData = {
 };
 
 // 2. ハウジングエリアのマスターデータ（英略称網羅）
-export const housingAreaMasterData = {
+export const housingAreaMasterData: Record<string, HousingAreaData> = {
   "Mist": {
     "name_jp": "ミスト・ヴィレッジ",
     "apartment_name": "トップマスト",
@@ -190,7 +210,7 @@ export const housingAreaMasterData = {
 };
 
 // 3. ハウジングサイズ・種別のマスターデータ（「アパ」「Apt」等を追加）
-export const housingSizeMasterData = [
+export const housingSizeMasterData: HousingSizeData[] = [
   {"id": "S", "label": "Sハウス", "aliases": ["S", "Sサイズ"]},
   {"id": "M", "label": "Mハウス", "aliases": ["M", "Mサイズ"]},
   {"id": "L", "label": "Lハウス", "aliases": ["L", "Lサイズ"]},
@@ -199,7 +219,7 @@ export const housingSizeMasterData = [
 ];
 
 // 4. コンテンツルーレット＆検索用タグ
-export const tagMasterData = {
+export const tagMasterData: Record<string, string[]> = {
   "テイスト": [
     "モダン", "和風", "アジアン", "サイバーパンク", "廃墟", 
     "ファンタジー", "スチームパンク", "ナチュラル", "アンティーク", "ホラー",
