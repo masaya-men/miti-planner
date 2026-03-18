@@ -193,7 +193,7 @@
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
-        "import_fflogs": "Import from FFLogs"
+        "import_fflogs": "Create Timeline"
     },
     "migration": {
         "title": "Job Change Skill Migration",

@@ -197,7 +197,7 @@
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
-        "import_fflogs": "FFLogsからインポート"
+        "import_fflogs": "タイムラインを作成"
     },
     "migration": {
         "title": "ジョブ変更に伴うスキル引き継ぎ",
