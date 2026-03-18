@@ -124,7 +124,7 @@ export const PortalPage: React.FC = () => {
                 <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     className="p-2.5 rounded-xl bg-glass-panel backdrop-blur-xl border border-glass-border text-app-text-sec hover:text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
-                    aria-label={"Switch to dark mode dark:Switch dark:to dark:light dark:mode"}
+                    aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
@@ -233,7 +233,7 @@ export const PortalPage: React.FC = () => {
                                 {/* Coming Soon badge */}
                                 {!card.enabled && (
                                     <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-glass-card border border-glass-border text-app-text-muted">
-                                        Coming Soon
+                                        {t('portal.coming_soon', 'Coming Soon')}
                                     </div>
                                 )}
                             </motion.button>
@@ -245,7 +245,7 @@ export const PortalPage: React.FC = () => {
             {/* ── Footer ── */}
             <footer className="absolute bottom-0 left-0 right-0 py-3 text-center z-10">
                 <p className="text-[9px] text-app-text-muted tracking-wide">
-                    (C) SQUARE ENIX CO., LTD. All Rights Reserved. · 当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
+                    {t('footer.copyright')} · {t('footer.disclaimer')}
                 </p>
             </footer>
         </div>

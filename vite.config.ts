@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/logo.png'],
+      includeAssets: ['icons/favicon-192x192.png', 'icons/favicon-512x512.png'],
       manifest: {
         name: 'FF14 Toolbox — FF14 ツールボックス',
         short_name: 'FF14 Toolbox',
@@ -20,12 +20,12 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icons/logo.png',
+            src: '/icons/favicon-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/icons/logo.png',
+            src: '/icons/favicon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

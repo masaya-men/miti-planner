@@ -22,3 +22,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Development artifacts & backups
+_backup/
+backup_recent/
+blame.txt
+build_errors*.txt
+restored_names.txt
+git_history_mockData.txt
+missing_cursors.json
+task.md.resolved
+temp_*.txt
+masterData.js
+
+# Old / temporary source files
+old_*.tsx
+old_*.ts
+reproduce_zero.*
+test_level.ts
+test-fflogs-types.mjs
+analyze_sheet.*
+tmp_parser.cjs
+update_data.cjs
+
+# Data files
+*.xlsx

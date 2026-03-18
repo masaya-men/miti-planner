@@ -148,7 +148,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "bg-white/40 dark:bg-slate-900/40"
                 )}>
                     <p className="text-[8px] text-slate-500 dark:text-slate-600 tracking-wide">
-                        (C) SQUARE ENIX CO., LTD. All Rights Reserved. · 当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
+                        {t('footer.copyright')} · {t('footer.disclaimer')}
                     </p>
                 </footer>
                 </MobileTriggersContext.Provider>
