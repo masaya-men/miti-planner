@@ -258,9 +258,14 @@
         "close_menu": "Close Menu",
         "open_menu": "Open Menu"
     },
+    "footer": {
+        "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
+        "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD."
+    },
     "portal": {
         "title": "FFXIV Toolbox",
         "subtitle": "Tools to support your adventure — mitigation planner, housing tour, and more.",
+        "coming_soon": "Coming Soon",
         "tools": {
             "miti_planner": {
                 "title": "Mitigation Planner",

@@ -80,8 +80,10 @@ let _tokenExpiresAt: number = 0;
 /**
  * Obtain an OAuth2 access token using the client_credentials flow.
  *
- * In dev: reads VITE_FFLOGS_CLIENT_ID / VITE_FFLOGS_CLIENT_SECRET from .env.local
- * In prod: replace this entire function with a call to your /api/fflogs/token proxy.
+ * - Production: calls /api/fflogs/token (Vercel serverless proxy) so the
+ *   client_secret is never exposed in the browser bundle.
+ * - Development: falls back to VITE_FFLOGS_CLIENT_ID / VITE_FFLOGS_CLIENT_SECRET
+ *   from .env.local for local testing convenience.
  */
 export async function getAccessToken(): Promise<string> {
     const now = Date.now();
@@ -91,6 +93,23 @@ export async function getAccessToken(): Promise<string> {
         return _cachedToken;
     }
 
+    // ── Production: use server-side proxy ──
+    if (import.meta.env.PROD) {
+        const response = await fetch('/api/fflogs/token', { method: 'POST' });
+
+        if (!response.ok) {
+            const body = await response.text();
+            throw new Error(`FFLogs token proxy failed (${response.status}): ${body}`);
+        }
+
+        const json = await response.json() as { access_token: string; expires_in: number };
+        _cachedToken = json.access_token;
+        _tokenExpiresAt = now + json.expires_in * 1000;
+
+        return _cachedToken;
+    }
+
+    // ── Development: use env vars directly ──
     const clientId = import.meta.env.VITE_FFLOGS_CLIENT_ID as string | undefined;
     const clientSecret = import.meta.env.VITE_FFLOGS_CLIENT_SECRET as string | undefined;
 

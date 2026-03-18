@@ -262,9 +262,14 @@
         "close_menu": "メニューを閉じる",
         "open_menu": "メニューを開く"
     },
+    "footer": {
+        "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
+        "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。"
+    },
     "portal": {
         "title": "FF14 ツールボックス",
         "subtitle": "軽減プランナーやハウジングツアーなど、冒険をサポートするツール群",
+        "coming_soon": "準備中",
         "tools": {
             "miti_planner": {
                 "title": "軽減プランナー",

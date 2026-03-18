@@ -35,6 +35,8 @@ function App() {
       ? '軽減表│FFXIV'
       : 'Mitigation Table│FFXIV';
     document.title = title;
+    // Sync <html lang> for SEO and accessibility
+    document.documentElement.lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
   }, [i18n.language]);
 
   return (
