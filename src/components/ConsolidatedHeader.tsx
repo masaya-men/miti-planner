@@ -234,7 +234,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                 {/* ハンドル本体：Sidebar の縦ストリップを横に転換した設計 */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 bg-glass-header backdrop-blur-3xl pointer-events-auto"
+                    className="absolute bottom-0 left-0 right-0 z-50 bg-glass-header dark:bg-glass-header bg-white backdrop-blur-3xl pointer-events-auto"
                     initial={false}
                     animate={{ height: (isNear || isHovered) ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}

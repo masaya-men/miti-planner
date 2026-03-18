@@ -140,9 +140,9 @@
 
   .theme-light {
     color-scheme: light;
-    --color-bg-primary: #f8fafc;
-    --color-bg-secondary: #ffffff;
-    --color-bg-tertiary: #f1f5f9;
+    --color-bg-primary: #f0f4ff;
+    --color-bg-secondary: #f0f4ff;
+    --color-bg-tertiary: #eaefff;
 
     --color-accent-primary: #2563eb;
     --app-accent-rgb: 99, 102, 241;
@@ -157,10 +157,10 @@
     --color-border: rgba(0, 0, 0, 0.2);
     --color-border-accent: rgba(37, 99, 235, 0.5);
 
-    --glass-bg-header: rgba(255, 255, 255, 0.15);
-    --glass-bg-panel: rgba(255, 255, 255, 0.18);
-    --glass-bg-card: rgba(255, 255, 255, 0.12);
-    --glass-border: rgba(200, 210, 255, 0.4);
+    --glass-bg-header: rgba(255, 255, 255, 0.0);
+    --glass-bg-panel: rgba(255, 255, 255, 0.0);
+    --glass-bg-card: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.5);
     --glass-hover: rgba(0, 0, 0, 0.05);
     --glass-active: rgba(0, 0, 0, 0.1);
     --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 0 1px 1px rgba(255, 255, 255, 0.5);
