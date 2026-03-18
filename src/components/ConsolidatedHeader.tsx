@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Home, HelpCircle, Sun, Moon, User, Shield, Sparkles, CloudDownload,
-    Eye, EyeOff, ChevronUp, ChevronDown
+    Home, HelpCircle, Sun, Moon, CloudDownload,
+    ChevronUp, ChevronDown
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -127,7 +127,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <button
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95"
+                                className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200"
                             >
                                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                             </button>
@@ -146,8 +146,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 }}
                                 className="flex items-center gap-2 px-3 h-7 rounded-md text-app-text-secondary group/btn relative overflow-hidden cursor-pointer bg-glass-card hover:bg-glass-hover border border-glass-border transition-all duration-300"
                             >
-                                <User size={13} className="text-blue-500 opacity-80 group-hover/btn:opacity-100 group-hover/btn:scale-110 transition-all duration-300" />
-                                <span className="font-black text-[9px] uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
+                                <span className="font-black text-[10px] uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
                             </button>
 
                             <button
@@ -158,27 +157,26 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(
                                     "flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                     statusOpen
-                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
                                         : "bg-glass-card border-glass-border hover:bg-glass-hover"
                                 )}
                             >
-                                <Shield size={13} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", statusOpen ? "text-white" : "text-blue-500 opacity-80")} />
-                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", statusOpen ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
+                                <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", statusOpen ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
                             </button>
 
                             <button
                                 onClick={onAutoPlan}
                                 className="flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
                             >
-                                <Sparkles size={13} className="text-blue-400 opacity-80 group-hover/btn:scale-110 transition-transform" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
                             </button>
 
                             <button
                                 onClick={onImportLogs}
-                                className="px-3 h-7 rounded-md transition-all duration-300 flex items-center justify-center cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
+                                className="flex items-center gap-1.5 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
                             >
-                                <CloudDownload size={14} className="group-hover/btn:-translate-y-0.5 transition-transform" />
+                                <CloudDownload size={12} className="group-hover/btn:-translate-y-0.5 transition-transform shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('timeline.import_fflogs')}</span>
                             </button>
                         </div>
 
@@ -192,16 +190,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(
                                     "flex items-center gap-3 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                     myJobHighlight
-                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
                                         : "bg-glass-card border-glass-border hover:bg-glass-hover"
                                 )}
                             >
-                                {myJobHighlight ? (
-                                    <Eye size={13} className="text-white" />
-                                ) : (
-                                    <EyeOff size={13} className="text-app-text-secondary group-hover/btn:text-app-text" />
-                                )}
-                                <span className={clsx("font-black text-[9px] uppercase tracking-[0.1em]", myJobHighlight ? "text-white" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
+                                <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", myJobHighlight ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
                             </button>
 
                             <div className="h-4 w-[1px] bg-white/10 mx-1" />
@@ -216,7 +209,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             className={clsx(
                                                 "px-2 h-full rounded-sm text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer",
                                                 partySortOrder === order
-                                                    ? "bg-app-accent text-white shadow-sm"
+                                                    ? "bg-[rgba(var(--app-accent-rgb),0.2)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.25)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
                                                     : "text-app-text-secondary hover:text-app-text"
                                             )}
                                         >

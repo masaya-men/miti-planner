@@ -99,7 +99,9 @@
 
   :root,
   .theme-dark {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'Space Grotesk', 'Noto Sans JP', system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     color-scheme: dark;
 
     /* Pure Black & Silver Ultra Glass Theme */
@@ -111,6 +113,7 @@
     /* Barely visible contrast */
 
     --color-accent-primary: #e2e8f0;
+    --app-accent-rgb: 34, 211, 238;
     /* Bright Silver */
     --color-accent-secondary: #f8fafc;
     /* White Silver */
@@ -142,28 +145,31 @@
     --color-bg-tertiary: #f1f5f9;
 
     --color-accent-primary: #2563eb;
+    --app-accent-rgb: 99, 102, 241;
     --color-accent-secondary: #0284c7;
     --color-accent-dim: rgba(37, 99, 235, 0.1);
 
-    --color-text-primary: #000000;      /* Pure black for maximum contrast */
-    --color-text-secondary: #334155;    /* Darker slate */
-    --color-text-muted: #4b5563;       /* Darker than original #64748b for visibility */
+    --color-text-primary: #0a0a14;
+    --color-text-secondary: #1e293b;
+    --color-text-muted: #374151;
     --color-text-on-accent: #ffffff;    /* White text on blue accent in light mode */
 
-    --color-border: rgba(0, 0, 0, 0.12);
+    --color-border: rgba(0, 0, 0, 0.2);
     --color-border-accent: rgba(37, 99, 235, 0.5);
 
-    --glass-bg-header: rgba(255, 255, 255, 0.3);
-    --glass-bg-panel: rgba(255, 255, 255, 0.35);
-    --glass-bg-card: rgba(0, 0, 0, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-bg-header: rgba(255, 255, 255, 0.15);
+    --glass-bg-panel: rgba(255, 255, 255, 0.18);
+    --glass-bg-card: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(200, 210, 255, 0.4);
     --glass-hover: rgba(0, 0, 0, 0.05);
     --glass-active: rgba(0, 0, 0, 0.1);
     --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 0 1px 1px rgba(255, 255, 255, 0.5);
   }
 
   body {
-    @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] min-h-screen text-sm overflow-hidden;
+    @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] min-h-screen text-[13px] overflow-hidden;
+    font-feature-settings: 'kern' 1;
+    -webkit-font-smoothing: antialiased;
   }
 }
 

@@ -1290,8 +1290,8 @@ const Timeline: React.FC = () => {
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full border",
-                                        useMitigationStore.getState().hideEmptyRows
-                                            ? "bg-app-accent border-app-accent text-white shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                        hideEmptyRows
+                                            ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
                                             : "water-drop text-slate-700 dark:text-slate-200 border-white/20"
                                     )}
                                 >
@@ -1299,15 +1299,15 @@ const Timeline: React.FC = () => {
                                         size={14}
                                         className={clsx(
                                             "transition-all duration-300 group-hover/btn:scale-110",
-                                            useMitigationStore.getState().hideEmptyRows
-                                                ? "text-white"
+                                            hideEmptyRows
+                                                ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]"
                                                 : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white shrink-0"
                                         )}
                                     />
                                     <span className={clsx(
                                         "uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block",
-                                        useMitigationStore.getState().hideEmptyRows
-                                            ? "text-white"
+                                        hideEmptyRows
+                                            ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]"
                                             : "text-app-text-secondary group-hover/btn:text-app-text"
                                     )}>
                                         {t('ui.compact_view')}
@@ -1320,7 +1320,7 @@ const Timeline: React.FC = () => {
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full border",
                                     isAaModeEnabled
-                                        ? "bg-app-accent border-app-accent shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.5)]"
+                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
                                         : "water-drop border-white/20"
                                 )}>
                                     <button
@@ -1328,11 +1328,11 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
-                                                ? "text-white hover:bg-white/10"
+                                                ? "text-app-accent hover:bg-[rgba(var(--app-accent-rgb),0.1)]"
                                                 : "text-app-text-secondary hover:text-app-text"
                                         )}
                                     >
-                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-white" : "text-app-text-secondary shadow-black/50 drop-shadow-sm shrink-0")} />
+                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary shadow-black/50 drop-shadow-sm shrink-0")} />
                                         <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
                                     <div className={clsx(
