@@ -3,6 +3,7 @@ import { JOBS } from '../data/mockData';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tooltip } from './ui/Tooltip';
 
 interface JobPickerProps {
     isOpen: boolean;
@@ -95,21 +96,22 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
 };
 
 const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: 'ja' | 'en', theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage, theme }) => (
-    <button
-        onClick={onSelect}
-        className={clsx(
-            "flex flex-col items-center justify-center w-9 h-9 rounded border transition-all relative overflow-hidden group cursor-pointer",
-            currentJobId === job.id
-                ? "bg-blue-500/30 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.4)] ring-1 ring-blue-500/40"
-                : clsx(
-                    "transition-all duration-200 hover:scale-110",
-                    theme === 'dark'
-                        ? "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.1] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-                        : "bg-black/[0.03] border-black/[0.05] hover:bg-blue-500/[0.08] hover:border-blue-500/30 hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)]"
-                )
-        )}
-        title={contentLanguage === 'en' ? job.name.en : job.name.ja}
-    >
-        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
-    </button>
+    <Tooltip content={contentLanguage === 'en' ? job.name.en : job.name.ja} position="top">
+        <button
+            onClick={onSelect}
+            className={clsx(
+                "flex flex-col items-center justify-center w-9 h-9 rounded border transition-all relative overflow-hidden group cursor-pointer",
+                currentJobId === job.id
+                    ? "bg-blue-500/30 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.4)] ring-1 ring-blue-500/40"
+                    : clsx(
+                        "transition-all duration-200 hover:scale-110",
+                        theme === 'dark'
+                            ? "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.1] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                            : "bg-black/[0.03] border-black/[0.05] hover:bg-blue-500/[0.08] hover:border-blue-500/30 hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)]"
+                    )
+            )}
+        >
+            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+        </button>
+    </Tooltip>
 );

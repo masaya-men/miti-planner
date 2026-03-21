@@ -12,6 +12,7 @@ import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
+import { Tooltip } from './ui/Tooltip';
 
 interface PartySettingsModalProps {
     isOpen: boolean;
@@ -199,41 +200,43 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 <div className="flex items-center gap-2 z-20">
                     {job && (
                         <>
-                            <button
-                                data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
-                                    onMyJobToggle(member.id, isMyJob);
+                            <Tooltip content={t('party.my_job')} position="top">
+                                <button
+                                    data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
+                                        onMyJobToggle(member.id, isMyJob);
 
-                                    if (isTutorialMyJob && member.id === 'ST') {
-                                        useTutorialStore.getState().completeEvent('my-job:set');
-                                    }
-                                }}
-                                className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
-                                    isMyJob
-                                        ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
-                                        : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
-                                )}
-                                title={t('party.my_job')}
-                            >
-                                <Star size={16} className={clsx("transition-all duration-300",
-                                    isMyJob
-                                        ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                                        : "group-hover/star:scale-110"
-                                )} />
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
-                                    onRemoveJob(member.id);
-                                }}
-                                className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
-                                title="Remove Job"
-                            >
-                                <Trash2 size={16} />
-                            </button>
+                                        if (isTutorialMyJob && member.id === 'ST') {
+                                            useTutorialStore.getState().completeEvent('my-job:set');
+                                        }
+                                    }}
+                                    className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
+                                        isMyJob
+                                            ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
+                                            : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
+                                    )}
+                                >
+                                    <Star size={16} className={clsx("transition-all duration-300",
+                                        isMyJob
+                                            ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                                            : "group-hover/star:scale-110"
+                                    )} />
+                                </button>
+                            </Tooltip>
+                            <Tooltip content={t('party.remove_job', 'Remove Job')} position="top">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
+                                        onRemoveJob(member.id);
+                                    }}
+                                    className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </Tooltip>
                         </>
                     )}
                 </div>
@@ -593,24 +596,24 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     const isTutorialPaletteTarget = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id) && !isAlreadyPlacedPaletteJob;
 
                                     return (
-                                        <button
-                                            key={job.id}
-                                            data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
-                                            onClick={() => {
-                                                if (isAlreadyPlacedPaletteJob) return;
-                                                handleJobSelect(job.id);
-                                            }}
-                                            className={clsx(
-                                                "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
-                                                "bg-white/10 border-white/10 hover:bg-white/20 hover:border-white/30 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20",
-                                                cat.color,
-                                                isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
-                                            )}
-                                            title={job.name?.ja}
-                                        >
-                                            {!isAlreadyPlacedPaletteJob && <Ripple />}
-                                            <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
-                                        </button>
+                                        <Tooltip key={job.id} content={job.name?.ja ?? ''} position="top">
+                                            <button
+                                                data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
+                                                onClick={() => {
+                                                    if (isAlreadyPlacedPaletteJob) return;
+                                                    handleJobSelect(job.id);
+                                                }}
+                                                className={clsx(
+                                                    "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
+                                                    "bg-white/10 border-white/10 hover:bg-white/20 hover:border-white/30 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20",
+                                                    cat.color,
+                                                    isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
+                                                )}
+                                            >
+                                                {!isAlreadyPlacedPaletteJob && <Ripple />}
+                                                <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
+                                            </button>
+                                        </Tooltip>
                                     );
                                 })}
                             </div>

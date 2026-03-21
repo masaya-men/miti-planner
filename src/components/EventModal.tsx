@@ -11,6 +11,7 @@ import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { Tooltip } from './ui/Tooltip';
 
 interface EventModalProps {
     isOpen: boolean;
@@ -549,7 +550,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 ? 'border-blue-500/50 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
                                                 : 'border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.1]'}
                                         `}
-                                        title={item.label}
                                     >
                                         <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
                                         <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`}>
@@ -660,22 +660,22 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             const shouldHighlight = isTutorialTarget && visibleMitigations.has(mit.id);
 
                                             return (
-                                                <button
-                                                    key={mit.id}
-                                                    data-mitigation-id={mit.id}
-                                                    data-tutorial={shouldHighlight ? 'tutorial-skill-target' : undefined}
-                                                    type="button"
-                                                    onClick={() => toggleMitigation(mit.id)}
-                                                    title={getTooltipText(mit)}
-                                                    className={clsx(
-                                                        "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
-                                                        selectedMitigations.includes(mit.id)
-                                                            ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
-                                                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20 dark:opacity-60 dark:hover:opacity-100"
-                                                    )}
-                                                >
-                                                    <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
-                                                </button>
+                                                <Tooltip key={mit.id} content={getTooltipText(mit)} position="top">
+                                                    <button
+                                                        data-mitigation-id={mit.id}
+                                                        data-tutorial={shouldHighlight ? 'tutorial-skill-target' : undefined}
+                                                        type="button"
+                                                        onClick={() => toggleMitigation(mit.id)}
+                                                        className={clsx(
+                                                            "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
+                                                            selectedMitigations.includes(mit.id)
+                                                                ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
+                                                                : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20 dark:opacity-60 dark:hover:opacity-100"
+                                                        )}
+                                                    >
+                                                        <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
+                                                    </button>
+                                                </Tooltip>
                                             );
                                         })}
                                     </div>

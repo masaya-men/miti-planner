@@ -260,7 +260,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
                         )}
-                        title={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景グラデ（Sidebar 準拠） */}
                         <motion.div

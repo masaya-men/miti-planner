@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { FormattedNumberInput } from './ui/FormattedNumberInput';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { Tooltip } from './ui/Tooltip';
 
 interface PartyStatusPopoverProps {
     isOpen: boolean;
@@ -316,10 +317,10 @@ const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, h
     const displayName = contentLanguage === 'en' ? skillNames.en : skillNames.ja;
 
     return (
+        <Tooltip content={displayName} position="top">
         <div
             key={skillName}
             className="flex flex-col items-center justify-center bg-glass-card hover:bg-glass-hover border border-glass-border rounded-lg p-1.5 transition-colors gap-1 min-w-0"
-            title={displayName}
         >
             {iconUrl ? (
                 <img src={iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
@@ -330,5 +331,6 @@ const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, h
                 {value.toLocaleString()}
             </span>
         </div>
+        </Tooltip>
     );
 };

@@ -92,7 +92,6 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     }
                 }}
                 disabled={isDisabled}
-                title={floorName}
                 {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
                 className={clsx(
                     "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
@@ -717,7 +716,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
                         )}
-                        title={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景 */}
                         <motion.div
