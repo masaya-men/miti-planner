@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { JOBS } from '../data/mockData';
+import { Tooltip } from './ui/Tooltip';
 
 interface ClearMitigationsPopoverProps {
     isOpen: boolean;
@@ -99,13 +100,14 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                     <Trash2 size={14} className="group-hover/btn:scale-110 transition-transform" />
                     <span className="uppercase tracking-wider font-black">{t('timeline.all_mitigations')}</span>
                 </button>
-                <button
-                    onClick={onClose}
-                    className="p-1.5 text-app-text-muted hover:text-app-text hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                    title={t('common.close', '閉じる')}
-                >
-                    <X size={14} />
-                </button>
+                <Tooltip content={t('common.close', '閉じる')}>
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 text-app-text-muted hover:text-app-text hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                    >
+                        <X size={14} />
+                    </button>
+                </Tooltip>
             </div>
 
             <div className="h-[1px] bg-glass-border mx-2 my-1" />
@@ -147,19 +149,35 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                     ? "opacity-20 cursor-not-allowed grayscale shadow-none"
                                     : "cursor-pointer hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10 active:scale-95 hover:scale-[1.03] hover:shadow-md"
                             )}
-                            title={!hasMitigations ? undefined : `${m.id} (${contentLanguage === 'en' ? job?.name.en : job?.name.ja})`}
                         >
-                            {job ? (
-                                <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
+                            {hasMitigations ? (
+                                <Tooltip content={`${m.id} (${contentLanguage === 'en' ? job?.name.en : job?.name.ja})`}>
+                                    {job ? (
+                                        <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
+                                    ) : (
+                                        <span className={clsx(
+                                            "text-[10px] font-black tracking-tighter uppercase",
+                                            m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
+                                                m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
+                                                    'text-red-500 dark:text-red-400'
+                                        )}>
+                                            {m.id}
+                                        </span>
+                                    )}
+                                </Tooltip>
                             ) : (
-                                <span className={clsx(
-                                    "text-[10px] font-black tracking-tighter uppercase",
-                                    m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
-                                        m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
-                                            'text-red-500 dark:text-red-400'
-                                )}>
-                                    {m.id}
-                                </span>
+                                job ? (
+                                    <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
+                                ) : (
+                                    <span className={clsx(
+                                        "text-[10px] font-black tracking-tighter uppercase",
+                                        m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
+                                            m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
+                                                'text-red-500 dark:text-red-400'
+                                    )}>
+                                        {m.id}
+                                    </span>
+                                )
                             )}
                         </button>
                     );

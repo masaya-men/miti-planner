@@ -103,12 +103,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     {/* Layer A: App Controls (h-12 = 48px) */}
                     <div className="h-12 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
                         <div className="flex items-center gap-3">
-                            <Tooltip content={t('app.return_home')} position="bottom">
+                            <Tooltip content={t('app.return_home')}>
                                 <button
                                     onClick={() => navigate('/')}
-                                    className="p-2 rounded-lg text-app-text-muted hover:text-app-accent hover:bg-white/5 transition-all duration-200 cursor-pointer active:scale-95 group"
+                                    className="p-2.5 rounded-full text-app-text-muted hover:text-app-accent border border-transparent hover:border-[rgba(var(--app-accent-rgb),0.3)] hover:bg-[rgba(var(--app-accent-rgb),0.08)] transition-all duration-300 cursor-pointer active:scale-95 group"
                                 >
-                                    <Home size={18} className="group-hover:scale-110 transition-transform" />
+                                    <Home size={16} className="group-hover:scale-110 transition-transform" />
                                 </button>
                             </Tooltip>
                         </div>
@@ -123,7 +123,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         useTutorialStore.getState().startFromStep(1);
                                     }
                                 }}
-                                className="relative px-3 py-1 bg-app-accent/10 hover:bg-app-accent/20 border border-app-accent/20 rounded-full text-app-accent flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 group"
+                                className="relative px-4 py-1.5 bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.12)] border border-[rgba(var(--app-accent-rgb),0.25)] hover:border-[rgba(var(--app-accent-rgb),0.5)] rounded-full text-app-accent flex items-center gap-2 transition-all duration-300 cursor-pointer active:scale-95 group"
                             >
                                 <HelpCircle size={14} className="group-hover:rotate-12 transition-transform" />
                                 <span className="text-[10px] font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
@@ -131,12 +131,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-4 w-[1px] bg-white/10 mx-1" />
 
-                            <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')} position="bottom" invert={true}>
+                            <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
                                 <button
                                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                    className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200"
+                                    className="p-2.5 rounded-full text-app-text-muted hover:text-app-accent border border-transparent hover:border-[rgba(var(--app-accent-rgb),0.3)] hover:bg-[rgba(var(--app-accent-rgb),0.08)] flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-300"
                                 >
-                                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                                    {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                                 </button>
                             </Tooltip>
                             <LanguageSwitcher />
@@ -152,7 +152,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     setPartySettingsOpen(true);
                                     useTutorialStore.getState().completeEvent('party-settings:opened');
                                 }}
-                                className="flex items-center gap-2 px-3 h-7 rounded-md text-app-text-secondary group/btn relative overflow-hidden cursor-pointer bg-glass-card hover:bg-glass-hover border border-glass-border transition-all duration-300"
+                                className="flex items-center gap-2 px-4 h-8 rounded-full text-app-text-secondary group/btn relative overflow-hidden cursor-pointer bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:text-app-accent transition-all duration-300"
                             >
                                 <span className="font-black text-[10px] uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
                             </button>
@@ -163,10 +163,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     if (!statusOpen) useTutorialStore.getState().completeEvent('status:opened');
                                 }}
                                 className={clsx(
-                                    "flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    "flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                     statusOpen
                                         ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
+                                        : "bg-transparent border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:bg-[rgba(var(--app-accent-rgb),0.08)]"
                                 )}
                             >
                                 <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", statusOpen ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
@@ -174,7 +174,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <button
                                 onClick={onAutoPlan}
-                                className="flex items-center gap-2 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
+                                className="flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-accent bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] group/btn"
                             >
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
                             </button>
@@ -182,10 +182,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <button
                                 onClick={onImportLogs}
                                 className={clsx(
-                                    "flex items-center gap-1.5 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer group/btn",
-                                    needsImport 
-                                        ? "bg-app-accent/20 text-app-accent border border-app-accent/40 shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.3)] animate-pulse" 
-                                        : "text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border"
+                                    "flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 cursor-pointer group/btn",
+                                    needsImport
+                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.3)] animate-pulse"
+                                        : "text-app-text-secondary hover:text-app-accent bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)]"
                                 )}
                             >
                                 <CloudDownload size={12} className={clsx("transition-transform shrink-0", !needsImport && "group-hover/btn:-translate-y-0.5")} />
@@ -201,10 +201,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
                                 }}
                                 className={clsx(
-                                    "flex items-center gap-3 px-3 h-7 rounded-md transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
+                                    "flex items-center gap-3 px-4 h-8 rounded-full transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
                                     myJobHighlight
                                         ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover"
+                                        : "bg-transparent border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:bg-[rgba(var(--app-accent-rgb),0.08)]"
                                 )}
                             >
                                 <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", myJobHighlight ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
@@ -214,16 +214,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                                <div className="flex h-7 bg-white/5 rounded-md p-0.5 border border-glass-border">
+                                <div className="flex h-8 bg-transparent rounded-full p-0.5 border border-white/10">
                                     {(['light_party', 'role'] as const).map((order) => (
                                         <button
                                             key={order}
                                             onClick={() => setPartySortOrder(order)}
                                             className={clsx(
-                                                "px-2 h-full rounded-sm text-[8px] font-black uppercase tracking-wider transition-all cursor-pointer",
+                                                "px-3 h-full rounded-full text-[8px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
                                                 partySortOrder === order
-                                                    ? "bg-[rgba(var(--app-accent-rgb),0.2)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.25)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
-                                                    : "text-app-text-secondary hover:text-app-text"
+                                                    ? "bg-[rgba(var(--app-accent-rgb),0.2)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.25)]"
+                                                    : "text-app-text-secondary hover:text-app-accent border border-transparent"
                                             )}
                                         >
                                             {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}
@@ -252,6 +252,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     animate={{ height: (isNear || isHovered) ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
+                    <Tooltip content={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="bottom" wrapperClassName="w-full h-full">
                     <button
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                         onMouseEnter={() => { clearLeaveTimer(); setIsNear(true); setIsHovered(true); }}
@@ -260,7 +261,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
                         )}
-                        title={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景グラデ（Sidebar 準拠） */}
                         <motion.div
@@ -320,6 +320,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </motion.div>
                         </div>
                     </button>
+                    </Tooltip>
                 </motion.div>
             </div>
 

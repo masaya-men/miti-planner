@@ -3,6 +3,7 @@ import { JOBS } from '../data/mockData';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tooltip } from './ui/Tooltip';
 
 interface JobPickerProps {
     isOpen: boolean;
@@ -108,8 +109,9 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
                         : "bg-black/[0.03] border-black/[0.05] hover:bg-blue-500/[0.08] hover:border-blue-500/30 hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)]"
                 )
         )}
-        title={contentLanguage === 'en' ? job.name.en : job.name.ja}
     >
-        <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+        <Tooltip content={contentLanguage === 'en' ? job.name.en : job.name.ja}>
+            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+        </Tooltip>
     </button>
 );

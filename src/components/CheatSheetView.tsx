@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
 import { MitigationSelector } from './MitigationSelector';
 import { useTranslation } from 'react-i18next';
+import { Tooltip } from './ui/Tooltip';
 
 type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime: number };
 
@@ -220,9 +221,10 @@ export const CheatSheetView: React.FC = () => {
                                     "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-white/20",
                                     !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
-                                title={`${contentLanguage === 'en' ? def.name.en : def.name.ja} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}
                             >
-                                <img src={def.icon} alt={contentLanguage === 'en' ? def.name.en : def.name.ja} className="w-full h-full object-cover" />
+                                <Tooltip content={`${contentLanguage === 'en' ? def.name.en : def.name.ja} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}>
+                                    <img src={def.icon} alt={contentLanguage === 'en' ? def.name.en : def.name.ja} className="w-full h-full object-cover" />
+                                </Tooltip>
 
                                 {m.targetId && (
                                     <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-slate-900/90 rounded-tl-[3px] p-[1px] shadow-sm ring-[0.5px] ring-white/30 flex items-center justify-center">
@@ -243,7 +245,6 @@ export const CheatSheetView: React.FC = () => {
         return (
             <div
                 onClick={handleRowClick}
-                title={contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
                 className={clsx(
                     "flex w-full items-stretch min-h-[44px] border-b  relative group cursor-pointer",
                     isLethal
@@ -279,12 +280,13 @@ export const CheatSheetView: React.FC = () => {
                         </span>
                         {/* 連続ヒットバッジ */}
                         {event.hitCount > 1 && (
-                            <span
-                                className="text-[7px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
-                                title={t('ui.total_hits', { count: event.hitCount, span: event.span })}
-                            >
-                                ×{event.hitCount}
-                            </span>
+                            <Tooltip content={t('ui.total_hits', { count: event.hitCount, span: event.span })}>
+                                <span
+                                    className="text-[7px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
+                                >
+                                    ×{event.hitCount}
+                                </span>
+                            </Tooltip>
                         )}
                     </div>
 
@@ -323,9 +325,10 @@ export const CheatSheetView: React.FC = () => {
                                             ? "bg-cyan-500/20 border-cyan-500/30"
                                             : "bg-amber-500/20 border-amber-500/30"
                                     )}
-                                    title={`${event.target} (${contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja})`}
                                 >
-                                    <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
+                                    <Tooltip content={`${event.target} (${contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja})`}>
+                                        <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
+                                    </Tooltip>
                                 </div>
                             ) : (
                                 <span className={clsx(

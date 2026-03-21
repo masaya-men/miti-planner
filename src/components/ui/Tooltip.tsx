@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -6,89 +7,149 @@ interface TooltipProps {
     content: string | React.ReactNode;
     children: React.ReactNode;
     delay?: number;
-    className?: string; // Appears on the popover
-    wrapperClassName?: string; // Appears on the wrapper div
+    className?: string;
+    wrapperClassName?: string;
+    /** @deprecated カーソル追従型のため無視されます */
     position?: 'top' | 'bottom' | 'left' | 'right';
-    invert?: boolean; // If true, uses inverted colors (dark in light mode, light in dark mode)
+    /** @deprecated glass-panel統一のため無視されます */
+    invert?: boolean;
 }
+
+// カーソル右横からの距離
+const CURSOR_OFFSET_X = 16;
+// 画面端からの最小マージン
+const VIEWPORT_PADDING = 8;
 
 export const Tooltip: React.FC<TooltipProps> = ({
     content,
     children,
-    delay = 100, // 👈 ユーザーの要望に合わせて 100ms
+    delay = 100,
     className,
     wrapperClassName,
-    position = 'top',
-    invert = false
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const popupRef = useRef<HTMLDivElement>(null);
+    const cursorRef = useRef({ x: 0, y: 0 });
+    const rafRef = useRef<number>(0);
 
-    const handleMouseEnter = () => {
+    // ポップアップをカーソル右横に配置（はみ出す場合のみ補正）
+    const updatePopupPosition = useCallback(() => {
+        const popup = popupRef.current;
+        if (!popup) return;
+
+        const { x, y } = cursorRef.current;
+        const pw = popup.offsetWidth;
+        const ph = popup.offsetHeight;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // カーソルの右横（縦はカーソル中心揃え）
+        let left = x + CURSOR_OFFSET_X;
+        let top = y - ph / 2;
+
+        // 右端はみ出し → 左側に配置
+        if (left + pw > vw - VIEWPORT_PADDING) {
+            left = x - CURSOR_OFFSET_X - pw;
+        }
+
+        // 上下・左のクランプ
+        top = Math.max(VIEWPORT_PADDING, Math.min(top, vh - ph - VIEWPORT_PADDING));
+        left = Math.max(VIEWPORT_PADDING, left);
+
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+    }, []);
+
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        cursorRef.current = { x: e.clientX, y: e.clientY };
+        if (popupRef.current) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = requestAnimationFrame(updatePopupPosition);
+        }
+    }, [updatePopupPosition]);
+
+    const handleMouseEnter = useCallback((e: React.MouseEvent) => {
+        cursorRef.current = { x: e.clientX, y: e.clientY };
+        // 離脱猶予中なら取り消してそのまま表示を維持
+        if (leaveTimeoutRef.current) {
+            clearTimeout(leaveTimeoutRef.current);
+            leaveTimeoutRef.current = null;
+            return;
+        }
         timeoutRef.current = setTimeout(() => {
             setIsVisible(true);
         }, delay);
-    };
+    }, [delay]);
 
-    const handleMouseLeave = () => {
+    // アニメーション中の要素で一瞬マウスが外れてもチラつかないよう猶予を設ける
+    const LEAVE_GRACE = 80;
+
+    const handleMouseLeave = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
         }
-        setIsVisible(false);
-    };
+        leaveTimeoutRef.current = setTimeout(() => {
+            leaveTimeoutRef.current = null;
+            cancelAnimationFrame(rafRef.current);
+            setIsVisible(false);
+        }, LEAVE_GRACE);
+    }, []);
+
+    // マウント直後に初回位置を設定
+    useEffect(() => {
+        if (isVisible) {
+            rafRef.current = requestAnimationFrame(updatePopupPosition);
+        }
+    }, [isVisible, updatePopupPosition]);
 
     useEffect(() => {
         return () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+            cancelAnimationFrame(rafRef.current);
         };
     }, []);
 
-    const positionClasses = {
-        top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-        bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-        left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-        right: 'left-full top-1/2 -translate-y-1/2 ml-2',
-    };
-
     return (
         <div
+            ref={wrapperRef}
             className={clsx("relative flex items-center justify-center w-fit h-fit", wrapperClassName)}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
         >
             {children}
-            <AnimatePresence>
-                {isVisible && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: position === 'top' ? 4 : position === 'bottom' ? -4 : 0 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: position === 'top' ? 2 : position === 'bottom' ? -2 : 0 }}
-                        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                        className={clsx(
-                            "absolute z-[9999] pointer-events-none whitespace-nowrap px-2.5 py-1.5 rounded-lg text-[11px] font-black tracking-tight backdrop-blur-md shadow-xl border",
-                            invert
-                                ? "bg-slate-900/80 dark:bg-slate-200/90 text-slate-50 dark:text-slate-900 border-white/10 dark:border-black/5"
-                                : "bg-white/80 dark:bg-black/80 text-slate-900 dark:text-slate-50 border-slate-200/50 dark:border-white/10",
-                            positionClasses[position],
-                            className
-                        )}
-                    >
-                        {content}
-                        {/* 小さな矢印 (Optional) */}
-                        <div className={clsx(
-                            "absolute w-2 h-2 rotate-45 border-white/10 dark:border-black/5 backdrop-blur-md",
-                            invert
-                                ? "bg-slate-900/80 dark:bg-slate-200/90"
-                                : "bg-white/80 dark:bg-black/80 border-slate-200/50 dark:border-white/10",
-                            position === 'top' ? "-bottom-1 left-1/2 -translate-x-1/2 border-r border-b" :
-                                position === 'bottom' ? "-top-1 left-1/2 -translate-x-1/2 border-l border-t" :
-                                    position === 'left' ? "-right-1 top-1/2 -translate-y-1/2 border-r border-t" :
-                                        "-left-1 top-1/2 -translate-y-1/2 border-l border-b"
-                        )} />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {createPortal(
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            ref={popupRef}
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.97 }}
+                            transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                            style={{
+                                position: 'fixed',
+                                zIndex: 9999,
+                                pointerEvents: 'none',
+                                left: -9999,
+                                top: -9999,
+                            }}
+                            className={clsx(
+                                "glass-panel whitespace-nowrap px-2.5 py-1.5 rounded-lg text-[11px] font-black tracking-tight text-app-text",
+                                className
+                            )}
+                        >
+                            {content}
+                        </motion.div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 };

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { FormattedNumberInput } from './ui/FormattedNumberInput';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { Tooltip } from './ui/Tooltip';
 
 interface PartyStatusPopoverProps {
     isOpen: boolean;
@@ -319,16 +320,19 @@ const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, h
         <div
             key={skillName}
             className="flex flex-col items-center justify-center bg-glass-card hover:bg-glass-hover border border-glass-border rounded-lg p-1.5 transition-colors gap-1 min-w-0"
-            title={displayName}
         >
-            {iconUrl ? (
-                <img src={iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
-            ) : (
-                <div className="w-6 h-6 bg-slate-900/50 rounded-md flex items-center justify-center text-[10px] text-white/50">?</div>
-            )}
-            <span className="font-mono text-white font-bold text-[10px] tracking-tight leading-none">
-                {value.toLocaleString()}
-            </span>
+            <Tooltip content={displayName}>
+                <div className="flex flex-col items-center gap-1">
+                    {iconUrl ? (
+                        <img src={iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
+                    ) : (
+                        <div className="w-6 h-6 bg-slate-900/50 rounded-md flex items-center justify-center text-[10px] text-white/50">?</div>
+                    )}
+                    <span className="font-mono text-white font-bold text-[10px] tracking-tight leading-none">
+                        {value.toLocaleString()}
+                    </span>
+                </div>
+            </Tooltip>
         </div>
     );
 };

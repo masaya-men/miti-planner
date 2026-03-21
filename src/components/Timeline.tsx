@@ -28,6 +28,7 @@ import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { getColumnWidth } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
+import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
 
 function genId(): string {
@@ -443,25 +444,26 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                     onTouchMove={handleTouchMove}
-                    title={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')} `}
                 >
-                    <div className={clsx(
-                        "w-full h-full bg-black/50 overflow-hidden rounded border border-white/20 flex items-center justify-center",
-                        isVirtual && "bg-transparent border-none shadow-none"
-                    )}>
-                        <img
-                            src={iconUrl}
-                            alt=""
-                            className={clsx(
-                                "object-contain",
-                                isVirtual ? (
-                                    (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
-                                        ? "w-3 h-auto"
-                                        : "w-5 h-5"
-                                ) : "w-full h-full rounded"
-                            )}
-                        />
-                    </div>
+                    <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full">
+                        <div className={clsx(
+                            "w-full h-full bg-black/50 overflow-hidden rounded border border-white/20 flex items-center justify-center",
+                            isVirtual && "bg-transparent border-none shadow-none"
+                        )}>
+                            <img
+                                src={iconUrl}
+                                alt=""
+                                className={clsx(
+                                    "object-contain",
+                                    isVirtual ? (
+                                        (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
+                                            ? "w-3 h-auto"
+                                            : "w-5 h-5"
+                                    ) : "w-full h-full rounded"
+                                )}
+                            />
+                        </div>
+                    </Tooltip>
 
                     {!isVirtual && mitigation.targetId && (() => {
                         const members = useMitigationStore.getState().partyMembers;
@@ -1363,43 +1365,46 @@ const Timeline: React.FC = () => {
 
                             {/* Area C: Remaining (RAW/TAKEN/Columns) */}
                             <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-white/5 pl-2 h-full">
-                                <button
-                                    onClick={() => useMitigationStore.getState().undo()}
-                                    disabled={useMitigationStore.getState()._history.length === 0}
-                                    className={clsx(
-                                        "p-1 rounded transition-all duration-150 cursor-pointer",
-                                        useMitigationStore.getState()._history.length > 0
-                                            ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                            : "text-slate-700 cursor-default"
-                                    )}
-                                    title={t('timeline.undo')}
-                                >
-                                    <Undo2 size={12} />
-                                </button>
-                                <button
-                                    onClick={() => useMitigationStore.getState().redo()}
-                                    disabled={useMitigationStore.getState()._future.length === 0}
-                                    className={clsx(
-                                        "p-1 rounded transition-all duration-150 cursor-pointer",
-                                        useMitigationStore.getState()._future.length > 0
-                                            ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                            : "text-slate-700 cursor-default"
-                                    )}
-                                    title={t('timeline.redo')}
-                                >
-                                    <Redo2 size={12} />
-                                </button>
+                                <Tooltip content={t('timeline.undo')}>
+                                    <button
+                                        onClick={() => useMitigationStore.getState().undo()}
+                                        disabled={useMitigationStore.getState()._history.length === 0}
+                                        className={clsx(
+                                            "p-1 rounded transition-all duration-150 cursor-pointer",
+                                            useMitigationStore.getState()._history.length > 0
+                                                ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                                : "text-slate-700 cursor-default"
+                                        )}
+                                    >
+                                        <Undo2 size={12} />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip content={t('timeline.redo')}>
+                                    <button
+                                        onClick={() => useMitigationStore.getState().redo()}
+                                        disabled={useMitigationStore.getState()._future.length === 0}
+                                        className={clsx(
+                                            "p-1 rounded transition-all duration-150 cursor-pointer",
+                                            useMitigationStore.getState()._future.length > 0
+                                                ? "text-slate-400 hover:bg-white/10 hover:text-white"
+                                                : "text-slate-700 cursor-default"
+                                        )}
+                                    >
+                                        <Redo2 size={12} />
+                                    </button>
+                                </Tooltip>
                                 <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
                                 <div className="relative">
-                                    <button
-                                        ref={clearMenuButtonRef}
-                                        onClick={() => setClearMenuOpen(!clearMenuOpen)}
-                                        className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
-                                        title={t('timeline.clear_mitigations')}
-                                    >
-                                        <Trash2 size={12} />
-                                        <ChevronDown size={7} />
-                                    </button>
+                                    <Tooltip content={t('timeline.clear_mitigations')}>
+                                        <button
+                                            ref={clearMenuButtonRef}
+                                            onClick={() => setClearMenuOpen(!clearMenuOpen)}
+                                            className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
+                                        >
+                                            <Trash2 size={12} />
+                                            <ChevronDown size={7} />
+                                        </button>
+                                    </Tooltip>
                                     {clearMenuOpen && (
                                         <ClearMitigationsPopover
                                             isOpen={clearMenuOpen}
@@ -1440,13 +1445,13 @@ const Timeline: React.FC = () => {
                                             className="absolute top-0 h-full flex items-center justify-center"
                                             style={{ left: `${schLeft - 30}px`, width: `${schWidth + 60}px` }}
                                         >
+                                            <Tooltip content={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')} position="bottom" wrapperClassName="pointer-events-auto">
                                             <button
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className={clsx(
                                                     "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
                                                     "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50 dark:bg-black/50 dark:border-white/10 dark:hover:border-amber-400/40 dark:hover:bg-black/70"
                                                 )}
-                                                title={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')}
                                             >
                                                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
                                                 <div className="flex items-center gap-0.5">
@@ -1471,6 +1476,7 @@ const Timeline: React.FC = () => {
                                                     </div>
                                                 </div>
                                             </button>
+                                            </Tooltip>
                                         </div>
                                     );
                                 });
@@ -1513,21 +1519,22 @@ const Timeline: React.FC = () => {
                                         )
                                     )}
                                 >
-                                    <div
-                                        className={clsx(
-                                            "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all duration-300 relative"
-                                        )}
-                                        onClick={(e) => handleJobIconClick(member.id, e)}
-                                        title={`${member.id} (${t('ui.change_job')})`}
-                                    >
-                                        {member.jobId ? (
-                                            <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
-                                        ) : (
-                                            <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ ">
-                                                <Plus size={10} className="text-app-text-muted" />
-                                            </div>
-                                        )}
-                                    </div>
+                                    <Tooltip content={`${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
+                                        <div
+                                            className={clsx(
+                                                "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all duration-300 relative"
+                                            )}
+                                            onClick={(e) => handleJobIconClick(member.id, e)}
+                                        >
+                                            {member.jobId ? (
+                                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
+                                            ) : (
+                                                <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ ">
+                                                    <Plus size={10} className="text-app-text-muted" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Tooltip>
                                 </div>
                             ))}
                         </div>
@@ -1649,13 +1656,14 @@ const Timeline: React.FC = () => {
                                                     className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 cursor-pointer hover:bg-blue-100 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
-                                                    title={t('timeline.click_rename', 'クリックして名前を変更')}
                                                 >
-                                                    <div className="sticky top-0 w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
-                                                        <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 origin-center leading-none">
-                                                            {phase.name}
+                                                    <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
+                                                        <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
+                                                            <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 origin-center leading-none">
+                                                                {phase.name}
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </Tooltip>
                                                 </div>
                                             );
                                         })}
@@ -1867,13 +1875,14 @@ const Timeline: React.FC = () => {
                             </span>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setClipboardEvent(null)}
-                        className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full  cursor-pointer"
-                        title={t('timeline.cancel_copy')}
-                    >
-                        <X size={16} />
-                    </button>
+                    <Tooltip content={t('timeline.cancel_copy')}>
+                        <button
+                            onClick={() => setClipboardEvent(null)}
+                            className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full  cursor-pointer"
+                        >
+                            <X size={16} />
+                        </button>
+                    </Tooltip>
                 </div>
             )
             }
