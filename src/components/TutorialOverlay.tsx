@@ -6,6 +6,7 @@ import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
 import { X, AlertTriangle } from 'lucide-react';
+import { Tooltip as UiTooltip } from './ui/Tooltip';
 
 // ─────────────────────────────────────────────
 // Types
@@ -239,13 +240,14 @@ const Tooltip: React.FC<TooltipProps> = ({
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
             {/* Close button (Top Right) */}
-            <button
-                onClick={requestExit}
-                className="absolute top-4 right-4 p-1 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
-                title={t('common.close')}
-            >
-                <X size={16} />
-            </button>
+            <UiTooltip content={t('common.close')}>
+                <button
+                    onClick={requestExit}
+                    className="absolute top-4 right-4 p-1 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
+                >
+                    <X size={16} />
+                </button>
+            </UiTooltip>
 
             {/* Step indicator */}
             <div className="flex items-center justify-center gap-2 mb-4 pr-6">

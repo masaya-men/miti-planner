@@ -13,6 +13,7 @@ import {
     getContentById,
 } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
@@ -83,6 +84,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     return (
         <div className="w-full flex flex-col">
             {/* Header / Content Name Button */}
+            <Tooltip content={floorName} position="right" wrapperClassName="w-full">
             <button
                 onClick={() => {
                     if (multiSelect.isEnabled) {
@@ -92,7 +94,6 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     }
                 }}
                 disabled={isDisabled}
-                title={floorName}
                 {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
                 className={clsx(
                     "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
@@ -141,6 +142,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     </div>
                 </div>
             </button>
+            </Tooltip>
 
             {/* Sub-items (Template and Plans) */}
             {isActive && !multiSelect.isEnabled && (
@@ -709,6 +711,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     animate={{ width: isNear ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
+                    <Tooltip content={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="right" wrapperClassName="w-full h-full">
                     <button
                         onClick={() => onToggle?.()}
                         onMouseEnter={() => setIsHovered(true)}
@@ -717,7 +720,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
                         )}
-                        title={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')}
                     >
                         {/* 迫り出し感のある背景 */}
                         <motion.div
@@ -765,6 +767,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             isOpen ? "bg-glass-border" : "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]"
                         )} />
                     </button>
+                    </Tooltip>
                 </motion.div>
             </div>
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={() => setIsNewPlanModalOpen(false)} />
