@@ -1646,7 +1646,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-white/20 bg-slate-900/40 dark:bg-white/5 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-white/20 bg-slate-900/40 dark:bg-white/5 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                     title={t('timeline.click_rename', 'クリックして名前を変更')}
