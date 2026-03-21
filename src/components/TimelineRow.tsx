@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { Tooltip } from './ui/Tooltip';
 
 interface DamageInfo {
     unmitigated: number;
@@ -81,11 +82,12 @@ export const TimelineRow = memo(({
                         "border-slate-200 dark:border-white/[0.02]"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
-                title={t('timeline.end_phase')}
             >
-                <div className="flex items-center justify-center w-full h-full text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Plus size={16} />
-                </div>
+                <Tooltip content={t('timeline.end_phase')} position="right">
+                    <div className="flex items-center justify-center w-full h-full text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Plus size={16} />
+                    </div>
+                </Tooltip>
             </div >
 
             {/* Time Column */}
@@ -113,12 +115,14 @@ export const TimelineRow = memo(({
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
-                        <Plus size={16} className={clsx(
-                            "",
-                            "text-slate-600 hover:text-slate-600 dark:text-slate-400",
-                            // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
-                            "[.tutorial-target-highlight_&]:text-sky-400"
-                        )} />
+                        <Tooltip content={t('timeline.add_event')} position="top">
+                            <Plus size={16} className={clsx(
+                                "",
+                                "text-slate-600 hover:text-slate-600 dark:text-slate-400",
+                                // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
+                                "[.tutorial-target-highlight_&]:text-sky-400"
+                            )} />
+                        </Tooltip>
                     </div>
                 ) : events.length === 1 ? (
                     <div className="w-full h-full relative group/slot">
@@ -126,7 +130,6 @@ export const TimelineRow = memo(({
                             // 👇 スマホ表示用に少し padding や flex-col を調整
                             className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-0.5 md:gap-2"
                             onClick={(e) => onEventClick(events[0], e)}
-                            title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                         >
                             {/* Left Side: Icon + Name */}
                             <div className="flex items-center gap-1.5 md:gap-2 min-w-0 flex-1">
@@ -136,16 +139,17 @@ export const TimelineRow = memo(({
 
                                 <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setClipboardEvent(events[0]);
-                                    }}
-                                    className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                    title={t('timeline.copy_event_hint')}
-                                >
-                                    <Copy size={14} />
-                                </button>
+                                <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setClipboardEvent(events[0]);
+                                        }}
+                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                    >
+                                        <Copy size={14} />
+                                    </button>
+                                </Tooltip>
                             </div>
 
                             {/* 👇 スマホ専用：軽減アイコンのリスト（PCでは md:hidden で隠す） */}
@@ -210,7 +214,6 @@ export const TimelineRow = memo(({
                                 e.stopPropagation();
                                 onAddEventClick(time, e);
                             }}
-                            title={t('timeline.add_event')}
                         >
                             <Plus size={10} className="text-slate-600 dark:text-slate-400 scale-75" />
                         </div>
@@ -221,7 +224,6 @@ export const TimelineRow = memo(({
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
                                 onClick={(e) => onEventClick(events[0], e)}
-                                title={`${getEventName(events[0])} (${events[0].damageAmount?.toLocaleString()})`}
                             >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
@@ -229,16 +231,17 @@ export const TimelineRow = memo(({
                                     {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
                                     <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
 
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setClipboardEvent(events[0]);
-                                        }}
-                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                        title={t('timeline.copy_event_hint')}
-                                    >
-                                        <Copy size={14} />
-                                    </button>
+                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setClipboardEvent(events[0]);
+                                            }}
+                                            className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        >
+                                            <Copy size={14} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
 
                                 <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
@@ -269,7 +272,6 @@ export const TimelineRow = memo(({
                             <div
                                 className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
                                 onClick={(e) => onEventClick(events[1], e)}
-                                title={`${getEventName(events[1])} (${events[1].damageAmount?.toLocaleString()})`}
                             >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
@@ -277,16 +279,17 @@ export const TimelineRow = memo(({
                                     {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
                                     <span className="text-[10px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[1])}</span>
 
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setClipboardEvent(events[1]);
-                                        }}
-                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                        title={t('timeline.copy_event_hint')}
-                                    >
-                                        <Copy size={14} />
-                                    </button>
+                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setClipboardEvent(events[1]);
+                                            }}
+                                            className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                        >
+                                            <Copy size={14} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
 
                                 <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
@@ -396,21 +399,21 @@ export const TimelineRow = memo(({
                                 )}>
                                     {damages[0].mitigated.toLocaleString()}
                                 </span>
-                                    {damages[0].isInvincible ? (
-                                        <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
-                                            {t('timeline.invuln', 'Invuln')}
-                                        </div>
-                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                        <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
-                                            {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
-                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
-                                            {damages[0].shieldTotal > 0 && (
-                                                <span className="flex items-center gap-0.5">
-                                                    🛡️ {damages[0].shieldTotal.toLocaleString()}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : null}
+                                {damages[0].isInvincible ? (
+                                    <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
+                                        {t('timeline.invuln', 'Invuln')}
+                                    </div>
+                                ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
+                                    <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                        {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
+                                        {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
+                                        {damages[0].shieldTotal > 0 && (
+                                            <span className="flex items-center gap-0.5">
+                                                🛡️ {damages[0].shieldTotal.toLocaleString()}
+                                            </span>
+                                        )}
+                                    </div>
+                                ) : null}
                             </>
                         ) : ''}
                     </div>
@@ -531,9 +534,10 @@ export const TimelineRow = memo(({
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}
-                        title={t('mitigation.select')}
                     >
-                        {/* Placeholder styling handled by class */}
+                        <Tooltip content={t('mitigation.select')} position="top">
+                            <div className="w-full h-full" />
+                        </Tooltip>
                     </div>
                 ))
             }

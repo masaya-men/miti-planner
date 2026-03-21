@@ -40,206 +40,206 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const isTutorialMyJob = currentTutorialStep?.id === 'party-myjob';
     const isTutorialClose = currentTutorialStep?.id === 'party-close';
 
-// Absolute Rules - DO NOT MODIFY
-const mtGroupIndices = [0, 2, 4, 6];
-const stGroupIndices = [1, 3, 5, 7];
+    // Absolute Rules - DO NOT MODIFY
+    const mtGroupIndices = [0, 2, 4, 6];
+    const stGroupIndices = [1, 3, 5, 7];
 
-// Sub-step sequence for Step 3 (slot-click method)
-const SLOT_TUTORIAL_SEQUENCE: { type: 'slot' | 'job'; slotIndex?: number; jobId?: string }[] = [
-    { type: 'slot', slotIndex: 0 }, { type: 'job', jobId: 'drk' },
-    { type: 'slot', slotIndex: 2 }, { type: 'job', jobId: 'whm' },
-    { type: 'slot', slotIndex: 4 }, { type: 'job', jobId: 'mnk' },
-    { type: 'slot', slotIndex: 6 }, { type: 'job', jobId: 'dnc' },
-];
-// Step 4 palette jobs
-const PALETTE_TUTORIAL_JOBS = ['pld', 'sch', 'drg', 'blm'];
+    // Sub-step sequence for Step 3 (slot-click method)
+    const SLOT_TUTORIAL_SEQUENCE: { type: 'slot' | 'job'; slotIndex?: number; jobId?: string }[] = [
+        { type: 'slot', slotIndex: 0 }, { type: 'job', jobId: 'drk' },
+        { type: 'slot', slotIndex: 2 }, { type: 'job', jobId: 'whm' },
+        { type: 'slot', slotIndex: 4 }, { type: 'job', jobId: 'mnk' },
+        { type: 'slot', slotIndex: 6 }, { type: 'job', jobId: 'dnc' },
+    ];
+    // Step 4 palette jobs
+    const PALETTE_TUTORIAL_JOBS = ['pld', 'sch', 'drg', 'blm'];
 
-interface SlotItemProps {
-    index: number;
-    member: PartyMember;
-    isFocused: boolean;
-    isMyJob: boolean;
-    theme: string;
-    tutorialActive: boolean;
-    isTutorialSlots: boolean;
-    isTutorialPalette: boolean;
-    isTutorialMyJob: boolean;
-    isTutorialClose: boolean;
-    tutorialSubStep: number;
-    onFocusToggle: (index: number) => void;
-    onRemoveJob: (memberId: string) => void;
-    onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
-    setTutorialSubStep: React.Dispatch<React.SetStateAction<number>>;
-}
+    interface SlotItemProps {
+        index: number;
+        member: PartyMember;
+        isFocused: boolean;
+        isMyJob: boolean;
+        theme: string;
+        tutorialActive: boolean;
+        isTutorialSlots: boolean;
+        isTutorialPalette: boolean;
+        isTutorialMyJob: boolean;
+        isTutorialClose: boolean;
+        tutorialSubStep: number;
+        onFocusToggle: (index: number) => void;
+        onRemoveJob: (memberId: string) => void;
+        onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
+        setTutorialSubStep: React.Dispatch<React.SetStateAction<number>>;
+    }
 
-const SlotItem = React.memo<SlotItemProps>(({
-    index, member, isFocused, isMyJob, theme,
-    tutorialActive, isTutorialSlots, isTutorialPalette,
-    isTutorialMyJob, isTutorialClose, tutorialSubStep,
-    onFocusToggle, onRemoveJob, onMyJobToggle, setTutorialSubStep
-}) => {
-    if (!member) return null;
-    const job = JOBS.find(j => j.id === member.jobId);
-    const { t } = useTranslation();
+    const SlotItem = React.memo<SlotItemProps>(({
+        index, member, isFocused, isMyJob, theme,
+        tutorialActive, isTutorialSlots, isTutorialPalette,
+        isTutorialMyJob, isTutorialClose, tutorialSubStep,
+        onFocusToggle, onRemoveJob, onMyJobToggle, setTutorialSubStep
+    }) => {
+        if (!member) return null;
+        const job = JOBS.find(j => j.id === member.jobId);
+        const { t } = useTranslation();
 
-    const getSlotColor = () => {
-        if (job) return job.role === 'tank' ? 'blue' : job.role === 'healer' ? 'green' : 'red';
-        return member.role === 'tank' ? 'blue' : member.role === 'healer' ? 'green' : 'red';
-    };
-    const activeColor = getSlotColor();
+        const getSlotColor = () => {
+            if (job) return job.role === 'tank' ? 'blue' : job.role === 'healer' ? 'green' : 'red';
+            return member.role === 'tank' ? 'blue' : member.role === 'healer' ? 'green' : 'red';
+        };
+        const activeColor = getSlotColor();
 
-    const isTutorialTarget = isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
-        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
-        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index;
+        const isTutorialTarget = isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
+            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
+            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index;
 
-    return (
-        <div
-            id={`party-slot-${index}`}
-            data-tutorial={isTutorialTarget ? "party-slots-target" : undefined}
-            onClick={() => {
-                // Tutorial: block clicks on non-target slots
-                if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-                    const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-                    if (sub.type === 'slot' && sub.slotIndex !== index) return;
-                    if (sub.type === 'job') return;
-                }
-                if (isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
-                onFocusToggle(index);
-                // Tutorial: advance sub-step when correct slot is clicked
-                if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-                    const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-                    if (sub.type === 'slot' && sub.slotIndex === index && !isFocused) {
-                        setTutorialSubStep(prev => prev + 1);
+        return (
+            <div
+                id={`party-slot-${index}`}
+                data-tutorial={isTutorialTarget ? "party-slots-target" : undefined}
+                onClick={() => {
+                    // Tutorial: block clicks on non-target slots
+                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+                        if (sub.type === 'slot' && sub.slotIndex !== index) return;
+                        if (sub.type === 'job') return;
                     }
-                }
-            }}
-            className={clsx(
-                "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
-                isFocused
-                    ? activeColor === 'blue'
-                        ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.6),inset_0_0_24px_rgba(59,130,246,0.2),0_0_20px_rgba(59,130,246,0.35),0_0_0_3px_rgba(59,130,246,0.2)]"
-                        : activeColor === 'green'
-                            ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.6),inset_0_0_24px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.35),0_0_0_3px_rgba(16,185,129,0.2)]"
-                            : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.6),inset_0_0_24px_rgba(244,63,94,0.2),0_0_20px_rgba(244,63,94,0.35),0_0_0_3px_rgba(244,63,94,0.2)]"
-                    : job
+                    if (isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
+                    onFocusToggle(index);
+                    // Tutorial: advance sub-step when correct slot is clicked
+                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
+                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
+                        if (sub.type === 'slot' && sub.slotIndex === index && !isFocused) {
+                            setTutorialSubStep(prev => prev + 1);
+                        }
+                    }
+                }}
+                className={clsx(
+                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
+                    isFocused
                         ? activeColor === 'blue'
-                            ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.4),inset_0_0_20px_rgba(59,130,246,0.12),0_0_12px_rgba(59,130,246,0.15)] hover:bg-blue-500/[0.10] hover:border-blue-300/70"
+                            ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.6),inset_0_0_24px_rgba(59,130,246,0.2),0_0_20px_rgba(59,130,246,0.35),0_0_0_3px_rgba(59,130,246,0.2)]"
                             : activeColor === 'green'
-                                ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.4),inset_0_0_20px_rgba(16,185,129,0.12),0_0_12px_rgba(16,185,129,0.15)] hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
-                                : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.4),inset_0_0_20px_rgba(244,63,94,0.12),0_0_12px_rgba(244,63,94,0.15)] hover:bg-rose-500/[0.10] hover:border-rose-300/70"
-                        : activeColor === 'blue'
-                            ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
+                                ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.6),inset_0_0_24px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.35),0_0_0_3px_rgba(16,185,129,0.2)]"
+                                : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.6),inset_0_0_24px_rgba(244,63,94,0.2),0_0_20px_rgba(244,63,94,0.35),0_0_0_3px_rgba(244,63,94,0.2)]"
+                        : job
+                            ? activeColor === 'blue'
+                                ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.4),inset_0_0_20px_rgba(59,130,246,0.12),0_0_12px_rgba(59,130,246,0.15)] hover:bg-blue-500/[0.10] hover:border-blue-300/70"
+                                : activeColor === 'green'
+                                    ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.4),inset_0_0_20px_rgba(16,185,129,0.12),0_0_12px_rgba(16,185,129,0.15)] hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
+                                    : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.4),inset_0_0_20px_rgba(244,63,94,0.12),0_0_12px_rgba(244,63,94,0.15)] hover:bg-rose-500/[0.10] hover:border-rose-300/70"
+                            : activeColor === 'blue'
+                                ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
+                                : activeColor === 'green'
+                                    ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
+                                    : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
+                )}
+            >
+                {/* 光の反射グラデーション */}
+                <div className="absolute inset-0 pointer-events-none"
+                    style={{
+                        background: activeColor === 'blue'
+                            ? 'linear-gradient(135deg,rgba(147,197,253,0.12) 0%,rgba(59,130,246,0.02) 50%,transparent 100%)'
                             : activeColor === 'green'
-                                ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
-                                : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
-            )}
-        >
-            {/* 光の反射グラデーション */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{
-                background: activeColor === 'blue'
-                  ? 'linear-gradient(135deg,rgba(147,197,253,0.12) 0%,rgba(59,130,246,0.02) 50%,transparent 100%)'
-                  : activeColor === 'green'
-                    ? 'linear-gradient(135deg,rgba(110,231,183,0.12) 0%,rgba(16,185,129,0.02) 50%,transparent 100%)'
-                    : 'linear-gradient(135deg,rgba(253,164,175,0.12) 0%,rgba(244,63,94,0.02) 50%,transparent 100%)'
-              }}
-            />
-            {/* 上端の輝くライン */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
-              style={{
-                background: activeColor === 'blue'
-                  ? 'linear-gradient(90deg,transparent,rgba(147,197,253,0.8),transparent)'
-                  : activeColor === 'green'
-                    ? 'linear-gradient(90deg,transparent,rgba(110,231,183,0.8),transparent)'
-                    : 'linear-gradient(90deg,transparent,rgba(253,164,175,0.8),transparent)'
-              }}
-            />
+                                ? 'linear-gradient(135deg,rgba(110,231,183,0.12) 0%,rgba(16,185,129,0.02) 50%,transparent 100%)'
+                                : 'linear-gradient(135deg,rgba(253,164,175,0.12) 0%,rgba(244,63,94,0.02) 50%,transparent 100%)'
+                    }}
+                />
+                {/* 上端の輝くライン */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
+                    style={{
+                        background: activeColor === 'blue'
+                            ? 'linear-gradient(90deg,transparent,rgba(147,197,253,0.8),transparent)'
+                            : activeColor === 'green'
+                                ? 'linear-gradient(90deg,transparent,rgba(110,231,183,0.8),transparent)'
+                                : 'linear-gradient(90deg,transparent,rgba(253,164,175,0.8),transparent)'
+                    }}
+                />
 
-            <Ripple />
+                <Ripple />
 
-            {/* Left side: Tag and Icon */}
-            <div className="flex items-center gap-3 z-10 pointer-events-none">
-                <div className={clsx(
-                    "text-[10px] font-black tracking-tighter w-6 z-10",
-                    theme === 'dark'
-                        ? activeColor === 'blue'
-                            ? "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
-                            : activeColor === 'green'
-                                ? "text-emerald-200 drop-shadow-[0_0_8px_rgba(110,231,183,0.6)]"
-                                : "text-rose-200 drop-shadow-[0_0_8px_rgba(253,164,175,0.6)]"
-                        : activeColor === 'blue'
-                            ? "text-blue-800"
-                            : activeColor === 'green'
-                                ? "text-emerald-800"
-                                : "text-rose-800"
-                )}>
-                    {member.id}
-                </div>
-                {job ? (
-                    <img
-                      src={job.icon}
-                      alt={job.name?.ja}
-                      className={clsx(
-                        "w-8 h-8 object-contain",
-                        activeColor === 'blue'
-                          ? "drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]"
-                          : activeColor === 'green'
-                            ? "drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]"
-                            : "drop-shadow-[0_0_6px_rgba(244,63,94,0.5)]"
-                      )}
-                    />
-                ) : (
-                    <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
-                        <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
+                {/* Left side: Tag and Icon */}
+                <div className="flex items-center gap-3 z-10 pointer-events-none">
+                    <div className={clsx(
+                        "text-[10px] font-black tracking-tighter w-6 z-10",
+                        theme === 'dark'
+                            ? activeColor === 'blue'
+                                ? "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
+                                : activeColor === 'green'
+                                    ? "text-emerald-200 drop-shadow-[0_0_8px_rgba(110,231,183,0.6)]"
+                                    : "text-rose-200 drop-shadow-[0_0_8px_rgba(253,164,175,0.6)]"
+                            : activeColor === 'blue'
+                                ? "text-blue-800"
+                                : activeColor === 'green'
+                                    ? "text-emerald-800"
+                                    : "text-rose-800"
+                    )}>
+                        {member.id}
                     </div>
-                )}
-            </div>
-
-            {/* Right side: Actions */}
-            <div className="flex items-center gap-2 z-20">
-                {job && (
-                    <>
-                        <button
-                            data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
-                                onMyJobToggle(member.id, isMyJob);
-
-                                if (isTutorialMyJob && member.id === 'ST') {
-                                    useTutorialStore.getState().completeEvent('my-job:set');
-                                }
-                            }}
-                            className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
-                                isMyJob
-                                    ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
-                                    : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
+                    {job ? (
+                        <img
+                            src={job.icon}
+                            alt={job.name?.ja}
+                            className={clsx(
+                                "w-8 h-8 object-contain",
+                                activeColor === 'blue'
+                                    ? "drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]"
+                                    : activeColor === 'green'
+                                        ? "drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]"
+                                        : "drop-shadow-[0_0_6px_rgba(244,63,94,0.5)]"
                             )}
-                            title={t('party.my_job')}
-                        >
-                            <Star size={16} className={clsx("transition-all duration-300",
-                                isMyJob
-                                    ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                                    : "group-hover/star:scale-110"
-                            )} />
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
-                                onRemoveJob(member.id);
-                            }}
-                            className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
-                            title="Remove Job"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    </>
-                )}
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
+                            <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right side: Actions */}
+                <div className="flex items-center gap-2 z-20">
+                    {job && (
+                        <>
+                            <button
+                                data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
+                                    onMyJobToggle(member.id, isMyJob);
+
+                                    if (isTutorialMyJob && member.id === 'ST') {
+                                        useTutorialStore.getState().completeEvent('my-job:set');
+                                    }
+                                }}
+                                className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
+                                    isMyJob
+                                        ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
+                                        : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
+                                )}
+                                title={t('party.my_job')}
+                            >
+                                <Star size={16} className={clsx("transition-all duration-300",
+                                    isMyJob
+                                        ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                                        : "group-hover/star:scale-110"
+                                )} />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
+                                    onRemoveJob(member.id);
+                                }}
+                                className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
+                                title="Remove Job"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
-    );
-});
+        );
+    });
 
 
     const [tutorialSubStep, setTutorialSubStep] = useState(0);
@@ -705,7 +705,7 @@ const SlotItem = React.memo<SlotItemProps>(({
                                     const member = draftMembers[index];
                                     if (!member) return null;
                                     return (
-                                        <SlotItem 
+                                        <SlotItem
                                             key={member.id}
                                             index={index}
                                             member={member}
@@ -739,7 +739,7 @@ const SlotItem = React.memo<SlotItemProps>(({
                                     const member = draftMembers[index];
                                     if (!member) return null;
                                     return (
-                                        <SlotItem 
+                                        <SlotItem
                                             key={member.id}
                                             index={index}
                                             member={member}

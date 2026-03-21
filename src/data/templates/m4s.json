@@ -1,0 +1,2720 @@
+{
+  "contentId": "m4s",
+  "generatedAt": "2026-03-21T08:01:31.615Z",
+  "sourceLogsCount": 5,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_pc9bma",
+      "time": 1,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_1_13u3zw",
+      "time": 1,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_2_1f9g9z",
+      "time": 4,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_3_bbp3td",
+      "time": 6,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_4_806gx0",
+      "time": 7,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_5_63a9sd",
+      "time": 10,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_6_kwla6t",
+      "time": 10,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_7_rcyb8c",
+      "time": 16,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 192000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_8_z9l1it",
+      "time": 16,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 185000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_9_4t9aod",
+      "time": 17,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 192000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_2qawng",
+      "time": 18,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_11_gveybx",
+      "time": 18,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_12_61pdor",
+      "time": 21,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_13_t5zriq",
+      "time": 21,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_14_1uvfxl",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_15_47itnr",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_16_vldtc0",
+      "time": 50,
+      "name": {
+        "ja": "_rsv_38374_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38374_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_9793qy",
+      "time": 58,
+      "name": {
+        "ja": "_rsv_38367_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38367_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 117000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_sjr4za",
+      "time": 76,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_19_spx8yx",
+      "time": 76,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_20_zh8ed4",
+      "time": 77,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_683xep",
+      "time": 80,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_htjs3v",
+      "time": 80,
+      "name": {
+        "ja": "_rsv_19729_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_19729_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 92500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_23_s7kj7i",
+      "time": 84,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_nyim6r",
+      "time": 87,
+      "name": {
+        "ja": "_rsv_38372_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38372_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_3vx20m",
+      "time": 94,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_26_yew4z8",
+      "time": 95,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_27_ce0ub3",
+      "time": 99,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 190000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_28_gbej6z",
+      "time": 101,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 192000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_udqlqn",
+      "time": 101,
+      "name": {
+        "ja": "ラス・オブ・ゼウス",
+        "en": "Wrath of Zeus"
+      },
+      "damageType": "magical",
+      "damageAmount": 185000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_30_1ehvca",
+      "time": 102,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_31_fc5unq",
+      "time": 103,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_32_vc7h2t",
+      "time": 106,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_33_rb0hsd",
+      "time": 106,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_34_faugvi",
+      "time": 112,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_35_hoiq6n",
+      "time": 112,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_36_p9u8v6",
+      "time": 115,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_37_jmt3m6",
+      "time": 115,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_38_vqd902",
+      "time": 121,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_39_8pfntp",
+      "time": 121,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_40_mlxl1n",
+      "time": 127,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_41_hy9g8j",
+      "time": 127,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_42_ayp7gi",
+      "time": 136,
+      "name": {
+        "ja": "_rsv_38352_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38352_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 125000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_lla5wr",
+      "time": 136,
+      "name": {
+        "ja": "_rsv_38353_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38353_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 126000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_lqs1o6",
+      "time": 143,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 216000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_45_2ie3xy",
+      "time": 144,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 375000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_46_e5m4i7",
+      "time": 144,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 413000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_47_rvn9sq",
+      "time": 147,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "target": "ST"
+    },
+    {
+      "id": "tpl_48_73agvm",
+      "time": 147,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "target": "MT"
+    },
+    {
+      "id": "tpl_49_d7d7zn",
+      "time": 149,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 354000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_dqzt5q",
+      "time": 151,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_51_mqu1u4",
+      "time": 152,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_52_txcwf6",
+      "time": 155,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_53_yfya6a",
+      "time": 155,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_54_8gfof9",
+      "time": 166,
+      "name": {
+        "ja": "_rsv_38790_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38790_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_eavy5s",
+      "time": 168,
+      "name": {
+        "ja": "_rsv_38790_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38790_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_gyhozy",
+      "time": 169,
+      "name": {
+        "ja": "_rsv_38790_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38790_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_oefeym",
+      "time": 171,
+      "name": {
+        "ja": "_rsv_38790_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38790_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 40900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_y4nfl2",
+      "time": 182,
+      "name": {
+        "ja": "_rsv_38348_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38348_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 96000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_59_ggukf0",
+      "time": 183,
+      "name": {
+        "ja": "_rsv_38347_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38347_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 101000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_lta0aa",
+      "time": 183,
+      "name": {
+        "ja": "_rsv_38348_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38348_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_0oww78",
+      "time": 183,
+      "name": {
+        "ja": "_rsv_38347_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38347_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 93500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_62_nljj1l",
+      "time": 192,
+      "name": {
+        "ja": "_rsv_38352_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38352_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 125000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_d0johk",
+      "time": 192,
+      "name": {
+        "ja": "_rsv_38353_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38353_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_7jtfmi",
+      "time": 202,
+      "name": {
+        "ja": "_rsv_38348_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38348_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_5a2rxd",
+      "time": 202,
+      "name": {
+        "ja": "_rsv_38347_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38347_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 101000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_2wxds1",
+      "time": 202,
+      "name": {
+        "ja": "_rsv_38348_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38348_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 96600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_67_7z2f0s",
+      "time": 202,
+      "name": {
+        "ja": "_rsv_38347_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38347_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 94200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_68_kxifko",
+      "time": 205,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_69_312mzb",
+      "time": 205,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_70_yeh5lw",
+      "time": 210,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 102000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_yxqf32",
+      "time": 211,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 102000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_dhul8t",
+      "time": 212,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_2xl5a3",
+      "time": 212,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_74_q6wyh3",
+      "time": 212,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_75_g4m12h",
+      "time": 213,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_s5s8oe",
+      "time": 214,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 57400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_uektuq",
+      "time": 215,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_78_wjyg9x",
+      "time": 215,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 50100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_79_9rkglc",
+      "time": 215,
+      "name": {
+        "ja": "ウィケッドボルト",
+        "en": "Wicked Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 50100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_80_jqzux3",
+      "time": 215,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_81_sq8ks2",
+      "time": 218,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_82_gdofl9",
+      "time": 218,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_83_gxi42t",
+      "time": 224,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_84_jt0cq6",
+      "time": 225,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_85_y3qmtr",
+      "time": 235,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_s5j6nh",
+      "time": 236,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_41bsux",
+      "time": 237,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_88_sq3ulp",
+      "time": 237,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_89_g82g2r",
+      "time": 238,
+      "name": {
+        "ja": "ペプシス",
+        "en": "Pepsis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_c4ij8x",
+      "time": 238,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_91_cuqpwg",
+      "time": 238,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_92_n0ze31",
+      "time": 239,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 58700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_dgw7pq",
+      "time": 239,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_94_zlm9s2",
+      "time": 239,
+      "name": {
+        "ja": "カノンスタンピード",
+        "en": "Stampeding Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 63000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_95_uoc34s",
+      "time": 252,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 235000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_96_x60gok",
+      "time": 252,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 228000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_97_nbt2aa",
+      "time": 252,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 231000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_98_kj29a7",
+      "time": 252,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 229000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_99_6pd7fn",
+      "time": 253,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_floosm",
+      "time": 253,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 221000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_3ljo8b",
+      "time": 257,
+      "name": {
+        "ja": "_rsv_38363_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38363_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_oc5u2x",
+      "time": 257,
+      "name": {
+        "ja": "_rsv_38362_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38362_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_6igjmx",
+      "time": 265,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 235000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_104_wln1tl",
+      "time": 265,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 228000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_105_3j07lz",
+      "time": 265,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 231000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_106_08jda2",
+      "time": 265,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 229000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_107_4s6ebm",
+      "time": 266,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_udisff",
+      "time": 266,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 221000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_atmsoi",
+      "time": 270,
+      "name": {
+        "ja": "_rsv_38362_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38362_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_f97jzm",
+      "time": 270,
+      "name": {
+        "ja": "_rsv_38363_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38363_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 69500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_9z49m3",
+      "time": 278,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 229000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_112_rlpdww",
+      "time": 278,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 231000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_113_bd2dia",
+      "time": 279,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 228000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_114_vmlx87",
+      "time": 279,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 235000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_115_b075c0",
+      "time": 280,
+      "name": {
+        "ja": "_rsv_38361_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38361_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 221000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_8jgbxe",
+      "time": 280,
+      "name": {
+        "ja": "_rsv_38360_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38360_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_mx2uej",
+      "time": 283,
+      "name": {
+        "ja": "_rsv_38362_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38362_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_cbnto5",
+      "time": 283,
+      "name": {
+        "ja": "_rsv_38363_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38363_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_cixih1",
+      "time": 292,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 413000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_120_izqmck",
+      "time": 292,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 365000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_121_0cp8c5",
+      "time": 295,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "target": "MT"
+    },
+    {
+      "id": "tpl_122_0swfqu",
+      "time": 295,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "target": "ST"
+    },
+    {
+      "id": "tpl_123_aa3en0",
+      "time": 296,
+      "name": {
+        "ja": "ウィケッドジョルト",
+        "en": "Wicked Jolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 354000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_gnh4x0",
+      "time": 299,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_125_y14ire",
+      "time": 300,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_126_esov18",
+      "time": 302,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_127_eajfbd",
+      "time": 302,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_128_53ofvo",
+      "time": 305,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_129_vaktsq",
+      "time": 306,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_130_vo5clx",
+      "time": 328,
+      "name": {
+        "ja": "_rsv_39117_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39117_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 96700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_131_6rol0d",
+      "time": 337,
+      "name": {
+        "ja": "_rsv_39118_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39118_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 88100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_hze6un",
+      "time": 339,
+      "name": {
+        "ja": "_rsv_39119_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39119_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 124000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_hcmzoy",
+      "time": 363,
+      "name": {
+        "ja": "_rsv_39118_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39118_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 88100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_yk6kn8",
+      "time": 366,
+      "name": {
+        "ja": "_rsv_39119_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39119_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 124000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_6jdrzo",
+      "time": 368,
+      "name": {
+        "ja": "_rsv_39117_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39117_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 96700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_rz5ytq",
+      "time": 379,
+      "name": {
+        "ja": "_rsv_20033_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_20033_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 142000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_n6ye4y",
+      "time": 382,
+      "name": {
+        "ja": "_rsv_20034_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_20034_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 46500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_bfjnt4",
+      "time": 385,
+      "name": {
+        "ja": "_rsv_20034_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_20034_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 46500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_lvsnfg",
+      "time": 388,
+      "name": {
+        "ja": "_rsv_39120_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_39120_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 152000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_qk8kga",
+      "time": 413,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_8twtx5",
+      "time": 413,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_142_leu7dl",
+      "time": 413,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_143_k4fajm",
+      "time": 414,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_y2xymx",
+      "time": 415,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_sacfvv",
+      "time": 416,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_sgdqr8",
+      "time": 416,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_147_gyjtr7",
+      "time": 416,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_148_224ki0",
+      "time": 417,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_696z8q",
+      "time": 418,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_p6htrh",
+      "time": 419,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_ik5moo",
+      "time": 419,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_152_27aryo",
+      "time": 419,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 483000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_153_nmfrcc",
+      "time": 420,
+      "name": {
+        "ja": "_rsv_38387_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38387_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 579000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_y01kw1",
+      "time": 421,
+      "name": {
+        "ja": "_rsv_38388_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38388_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 139000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_ygj91v",
+      "time": 430,
+      "name": {
+        "ja": "_rsv_38392_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38392_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_6b6xbp",
+      "time": 432,
+      "name": {
+        "ja": "_rsv_38392_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38392_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_sao5fl",
+      "time": 433,
+      "name": {
+        "ja": "_rsv_38392_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38392_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 36200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_k9e2v3",
+      "time": 435,
+      "name": {
+        "ja": "_rsv_38392_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38392_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 36200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_pca4hq",
+      "time": 443,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_160_wjvlx4",
+      "time": 446,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_161_vxgzr4",
+      "time": 457,
+      "name": {
+        "ja": "_rsv_38432_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38432_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 137000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_uo8uhb",
+      "time": 457,
+      "name": {
+        "ja": "_rsv_38431_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38431_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 384000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_163_irn3cn",
+      "time": 457,
+      "name": {
+        "ja": "_rsv_38431_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38431_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 384000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_164_i77k41",
+      "time": 457,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_165_yn2whd",
+      "time": 460,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_166_jszlsj",
+      "time": 463,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_167_yszvnf",
+      "time": 466,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_168_2ko7y0",
+      "time": 467,
+      "name": {
+        "ja": "_rsv_38433_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38433_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_qle041",
+      "time": 476,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_170_iugf5f",
+      "time": 484,
+      "name": {
+        "ja": "_rsv_38415_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38415_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_xbodkj",
+      "time": 485,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_172_zpt4md",
+      "time": 488,
+      "name": {
+        "ja": "_rsv_38415_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38415_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_173_jch8s5",
+      "time": 488,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_174_udqz3k",
+      "time": 491,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_175_iaf4zw",
+      "time": 494,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_176_c08rmu",
+      "time": 497,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_177_n60oll",
+      "time": 500,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_178_w0sraj",
+      "time": 505,
+      "name": {
+        "ja": "_rsv_38447_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38447_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 210000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_179_letybk",
+      "time": 505,
+      "name": {
+        "ja": "_rsv_38447_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38447_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 205000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_180_cuv5t4",
+      "time": 506,
+      "name": {
+        "ja": "_rsv_38447_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38447_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 210000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_181_58g4ft",
+      "time": 508,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_182_kklzct",
+      "time": 514,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_183_vbl4wp",
+      "time": 521,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_184_44jg6t",
+      "time": 524,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_185_jz3w01",
+      "time": 532,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_186_2prs0k",
+      "time": 535,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_187_86oany",
+      "time": 541,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_188_3i6e2q",
+      "time": 544,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_189_3cmqdd",
+      "time": 552,
+      "name": {
+        "ja": "_rsv_38446_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38446_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 75300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_scu858",
+      "time": 552,
+      "name": {
+        "ja": "_rsv_38445_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38445_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 72900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_hpg63s",
+      "time": 555,
+      "name": {
+        "ja": "_rsv_38436_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38436_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 151000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_cymrk2",
+      "time": 555,
+      "name": {
+        "ja": "_rsv_38446_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38446_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 572000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_193_7u305h",
+      "time": 555,
+      "name": {
+        "ja": "_rsv_38446_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38446_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 572000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_194_9nfghf",
+      "time": 556,
+      "name": {
+        "ja": "_rsv_38445_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38445_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 72900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_195_q47twf",
+      "time": 556,
+      "name": {
+        "ja": "_rsv_38446_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38446_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 66500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_xn3iic",
+      "time": 561,
+      "name": {
+        "ja": "_rsv_38419_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38419_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 132000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_197_hm3d3u",
+      "time": 562,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_198_j0cb4z",
+      "time": 563,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_199_71cz3m",
+      "time": 569,
+      "name": {
+        "ja": "_rsv_38043_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38043_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_4sal5y",
+      "time": 571,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_201_32b71r",
+      "time": 571,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_202_2h8qa0",
+      "time": 581,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_203_1kewvh",
+      "time": 581,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_204_p5hib1",
+      "time": 590,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_205_0p40nj",
+      "time": 590,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_206_xq7v4l",
+      "time": 595,
+      "name": {
+        "ja": "_rsv_38423_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38423_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 23900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_207_copmbr",
+      "time": 595,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_208_chppcf",
+      "time": 595,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_209_l3dl4b",
+      "time": 598,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_210_hkra9c",
+      "time": 599,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_211_8nf3ku",
+      "time": 618,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_212_8sywmf",
+      "time": 619,
+      "name": {
+        "ja": "_rsv_38427_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38427_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_k1nfyv",
+      "time": 620,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_214_6fzntw",
+      "time": 623,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_215_01zbtn",
+      "time": 624,
+      "name": {
+        "ja": "_rsv_38427_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38427_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_216_q99vnh",
+      "time": 626,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 70900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_217_6q5z3i",
+      "time": 626,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_218_2a2ovi",
+      "time": 630,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_219_6x78oc",
+      "time": 633,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_220_10wfro",
+      "time": 636,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_221_k4l3aj",
+      "time": 642,
+      "name": {
+        "ja": "_rsv_38415_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38415_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_222_h8ia7c",
+      "time": 644,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_223_vrrdvs",
+      "time": 646,
+      "name": {
+        "ja": "_rsv_38415_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38415_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 39600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_224_r6u7gt",
+      "time": 647,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_225_mtzl85",
+      "time": 658,
+      "name": {
+        "ja": "_rsv_38432_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38432_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 137000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_226_e4w12b",
+      "time": 658,
+      "name": {
+        "ja": "_rsv_38431_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38431_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 384000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_227_0wrw9a",
+      "time": 658,
+      "name": {
+        "ja": "_rsv_38431_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38431_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 384000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_228_fgm5fk",
+      "time": 658,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_229_44mryb",
+      "time": 661,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_230_uxvyja",
+      "time": 664,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_231_dc1476",
+      "time": 667,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_232_47xllv",
+      "time": 668,
+      "name": {
+        "ja": "_rsv_38433_-1_0_0_0_SE2DC5B04_EE2DC5B04 (TB)",
+        "en": "_rsv_38433_-1_1_0_0_SE2DC5B04_EE2DC5B04 (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 860000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_233_gmgl12",
+      "time": 669,
+      "name": {
+        "ja": "_rsv_38433_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38433_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_234_so80yh",
+      "time": 677,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_235_yjghur",
+      "time": 684,
+      "name": {
+        "ja": "_rsv_38447_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38447_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 205000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_236_5qlkeq",
+      "time": 684,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_237_egpdob",
+      "time": 690,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_238_ttgv1f",
+      "time": 696,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_239_cthgcj",
+      "time": 700,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_240_x1ynha",
+      "time": 705,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_241_e3g4il",
+      "time": 708,
+      "name": {
+        "ja": "_rsv_38440_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38440_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 91900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_242_dyc39g",
+      "time": 708,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_243_akhv8p",
+      "time": 709,
+      "name": {
+        "ja": "_rsv_38437_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38437_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 94800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_244_prprlc",
+      "time": 710,
+      "name": {
+        "ja": "_rsv_38440_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38440_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "physical",
+      "damageAmount": 91900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_245_hpud1z",
+      "time": 710,
+      "name": {
+        "ja": "_rsv_38438_-1_0_0_0_SE2DC5B04_EE2DC5B04",
+        "en": "_rsv_38438_-1_1_0_0_SE2DC5B04_EE2DC5B04"
+      },
+      "damageType": "magical",
+      "damageAmount": 96100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_246_uy9tdq",
+      "time": 717,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 71600,
+      "target": "MT"
+    }
+  ],
+  "phases": []
+}

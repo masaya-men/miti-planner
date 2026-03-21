@@ -1,4 +1,5 @@
 import type { ContentCategory, ContentLevel } from '../types';
+import contentsData from './contents.json';
 
 export interface RawContentData {
   id: string;
@@ -8,69 +9,8 @@ export interface RawContentData {
   ja: string;        // Official Japanese Name
   en: string;        // Official English Name
   shortNameJa?: string; // Optional Abbreviation (e.g. 絶エデン, 辺獄4, etc.)
+  hasCheckpoint?: boolean; // true if fight has a save-point between phases
+  fflogsEncounterId?: number; // FFLogs encounter ID for Rankings API
 }
 
-export const RAID_CONTENTS: RawContentData[] = [
-  { id: 'm9s', category: 'savage', level: 100, patch: '7.40', ja: '至天の座アルカディア零式：ヘビー級1', en: 'AAC Heavyweight M1 (Savage)' },
-  { id: 'm10s', category: 'savage', level: 100, patch: '7.40', ja: '至天の座アルカディア零式：ヘビー級2', en: 'AAC Heavyweight M2 (Savage)' },
-  { id: 'm11s', category: 'savage', level: 100, patch: '7.40', ja: '至天の座アルカディア零式：ヘビー級3', en: 'AAC Heavyweight M3 (Savage)' },
-  { id: 'm12s_p1', category: 'savage', level: 100, patch: '7.40', ja: '至天の座アルカディア零式：ヘビー級4（前半）', en: 'AAC Heavyweight M4 (Savage) Phase 1' },
-  { id: 'm12s_p2', category: 'savage', level: 100, patch: '7.40', ja: '至天の座アルカディア零式：ヘビー級4（後半）', en: 'AAC Heavyweight M4 (Savage) Phase 2' },
-  { id: 'm5s', category: 'savage', level: 100, patch: '7.20', ja: '至天の座アルカディア零式：クルーザー級1', en: 'AAC Cruiserweight M1 (Savage)' },
-  { id: 'm6s', category: 'savage', level: 100, patch: '7.20', ja: '至天の座アルカディア零式：クルーザー級2', en: 'AAC Cruiserweight M2 (Savage)' },
-  { id: 'm7s', category: 'savage', level: 100, patch: '7.20', ja: '至天の座アルカディア零式：クルーザー級3', en: 'AAC Cruiserweight M3 (Savage)' },
-  { id: 'm8s', category: 'savage', level: 100, patch: '7.20', ja: '至天の座アルカディア零式：クルーザー級4', en: 'AAC Cruiserweight M4 (Savage)' },
-  { id: 'fru', category: 'ultimate', level: 100, patch: '7.11', ja: '絶もうひとつの未来', en: 'Futures Rewritten (Ultimate)', shortNameJa: 'FRU' },
-  { id: 'm1s', category: 'savage', level: 100, patch: '7.05', ja: '至天の座アルカディア零式：ライトヘビー級1', en: 'AAC Light-heavyweight M1 (Savage)' },
-  { id: 'm2s', category: 'savage', level: 100, patch: '7.05', ja: '至天の座アルカディア零式：ライトヘビー級2', en: 'AAC Light-heavyweight M2 (Savage)' },
-  { id: 'm3s', category: 'savage', level: 100, patch: '7.05', ja: '至天の座アルカディア零式：ライトヘビー級3', en: 'AAC Light-heavyweight M3 (Savage)' },
-  { id: 'm4s', category: 'savage', level: 100, patch: '7.05', ja: '至天の座アルカディア零式：ライトヘビー級4', en: 'AAC Light-heavyweight M4 (Savage)' },
-  { id: 'p9s', category: 'savage', level: 90, patch: '6.40', ja: '万魔殿パンデモニウム零式：天獄編1', en: 'Anabaseios: The Ninth Circle (Savage)' },
-  { id: 'p10s', category: 'savage', level: 90, patch: '6.40', ja: '万魔殿パンデモニウム零式：天獄編2', en: 'Anabaseios: The Tenth Circle (Savage)' },
-  { id: 'p11s', category: 'savage', level: 90, patch: '6.40', ja: '万魔殿パンデモニウム零式：天獄編3', en: 'Anabaseios: The Eleventh Circle (Savage)' },
-  { id: 'p12s_p1', category: 'savage', level: 90, patch: '6.40', ja: '万魔殿パンデモニウム零式：天獄編4（前半）', en: 'Anabaseios: The Twelfth Circle (Savage) Phase 1' },
-  { id: 'p12s_p2', category: 'savage', level: 90, patch: '6.40', ja: '万魔殿パンデモニウム零式：天獄編4（後半）', en: 'Anabaseios: The Twelfth Circle (Savage) Phase 2' },
-  { id: 'top', category: 'ultimate', level: 90, patch: '6.31', ja: '絶オメガ検証戦', en: 'The Omega Protocol (Ultimate)', shortNameJa: 'TOP' },
-  { id: 'p5s', category: 'savage', level: 90, patch: '6.20', ja: '万魔殿パンデモニウム零式：煉獄編1', en: 'Abyssos: The Fifth Circle (Savage)' },
-  { id: 'p6s', category: 'savage', level: 90, patch: '6.20', ja: '万魔殿パンデモニウム零式：煉獄編2', en: 'Abyssos: The Sixth Circle (Savage)' },
-  { id: 'p7s', category: 'savage', level: 90, patch: '6.20', ja: '万魔殿パンデモニウム零式：煉獄編3', en: 'Abyssos: The Seventh Circle (Savage)' },
-  { id: 'p8s_p1', category: 'savage', level: 90, patch: '6.20', ja: '万魔殿パンデモニウム零式：煉獄編4（前半）', en: 'Abyssos: The Eighth Circle (Savage) Phase 1' },
-  { id: 'p8s_p2', category: 'savage', level: 90, patch: '6.20', ja: '万魔殿パンデモニウム零式：煉獄編4（後半）', en: 'Abyssos: The Eighth Circle (Savage) Phase 2' },
-  { id: 'dsr', category: 'ultimate', level: 90, patch: '6.11', ja: '絶竜詩戦争', en: "Dragonsong's Reprise (Ultimate)", shortNameJa: 'DSR' },
-  { id: 'p1s', category: 'savage', level: 90, patch: '6.05', ja: '万魔殿パンデモニウム零式：辺獄編1', en: 'Asphodelos: The First Circle (Savage)' },
-  { id: 'p2s', category: 'savage', level: 90, patch: '6.05', ja: '万魔殿パンデモニウム零式：辺獄編2', en: 'Asphodelos: The Second Circle (Savage)' },
-  { id: 'p3s', category: 'savage', level: 90, patch: '6.05', ja: '万魔殿パンデモニウム零式：辺獄編3', en: 'Asphodelos: The Third Circle (Savage)' },
-  { id: 'p4s_p1', category: 'savage', level: 90, patch: '6.05', ja: '万魔殿パンデモニウム零式：辺獄編4（前半）', en: 'Asphodelos: The Fourth Circle (Savage) Phase 1' },
-  { id: 'p4s_p2', category: 'savage', level: 90, patch: '6.05', ja: '万魔殿パンデモニウム零式：辺獄編4（後半）', en: 'Asphodelos: The Fourth Circle (Savage) Phase 2' },
-  { id: 'e9s', category: 'savage', level: 80, patch: '5.40', ja: '希望の園エデン零式：再生編1', en: "Eden's Promise: Umbra (Savage)" },
-  { id: 'e10s', category: 'savage', level: 80, patch: '5.40', ja: '希望の園エデン零式：再生編2', en: "Eden's Promise: Litany (Savage)" },
-  { id: 'e11s', category: 'savage', level: 80, patch: '5.40', ja: '希望の園エデン零式：再生編3', en: "Eden's Promise: Anamorphosis (Savage)" },
-  { id: 'e12s_p1', category: 'savage', level: 80, patch: '5.40', ja: '希望の園エデン零式：再生編4（前半）', en: "Eden's Promise: Eternity (Savage) Phase 1" },
-  { id: 'e12s_p2', category: 'savage', level: 80, patch: '5.40', ja: '希望の園エデン零式：再生編4（後半）', en: "Eden's Promise: Eternity (Savage) Phase 2" },
-  { id: 'e5s', category: 'savage', level: 80, patch: '5.20', ja: '希望の園エデン零式：共鳴編1', en: "Eden's Verse: Fulmination (Savage)" },
-  { id: 'e6s', category: 'savage', level: 80, patch: '5.20', ja: '希望の園エデン零式：共鳴編2', en: "Eden's Verse: Furor (Savage)" },
-  { id: 'e7s', category: 'savage', level: 80, patch: '5.20', ja: '希望の園エデン零式：共鳴編3', en: "Eden's Verse: Iconoclasm (Savage)" },
-  { id: 'e8s', category: 'savage', level: 80, patch: '5.20', ja: '希望の園エデン零式：共鳴編4', en: "Eden's Verse: Refulgence (Savage)" },
-  { id: 'tea', category: 'ultimate', level: 80, patch: '5.11', ja: '絶アレキサンダー討滅戦', en: 'The Epic of Alexander (Ultimate)', shortNameJa: 'TEA' },
-  { id: 'e1s', category: 'savage', level: 80, patch: '5.05', ja: '希望の園エデン零式：覚醒編1', en: "Eden's Gate: Resurrection (Savage)" },
-  { id: 'e2s', category: 'savage', level: 80, patch: '5.05', ja: '希望の園エデン零式：覚醒編2', en: "Eden's Gate: Descent (Savage)" },
-  { id: 'e3s', category: 'savage', level: 80, patch: '5.05', ja: '希望の園エデン零式：覚醒編3', en: "Eden's Gate: Inundation (Savage)" },
-  { id: 'e4s', category: 'savage', level: 80, patch: '5.05', ja: '希望の園エデン零式：覚醒編4', en: "Eden's Gate: Sepulture (Savage)" },
-  { id: 'o9s', category: 'savage', level: 70, patch: '4.40', ja: '次元狭間オメガ零式：アルファ編1', en: 'Omega: Alphascape V1.0 (Savage)' },
-  { id: 'o10s', category: 'savage', level: 70, patch: '4.40', ja: '次元狭間オメガ零式：アルファ編2', en: 'Omega: Alphascape V2.0 (Savage)' },
-  { id: 'o11s', category: 'savage', level: 70, patch: '4.40', ja: '次元狭間オメガ零式：アルファ編3', en: 'Omega: Alphascape V3.0 (Savage)' },
-  { id: 'o12s_p1', category: 'savage', level: 70, patch: '4.40', ja: '次元狭間オメガ零式：アルファ編4（前半）', en: 'Omega: Alphascape V4.0 (Savage) Phase 1' },
-  { id: 'o12s_p2', category: 'savage', level: 70, patch: '4.40', ja: '次元狭間オメガ零式：アルファ編4（後半）', en: 'Omega: Alphascape V4.0 (Savage) Phase 2' },
-  { id: 'uwu', category: 'ultimate', level: 70, patch: '4.31', ja: '絶アルテマウェポン破壊作戦', en: "The Weapon's Refrain (Ultimate)", shortNameJa: 'UWU' },
-  { id: 'o5s', category: 'savage', level: 70, patch: '4.20', ja: '次元狭間オメガ零式：シグマ編1', en: 'Omega: Sigmascape V1.0 (Savage)' },
-  { id: 'o6s', category: 'savage', level: 70, patch: '4.20', ja: '次元狭間オメガ零式：シグマ編2', en: 'Omega: Sigmascape V2.0 (Savage)' },
-  { id: 'o7s', category: 'savage', level: 70, patch: '4.20', ja: '次元狭間オメガ零式：シグマ編3', en: 'Omega: Sigmascape V3.0 (Savage)' },
-  { id: 'o8s_p1', category: 'savage', level: 70, patch: '4.20', ja: '次元狭間オメガ零式：シグマ編4（前半）', en: 'Omega: Sigmascape V4.0 (Savage) Phase 1' },
-  { id: 'o8s_p2', category: 'savage', level: 70, patch: '4.20', ja: '次元狭間オメガ零式：シグマ編4（後半）', en: 'Omega: Sigmascape V4.0 (Savage) Phase 2' },
-  { id: 'ucob', category: 'ultimate', level: 70, patch: '4.11', ja: '絶バハムート討滅戦', en: 'The Unending Coil of Bahamut (Ultimate)', shortNameJa: 'UCOB' },
-  { id: 'o1s', category: 'savage', level: 70, patch: '4.05', ja: '次元狭間オメガ零式：デルタ編1', en: 'Omega: Deltascape V1.0 (Savage)' },
-  { id: 'o2s', category: 'savage', level: 70, patch: '4.05', ja: '次元狭間オメガ零式：デルタ編2', en: 'Omega: Deltascape V2.0 (Savage)' },
-  { id: 'o3s', category: 'savage', level: 70, patch: '4.05', ja: '次元狭間オメガ零式：デルタ編3', en: 'Omega: Deltascape V3.0 (Savage)' },
-  { id: 'o4s_p1', category: 'savage', level: 70, patch: '4.05', ja: '次元狭間オメガ零式：デルタ編4（前半）', en: 'Omega: Deltascape V4.0 (Savage) Phase 1' },
-  { id: 'o4s_p2', category: 'savage', level: 70, patch: '4.05', ja: '次元狭間オメガ零式：デルタ編4（後半）', en: 'Omega: Deltascape V4.0 (Savage) Phase 2' },
-];
+export const RAID_CONTENTS: RawContentData[] = contentsData as RawContentData[];

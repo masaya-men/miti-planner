@@ -309,7 +309,7 @@ interface CompletionDialogProps {
 
 const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description, onComplete }) => {
     const { t } = useTranslation();
-    
+
 
     return (
         <>
@@ -364,7 +364,7 @@ export const TutorialOverlay: React.FC = () => {
     const { isActive, currentStepIndex, completeEvent } =
         useTutorialStore();
     const { t } = useTranslation();
-    
+
 
     const currentStep = TUTORIAL_STEPS[currentStepIndex];
     const targetRects = useTargetRects(isActive && currentStep ? currentStep.targetSelector : '');

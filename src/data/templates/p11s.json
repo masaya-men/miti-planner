@@ -1,0 +1,1821 @@
+{
+  "contentId": "p11s",
+  "generatedAt": "2026-03-21T06:51:02.140Z",
+  "sourceLogsCount": 1,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_sgncut",
+      "time": 4,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_1_ciybu3",
+      "time": 8,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_qk64p5",
+      "time": 10,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_s7eeoa",
+      "time": 16,
+      "name": {
+        "ja": "エウノミアー",
+        "en": "Eunomia"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_75e9wd",
+      "time": 19,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_5_qr18y5",
+      "time": 26,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_h6tl54",
+      "time": 26,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 131000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_ci01av",
+      "time": 32,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_0rnd8v",
+      "time": 35,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_gsctu6",
+      "time": 45,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 54100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_wwfrg4",
+      "time": 48,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_lwhir9",
+      "time": 49,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_lqhhyp",
+      "time": 52,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_6xekll",
+      "time": 62,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 35800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_dxqf5l",
+      "time": 63,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 35800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_z1zclw",
+      "time": 66,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_tmcbk5",
+      "time": 67,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_gahey5",
+      "time": 85,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_0se00x",
+      "time": 87,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_j01mvk",
+      "time": 95,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_r37zre",
+      "time": 95,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_ssrldo",
+      "time": 96,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_pa9nwx",
+      "time": 97,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_1sudvh",
+      "time": 98,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_bwpwnl",
+      "time": 99,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_4j78g6",
+      "time": 99,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_qra5tc",
+      "time": 103,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_cnmxrr",
+      "time": 121,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "damageAmount": 15000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_nsz5xe",
+      "time": 122,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "damageAmount": 15000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_77oaiv",
+      "time": 126,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_165gxg",
+      "time": 126,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_guznij",
+      "time": 130,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_whtfvi",
+      "time": 133,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_t9di76",
+      "time": 135,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_4mm1yl",
+      "time": 138,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_a357k8",
+      "time": 141,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_l0xx8e",
+      "time": 144,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_udgu5n",
+      "time": 156,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_bdqzyh",
+      "time": 158,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_fvjf11",
+      "time": 175,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_qpt00s",
+      "time": 178,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_jdneff",
+      "time": 180,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_yxwx37",
+      "time": 181,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_p40jzf",
+      "time": 181,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 55800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_r9ru72",
+      "time": 183,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_lcz40f",
+      "time": 192,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 52900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_4ypmip",
+      "time": 196,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_9du3te",
+      "time": 197,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_9nd2kv",
+      "time": 205,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_ly0xbn",
+      "time": 205,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_elq50n",
+      "time": 206,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_8gp5xy",
+      "time": 207,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_kb7vlo",
+      "time": 208,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_o4r4ac",
+      "time": 209,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_4q7s13",
+      "time": 211,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_irwxm6",
+      "time": 211,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_2n2uit",
+      "time": 214,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_f2gjbp",
+      "time": 217,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_vn1l3c",
+      "time": 225,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_za5di2",
+      "time": 228,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_vgi865",
+      "time": 230,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_8xar2l",
+      "time": 246,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_2i1e77",
+      "time": 248,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_6g95am",
+      "time": 251,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_dc02pk",
+      "time": 258,
+      "name": {
+        "ja": "エウノミアー",
+        "en": "Eunomia"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_qp1mjr",
+      "time": 259,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_g606ui",
+      "time": 262,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_4eat5k",
+      "time": 265,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_ru506p",
+      "time": 273,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 94900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_vw939z",
+      "time": 278,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_rivzdz",
+      "time": 278,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_68o40l",
+      "time": 281,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_54kykg",
+      "time": 285,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_owvb4h",
+      "time": 288,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_w4rjrj",
+      "time": 298,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_qqjwkp",
+      "time": 301,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_n4cvvo",
+      "time": 310,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_ix00yk",
+      "time": 313,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_46metg",
+      "time": 316,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_79_vmjjxq",
+      "time": 326,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 54100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_oel0ba",
+      "time": 331,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_d6m05y",
+      "time": 331,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_7kpb67",
+      "time": 335,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_266nkd",
+      "time": 348,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_fqd1xn",
+      "time": 350,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_srrt5h",
+      "time": 355,
+      "name": {
+        "ja": "調停",
+        "en": "Emissary's Will"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_9gsy4z",
+      "time": 357,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_6bpo6k",
+      "time": 364,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_jeo5na",
+      "time": 364,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_89_c5eska",
+      "time": 365,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_0uuknw",
+      "time": 366,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_i79z00",
+      "time": 367,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_ldau4e",
+      "time": 369,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_5q5tsu",
+      "time": 370,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_7x5gip",
+      "time": 371,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_ua7syg",
+      "time": 372,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_vx2886",
+      "time": 374,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_qycgaf",
+      "time": 382,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_ud1amo",
+      "time": 382,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 131000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_bxfpyt",
+      "time": 388,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_ggr2u2",
+      "time": 392,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_rvlcd0",
+      "time": 395,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_0674ec",
+      "time": 407,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_uz8cdx",
+      "time": 410,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_naf58k",
+      "time": 415,
+      "name": {
+        "ja": "光弾",
+        "en": "Blinding Light"
+      },
+      "damageType": "magical",
+      "damageAmount": 54300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_35fba8",
+      "time": 418,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_j2au85",
+      "time": 421,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_04bcsc",
+      "time": 431,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 52900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_6iwg1d",
+      "time": 435,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_u18j2j",
+      "time": 437,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_p6imc7",
+      "time": 439,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_kxq4xj",
+      "time": 449,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 94900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_112_wllw8v",
+      "time": 453,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_696kmo",
+      "time": 454,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_lgqh6z",
+      "time": 457,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_kcqp3i",
+      "time": 474,
+      "name": {
+        "ja": "アディショナルセンテンス",
+        "en": "Inevitable Sentence"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_pbkmth",
+      "time": 476,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_a4ujzt",
+      "time": 478,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_f2krtg",
+      "time": 482,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_9ue5az",
+      "time": 486,
+      "name": {
+        "ja": "エウノミアー",
+        "en": "Eunomia"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_gn6ib7",
+      "time": 487,
+      "name": {
+        "ja": "エウノミアー",
+        "en": "Eunomia"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_6w45h7",
+      "time": 490,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_dclpj4",
+      "time": 492,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_9kwr75",
+      "time": 495,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_hmji0b",
+      "time": 498,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_lq3a4r",
+      "time": 501,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_oz761w",
+      "time": 505,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_sp728e",
+      "time": 520,
+      "name": {
+        "ja": "展開戦術",
+        "en": "Deployment Tactics"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_b2stdl",
+      "time": 523,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_pftlix",
+      "time": 526,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_e4gpcy",
+      "time": 532,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_wq9bc6",
+      "time": 533,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_d8jmjl",
+      "time": 533,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "physical",
+      "damageAmount": 55800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_kp4f72",
+      "time": 534,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_7cnyv4",
+      "time": 538,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_xse73t",
+      "time": 540,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_cs41ol",
+      "time": 541,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 4540,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_xbls5g",
+      "time": 543,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_w88pmg",
+      "time": 550,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "damageAmount": 27400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_lm49ws",
+      "time": 551,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_y36xc0",
+      "time": 551,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "damageAmount": 27400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_7vwk21",
+      "time": 555,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_8tpztb",
+      "time": 556,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_143_v2b88l",
+      "time": 557,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_uol41r",
+      "time": 565,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_v5ftt7",
+      "time": 566,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_vzlrb7",
+      "time": 568,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_o3gk3v",
+      "time": 569,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_ygn1tr",
+      "time": 570,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_1e505o",
+      "time": 571,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_bk649i",
+      "time": 572,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_bej3ai",
+      "time": 573,
+      "name": {
+        "ja": "ステュクス",
+        "en": "Styx"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_6oivm6",
+      "time": 574,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_1mnxn5",
+      "time": 576,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_d85cht",
+      "time": 580,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_6cux82",
+      "time": 587,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_hhctyk",
+      "time": 590,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_4qiexg",
+      "time": 607,
+      "name": {
+        "ja": "アディショナルロウ",
+        "en": "Inevitable Law"
+      },
+      "damageType": "magical",
+      "damageAmount": 54700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_bku5bc",
+      "time": 609,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_waxneu",
+      "time": 612,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_160_52954d",
+      "time": 615,
+      "name": {
+        "ja": "AA",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_161_bcb0y2",
+      "time": 623,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_49p2qv",
+      "time": 623,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 131000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_163_so7z4q",
+      "time": 626,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 124000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_164_i2jgza",
+      "time": 626,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "physical",
+      "damageAmount": 124000,
+      "target": "AoE"
+    }
+  ],
+  "phases": []
+}

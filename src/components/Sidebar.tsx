@@ -10,11 +10,15 @@ import {
     getCategoriesByLevel,
     getSeriesByLevel,
     getProjectLabel,
+    getContentById,
 } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
-import { MOCK_RECENT_PLANS } from '../data/sidebarMockData';
+import { usePlanStore } from '../store/usePlanStore';
+import { NewPlanModal } from './NewPlanModal';
+import { SaveDialog } from './SaveDialog';
+import { hasTemplate, getTemplate } from '../data/templateLoader';
 import {
     Plus,
     ChevronLeft,
@@ -60,95 +64,139 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     const floorName = content.name[lang as ContentLanguage] || content.name.ja;
     const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
 
-    // 軽減プランのリスト（将来的に Store から取得する形へ移行可能）
-    const plans = [{ id: content.id, name: floorName }];
+    const { plans, currentPlanId } = usePlanStore();
+    const contentPlans = plans.filter(p => p.contentId === content.id);
+    const hasTpl = hasTemplate(content.id);
+
+    // Build the list of items to show under this content
+    // 1. New Plan (if no template exists) or Template (if exists)
+    // 2. Saved Plans
+    
+    // Instead of rendering a single button, we render a group if there are plans or template.
+    // For now, let's keep it simple: clicking the row expands it? Or just list them vertically.
+    // We will list them:
+    // [Icon] M4S
+    //    |- [Star Icon] Template (if exists)
+    //    |- Plan A
+    //    |- Plan B
 
     return (
         <div className="w-full flex flex-col">
-            {plans.map((plan, index) => {
-                const isFirst = index === 0;
-                const isPlanActive = isActive && isFirst;
+            {/* Header / Content Name Button */}
+            <button
+                onClick={() => {
+                    if (multiSelect.isEnabled) {
+                        if (!isDisabled) onToggleSelect(content.id);
+                    } else {
+                        onSelect(content); // Now triggers template load or new plan creation
+                    }
+                }}
+                disabled={isDisabled}
+                title={floorName}
+                {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
+                className={clsx(
+                    "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
+                    isActive && !multiSelect.isEnabled
+                        ? "bg-glass-active border border-glass-border/30 text-app-text shadow-sm"
+                        : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
+                    isDisabled && "opacity-40 cursor-not-allowed grayscale"
+                )}
+            >
+                {isActive && !multiSelect.isEnabled && (
+                    <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
+                )}
 
-                return (
-                    <button
-                        key={plan.id}
-                        onClick={() => {
-                            if (multiSelect.isEnabled) {
-                                if (!isDisabled && isFirst) onToggleSelect(content.id);
-                            } else {
-                                onSelect(content);
-                            }
-                        }}
-                        disabled={isDisabled}
-                        title={plan.name}
-                        {...(highlightFirst && isFirst ? { "data-tutorial-first-item": "true" } : {})}
-                        className={clsx(
-                            "w-full flex items-center gap-2.5 px-2.5 py-1 rounded-lg transition-all duration-200 text-left group relative active:scale-[0.98] cursor-pointer min-h-[32px]",
-                            isPlanActive && !multiSelect.isEnabled
-                                ? "bg-app-accent-dim border border-app-border-accent/30 text-app-accent shadow-sm"
-                                : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
-                            isDisabled && "opacity-40 cursor-not-allowed grayscale"
-                        )}
-                    >
-                        {isPlanActive && !multiSelect.isEnabled && (
-                            <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
-                        )}
-
-                        <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-                            {isFirst ? (
-                                (() => {
-                                    const [main, ...subs] = shortName.split('\n');
-                                    const isFloorActive = isActive && !multiSelect.isEnabled;
-                                    return (
-                                        <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
-                                            <div className={clsx(
-                                                "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
-                                                isFloorActive
-                                                    ? "bg-app-accent/20 text-app-accent-bold"
-                                                    : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
-                                            )}>
-                                                {main}
-                                            </div>
-                                            {subs.length > 0 && (
-                                                <div className={clsx(
-                                                    "absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[6px] font-bold leading-none whitespace-nowrap overflow-visible pointer-events-none drop-shadow-sm",
-                                                    isFloorActive ? "text-app-accent-bold" : "text-app-text-muted/90"
-                                                )}>
-                                                    {subs.join(' ')}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })()
-                            ) : null}
-                        </div>
-
-                        {isFirst && multiSelect.isEnabled && (
-                            <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
-                                {isSelected ? (
-                                    <CheckSquare size={16} className="text-app-accent" />
-                                ) : (
-                                    <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
-                                )}
-                            </div>
-                        )}
-
+                <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                    <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
                         <div className={clsx(
-                            "flex-1 min-w-0 flex flex-col justify-center",
-                            isPlanActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
+                            "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
+                            isActive && !multiSelect.isEnabled
+                                ? "bg-app-accent/20 text-app-accent-bold"
+                                : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
                         )}>
-                            <div className={clsx(
-                                "truncate leading-tight text-[9px]",
-                                isPlanActive && !multiSelect.isEnabled ? "text-app-accent-bold" : "text-inherit"
-                            )}>
-                                {plan.name}
-                            </div>
+                            {shortName.split('\n')[0]}
                         </div>
+                    </div>
+                </div>
 
-                        {isPlanActive && !multiSelect.isEnabled && <ChevronRight size={14} className="text-app-accent/70 shrink-0 self-center" />}
-                    </button>
-                );
-            })}
+                {multiSelect.isEnabled && (
+                    <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
+                        {isSelected ? (
+                            <CheckSquare size={16} className="text-app-accent" />
+                        ) : (
+                            <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                        )}
+                    </div>
+                )}
+
+                <div className={clsx(
+                    "flex-1 min-w-0 flex flex-col justify-center",
+                    isActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
+                )}>
+                    <div className={clsx(
+                        "truncate leading-tight text-[11px]",
+                        isActive && !multiSelect.isEnabled ? "text-app-accent-bold" : "text-inherit"
+                    )}>
+                        {floorName}
+                    </div>
+                </div>
+            </button>
+
+            {/* Sub-items (Template and Plans) */}
+            {isActive && !multiSelect.isEnabled && (
+                <div className="pl-9 pr-2 py-1 flex flex-col gap-1 border-l-2 border-app-accent/20 ml-3.5 mt-1 mb-2">
+                    {hasTpl && (
+                        <button
+                            onClick={() => onSelect(content)}
+                            className={clsx(
+                                "text-left text-[10px] py-1 px-2 rounded-md transition-colors font-black truncate flex items-center gap-2",
+                                // Highlight template if no saved plan is selected
+                                !currentPlanId || !contentPlans.some(p => p.id === currentPlanId)
+                                    ? "bg-app-accent/15 text-app-accent"
+                                    : "text-emerald-400/80 hover:bg-glass-hover hover:text-emerald-400"
+                            )}
+                        >
+                            <span className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                            {lang === 'en' ? 'Template' : 'テンプレート'}
+                        </button>
+                    )}
+                    
+                    {contentPlans.map(plan => (
+                        <button
+                            key={plan.id}
+                            onClick={() => {
+                                // Delegate to parent using a custom event or store method, but since Sidebar has handleLoadPlan, we can just call it if we pass it down.
+                                // Wait, we didn't pass handleLoadPlan to ContentTreeItem. Let's fire a specific onSelect with plan info or handle it in parent.
+                                // Instead of rewriting props, we can just use the store here, but it's cleaner to handle at top level.
+                                // Actually, usePlanStore gives us everything we need:
+                                const store = usePlanStore.getState();
+                                const snap = useMitigationStore.getState().getSnapshot();
+                                if (store.currentPlanId) {
+                                    store.updatePlan(store.currentPlanId, { data: snap });
+                                }
+                                useMitigationStore.getState().loadSnapshot(plan.data);
+                                store.setCurrentPlanId(plan.id);
+                            }}
+                            className={clsx(
+                                "text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                currentPlanId === plan.id
+                                    ? "bg-white/10 text-white"
+                                    : "text-app-text-muted hover:bg-glass-hover hover:text-app-text"
+                            )}
+                        >
+                            <span className="w-1 h-1 rounded-full bg-white/40" />
+                            {plan.title}
+                        </button>
+                    ))}
+
+                    {/* Button to show New Plan Modal specifically for this content if no template */}
+                    {!hasTpl && contentPlans.length === 0 && (
+                        <div className="text-[9px] text-app-text-muted/60 italic py-1 px-2">
+                            {lang === 'en' ? 'No template available' : 'テンプレートなし'}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -314,22 +362,77 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const [activeLevel, setActiveLevel] = useState<ContentLevel>(100);
     const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
     const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
-
+    const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
         selectedIds: []
     });
+    const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+    const [pendingSaveTitle, setPendingSaveTitle] = useState('');
 
-    const handleSelectContent = (content: ContentDefinition) => {
+    const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
+    const { getSnapshot, loadSnapshot } = useMitigationStore();
+
+    const handleSelectContent = async (content: ContentDefinition) => {
         setSelectedContentId(content.id);
         const store = useMitigationStore.getState();
+        const planStore = usePlanStore.getState();
+        
+        // Save current session before switching if we are on a saved plan
+        if (currentPlanId) {
+            planStore.updatePlan(currentPlanId, { data: store.getSnapshot() });
+        }
+
         store.setCurrentLevel(content.level);
         store.applyDefaultStats(content.level, content.patch);
         setActiveLevel(content.level);
-        useTutorialStore.getState().completeEvent('timeline:events-loaded');
-        if (tutorialActive) {
-            useTutorialStore.getState().completeEvent('sidebar:content-selected');
+
+        // Check for template and load it
+        const tpl = await getTemplate(content.id);
+        if (tpl) {
+            // Un-set current plan ID so it's a "fresh" unsaved template view
+            planStore.setCurrentPlanId(null);
+            
+            // Apply template timeline events but keep default configuration
+            const snap = store.getSnapshot();
+            store.loadSnapshot({
+                ...snap,
+                timelineEvents: tpl.timelineEvents,
+                phases: tpl.phases ? tpl.phases.map((p, i) => ({
+                    id: `phase_${p.id}`,
+                    name: `Phase ${i + 1}`,
+                    endTime: p.startTimeSec
+                })) : []
+            });
+            
+            setPendingSaveTitle((content.name[lang as ContentLanguage] || content.name.ja) + " Plan");
+        } else {
+            // No template, just open empty
+            planStore.setCurrentPlanId(null);
+            store.loadSnapshot({
+                ...store.getSnapshot(),
+                timelineEvents: [],
+                timelineMitigations: []
+            });
+            setIsNewPlanModalOpen(true); // Open modal to encourage them
         }
+    };
+
+    const handleLoadPlan = (planId: string) => {
+        const plan = usePlanStore.getState().getPlan(planId);
+        if (!plan) return;
+
+        // Save current session before switching
+        if (currentPlanId) {
+            const snapshot = getSnapshot();
+            updatePlan(currentPlanId, { data: snapshot });
+        }
+
+        // Load new plan
+        loadSnapshot(plan.data);
+        setCurrentPlanId(planId);
+        setSelectedContentId(plan.contentId);
+        setActiveLevel(plan.data.currentLevel as ContentLevel);
     };
 
     const toggleMultiSelectMode = () => {
@@ -378,21 +481,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="h-full flex flex-col overflow-hidden"
             >
-                {/* ... existing content ... */}
                 <div className="w-[276px] flex flex-col h-full overflow-hidden">
-                    <div className="p-3 border-b border-glass-border">
+                    {/* Header Controls area with save button instead of big new plan */}
+                    <div className="p-3 border-b border-glass-border flex gap-2">
                         <button
-                            onClick={() => useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked')}
+                            onClick={() => {
+                                if (currentPlanId) {
+                                    // Make a copy if they click new plan while having one open? 
+                                    // Or just open the modal.
+                                    setIsNewPlanModalOpen(true);
+                                } else {
+                                    // We are viewing a template, prompt to save it as a plan
+                                    if (selectedContentId) setIsSaveDialogOpen(true);
+                                    else setIsNewPlanModalOpen(true);
+                                }
+                                useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
+                            }}
+                            disabled={!selectedContentId && !currentPlanId}
                             className={clsx(
-                                "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer",
-                                "bg-app-accent/15 text-app-accent border border-app-accent/20",
-                                "hover:bg-app-accent/25 hover:border-app-accent/40 active:scale-[0.97]",
+                                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer",
+                                !currentPlanId && selectedContentId 
+                                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 active:scale-[0.97]" 
+                                    : currentPlanId 
+                                        ? "bg-glass-card border border-glass-border text-app-text-secondary hover:text-app-text hover:bg-glass-hover active:scale-[0.97]"
+                                        : "bg-glass-card/40 border border-glass-border/40 text-app-text-muted opacity-50 cursor-not-allowed",
                                 "tutorial-create-btn"
                             )}
                             data-tutorial="new-plan"
                         >
-                            <Plus size={16} />
-                            {t('sidebar.new_plan')}
+                            {(!currentPlanId && selectedContentId) ? (
+                                <>
+                                    <CheckSquare size={14} />
+                                    {lang === 'en' ? 'Save Template as Plan' : 'プランとして保存'}
+                                </>
+                            ) : (
+                                <>
+                                    <Plus size={14} />
+                                    {t('sidebar.new_plan')}
+                                </>
+                            )}
                         </button>
                     </div>
 
@@ -404,21 +531,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                 </span>
                             </div>
                             <div className="space-y-1">
-                                {MOCK_RECENT_PLANS.slice(0, 3).map((plan) => (
+                                {plans.slice(0, 5).map((plan) => (
                                     <button
                                         key={plan.id}
-                                        className="w-full flex items-center gap-2 group py-1 px-1.5 rounded-lg hover:bg-glass-active text-left cursor-pointer transition-colors"
+                                        onClick={() => handleLoadPlan(plan.id)}
+                                        className={clsx(
+                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border",
+                                            currentPlanId === plan.id
+                                                ? "bg-app-accent/10 border-app-accent/30"
+                                                : "bg-transparent border-transparent hover:bg-glass-active"
+                                        )}
                                     >
                                         <div className="min-w-0">
-                                            <p className="text-[9.5px] font-black text-app-text truncate leading-tight">
-                                                {plan.contentName[lang as ContentLanguage] || plan.contentName.ja}
+                                            <p className={clsx(
+                                                "text-[9.5px] font-black truncate leading-tight",
+                                                currentPlanId === plan.id ? "text-app-accent" : "text-app-text"
+                                            )}>
+                                                {plan.title}
                                             </p>
                                             <p className="text-[8px] text-app-text-secondary font-medium truncate leading-tight mt-0.5">
-                                                {plan.planName}
+                                                {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
                                             </p>
                                         </div>
                                     </button>
                                 ))}
+                                {plans.length === 0 && (
+                                    <div className="px-2 py-4 border border-dashed border-glass-border rounded-lg text-center">
+                                        <p className="text-[9px] text-white/20 italic">No plans yet</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -626,6 +767,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     </button>
                 </motion.div>
             </div>
+            <NewPlanModal isOpen={isNewPlanModalOpen} onClose={() => setIsNewPlanModalOpen(false)} />
+            <SaveDialog 
+                isOpen={isSaveDialogOpen} 
+                onClose={() => setIsSaveDialogOpen(false)} 
+                defaultTitle={pendingSaveTitle}
+                onSave={(title) => {
+                    if (!selectedContentId) return;
+                    const initialData = useMitigationStore.getState().getSnapshot();
+                    const store = usePlanStore.getState();
+                    // We need a dummy TemplateData to pass to createPlanFromTemplate, 
+                    // or just use addPlan natively since we already loaded the template events into mitigationStore
+                    const newPlanId = `plan_${Date.now()}`;
+                    store.addPlan({
+                        id: newPlanId,
+                        ownerId: 'local',
+                        ownerDisplayName: 'Guest',
+                        contentId: selectedContentId,
+                        title: title,
+                        isPublic: false,
+                        copyCount: 0,
+                        useCount: 0,
+                        data: initialData,
+                        createdAt: Date.now(),
+                        updatedAt: Date.now()
+                    });
+                    store.setCurrentPlanId(newPlanId);
+                    setIsSaveDialogOpen(false);
+                }} 
+            />
         </motion.aside>
     );
 };

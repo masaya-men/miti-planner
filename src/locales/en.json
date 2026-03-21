@@ -16,8 +16,10 @@
         "settings": "Settings",
         "import_export": "Import/Export",
         "aa_mode": "Add AA Mode",
-        "return_home": "Back to Portal",
-        "view_tutorial": "View Tutorial"
+        "return_home": "Back to Top Page",
+        "view_tutorial": "View Tutorial",
+        "toggle_theme_light": "Switch to Light Theme",
+        "toggle_theme_dark": "Switch to Dark Theme"
     },
     "aa_settings": {
         "title": "Add AA Mode",
@@ -193,7 +195,9 @@
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
-        "import_fflogs": "Create Timeline"
+        "import_fflogs": "Create Timeline",
+        "end_phase": "Add phase name up to here",
+        "add_event": "Add Mechanic"
     },
     "migration": {
         "title": "Job Change Skill Migration",
@@ -488,5 +492,18 @@
         "o4s_p1_short": "O4S P1",
         "o4s_p2": "Omega: Deltascape V4.0 (Savage) Phase 2",
         "o4s_p2_short": "O4S P2"
+    },
+    "new_plan": {
+        "modal_title": "Create New Plan",
+        "level_label": "Content Level",
+        "category_label": "Content Category",
+        "content_label": "Content Selection",
+        "content_placeholder": "Search content...",
+        "plan_name_label": "Plan Name",
+        "plan_name_placeholder": "Enter plan name",
+        "create_button": "Create Plan",
+        "cancel_button": "Cancel",
+        "template_guidance": "Want to start from a pre-filled template?",
+        "browse_templates": "Browse Templates"
     }
 }
