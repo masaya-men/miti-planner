@@ -1,0 +1,582 @@
+[
+  {
+    "id": "m9s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.40",
+    "ja": "至天の座アルカディア零式：ヘビー級1",
+    "en": "AAC Heavyweight M1 (Savage)",
+    "fflogsEncounterId": 101
+  },
+  {
+    "id": "m10s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.40",
+    "ja": "至天の座アルカディア零式：ヘビー級2",
+    "en": "AAC Heavyweight M2 (Savage)",
+    "fflogsEncounterId": 102
+  },
+  {
+    "id": "m11s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.40",
+    "ja": "至天の座アルカディア零式：ヘビー級3",
+    "en": "AAC Heavyweight M3 (Savage)",
+    "fflogsEncounterId": 103
+  },
+  {
+    "id": "m12s_p1",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.40",
+    "ja": "至天の座アルカディア零式：ヘビー級4（前半）",
+    "en": "AAC Heavyweight M4 (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 104
+  },
+  {
+    "id": "m12s_p2",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.40",
+    "ja": "至天の座アルカディア零式：ヘビー級4（後半）",
+    "en": "AAC Heavyweight M4 (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 105
+  },
+  {
+    "id": "m5s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.20",
+    "ja": "至天の座アルカディア零式：クルーザー級1",
+    "en": "AAC Cruiserweight M1 (Savage)",
+    "fflogsEncounterId": 97
+  },
+  {
+    "id": "m6s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.20",
+    "ja": "至天の座アルカディア零式：クルーザー級2",
+    "en": "AAC Cruiserweight M2 (Savage)",
+    "fflogsEncounterId": 98
+  },
+  {
+    "id": "m7s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.20",
+    "ja": "至天の座アルカディア零式：クルーザー級3",
+    "en": "AAC Cruiserweight M3 (Savage)",
+    "fflogsEncounterId": 99
+  },
+  {
+    "id": "m8s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.20",
+    "ja": "至天の座アルカディア零式：クルーザー級4",
+    "en": "AAC Cruiserweight M4 (Savage)",
+    "fflogsEncounterId": 100
+  },
+  {
+    "id": "fru",
+    "category": "ultimate",
+    "level": 100,
+    "patch": "7.11",
+    "ja": "絶もうひとつの未来",
+    "en": "Futures Rewritten (Ultimate)",
+    "shortNameJa": "FRU",
+    "fflogsEncounterId": 1079
+  },
+  {
+    "id": "m1s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.05",
+    "ja": "至天の座アルカディア零式：ライトヘビー級1",
+    "en": "AAC Light-heavyweight M1 (Savage)",
+    "fflogsEncounterId": 93
+  },
+  {
+    "id": "m2s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.05",
+    "ja": "至天の座アルカディア零式：ライトヘビー級2",
+    "en": "AAC Light-heavyweight M2 (Savage)",
+    "fflogsEncounterId": 94
+  },
+  {
+    "id": "m3s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.05",
+    "ja": "至天の座アルカディア零式：ライトヘビー級3",
+    "en": "AAC Light-heavyweight M3 (Savage)",
+    "fflogsEncounterId": 95
+  },
+  {
+    "id": "m4s",
+    "category": "savage",
+    "level": 100,
+    "patch": "7.05",
+    "ja": "至天の座アルカディア零式：ライトヘビー級4",
+    "en": "AAC Light-heavyweight M4 (Savage)",
+    "fflogsEncounterId": 96
+  },
+  {
+    "id": "p9s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.40",
+    "ja": "万魔殿パンデモニウム零式：天獄編1",
+    "en": "Anabaseios: The Ninth Circle (Savage)",
+    "fflogsEncounterId": 88
+  },
+  {
+    "id": "p10s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.40",
+    "ja": "万魔殿パンデモニウム零式：天獄編2",
+    "en": "Anabaseios: The Tenth Circle (Savage)",
+    "fflogsEncounterId": 89
+  },
+  {
+    "id": "p11s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.40",
+    "ja": "万魔殿パンデモニウム零式：天獄編3",
+    "en": "Anabaseios: The Eleventh Circle (Savage)",
+    "fflogsEncounterId": 90
+  },
+  {
+    "id": "p12s_p1",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.40",
+    "ja": "万魔殿パンデモニウム零式：天獄編4（前半）",
+    "en": "Anabaseios: The Twelfth Circle (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 91
+  },
+  {
+    "id": "p12s_p2",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.40",
+    "ja": "万魔殿パンデモニウム零式：天獄編4（後半）",
+    "en": "Anabaseios: The Twelfth Circle (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 92
+  },
+  {
+    "id": "top",
+    "category": "ultimate",
+    "level": 90,
+    "patch": "6.31",
+    "ja": "絶オメガ検証戦",
+    "en": "The Omega Protocol (Ultimate)",
+    "shortNameJa": "TOP",
+    "fflogsEncounterId": 1077
+  },
+  {
+    "id": "p5s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.20",
+    "ja": "万魔殿パンデモニウム零式：煉獄編1",
+    "en": "Abyssos: The Fifth Circle (Savage)",
+    "fflogsEncounterId": 83
+  },
+  {
+    "id": "p6s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.20",
+    "ja": "万魔殿パンデモニウム零式：煉獄編2",
+    "en": "Abyssos: The Sixth Circle (Savage)",
+    "fflogsEncounterId": 84
+  },
+  {
+    "id": "p7s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.20",
+    "ja": "万魔殿パンデモニウム零式：煉獄編3",
+    "en": "Abyssos: The Seventh Circle (Savage)",
+    "fflogsEncounterId": 85
+  },
+  {
+    "id": "p8s_p1",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.20",
+    "ja": "万魔殿パンデモニウム零式：煉獄編4（前半）",
+    "en": "Abyssos: The Eighth Circle (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 86
+  },
+  {
+    "id": "p8s_p2",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.20",
+    "ja": "万魔殿パンデモニウム零式：煉獄編4（後半）",
+    "en": "Abyssos: The Eighth Circle (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 87
+  },
+  {
+    "id": "dsr",
+    "category": "ultimate",
+    "level": 90,
+    "patch": "6.11",
+    "ja": "絶竜詩戦争",
+    "en": "Dragonsong's Reprise (Ultimate)",
+    "shortNameJa": "DSR",
+    "fflogsEncounterId": 1076
+  },
+  {
+    "id": "p1s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.05",
+    "ja": "万魔殿パンデモニウム零式：辺獄編1",
+    "en": "Asphodelos: The First Circle (Savage)",
+    "fflogsEncounterId": 78
+  },
+  {
+    "id": "p2s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.05",
+    "ja": "万魔殿パンデモニウム零式：辺獄編2",
+    "en": "Asphodelos: The Second Circle (Savage)",
+    "fflogsEncounterId": 79
+  },
+  {
+    "id": "p3s",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.05",
+    "ja": "万魔殿パンデモニウム零式：辺獄編3",
+    "en": "Asphodelos: The Third Circle (Savage)",
+    "fflogsEncounterId": 80
+  },
+  {
+    "id": "p4s_p1",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.05",
+    "ja": "万魔殿パンデモニウム零式：辺獄編4（前半）",
+    "en": "Asphodelos: The Fourth Circle (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 81
+  },
+  {
+    "id": "p4s_p2",
+    "category": "savage",
+    "level": 90,
+    "patch": "6.05",
+    "ja": "万魔殿パンデモニウム零式：辺獄編4（後半）",
+    "en": "Asphodelos: The Fourth Circle (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 82
+  },
+  {
+    "id": "e9s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.40",
+    "ja": "希望の園エデン零式：再生編1",
+    "en": "Eden's Promise: Umbra (Savage)",
+    "fflogsEncounterId": 73
+  },
+  {
+    "id": "e10s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.40",
+    "ja": "希望の園エデン零式：再生編2",
+    "en": "Eden's Promise: Litany (Savage)",
+    "fflogsEncounterId": 74
+  },
+  {
+    "id": "e11s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.40",
+    "ja": "希望の園エデン零式：再生編3",
+    "en": "Eden's Promise: Anamorphosis (Savage)",
+    "fflogsEncounterId": 75
+  },
+  {
+    "id": "e12s_p1",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.40",
+    "ja": "希望の園エデン零式：再生編4（前半）",
+    "en": "Eden's Promise: Eternity (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 76
+  },
+  {
+    "id": "e12s_p2",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.40",
+    "ja": "希望の園エデン零式：再生編4（後半）",
+    "en": "Eden's Promise: Eternity (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 77
+  },
+  {
+    "id": "e5s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.20",
+    "ja": "希望の園エデン零式：共鳴編1",
+    "en": "Eden's Verse: Fulmination (Savage)",
+    "fflogsEncounterId": 69
+  },
+  {
+    "id": "e6s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.20",
+    "ja": "希望の園エデン零式：共鳴編2",
+    "en": "Eden's Verse: Furor (Savage)",
+    "fflogsEncounterId": 70
+  },
+  {
+    "id": "e7s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.20",
+    "ja": "希望の園エデン零式：共鳴編3",
+    "en": "Eden's Verse: Iconoclasm (Savage)",
+    "fflogsEncounterId": 71
+  },
+  {
+    "id": "e8s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.20",
+    "ja": "希望の園エデン零式：共鳴編4",
+    "en": "Eden's Verse: Refulgence (Savage)",
+    "fflogsEncounterId": 72
+  },
+  {
+    "id": "tea",
+    "category": "ultimate",
+    "level": 80,
+    "patch": "5.11",
+    "ja": "絶アレキサンダー討滅戦",
+    "en": "The Epic of Alexander (Ultimate)",
+    "shortNameJa": "TEA",
+    "fflogsEncounterId": 1075
+  },
+  {
+    "id": "e1s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.05",
+    "ja": "希望の園エデン零式：覚醒編1",
+    "en": "Eden's Gate: Resurrection (Savage)",
+    "fflogsEncounterId": 65
+  },
+  {
+    "id": "e2s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.05",
+    "ja": "希望の園エデン零式：覚醒編2",
+    "en": "Eden's Gate: Descent (Savage)",
+    "fflogsEncounterId": 66
+  },
+  {
+    "id": "e3s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.05",
+    "ja": "希望の園エデン零式：覚醒編3",
+    "en": "Eden's Gate: Inundation (Savage)",
+    "fflogsEncounterId": 67
+  },
+  {
+    "id": "e4s",
+    "category": "savage",
+    "level": 80,
+    "patch": "5.05",
+    "ja": "希望の園エデン零式：覚醒編4",
+    "en": "Eden's Gate: Sepulture (Savage)",
+    "fflogsEncounterId": 68
+  },
+  {
+    "id": "o9s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.40",
+    "ja": "次元狭間オメガ零式：アルファ編1",
+    "en": "Omega: Alphascape V1.0 (Savage)",
+    "fflogsEncounterId": 60
+  },
+  {
+    "id": "o10s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.40",
+    "ja": "次元狭間オメガ零式：アルファ編2",
+    "en": "Omega: Alphascape V2.0 (Savage)",
+    "fflogsEncounterId": 61
+  },
+  {
+    "id": "o11s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.40",
+    "ja": "次元狭間オメガ零式：アルファ編3",
+    "en": "Omega: Alphascape V3.0 (Savage)",
+    "fflogsEncounterId": 62
+  },
+  {
+    "id": "o12s_p1",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.40",
+    "ja": "次元狭間オメガ零式：アルファ編4（前半）",
+    "en": "Omega: Alphascape V4.0 (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 63
+  },
+  {
+    "id": "o12s_p2",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.40",
+    "ja": "次元狭間オメガ零式：アルファ編4（後半）",
+    "en": "Omega: Alphascape V4.0 (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 64
+  },
+  {
+    "id": "uwu",
+    "category": "ultimate",
+    "level": 70,
+    "patch": "4.31",
+    "ja": "絶アルテマウェポン破壊作戦",
+    "en": "The Weapon's Refrain (Ultimate)",
+    "shortNameJa": "UWU",
+    "fflogsEncounterId": 1074
+  },
+  {
+    "id": "o5s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.20",
+    "ja": "次元狭間オメガ零式：シグマ編1",
+    "en": "Omega: Sigmascape V1.0 (Savage)",
+    "fflogsEncounterId": 51
+  },
+  {
+    "id": "o6s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.20",
+    "ja": "次元狭間オメガ零式：シグマ編2",
+    "en": "Omega: Sigmascape V2.0 (Savage)",
+    "fflogsEncounterId": 52
+  },
+  {
+    "id": "o7s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.20",
+    "ja": "次元狭間オメガ零式：シグマ編3",
+    "en": "Omega: Sigmascape V3.0 (Savage)",
+    "fflogsEncounterId": 53
+  },
+  {
+    "id": "o8s_p1",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.20",
+    "ja": "次元狭間オメガ零式：シグマ編4（前半）",
+    "en": "Omega: Sigmascape V4.0 (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 54
+  },
+  {
+    "id": "o8s_p2",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.20",
+    "ja": "次元狭間オメガ零式：シグマ編4（後半）",
+    "en": "Omega: Sigmascape V4.0 (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 55
+  },
+  {
+    "id": "ucob",
+    "category": "ultimate",
+    "level": 70,
+    "patch": "4.11",
+    "ja": "絶バハムート討滅戦",
+    "en": "The Unending Coil of Bahamut (Ultimate)",
+    "shortNameJa": "UCOB",
+    "fflogsEncounterId": 1073
+  },
+  {
+    "id": "o1s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.05",
+    "ja": "次元狭間オメガ零式：デルタ編1",
+    "en": "Omega: Deltascape V1.0 (Savage)",
+    "fflogsEncounterId": 42
+  },
+  {
+    "id": "o2s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.05",
+    "ja": "次元狭間オメガ零式：デルタ編2",
+    "en": "Omega: Deltascape V2.0 (Savage)",
+    "fflogsEncounterId": 43
+  },
+  {
+    "id": "o3s",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.05",
+    "ja": "次元狭間オメガ零式：デルタ編3",
+    "en": "Omega: Deltascape V3.0 (Savage)",
+    "fflogsEncounterId": 44
+  },
+  {
+    "id": "o4s_p1",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.05",
+    "ja": "次元狭間オメガ零式：デルタ編4（前半）",
+    "en": "Omega: Deltascape V4.0 (Savage) Phase 1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 45
+  },
+  {
+    "id": "o4s_p2",
+    "category": "savage",
+    "level": 70,
+    "patch": "4.05",
+    "ja": "次元狭間オメガ零式：デルタ編4（後半）",
+    "en": "Omega: Deltascape V4.0 (Savage) Phase 2",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 46
+  }
+]

@@ -8,6 +8,7 @@
 
 import type { FFLogsRawEvent, FFLogsFight, DeathEvent } from '../api/fflogs';
 import type { TimelineEvent } from '../types';
+import { roundDamageCeil } from './damageRounding';
 
 const AA_NAMES = new Set(['Attack', 'Shot', '攻撃', 'Attaque', 'Attacke']);
 const GROUPING_WINDOW_MS = 800;
@@ -499,6 +500,13 @@ export function mapFFLogsToTimeline(
             for (let k = 2; k < s.length; k++) { tl[s[k]].time += 1; ch = true; }
         }
         if (ch) doSort();
+    }
+
+    // Apply adaptive ceiling rounding to all damage values (3 significant digits, always rounds up)
+    for (const ev of tl) {
+        if (ev.damageAmount !== undefined && ev.damageAmount > 0) {
+            ev.damageAmount = roundDamageCeil(ev.damageAmount);
+        }
     }
 
     return {

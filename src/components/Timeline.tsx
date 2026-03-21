@@ -620,7 +620,7 @@ const Timeline: React.FC = () => {
             window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
             window.removeEventListener('timeline:import', handleImportEvent);
         };
-    }, [handleAutoPlan]); 
+    }, [handleAutoPlan]);
 
     const [partySettingsOpen, setPartySettingsOpen] = useState(false);
 
@@ -1646,13 +1646,15 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[100px] border-r border-white/20 bg-slate-900/40 dark:bg-white/5 flex items-center justify-center text-sm font-bold text-slate-100 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10  pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-white/20 bg-slate-900/40 dark:bg-white/5 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                     title={t('timeline.click_rename', 'クリックして名前を変更')}
                                                 >
-                                                    <div className="transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis px-2 drop-shadow-md">
-                                                        {phase.name}
+                                                    <div className="sticky top-0 w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
+                                                        <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-slate-100 origin-center leading-none">
+                                                            {phase.name}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             );
@@ -1846,11 +1848,11 @@ const Timeline: React.FC = () => {
                                         })()}
                                     </>
                                 );
-                             })()}
-                         </div>
-                     </div>
-                 </div>
-             </div>
+                            })()}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {clipboardEvent && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">

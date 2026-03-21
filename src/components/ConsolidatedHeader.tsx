@@ -13,6 +13,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PartyStatusPopover } from './PartyStatusPopover';
+import { Tooltip } from './ui/Tooltip';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -40,6 +41,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const {
         isHeaderCollapsed, setIsHeaderCollapsed
     } = useContext(MobileTriggersContext);
+    
+    // Check if timeline is empty to guide the user to import logs
+    const timelineEvents = useMitigationStore(state => state.timelineEvents);
+    const needsImport = timelineEvents?.length === 0;
 
     // ── Sidebar.tsx パターンの近接・ホバーState ──
     const [isNear, setIsNear] = React.useState(false);
@@ -98,13 +103,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     {/* Layer A: App Controls (h-12 = 48px) */}
                     <div className="h-12 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
                         <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="p-2 rounded-lg text-app-text-muted hover:text-app-accent hover:bg-white/5 transition-all duration-200 cursor-pointer active:scale-95 group"
-                                title={t('app.return_home')}
-                            >
-                                <Home size={18} className="group-hover:scale-110 transition-transform" />
-                            </button>
+                            <Tooltip content={t('app.return_home')} position="bottom">
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="p-2 rounded-lg text-app-text-muted hover:text-app-accent hover:bg-white/5 transition-all duration-200 cursor-pointer active:scale-95 group"
+                                >
+                                    <Home size={18} className="group-hover:scale-110 transition-transform" />
+                                </button>
+                            </Tooltip>
                         </div>
 
                         <div className="flex items-center gap-3">
@@ -125,12 +131,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-4 w-[1px] bg-white/10 mx-1" />
 
-                            <button
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200"
-                            >
-                                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                            </button>
+                            <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')} position="bottom">
+                                <button
+                                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                    className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200"
+                                >
+                                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                                </button>
+                            </Tooltip>
                             <LanguageSwitcher />
                         </div>
                     </div>
@@ -173,9 +181,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <button
                                 onClick={onImportLogs}
-                                className="flex items-center gap-1.5 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border group/btn"
+                                className={clsx(
+                                    "flex items-center gap-1.5 px-3 h-7 rounded-md transition-all duration-300 cursor-pointer group/btn",
+                                    needsImport 
+                                        ? "bg-app-accent/20 text-app-accent border border-app-accent/40 shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.3)] animate-pulse" 
+                                        : "text-app-text-secondary hover:text-app-text bg-glass-card hover:bg-glass-hover border border-glass-border"
+                                )}
                             >
-                                <CloudDownload size={12} className="group-hover/btn:-translate-y-0.5 transition-transform shrink-0" />
+                                <CloudDownload size={12} className={clsx("transition-transform shrink-0", !needsImport && "group-hover/btn:-translate-y-0.5")} />
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('timeline.import_fflogs')}</span>
                             </button>
                         </div>

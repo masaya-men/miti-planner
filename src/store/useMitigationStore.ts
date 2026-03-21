@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation } from '../types';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData } from '../types';
 import { calculateMemberValues } from '../utils/calculator';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import { LEVEL_MODIFIERS } from '../data/levelModifiers';
@@ -80,6 +80,10 @@ interface MitigationState {
     undo: () => void;
     redo: () => void;
 
+    // Snapshot Actions
+    getSnapshot: () => PlanData;
+    loadSnapshot: (snapshot: PlanData) => void;
+
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
     setMyJobHighlight: (enabled: boolean) => void;
@@ -155,6 +159,39 @@ export const useMitigationStore = create<MitigationState>()(
                 timelineSortOrder: 'light_party',
                 _history: [],
                 _future: [],
+
+                getSnapshot: () => {
+                    const state = get();
+                    return {
+                        currentLevel: state.currentLevel,
+                        timelineEvents: state.timelineEvents,
+                        timelineMitigations: state.timelineMitigations,
+                        phases: state.phases,
+                        partyMembers: state.partyMembers,
+                        aaSettings: state.aaSettings,
+                        schAetherflowPatterns: state.schAetherflowPatterns,
+                    };
+                },
+
+                loadSnapshot: (snapshot) => {
+                    const membersWithComputed = snapshot.partyMembers.map((m: PartyMember) => ({
+                        ...m,
+                        computedValues: calculateMemberValues(m, snapshot.currentLevel)
+                    }));
+
+                    set({
+                        currentLevel: snapshot.currentLevel,
+                        timelineEvents: snapshot.timelineEvents,
+                        timelineMitigations: snapshot.timelineMitigations,
+                        phases: snapshot.phases,
+                        partyMembers: membersWithComputed,
+                        aaSettings: snapshot.aaSettings,
+                        schAetherflowPatterns: snapshot.schAetherflowPatterns,
+                        // Reset Undo/Redo on load
+                        _history: [],
+                        _future: [],
+                    });
+                },
 
                 // Undo: restore the last snapshot from history
                 undo: () => set((state) => {

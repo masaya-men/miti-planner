@@ -1,0 +1,5812 @@
+{
+  "contentId": "tea",
+  "generatedAt": "2026-03-21T07:56:00.607Z",
+  "sourceLogsCount": 3,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_c92fbu",
+      "time": 4,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_1_rzdoxv",
+      "time": 6,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_qmrkaf",
+      "time": 9,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_ncu0n6",
+      "time": 11,
+      "name": {
+        "ja": "フルイドスイング",
+        "en": "Fluid Swing"
+      },
+      "damageType": "physical",
+      "damageAmount": 25500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_g31a2o",
+      "time": 12,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_5_80n2hz",
+      "time": 19,
+      "name": {
+        "ja": "カスケード",
+        "en": "Cascade"
+      },
+      "damageType": "magical",
+      "damageAmount": 33000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_p1zo9d",
+      "time": 19,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_6bv2sy",
+      "time": 20,
+      "name": {
+        "ja": "カスケード",
+        "en": "Cascade"
+      },
+      "damageType": "magical",
+      "damageAmount": 33000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_ylenq9",
+      "time": 25,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_311hr0",
+      "time": 25,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_qmgmhg",
+      "time": 28,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_wd2427",
+      "time": 28,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_di5nvj",
+      "time": 31,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_2u0gff",
+      "time": 31,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_n8mfh9",
+      "time": 34,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_b5qb0p",
+      "time": 35,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_76jb2u",
+      "time": 35,
+      "name": {
+        "ja": "ハンド・オブ・パーティング",
+        "en": "Hand of Parting"
+      },
+      "damageType": "magical",
+      "damageAmount": 1680,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_3xh7vt",
+      "time": 36,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 103000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_vjjumh",
+      "time": 37,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_incb0o",
+      "time": 37,
+      "name": {
+        "ja": "フルイドスイング",
+        "en": "Fluid Swing"
+      },
+      "damageType": "physical",
+      "damageAmount": 25500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_xr7i0r",
+      "time": 37,
+      "name": {
+        "ja": "フルイドストライク",
+        "en": "Fluid Strike"
+      },
+      "damageType": "physical",
+      "damageAmount": 25100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_0euw0e",
+      "time": 38,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_iibzaa",
+      "time": 38,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 103000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_c0do6q",
+      "time": 39,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 18400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_egzf2o",
+      "time": 39,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_detrg2",
+      "time": 39,
+      "name": {
+        "ja": "汚染蒸気",
+        "en": "Exhaust"
+      },
+      "damageType": "magical",
+      "damageAmount": 5690,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_x4trr4",
+      "time": 40,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_99a3yg",
+      "time": 40,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_lv0p1o",
+      "time": 41,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_7cuyc8",
+      "time": 42,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_rfgzi0",
+      "time": 42,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_0fsnha",
+      "time": 43,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_nvvbdn",
+      "time": 43,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 3370,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_jinepi",
+      "time": 43,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_kvo5hc",
+      "time": 44,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_ubs58u",
+      "time": 44,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_tzlh70",
+      "time": 45,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_8trtqt",
+      "time": 46,
+      "name": {
+        "ja": "複雑性還元",
+        "en": "Reducible Complexity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_n2x9g3",
+      "time": 47,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_h8dp03",
+      "time": 47,
+      "name": {
+        "ja": "複雑性還元",
+        "en": "Reducible Complexity"
+      },
+      "damageType": "magical",
+      "damageAmount": 14600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_069oqk",
+      "time": 47,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_wpw6h4",
+      "time": 48,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_p32c3v",
+      "time": 50,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_mia80e",
+      "time": 50,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_y5fl2m",
+      "time": 50,
+      "name": {
+        "ja": "汚染蒸気",
+        "en": "Exhaust"
+      },
+      "damageType": "magical",
+      "damageAmount": 5690,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_ptl8sc",
+      "time": 51,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_jk8v6e",
+      "time": 53,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_a7vnfh",
+      "time": 53,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_rktsum",
+      "time": 53,
+      "name": {
+        "ja": "複雑性還元",
+        "en": "Reducible Complexity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_ro63zi",
+      "time": 54,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_8zu27h",
+      "time": 54,
+      "name": {
+        "ja": "複雑性還元",
+        "en": "Reducible Complexity"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_nhcx5p",
+      "time": 56,
+      "name": {
+        "ja": "フルイドスイング",
+        "en": "Fluid Swing"
+      },
+      "damageType": "physical",
+      "damageAmount": 25500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_a69ixy",
+      "time": 56,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_avvny6",
+      "time": 56,
+      "name": {
+        "ja": "フルイドストライク",
+        "en": "Fluid Strike"
+      },
+      "damageType": "physical",
+      "damageAmount": 25100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_zfdx9n",
+      "time": 57,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_r0ouwh",
+      "time": 57,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 1230,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_9183or",
+      "time": 59,
+      "name": {
+        "ja": "複雑性還元",
+        "en": "Reducible Complexity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_i59yih",
+      "time": 60,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_gwiru5",
+      "time": 60,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_qzszyy",
+      "time": 63,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_0mn8nk",
+      "time": 63,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_1ikgwi",
+      "time": 66,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_egbiuj",
+      "time": 69,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_b6pco6",
+      "time": 70,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 3370,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_lnkj1x",
+      "time": 71,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_thrxsz",
+      "time": 72,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_8rafrd",
+      "time": 74,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_7lzsob",
+      "time": 75,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_wufcyo",
+      "time": 77,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_36ox07",
+      "time": 78,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_f9xact",
+      "time": 80,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_zwsnmc",
+      "time": 80,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_eqyrq2",
+      "time": 81,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_ha2pw2",
+      "time": 82,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_dmst3t",
+      "time": 83,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_k05cdk",
+      "time": 84,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_hyal7w",
+      "time": 84,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_6pmsz5",
+      "time": 84,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_q1hm4x",
+      "time": 85,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_79_kmxdcz",
+      "time": 86,
+      "name": {
+        "ja": "ドレナージ",
+        "en": "Drainage"
+      },
+      "damageType": "magical",
+      "damageAmount": 38000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_1w0vv3",
+      "time": 86,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_2sjuad",
+      "time": 86,
+      "name": {
+        "ja": "スプラッシュ",
+        "en": "Splash"
+      },
+      "damageType": "magical",
+      "damageAmount": 7740,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_ywyc3s",
+      "time": 88,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_ttldya",
+      "time": 89,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 3370,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_n06kou",
+      "time": 90,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_z751bp",
+      "time": 92,
+      "name": {
+        "ja": "カスケード",
+        "en": "Cascade"
+      },
+      "damageType": "magical",
+      "damageAmount": 33000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_zt9zwk",
+      "time": 92,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_al9gyr",
+      "time": 93,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_81w8np",
+      "time": 95,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_89_7jvth5",
+      "time": 97,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_glamks",
+      "time": 99,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_g8bgyd",
+      "time": 99,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_646rov",
+      "time": 101,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_2311xu",
+      "time": 103,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_vmwp4m",
+      "time": 105,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_1bvz6h",
+      "time": 108,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_7rzafg",
+      "time": 108,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_of0m76",
+      "time": 108,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_wnuvh2",
+      "time": 109,
+      "name": {
+        "ja": "ハンド・オブ・ペイン",
+        "en": "Hand of Pain"
+      },
+      "damageType": "magical",
+      "damageAmount": 3370,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_hdt6tb",
+      "time": 109,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_g4shqh",
+      "time": 111,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_3er61p",
+      "time": 111,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_h95e5x",
+      "time": 112,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_op7syc",
+      "time": 114,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_056qci",
+      "time": 114,
+      "name": {
+        "ja": "プロティアンウェイブ",
+        "en": "Protean Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 103000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_wdnxxx",
+      "time": 115,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_moacug",
+      "time": 117,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_9txg5e",
+      "time": 118,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_c7bqwx",
+      "time": 120,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_w3qz6n",
+      "time": 121,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 13400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_mm5l36",
+      "time": 123,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 12400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_safe6b",
+      "time": 123,
+      "name": {
+        "ja": "ハンド・オブ・パーティング",
+        "en": "Hand of Parting"
+      },
+      "damageType": "magical",
+      "damageAmount": 1680,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_112_z49fpx",
+      "time": 128,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_ssi4vt",
+      "time": 129,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_qvcfax",
+      "time": 132,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_ofvk44",
+      "time": 134,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_ubgyse",
+      "time": 136,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_5uyofp",
+      "time": 138,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_bmzd68",
+      "time": 140,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_1q1y76",
+      "time": 142,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_cdzab1",
+      "time": 145,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_nt1i5r",
+      "time": 147,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_zt67fk",
+      "time": 147,
+      "name": {
+        "ja": "ジャスティスキック",
+        "en": "J Kick"
+      },
+      "damageType": "magical",
+      "damageAmount": 24000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_1vy16s",
+      "time": 150,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_vj3nmj",
+      "time": 152,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_sj815h",
+      "time": 154,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_ts2595",
+      "time": 155,
+      "name": {
+        "ja": "ジャスティスキック",
+        "en": "J Kick"
+      },
+      "damageType": "magical",
+      "damageAmount": 23900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_k0jvki",
+      "time": 157,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_1b731e",
+      "time": 158,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_njcz6m",
+      "time": 163,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_nfag9n",
+      "time": 163,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_zr3zlt",
+      "time": 165,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_jy8mfr",
+      "time": 166,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_wchgh7",
+      "time": 167,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_r1ttlu",
+      "time": 169,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_k90irh",
+      "time": 172,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_r3w8lu",
+      "time": 172,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_y9rs60",
+      "time": 175,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_eozx4e",
+      "time": 178,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_mbqa8l",
+      "time": 179,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_5jazoz",
+      "time": 181,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_s8qhoh",
+      "time": 183,
+      "name": {
+        "ja": "フォトン",
+        "en": "Photon"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_i37ckj",
+      "time": 184,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_143_3ediqq",
+      "time": 190,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_em9rgq",
+      "time": 191,
+      "name": {
+        "ja": "フォトン",
+        "en": "Photon"
+      },
+      "damageType": "magical",
+      "damageAmount": 44300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_4ivoym",
+      "time": 194,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_3p61bt",
+      "time": 197,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_xh2nuu",
+      "time": 197,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 17900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_i81i8w",
+      "time": 198,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_mqllxk",
+      "time": 198,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_00s9z1",
+      "time": 200,
+      "name": {
+        "ja": "ペプシス",
+        "en": "Pepsis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_exhf7q",
+      "time": 201,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_93b89v",
+      "time": 204,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_afhs58",
+      "time": 204,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_ll7re5",
+      "time": 205,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 19100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_xp2imj",
+      "time": 205,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_btah34",
+      "time": 207,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_na6xfl",
+      "time": 207,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_fu1fjl",
+      "time": 210,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_ktsgfv",
+      "time": 213,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_160_k0cs1o",
+      "time": 213,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_161_b8o0zb",
+      "time": 213,
+      "name": {
+        "ja": "アイスミサイル",
+        "en": "Earth Missile"
+      },
+      "damageType": "magical",
+      "damageAmount": 11100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_x9jix0",
+      "time": 214,
+      "name": {
+        "ja": "地雷爆発",
+        "en": "Hidden Mine"
+      },
+      "damageType": "magical",
+      "damageAmount": 33600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_163_pqju6j",
+      "time": 216,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_164_szyypw",
+      "time": 217,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_165_j22ogb",
+      "time": 219,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_166_jsmktk",
+      "time": 219,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_g3bq40",
+      "time": 220,
+      "name": {
+        "ja": "地雷爆発",
+        "en": "Hidden Mine"
+      },
+      "damageType": "magical",
+      "damageAmount": 30600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_168_21hq7o",
+      "time": 221,
+      "name": {
+        "ja": "アイスミサイル",
+        "en": "Earth Missile"
+      },
+      "damageType": "magical",
+      "damageAmount": 11500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_m5j5y9",
+      "time": 222,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_170_2rq1gv",
+      "time": 222,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_zer4u3",
+      "time": 223,
+      "name": {
+        "ja": "地雷爆発",
+        "en": "Hidden Mine"
+      },
+      "damageType": "magical",
+      "damageAmount": 41900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_172_bxor17",
+      "time": 224,
+      "name": {
+        "ja": "地雷爆発",
+        "en": "Hidden Mine"
+      },
+      "damageType": "magical",
+      "damageAmount": 41900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_173_0wk5ix",
+      "time": 225,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_174_4b2g4k",
+      "time": 226,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_175_mp4ird",
+      "time": 227,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_176_y904z5",
+      "time": 227,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 17900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_177_4f6vr6",
+      "time": 229,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_178_jcrqyv",
+      "time": 229,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_179_ud7t8j",
+      "time": 231,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_180_y62rkm",
+      "time": 232,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_181_dtdt3f",
+      "time": 235,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 19100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_bazi95",
+      "time": 236,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_1n2jl9",
+      "time": 236,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_v8b0qg",
+      "time": 237,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 13900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_fvwip2",
+      "time": 238,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_186_eztjmh",
+      "time": 240,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_7jgoud",
+      "time": 244,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 14400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_188_v1abvf",
+      "time": 245,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_189_z2c7ly",
+      "time": 248,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_lnbbhq",
+      "time": 248,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_nzyc81",
+      "time": 251,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_ccpw3n",
+      "time": 253,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_nzxmyu",
+      "time": 254,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_wat8qg",
+      "time": 256,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_195_yw3of8",
+      "time": 257,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_8b30lx",
+      "time": 257,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 17900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_197_1n56lx",
+      "time": 257,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_hq0u2t",
+      "time": 258,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_ietov2",
+      "time": 260,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_ae97lo",
+      "time": 261,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_y5m0lp",
+      "time": 263,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_5stpcy",
+      "time": 264,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_203_1ds9c3",
+      "time": 265,
+      "name": {
+        "ja": "クラッシュウェーブ",
+        "en": "Crashing Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_204_ofiaig",
+      "time": 265,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_205_texqyx",
+      "time": 265,
+      "name": {
+        "ja": "クラッシュサンダー",
+        "en": "Crashing Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 19100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_206_e4sqxz",
+      "time": 267,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_207_zti6yr",
+      "time": 269,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_208_sayfaw",
+      "time": 269,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_209_zjm2el",
+      "time": 271,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_210_o49p3i",
+      "time": 272,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_211_gcm2ti",
+      "time": 274,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_212_tgot90",
+      "time": 275,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_ixsomn",
+      "time": 277,
+      "name": {
+        "ja": "最後の審判：結審",
+        "en": "Gavel"
+      },
+      "damageType": "magical",
+      "damageAmount": 1580,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_214_xe1l09",
+      "time": 278,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_215_qsq2xj",
+      "time": 281,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_216_hpa461",
+      "time": 284,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_217_mtgr8g",
+      "time": 285,
+      "name": {
+        "ja": "最後の審判：結審",
+        "en": "Gavel"
+      },
+      "damageType": "magical",
+      "damageAmount": 1710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_218_zkdc6j",
+      "time": 286,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_219_scdatk",
+      "time": 286,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_220_6u0ymn",
+      "time": 288,
+      "name": {
+        "ja": "フォトン",
+        "en": "Photon"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_221_51ux76",
+      "time": 289,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_222_z1ucus",
+      "time": 289,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_223_pbukd1",
+      "time": 292,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_224_a7gcq0",
+      "time": 296,
+      "name": {
+        "ja": "フォトン",
+        "en": "Photon"
+      },
+      "damageType": "magical",
+      "damageAmount": 44300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_225_z31mfl",
+      "time": 296,
+      "name": {
+        "ja": "ダブルロケットパンチ",
+        "en": "Double Rocket Punch"
+      },
+      "damageType": "physical",
+      "damageAmount": 39600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_226_qsewiu",
+      "time": 297,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 23400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_227_9mfn72",
+      "time": 303,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_228_phdr84",
+      "time": 304,
+      "name": {
+        "ja": "ダブルロケットパンチ",
+        "en": "Double Rocket Punch"
+      },
+      "damageType": "physical",
+      "damageAmount": 42900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_229_qzq99k",
+      "time": 305,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_230_y094bl",
+      "time": 306,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_231_7cq4ga",
+      "time": 309,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_232_mu5k1p",
+      "time": 311,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 29000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_233_l0r1kf",
+      "time": 312,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_234_zmpdxa",
+      "time": 315,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_235_ypk7fy",
+      "time": 318,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_236_tcn3al",
+      "time": 324,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_237_nctmjz",
+      "time": 324,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_238_v0wmqv",
+      "time": 325,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_239_tbl2b7",
+      "time": 328,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_240_o2mupr",
+      "time": 328,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_241_qsu6vw",
+      "time": 330,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_242_k4e46o",
+      "time": 331,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 21800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_243_u0x8e6",
+      "time": 331,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 22500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_244_ruzxu0",
+      "time": 332,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_245_z8zxig",
+      "time": 333,
+      "name": {
+        "ja": "竜巻",
+        "en": "Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 19800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_246_qx53bo",
+      "time": 333,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_247_t6ht1n",
+      "time": 333,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_248_2t3cg4",
+      "time": 334,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 21700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_249_bjy9px",
+      "time": 335,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_250_6paedv",
+      "time": 336,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_251_jwz60g",
+      "time": 338,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_252_fv5uuk",
+      "time": 339,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_253_rshavi",
+      "time": 340,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 22400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_254_9thkah",
+      "time": 340,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 7100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_255_g8gvbo",
+      "time": 341,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 20600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_256_r4pvx6",
+      "time": 342,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_257_d44fhn",
+      "time": 349,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_258_xreyhr",
+      "time": 351,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_259_w7c8ao",
+      "time": 352,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 188000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_260_197iwn",
+      "time": 356,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 188000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_261_t28s5h",
+      "time": 357,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 44000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_262_9dtr44",
+      "time": 357,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 61300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_263_4quo2o",
+      "time": 358,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_264_dgzlda",
+      "time": 360,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_265_z1jd4q",
+      "time": 360,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 14900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_266_5zmdw1",
+      "time": 361,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_267_eh4xav",
+      "time": 361,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 36600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_268_43qq0t",
+      "time": 362,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 21600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_269_4g2rv8",
+      "time": 363,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 21600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_270_4ddy2w",
+      "time": 363,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_271_nrlusp",
+      "time": 364,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 21600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_272_zwr2wr",
+      "time": 365,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_273_qe2nxp",
+      "time": 365,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 36600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_274_4ma3qh",
+      "time": 367,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_275_jcfk0c",
+      "time": 370,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_276_ludxiu",
+      "time": 377,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 44300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_277_h1e0aj",
+      "time": 378,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 59000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_278_h4f85x",
+      "time": 380,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_279_gwv2hi",
+      "time": 381,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_280_ubyyby",
+      "time": 383,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_281_mjtvab",
+      "time": 386,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_282_q398p6",
+      "time": 387,
+      "name": {
+        "ja": "審判の結晶",
+        "en": "Judgment Crystal"
+      },
+      "damageType": "magical",
+      "damageAmount": 11500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_283_5w4fax",
+      "time": 388,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_284_wu8klt",
+      "time": 388,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9650,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_285_eqo689",
+      "time": 391,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_286_6opyls",
+      "time": 392,
+      "name": {
+        "ja": "結晶破裂",
+        "en": "Tetrashatter"
+      },
+      "damageType": "magical",
+      "damageAmount": 35400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_287_dvibdj",
+      "time": 395,
+      "name": {
+        "ja": "審判の結晶",
+        "en": "Judgment Crystal"
+      },
+      "damageType": "magical",
+      "damageAmount": 11300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_288_6vfbyu",
+      "time": 396,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 8600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_289_ynvszt",
+      "time": 398,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 21700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_290_6wrk7y",
+      "time": 400,
+      "name": {
+        "ja": "結晶破裂",
+        "en": "Tetrashatter"
+      },
+      "damageType": "magical",
+      "damageAmount": 20300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_291_v1zymr",
+      "time": 401,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 21700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_292_2pvx2z",
+      "time": 406,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_293_hyigd3",
+      "time": 410,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_294_1acnfk",
+      "time": 416,
+      "name": {
+        "ja": "審判の結晶",
+        "en": "Judgment Crystal"
+      },
+      "damageType": "magical",
+      "damageAmount": 11900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_295_w9ji69",
+      "time": 417,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 12700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_296_jzydnl",
+      "time": 417,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 21800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_297_ldrm6h",
+      "time": 417,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_298_dkwo54",
+      "time": 417,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 22500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_299_2o9n3n",
+      "time": 419,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 12700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_300_f9a24e",
+      "time": 420,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 12700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_301_84ywhw",
+      "time": 421,
+      "name": {
+        "ja": "結晶破裂",
+        "en": "Tetrashatter"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_302_9i9a3s",
+      "time": 422,
+      "name": {
+        "ja": "結晶破裂",
+        "en": "Tetrashatter"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_303_p0xiob",
+      "time": 423,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_304_n5xpnm",
+      "time": 425,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 27900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_305_ugcpj4",
+      "time": 426,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_306_3kdoja",
+      "time": 426,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 7100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_307_6zpdpn",
+      "time": 426,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 22400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_308_nyaqci",
+      "time": 427,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_309_lqani6",
+      "time": 427,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_310_868kpd",
+      "time": 429,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_311_58r9m7",
+      "time": 430,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_312_v16e5v",
+      "time": 432,
+      "name": {
+        "ja": "大火炎放射",
+        "en": "Flarethrower"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_313_zesjlp",
+      "time": 432,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 20600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_314_qnm60o",
+      "time": 434,
+      "name": {
+        "ja": "ペプシス",
+        "en": "Pepsis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_315_1gh761",
+      "time": 436,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 27200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_316_qsy3wc",
+      "time": 439,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 62800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_317_irkzra",
+      "time": 440,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_318_89jrqj",
+      "time": 443,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_319_cx4gv3",
+      "time": 444,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 188000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_320_os350j",
+      "time": 446,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 14900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_321_dgpnuq",
+      "time": 446,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 28600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_322_ed1uhu",
+      "time": 447,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_323_dikhau",
+      "time": 447,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 61300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_324_06zvtz",
+      "time": 448,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 188000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_325_at2vyq",
+      "time": 450,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_326_l0pshe",
+      "time": 452,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 36600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_327_ucwycu",
+      "time": 453,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 21600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_328_mhp6qf",
+      "time": 454,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 21600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_329_d6ooh8",
+      "time": 454,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_330_qu3nh4",
+      "time": 456,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 29000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_331_xlyffq",
+      "time": 457,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "damageAmount": 36600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_332_m8b8su",
+      "time": 459,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_333_7is99m",
+      "time": 462,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_334_ej7eqs",
+      "time": 468,
+      "name": {
+        "ja": "神罰の熱線",
+        "en": "Chastening Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 59000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_335_rok3m5",
+      "time": 470,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_336_a8x2n5",
+      "time": 473,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_337_gpkkbv",
+      "time": 473,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_338_3omvpe",
+      "time": 475,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_339_02k8tv",
+      "time": 477,
+      "name": {
+        "ja": "聖なる炎",
+        "en": "Divine Spear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_340_ul7ots",
+      "time": 479,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_341_40em8i",
+      "time": 479,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_342_52jhsv",
+      "time": 480,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_343_zzy42u",
+      "time": 481,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_344_qt1viu",
+      "time": 483,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_345_x5cdh7",
+      "time": 483,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_346_5zorrz",
+      "time": 484,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 8490,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_347_m8603m",
+      "time": 484,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_348_3mibi5",
+      "time": 486,
+      "name": {
+        "ja": "十字の秘蹟",
+        "en": "Sacrament"
+      },
+      "damageType": "magical",
+      "damageAmount": 357000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_349_stfb3c",
+      "time": 487,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_350_gxtoxm",
+      "time": 488,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7790,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_351_3hofn5",
+      "time": 488,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 27200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_352_5soaa6",
+      "time": 489,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_353_wwbdbe",
+      "time": 491,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_354_64c3nl",
+      "time": 492,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 8030,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_355_c972tq",
+      "time": 493,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_356_hhspzs",
+      "time": 496,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 15800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_357_h9aam5",
+      "time": 496,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_358_tkgmiq",
+      "time": 497,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_359_tbrxy9",
+      "time": 498,
+      "name": {
+        "ja": "浄化の熱線",
+        "en": "Incinerating Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 28200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_360_jvhsyy",
+      "time": 500,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 15800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_361_f0k1e1",
+      "time": 500,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7930,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_362_tbaqlp",
+      "time": 502,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_363_v3zx0h",
+      "time": 503,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_364_99spdp",
+      "time": 506,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_365_fpw667",
+      "time": 507,
+      "name": {
+        "ja": "浄化の熱線",
+        "en": "Incinerating Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 28300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_366_lzp6l7",
+      "time": 508,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_367_exb3io",
+      "time": 509,
+      "name": {
+        "ja": "スーパージャンプ",
+        "en": "Super Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 29000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_368_mfyybe",
+      "time": 510,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_369_lrn2k2",
+      "time": 512,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_370_28ca8t",
+      "time": 513,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_371_9hzyod",
+      "time": 513,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7390,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_372_lgrwr5",
+      "time": 513,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_373_z7ro5q",
+      "time": 514,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_374_kpuvmo",
+      "time": 517,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_375_rvjt1y",
+      "time": 517,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7770,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_376_g5zk50",
+      "time": 519,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_377_4iqge2",
+      "time": 519,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_378_1mmrz3",
+      "time": 520,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_379_p0hbdn",
+      "time": 521,
+      "name": {
+        "ja": "罪の意識",
+        "en": "Repentance"
+      },
+      "damageType": "magical",
+      "damageAmount": 7810,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_380_3byeh8",
+      "time": 521,
+      "name": {
+        "ja": "アルファソード",
+        "en": "Alpha Sword"
+      },
+      "damageType": "physical",
+      "damageAmount": 16300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_381_lher5w",
+      "time": 522,
+      "name": {
+        "ja": "スーパーブラスティ・チャージ",
+        "en": "Super Blassty Charge"
+      },
+      "damageType": "physical",
+      "damageAmount": 16100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_382_m0vddm",
+      "time": 523,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_383_9dqoxw",
+      "time": 526,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_384_3xbymy",
+      "time": 528,
+      "name": {
+        "ja": "浄化の熱線",
+        "en": "Incinerating Heat"
+      },
+      "damageType": "magical",
+      "damageAmount": 31700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_385_w8fnmw",
+      "time": 528,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_386_m9klk0",
+      "time": 533,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_387_ehdpxv",
+      "time": 535,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_388_h28ryj",
+      "time": 535,
+      "name": {
+        "ja": "ジャスティスストーム",
+        "en": "J Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 23100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_389_y9x9uh",
+      "time": 539,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_390_6d07vj",
+      "time": 541,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_391_x12j4z",
+      "time": 542,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 21700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_392_umgmx9",
+      "time": 543,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_393_cumh41",
+      "time": 543,
+      "name": {
+        "ja": "ジャスティスストーム",
+        "en": "J Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_394_no1da5",
+      "time": 545,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_395_acbos7",
+      "time": 547,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_396_7ziifq",
+      "time": 548,
+      "name": {
+        "ja": "メガホーリー",
+        "en": "Mega Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 33100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_397_p8odzo",
+      "time": 548,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_398_36vhu6",
+      "time": 550,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_399_41k542",
+      "time": 552,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_400_jx4xkd",
+      "time": 553,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_401_s6ik7r",
+      "time": 555,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_402_054oyb",
+      "time": 558,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_403_om6v90",
+      "time": 561,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_404_1f6ixv",
+      "time": 563,
+      "name": {
+        "ja": "ジャスティスストーム",
+        "en": "J Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 23200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_405_r6p69r",
+      "time": 564,
+      "name": {
+        "ja": "ジャスティスストーム",
+        "en": "J Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 23200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_406_ja5kim",
+      "time": 564,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 22000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_407_trgji5",
+      "time": 569,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_408_x40bxk",
+      "time": 572,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_409_zgs82c",
+      "time": 574,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_410_l98kgx",
+      "time": 575,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_411_xcqf92",
+      "time": 577,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_412_t4s0db",
+      "time": 581,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_413_cj16zf",
+      "time": 584,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_414_hefu9q",
+      "time": 587,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_415_n0hzqq",
+      "time": 590,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_416_tcnzkd",
+      "time": 593,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_417_k2z6le",
+      "time": 595,
+      "name": {
+        "ja": "ジャスティスショックウェーブ",
+        "en": "J Wave"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_418_ok8ki5",
+      "time": 620,
+      "name": {
+        "ja": "聖なる審判",
+        "en": "Divine Judgment"
+      },
+      "damageType": "magical",
+      "damageAmount": 157000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_419_md714j",
+      "time": 652,
+      "name": {
+        "ja": "聖なる審判",
+        "en": "Divine Judgment"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_420_r1la44",
+      "time": 683,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_421_jgg1ml",
+      "time": 686,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_422_v735rn",
+      "time": 693,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_423_kr295l",
+      "time": 699,
+      "name": {
+        "ja": "行動命令",
+        "en": "Ordained Motion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_424_0iq48d",
+      "time": 701,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_425_4kl0wy",
+      "time": 706,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_426_ceal99",
+      "time": 709,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_427_wft3ji",
+      "time": 710,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_428_50sfzl",
+      "time": 712,
+      "name": {
+        "ja": "行動命令",
+        "en": "Ordained Motion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_429_jkvp06",
+      "time": 715,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_430_l2xwex",
+      "time": 718,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_431_e7xelg",
+      "time": 722,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_432_t5hmx3",
+      "time": 723,
+      "name": {
+        "ja": "群の断罪",
+        "en": "Collective Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 27800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_433_z2ltuo",
+      "time": 725,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_434_rjbp1f",
+      "time": 728,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_435_1nl5jf",
+      "time": 729,
+      "name": {
+        "ja": "個の断罪",
+        "en": "Individual Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 25100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_436_ls1nxd",
+      "time": 731,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_437_o4ol82",
+      "time": 731,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_438_wb6q11",
+      "time": 735,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_439_mmr0xi",
+      "time": 738,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_440_cxjxc4",
+      "time": 742,
+      "name": {
+        "ja": "行動命令",
+        "en": "Ordained Motion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_441_l2wce1",
+      "time": 745,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_442_tl4mcm",
+      "time": 749,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_443_lzetsu",
+      "time": 754,
+      "name": {
+        "ja": "個の断罪",
+        "en": "Individual Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 21000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_444_7w6sar",
+      "time": 755,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_445_q0cr48",
+      "time": 761,
+      "name": {
+        "ja": "群の断罪",
+        "en": "Collective Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 21500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_446_tqrkfm",
+      "time": 763,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_447_9etb34",
+      "time": 765,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_448_fu0qr8",
+      "time": 774,
+      "name": {
+        "ja": "行動命令",
+        "en": "Ordained Motion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_449_y0uwlm",
+      "time": 777,
+      "name": {
+        "ja": "汚名の神判",
+        "en": "Plaint of Obloquy"
+      },
+      "damageType": "magical",
+      "damageAmount": 19700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_450_bs1dsk",
+      "time": 777,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 27900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_451_2w3lpi",
+      "time": 778,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 22500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_452_axt6ga",
+      "time": 778,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_453_2oj5ym",
+      "time": 796,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 50200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_454_nt9e9x",
+      "time": 799,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_455_dmr9iw",
+      "time": 801,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 60400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_456_dtjj7f",
+      "time": 804,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 62900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_457_2r0kci",
+      "time": 805,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_458_h05w0v",
+      "time": 806,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_459_ew1icl",
+      "time": 808,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_460_5t9ibx",
+      "time": 809,
+      "name": {
+        "ja": "汚名の神判",
+        "en": "Plaint of Obloquy"
+      },
+      "damageType": "magical",
+      "damageAmount": 20700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_461_kp5ikr",
+      "time": 809,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 28600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_462_89kd9e",
+      "time": 810,
+      "name": {
+        "ja": "重罰の神判",
+        "en": "Plaint of Severity"
+      },
+      "damageType": "magical",
+      "damageAmount": 21500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_463_p4x0ri",
+      "time": 810,
+      "name": {
+        "ja": "静止命令",
+        "en": "Ordained Stillness"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_464_es3mk9",
+      "time": 828,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_465_g2l0ny",
+      "time": 829,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_466_j0dui8",
+      "time": 830,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_467_csy2pq",
+      "time": 833,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 59400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_468_tb2vul",
+      "time": 837,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_469_abwos3",
+      "time": 840,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_470_42s9v4",
+      "time": 867,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 21800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_471_dd5ibm",
+      "time": 868,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 27900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_472_2vfzvj",
+      "time": 868,
+      "name": {
+        "ja": "ジャスティスジャンプ",
+        "en": "J Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 18600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_473_0jhzk5",
+      "time": 871,
+      "name": {
+        "ja": "ジャスティスジャンプ",
+        "en": "J Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 18300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_474_gbyjij",
+      "time": 874,
+      "name": {
+        "ja": "個の断罪",
+        "en": "Individual Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 25100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_475_1cej92",
+      "time": 876,
+      "name": {
+        "ja": "群の断罪",
+        "en": "Collective Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 26500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_476_0f57mx",
+      "time": 887,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_477_ff9gbn",
+      "time": 893,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 44000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_478_a2cmw2",
+      "time": 895,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 50200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_479_m52712",
+      "time": 898,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 50200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_480_fi7nan",
+      "time": 899,
+      "name": {
+        "ja": "連帯の神判",
+        "en": "Plaint of Solidarity"
+      },
+      "damageType": "magical",
+      "damageAmount": 28600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_481_glvvne",
+      "time": 899,
+      "name": {
+        "ja": "誓約の神判",
+        "en": "Plaint of Surety"
+      },
+      "damageType": "magical",
+      "damageAmount": 14900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_482_kp72ds",
+      "time": 900,
+      "name": {
+        "ja": "ジャスティスジャンプ",
+        "en": "J Jump"
+      },
+      "damageType": "physical",
+      "damageAmount": 17100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_483_ro4hhn",
+      "time": 901,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 62900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_484_mthkl1",
+      "time": 905,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_485_dz4unf",
+      "time": 906,
+      "name": {
+        "ja": "個の断罪",
+        "en": "Individual Reprobation"
+      },
+      "damageType": "magical",
+      "damageAmount": 21000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_486_amzgxf",
+      "time": 908,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_487_8ay8ef",
+      "time": 915,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_488_avz97r",
+      "time": 919,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_489_55ai3z",
+      "time": 922,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_490_ql6ubg",
+      "time": 926,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 44300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_491_yyc8fd",
+      "time": 927,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_492_0b2p8t",
+      "time": 928,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_493_iundaq",
+      "time": 929,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_494_8re2rf",
+      "time": 929,
+      "name": {
+        "ja": "連帯刑",
+        "en": "Irresistible Grace"
+      },
+      "damageType": "magical",
+      "damageAmount": 44500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_495_rpwurw",
+      "time": 930,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_496_ixm48e",
+      "time": 932,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_497_apvl25",
+      "time": 933,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 59400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_498_wdyhy6",
+      "time": 938,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_499_hrj76u",
+      "time": 941,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_500_n17jix",
+      "time": 941,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 50200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_501_pgqrpm",
+      "time": 944,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_502_ig3kne",
+      "time": 948,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_503_k509pi",
+      "time": 948,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 62900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_504_zfk748",
+      "time": 951,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_505_hzppsh",
+      "time": 954,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_506_ibxw9d",
+      "time": 961,
+      "name": {
+        "ja": "連帯刑",
+        "en": "Irresistible Grace"
+      },
+      "damageType": "magical",
+      "damageAmount": 39100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_507_8xz2zo",
+      "time": 963,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_508_ozt2vu",
+      "time": 965,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_509_r9arus",
+      "time": 970,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_510_4wjsby",
+      "time": 972,
+      "name": {
+        "ja": "聖なる大審判",
+        "en": "Almighty Judgment"
+      },
+      "damageType": "magical",
+      "damageAmount": 164000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_511_10fi8a",
+      "time": 973,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_512_z5g4jy",
+      "time": 974,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_513_ejncgg",
+      "time": 974,
+      "name": {
+        "ja": "連帯刑",
+        "en": "Irresistible Grace"
+      },
+      "damageType": "magical",
+      "damageAmount": 44500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_514_bvofib",
+      "time": 975,
+      "name": {
+        "ja": "加重誅罰",
+        "en": "Ordained Capital Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 25900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_515_493vfq",
+      "time": 975,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 10700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_516_eytp8o",
+      "time": 978,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_517_806ji4",
+      "time": 979,
+      "name": {
+        "ja": "誅罰",
+        "en": "Ordained Punishment"
+      },
+      "damageType": "magical",
+      "damageAmount": 59400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_518_mtydv2",
+      "time": 981,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 15400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_519_b0h9wu",
+      "time": 984,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_520_ya590e",
+      "time": 989,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_521_k2520h",
+      "time": 993,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_522_7bu9py",
+      "time": 995,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_523_gco18f",
+      "time": 999,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_524_y1yd5h",
+      "time": 1006,
+      "name": {
+        "ja": "連帯刑",
+        "en": "Irresistible Grace"
+      },
+      "damageType": "magical",
+      "damageAmount": 39100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_525_61y5be",
+      "time": 1009,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_526_2c58ye",
+      "time": 1012,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 11400,
+      "target": "AoE"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "startTimeSec": 0
+    },
+    {
+      "id": 2,
+      "startTimeSec": 128
+    },
+    {
+      "id": 3,
+      "startTimeSec": 157
+    },
+    {
+      "id": 4,
+      "startTimeSec": 341
+    },
+    {
+      "id": 5,
+      "startTimeSec": 368
+    },
+    {
+      "id": 6,
+      "startTimeSec": 709
+    }
+  ]
+}

@@ -1,0 +1,6183 @@
+{
+  "contentId": "uwu",
+  "generatedAt": "2026-03-21T07:56:56.123Z",
+  "sourceLogsCount": 3,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_lracre",
+      "time": 4,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_1_pc08hf",
+      "time": 11,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 29700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_2_9u3r36",
+      "time": 12,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 12100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_tujlbk",
+      "time": 14,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_4_9vj9v4",
+      "time": 19,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_5_3x3zkm",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_6_oc795n",
+      "time": 27,
+      "name": {
+        "ja": "サイクロン",
+        "en": "Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 19300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_7_3bv2j7",
+      "time": 27,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_8_aq12nw",
+      "time": 28,
+      "name": {
+        "ja": "ダウンバースト",
+        "en": "Downburst"
+      },
+      "damageType": "physical",
+      "damageAmount": 19900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_9_o2234o",
+      "time": 30,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_10_8qqetp",
+      "time": 33,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_11_1q20mn",
+      "time": 36,
+      "name": {
+        "ja": "サイクロン",
+        "en": "Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 19300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_12_a6gpd6",
+      "time": 41,
+      "name": {
+        "ja": "ギガストーム",
+        "en": "Gigastorm"
+      },
+      "damageType": "magical",
+      "damageAmount": 15300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_13_h1faia",
+      "time": 41,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_14_gmorrw",
+      "time": 42,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_wg5ziv",
+      "time": 43,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_4pnk4l",
+      "time": 45,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_17_trprkn",
+      "time": 48,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_5wa02b",
+      "time": 49,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_jyy8sv",
+      "time": 49,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_20_re7n1x",
+      "time": 51,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_25cyqd",
+      "time": 52,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 10200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_lryt7q",
+      "time": 52,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_23_pm87h3",
+      "time": 52,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_24_isa2vb",
+      "time": 53,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 6810,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_ar4jz1",
+      "time": 53,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_26_ftcgko",
+      "time": 53,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_27_60vtfy",
+      "time": 53,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_28_r954oo",
+      "time": 55,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_29_3x4a2d",
+      "time": 55,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_30_ir6uma",
+      "time": 56,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 1590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_yyievq",
+      "time": 57,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_32_kzjzzy",
+      "time": 58,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_lhvbkv",
+      "time": 59,
+      "name": {
+        "ja": "ウィンドブレード",
+        "en": "Friction"
+      },
+      "damageType": "magical",
+      "damageAmount": 13000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_zuceq1",
+      "time": 60,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_35_okaajj",
+      "time": 61,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_hebyyn",
+      "time": 64,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_beeu7p",
+      "time": 64,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_38_0lyd4m",
+      "time": 65,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_dier8o",
+      "time": 66,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_40_wxy6g3",
+      "time": 69,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_41_jbgms1",
+      "time": 76,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_9nyrnu",
+      "time": 78,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_43_0xahf6",
+      "time": 79,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_7c6fg6",
+      "time": 89,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_45_rag198",
+      "time": 92,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_46_hkques",
+      "time": 95,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_47_axoafo",
+      "time": 99,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_48_me7el8",
+      "time": 99,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_49_3u3r10",
+      "time": 100,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 5600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_5ffvlw",
+      "time": 103,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_51_cg9ab6",
+      "time": 106,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_52_tlxln1",
+      "time": 112,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_53_ra2lzd",
+      "time": 116,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_54_nl6b06",
+      "time": 118,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_55_g9fprl",
+      "time": 125,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4350,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_56_0fa6b2",
+      "time": 125,
+      "name": {
+        "ja": "ダウンバースト",
+        "en": "Downburst"
+      },
+      "damageType": "physical",
+      "damageAmount": 19900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_57_v3n1jm",
+      "time": 125,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_58_0g9pyd",
+      "time": 125,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4340,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_59_b5vvk7",
+      "time": 126,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 13800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_hkai9z",
+      "time": 126,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 14300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_ct0xdj",
+      "time": 126,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_yy64vl",
+      "time": 126,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_63_h804na",
+      "time": 126,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_64_lpfcgu",
+      "time": 128,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_65_pd6ff4",
+      "time": 129,
+      "name": {
+        "ja": "フェザーレイン",
+        "en": "Feather Rain"
+      },
+      "damageType": "magical",
+      "damageAmount": 6070,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_mjco35",
+      "time": 131,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_67_v1k64k",
+      "time": 134,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_68_pdz958",
+      "time": 137,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_69_jt9sdz",
+      "time": 143,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_70_g2v6sx",
+      "time": 146,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_71_ff65mg",
+      "time": 155,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_ofn853",
+      "time": 160,
+      "name": {
+        "ja": "バルカンバースト",
+        "en": "Vulcan Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_qrsdw8",
+      "time": 163,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 23400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_74_5r1hon",
+      "time": 164,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 24900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_75_20olk9",
+      "time": 166,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "target": "ST"
+    },
+    {
+      "id": "tpl_76_6xqg9g",
+      "time": 170,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_o9nnrj",
+      "time": 170,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 23400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_78_j5qlfe",
+      "time": 174,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_79_yhrdvp",
+      "time": 178,
+      "name": {
+        "ja": "バルカンバースト",
+        "en": "Vulcan Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_24xhjg",
+      "time": 179,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_81_c7dmdx",
+      "time": 181,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 4460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_23hnew",
+      "time": 181,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_83_9919fd",
+      "time": 182,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_84_d9cayh",
+      "time": 183,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 5260,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_85_pe8f3f",
+      "time": 183,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 5630,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_86_w0nc9l",
+      "time": 184,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_87_9ks2e0",
+      "time": 185,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 3420,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_9z4wqh",
+      "time": 187,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 5630,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_89_feq75c",
+      "time": 187,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_90_7d5ced",
+      "time": 188,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_91_p4zl8b",
+      "time": 192,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_92_8vpanv",
+      "time": 192,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_93_nww0f0",
+      "time": 194,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_3m03c6",
+      "time": 194,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_95_zl07qs",
+      "time": 195,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_96_zl1pyp",
+      "time": 197,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_rk1t9e",
+      "time": 197,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_98_7j6ae4",
+      "time": 198,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_99_9sofgl",
+      "time": 200,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_100_in69v5",
+      "time": 201,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 4520,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_xbwgrj",
+      "time": 201,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_s7as0n",
+      "time": 201,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_103_k6qb0k",
+      "time": 202,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 2530,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_j41w3h",
+      "time": 204,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_3a8eul",
+      "time": 204,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_106_7u4fbf",
+      "time": 206,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_107_vq5hgu",
+      "time": 212,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_108_8o1c3i",
+      "time": 215,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_z8opi6",
+      "time": 215,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_110_591zxa",
+      "time": 216,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_3s768n",
+      "time": 217,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_112_yn99wq",
+      "time": 218,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_459iz1",
+      "time": 218,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_i4xnhw",
+      "time": 218,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_115_6by1by",
+      "time": 219,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_2ho1tf",
+      "time": 220,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_vd2mrx",
+      "time": 220,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_118_b8thfp",
+      "time": 221,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_7zjv1x",
+      "time": 221,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_120_1q18kn",
+      "time": 223,
+      "name": {
+        "ja": "炎獄の焔",
+        "en": "Infernal Surge"
+      },
+      "damageType": "magical",
+      "damageAmount": 5590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_zohgq4",
+      "time": 223,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 3420,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_32clvo",
+      "time": 223,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_123_q54lxq",
+      "time": 226,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 5630,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_124_plr1yy",
+      "time": 226,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_125_uso14x",
+      "time": 230,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_126_cip61i",
+      "time": 232,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 5630,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_127_seqlto",
+      "time": 233,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_128_wmw4sn",
+      "time": 235,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_825ezd",
+      "time": 235,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 5630,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_130_eij452",
+      "time": 236,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_ksch8n",
+      "time": 236,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_132_l50t32",
+      "time": 238,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_133_rmde1w",
+      "time": 241,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 2530,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_whoehq",
+      "time": 242,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_135_04ngml",
+      "time": 244,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 9810,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_136_vr4or0",
+      "time": 250,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_137_9dwruz",
+      "time": 251,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 8960,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_ju2qf6",
+      "time": 253,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_139_4taca8",
+      "time": 256,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_140_nzsnu8",
+      "time": 258,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 20800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_zr7jn6",
+      "time": 259,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 2530,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_hob1jf",
+      "time": 261,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_143_xfnyin",
+      "time": 262,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_144_kbf6c8",
+      "time": 262,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_145_6nhcq0",
+      "time": 264,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_146_24hf4w",
+      "time": 264,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 13900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_147_8uqexc",
+      "time": 265,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_148_ppncr3",
+      "time": 265,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_149_f79m4t",
+      "time": 266,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 23100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_150_wnyysf",
+      "time": 267,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 41900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_151_d0wmze",
+      "time": 268,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_152_dgn4ed",
+      "time": 268,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_153_xjw0zq",
+      "time": 269,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 39900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_154_66myr9",
+      "time": 270,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 11700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_sng1i6",
+      "time": 270,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_156_6ljj6m",
+      "time": 273,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 6460,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_157_7p3e7a",
+      "time": 274,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_158_uety3h",
+      "time": 277,
+      "name": {
+        "ja": "大地の重み",
+        "en": "Weight of the Land"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_iap24b",
+      "time": 281,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_160_qmcltt",
+      "time": 282,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_161_h4x60y",
+      "time": 289,
+      "name": {
+        "ja": "大激震",
+        "en": "Upheaval"
+      },
+      "damageType": "magical",
+      "damageAmount": 5120,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_kj0ep7",
+      "time": 290,
+      "name": {
+        "ja": "大激震",
+        "en": "Upheaval"
+      },
+      "damageType": "magical",
+      "damageAmount": 5120,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_163_5oj6x6",
+      "time": 293,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_164_ec9p7u",
+      "time": 293,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_165_mklmsc",
+      "time": 297,
+      "name": {
+        "ja": "インシネレート",
+        "en": "Incinerate"
+      },
+      "damageType": "magical",
+      "damageAmount": 45400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_166_m0wjha",
+      "time": 303,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_zepxnf",
+      "time": 304,
+      "name": {
+        "ja": "ジオクラッシュ (TB)",
+        "en": "Geocrush (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 14500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_168_l66gad",
+      "time": 304,
+      "name": {
+        "ja": "ジオクラッシュ (TB)",
+        "en": "Geocrush (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 14500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_169_bmd1dq",
+      "time": 305,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 7970,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_170_7zkbje",
+      "time": 306,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_tubjih",
+      "time": 309,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_172_v43s4m",
+      "time": 309,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_173_u0or1k",
+      "time": 311,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_174_h9e674",
+      "time": 312,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_175_c209lh",
+      "time": 314,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_176_w638z0",
+      "time": 317,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_177_8a3i8v",
+      "time": 317,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_178_7qt0iq",
+      "time": 321,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 35100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_179_sqoh67",
+      "time": 321,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_180_xhp1m6",
+      "time": 328,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_181_lkgz4x",
+      "time": 329,
+      "name": {
+        "ja": "大地の重み",
+        "en": "Weight of the Land"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_bob8t6",
+      "time": 334,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_9g8qne",
+      "time": 337,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 6790,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_s8u8ww",
+      "time": 339,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_185_lk0s5b",
+      "time": 342,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_186_xksra9",
+      "time": 343,
+      "name": {
+        "ja": "大激震",
+        "en": "Upheaval"
+      },
+      "damageType": "magical",
+      "damageAmount": 4600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_rjuv60",
+      "time": 345,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_188_otehu2",
+      "time": 345,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_189_vlh3le",
+      "time": 348,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_190_ljve2k",
+      "time": 348,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_191_6opjpw",
+      "time": 351,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_192_plsf9o",
+      "time": 356,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_aadoac",
+      "time": 357,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_gr5i5h",
+      "time": 357,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_195_85l3qz",
+      "time": 357,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_196_cixfcq",
+      "time": 357,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_197_743671",
+      "time": 358,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_gpu558",
+      "time": 359,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_ijb3kv",
+      "time": 359,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_200_z9sdhx",
+      "time": 360,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_gvb2xi",
+      "time": 361,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_wp8g9y",
+      "time": 363,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_203_gp0ob4",
+      "time": 364,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_204_ec1rpx",
+      "time": 365,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_205_wl8ocm",
+      "time": 365,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 13900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_206_luj6be",
+      "time": 365,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_207_jbs9ua",
+      "time": 367,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_208_19tw0g",
+      "time": 367,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_209_p9g90e",
+      "time": 367,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 23100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_210_eouvt7",
+      "time": 369,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_211_ux8mgc",
+      "time": 370,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 41900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_212_ot534s",
+      "time": 370,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 5430,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_213_zz7151",
+      "time": 370,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 39900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_214_71w07q",
+      "time": 374,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_215_xr4c0v",
+      "time": 379,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_216_bf24dd",
+      "time": 383,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_217_vyjo1d",
+      "time": 384,
+      "name": {
+        "ja": "ランドスライド",
+        "en": "Landslide"
+      },
+      "damageType": "physical",
+      "damageAmount": 12800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_218_ayvqt2",
+      "time": 388,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 6840,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_219_jcw1oy",
+      "time": 389,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_220_0dnkww",
+      "time": 390,
+      "name": {
+        "ja": "ジオクラッシュ",
+        "en": "Geocrush"
+      },
+      "damageType": "magical",
+      "damageAmount": 6840,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_221_b9ryb0",
+      "time": 392,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_222_kvrvuf",
+      "time": 392,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 23100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_223_kdqgsc",
+      "time": 395,
+      "name": {
+        "ja": "誘爆",
+        "en": "Freefire"
+      },
+      "damageType": "magical",
+      "damageAmount": 3850,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_224_oeno39",
+      "time": 395,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 9380,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_225_30ylaw",
+      "time": 395,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 39900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_226_439tsv",
+      "time": 398,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_227_7njwtz",
+      "time": 401,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_228_9hv7ec",
+      "time": 410,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_229_5w0ozi",
+      "time": 410,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_230_ewghrb",
+      "time": 411,
+      "name": {
+        "ja": "誘爆",
+        "en": "Freefire"
+      },
+      "damageType": "magical",
+      "damageAmount": 10900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_231_0iwmhl",
+      "time": 412,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_232_ee0v7x",
+      "time": 414,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_233_zna94s",
+      "time": 415,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_234_v5qsc9",
+      "time": 417,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_235_ebc7jf",
+      "time": 418,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_236_rhioi5",
+      "time": 418,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_237_rauaq5",
+      "time": 420,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_238_xt3t2e",
+      "time": 422,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 35100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_239_tzl41j",
+      "time": 423,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_240_0pq082",
+      "time": 427,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_241_kdj22k",
+      "time": 429,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_242_hhymey",
+      "time": 432,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_243_dwomrx",
+      "time": 440,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_244_kzq3dg",
+      "time": 443,
+      "name": {
+        "ja": "ロックバスター",
+        "en": "Rock Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 13100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_245_5za520",
+      "time": 443,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_246_zxh35p",
+      "time": 446,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 90700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_247_v4c8ft",
+      "time": 446,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_248_2zc5cb",
+      "time": 448,
+      "name": {
+        "ja": "マウンテンバスター",
+        "en": "Mountain Buster"
+      },
+      "damageType": "physical",
+      "damageAmount": 35100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_249_3zdaby",
+      "time": 449,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_250_d10on8",
+      "time": 454,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 7200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_251_tmdauu",
+      "time": 462,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 91900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_252_ep2lxu",
+      "time": 466,
+      "name": {
+        "ja": "誘爆",
+        "en": "Freefire"
+      },
+      "damageType": "magical",
+      "damageAmount": 3870,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_253_m6m5l8",
+      "time": 467,
+      "name": {
+        "ja": "誘爆",
+        "en": "Freefire"
+      },
+      "damageType": "magical",
+      "damageAmount": 3870,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_254_ewuan2",
+      "time": 487,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_255_m9qezz",
+      "time": 488,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4740,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_256_l1fitb",
+      "time": 489,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_257_x648cq",
+      "time": 492,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_258_bzlkbb",
+      "time": 497,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 34500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_259_tir4xz",
+      "time": 497,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_260_01luup",
+      "time": 500,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_261_db5ewd",
+      "time": 500,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_262_a7qurf",
+      "time": 500,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_263_x4n9bm",
+      "time": 501,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 8210,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_264_ts29r4",
+      "time": 504,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_265_2okgl9",
+      "time": 505,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_266_2qo7zx",
+      "time": 505,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4910,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_267_e0n2ix",
+      "time": 508,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_268_zo3ox3",
+      "time": 514,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 94900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_269_bc7snv",
+      "time": 514,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_270_cyyfr2",
+      "time": 514,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_271_lourwy",
+      "time": 515,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 94900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_272_dbiq1p",
+      "time": 516,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_273_5t7d6p",
+      "time": 517,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_274_dwtz3i",
+      "time": 521,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 35900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_275_318gjm",
+      "time": 530,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_276_1c4ng8",
+      "time": 533,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_277_dxu1uf",
+      "time": 538,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_278_o6tuo5",
+      "time": 540,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 24300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_279_rj9ayl",
+      "time": 541,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_280_la624g",
+      "time": 544,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_281_h9q2tt",
+      "time": 547,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 5260,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_282_azw8f3",
+      "time": 550,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_283_62lh5j",
+      "time": 554,
+      "name": {
+        "ja": "光輝の炎柱",
+        "en": "Radiant Plume"
+      },
+      "damageType": "magical",
+      "damageAmount": 27700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_284_0chkxo",
+      "time": 555,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_285_jweab1",
+      "time": 556,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_286_kh1q6r",
+      "time": 557,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_287_xi2ej4",
+      "time": 557,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_288_zv7x43",
+      "time": 558,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_289_4fwxd2",
+      "time": 560,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_290_scs954",
+      "time": 562,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_291_0yvjcb",
+      "time": 563,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_292_vobjob",
+      "time": 564,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 4460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_293_yfaaii",
+      "time": 564,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 33500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_294_xmjk2x",
+      "time": 565,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4740,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_295_jl0knk",
+      "time": 567,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_296_xx4zae",
+      "time": 567,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_297_a0jro7",
+      "time": 568,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_298_dmz8n8",
+      "time": 569,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_299_ya4i4d",
+      "time": 569,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_300_a2bzec",
+      "time": 569,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_301_p8m8yi",
+      "time": 570,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_302_dw1e1d",
+      "time": 572,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 17000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_303_iejex1",
+      "time": 572,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_304_majizx",
+      "time": 573,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 17000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_305_0745f8",
+      "time": 574,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 17000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_306_jg6kak",
+      "time": 576,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_307_0ijs7y",
+      "time": 577,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 34500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_308_ld2yeu",
+      "time": 579,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_309_ccgc0u",
+      "time": 580,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_310_25qped",
+      "time": 581,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_311_nshsy8",
+      "time": 582,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_312_h8p7o1",
+      "time": 582,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4910,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_313_cnmh3u",
+      "time": 583,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_314_ukcm7i",
+      "time": 586,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 6400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_315_x96e8e",
+      "time": 586,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_316_cttr5f",
+      "time": 589,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 17300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_317_7vxs5i",
+      "time": 590,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 17300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_318_fosbdh",
+      "time": 590,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_319_jcyfc1",
+      "time": 592,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 26100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_320_kg3ti6",
+      "time": 593,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 26100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_321_ibp9o3",
+      "time": 593,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_322_2xs7tz",
+      "time": 594,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_323_85er80",
+      "time": 596,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_324_l6mnpb",
+      "time": 598,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_325_h9kej1",
+      "time": 599,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_326_m5337l",
+      "time": 599,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_327_f5f8yx",
+      "time": 599,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_328_a349x3",
+      "time": 601,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_329_9s2k44",
+      "time": 601,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_330_3vb2ne",
+      "time": 602,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4340,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_331_gi5w51",
+      "time": 602,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_332_6zejcw",
+      "time": 602,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_333_qzm7mw",
+      "time": 602,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_334_gq4sy7",
+      "time": 603,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 1590,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_335_jlnm4n",
+      "time": 607,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_336_ld4e4p",
+      "time": 607,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_337_sth3o3",
+      "time": 607,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_338_faewzz",
+      "time": 611,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_339_wptlpo",
+      "time": 614,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_340_jqu79d",
+      "time": 615,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_341_ncqivp",
+      "time": 616,
+      "name": {
+        "ja": "炎獄の鎖",
+        "en": "Infernal Fetters"
+      },
+      "damageType": "magical",
+      "damageAmount": 4520,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_342_8a71oz",
+      "time": 616,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 9630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_343_p90c5t",
+      "time": 618,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_344_oub7a9",
+      "time": 618,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6230,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_345_yt166m",
+      "time": 619,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4340,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_346_2x4sqp",
+      "time": 620,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 3420,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_347_27v04b",
+      "time": 620,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_348_oaambp",
+      "time": 620,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_349_ntimny",
+      "time": 620,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6950,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_350_g7ppxa",
+      "time": 621,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 10200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_351_8tg1sq",
+      "time": 622,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_352_vp1imm",
+      "time": 623,
+      "name": {
+        "ja": "フェザーレイン",
+        "en": "Feather Rain"
+      },
+      "damageType": "magical",
+      "damageAmount": 6530,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_353_ku9nci",
+      "time": 623,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6230,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_354_uv1k6g",
+      "time": 630,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_355_hh7mdj",
+      "time": 632,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_356_20ivjk",
+      "time": 632,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6230,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_357_p6vb5c",
+      "time": 633,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_358_ua9wkh",
+      "time": 633,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_359_0xyx4r",
+      "time": 634,
+      "name": {
+        "ja": "吸着式エーテル爆雷",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 4620,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_360_2szsdl",
+      "time": 634,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_361_nbgqt3",
+      "time": 634,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_362_unz0e4",
+      "time": 635,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_363_ce0adg",
+      "time": 635,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_364_f0iiv8",
+      "time": 635,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 6230,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_365_rjkzm2",
+      "time": 636,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 10200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_366_ui50o5",
+      "time": 636,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_367_wkcfuj",
+      "time": 637,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_368_rbrqlp",
+      "time": 637,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 34500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_369_gx68bh",
+      "time": 638,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_370_636b36",
+      "time": 638,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_371_xw18ab",
+      "time": 639,
+      "name": {
+        "ja": "激震",
+        "en": "Tumult"
+      },
+      "damageType": "magical",
+      "damageAmount": 4170,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_372_f83ox5",
+      "time": 639,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_373_x3gcoc",
+      "time": 639,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_374_ar57nq",
+      "time": 639,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_375_kf1bnz",
+      "time": 640,
+      "name": {
+        "ja": "フェザーレイン",
+        "en": "Feather Rain"
+      },
+      "damageType": "magical",
+      "damageAmount": 5860,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_376_x44ztp",
+      "time": 641,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_377_j85tqq",
+      "time": 641,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_378_c1w32n",
+      "time": 642,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_379_xoipm3",
+      "time": 642,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_380_w99fq2",
+      "time": 643,
+      "name": {
+        "ja": "ミストラルシュリーク",
+        "en": "Mistral Shriek"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_381_i9tgns",
+      "time": 645,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_382_t6j6br",
+      "time": 646,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 33500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_383_46s129",
+      "time": 647,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_384_k7tv5s",
+      "time": 650,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_385_szg6o3",
+      "time": 650,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_386_4iam3v",
+      "time": 651,
+      "name": {
+        "ja": "拡散レーザー",
+        "en": "Diffractive Laser"
+      },
+      "damageType": "magical",
+      "damageAmount": 14500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_387_6q25z6",
+      "time": 652,
+      "name": {
+        "ja": "拡散レーザー",
+        "en": "Diffractive Laser"
+      },
+      "damageType": "magical",
+      "damageAmount": 14500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_388_5bsw72",
+      "time": 654,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 37000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_389_356c1y",
+      "time": 657,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_390_f0vpag",
+      "time": 668,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 11700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_391_35udw4",
+      "time": 670,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_392_mpcfws",
+      "time": 670,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4350,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_393_2zdqae",
+      "time": 671,
+      "name": {
+        "ja": "灼熱の咆吼",
+        "en": "Inferno Howl"
+      },
+      "damageType": "magical",
+      "damageAmount": 2530,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_394_1k73w7",
+      "time": 671,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 6810,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_395_y45wfd",
+      "time": 671,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_396_ohwarg",
+      "time": 671,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 21300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_397_r4hnaa",
+      "time": 672,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 5600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_398_euutmb",
+      "time": 673,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 24900,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_399_5vf5c8",
+      "time": 674,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_400_nbt9k2",
+      "time": 675,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 5550,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_401_kog47d",
+      "time": 675,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 18800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_402_5etd6i",
+      "time": 675,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "target": "ST"
+    },
+    {
+      "id": "tpl_403_q0g48q",
+      "time": 676,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_404_m4700t",
+      "time": 677,
+      "name": {
+        "ja": "フェザーレイン",
+        "en": "Feather Rain"
+      },
+      "damageType": "magical",
+      "damageAmount": 6530,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_405_05m2mt",
+      "time": 678,
+      "name": {
+        "ja": "フェザーレイン",
+        "en": "Feather Rain"
+      },
+      "damageType": "magical",
+      "damageAmount": 5860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_406_vkm5bj",
+      "time": 686,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_407_u30qbl",
+      "time": 687,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_408_9vpq8x",
+      "time": 688,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4350,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_409_k403pu",
+      "time": 688,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4340,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_410_cdaq88",
+      "time": 689,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 6810,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_411_mnwbik",
+      "time": 689,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 10300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_412_615fzk",
+      "time": 689,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_413_b90le9",
+      "time": 689,
+      "name": {
+        "ja": "スーパーサイクロン (TB)",
+        "en": "Super Cyclone (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 5030,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_414_q0cpug",
+      "time": 690,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_415_g0ybgv",
+      "time": 690,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 10400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_416_hmw76m",
+      "time": 692,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_417_52rhky",
+      "time": 692,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 10200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_418_iz95wn",
+      "time": 692,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_419_7jhgcs",
+      "time": 693,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 9630,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_420_qnaund",
+      "time": 695,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_421_rjklgu",
+      "time": 699,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 17400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_422_7cv20k",
+      "time": 699,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_423_jx8mwl",
+      "time": 702,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_424_cf363i",
+      "time": 706,
+      "name": {
+        "ja": "誘導レーザー",
+        "en": "Homing Lasers"
+      },
+      "damageType": "magical",
+      "damageAmount": 33500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_425_6x6wmn",
+      "time": 709,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 90700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_426_hp4u4t",
+      "time": 709,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_427_s3b3yt",
+      "time": 712,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 91900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_428_vib0bf",
+      "time": 712,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_429_vsfwf1",
+      "time": 715,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_430_jm3r8n",
+      "time": 716,
+      "name": {
+        "ja": "エーテル波動",
+        "en": "Aetheric Boom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_431_qh84q2",
+      "time": 718,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_432_22op7s",
+      "time": 719,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 16600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_433_xt4zkt",
+      "time": 719,
+      "name": {
+        "ja": "エーテル波動",
+        "en": "Aetheric Boom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_434_9hout1",
+      "time": 721,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_435_2itlon",
+      "time": 721,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 56500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_436_q44ped",
+      "time": 722,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 16600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_437_6doygb",
+      "time": 722,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_438_qar2j5",
+      "time": 724,
+      "name": {
+        "ja": "融合爆発",
+        "en": "Fusion Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 951000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_439_j7705v",
+      "time": 724,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 56500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_440_4ur9gl",
+      "time": 724,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_441_7hv46x",
+      "time": 727,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 56500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_442_pjuzb9",
+      "time": 728,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_443_umffpy",
+      "time": 728,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_444_8kcpla",
+      "time": 728,
+      "name": {
+        "ja": "融合爆発",
+        "en": "Fusion Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 951000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_445_7rsj58",
+      "time": 729,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_446_s05xtm",
+      "time": 730,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_447_r6jjsw",
+      "time": 731,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_448_5oi17c",
+      "time": 731,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 20100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_449_3jvr06",
+      "time": 731,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 20100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_450_zq7yv9",
+      "time": 732,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 5260,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_451_wecmae",
+      "time": 732,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_452_s3vg24",
+      "time": 732,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 20100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_453_9p7zch",
+      "time": 732,
+      "name": {
+        "ja": "ミストラルソング (TB)",
+        "en": "Mistral Song (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 20100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_454_ik5bun",
+      "time": 733,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 5260,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_455_4qkfi4",
+      "time": 733,
+      "name": {
+        "ja": "ミストラルソング",
+        "en": "Mistral Song"
+      },
+      "damageType": "magical",
+      "damageAmount": 52300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_456_1ocice",
+      "time": 734,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_457_48895p",
+      "time": 734,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_458_a6lmxz",
+      "time": 735,
+      "name": {
+        "ja": "エラプション",
+        "en": "Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 43600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_459_le827w",
+      "time": 736,
+      "name": {
+        "ja": "リヒト・ゾイレ",
+        "en": "Light Pillar"
+      },
+      "damageType": "magical",
+      "damageAmount": 11000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_460_nug7ps",
+      "time": 736,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_461_foq5y8",
+      "time": 737,
+      "name": {
+        "ja": "リヒト・ゾイレ",
+        "en": "Light Pillar"
+      },
+      "damageType": "magical",
+      "damageAmount": 11000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_462_no7t71",
+      "time": 737,
+      "name": {
+        "ja": "大旋風",
+        "en": "Great Whirlwind"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_463_k2wd50",
+      "time": 738,
+      "name": {
+        "ja": "魔科学レーザー",
+        "en": "Aetherochemical Laser"
+      },
+      "damageType": "magical",
+      "damageAmount": 27500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_464_d0ecke",
+      "time": 738,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_465_6lf2fs",
+      "time": 739,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_466_2b9pzt",
+      "time": 741,
+      "name": {
+        "ja": "リヒト・ゾイレ",
+        "en": "Light Pillar"
+      },
+      "damageType": "magical",
+      "damageAmount": 11000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_467_unik7y",
+      "time": 741,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_468_yag1vb",
+      "time": 745,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_469_3yc2ap",
+      "time": 746,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_470_lxxgyb",
+      "time": 748,
+      "name": {
+        "ja": "メソハイ",
+        "en": "Mesohigh"
+      },
+      "damageType": "magical",
+      "damageAmount": 4350,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_471_m3d10x",
+      "time": 748,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_472_1xfxps",
+      "time": 749,
+      "name": {
+        "ja": "スーパーサイクロン",
+        "en": "Super Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 6810,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_473_7qylhv",
+      "time": 749,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_474_mun678",
+      "time": 750,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 11700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_475_o0xv5p",
+      "time": 750,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_476_czcq7k",
+      "time": 751,
+      "name": {
+        "ja": "フレイムクラッシュ",
+        "en": "Flaming Crush"
+      },
+      "damageType": "magical",
+      "damageAmount": 11700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_477_cit43h",
+      "time": 751,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 8210,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_478_yskxq1",
+      "time": 751,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_479_4rafah",
+      "time": 754,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_480_vwaeiz",
+      "time": 754,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_481_ixyr3o",
+      "time": 754,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_482_0qy0v1",
+      "time": 754,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_483_ysysl5",
+      "time": 756,
+      "name": {
+        "ja": "魔導フレア",
+        "en": "Tank Purge"
+      },
+      "damageType": "magical",
+      "damageAmount": 15500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_484_xfntun",
+      "time": 758,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_485_2j0hug",
+      "time": 758,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_486_ivwfxc",
+      "time": 758,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_487_eykp1q",
+      "time": 760,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_488_nf5kx6",
+      "time": 760,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_489_nq1f92",
+      "time": 765,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_490_d5i6su",
+      "time": 767,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_491_jfapok",
+      "time": 768,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_492_3viqp8",
+      "time": 769,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 94900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_493_ncwa7f",
+      "time": 770,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_494_e8c69n",
+      "time": 770,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_495_zzhahk",
+      "time": 771,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 8210,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_496_ksocd9",
+      "time": 771,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_497_b59ayi",
+      "time": 771,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_498_p5j0it",
+      "time": 772,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 29600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_499_7i2bpu",
+      "time": 773,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_500_ocrqu0",
+      "time": 774,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_501_tazmkb",
+      "time": 774,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_502_7ulwcr",
+      "time": 776,
+      "name": {
+        "ja": "エーテル波動",
+        "en": "Aetheric Boom"
+      },
+      "damageType": "magical",
+      "damageAmount": 2500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_503_83973y",
+      "time": 776,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_504_sz379g",
+      "time": 776,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_505_836adn",
+      "time": 779,
+      "name": {
+        "ja": "爆雷起爆",
+        "en": "Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 14900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_506_89c0dq",
+      "time": 779,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_507_qvm9ji",
+      "time": 780,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_508_1nh11l",
+      "time": 780,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_509_k3hkl7",
+      "time": 782,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_510_pszpru",
+      "time": 782,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_511_e3nuc5",
+      "time": 784,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_512_88c1qf",
+      "time": 785,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_513_yq2q27",
+      "time": 785,
+      "name": {
+        "ja": "爆雷起爆 (TB)",
+        "en": "Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 50700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_514_wvl846",
+      "time": 788,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_515_t97oo9",
+      "time": 790,
+      "name": {
+        "ja": "大地の重み",
+        "en": "Weight of the Land"
+      },
+      "damageType": "magical",
+      "damageAmount": 27100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_516_yhemcw",
+      "time": 790,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_517_ntcnq3",
+      "time": 790,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 36800,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_518_oi990b",
+      "time": 791,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 8210,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_519_t811qk",
+      "time": 791,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_520_y2iwk8",
+      "time": 794,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_521_nnzwpe",
+      "time": 797,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_522_67mwl5",
+      "time": 798,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 11800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_523_sicdap",
+      "time": 799,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 20800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_524_zg2xi6",
+      "time": 801,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 20800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_525_vi66th",
+      "time": 802,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7860,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_526_yr6ant",
+      "time": 805,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_527_esyycv",
+      "time": 808,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_528_iusqfr",
+      "time": 810,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_529_7k2j9i",
+      "time": 810,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_530_8sgnhq",
+      "time": 811,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_531_33z1ap",
+      "time": 811,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_532_rttbd6",
+      "time": 811,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_533_n228m2",
+      "time": 814,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_534_a7k3b1",
+      "time": 817,
+      "name": {
+        "ja": "エリアルブラスト",
+        "en": "Aerial Blast"
+      },
+      "damageType": "magical",
+      "damageAmount": 18600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_535_a2iz91",
+      "time": 817,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_536_cnm290",
+      "time": 822,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_537_3fo76h",
+      "time": 826,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_538_bowya0",
+      "time": 828,
+      "name": {
+        "ja": "クリムゾンサイクロン",
+        "en": "Crimson Cyclone"
+      },
+      "damageType": "magical",
+      "damageAmount": 29100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_539_1mvlba",
+      "time": 829,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_540_3s64hu",
+      "time": 830,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_541_nohsuy",
+      "time": 830,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_542_2u5tgn",
+      "time": 831,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_543_suivq9",
+      "time": 833,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_544_y9nypt",
+      "time": 834,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_545_yd67ro",
+      "time": 839,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_546_9qttv9",
+      "time": 839,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_547_czpvgo",
+      "time": 840,
+      "name": {
+        "ja": "地獄の火炎",
+        "en": "Hellfire"
+      },
+      "damageType": "magical",
+      "damageAmount": 18900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_548_mld9va",
+      "time": 842,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_549_rn27r4",
+      "time": 847,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_550_8vtlri",
+      "time": 850,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_551_3j71av",
+      "time": 850,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_552_s0rdpk",
+      "time": 851,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_553_gmjtg6",
+      "time": 851,
+      "name": {
+        "ja": "吸着爆雷起爆 (TB)",
+        "en": "Viscous Aetheroplasm (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 37700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_554_5cq819",
+      "time": 852,
+      "name": {
+        "ja": "吸着爆雷起爆",
+        "en": "Viscous Aetheroplasm"
+      },
+      "damageType": "magical",
+      "damageAmount": 9460,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_555_dsi8lh",
+      "time": 852,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_556_scsctp",
+      "time": 855,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_557_3ysh9j",
+      "time": 858,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_558_2qaity",
+      "time": 858,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 7590,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_559_44tjqz",
+      "time": 859,
+      "name": {
+        "ja": "大地の怒り",
+        "en": "Earthen Fury"
+      },
+      "damageType": "magical",
+      "damageAmount": 19000,
+      "target": "AoE"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "startTimeSec": 0
+    },
+    {
+      "id": 2,
+      "startTimeSec": 163
+    },
+    {
+      "id": 3,
+      "startTimeSec": 304
+    },
+    {
+      "id": 4,
+      "startTimeSec": 468
+    },
+    {
+      "id": 5,
+      "startTimeSec": 544
+    }
+  ]
+}

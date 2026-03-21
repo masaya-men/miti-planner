@@ -62,6 +62,7 @@ export interface FFLogsFight {
     name: string;
     difficulty?: number;
     kill?: boolean;
+    phaseTransitions?: { id: number; startTime: number }[];
 }
 
 /** Paginated events result from GraphQL */
@@ -191,6 +192,10 @@ const FIGHTS_QUERY = /* graphql */`
           name
           difficulty
           kill
+          phaseTransitions {
+            id
+            startTime
+          }
         }
       }
     }

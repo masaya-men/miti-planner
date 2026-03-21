@@ -16,8 +16,10 @@
         "settings": "設定",
         "import_export": "インポート/エクスポート",
         "aa_mode": "AA追加モード",
-        "return_home": "ポータルに戻る",
-        "view_tutorial": "チュートリアルを見る"
+        "return_home": "トップページに戻る",
+        "view_tutorial": "チュートリアルを見る",
+        "toggle_theme_light": "ライトテーマにする",
+        "toggle_theme_dark": "ダークテーマにする"
     },
     "aa_settings": {
         "title": "AA追加モード",
@@ -197,7 +199,9 @@
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
-        "import_fflogs": "タイムラインを作成"
+        "import_fflogs": "タイムラインを作成",
+        "end_phase": "ここまでのフェーズ名を追加",
+        "add_event": "敵の攻撃を追加"
     },
     "migration": {
         "title": "ジョブ変更に伴うスキル引き継ぎ",
@@ -492,5 +496,18 @@
         "o4s_p1_short": "O4S P1",
         "o4s_p2": "次元狭間オメガ零式：デルタ編4（後半）",
         "o4s_p2_short": "O4S P2"
+    },
+    "new_plan": {
+        "modal_title": "新しい軽減表を作成",
+        "level_label": "コンテンツレベル",
+        "category_label": "コンテンツ種類",
+        "content_label": "コンテンツ選択",
+        "content_placeholder": "コンテンツを探す...",
+        "plan_name_label": "表の名前",
+        "plan_name_placeholder": "名前を入力してください",
+        "create_button": "作成する",
+        "cancel_button": "キャンセル",
+        "template_guidance": "既成のテンプレート（Phase 4）から作成しますか？",
+        "browse_templates": "テンプレートを探す"
     }
 }

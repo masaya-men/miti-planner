@@ -1,0 +1,1349 @@
+{
+  "contentId": "m2s",
+  "generatedAt": "2026-03-21T07:59:32.620Z",
+  "sourceLogsCount": 5,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_hnnjzr",
+      "time": 4,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_1_7imn74",
+      "time": 11,
+      "name": {
+        "ja": "ラブリーコール",
+        "en": "Call Me Honey"
+      },
+      "damageType": "magical",
+      "damageAmount": 137000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_oez6ls",
+      "time": 11,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_70t3o3",
+      "time": 19,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_zw0knj",
+      "time": 33,
+      "name": {
+        "ja": "ベノムレイン",
+        "en": "Splash of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 118000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_5_i26e1l",
+      "time": 34,
+      "name": {
+        "ja": "ベノムドロップ",
+        "en": "Drop of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 132000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_ounz4c",
+      "time": 53,
+      "name": {
+        "ja": "ベノムレイン",
+        "en": "Splash of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 125000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_56499p",
+      "time": 53,
+      "name": {
+        "ja": "ベノムドロップ",
+        "en": "Drop of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 126000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_gj8ogg",
+      "time": 61,
+      "name": {
+        "ja": "キラースラッシュ",
+        "en": "Stinging Slash"
+      },
+      "damageType": "physical",
+      "damageAmount": 287000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_qmxk2z",
+      "time": 61,
+      "name": {
+        "ja": "キラースティング",
+        "en": "Killer Sting"
+      },
+      "damageType": "physical",
+      "damageAmount": 446000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_3ft4xs",
+      "time": 62,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_0q5cqw",
+      "time": 65,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_fe0235",
+      "time": 68,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_518idl",
+      "time": 79,
+      "name": {
+        "ja": "ハニー・B・ライヴ【1st】",
+        "en": "Honey B. Live: 1st Beat"
+      },
+      "damageType": "magical",
+      "damageAmount": 139000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_752hv2",
+      "time": 91,
+      "name": {
+        "ja": "斬撃",
+        "en": "Laceration"
+      },
+      "damageType": "magical",
+      "damageAmount": 88700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_kc74z5",
+      "time": 105,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_vw0jc4",
+      "time": 108,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_qkwboq",
+      "time": 111,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_j21pdt",
+      "time": 113,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_p67bj3",
+      "time": 114,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_rx6mw8",
+      "time": 117,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_17gvmy",
+      "time": 117,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_54rwo9",
+      "time": 120,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_e25gbf",
+      "time": 121,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_abanjm",
+      "time": 123,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_3l55m1",
+      "time": 125,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_5p03yb",
+      "time": 126,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_xjszgh",
+      "time": 129,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_scbv21",
+      "time": 129,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_q6ypoi",
+      "time": 132,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_tdf9zt",
+      "time": 133,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_sum8wp",
+      "time": 138,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_15d3vo",
+      "time": 141,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_nmtzdd",
+      "time": 144,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_n7lnmk",
+      "time": 152,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_x1wti9",
+      "time": 153,
+      "name": {
+        "ja": "破裂",
+        "en": "Splinter"
+      },
+      "damageType": "magical",
+      "damageAmount": 21800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_3fpxpo",
+      "time": 154,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_jx7zhd",
+      "time": 157,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_1x249i",
+      "time": 158,
+      "name": {
+        "ja": "破裂",
+        "en": "Splinter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_gggx7z",
+      "time": 158,
+      "name": {
+        "ja": "ハートシック",
+        "en": "Heartsick"
+      },
+      "damageType": "magical",
+      "damageAmount": 86400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_93muk1",
+      "time": 160,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_h4gkk2",
+      "time": 161,
+      "name": {
+        "ja": "破裂",
+        "en": "Splinter"
+      },
+      "damageType": "magical",
+      "damageAmount": 15200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_uvnbay",
+      "time": 179,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_5vtebs",
+      "time": 181,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_nzbpez",
+      "time": 187,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 161000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_axiiz1",
+      "time": 188,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 152000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_ap3q90",
+      "time": 189,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_j9omon",
+      "time": 192,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_e59kxn",
+      "time": 195,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_4tj77y",
+      "time": 202,
+      "name": {
+        "ja": "キラースラッシュ",
+        "en": "Stinging Slash"
+      },
+      "damageType": "physical",
+      "damageAmount": 287000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_s16ngd",
+      "time": 202,
+      "name": {
+        "ja": "キラースティング",
+        "en": "Killer Sting"
+      },
+      "damageType": "physical",
+      "damageAmount": 514000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_sb9sqe",
+      "time": 203,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_rvdct8",
+      "time": 206,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_dfj4gd",
+      "time": 212,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_qy2zml",
+      "time": 215,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_n6kiyv",
+      "time": 218,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_w8bnh6",
+      "time": 221,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_x2dije",
+      "time": 224,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_2hdlgx",
+      "time": 225,
+      "name": {
+        "ja": "ラブ・イズ・ブラインド",
+        "en": "Blinding Love"
+      },
+      "damageType": "physical",
+      "damageAmount": 89600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_j7tocj",
+      "time": 227,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_dvuamn",
+      "time": 230,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_zw10t7",
+      "time": 233,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_wph0fp",
+      "time": 237,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_4xdvbw",
+      "time": 238,
+      "name": {
+        "ja": "ラブ・イズ・ブラインド",
+        "en": "Blinding Love"
+      },
+      "damageType": "physical",
+      "damageAmount": 89600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_d9bxm8",
+      "time": 240,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_xrwl1v",
+      "time": 243,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_p0w3he",
+      "time": 254,
+      "name": {
+        "ja": "ハニー・B・ライヴ【2nd】",
+        "en": "Honey B. Live: 2nd Beat"
+      },
+      "damageType": "magical",
+      "damageAmount": 145000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_ikxhy6",
+      "time": 255,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_m8w3tj",
+      "time": 264,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_8fhlg0",
+      "time": 267,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_fw96g4",
+      "time": 274,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_7awxlr",
+      "time": 277,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_1nzpy6",
+      "time": 280,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_pkzxyk",
+      "time": 280,
+      "name": {
+        "ja": "ハートシック",
+        "en": "Heartsick"
+      },
+      "damageType": "magical",
+      "damageAmount": 86400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_m2otg3",
+      "time": 283,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_16p51f",
+      "time": 286,
+      "name": {
+        "ja": "ハートソゥ",
+        "en": "Heartsore"
+      },
+      "damageType": "magical",
+      "damageAmount": 87900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_gnh892",
+      "time": 286,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_tzxbow",
+      "time": 287,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_baa3nu",
+      "time": 289,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_79_lylzh7",
+      "time": 301,
+      "name": {
+        "ja": "ラブドロップ",
+        "en": "Drop of Love"
+      },
+      "damageType": "magical",
+      "damageAmount": 80900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_xkgngy",
+      "time": 301,
+      "name": {
+        "ja": "ラブレイン",
+        "en": "Spread Love"
+      },
+      "damageType": "magical",
+      "damageAmount": 75900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_yvm0o6",
+      "time": 305,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_am336f",
+      "time": 310,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 161000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_tc6pja",
+      "time": 311,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 152000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_vzehbx",
+      "time": 313,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_swn3c0",
+      "time": 316,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_nuvp5l",
+      "time": 319,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_qfbrr8",
+      "time": 344,
+      "name": {
+        "ja": "ポイズンスティング",
+        "en": "Poison Sting"
+      },
+      "damageType": "magical",
+      "damageAmount": 63400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_a115zx",
+      "time": 349,
+      "name": {
+        "ja": "ポイズンスティング",
+        "en": "Poison Sting"
+      },
+      "damageType": "magical",
+      "damageAmount": 63400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_89_5064c0",
+      "time": 354,
+      "name": {
+        "ja": "ポイズンスティング",
+        "en": "Poison Sting"
+      },
+      "damageType": "magical",
+      "damageAmount": 63400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_t1497n",
+      "time": 359,
+      "name": {
+        "ja": "ポイズンスティング",
+        "en": "Poison Sting"
+      },
+      "damageType": "magical",
+      "damageAmount": 63400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_0ape1a",
+      "time": 369,
+      "name": {
+        "ja": "ビースティング",
+        "en": "Bee Sting"
+      },
+      "damageType": "physical",
+      "damageAmount": 134000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_iyruor",
+      "time": 376,
+      "name": {
+        "ja": "キラースラッシュ",
+        "en": "Stinging Slash"
+      },
+      "damageType": "physical",
+      "damageAmount": 287000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_bzp5sg",
+      "time": 377,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_pxwgsm",
+      "time": 377,
+      "name": {
+        "ja": "キラースティング",
+        "en": "Killer Sting"
+      },
+      "damageType": "physical",
+      "damageAmount": 446000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_mn9rkb",
+      "time": 380,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_xmge5d",
+      "time": 394,
+      "name": {
+        "ja": "ベノムドロップ",
+        "en": "Drop of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 132000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_9fr48j",
+      "time": 395,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_j03ge9",
+      "time": 395,
+      "name": {
+        "ja": "ベノムレイン",
+        "en": "Splash of Venom"
+      },
+      "damageType": "magical",
+      "damageAmount": 125000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_nifbbk",
+      "time": 398,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_k0qnnv",
+      "time": 402,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_k2u9bs",
+      "time": 413,
+      "name": {
+        "ja": "ハニー・B・ライヴ【3rd】",
+        "en": "Honey B. Live: 3rd Beat"
+      },
+      "damageType": "magical",
+      "damageAmount": 148000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_zsym3y",
+      "time": 431,
+      "name": {
+        "ja": "斬撃",
+        "en": "Laceration"
+      },
+      "damageType": "magical",
+      "damageAmount": 88700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_60yk09",
+      "time": 440,
+      "name": {
+        "ja": "爆発",
+        "en": "Big Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 91400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_wctghj",
+      "time": 443,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_g52n4b",
+      "time": 460,
+      "name": {
+        "ja": "爆発",
+        "en": "Big Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 91400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_c4e18h",
+      "time": 463,
+      "name": {
+        "ja": "炸裂",
+        "en": "Fracture"
+      },
+      "damageType": "magical",
+      "damageAmount": 13200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_8wc29i",
+      "time": 477,
+      "name": {
+        "ja": "ラブドロップ",
+        "en": "Drop of Love"
+      },
+      "damageType": "magical",
+      "damageAmount": 80900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_zx42hw",
+      "time": 477,
+      "name": {
+        "ja": "ラブレイン",
+        "en": "Spread Love"
+      },
+      "damageType": "magical",
+      "damageAmount": 77900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_71cdib",
+      "time": 485,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 161000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_qxd7u9",
+      "time": 486,
+      "name": {
+        "ja": "ハニー・B・フィナーレ",
+        "en": "Honey B. Finale"
+      },
+      "damageType": "magical",
+      "damageAmount": 152000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_9wva7c",
+      "time": 488,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_112_n8aaht",
+      "time": 491,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_iy3rbx",
+      "time": 494,
+      "name": {
+        "ja": "unknown_91c8",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 78800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_iiy20o",
+      "time": 500,
+      "name": {
+        "ja": "キラースティング",
+        "en": "Killer Sting"
+      },
+      "damageType": "physical",
+      "damageAmount": 446000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_hyo1jr",
+      "time": 500,
+      "name": {
+        "ja": "キラースラッシュ",
+        "en": "Stinging Slash"
+      },
+      "damageType": "physical",
+      "damageAmount": 278000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_xuw63n",
+      "time": 502,
+      "name": {
+        "ja": "Leftward Dustdevil",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_u3t0as",
+      "time": 505,
+      "name": {
+        "ja": "Leftward Dustdevil",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_ntsvzi",
+      "time": 508,
+      "name": {
+        "ja": "Leftward Dustdevil",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_3y3qlf",
+      "time": 516,
+      "name": {
+        "ja": "ブラックハート",
+        "en": "Rotten Heart"
+      },
+      "damageType": "magical",
+      "damageAmount": 142000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_lje3uh",
+      "time": 520,
+      "name": {
+        "ja": "Leftward Dustdevil",
+        "en": "Leftward Dustdevil"
+      },
+      "damageType": "physical",
+      "damageAmount": 66800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_y6rx5g",
+      "time": 522,
+      "name": {
+        "ja": "大爆発",
+        "en": "Big Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 63700,
+      "target": "AoE"
+    }
+  ],
+  "phases": []
+}

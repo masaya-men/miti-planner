@@ -137,3 +137,34 @@ export interface ContentSeries {
     /** Level tier */
     level: ContentLevel;
 }
+// ─────────────────────────────────────────────
+// Plan Management Types (Phase 2 Alignment)
+// ─────────────────────────────────────────────
+
+export interface PlanData {
+    currentLevel: number;
+    timelineEvents: TimelineEvent[];
+    timelineMitigations: AppliedMitigation[];
+    phases: Phase[];
+    partyMembers: PartyMember[];
+    aaSettings: {
+        damage: number;
+        type: 'physical' | 'magical' | 'unavoidable';
+        target: 'MT' | 'ST';
+    };
+    schAetherflowPatterns: Record<string, 1 | 2>;
+}
+
+export interface SavedPlan {
+    id: string;
+    ownerId: string;
+    ownerDisplayName: string;
+    title: string;
+    contentId: string | null;
+    isPublic: boolean;
+    copyCount: number;
+    useCount: number;
+    data: PlanData;
+    createdAt: number;
+    updatedAt: number;
+}

@@ -1,0 +1,3803 @@
+{
+  "contentId": "m6s",
+  "generatedAt": "2026-03-21T08:03:19.961Z",
+  "sourceLogsCount": 5,
+  "timelineEvents": [
+    {
+      "id": "tpl_0_z8xg5m",
+      "time": 1,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_1_iy3uuk",
+      "time": 4,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_2_m1aey5",
+      "time": 4,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_3_lg1b7j",
+      "time": 7,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_4_jagem6",
+      "time": 7,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_5_btq6jv",
+      "time": 12,
+      "name": {
+        "ja": "Mousse-Regen",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_6_ed6nqa",
+      "time": 13,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 189000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_j7rzxq",
+      "time": 15,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_8_oiykaq",
+      "time": 15,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_9_ejhvns",
+      "time": 18,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_10_3s8nwu",
+      "time": 18,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_11_5eh5cd",
+      "time": 25,
+      "name": {
+        "ja": "Warm Bomb",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_12_k64t5f",
+      "time": 25,
+      "name": {
+        "ja": "Kalte Farbbombe",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 326000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_13_clf8rp",
+      "time": 26,
+      "name": {
+        "ja": "Cool Bomb",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 329000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_14_5g2jzn",
+      "time": 26,
+      "name": {
+        "ja": "Warme Farbbombe",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 319000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_15_0xc5tq",
+      "time": 28,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_16_ir5cev",
+      "time": 28,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_17_tuvluj",
+      "time": 64,
+      "name": {
+        "ja": "Color Clash",
+        "en": "Color Clash"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_f92pg3",
+      "time": 64,
+      "name": {
+        "ja": "Color Clash",
+        "en": "Color Clash"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_19_sp69id",
+      "time": 71,
+      "name": {
+        "ja": "Sticky Mousse",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "damageAmount": 92700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_brbw6n",
+      "time": 78,
+      "name": {
+        "ja": "Burst",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 195000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_d7grcp",
+      "time": 86,
+      "name": {
+        "ja": "Warm Bomb",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_22_u23npk",
+      "time": 86,
+      "name": {
+        "ja": "Cool Bomb",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 329000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_23_h8ze3j",
+      "time": 86,
+      "name": {
+        "ja": "Kalte Farbbombe",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 326000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_24_tki3if",
+      "time": 86,
+      "name": {
+        "ja": "Warme Farbbombe",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 319000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_25_ete0md",
+      "time": 87,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_26_szefnr",
+      "time": 88,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_27_20urfb",
+      "time": 91,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_28_tylx90",
+      "time": 91,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_29_bpcy7x",
+      "time": 100,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_30_90xobl",
+      "time": 101,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_31_p749aa",
+      "time": 103,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_32_qch5ve",
+      "time": 106,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_33_1ppymf",
+      "time": 106,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_34_63q8i7",
+      "time": 116,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_35_8d5x8q",
+      "time": 116,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_36_lgfhe1",
+      "time": 119,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_37_ashbua",
+      "time": 119,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_38_snd070",
+      "time": 122,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_39_3sowq7",
+      "time": 122,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_40_iycl2s",
+      "time": 125,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_41_kbeh4e",
+      "time": 125,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_42_9m8ed3",
+      "time": 128,
+      "name": {
+        "ja": "Spray Pain",
+        "en": "Spray Pain"
+      },
+      "damageType": "physical",
+      "damageAmount": 104000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_2oq6y0",
+      "time": 128,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_44_un1a1s",
+      "time": 131,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_45_dcun6t",
+      "time": 131,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_46_2gpre8",
+      "time": 132,
+      "name": {
+        "ja": "Spray Pain",
+        "en": "Spray Pain"
+      },
+      "damageType": "physical",
+      "damageAmount": 108000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_shobyp",
+      "time": 134,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_48_7v5d2l",
+      "time": 134,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_49_y97w1j",
+      "time": 137,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_50_pb0mr4",
+      "time": 137,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_51_dqvbe3",
+      "time": 140,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_52_jht5xa",
+      "time": 140,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_53_k8f00x",
+      "time": 142,
+      "name": {
+        "ja": "Crowd Brûlée",
+        "en": "Crowd Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 109000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_f8xko7",
+      "time": 143,
+      "name": {
+        "ja": "Crowd Brûlée",
+        "en": "Crowd Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 109000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_xmwlmi",
+      "time": 143,
+      "name": {
+        "ja": "Brûlée",
+        "en": "Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 101000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_eb7gvg",
+      "time": 143,
+      "name": {
+        "ja": "Brûlée",
+        "en": "Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 102000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_57_s848qn",
+      "time": 143,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_58_dukhj8",
+      "time": 143,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_59_9p8pa6",
+      "time": 143,
+      "name": {
+        "ja": "Wärmeentladung",
+        "en": "Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 104000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_60_ylfg1i",
+      "time": 151,
+      "name": {
+        "ja": "Sticky Mousse",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "damageAmount": 92700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_wcy8b3",
+      "time": 157,
+      "name": {
+        "ja": "Burst",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 195000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_5aoa5m",
+      "time": 158,
+      "name": {
+        "ja": "ペプシス",
+        "en": "Pepsis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_0k6out",
+      "time": 165,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_64_i81ivx",
+      "time": 165,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_65_0etge7",
+      "time": 168,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_66_s3uxbe",
+      "time": 168,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_67_3693rs",
+      "time": 171,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_68_071cul",
+      "time": 172,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_69_9cfbmo",
+      "time": 173,
+      "name": {
+        "ja": "Brûlée",
+        "en": "Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 104000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_v4o2fp",
+      "time": 174,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_71_t83m5c",
+      "time": 178,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_72_ysntfi",
+      "time": 180,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_73_s8ip9h",
+      "time": 181,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_74_ov42q2",
+      "time": 191,
+      "name": {
+        "ja": "Pudding Graf",
+        "en": "Pudding Graf"
+      },
+      "damageType": "magical",
+      "damageAmount": 93200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_ypej00",
+      "time": 192,
+      "name": {
+        "ja": "Pudding Graf",
+        "en": "Pudding Graf"
+      },
+      "damageType": "magical",
+      "damageAmount": 91500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_qhtw1b",
+      "time": 201,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 189000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_znamz1",
+      "time": 201,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_78_gllqks",
+      "time": 201,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_79_a2n01f",
+      "time": 211,
+      "name": {
+        "ja": "Warm Bomb",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_80_a0qv7e",
+      "time": 211,
+      "name": {
+        "ja": "Cool Bomb",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 329000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_81_m3o6dn",
+      "time": 211,
+      "name": {
+        "ja": "Warme Farbbombe",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 319000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_82_vrv4nz",
+      "time": 211,
+      "name": {
+        "ja": "Kalte Farbbombe",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 326000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_83_uwrhhl",
+      "time": 213,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_84_n4114g",
+      "time": 213,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_85_3r4zex",
+      "time": 220,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_86_xkr2q9",
+      "time": 227,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_87_znwmxh",
+      "time": 229,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 250000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_88_u7ut3r",
+      "time": 230,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_89_dgrt3h",
+      "time": 231,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_90_2ge3iu",
+      "time": 233,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_91_lgaj1r",
+      "time": 234,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_92_usumpb",
+      "time": 234,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_93_apipjc",
+      "time": 236,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_94_2o5u9m",
+      "time": 236,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_95_38z11g",
+      "time": 237,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_96_fvnxpk",
+      "time": 239,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_97_x1kncd",
+      "time": 239,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_98_w3jc6h",
+      "time": 240,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_99_896imz",
+      "time": 242,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_100_1hm24s",
+      "time": 242,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_101_tb03wi",
+      "time": 243,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_102_bdinif",
+      "time": 245,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_103_9p2j76",
+      "time": 245,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_104_37hzfi",
+      "time": 246,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_105_u9izp3",
+      "time": 248,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_106_ficvi5",
+      "time": 248,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_107_tiwfcq",
+      "time": 249,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_108_zncx69",
+      "time": 251,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_109_5y783w",
+      "time": 252,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_110_gwe6fz",
+      "time": 253,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_111_yq7i6z",
+      "time": 253,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_112_w8n2tq",
+      "time": 255,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_113_27v4rg",
+      "time": 256,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_114_jtgvks",
+      "time": 258,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_115_7zxbtd",
+      "time": 259,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_116_opgokp",
+      "time": 261,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_117_bhzwpg",
+      "time": 262,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_118_voa1sw",
+      "time": 264,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_119_33fit9",
+      "time": 265,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_120_tfq0uu",
+      "time": 266,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_clzk4p",
+      "time": 266,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_122_txejcd",
+      "time": 267,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_123_52hd9s",
+      "time": 270,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_124_6ym5vs",
+      "time": 271,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_125_mxdsmm",
+      "time": 273,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_126_v225k7",
+      "time": 274,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_127_ilm8zv",
+      "time": 275,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_qc7bn9",
+      "time": 277,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_129_9o1a70",
+      "time": 280,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_130_1n18ol",
+      "time": 283,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_131_ri3erc",
+      "time": 284,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_132_ihyxxd",
+      "time": 286,
+      "name": {
+        "ja": "Manxome Windersnatch",
+        "en": "Manxome Windersnatch"
+      },
+      "damageType": "magical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_njamp2",
+      "time": 286,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_134_pc18uy",
+      "time": 287,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_135_qjz3b9",
+      "time": 289,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_136_7k1kwh",
+      "time": 290,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_137_z0r4rm",
+      "time": 292,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_138_dauf97",
+      "time": 293,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_139_ftax4v",
+      "time": 296,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_140_nlpejn",
+      "time": 297,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_141_761h5x",
+      "time": 298,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_142_jbp04z",
+      "time": 300,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_143_ya7r56",
+      "time": 302,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_144_l23ix4",
+      "time": 303,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_145_je3otn",
+      "time": 306,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_146_6nhubf",
+      "time": 307,
+      "name": {
+        "ja": "Ready Ore Not",
+        "en": "Ready Ore Not"
+      },
+      "damageType": "magical",
+      "damageAmount": 199000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_147_f54rlg",
+      "time": 308,
+      "name": {
+        "ja": "Ready Ore Not",
+        "en": "Ready Ore Not"
+      },
+      "damageType": "magical",
+      "damageAmount": 205000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_wnd4zz",
+      "time": 308,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_149_hj822r",
+      "time": 309,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_150_660waf",
+      "time": 311,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_151_7qao2i",
+      "time": 312,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_152_952nvz",
+      "time": 315,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_153_5ej6f1",
+      "time": 318,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_154_oauxrk",
+      "time": 319,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_155_7j5vil",
+      "time": 321,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_156_7wasw8",
+      "time": 321,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_157_whtgjf",
+      "time": 324,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_158_7zus5a",
+      "time": 324,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_159_8ozwak",
+      "time": 326,
+      "name": {
+        "ja": "Manxome Windersnatch",
+        "en": "Manxome Windersnatch"
+      },
+      "damageType": "magical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_160_yqnubf",
+      "time": 327,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_161_6rjolf",
+      "time": 328,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_162_3vj1q4",
+      "time": 329,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_163_omspcz",
+      "time": 330,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_164_1h4n0b",
+      "time": 331,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_165_2qt0db",
+      "time": 333,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_166_5r9u0j",
+      "time": 334,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_167_zk4xyv",
+      "time": 336,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_168_tt1hi1",
+      "time": 337,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_ex7ubj",
+      "time": 337,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_170_y3qxw6",
+      "time": 339,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_171_mh4sc6",
+      "time": 340,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_172_bu26fg",
+      "time": 340,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_173_511q82",
+      "time": 342,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_174_roxxss",
+      "time": 343,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_175_27mysg",
+      "time": 343,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_176_qxyh3t",
+      "time": 345,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_177_y9kfzs",
+      "time": 346,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_178_6sa6z0",
+      "time": 346,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_179_ffy96p",
+      "time": 346,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_180_w0vwcr",
+      "time": 347,
+      "name": {
+        "ja": "ボーライド",
+        "en": "Superbolide"
+      },
+      "damageType": "magical",
+      "damageAmount": 68600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_181_qtqeoe",
+      "time": 348,
+      "name": {
+        "ja": "I Crave Violence",
+        "en": "I Crave Violence"
+      },
+      "damageType": "magical",
+      "damageAmount": 119000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_1g4cgc",
+      "time": 348,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_183_u4irjw",
+      "time": 349,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_184_rzxsjy",
+      "time": 349,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_185_xz0mht",
+      "time": 351,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_186_ky0yb4",
+      "time": 352,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_187_jy9zpi",
+      "time": 352,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_188_ann51n",
+      "time": 354,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_189_60jwxd",
+      "time": 355,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_190_21o86d",
+      "time": 355,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_191_5plg4v",
+      "time": 357,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_eztk07",
+      "time": 357,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_193_36mbzz",
+      "time": 358,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_194_79tkz2",
+      "time": 358,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_195_1ex7ve",
+      "time": 360,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_196_viijq1",
+      "time": 361,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_197_32da4n",
+      "time": 361,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_198_ctv5uw",
+      "time": 363,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_199_1vmjpc",
+      "time": 364,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_200_sol1vq",
+      "time": 364,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_201_muzxoe",
+      "time": 365,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_ig2ev9",
+      "time": 365,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_203_aw4dgk",
+      "time": 367,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_204_hzv1qk",
+      "time": 368,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_205_pz5vnu",
+      "time": 370,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_206_qfv2gm",
+      "time": 370,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_207_o0uk3z",
+      "time": 373,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_208_wnjn4l",
+      "time": 373,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_209_tgud6h",
+      "time": 374,
+      "name": {
+        "ja": "Water III",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "damageAmount": 48600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_210_pn4cgp",
+      "time": 376,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_211_rqlkeo",
+      "time": 376,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_212_dd1wlp",
+      "time": 379,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_213_h9hxfp",
+      "time": 379,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_214_p0xsn6",
+      "time": 382,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_215_2tvjhm",
+      "time": 382,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_216_o5p49t",
+      "time": 385,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_217_6gv1am",
+      "time": 387,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_218_okygss",
+      "time": 389,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_219_ol9lgd",
+      "time": 390,
+      "name": {
+        "ja": "Ready Ore Not",
+        "en": "Ready Ore Not"
+      },
+      "damageType": "magical",
+      "damageAmount": 199000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_220_glwbnm",
+      "time": 390,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 65100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_221_l965xn",
+      "time": 391,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_222_ca5jng",
+      "time": 391,
+      "name": {
+        "ja": "Edelstein-Regen",
+        "en": "Ready Ore Not"
+      },
+      "damageType": "magical",
+      "damageAmount": 199000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_223_w0mvgu",
+      "time": 392,
+      "name": {
+        "ja": "Ready Ore Not",
+        "en": "Ready Ore Not"
+      },
+      "damageType": "magical",
+      "damageAmount": 205000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_224_9q4wlc",
+      "time": 393,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_225_z0u4ob",
+      "time": 394,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 82300,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_226_g3egae",
+      "time": 398,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_227_b4qpxg",
+      "time": 398,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_228_r3l1my",
+      "time": 401,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_229_wzuds8",
+      "time": 401,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 65200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_230_c21typ",
+      "time": 403,
+      "name": {
+        "ja": "Rush",
+        "en": "Rush"
+      },
+      "damageType": "physical",
+      "damageAmount": 164000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_231_x06f9e",
+      "time": 404,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_232_ixi7f5",
+      "time": 407,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_233_ph90xv",
+      "time": 416,
+      "name": {
+        "ja": "Warm Bomb",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_234_t69fe8",
+      "time": 416,
+      "name": {
+        "ja": "Cool Bomb",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 329000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_235_mn3tu2",
+      "time": 416,
+      "name": {
+        "ja": "Warme Farbbombe",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 319000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_236_qe1uom",
+      "time": 416,
+      "name": {
+        "ja": "Kalte Farbbombe",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 326000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_237_wl2gpd",
+      "time": 422,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 189000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_238_72thrg",
+      "time": 424,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_239_iocngi",
+      "time": 427,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_240_vuewm1",
+      "time": 439,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_241_2agrfo",
+      "time": 440,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_242_2blqds",
+      "time": 442,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_243_pxbdsr",
+      "time": 443,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_244_8um0fv",
+      "time": 455,
+      "name": {
+        "ja": "Taste of Thunder",
+        "en": "Taste of Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 123000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_245_vbx7sa",
+      "time": 455,
+      "name": {
+        "ja": "Taste of Fire",
+        "en": "Taste of Fire"
+      },
+      "damageType": "magical",
+      "damageAmount": 129000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_246_pqog0r",
+      "time": 465,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_247_cvg9vo",
+      "time": 465,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_248_a9zg59",
+      "time": 467,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_249_cmezai",
+      "time": 468,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_250_pdvmkj",
+      "time": 470,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_251_yd4ect",
+      "time": 471,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_252_is8r8k",
+      "time": 474,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_253_ir0o32",
+      "time": 474,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_254_671uvj",
+      "time": 476,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_255_ozaeja",
+      "time": 477,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_256_cyb28p",
+      "time": 479,
+      "name": {
+        "ja": "Lightning Bolt",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 108000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_257_to1kez",
+      "time": 479,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_258_itkx1q",
+      "time": 480,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_259_6pxnjc",
+      "time": 482,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_260_0xedr7",
+      "time": 482,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 149000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_261_f4rejm",
+      "time": 483,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_262_atn3z6",
+      "time": 483,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_263_qbhyph",
+      "time": 485,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_264_reacxc",
+      "time": 486,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_265_1i7wjl",
+      "time": 488,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_266_qbe2x2",
+      "time": 489,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_267_nhxx5l",
+      "time": 492,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_268_mzg798",
+      "time": 492,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_269_9oxqwh",
+      "time": 492,
+      "name": {
+        "ja": "百雷",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_270_hopsmk",
+      "time": 493,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_271_nheooj",
+      "time": 493,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 148000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_272_fzsz7b",
+      "time": 495,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_273_ch8wsg",
+      "time": 497,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_274_u6e2lw",
+      "time": 498,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_275_ht4i4z",
+      "time": 500,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_276_9472ps",
+      "time": 501,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_277_030sv7",
+      "time": 502,
+      "name": {
+        "ja": "百雷",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_278_vhkmi0",
+      "time": 503,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_279_n0c7wk",
+      "time": 503,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_280_e4iuqq",
+      "time": 503,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_281_umsalh",
+      "time": 504,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_282_nlmk56",
+      "time": 507,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_283_5c2n8b",
+      "time": 507,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_284_lreyyk",
+      "time": 510,
+      "name": {
+        "ja": "Lightning Bolt",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 113000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_285_zoixa2",
+      "time": 510,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_286_jqxgda",
+      "time": 512,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_287_gs1wke",
+      "time": 513,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_288_axkku5",
+      "time": 513,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_289_j8gvc8",
+      "time": 513,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_290_bq9x63",
+      "time": 514,
+      "name": {
+        "ja": "Levin Drop",
+        "en": "Levin Drop"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_291_i5bl1s",
+      "time": 514,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "damageAmount": 153000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_292_gef6yt",
+      "time": 519,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 112000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_293_15b1rz",
+      "time": 520,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 129000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_294_9ly0x7",
+      "time": 520,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_295_m1rgtu",
+      "time": 520,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_296_kpsnt6",
+      "time": 522,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 96100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_297_ifhkck",
+      "time": 522,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 96100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_298_m3qd96",
+      "time": 523,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 129000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_299_xuwypk",
+      "time": 523,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 82300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_300_ndv7c8",
+      "time": 523,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_301_764zlu",
+      "time": 524,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 96100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_302_b7bvxh",
+      "time": 525,
+      "name": {
+        "ja": "Pudding Party",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "damageAmount": 96100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_303_1eaae8",
+      "time": 526,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_304_t2pxiz",
+      "time": 527,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_305_avx1sa",
+      "time": 529,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_306_qz08e7",
+      "time": 530,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_307_oh1qxc",
+      "time": 532,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 66100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_308_wajdb0",
+      "time": 540,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_309_oq7mtr",
+      "time": 541,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_310_6cilb5",
+      "time": 544,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_311_fasmp6",
+      "time": 551,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_312_nl9z6x",
+      "time": 551,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_313_kql9ky",
+      "time": 554,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_314_yhzo7d",
+      "time": 555,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_315_aqs7t0",
+      "time": 555,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_316_cfh8gv",
+      "time": 556,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_317_eqe56r",
+      "time": 557,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_318_zac08n",
+      "time": 558,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_319_8cmdcx",
+      "time": 559,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_320_5zhy4y",
+      "time": 560,
+      "name": {
+        "ja": "Moussacre",
+        "en": "Moussacre"
+      },
+      "damageType": "magical",
+      "damageAmount": 152000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_321_o8uw80",
+      "time": 560,
+      "name": {
+        "ja": "Mousse Drip",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "damageAmount": 81000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_322_6vo6dc",
+      "time": 567,
+      "name": {
+        "ja": "Taste of Thunder",
+        "en": "Taste of Thunder"
+      },
+      "damageType": "magical",
+      "damageAmount": 74800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_323_mpluyt",
+      "time": 568,
+      "name": {
+        "ja": "Explosion",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 31200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_324_pozmbb",
+      "time": 568,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_325_6fv0kb",
+      "time": 569,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 65100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_326_r2f207",
+      "time": 575,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_327_0wf367",
+      "time": 578,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_328_mah82o",
+      "time": 581,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_329_l6wqrz",
+      "time": 584,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_330_fq3ek2",
+      "time": 587,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_331_1u3flr",
+      "time": 591,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_332_6yhtmc",
+      "time": 594,
+      "name": {
+        "ja": "Explosion",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 31000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_333_7y5ao8",
+      "time": 600,
+      "name": {
+        "ja": "Mousse Mural",
+        "en": "Mousse Mural"
+      },
+      "damageType": "magical",
+      "damageAmount": 189000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_334_tu7o6i",
+      "time": 601,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_335_spocza",
+      "time": 604,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_336_tfb0z3",
+      "time": 610,
+      "name": {
+        "ja": "Sticky Mousse",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "damageAmount": 92700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_337_yb45sg",
+      "time": 617,
+      "name": {
+        "ja": "Burst",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 189000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_338_yj9ywg",
+      "time": 624,
+      "name": {
+        "ja": "Warm Bomb",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 317000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_339_sdhfp0",
+      "time": 624,
+      "name": {
+        "ja": "Cool Bomb",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_340_c6comv",
+      "time": 627,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_341_w0whq7",
+      "time": 661,
+      "name": {
+        "ja": "Color Clash",
+        "en": "Color Clash"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_342_0u9kdm",
+      "time": 664,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_343_wkovyh",
+      "time": 667,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 84400,
+      "target": "MT"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "startTimeSec": 0
+    },
+    {
+      "id": 2,
+      "startTimeSec": 216
+    },
+    {
+      "id": 3,
+      "startTimeSec": 421
+    }
+  ]
+}
