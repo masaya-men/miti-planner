@@ -1535,7 +1535,7 @@ const Timeline: React.FC = () => {
 
                     <div
                         ref={scrollContainerRef}
-                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-[var(--color-bg-primary)]  duration-200"
+                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)]  duration-200"
                         onScroll={handleScrollSync}
                     >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
@@ -1646,13 +1646,13 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-white/20 bg-slate-900/40 dark:bg-white/5 cursor-pointer hover:bg-slate-900/60 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 cursor-pointer hover:bg-blue-100 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                     title={t('timeline.click_rename', 'クリックして名前を変更')}
                                                 >
                                                     <div className="sticky top-0 w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
-                                                        <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-slate-100 origin-center leading-none">
+                                                        <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 origin-center leading-none">
                                                             {phase.name}
                                                         </div>
                                                     </div>

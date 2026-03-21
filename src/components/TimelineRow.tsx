@@ -70,7 +70,7 @@ export const TimelineRow = memo(({
             data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit border-b flex h-[50px] group  duration-75",
-                "border-slate-200 hover:bg-slate-100 dark:border-white/[0.03] dark:hover:bg-white/[0.04]"
+                "border-slate-200 hover:bg-black/[0.02] dark:border-white/[0.03] dark:hover:bg-white/[0.04]"
             )}
             style={{ top: `${top}px` }}
         >
@@ -78,7 +78,7 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-slate-900 dark:group-hover:text-slate-100",
+                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-slate-900 dark:group-hover:text-slate-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]",
                         "border-slate-200 dark:border-white/[0.02]"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
@@ -93,7 +93,7 @@ export const TimelineRow = memo(({
             {/* Time Column */}
             <div className={clsx(
                 "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-app-text group-hover:font-black",
-                "border-slate-200 text-app-text-secondary dark:border-white/[0.02]"
+                "border-slate-200 text-app-text-secondary dark:border-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
             )}>
                 {formattedTime}
             </div >
@@ -101,7 +101,7 @@ export const TimelineRow = memo(({
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
                 "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col ",
-                "border-slate-200 group-hover:bg-slate-50 dark:border-white/[0.02] dark:group-hover:bg-white/[0.02]"
+                "border-slate-200 dark:border-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
             )}>
                 {events.length === 0 ? (
                     <div
@@ -530,7 +530,7 @@ export const TimelineRow = memo(({
                         }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
-                            "border-slate-200 hover:bg-slate-100 dark:border-white/[0.02] dark:hover:bg-white/[0.05]"
+                            "border-slate-200 hover:bg-black/[0.04] dark:border-white/[0.02] dark:hover:bg-white/[0.05]"
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}
