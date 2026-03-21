@@ -137,7 +137,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <motion.main
                     className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0"
                     initial={false}
-                    animate={{ paddingTop: isHeaderCollapsed ? 36 : 132 }}
+                    animate={{ paddingTop: isHeaderCollapsed ? 36 : 124 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {children}

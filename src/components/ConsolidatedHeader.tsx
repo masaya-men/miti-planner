@@ -237,10 +237,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             </motion.div>
 
             {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
-            <div className="w-full relative shrink-0" style={{ height: '28px' }}>
+            <div className="w-full relative shrink-0" style={{ height: '24px' }}>
                 {/* 近接センサー：ハンドルの下側にのみ配置（上のボタン誤操作防止） */}
                 <div
-                    className="absolute top-[28px] left-0 right-0 h-3 pointer-events-auto z-30"
+                    className="absolute top-[24px] left-0 right-0 h-3 pointer-events-auto z-30"
                     onMouseEnter={() => { clearLeaveTimer(); setIsNear(true); }}
                     onMouseLeave={(e) => handleLeave(e)}
                 />
