@@ -131,7 +131,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-4 w-[1px] bg-white/10 mx-1" />
 
-                            <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')} position="bottom">
+                            <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')} position="bottom" invert={true}>
                                 <button
                                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                                     className="relative p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-200"
