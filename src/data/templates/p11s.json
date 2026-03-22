@@ -1,14 +1,14 @@
 {
   "contentId": "p11s",
-  "generatedAt": "2026-03-22T08:41:35.890Z",
+  "generatedAt": "2026-03-22T12:06:15.755Z",
   "sourceLogsCount": 1,
   "sourceLog": "kc9tMX8rWv4nbj3H#44",
   "timelineEvents": [
     {
-      "id": "tpl_0_j6cdqu",
+      "id": "tpl_0_0x56bq",
       "time": 4,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -16,10 +16,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_yjm77j",
+      "id": "tpl_1_8at3zx",
       "time": 8,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -27,10 +27,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_ir45mo",
+      "id": "tpl_2_w4e9wo",
       "time": 10,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_33sy3v",
+      "id": "tpl_3_cboe8r",
       "time": 16,
       "name": {
         "ja": "エウノミアー",
@@ -49,10 +49,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_c4i404",
+      "id": "tpl_4_rg8609",
       "time": 19,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -60,7 +60,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_3tlp0b",
+      "id": "tpl_5_k0marq",
       "time": 26,
       "name": {
         "ja": "ディケー",
@@ -71,7 +71,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_quyhth",
+      "id": "tpl_6_8wsf72",
       "time": 26,
       "name": {
         "ja": "ディケー",
@@ -82,10 +82,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_6rwtnc",
+      "id": "tpl_7_w9seaa",
       "time": 32,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -93,10 +93,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_f8jj74",
+      "id": "tpl_8_hgo49v",
       "time": 35,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -104,7 +104,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_yyrgwc",
+      "id": "tpl_9_acj6i6",
       "time": 45,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -115,7 +115,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_qrc9kq",
+      "id": "tpl_10_148mnp",
       "time": 48,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -126,10 +126,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_lbodar",
+      "id": "tpl_11_uknm6e",
       "time": 49,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -137,10 +137,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_4oza0c",
+      "id": "tpl_12_yuf697",
       "time": 52,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -148,7 +148,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_m9ttvy",
+      "id": "tpl_13_qkbizt",
       "time": 62,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -159,7 +159,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_wmiyi8",
+      "id": "tpl_14_y8y0dh",
       "time": 63,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -170,7 +170,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_ggqofg",
+      "id": "tpl_15_tq9vrt",
       "time": 66,
       "name": {
         "ja": "アディショナルロウ",
@@ -181,10 +181,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_vpo1i7",
+      "id": "tpl_16_ipw8ky",
       "time": 67,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -192,7 +192,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_7pao9b",
+      "id": "tpl_17_m43oue",
       "time": 85,
       "name": {
         "ja": "アディショナルロウ",
@@ -203,10 +203,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_tqk6ve",
+      "id": "tpl_18_jnigwn",
       "time": 87,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -214,7 +214,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_hksfop",
+      "id": "tpl_19_8daqg8",
       "time": 95,
       "name": {
         "ja": "ステュクス",
@@ -225,7 +225,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_ywsik2",
+      "id": "tpl_20_a90oll",
       "time": 95,
       "name": {
         "ja": "ステュクス",
@@ -236,7 +236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_vojkg0",
+      "id": "tpl_21_z3n5et",
       "time": 96,
       "name": {
         "ja": "ステュクス",
@@ -247,7 +247,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_qc4a0o",
+      "id": "tpl_22_j0z7oz",
       "time": 97,
       "name": {
         "ja": "ステュクス",
@@ -258,7 +258,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_c5oy74",
+      "id": "tpl_23_0blnut",
       "time": 98,
       "name": {
         "ja": "ステュクス",
@@ -269,7 +269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_z5b8yj",
+      "id": "tpl_24_wv25zw",
       "time": 99,
       "name": {
         "ja": "ステュクス",
@@ -280,10 +280,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_hhbiuz",
+      "id": "tpl_25_2bdfny",
       "time": 99,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -291,10 +291,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_diad77",
+      "id": "tpl_26_o02lax",
       "time": 103,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -302,7 +302,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_8owg03",
+      "id": "tpl_27_wucf4r",
       "time": 121,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -313,7 +313,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_e74xdy",
+      "id": "tpl_28_d3jcvt",
       "time": 122,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -324,7 +324,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_ya2kes",
+      "id": "tpl_29_oy91sy",
       "time": 126,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -335,10 +335,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_nf5bah",
+      "id": "tpl_30_jt7bzh",
       "time": 126,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -346,10 +346,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_6gg0v6",
+      "id": "tpl_31_l1giqa",
       "time": 130,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -357,10 +357,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_op3c1g",
+      "id": "tpl_32_jaodqp",
       "time": 133,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -368,10 +368,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_pcg4e5",
+      "id": "tpl_33_f72qkb",
       "time": 135,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -379,10 +379,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_qr4xz3",
+      "id": "tpl_34_6sk2ud",
       "time": 138,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -390,10 +390,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_r65hya",
+      "id": "tpl_35_oqq6si",
       "time": 141,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -401,10 +401,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_hcuxdl",
+      "id": "tpl_36_22s70y",
       "time": 144,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -412,10 +412,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_7obet6",
+      "id": "tpl_37_5oq5rf",
       "time": 156,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -423,10 +423,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_jmk8yg",
+      "id": "tpl_38_gbo0vy",
       "time": 158,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -434,7 +434,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_z4d109",
+      "id": "tpl_39_ctqyak",
       "time": 175,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -445,10 +445,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_evq2ay",
+      "id": "tpl_40_u5mvhy",
       "time": 178,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -456,7 +456,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_7qt8a0",
+      "id": "tpl_41_2o0395",
       "time": 180,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -467,10 +467,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_tclmrw",
+      "id": "tpl_42_r62yp0",
       "time": 181,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -478,7 +478,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_ntwraj",
+      "id": "tpl_43_iyhyp0",
       "time": 181,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -489,10 +489,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_xjb2o9",
+      "id": "tpl_44_4939na",
       "time": 183,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -500,7 +500,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_53th65",
+      "id": "tpl_45_ufusoy",
       "time": 192,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -511,7 +511,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_y4pp38",
+      "id": "tpl_46_84p9g7",
       "time": 196,
       "name": {
         "ja": "アディショナルロウ",
@@ -522,10 +522,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_ez93dz",
+      "id": "tpl_47_py4pij",
       "time": 197,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -533,7 +533,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_m69e8t",
+      "id": "tpl_48_4yvy0e",
       "time": 205,
       "name": {
         "ja": "ステュクス",
@@ -544,7 +544,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_aa0x84",
+      "id": "tpl_49_tse301",
       "time": 205,
       "name": {
         "ja": "ステュクス",
@@ -555,7 +555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_l9i4es",
+      "id": "tpl_50_0bxfmj",
       "time": 206,
       "name": {
         "ja": "ステュクス",
@@ -566,7 +566,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_66mkeu",
+      "id": "tpl_51_fjq8bj",
       "time": 207,
       "name": {
         "ja": "ステュクス",
@@ -577,7 +577,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_4wdhqh",
+      "id": "tpl_52_8hziby",
       "time": 208,
       "name": {
         "ja": "ステュクス",
@@ -588,7 +588,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_ruws57",
+      "id": "tpl_53_6xoq1v",
       "time": 209,
       "name": {
         "ja": "ステュクス",
@@ -599,7 +599,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_kgxga5",
+      "id": "tpl_54_7qd2xs",
       "time": 211,
       "name": {
         "ja": "ステュクス",
@@ -610,10 +610,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_8mqa33",
+      "id": "tpl_55_jji7n7",
       "time": 211,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -621,10 +621,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_sddp9d",
+      "id": "tpl_56_67whea",
       "time": 214,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -632,10 +632,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_5f7jwo",
+      "id": "tpl_57_na923k",
       "time": 217,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -643,10 +643,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_np7mtj",
+      "id": "tpl_58_w6uttg",
       "time": 225,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -654,10 +654,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_bf89a2",
+      "id": "tpl_59_t342b1",
       "time": 228,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -665,10 +665,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_gr0bjo",
+      "id": "tpl_60_jhidjk",
       "time": 230,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -676,7 +676,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_oa66ic",
+      "id": "tpl_61_e3zika",
       "time": 246,
       "name": {
         "ja": "アディショナルロウ",
@@ -687,10 +687,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_25m60p",
+      "id": "tpl_62_e9fvmc",
       "time": 248,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -698,10 +698,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_tuow00",
+      "id": "tpl_63_dwo9iz",
       "time": 251,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -709,7 +709,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_pow1rt",
+      "id": "tpl_64_dobg45",
       "time": 258,
       "name": {
         "ja": "エウノミアー",
@@ -720,10 +720,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_4lspus",
+      "id": "tpl_65_4bht43",
       "time": 259,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -731,10 +731,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_mv3le1",
+      "id": "tpl_66_9iqku5",
       "time": 262,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -742,10 +742,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_25yp9t",
+      "id": "tpl_67_kvzhk1",
       "time": 265,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -753,7 +753,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_agcp3t",
+      "id": "tpl_68_tniff0",
       "time": 273,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -764,7 +764,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_t7q8um",
+      "id": "tpl_69_4a9qdb",
       "time": 278,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -775,10 +775,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_055s1p",
+      "id": "tpl_70_b77ia7",
       "time": 278,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -786,10 +786,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_79nq2l",
+      "id": "tpl_71_zc5cva",
       "time": 281,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -797,10 +797,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_us2d9t",
+      "id": "tpl_72_e8aczm",
       "time": 285,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -808,10 +808,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_dbtjid",
+      "id": "tpl_73_sj7eyn",
       "time": 288,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -819,10 +819,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_5xetvw",
+      "id": "tpl_74_mixmdl",
       "time": 298,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -830,10 +830,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_s4nzl9",
+      "id": "tpl_75_qvr9rk",
       "time": 301,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -841,10 +841,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_lisftu",
+      "id": "tpl_76_8h8vm5",
       "time": 310,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -852,10 +852,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_ohnrqw",
+      "id": "tpl_77_5vr7gn",
       "time": 313,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -863,10 +863,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_2iclwb",
+      "id": "tpl_78_6e440b",
       "time": 316,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -874,7 +874,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_mp3dlc",
+      "id": "tpl_79_c5z1nu",
       "time": 326,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -885,7 +885,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_irgwzu",
+      "id": "tpl_80_s31xms",
       "time": 331,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -896,10 +896,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_u3bh3u",
+      "id": "tpl_81_skpo63",
       "time": 331,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -907,10 +907,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_juocu3",
+      "id": "tpl_82_9937jn",
       "time": 335,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -918,7 +918,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_phuy1o",
+      "id": "tpl_83_xb9q34",
       "time": 348,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -929,10 +929,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_ifqsrd",
+      "id": "tpl_84_xkna5z",
       "time": 350,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -940,7 +940,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_kkfdty",
+      "id": "tpl_85_aa7n7i",
       "time": 355,
       "name": {
         "ja": "調停",
@@ -950,10 +950,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_loqjqg",
+      "id": "tpl_86_rfht4l",
       "time": 357,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -961,7 +961,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_1dsddl",
+      "id": "tpl_87_szwhr6",
       "time": 364,
       "name": {
         "ja": "ステュクス",
@@ -972,7 +972,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_u92z73",
+      "id": "tpl_88_zgmyvw",
       "time": 364,
       "name": {
         "ja": "ステュクス",
@@ -983,7 +983,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_kuoecf",
+      "id": "tpl_89_arvgv5",
       "time": 365,
       "name": {
         "ja": "ステュクス",
@@ -994,7 +994,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_ist9o7",
+      "id": "tpl_90_yjeul2",
       "time": 366,
       "name": {
         "ja": "ステュクス",
@@ -1005,7 +1005,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_rp9uwr",
+      "id": "tpl_91_3j95jb",
       "time": 367,
       "name": {
         "ja": "ステュクス",
@@ -1016,7 +1016,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_pm6j67",
+      "id": "tpl_92_u0j3vy",
       "time": 369,
       "name": {
         "ja": "ステュクス",
@@ -1027,7 +1027,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_bqi008",
+      "id": "tpl_93_blj6n5",
       "time": 370,
       "name": {
         "ja": "ステュクス",
@@ -1038,7 +1038,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_jjurqa",
+      "id": "tpl_94_to232s",
       "time": 371,
       "name": {
         "ja": "ステュクス",
@@ -1049,10 +1049,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_z5t83l",
+      "id": "tpl_95_0vwpch",
       "time": 372,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1060,10 +1060,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_1mmyt3",
+      "id": "tpl_96_e11qdw",
       "time": 374,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1071,7 +1071,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_aw9exd",
+      "id": "tpl_97_1m0tp7",
       "time": 382,
       "name": {
         "ja": "ディケー",
@@ -1082,7 +1082,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_pja54p",
+      "id": "tpl_98_044viy",
       "time": 382,
       "name": {
         "ja": "ディケー",
@@ -1093,10 +1093,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_bkcfpt",
+      "id": "tpl_99_gh2o7n",
       "time": 388,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1104,10 +1104,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_4q93f1",
+      "id": "tpl_100_84psj4",
       "time": 392,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1115,10 +1115,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_n96c3a",
+      "id": "tpl_101_7zptgd",
       "time": 395,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1126,10 +1126,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_se7u2b",
+      "id": "tpl_102_djwa6y",
       "time": 407,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1137,10 +1137,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_esxcsq",
+      "id": "tpl_103_9j3na2",
       "time": 410,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1148,7 +1148,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_8mdnm3",
+      "id": "tpl_104_nll3rm",
       "time": 415,
       "name": {
         "ja": "光弾",
@@ -1159,10 +1159,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_gb3l0e",
+      "id": "tpl_105_klbvik",
       "time": 418,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1170,10 +1170,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_106_7lkmdt",
+      "id": "tpl_106_75yp2t",
       "time": 421,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1181,7 +1181,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_107_ya8990",
+      "id": "tpl_107_7a0wq3",
       "time": 431,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -1192,7 +1192,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_zup7hz",
+      "id": "tpl_108_gmkamp",
       "time": 435,
       "name": {
         "ja": "アディショナルロウ",
@@ -1203,10 +1203,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_109_xc4lfo",
+      "id": "tpl_109_7a3y0w",
       "time": 437,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1214,10 +1214,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_eek7ac",
+      "id": "tpl_110_aurbe1",
       "time": 439,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1225,7 +1225,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_8hrevs",
+      "id": "tpl_111_se0d1l",
       "time": 449,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -1236,7 +1236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_5guq8s",
+      "id": "tpl_112_521e0s",
       "time": 453,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -1247,10 +1247,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_113_ix3ehw",
+      "id": "tpl_113_jav4s4",
       "time": 454,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1258,10 +1258,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_114_ekc875",
+      "id": "tpl_114_myrnpv",
       "time": 457,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1269,7 +1269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_115_9tmb83",
+      "id": "tpl_115_13o4f7",
       "time": 474,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -1280,10 +1280,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_116_wejuj8",
+      "id": "tpl_116_6ip4df",
       "time": 476,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1291,10 +1291,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_117_2eyfg2",
+      "id": "tpl_117_gqbrb8",
       "time": 478,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1302,10 +1302,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_118_evams3",
+      "id": "tpl_118_af87w9",
       "time": 482,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1313,7 +1313,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_119_4hdcre",
+      "id": "tpl_119_fx0vo0",
       "time": 486,
       "name": {
         "ja": "エウノミアー",
@@ -1324,7 +1324,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_120_4d0ym2",
+      "id": "tpl_120_jbi9ky",
       "time": 487,
       "name": {
         "ja": "エウノミアー",
@@ -1335,10 +1335,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_121_9umz1f",
+      "id": "tpl_121_1e2ldp",
       "time": 490,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1346,10 +1346,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_122_vlve7d",
+      "id": "tpl_122_k0fevq",
       "time": 492,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1357,10 +1357,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_123_o8gg3p",
+      "id": "tpl_123_9sppbn",
       "time": 495,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1368,10 +1368,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_124_n7k8ch",
+      "id": "tpl_124_gg67jl",
       "time": 498,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1379,10 +1379,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_125_09dqx4",
+      "id": "tpl_125_aendbx",
       "time": 501,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1390,10 +1390,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_126_bbdzhd",
+      "id": "tpl_126_rju4sl",
       "time": 505,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1401,7 +1401,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_127_levcym",
+      "id": "tpl_127_ae8dry",
       "time": 520,
       "name": {
         "ja": "展開戦術",
@@ -1411,10 +1411,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_128_4qrfu7",
+      "id": "tpl_128_bag4hj",
       "time": 523,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1422,10 +1422,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_129_tui12m",
+      "id": "tpl_129_2hlozb",
       "time": 526,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1433,10 +1433,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_130_tq1q5e",
+      "id": "tpl_130_1eoyk4",
       "time": 532,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1444,7 +1444,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_131_f3ganx",
+      "id": "tpl_131_rmer4r",
       "time": 533,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -1455,7 +1455,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_132_p7enla",
+      "id": "tpl_132_zuj98z",
       "time": 533,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -1466,10 +1466,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_133_m268x3",
+      "id": "tpl_133_7651c4",
       "time": 534,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1477,10 +1477,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_134_rlsvga",
+      "id": "tpl_134_rqfkfz",
       "time": 538,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1488,10 +1488,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_135_x78d1n",
+      "id": "tpl_135_ho3ai1",
       "time": 540,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1499,7 +1499,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_136_wqjbg8",
+      "id": "tpl_136_ddgk57",
       "time": 541,
       "name": {
         "ja": "爆発",
@@ -1510,10 +1510,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_137_30guyq",
+      "id": "tpl_137_0g0o8o",
       "time": 543,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1521,7 +1521,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_138_65bpa8",
+      "id": "tpl_138_6mh6vn",
       "time": 550,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -1532,10 +1532,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_139_erhxru",
+      "id": "tpl_139_1eyjio",
       "time": 551,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1543,7 +1543,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_140_mxv0yl",
+      "id": "tpl_140_z70xtl",
       "time": 551,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -1554,10 +1554,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_141_zsgqfd",
+      "id": "tpl_141_r7dj7x",
       "time": 555,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1565,7 +1565,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_142_yafujw",
+      "id": "tpl_142_hx82lg",
       "time": 556,
       "name": {
         "ja": "アディショナルロウ",
@@ -1576,10 +1576,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_143_fng6ab",
+      "id": "tpl_143_0d06r9",
       "time": 557,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1587,7 +1587,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_144_8fao2f",
+      "id": "tpl_144_kj1z2y",
       "time": 565,
       "name": {
         "ja": "ステュクス",
@@ -1598,7 +1598,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_145_evz5as",
+      "id": "tpl_145_equ8c8",
       "time": 566,
       "name": {
         "ja": "ステュクス",
@@ -1609,7 +1609,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_146_bvujei",
+      "id": "tpl_146_92c9kd",
       "time": 568,
       "name": {
         "ja": "ステュクス",
@@ -1620,7 +1620,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_147_9dlmkw",
+      "id": "tpl_147_hxwxf4",
       "time": 569,
       "name": {
         "ja": "ステュクス",
@@ -1631,7 +1631,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_148_a5xhkb",
+      "id": "tpl_148_cso1um",
       "time": 570,
       "name": {
         "ja": "ステュクス",
@@ -1642,7 +1642,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_149_bqpm5q",
+      "id": "tpl_149_j301qi",
       "time": 571,
       "name": {
         "ja": "ステュクス",
@@ -1653,7 +1653,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_150_j38j2q",
+      "id": "tpl_150_wtrg21",
       "time": 572,
       "name": {
         "ja": "ステュクス",
@@ -1664,7 +1664,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_151_72pz43",
+      "id": "tpl_151_iin08b",
       "time": 573,
       "name": {
         "ja": "ステュクス",
@@ -1675,10 +1675,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_152_achbgo",
+      "id": "tpl_152_qta457",
       "time": 574,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1686,10 +1686,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_153_z142i9",
+      "id": "tpl_153_1tu0gv",
       "time": 576,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1697,10 +1697,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_154_z14eoc",
+      "id": "tpl_154_stq3kk",
       "time": 580,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1708,10 +1708,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_155_twkptr",
+      "id": "tpl_155_yhubh6",
       "time": 587,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1719,10 +1719,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_156_zdr31p",
+      "id": "tpl_156_yjmhef",
       "time": 590,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1730,7 +1730,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_157_5vmkjo",
+      "id": "tpl_157_o46rzm",
       "time": 607,
       "name": {
         "ja": "アディショナルロウ",
@@ -1741,10 +1741,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_158_y25e4f",
+      "id": "tpl_158_e4r7ib",
       "time": 609,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1752,10 +1752,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_159_cuchq5",
+      "id": "tpl_159_3l6o01",
       "time": 612,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1763,10 +1763,10 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_160_4zomcu",
+      "id": "tpl_160_0uspwx",
       "time": 615,
       "name": {
-        "ja": "攻撃",
+        "ja": "attack",
         "en": "attack"
       },
       "damageType": "physical",
@@ -1774,7 +1774,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_161_zbcc9d",
+      "id": "tpl_161_augcsw",
       "time": 623,
       "name": {
         "ja": "ディケー",
@@ -1785,7 +1785,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_162_hg7y7s",
+      "id": "tpl_162_ft3zbx",
       "time": 623,
       "name": {
         "ja": "ディケー",
@@ -1796,7 +1796,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_163_xks5e6",
+      "id": "tpl_163_7raro1",
       "time": 626,
       "name": {
         "ja": "ディケー",
@@ -1807,7 +1807,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_164_x5xihw",
+      "id": "tpl_164_jzdhhj",
       "time": 626,
       "name": {
         "ja": "ディケー",

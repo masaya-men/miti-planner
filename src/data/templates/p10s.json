@@ -1,0 +1,1471 @@
+{
+  "contentId": "p10s",
+  "generatedAt": "2026-03-22T12:05:52.891Z",
+  "sourceLogsCount": 1,
+  "sourceLog": "YdJByt1ZrAhRqFWD#2",
+  "timelineEvents": [
+    {
+      "id": "tpl_0_gzhus8",
+      "time": 3,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_1_9xfalm",
+      "time": 6,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_2_tj364s",
+      "time": 15,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 60900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_j0mc54",
+      "time": 24,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_4_ahl059",
+      "time": 26,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_5_hl0u8v",
+      "time": 27,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_6_dbk62h",
+      "time": 28,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_7_uh6s6r",
+      "time": 46,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_8_4d9ee4",
+      "time": 48,
+      "name": {
+        "ja": "ヘビーウェブ",
+        "en": "Steel Web"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_4ei1us",
+      "time": 49,
+      "name": {
+        "ja": "ディバイドウィング",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "damageAmount": 35100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_10_qswdki",
+      "time": 49,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_11_x88wul",
+      "time": 53,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_12_i30skx",
+      "time": 68,
+      "name": {
+        "ja": "尖脚",
+        "en": "Wicked Step"
+      },
+      "damageType": "physical",
+      "damageAmount": 83100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_13_s8417h",
+      "time": 71,
+      "name": {
+        "ja": "尖脚",
+        "en": "Wicked Step"
+      },
+      "damageType": "physical",
+      "damageAmount": 85300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_14_w3987e",
+      "time": 84,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_15_i91sd3",
+      "time": 87,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_16_953naa",
+      "time": 97,
+      "name": {
+        "ja": "衝撃",
+        "en": "Bury"
+      },
+      "damageType": "physical",
+      "damageAmount": 10100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_4ozx06",
+      "time": 114,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_18_9c0r74",
+      "time": 117,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_19_v5je4t",
+      "time": 118,
+      "name": {
+        "ja": "スピットウェブ",
+        "en": "Silkspit"
+      },
+      "damageType": "magical",
+      "damageAmount": 75200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_p14r1n",
+      "time": 133,
+      "name": {
+        "ja": "パンデモニックメルトン",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "damageAmount": 78700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_lxiruu",
+      "time": 133,
+      "name": {
+        "ja": "パンデモニックメルトン",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "damageAmount": 83900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_q75ok0",
+      "time": 145,
+      "name": {
+        "ja": "パンデモニックボンド",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_10jq1w",
+      "time": 148,
+      "name": {
+        "ja": "パンデモニックボンド・クアドラ",
+        "en": "Tetradæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 33200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_0rkdfr",
+      "time": 149,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_25_9wtifd",
+      "time": 152,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_26_zh3oix",
+      "time": 160,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 60900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_rhi1vk",
+      "time": 170,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_28_2tp9hs",
+      "time": 170,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_29_xzcnu6",
+      "time": 171,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_30_p6o7z6",
+      "time": 171,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_31_seps1f",
+      "time": 173,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_32_7nfo2n",
+      "time": 173,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_33_syoxdd",
+      "time": 174,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_34_55bpo3",
+      "time": 174,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_35_j34cgx",
+      "time": 177,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_36_3c5frp",
+      "time": 180,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_37_xjyjt3",
+      "time": 195,
+      "name": {
+        "ja": "衝撃",
+        "en": "Bury"
+      },
+      "damageType": "physical",
+      "damageAmount": 10100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_4wsllh",
+      "time": 206,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_bol4pi",
+      "time": 210,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_5iurqm",
+      "time": 214,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_7jj95t",
+      "time": 215,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_42_a2ev0k",
+      "time": 219,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_43_y9a9hs",
+      "time": 219,
+      "name": {
+        "ja": "コンデムブラスター",
+        "en": "Peal of Condemnation"
+      },
+      "damageType": "magical",
+      "damageAmount": 87500,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_44_ugbnbv",
+      "time": 222,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_45_1svr9r",
+      "time": 223,
+      "name": {
+        "ja": "パンデモニックボンド・ダブル",
+        "en": "Duodæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 46400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_m5cx6h",
+      "time": 225,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_47_s5c7an",
+      "time": 226,
+      "name": {
+        "ja": "パンデモニックボンド",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_7nc4y2",
+      "time": 238,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_49_4odkam",
+      "time": 240,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_50_dyms04",
+      "time": 249,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 60900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_5xuzhk",
+      "time": 258,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_52_qf7n7b",
+      "time": 258,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_53_pnkyuv",
+      "time": 260,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_54_k1vrp5",
+      "time": 260,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_55_817xyo",
+      "time": 261,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_56_4ed10i",
+      "time": 261,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_57_26mo61",
+      "time": 263,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_58_0tkj1g",
+      "time": 263,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_59_3ody4l",
+      "time": 266,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_60_k8cskj",
+      "time": 269,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_61_5q366x",
+      "time": 278,
+      "name": {
+        "ja": "尖脚",
+        "en": "Wicked Step"
+      },
+      "damageType": "physical",
+      "damageAmount": 83100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_62_ripxuc",
+      "time": 280,
+      "name": {
+        "ja": "尖脚",
+        "en": "Wicked Step"
+      },
+      "damageType": "physical",
+      "damageAmount": 85300,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_63_mphh77",
+      "time": 294,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_64_hg7eou",
+      "time": 308,
+      "name": {
+        "ja": "スピットウェブ",
+        "en": "Silkspit"
+      },
+      "damageType": "magical",
+      "damageAmount": 75200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_tx1ocu",
+      "time": 316,
+      "name": {
+        "ja": "衝撃",
+        "en": "Bury"
+      },
+      "damageType": "physical",
+      "damageAmount": 10100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_8ku5cq",
+      "time": 329,
+      "name": {
+        "ja": "パンデモニックボンド・クアドラ",
+        "en": "Tetradæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 33200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_k2is0e",
+      "time": 333,
+      "name": {
+        "ja": "パンデモニックボンド",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_q9yr5g",
+      "time": 357,
+      "name": {
+        "ja": "ディバイドウィング",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "damageAmount": 35100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_hhsafj",
+      "time": 357,
+      "name": {
+        "ja": "ヘビーウェブ",
+        "en": "Steel Web"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_a22qyh",
+      "time": 361,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_71_2ewv9y",
+      "time": 364,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_72_kjvw2d",
+      "time": 368,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_73_4yj83d",
+      "time": 375,
+      "name": {
+        "ja": "パンデモニックメルトン",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "damageAmount": 78700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_oeem0h",
+      "time": 376,
+      "name": {
+        "ja": "パンデモニックメルトン",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "damageAmount": 83900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_dd73qr",
+      "time": 385,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_76_30s0dv",
+      "time": 385,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_77_ai0wdc",
+      "time": 386,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_78_ej31ng",
+      "time": 386,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_79_xdo92k",
+      "time": 387,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_80_6khjlx",
+      "time": 387,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_81_cu5ogv",
+      "time": 389,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_82_hvdgg2",
+      "time": 389,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_83_96whkg",
+      "time": 394,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_84_ji0hal",
+      "time": 397,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_85_dkvmjh",
+      "time": 399,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_86_3pw63q",
+      "time": 418,
+      "name": {
+        "ja": "ディバイドウィング",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "damageAmount": 35100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_7rrhlk",
+      "time": 418,
+      "name": {
+        "ja": "ヘビーウェブ",
+        "en": "Steel Web"
+      },
+      "damageType": "magical",
+      "damageAmount": 68000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_5tzqk0",
+      "time": 429,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_89_fe30er",
+      "time": 438,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 109000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_90_uq1e92",
+      "time": 438,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 109000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_91_75mmhj",
+      "time": 439,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 41100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_ulv69m",
+      "time": 439,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 109000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_93_d2gjml",
+      "time": 439,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 109000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_94_8fqxy2",
+      "time": 440,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 59100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_7i3uvy",
+      "time": 441,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 116000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_96_h1khrj",
+      "time": 441,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 116000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_97_dmrpen",
+      "time": 442,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 59500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_wxifoq",
+      "time": 443,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 123000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_99_vfx2f9",
+      "time": 443,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 123000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_100_1hdwa9",
+      "time": 444,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 50800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_spmric",
+      "time": 444,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 124000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_102_zlwmg1",
+      "time": 444,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 124000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_103_s64hda",
+      "time": 445,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 54400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_e3l0ta",
+      "time": 446,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 70100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_8q92ny",
+      "time": 447,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 137000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_106_rpaxwt",
+      "time": 447,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 137000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_107_l8hylu",
+      "time": 448,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_v6iyx2",
+      "time": 449,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 221000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_109_papr0h",
+      "time": 449,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 221000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_110_9w46dj",
+      "time": 450,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 66700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_r25hzl",
+      "time": 453,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 149000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_112_c5rv2h",
+      "time": 453,
+      "name": {
+        "ja": "魔殿の震撃 (TB)",
+        "en": "Harrowing Hell (TB)"
+      },
+      "damageType": "physical",
+      "damageAmount": 149000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_113_bxafgg",
+      "time": 454,
+      "name": {
+        "ja": "魔殿の震撃",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "physical",
+      "damageAmount": 73700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_f6yx0a",
+      "time": 458,
+      "name": {
+        "ja": "パンデモニックボンド・ダブル",
+        "en": "Duodæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 46400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_8ejuum",
+      "time": 459,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_116_tjmhu2",
+      "time": 461,
+      "name": {
+        "ja": "パンデモニックボンド",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_hnm5t9",
+      "time": 462,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_118_0cldy0",
+      "time": 465,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_119_b3onva",
+      "time": 468,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_120_6mw1vc",
+      "time": 471,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_121_fn6rn0",
+      "time": 480,
+      "name": {
+        "ja": "アルテマ",
+        "en": "Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 60900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_rmvqr0",
+      "time": 491,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_123_cc1kgu",
+      "time": 491,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_124_h5c8d6",
+      "time": 492,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_125_b3m2ln",
+      "time": 492,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_126_b4nfjb",
+      "time": 493,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_127_hk8s2e",
+      "time": 493,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_128_u0twv0",
+      "time": 495,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_129_d1v1lp",
+      "time": 495,
+      "name": {
+        "ja": "ソウルグラスプ",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "damageAmount": 97200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_130_vggufe",
+      "time": 498,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_131_9tem4z",
+      "time": 501,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_132_5lwuot",
+      "time": 504,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 33800,
+      "target": "MT"
+    }
+  ],
+  "phases": []
+}

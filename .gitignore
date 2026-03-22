@@ -47,3 +47,5 @@ update_data.cjs
 
 # Data files
 *.xlsx
+
+.vercel

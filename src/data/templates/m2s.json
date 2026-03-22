@@ -1,11 +1,11 @@
 {
   "contentId": "m2s",
-  "generatedAt": "2026-03-22T05:33:16.986Z",
+  "generatedAt": "2026-03-22T11:59:17.120Z",
   "sourceLogsCount": 1,
   "sourceLog": "aqF9RjGp2YbXnwJM#12",
   "timelineEvents": [
     {
-      "id": "tpl_0_nwp63x",
+      "id": "tpl_0_lsuhrg",
       "time": 5,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_s1ep8z",
+      "id": "tpl_1_rbc7pa",
       "time": 12,
       "name": {
         "ja": "ラブリーコール",
@@ -27,7 +27,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_30mw38",
+      "id": "tpl_2_ueoy1l",
       "time": 13,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_jaz2c1",
+      "id": "tpl_3_t9bwfv",
       "time": 20,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_jew0lq",
+      "id": "tpl_4_0ao5lt",
       "time": 34,
       "name": {
         "ja": "ベノムドロップ",
@@ -60,7 +60,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_lya8az",
+      "id": "tpl_5_vhmxa2",
       "time": 54,
       "name": {
         "ja": "ベノムレイン",
@@ -71,7 +71,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_v5g50f",
+      "id": "tpl_6_xaa3lk",
       "time": 61,
       "name": {
         "ja": "キラースティング",
@@ -82,7 +82,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_24g87m",
+      "id": "tpl_7_vs7sp3",
       "time": 62,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -93,7 +93,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_z8tghy",
+      "id": "tpl_8_9zntsa",
       "time": 65,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -104,7 +104,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_v90pb1",
+      "id": "tpl_9_8c35kj",
       "time": 68,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -115,7 +115,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_qsakuu",
+      "id": "tpl_10_rlb3ho",
       "time": 80,
       "name": {
         "ja": "ハニー・B・ライヴ【1st】",
@@ -126,7 +126,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_t1o50t",
+      "id": "tpl_11_ie7i9m",
       "time": 92,
       "name": {
         "ja": "斬撃",
@@ -137,7 +137,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_0plmih",
+      "id": "tpl_12_zj3582",
       "time": 105,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -148,7 +148,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_hfvw54",
+      "id": "tpl_13_6vtaap",
       "time": 109,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -159,7 +159,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_2f8fe6",
+      "id": "tpl_14_gh8ghr",
       "time": 111,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -170,7 +170,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_r449k0",
+      "id": "tpl_15_97gkb3",
       "time": 113,
       "name": {
         "ja": "炸裂",
@@ -181,7 +181,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_cxdj5s",
+      "id": "tpl_16_n5mf8r",
       "time": 114,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -192,7 +192,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_t6ty3h",
+      "id": "tpl_17_c6bdfs",
       "time": 117,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -203,7 +203,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_8ae63u",
+      "id": "tpl_18_x26py6",
       "time": 117,
       "name": {
         "ja": "炸裂",
@@ -214,7 +214,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_so68el",
+      "id": "tpl_19_fpxymb",
       "time": 121,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -225,7 +225,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_y38boj",
+      "id": "tpl_20_awqm19",
       "time": 121,
       "name": {
         "ja": "炸裂",
@@ -236,7 +236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_e43ul5",
+      "id": "tpl_21_cehu5f",
       "time": 123,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -247,7 +247,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_1nlsg7",
+      "id": "tpl_22_hs1318",
       "time": 125,
       "name": {
         "ja": "炸裂",
@@ -258,7 +258,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_6hy4mb",
+      "id": "tpl_23_7ptk41",
       "time": 126,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -269,7 +269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_xheb4f",
+      "id": "tpl_24_v62r35",
       "time": 129,
       "name": {
         "ja": "炸裂",
@@ -280,7 +280,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_s4qzrr",
+      "id": "tpl_25_yniejm",
       "time": 129,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -291,7 +291,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_horkum",
+      "id": "tpl_26_lbov3o",
       "time": 132,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -302,7 +302,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_dy0xe5",
+      "id": "tpl_27_cnxhw5",
       "time": 133,
       "name": {
         "ja": "炸裂",
@@ -313,7 +313,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_fohmth",
+      "id": "tpl_28_ofymjg",
       "time": 140,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -324,7 +324,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_3jl849",
+      "id": "tpl_29_g1lkzx",
       "time": 143,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -335,7 +335,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_pwa03j",
+      "id": "tpl_30_3a5k9l",
       "time": 146,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -346,7 +346,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_o747qv",
+      "id": "tpl_31_b9fu31",
       "time": 153,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -357,7 +357,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_lbmsrv",
+      "id": "tpl_32_ik38x4",
       "time": 153,
       "name": {
         "ja": "破裂",
@@ -368,7 +368,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_25db4u",
+      "id": "tpl_33_rzxxcr",
       "time": 156,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -379,7 +379,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_ybfuk9",
+      "id": "tpl_34_2tmrtl",
       "time": 159,
       "name": {
         "ja": "ハートシック",
@@ -390,7 +390,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_lo7sjg",
+      "id": "tpl_35_h45msb",
       "time": 159,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -401,7 +401,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_l175m5",
+      "id": "tpl_36_ll2tgv",
       "time": 162,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -412,7 +412,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_3ahsmj",
+      "id": "tpl_37_crkjb9",
       "time": 179,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -423,7 +423,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_329f39",
+      "id": "tpl_38_dv832i",
       "time": 182,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -434,7 +434,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_1zssym",
+      "id": "tpl_39_2ea9ez",
       "time": 187,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -445,7 +445,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_2fka02",
+      "id": "tpl_40_guijd3",
       "time": 189,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -456,7 +456,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_kq85hm",
+      "id": "tpl_41_b7ydwk",
       "time": 192,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -467,7 +467,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_xodngd",
+      "id": "tpl_42_01tmb3",
       "time": 195,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -478,7 +478,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_rd2016",
+      "id": "tpl_43_mtdm0m",
       "time": 203,
       "name": {
         "ja": "キラースラッシュ",
@@ -489,7 +489,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_o344la",
+      "id": "tpl_44_hngyns",
       "time": 204,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -500,7 +500,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_e1ykzg",
+      "id": "tpl_45_dxg7j4",
       "time": 207,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -511,7 +511,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_axx33u",
+      "id": "tpl_46_tjwjhy",
       "time": 213,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -522,7 +522,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_ls3n31",
+      "id": "tpl_47_ymmea0",
       "time": 216,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -533,7 +533,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_cp2r15",
+      "id": "tpl_48_03s55m",
       "time": 219,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -544,7 +544,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_cmkks2",
+      "id": "tpl_49_sxktju",
       "time": 222,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -555,7 +555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_ceoo05",
+      "id": "tpl_50_qe0iyf",
       "time": 225,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -566,7 +566,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_3hevqn",
+      "id": "tpl_51_bi20gv",
       "time": 228,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -577,7 +577,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_y4hn23",
+      "id": "tpl_52_6eg9ew",
       "time": 231,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -588,7 +588,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_ip22ba",
+      "id": "tpl_53_j0jltb",
       "time": 234,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -599,7 +599,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_np73x0",
+      "id": "tpl_54_oqh91j",
       "time": 238,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -610,7 +610,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_s9m6gh",
+      "id": "tpl_55_241fs4",
       "time": 241,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -621,7 +621,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_o2wzr6",
+      "id": "tpl_56_yrc2kw",
       "time": 244,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -632,7 +632,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_86m749",
+      "id": "tpl_57_htlu5r",
       "time": 255,
       "name": {
         "ja": "ハニー・B・ライヴ【2nd】",
@@ -643,7 +643,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_tb7u3c",
+      "id": "tpl_58_3d1eg6",
       "time": 256,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -654,7 +654,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_pb5hiz",
+      "id": "tpl_59_u2jvjl",
       "time": 265,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -665,7 +665,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_s3g5si",
+      "id": "tpl_60_fqtzow",
       "time": 268,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -676,7 +676,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_txqvwc",
+      "id": "tpl_61_0n2q2u",
       "time": 280,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -687,7 +687,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_jgd4nv",
+      "id": "tpl_62_saek5o",
       "time": 281,
       "name": {
         "ja": "ハートシック",
@@ -698,7 +698,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_8rovj3",
+      "id": "tpl_63_wksjc5",
       "time": 283,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -709,7 +709,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_r1ihen",
+      "id": "tpl_64_k2iguc",
       "time": 286,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -720,7 +720,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_cse4tl",
+      "id": "tpl_65_21u0el",
       "time": 287,
       "name": {
         "ja": "ハートソゥ",
@@ -731,7 +731,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_6x71l9",
+      "id": "tpl_66_2uim61",
       "time": 288,
       "name": {
         "ja": "炸裂",
@@ -742,7 +742,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_ew4c9i",
+      "id": "tpl_67_jw7609",
       "time": 289,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -753,7 +753,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_buw5m0",
+      "id": "tpl_68_nv4au5",
       "time": 302,
       "name": {
         "ja": "ラブレイン",
@@ -764,7 +764,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_1b2c1c",
+      "id": "tpl_69_t5cwns",
       "time": 305,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -775,7 +775,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_qj5aqp",
+      "id": "tpl_70_ctyy4g",
       "time": 311,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -786,7 +786,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_vm3kgi",
+      "id": "tpl_71_0rdy5a",
       "time": 312,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -797,7 +797,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_hp67lk",
+      "id": "tpl_72_86vsx1",
       "time": 314,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -808,7 +808,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_iu5x40",
+      "id": "tpl_73_r6j8cl",
       "time": 317,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -819,7 +819,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_4trnde",
+      "id": "tpl_74_bsbnks",
       "time": 320,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -830,7 +830,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_ujboeu",
+      "id": "tpl_75_bs9di5",
       "time": 343,
       "name": {
         "ja": "ポイズンスティング",
@@ -841,7 +841,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_ysnqnn",
+      "id": "tpl_76_vd6yy5",
       "time": 349,
       "name": {
         "ja": "ポイズンスティング",
@@ -852,7 +852,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_df00pc",
+      "id": "tpl_77_hzvsf3",
       "time": 354,
       "name": {
         "ja": "ポイズンスティング",
@@ -863,7 +863,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_4l4hvh",
+      "id": "tpl_78_0jpyjy",
       "time": 359,
       "name": {
         "ja": "ポイズンスティング",
@@ -874,7 +874,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_bk84g0",
+      "id": "tpl_79_nmg93m",
       "time": 368,
       "name": {
         "ja": "ビースティング",
@@ -885,7 +885,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_hu6opl",
+      "id": "tpl_80_t12dhh",
       "time": 376,
       "name": {
         "ja": "キラースラッシュ",
@@ -896,7 +896,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_mx2dxm",
+      "id": "tpl_81_n9dg68",
       "time": 378,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -907,7 +907,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_o5tebu",
+      "id": "tpl_82_e8lzib",
       "time": 381,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -918,7 +918,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_n7kbwi",
+      "id": "tpl_83_0eidrg",
       "time": 395,
       "name": {
         "ja": "ベノムレイン",
@@ -929,7 +929,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_m5qrss",
+      "id": "tpl_84_kahbrb",
       "time": 397,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -940,7 +940,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_yx0try",
+      "id": "tpl_85_16nrh8",
       "time": 399,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -951,7 +951,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_y8rkhi",
+      "id": "tpl_86_zehj8c",
       "time": 402,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -962,7 +962,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_1vlnmb",
+      "id": "tpl_87_iixu67",
       "time": 414,
       "name": {
         "ja": "ハニー・B・ライヴ【3rd】",
@@ -973,7 +973,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_laesrm",
+      "id": "tpl_88_68avc1",
       "time": 440,
       "name": {
         "ja": "爆発",
@@ -984,7 +984,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_q04sss",
+      "id": "tpl_89_q3tdru",
       "time": 443,
       "name": {
         "ja": "炸裂",
@@ -995,7 +995,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_b0bjzn",
+      "id": "tpl_90_9n1wuz",
       "time": 460,
       "name": {
         "ja": "爆発",
@@ -1006,7 +1006,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_g22ihg",
+      "id": "tpl_91_smgoi0",
       "time": 463,
       "name": {
         "ja": "炸裂",
@@ -1017,7 +1017,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_ns2uo7",
+      "id": "tpl_92_o81wj5",
       "time": 477,
       "name": {
         "ja": "ラブドロップ",
@@ -1028,7 +1028,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_fcbi30",
+      "id": "tpl_93_v6nlyo",
       "time": 485,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -1039,7 +1039,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_9wl3c0",
+      "id": "tpl_94_u0xir7",
       "time": 488,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1050,7 +1050,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_ju5v1i",
+      "id": "tpl_95_x538r2",
       "time": 491,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1061,7 +1061,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_7ggl0j",
+      "id": "tpl_96_iipnp8",
       "time": 495,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1072,7 +1072,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_ns3ge5",
+      "id": "tpl_97_x6dvyy",
       "time": 500,
       "name": {
         "ja": "キラースラッシュ",
@@ -1083,7 +1083,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_tuwdgt",
+      "id": "tpl_98_kbmrub",
       "time": 502,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1094,7 +1094,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_km28ha",
+      "id": "tpl_99_ybw7ur",
       "time": 505,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1105,7 +1105,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_cfbqw5",
+      "id": "tpl_100_3x7u4d",
       "time": 508,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1116,7 +1116,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_v4axlj",
+      "id": "tpl_101_50kji6",
       "time": 516,
       "name": {
         "ja": "ブラックハート",
@@ -1127,7 +1127,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_t1h425",
+      "id": "tpl_102_mi07na",
       "time": 520,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1138,7 +1138,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_zsa5i5",
+      "id": "tpl_103_1bsp33",
       "time": 522,
       "name": {
         "ja": "大爆発",
@@ -1149,7 +1149,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_ctli7p",
+      "id": "tpl_104_62qyuq",
       "time": 522,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1160,7 +1160,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_ufwzmo",
+      "id": "tpl_105_t80xrf",
       "time": 523,
       "name": {
         "ja": "大爆発",

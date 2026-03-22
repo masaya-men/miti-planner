@@ -6,7 +6,7 @@
         "unassigned": "Unassigned"
     },
     "app": {
-        "title": "FFXIV Mitigation Sim",
+        "title": "LoPo Mitigation Planner",
         "language": "Language",
         "timeline": "Timeline",
         "party": "Party Composition",
@@ -267,7 +267,7 @@
         "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD."
     },
     "portal": {
-        "title": "FFXIV Toolbox",
+        "title": "LoPo",
         "subtitle": "Tools to support your adventure — mitigation planner, housing tour, and more.",
         "coming_soon": "Coming Soon",
         "tools": {

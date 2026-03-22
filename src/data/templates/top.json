@@ -1,2152 +1,2355 @@
 {
   "contentId": "top",
-  "generatedAt": "2026-03-22T08:16:40.165Z",
-  "source": "spreadsheet",
-  "sourceSheetId": "1VpwyDq9uc0W3i4rJZgI3YILVfpgUv_wmWT-csBhPQKI",
+  "generatedAt": "2026-03-22T12:11:25.979Z",
+  "sourceLogsCount": 1,
+  "sourceLog": "drDAkL1t3HC87VnP#12",
   "timelineEvents": [
     {
-      "id": "tpl_0_fy01h9",
-      "time": 3,
+      "id": "tpl_0_k8pp6i",
+      "time": 4,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 34900,
       "target": "AoE"
     },
     {
-      "id": "tpl_1_9yyxng",
-      "time": 6,
+      "id": "tpl_1_qsp5e1",
+      "time": 7,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 34900,
       "target": "AoE"
     },
     {
-      "id": "tpl_2_acyt2o",
-      "time": 9,
+      "id": "tpl_2_ybbp2a",
+      "time": 10,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 34900,
       "target": "AoE"
     },
     {
-      "id": "tpl_3_9oxyx4",
-      "time": 16,
+      "id": "tpl_3_d3n98i",
+      "time": 18,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 34900,
       "target": "AoE"
     },
     {
-      "id": "tpl_4_z2mxtn",
-      "time": 19,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_5_a6voo6",
-      "time": 29,
-      "name": {
-        "ja": "ブラスター",
-        "en": "Blaster"
-      },
-      "damageType": "magical",
-      "damageAmount": 35000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_6_u5bjiw",
+      "id": "tpl_4_i8q8zo",
       "time": 29,
       "name": {
         "ja": "記憶汚染除去S",
         "en": "Storage Violation"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 33200,
       "target": "AoE"
     },
     {
-      "id": "tpl_7_2u6zvz",
+      "id": "tpl_5_0ourp7",
+      "time": 29,
+      "name": {
+        "ja": "ブラスター",
+        "en": "Blaster"
+      },
+      "damageType": "magical",
+      "damageAmount": 32300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_te1rna",
+      "time": 38,
+      "name": {
+        "ja": "記憶汚染除去S",
+        "en": "Storage Violation"
+      },
+      "damageType": "magical",
+      "damageAmount": 33200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_rb9bvi",
       "time": 38,
       "name": {
         "ja": "ブラスター",
         "en": "Blaster"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 32300,
       "target": "AoE"
     },
     {
-      "id": "tpl_8_68msql",
-      "time": 38,
-      "name": {
-        "ja": "記憶汚染除去S",
-        "en": "Storage Violation"
-      },
-      "damageType": "magical",
-      "damageAmount": 35000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_9_jkifjm",
+      "id": "tpl_8_qqrwun",
       "time": 47,
       "name": {
         "ja": "ブラスター",
         "en": "Blaster"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 32300,
       "target": "AoE"
     },
     {
-      "id": "tpl_10_3s0e5q",
-      "time": 47,
+      "id": "tpl_9_fc9sa8",
+      "time": 48,
       "name": {
         "ja": "記憶汚染除去S",
         "en": "Storage Violation"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 33200,
       "target": "AoE"
     },
     {
-      "id": "tpl_11_qmx7x3",
+      "id": "tpl_10_b6ut6r",
       "time": 56,
       "name": {
         "ja": "ブラスター",
         "en": "Blaster"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 32300,
       "target": "AoE"
     },
     {
-      "id": "tpl_12_1weeij",
+      "id": "tpl_11_74pq9c",
       "time": 56,
       "name": {
         "ja": "記憶汚染除去S",
         "en": "Storage Violation"
       },
       "damageType": "magical",
-      "damageAmount": 35000,
+      "damageAmount": 33200,
       "target": "AoE"
     },
     {
-      "id": "tpl_13_91r0ch",
+      "id": "tpl_12_uq4x7a",
       "time": 81,
       "name": {
         "ja": "高出力波動砲P",
         "en": "Condensed Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 62000,
+      "damageAmount": 72300,
       "target": "AoE"
     },
     {
-      "id": "tpl_14_zx3vpm",
-      "time": 81,
+      "id": "tpl_13_pglrwf",
+      "time": 82,
       "name": {
         "ja": "誘導ミサイルP",
         "en": "Guided Missile Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 63000,
+      "damageAmount": 57300,
       "target": "AoE"
     },
     {
-      "id": "tpl_15_6j5nul",
+      "id": "tpl_14_dydl5d",
       "time": 87,
       "name": {
         "ja": "高出力波動砲P",
         "en": "Condensed Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 62000,
+      "damageAmount": 72300,
       "target": "AoE"
     },
     {
-      "id": "tpl_16_tiugzr",
-      "time": 87,
+      "id": "tpl_15_f0jho7",
+      "time": 88,
       "name": {
         "ja": "誘導ミサイルP",
         "en": "Guided Missile Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 63000,
+      "damageAmount": 57300,
       "target": "AoE"
     },
     {
-      "id": "tpl_17_m8p5oh",
+      "id": "tpl_16_6veswm",
       "time": 93,
       "name": {
         "ja": "高出力波動砲P",
         "en": "Condensed Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 62000,
+      "damageAmount": 72300,
       "target": "AoE"
     },
     {
-      "id": "tpl_18_1hkg5m",
+      "id": "tpl_17_g2a6zo",
       "time": 93,
       "name": {
         "ja": "誘導ミサイルP",
         "en": "Guided Missile Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 63000,
+      "damageAmount": 57300,
       "target": "AoE"
     },
     {
-      "id": "tpl_19_rjptae",
+      "id": "tpl_18_skf7zd",
       "time": 99,
       "name": {
         "ja": "高出力波動砲P",
         "en": "Condensed Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 62000,
+      "damageAmount": 72300,
       "target": "AoE"
     },
     {
-      "id": "tpl_20_a5yo1f",
-      "time": 99,
+      "id": "tpl_19_5n5k2i",
+      "time": 100,
       "name": {
         "ja": "誘導ミサイルP",
         "en": "Guided Missile Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 63000,
+      "damageAmount": 57300,
       "target": "AoE"
     },
     {
-      "id": "tpl_21_ku1ez8",
-      "time": 108,
-      "name": {
-        "ja": "拡散波動砲P",
-        "en": "Diffuse Wave Cannon Kyrios"
-      },
-      "damageType": "magical",
-      "damageAmount": 70000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_22_ztx4qn",
+      "id": "tpl_20_9q9f47",
       "time": 108,
       "name": {
         "ja": "波動砲P",
         "en": "Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 34000,
+      "damageAmount": 33800,
       "target": "AoE"
     },
     {
-      "id": "tpl_23_dl7yx0",
+      "id": "tpl_21_n8q20p",
+      "time": 108,
+      "name": {
+        "ja": "拡散波動砲P",
+        "en": "Diffuse Wave Cannon Kyrios"
+      },
+      "damageType": "magical",
+      "damageAmount": 930000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_np7p82",
       "time": 110,
       "name": {
         "ja": "拡散波動砲P",
         "en": "Diffuse Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 930000,
       "target": "AoE"
     },
     {
-      "id": "tpl_24_qcqlml",
+      "id": "tpl_23_7o6bjf",
       "time": 112,
       "name": {
         "ja": "拡散波動砲P",
         "en": "Diffuse Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 930000,
       "target": "AoE"
     },
     {
-      "id": "tpl_25_iw4cmi",
+      "id": "tpl_24_eyto07",
       "time": 114,
       "name": {
         "ja": "拡散波動砲P",
         "en": "Diffuse Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 930000,
       "target": "AoE"
     },
     {
-      "id": "tpl_26_gq8ayg",
+      "id": "tpl_25_yeizx7",
       "time": 116,
       "name": {
         "ja": "拡散波動砲P",
         "en": "Diffuse Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 930000,
       "target": "AoE"
     },
     {
-      "id": "tpl_27_f3uka4",
+      "id": "tpl_26_skyz56",
       "time": 117,
       "name": {
         "ja": "波動砲P",
         "en": "Wave Cannon Kyrios"
       },
       "damageType": "magical",
-      "damageAmount": 34000,
+      "damageAmount": 33800,
       "target": "AoE"
     },
     {
-      "id": "tpl_28_e5ixvt",
-      "time": 261,
+      "id": "tpl_27_9a6bde",
+      "time": 140,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 250000,
+      "damageAmount": 174000,
       "target": "AoE"
     },
     {
-      "id": "tpl_29_rdt4y2",
-      "time": 266,
+      "id": "tpl_28_urlbv4",
+      "time": 140,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "ソーラレイ",
+        "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 172000,
       "target": "AoE"
     },
     {
-      "id": "tpl_30_lp46fc",
-      "time": 267,
+      "id": "tpl_29_8m0a9z",
+      "time": 143,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 49000,
+      "damageAmount": 35700,
       "target": "AoE"
     },
     {
-      "id": "tpl_31_o86rw5",
-      "time": 269,
+      "id": "tpl_30_dscbme",
+      "time": 144,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_32_odrlks",
-      "time": 270,
+      "id": "tpl_31_8mur9e",
+      "time": 146,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 49000,
+      "damageAmount": 35700,
       "target": "AoE"
     },
     {
-      "id": "tpl_33_yik8og",
-      "time": 272,
+      "id": "tpl_32_qb01fq",
+      "time": 147,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_34_a0yr22",
-      "time": 273,
+      "id": "tpl_33_pbvzz1",
+      "time": 149,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 35800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_u68wro",
+      "time": 149,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 49000,
+      "damageAmount": 35700,
       "target": "AoE"
     },
     {
-      "id": "tpl_35_e88rbt",
-      "time": 295,
+      "id": "tpl_35_l280wq",
+      "time": 173,
       "name": {
         "ja": "ファイラ・オメガ",
         "en": "Optimized Fire III"
       },
       "damageType": "magical",
-      "damageAmount": 34000,
+      "damageAmount": 30400,
       "target": "AoE"
     },
     {
-      "id": "tpl_36_o1w7ly",
-      "time": 306,
+      "id": "tpl_36_d51k31",
+      "time": 179,
+      "name": {
+        "ja": "ディスチャージャー",
+        "en": "Discharger"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_canacr",
+      "time": 184,
       "name": {
         "ja": "スポットライト",
         "en": "Spotlight"
       },
       "damageType": "magical",
-      "damageAmount": 56000,
+      "damageAmount": 53900,
       "target": "AoE"
     },
     {
-      "id": "tpl_37_9ucua6",
-      "time": 312,
+      "id": "tpl_38_09cjvh",
+      "time": 189,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_38_5gi46v",
-      "time": 312,
+      "id": "tpl_39_msgma7",
+      "time": 190,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 49000,
+      "damageAmount": 35700,
       "target": "AoE"
     },
     {
-      "id": "tpl_39_ysantz",
-      "time": 315,
+      "id": "tpl_40_gvx86u",
+      "time": 192,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_40_8x6jgt",
-      "time": 315,
+      "id": "tpl_41_2gj4kf",
+      "time": 193,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 49000,
+      "damageAmount": 35700,
       "target": "AoE"
     },
     {
-      "id": "tpl_41_9b8x5d",
-      "time": 318,
+      "id": "tpl_42_shhbaw",
+      "time": 195,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_42_p3m8t0",
-      "time": 318,
+      "id": "tpl_43_v6iomf",
+      "time": 198,
       "name": {
-        "ja": "オメガM_AA",
-        "en": "オメガM_AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 49000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_43_ypayy6",
-      "time": 321,
-      "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_44_unyy11",
-      "time": 324,
+      "id": "tpl_44_tk9alz",
+      "time": 201,
       "name": {
-        "ja": "オメガF_AA",
-        "en": "オメガF_AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 35800,
       "target": "AoE"
     },
     {
-      "id": "tpl_45_oevsl7",
-      "time": 343,
+      "id": "tpl_45_owqej2",
+      "time": 221,
       "name": {
         "ja": "ブレードダンス・オメガ",
         "en": "Optimized Bladedance"
       },
       "damageType": "physical",
-      "damageAmount": 280000,
+      "damageAmount": 205000,
       "target": "AoE"
     },
     {
-      "id": "tpl_46_jidioh",
-      "time": 354,
+      "id": "tpl_46_rtulk9",
+      "time": 233,
       "name": {
         "ja": "シールドコンボS",
         "en": "Beyond Defense"
       },
       "damageType": "physical",
-      "damageAmount": 32000,
+      "damageAmount": 31100,
       "target": "AoE"
     },
     {
-      "id": "tpl_47_z6prke",
-      "time": 357,
+      "id": "tpl_47_jb8184",
+      "time": 235,
       "name": {
         "ja": "メテオ・オメガ",
         "en": "Optimized Meteor"
       },
       "damageType": "magical",
-      "damageAmount": 49000,
+      "damageAmount": 125000,
       "target": "AoE"
     },
     {
-      "id": "tpl_48_1a7bfj",
-      "time": 357,
+      "id": "tpl_48_k40buv",
+      "time": 235,
       "name": {
         "ja": "パイルピッチ",
         "en": "Pile Pitch"
       },
       "damageType": "magical",
-      "damageAmount": 44000,
+      "damageAmount": 46600,
       "target": "AoE"
     },
     {
-      "id": "tpl_49_ykn74y",
-      "time": 368,
+      "id": "tpl_49_utmo5e",
+      "time": 236,
+      "name": {
+        "ja": "メテオ・オメガ",
+        "en": "Optimized Meteor"
+      },
+      "damageType": "magical",
+      "damageAmount": 125000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_erxgs8",
+      "time": 245,
       "name": {
         "ja": "コスモメモリー",
         "en": "Cosmo Memory"
       },
       "damageType": "magical",
-      "damageAmount": 95000,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_50_j3fvcj",
-      "time": 676,
+      "id": "tpl_51_1rtkfs",
+      "time": 298,
+      "name": {
+        "ja": "狙撃式高出力波動砲",
+        "en": "High-powered Sniper Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 69800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_i58d86",
+      "time": 298,
       "name": {
         "ja": "狙撃式波動砲",
         "en": "Sniper Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 79000,
+      "damageAmount": 73100,
       "target": "AoE"
     },
     {
-      "id": "tpl_51_93107w",
-      "time": 676,
-      "name": {
-        "ja": "狙撃式高出力波動砲",
-        "en": "Condensed Wave Cannon Kyrios"
-      },
-      "damageType": "magical",
-      "damageAmount": 79000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_52_85f5ql",
-      "time": 689,
+      "id": "tpl_53_qzw3a3",
+      "time": 311,
       "name": {
         "ja": "ハロー・ワールド",
         "en": "Hello, World"
       },
       "damageType": "magical",
-      "damageAmount": 53000,
+      "damageAmount": 74300,
       "target": "AoE"
     },
     {
-      "id": "tpl_53_fb5p26",
-      "time": 691,
+      "id": "tpl_54_3eh8v0",
+      "time": 315,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_54_stgnlw",
-      "time": 694,
+      "id": "tpl_55_hy3o70",
+      "time": 318,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_55_sii05b",
-      "time": 697,
+      "id": "tpl_56_0iam0q",
+      "time": 321,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_56_himlwh",
-      "time": 700,
+      "id": "tpl_57_cuw89a",
+      "time": 324,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_57_k8ur8c",
-      "time": 703,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_58_uskmny",
-      "time": 713,
+      "id": "tpl_58_o5l1aa",
+      "time": 335,
       "name": {
         "ja": "クリティカルバグ：シェア",
         "en": "Critical Synchronization Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 41300,
       "target": "AoE"
     },
     {
-      "id": "tpl_59_lpplm0",
-      "time": 713,
+      "id": "tpl_59_8je2vq",
+      "time": 335,
+      "name": {
+        "ja": "レイテントバグ：パフォーマンス",
+        "en": "Latent Performance Defect"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_t9623n",
+      "time": 335,
+      "name": {
+        "ja": "レイテントバグ：デグレード",
+        "en": "Cascading Latent Defect"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_ns63jh",
+      "time": 335,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_w8o5ia",
+      "time": 336,
       "name": {
         "ja": "クリティカルバグ：サークル",
         "en": "Critical Overflow Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 42100,
       "target": "AoE"
     },
     {
-      "id": "tpl_60_7mr6pk",
-      "time": 714,
+      "id": "tpl_63_axb8x1",
+      "time": 336,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_61_iy6t7i",
-      "time": 714,
+      "id": "tpl_64_mh56la",
+      "time": 339,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_62_k3v250",
-      "time": 717,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_ubhsuc",
-      "time": 718,
+      "id": "tpl_65_ahyq01",
+      "time": 339,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_64_ipd18t",
-      "time": 721,
+      "id": "tpl_66_1luojc",
+      "time": 341,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_65_1pa1g3",
-      "time": 724,
+      "id": "tpl_67_qatpea",
+      "time": 344,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_66_f95cvv",
-      "time": 734,
+      "id": "tpl_68_hk5gzs",
+      "time": 356,
+      "name": {
+        "ja": "レイテントバグ：パフォーマンス",
+        "en": "Latent Performance Defect"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_9j11x2",
+      "time": 356,
+      "name": {
+        "ja": "レイテントバグ：デグレード",
+        "en": "Cascading Latent Defect"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_qy2226",
+      "time": 357,
       "name": {
         "ja": "クリティカルバグ：シェア",
         "en": "Critical Synchronization Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 41300,
       "target": "AoE"
     },
     {
-      "id": "tpl_67_htg0uc",
-      "time": 734,
+      "id": "tpl_71_i9bvc2",
+      "time": 357,
       "name": {
         "ja": "クリティカルバグ：サークル",
         "en": "Critical Overflow Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 42100,
       "target": "AoE"
     },
     {
-      "id": "tpl_68_ideopm",
-      "time": 735,
+      "id": "tpl_72_d64xxr",
+      "time": 358,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_69_ndk7ek",
-      "time": 738,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_70_hssfxj",
-      "time": 740,
+      "id": "tpl_73_6v8cyy",
+      "time": 359,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_71_ej2c4m",
-      "time": 741,
+      "id": "tpl_74_seifyp",
+      "time": 360,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_72_cwlsdm",
-      "time": 744,
+      "id": "tpl_75_56r2yc",
+      "time": 360,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_7dmrnh",
+      "time": 361,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_qxygy8",
+      "time": 363,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_73_ijtyxt",
-      "time": 755,
+      "id": "tpl_78_du2v1f",
+      "time": 366,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_79_d2rgtt",
+      "time": 377,
+      "name": {
+        "ja": "レイテントバグ：パフォーマンス",
+        "en": "Latent Performance Defect"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_bg2luu",
+      "time": 377,
+      "name": {
+        "ja": "レイテントバグ：デグレード",
+        "en": "Cascading Latent Defect"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_4ky2ce",
+      "time": 377,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_18y7ed",
+      "time": 378,
       "name": {
         "ja": "クリティカルバグ：シェア",
         "en": "Critical Synchronization Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 41300,
       "target": "AoE"
     },
     {
-      "id": "tpl_74_7n2ngw",
-      "time": 755,
+      "id": "tpl_83_kc9j47",
+      "time": 378,
       "name": {
         "ja": "クリティカルバグ：サークル",
         "en": "Critical Overflow Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 42100,
       "target": "AoE"
     },
     {
-      "id": "tpl_75_p2i8tq",
-      "time": 755,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_76_qqstec",
-      "time": 757,
+      "id": "tpl_84_u6grdn",
+      "time": 378,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_77_7roi2a",
-      "time": 758,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_78_4ryuwi",
-      "time": 760,
+      "id": "tpl_85_fgjici",
+      "time": 379,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_79_ewai0f",
-      "time": 761,
+      "id": "tpl_86_b92phs",
+      "time": 380,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_80_n4zf6i",
-      "time": 764,
+      "id": "tpl_87_4ofwfs",
+      "time": 381,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_cq0pj8",
+      "time": 384,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 44000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_81_3qdcky",
-      "time": 776,
+      "id": "tpl_89_u4j17z",
+      "time": 386,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_odo8qu",
+      "time": 397,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_a0moe1",
+      "time": 398,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_8didw2",
+      "time": 398,
       "name": {
         "ja": "クリティカルバグ：シェア",
         "en": "Critical Synchronization Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 41300,
       "target": "AoE"
     },
     {
-      "id": "tpl_82_najz5s",
-      "time": 776,
+      "id": "tpl_93_88exxl",
+      "time": 398,
       "name": {
         "ja": "クリティカルバグ：サークル",
         "en": "Critical Overflow Bug"
       },
       "damageType": "magical",
-      "damageAmount": 42000,
+      "damageAmount": 42100,
       "target": "AoE"
     },
     {
-      "id": "tpl_83_syceii",
-      "time": 777,
+      "id": "tpl_94_gzb428",
+      "time": 398,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "レイテントバグ：パフォーマンス",
+        "en": "Latent Performance Defect"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_n6f22m",
+      "time": 398,
+      "name": {
+        "ja": "レイテントバグ：デグレード",
+        "en": "Cascading Latent Defect"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_2h9fmy",
+      "time": 399,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_84_dbdfyf",
-      "time": 778,
+      "id": "tpl_97_1x39qi",
+      "time": 402,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_w9og1y",
+      "time": 402,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_85_3tmxw7",
-      "time": 781,
+      "id": "tpl_99_41d0o4",
+      "time": 405,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_86_v5h4t8",
-      "time": 781,
+      "id": "tpl_100_8ytuud",
+      "time": 408,
       "name": {
-        "ja": "エンバグ",
-        "en": "Patch"
-      },
-      "damageType": "magical",
-      "damageAmount": 23000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_87_d0eoel",
-      "time": 784,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_88_ihm9jz",
-      "time": 787,
+      "id": "tpl_101_gmmkwa",
+      "time": 411,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_89_ywczot",
-      "time": 798,
+      "id": "tpl_102_d1lfmy",
+      "time": 419,
       "name": {
         "ja": "クリティカルエラー",
         "en": "Critical Error"
       },
       "damageType": "magical",
-      "damageAmount": 96000,
+      "damageAmount": 91700,
       "target": "AoE"
     },
     {
-      "id": "tpl_90_pk6hm5",
-      "time": 801,
+      "id": "tpl_103_zuvjoc",
+      "time": 423,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_91_m66khl",
-      "time": 804,
+      "id": "tpl_104_1iz2hm",
+      "time": 426,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_92_3a4xqf",
-      "time": 819,
+      "id": "tpl_105_kwibn0",
+      "time": 429,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "physical",
+      "damageAmount": 36700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_oti2oy",
+      "time": 441,
       "name": {
         "ja": "検知式波動砲",
         "en": "Oversampled Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 46900,
       "target": "AoE"
     },
     {
-      "id": "tpl_93_3outig",
-      "time": 822,
+      "id": "tpl_107_u4452k",
+      "time": 445,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 36700,
       "target": "AoE"
     },
     {
-      "id": "tpl_94_l5fjq7",
-      "time": 1309,
+      "id": "tpl_108_ar0ijj",
+      "time": 477,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 40000,
+      "damageAmount": 37200,
       "target": "AoE"
     },
     {
-      "id": "tpl_95_8yungl",
-      "time": 1314,
+      "id": "tpl_109_2hyh7a",
+      "time": 482,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 60000,
+      "damageAmount": 84000,
       "target": "AoE"
     },
     {
-      "id": "tpl_96_j6f1fg",
-      "time": 1319,
+      "id": "tpl_110_755brm",
+      "time": 487,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 40000,
+      "damageAmount": 37200,
       "target": "AoE"
     },
     {
-      "id": "tpl_97_4yochq",
-      "time": 1324,
+      "id": "tpl_111_tv09k8",
+      "time": 492,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 60000,
+      "damageAmount": 84000,
       "target": "AoE"
     },
     {
-      "id": "tpl_98_7k7tty",
-      "time": 1330,
+      "id": "tpl_112_zlbcct",
+      "time": 498,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 40000,
+      "damageAmount": 37200,
       "target": "AoE"
     },
     {
-      "id": "tpl_99_40l2co",
-      "time": 1335,
+      "id": "tpl_113_11ynbr",
+      "time": 502,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 60000,
+      "damageAmount": 84000,
       "target": "AoE"
     },
     {
-      "id": "tpl_100_705asf",
-      "time": 1350,
+      "id": "tpl_114_8ufrmf",
+      "time": 518,
       "name": {
         "ja": "ブルースクリーン",
         "en": "Blue Screen"
       },
       "damageType": "magical",
-      "damageAmount": 80000,
+      "damageAmount": 73700,
       "target": "AoE"
     },
     {
-      "id": "tpl_101_r8p6wg",
-      "time": 1374,
+      "id": "tpl_115_a0gnea",
+      "time": 541,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 274000,
       "target": "AoE"
     },
     {
-      "id": "tpl_102_5wv2bg",
-      "time": 1377,
+      "id": "tpl_116_jf2kn5",
+      "time": 545,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 263000,
       "target": "AoE"
     },
     {
-      "id": "tpl_103_io8tq6",
-      "time": 1380,
+      "id": "tpl_117_qv27o4",
+      "time": 548,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 50000,
+      "damageAmount": 35000,
       "target": "AoE"
     },
     {
-      "id": "tpl_104_b49kgf",
-      "time": 1383,
+      "id": "tpl_118_pp4ml8",
+      "time": 551,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 50000,
+      "damageAmount": 35000,
       "target": "AoE"
     },
     {
-      "id": "tpl_105_4f4m62",
-      "time": 1391,
+      "id": "tpl_119_wndk9a",
+      "time": 559,
       "name": {
-        "ja": "コード： ＊＊＊ミ＊【デルタ】",
+        "ja": "コード：＊＊＊ミ＊【デルタ】",
         "en": "Run: ****mi* (Delta Version)"
       },
       "damageType": "magical",
-      "damageAmount": 140000,
+      "damageAmount": 127000,
       "target": "AoE"
     },
     {
-      "id": "tpl_106_3cbnxq",
-      "time": 1412,
+      "id": "tpl_120_7fb5f0",
+      "time": 579,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_107_5wkwre",
-      "time": 1416,
+      "id": "tpl_121_d8vk5z",
+      "time": 580,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_108_0cogkx",
-      "time": 1419,
+      "id": "tpl_122_xmiykd",
+      "time": 583,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_z4v052",
+      "time": 584,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_holx8e",
+      "time": 587,
       "name": {
         "ja": "シールドコンボS",
         "en": "Beyond Defense"
       },
       "damageType": "physical",
-      "damageAmount": 32000,
+      "damageAmount": 31100,
       "target": "AoE"
     },
     {
-      "id": "tpl_109_rqso5l",
-      "time": 1424,
+      "id": "tpl_125_fhpwf0",
+      "time": 591,
       "name": {
         "ja": "検知式波動砲",
         "en": "Oversampled Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 46900,
       "target": "AoE"
     },
     {
-      "id": "tpl_110_p5uym2",
-      "time": 1424,
+      "id": "tpl_126_yx7tal",
+      "time": 593,
       "name": {
         "ja": "パイルピッチ",
         "en": "Pile Pitch"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 46600,
       "target": "AoE"
     },
     {
-      "id": "tpl_111_f4t4s9",
-      "time": 1432,
+      "id": "tpl_127_2xepdp",
+      "time": 599,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_112_4ikv8p",
-      "time": 1435,
+      "id": "tpl_128_0mocj1",
+      "time": 600,
       "name": {
         "ja": "エンバグ",
         "en": "Patch"
       },
       "damageType": "magical",
-      "damageAmount": 23000,
+      "damageAmount": 25200,
       "target": "AoE"
     },
     {
-      "id": "tpl_113_bjebth",
-      "time": 1438,
-      "name": {
-        "ja": "ハロー・ワールド：ニア",
-        "en": "Hello, Near World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_114_isy2i6",
-      "time": 1438,
+      "id": "tpl_129_tw7evg",
+      "time": 606,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 45000,
       "target": "AoE"
     },
     {
-      "id": "tpl_115_8mgpag",
-      "time": 1439,
+      "id": "tpl_130_1vr3lx",
+      "time": 606,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48700,
       "target": "AoE"
     },
     {
-      "id": "tpl_116_85pqmp",
-      "time": 1439,
-      "name": {
-        "ja": "ハロー・ワールド：ファー",
-        "en": "Hello, Distant World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_117_43kabg",
-      "time": 1440,
+      "id": "tpl_131_9oqzwe",
+      "time": 607,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 47000,
       "target": "AoE"
     },
     {
-      "id": "tpl_118_y379eh",
-      "time": 1440,
+      "id": "tpl_132_i37g1l",
+      "time": 607,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48100,
       "target": "AoE"
     },
     {
-      "id": "tpl_119_xnsb3o",
-      "time": 1456,
+      "id": "tpl_133_0khbor",
+      "time": 608,
+      "name": {
+        "ja": "ハロー・ワールド：ニア",
+        "en": "Hello, Near World"
+      },
+      "damageType": "magical",
+      "damageAmount": 47000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_6gj3tu",
+      "time": 614,
+      "name": {
+        "ja": "エンバグ",
+        "en": "Patch"
+      },
+      "damageType": "magical",
+      "damageAmount": 25200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_5r3qqa",
+      "time": 624,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 274000,
       "target": "AoE"
     },
     {
-      "id": "tpl_120_f09p0q",
-      "time": 1459,
+      "id": "tpl_136_9wrnr1",
+      "time": 627,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 263000,
       "target": "AoE"
     },
     {
-      "id": "tpl_121_4386bp",
-      "time": 1462,
+      "id": "tpl_137_vsepiv",
+      "time": 631,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "physical",
-      "damageAmount": 50000,
+      "damageAmount": 35000,
       "target": "AoE"
     },
     {
-      "id": "tpl_122_l0vcwz",
-      "time": 1465,
+      "id": "tpl_138_az7i2j",
+      "time": 641,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 50000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_123_vog9b9",
-      "time": 1472,
-      "name": {
-        "ja": "コード： ＊＊＊ミ＊【シグマ】",
+        "ja": "コード：＊＊＊ミ＊【シグマ】",
         "en": "Run: ****mi* (Sigma Version)"
       },
       "damageType": "magical",
-      "damageAmount": 140000,
+      "damageAmount": 131000,
       "target": "AoE"
     },
     {
-      "id": "tpl_124_hl2nsf",
-      "time": 1495,
+      "id": "tpl_139_41abwo",
+      "time": 663,
       "name": {
         "ja": "ハイパーパルス",
         "en": "Hyper Pulse"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 69500,
       "target": "AoE"
     },
     {
-      "id": "tpl_125_oz5xkj",
-      "time": 1495,
+      "id": "tpl_140_m1e1oj",
+      "time": 663,
       "name": {
         "ja": "波動砲",
         "en": "Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 74000,
+      "damageAmount": 64400,
       "target": "AoE"
     },
     {
-      "id": "tpl_126_ot3pyz",
-      "time": 1507,
+      "id": "tpl_141_tg1myn",
+      "time": 671,
+      "name": {
+        "ja": "ディスチャージャー",
+        "en": "Discharger"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_9svq0t",
+      "time": 675,
       "name": {
         "ja": "記憶汚染除去S",
         "en": "Storage Violation"
       },
       "damageType": "magical",
-      "damageAmount": 36000,
+      "damageAmount": 33000,
       "target": "AoE"
     },
     {
-      "id": "tpl_127_fduuh1",
-      "time": 1530,
+      "id": "tpl_143_8v8grp",
+      "time": 675,
+      "name": {
+        "ja": "記憶汚染除去S",
+        "en": "Storage Violation"
+      },
+      "damageType": "magical",
+      "damageAmount": 33200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_utrthq",
+      "time": 700,
       "name": {
         "ja": "ハイパーパルス",
         "en": "Hyper Pulse"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 69500,
       "target": "AoE"
     },
     {
-      "id": "tpl_128_34h562",
-      "time": 1532,
-      "name": {
-        "ja": "ハロー・ワールド：ニア",
-        "en": "Hello, Near World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_129_e4zomq",
-      "time": 1532,
+      "id": "tpl_145_4j1qn3",
+      "time": 700,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 45000,
       "target": "AoE"
     },
     {
-      "id": "tpl_130_the5zv",
-      "time": 1533,
+      "id": "tpl_146_ao99m9",
+      "time": 700,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48700,
       "target": "AoE"
     },
     {
-      "id": "tpl_131_djxnsm",
-      "time": 1533,
-      "name": {
-        "ja": "ハロー・ワールド：ファー",
-        "en": "Hello, Distant World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_132_rud7vn",
-      "time": 1534,
+      "id": "tpl_147_hp7r94",
+      "time": 701,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 47000,
       "target": "AoE"
     },
     {
-      "id": "tpl_133_09wcea",
-      "time": 1534,
+      "id": "tpl_148_3qmt16",
+      "time": 701,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48100,
       "target": "AoE"
     },
     {
-      "id": "tpl_134_1n5bmb",
-      "time": 1545,
+      "id": "tpl_149_dwzh3x",
+      "time": 702,
+      "name": {
+        "ja": "ハロー・ワールド：ファー",
+        "en": "Hello, Distant World"
+      },
+      "damageType": "magical",
+      "damageAmount": 48100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_oll4us",
+      "time": 702,
+      "name": {
+        "ja": "ハロー・ワールド：ニア",
+        "en": "Hello, Near World"
+      },
+      "damageType": "magical",
+      "damageAmount": 47000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_gn3xa3",
+      "time": 713,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 283000,
       "target": "AoE"
     },
     {
-      "id": "tpl_135_4oup1t",
-      "time": 1548,
+      "id": "tpl_152_wosrec",
+      "time": 720,
       "name": {
-        "ja": "ソーラレイ",
-        "en": "Solar Ray"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_136_qm0zal",
-      "time": 1551,
+      "id": "tpl_153_cforr4",
+      "time": 723,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_137_938bw9",
-      "time": 1554,
+      "id": "tpl_154_huh2vu",
+      "time": 730,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 50000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_138_5kz1je",
-      "time": 1562,
-      "name": {
-        "ja": "コード： ＊＊＊ミ＊【オメガ】",
+        "ja": "コード：＊＊＊ミ＊【オメガ】",
         "en": "Run: ****mi* (Omega Version)"
       },
       "damageType": "magical",
-      "damageAmount": 105000,
+      "damageAmount": 127000,
       "target": "AoE"
     },
     {
-      "id": "tpl_139_gfinur",
-      "time": 1563,
+      "id": "tpl_155_k8rbkv",
+      "time": 731,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_140_f6l9es",
-      "time": 1566,
+      "id": "tpl_156_4upfc6",
+      "time": 733,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_141_jyaya3",
-      "time": 1569,
+      "id": "tpl_157_nku9ds",
+      "time": 737,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_142_08efv0",
-      "time": 1572,
+      "id": "tpl_158_5mm3au",
+      "time": 740,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_143_lv05lr",
-      "time": 1575,
+      "id": "tpl_159_2nbhuq",
+      "time": 743,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_144_rq0kwi",
-      "time": 1578,
+      "id": "tpl_160_abux8w",
+      "time": 746,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_145_uvbfjr",
-      "time": 1581,
+      "id": "tpl_161_iz156h",
+      "time": 748,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_146_x9io8i",
-      "time": 1587,
+      "id": "tpl_162_gjc0ym",
+      "time": 751,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_147_b87i4y",
-      "time": 1597,
+      "id": "tpl_163_iff612",
+      "time": 754,
       "name": {
-        "ja": "ハロー・ワールド：ニア",
-        "en": "Hello, Near World"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_148_ai3mv3",
-      "time": 1597,
+      "id": "tpl_164_6xxk37",
+      "time": 765,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 45000,
       "target": "AoE"
     },
     {
-      "id": "tpl_149_flojws",
-      "time": 1598,
+      "id": "tpl_165_e9v1p1",
+      "time": 765,
+      "name": {
+        "ja": "ハロー・ワールド：ニア",
+        "en": "Hello, Near World"
+      },
+      "damageType": "magical",
+      "damageAmount": 48700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_166_vijxy8",
+      "time": 766,
       "name": {
         "ja": "検知式波動砲",
         "en": "Oversampled Wave Cannon"
       },
       "damageType": "magical",
-      "damageAmount": 70000,
+      "damageAmount": 46900,
       "target": "AoE"
     },
     {
-      "id": "tpl_150_rl4z9u",
-      "time": 1598,
+      "id": "tpl_167_sdezaj",
+      "time": 766,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 47000,
       "target": "AoE"
     },
     {
-      "id": "tpl_151_rbytdh",
-      "time": 1598,
+      "id": "tpl_168_3f38d1",
+      "time": 766,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48100,
       "target": "AoE"
     },
     {
-      "id": "tpl_152_ds2x7t",
-      "time": 1599,
+      "id": "tpl_169_wajc5k",
+      "time": 767,
+      "name": {
+        "ja": "ハロー・ワールド：ファー",
+        "en": "Hello, Distant World"
+      },
+      "damageType": "magical",
+      "damageAmount": 48100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_170_e7ptb6",
+      "time": 767,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 47000,
       "target": "AoE"
     },
     {
-      "id": "tpl_153_55p7jr",
-      "time": 1599,
-      "name": {
-        "ja": "ハロー・ワールド：ファー",
-        "en": "Hello, Distant World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_154_dccxry",
-      "time": 1613,
+      "id": "tpl_171_vta6yw",
+      "time": 781,
       "name": {
         "ja": "ブラスター",
         "en": "Blaster"
       },
       "damageType": "magical",
-      "damageAmount": 48000,
+      "damageAmount": 42000,
       "target": "AoE"
     },
     {
-      "id": "tpl_155_x0x0l4",
-      "time": 1615,
-      "name": {
-        "ja": "ハロー・ワールド：ニア",
-        "en": "Hello, Near World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_156_j26t28",
-      "time": 1615,
+      "id": "tpl_172_u2vgj5",
+      "time": 783,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 45000,
       "target": "AoE"
     },
     {
-      "id": "tpl_157_5hglw5",
-      "time": 1616,
+      "id": "tpl_173_jqtbd3",
+      "time": 783,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48700,
       "target": "AoE"
     },
     {
-      "id": "tpl_158_bwdd5i",
-      "time": 1616,
-      "name": {
-        "ja": "ハロー・ワールド：ファー",
-        "en": "Hello, Distant World"
-      },
-      "damageType": "magical",
-      "damageAmount": 52000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_159_i0yuls",
-      "time": 1617,
+      "id": "tpl_174_8sxs5p",
+      "time": 784,
       "name": {
         "ja": "ハロー・ワールド：ニア",
         "en": "Hello, Near World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 47000,
       "target": "AoE"
     },
     {
-      "id": "tpl_160_wdz4kv",
-      "time": 1617,
+      "id": "tpl_175_71w885",
+      "time": 784,
       "name": {
         "ja": "ハロー・ワールド：ファー",
         "en": "Hello, Distant World"
       },
       "damageType": "magical",
-      "damageAmount": 52000,
+      "damageAmount": 48100,
       "target": "AoE"
     },
     {
-      "id": "tpl_161_t02tov",
-      "time": 1629,
+      "id": "tpl_176_acem7k",
+      "time": 785,
+      "name": {
+        "ja": "ハロー・ワールド：ファー",
+        "en": "Hello, Distant World"
+      },
+      "damageType": "magical",
+      "damageAmount": 48100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_177_8kqtr9",
+      "time": 785,
+      "name": {
+        "ja": "ハロー・ワールド：ニア",
+        "en": "Hello, Near World"
+      },
+      "damageType": "magical",
+      "damageAmount": 47000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_178_0vfug3",
+      "time": 797,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 283000,
       "target": "AoE"
     },
     {
-      "id": "tpl_162_zjd9ut",
-      "time": 1632,
+      "id": "tpl_179_lkt2t5",
+      "time": 799,
       "name": {
         "ja": "ソーラレイ",
         "en": "Solar Ray"
       },
       "damageType": "magical",
-      "damageAmount": 380000,
+      "damageAmount": 274000,
       "target": "AoE"
     },
     {
-      "id": "tpl_163_xmycnq",
-      "time": 1635,
+      "id": "tpl_180_mxfo0b",
+      "time": 802,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_164_c2uja9",
-      "time": 1638,
+      "id": "tpl_181_gukwpt",
+      "time": 805,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "attack",
+        "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 50000,
+      "damageAmount": 53500,
       "target": "AoE"
     },
     {
-      "id": "tpl_165_rx4api",
-      "time": 2536,
+      "id": "tpl_182_pa8o06",
+      "time": 819,
+      "name": {
+        "ja": "ブラインド・フェイス",
+        "en": "Blind Faith"
+      },
+      "damageType": "magical",
+      "damageAmount": 59900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_0rjrtj",
+      "time": 887,
       "name": {
         "ja": "コスモメモリー",
         "en": "Cosmo Memory"
       },
       "damageType": "magical",
-      "damageAmount": 375000,
+      "damageAmount": 387000,
       "target": "AoE"
     },
     {
-      "id": "tpl_166_npyaoy",
-      "time": 2541,
+      "id": "tpl_184_qlcu7d",
+      "time": 892,
       "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
       },
       "damageType": "magical",
-      "damageAmount": 48000,
+      "damageAmount": 36400,
       "target": "AoE"
     },
     {
-      "id": "tpl_167_apgl9k",
-      "time": 2544,
+      "id": "tpl_185_6srtwc",
+      "time": 895,
       "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
       },
       "damageType": "magical",
-      "damageAmount": 48000,
+      "damageAmount": 36400,
       "target": "AoE"
     },
     {
-      "id": "tpl_168_1cx8ap",
-      "time": 2567,
-      "name": {
-        "ja": "コスモダイブ",
-        "en": "Cosmo Dive"
-      },
-      "damageType": "magical",
-      "damageAmount": 350000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_169_30a2c6",
-      "time": 2567,
+      "id": "tpl_186_rs8dq4",
+      "time": 919,
       "name": {
         "ja": "コスモダイブ",
         "en": "Cosmo Dive"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
+      "damageAmount": 98400,
       "target": "AoE"
     },
     {
-      "id": "tpl_170_a7spop",
-      "time": 2575,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_171_78l772",
-      "time": 2578,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_172_923sxa",
-      "time": 2604,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 90000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_173_v1pk4j",
-      "time": 2606,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 90000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_174_u1f4ed",
-      "time": 2613,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 450000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_175_gh9aog",
-      "time": 2613,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_176_fx0kk2",
-      "time": 2618,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_177_vk4nw3",
-      "time": 2621,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_178_cb3onf",
-      "time": 2638,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 90000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_179_ztct06",
-      "time": 2640,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 90000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_180_46dbwd",
-      "time": 2647,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 450000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_181_z8eha2",
-      "time": 2647,
-      "name": {
-        "ja": "波動砲",
-        "en": "Wave Cannon"
-      },
-      "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_182_5j8d69",
-      "time": 2652,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_183_5fdes0",
-      "time": 2655,
-      "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
-      },
-      "damageType": "magical",
-      "damageAmount": 48000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_184_hr0pkm",
-      "time": 2681,
+      "id": "tpl_187_yuxul0",
+      "time": 919,
       "name": {
         "ja": "コスモダイブ",
         "en": "Cosmo Dive"
       },
       "damageType": "magical",
-      "damageAmount": 350000,
+      "damageAmount": 259000,
       "target": "AoE"
     },
     {
-      "id": "tpl_185_k13t11",
-      "time": 2681,
+      "id": "tpl_188_xivhp0",
+      "time": 926,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_189_ezux0l",
+      "time": 929,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_a88gf3",
+      "time": 956,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 87000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_4tujpw",
+      "time": 958,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 87000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_buhngm",
+      "time": 964,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 343000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_qrcbi1",
+      "time": 965,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 343000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_n92jfj",
+      "time": 969,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_195_pbputk",
+      "time": 972,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_ycgzkc",
+      "time": 990,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 87000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_197_mvb91b",
+      "time": 992,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 87000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_rprusf",
+      "time": 998,
+      "name": {
+        "ja": "波動砲",
+        "en": "Wave Cannon"
+      },
+      "damageType": "magical",
+      "damageAmount": 343000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_9wvlvv",
+      "time": 1002,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_hs979z",
+      "time": 1006,
+      "name": {
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
+      },
+      "damageType": "magical",
+      "damageAmount": 36400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_eet7u2",
+      "time": 1033,
       "name": {
         "ja": "コスモダイブ",
         "en": "Cosmo Dive"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
+      "damageAmount": 98400,
       "target": "AoE"
     },
     {
-      "id": "tpl_186_esmoa2",
-      "time": 2689,
+      "id": "tpl_202_2dvcxd",
+      "time": 1033,
       "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
+        "ja": "コスモダイブ",
+        "en": "Cosmo Dive"
       },
       "damageType": "magical",
-      "damageAmount": 48000,
+      "damageAmount": 259000,
       "target": "AoE"
     },
     {
-      "id": "tpl_187_c8zjqp",
-      "time": 2692,
+      "id": "tpl_203_hd4b5z",
+      "time": 1040,
       "name": {
-        "ja": "フラッシュウィンド",
-        "en": "Flash Wind"
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
       },
       "damageType": "magical",
-      "damageAmount": 48000,
+      "damageAmount": 36400,
       "target": "AoE"
     },
     {
-      "id": "tpl_188_dwrjgd",
-      "time": 2705,
+      "id": "tpl_204_f7p2e0",
+      "time": 1043,
       "name": {
-        "ja": "コスモメテオ",
-        "en": "Cosmo Meteor"
+        "ja": "Flash Gale",
+        "en": "Flash Gale"
       },
       "damageType": "magical",
-      "damageAmount": 110000,
+      "damageAmount": 36400,
       "target": "AoE"
     },
     {
-      "id": "tpl_189_g7sq0b",
-      "time": 2707,
-      "name": {
-        "ja": "コスモメテオ",
-        "en": "Cosmo Meteor"
-      },
-      "damageType": "magical",
-      "damageAmount": 110000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_190_2n1apw",
-      "time": 2712,
+      "id": "tpl_205_ua774j",
+      "time": 1057,
       "name": {
         "ja": "コスモメテオ",
         "en": "Cosmo Meteor"
       },
       "damageType": "magical",
-      "damageAmount": 110000,
+      "damageAmount": 97900,
       "target": "AoE"
     },
     {
-      "id": "tpl_191_5qjiys",
-      "time": 2713,
+      "id": "tpl_206_j1yd4j",
+      "time": 1058,
       "name": {
         "ja": "コスモメテオ",
         "en": "Cosmo Meteor"
       },
       "damageType": "magical",
-      "damageAmount": 110000,
+      "damageAmount": 97900,
       "target": "AoE"
     },
     {
-      "id": "tpl_192_3hl4ln",
-      "time": 2724,
+      "id": "tpl_207_9971ut",
+      "time": 1063,
       "name": {
         "ja": "コスモメテオ",
         "en": "Cosmo Meteor"
       },
       "damageType": "magical",
-      "damageAmount": 110000,
+      "damageAmount": 97900,
       "target": "AoE"
     },
     {
-      "id": "tpl_193_gbc2ks",
-      "time": 2736,
+      "id": "tpl_208_ihu8l5",
+      "time": 1064,
+      "name": {
+        "ja": "コスモメテオ",
+        "en": "Cosmo Meteor"
+      },
+      "damageType": "magical",
+      "damageAmount": 97900,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_209_6xa3ll",
+      "time": 1075,
+      "name": {
+        "ja": "コスモメテオ",
+        "en": "Cosmo Meteor"
+      },
+      "damageType": "magical",
+      "damageAmount": 63800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_210_4k3qsg",
+      "time": 1075,
+      "name": {
+        "ja": "コスモメテオ",
+        "en": "Cosmo Meteor"
+      },
+      "damageType": "magical",
+      "damageAmount": 53700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_211_h5m39j",
+      "time": 1087,
       "name": {
         "ja": "マジックナンバー",
         "en": "Magic Number"
       },
       "damageType": "magical",
-      "damageAmount": 300000,
+      "damageAmount": 294000,
       "target": "AoE"
     },
     {
-      "id": "tpl_194_9829f5",
-      "time": 2752,
+      "id": "tpl_212_3vjcf0",
+      "time": 1089,
       "name": {
         "ja": "マジックナンバー",
         "en": "Magic Number"
       },
       "damageType": "magical",
-      "damageAmount": 300000,
+      "damageAmount": 294000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_z994f8",
+      "time": 1105,
+      "name": {
+        "ja": "マジックナンバー",
+        "en": "Magic Number"
+      },
+      "damageType": "magical",
+      "damageAmount": 294000,
       "target": "AoE"
     }
   ],
@@ -2158,23 +2361,28 @@
     },
     {
       "id": 2,
-      "startTimeSec": 122,
+      "startTimeSec": 126,
       "name": "Omega-M/F"
     },
     {
       "id": 3,
-      "startTimeSec": 373,
+      "startTimeSec": 269,
       "name": "Omega Reconfigured"
     },
     {
       "id": 4,
-      "startTimeSec": 827,
+      "startTimeSec": 462,
       "name": "Blue Screen"
     },
     {
       "id": 5,
-      "startTimeSec": 1643,
+      "startTimeSec": 533,
       "name": "Run: Dynamis"
+    },
+    {
+      "id": 6,
+      "startTimeSec": 819,
+      "name": "Alpha Omega"
     }
   ]
 }

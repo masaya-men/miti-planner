@@ -1,386 +1,551 @@
 {
   "contentId": "m12s_p1",
-  "generatedAt": "2026-03-22T08:40:54.343Z",
-  "source": "spreadsheet",
-  "sourceSheetId": "1w0JT2aHnGtqtSq_YmntjUBuFdga6jhS5_VCBQvgCSHk",
+  "generatedAt": "2026-03-22T11:54:37.500Z",
+  "sourceLogsCount": 1,
+  "sourceLog": "RwqGnWYMJ6dgQNf2#10",
   "timelineEvents": [
     {
-      "id": "tpl_0_1ytdl1",
-      "time": 3,
+      "id": "tpl_0_7ulu4t",
+      "time": 4,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_1_ncjg1j",
-      "time": 3,
+      "id": "tpl_1_omvo34",
+      "time": 4,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "MT"
     },
     {
-      "id": "tpl_2_9i5qq4",
-      "time": 6,
+      "id": "tpl_2_ze0dj9",
+      "time": 7,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_3_wjba56",
+      "id": "tpl_3_vnpeok",
+      "time": 7,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_4_o4ob3s",
       "time": 9,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "MT"
     },
     {
-      "id": "tpl_4_uydfev",
-      "time": 15,
+      "id": "tpl_5_2oaqty",
+      "time": 10,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_6_4gmiir",
+      "time": 16,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
         "en": "The Fixer"
       },
       "damageType": "magical",
-      "damageAmount": 400000,
-      "target": "AoE"
+      "damageAmount": 407000,
+      "target": "MT"
     },
     {
-      "id": "tpl_5_8c65xp",
+      "id": "tpl_7_4x8ppt",
       "time": 17,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "フィクサー・オブ・アルカディア",
+        "en": "The Fixer"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
+      "damageAmount": 407000,
       "target": "AoE"
     },
     {
-      "id": "tpl_6_dh8j11",
-      "time": 20,
+      "id": "tpl_8_lg8ixf",
+      "time": 18,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_7_thzgh3",
-      "time": 23,
+      "id": "tpl_9_rwj1g3",
+      "time": 18,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "MT"
     },
     {
-      "id": "tpl_8_arhdcg",
+      "id": "tpl_10_n5efln",
+      "time": 21,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_11_faf4di",
+      "time": 21,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_12_z4h7k8",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_13_tzieeh",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_14_5d6160",
       "time": 41,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_9_ll2ggr",
-      "time": 41,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_10_ak4ikb",
+      "id": "tpl_15_igt8nu",
       "time": 44,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_11_ybbxy6",
-      "time": 44,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_12_9ysj1v",
+      "id": "tpl_16_msz9gd",
       "time": 47,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_13_3cbe75",
+      "id": "tpl_17_xuxgwo",
       "time": 47,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
+      "damageAmount": 596000,
+      "target": "ST"
     },
     {
-      "id": "tpl_14_dcvcpq",
+      "id": "tpl_18_e1m5b6",
       "time": 50,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_15_lc4nyy",
+      "id": "tpl_19_v5i9lm",
       "time": 50,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
+      "damageAmount": 596000,
+      "target": "MT"
     },
     {
-      "id": "tpl_16_ru3utg",
+      "id": "tpl_20_hdu15j",
       "time": 56,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_17_s7sz5g",
+      "id": "tpl_21_ah20t2",
+      "time": 56,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_22_cdxmn8",
       "time": 59,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_18_zpbz71",
-      "time": 88,
+      "id": "tpl_23_zjbqtb",
+      "time": 59,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_24_jmhyqv",
+      "time": 89,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 300000,
+      "damageAmount": 272000,
       "target": "AoE"
     },
     {
-      "id": "tpl_19_j1ie64",
-      "time": 88,
+      "id": "tpl_25_xdiotc",
+      "time": 89,
       "name": {
         "ja": "細胞重爆",
         "en": "Fourth-Wall Fusion"
       },
       "damageType": "magical",
-      "damageAmount": 300000,
+      "damageAmount": 317000,
       "target": "AoE"
     },
     {
-      "id": "tpl_20_z9dv72",
+      "id": "tpl_26_f4ub7y",
+      "time": 98,
+      "name": {
+        "ja": "細胞重爆",
+        "en": "Fourth-Wall Fusion"
+      },
+      "damageType": "magical",
+      "damageAmount": 176000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_gmgszf",
       "time": 98,
       "name": {
         "ja": "ヴィセラルバースト",
         "en": "Visceral Burst"
       },
       "damageType": "magical",
-      "damageAmount": 850000,
-      "target": "AoE"
+      "damageAmount": 435000,
+      "target": "MT"
     },
     {
-      "id": "tpl_21_oapcxy",
+      "id": "tpl_28_9s0y8h",
       "time": 98,
       "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
+        "ja": "ヴィセラルバースト",
+        "en": "Visceral Burst"
       },
       "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
+      "damageAmount": 435000,
+      "target": "ST"
     },
     {
-      "id": "tpl_22_qwlrma",
-      "time": 108,
+      "id": "tpl_29_bvcrk2",
+      "time": 109,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
         "en": "The Fixer"
       },
       "damageType": "magical",
-      "damageAmount": 400000,
+      "damageAmount": 407000,
       "target": "AoE"
     },
     {
-      "id": "tpl_23_fx0v2y",
+      "id": "tpl_30_2kz9ww",
       "time": 111,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_24_isldut",
+      "id": "tpl_31_zem6ag",
+      "time": 111,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_32_qp0s0n",
       "time": 114,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_25_8cdnmv",
+      "id": "tpl_33_ua580c",
+      "time": 114,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_34_69cmgf",
       "time": 117,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_26_0msj28",
+      "id": "tpl_35_s9pduj",
+      "time": 117,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_36_kr077m",
       "time": 123,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "MT"
     },
     {
-      "id": "tpl_27_wf0vuc",
+      "id": "tpl_37_zk5oru",
       "time": 123,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_28_u4hrob",
+      "id": "tpl_38_v0yun7",
       "time": 126,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "MT"
     },
     {
-      "id": "tpl_29_947gfr",
+      "id": "tpl_39_7h5c8l",
+      "time": 126,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_40_awhjfr",
       "time": 129,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_30_7wxnmt",
+      "id": "tpl_41_gbgwj3",
+      "time": 129,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_42_wybuuu",
       "time": 132,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_31_776039",
+      "id": "tpl_43_vve8a0",
+      "time": 132,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_44_qmnc84",
       "time": 150,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_32_ug8lyw",
+      "id": "tpl_45_4d8da5",
       "time": 153,
       "name": {
         "ja": "細胞変異",
         "en": "Roiling Mass"
       },
       "damageType": "magical",
-      "damageAmount": 36000,
+      "damageAmount": 32600,
       "target": "AoE"
     },
     {
-      "id": "tpl_33_ifqjvv",
+      "id": "tpl_46_q8yrav",
       "time": 154,
       "name": {
+        "ja": "細胞変異",
+        "en": "Roiling Mass"
+      },
+      "damageType": "magical",
+      "damageAmount": 36000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_wvbkr5",
+      "time": 155,
+      "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_34_5wi9im",
+      "id": "tpl_48_qskqqf",
       "time": 158,
+      "name": {
+        "ja": "細胞変異",
+        "en": "Roiling Mass"
+      },
+      "damageType": "magical",
+      "damageAmount": 32600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_n8fhf7",
+      "time": 159,
       "name": {
         "ja": "細胞変異",
         "en": "Roiling Mass"
@@ -390,40 +555,29 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_4bm9eu",
-      "time": 158,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 145000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_36_pq5gvt",
+      "id": "tpl_50_wf7jqo",
       "time": 160,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
-      },
-      "damageType": "magical",
-      "damageAmount": 36000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_37_wxkffg",
-      "time": 163,
-      "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_38_mcgxva",
+      "id": "tpl_51_u65jku",
+      "time": 163,
+      "name": {
+        "ja": "細胞変異",
+        "en": "Roiling Mass"
+      },
+      "damageType": "magical",
+      "damageAmount": 32600,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_52_s61yv6",
       "time": 164,
       "name": {
         "ja": "細胞変異",
@@ -434,19 +588,30 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_5zttr8",
+      "id": "tpl_53_urwtf3",
       "time": 165,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_40_vb2d5b",
+      "id": "tpl_54_ilu61e",
       "time": 168,
+      "name": {
+        "ja": "細胞変異",
+        "en": "Roiling Mass"
+      },
+      "damageType": "magical",
+      "damageAmount": 32600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_55_eimvlg",
+      "time": 169,
       "name": {
         "ja": "細胞変異",
         "en": "Roiling Mass"
@@ -456,478 +621,424 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_kd78mb",
+      "id": "tpl_56_8sq4qn",
       "time": 183,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_42_6vs2hh",
+      "id": "tpl_57_3ll9vk",
+      "time": 183,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_58_fwhtp6",
       "time": 188,
       "name": {
         "ja": "スプラッターシェッド",
         "en": "Splattershed"
       },
       "damageType": "magical",
-      "damageAmount": 175000,
+      "damageAmount": 193000,
       "target": "AoE"
     },
     {
-      "id": "tpl_43_e34i15",
-      "time": 199,
+      "id": "tpl_59_c6p6b2",
+      "time": 200,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_44_cw2fyb",
+      "id": "tpl_60_ek4q6r",
+      "time": 200,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_61_xv5ef1",
       "time": 202,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_45_6m8vv5",
+      "id": "tpl_62_8mtj2f",
+      "time": 202,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_63_zagkpl",
       "time": 219,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 40000,
+      "damageAmount": 36900,
       "target": "AoE"
     },
     {
-      "id": "tpl_46_f5ju9s",
+      "id": "tpl_64_o7jvuu",
       "time": 219,
       "name": {
         "ja": "細胞飛散",
         "en": "Metamitosis"
       },
       "damageType": "magical",
-      "damageAmount": 60000,
+      "damageAmount": 50100,
       "target": "AoE"
     },
     {
-      "id": "tpl_47_0151px",
+      "id": "tpl_65_4x4ill",
       "time": 229,
       "name": {
         "ja": "スプリットスカージ",
         "en": "Split Scourge"
       },
       "damageType": "magical",
-      "damageAmount": 560000,
-      "target": "AoE"
+      "damageAmount": 412000,
+      "target": "MT"
     },
     {
-      "id": "tpl_48_c3cv0t",
-      "time": 231,
+      "id": "tpl_66_ueidce",
+      "time": 229,
+      "name": {
+        "ja": "スプリットスカージ",
+        "en": "Split Scourge"
+      },
+      "damageType": "magical",
+      "damageAmount": 412000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_67_vyyf06",
+      "time": 232,
       "name": {
         "ja": "ドロップスカージ",
         "en": "Venomous Scourge"
       },
       "damageType": "magical",
-      "damageAmount": 200000,
+      "damageAmount": 182000,
       "target": "AoE"
     },
     {
-      "id": "tpl_49_elepud",
-      "time": 241,
+      "id": "tpl_68_cqz76d",
+      "time": 242,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
         "en": "The Fixer"
       },
       "damageType": "magical",
-      "damageAmount": 400000,
+      "damageAmount": 407000,
       "target": "AoE"
     },
     {
-      "id": "tpl_50_fr3tt2",
+      "id": "tpl_69_nzppqb",
       "time": 244,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_51_88g8kd",
+      "id": "tpl_70_b59vax",
+      "time": 244,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_71_19k5dp",
       "time": 247,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_52_ue1q45",
+      "id": "tpl_72_pvnx8n",
+      "time": 247,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_73_ya5u28",
       "time": 268,
       "name": {
         "ja": "ラヴェナスリーチ",
         "en": "Ravenous Reach"
       },
       "damageType": "magical",
-      "damageAmount": 220000,
+      "damageAmount": 233000,
       "target": "AoE"
     },
     {
-      "id": "tpl_53_6q8tnn",
+      "id": "tpl_74_d6qc59",
       "time": 268,
       "name": {
         "ja": "細胞消失",
         "en": "Cell Shedding"
       },
       "damageType": "magical",
-      "damageAmount": 95000,
+      "damageAmount": 82400,
       "target": "AoE"
     },
     {
-      "id": "tpl_54_cfibh1",
-      "time": 268,
+      "id": "tpl_75_wek9us",
+      "time": 269,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 290000,
+      "damageAmount": 272000,
       "target": "AoE"
     },
     {
-      "id": "tpl_55_tphd7z",
+      "id": "tpl_76_jpn2y2",
+      "time": 276,
+      "name": {
+        "ja": "細胞爆発",
+        "en": "Dramatic Lysis"
+      },
+      "damageType": "magical",
+      "damageAmount": 135000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_7wwcia",
       "time": 277,
       "name": {
         "ja": "細胞爆発",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 150000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_56_rxwomh",
+      "id": "tpl_78_er0yl7",
       "time": 290,
       "name": {
         "ja": "スプラッターシェッド",
         "en": "Splattershed"
       },
       "damageType": "magical",
-      "damageAmount": 175000,
+      "damageAmount": 193000,
       "target": "AoE"
     },
     {
-      "id": "tpl_57_2whsjk",
+      "id": "tpl_79_ahrqm9",
       "time": 316,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
-      "target": "AoE"
+      "damageAmount": 596000,
+      "target": "MT"
     },
     {
-      "id": "tpl_58_3in8h9",
+      "id": "tpl_80_51rti4",
       "time": 316,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
+      "damageAmount": 596000,
+      "target": "ST"
     },
     {
-      "id": "tpl_59_e0ykef",
+      "id": "tpl_81_bieie0",
       "time": 319,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_60_6dv0nw",
-      "time": 319,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_61_8mh5bl",
+      "id": "tpl_82_16o0go",
       "time": 322,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_62_hlcf9h",
-      "time": 322,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_qej70n",
+      "id": "tpl_83_2u3734",
       "time": 325,
       "name": {
         "ja": "リーサルスカージ",
         "en": "Mortal Slayer"
       },
       "damageType": "magical",
-      "damageAmount": 650000,
+      "damageAmount": 199000,
       "target": "AoE"
     },
     {
-      "id": "tpl_64_swde5e",
-      "time": 325,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_65_922dv1",
+      "id": "tpl_84_3myou5",
       "time": 331,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_66_qndy79",
+      "id": "tpl_85_ciiofa",
+      "time": 331,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_86_ipr8yy",
       "time": 334,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
-      "target": "AoE"
+      "damageAmount": 64700,
+      "target": "ST"
     },
     {
-      "id": "tpl_67_4d88lp",
-      "time": 342,
-      "name": {
-        "ja": "スローターシェッド",
-        "en": "Slaughtershed"
-      },
-      "damageType": "magical",
-      "damageAmount": 250000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_68_yprsoa",
-      "time": 351,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_69_ck2jbc",
-      "time": 351,
-      "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_70_crn9gw",
-      "time": 358,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_71_izsvu4",
-      "time": 362,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_72_licjxw",
-      "time": 371,
-      "name": {
-        "ja": "スローターシェッド",
-        "en": "Slaughtershed"
-      },
-      "damageType": "magical",
-      "damageAmount": 250000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_73_n9xbd5",
-      "time": 380,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_74_p0971e",
-      "time": 380,
-      "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_75_ry7nz3",
-      "time": 386,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_76_sgv783",
-      "time": 391,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_77_mxuypx",
-      "time": 400,
-      "name": {
-        "ja": "スローターシェッド",
-        "en": "Slaughtershed"
-      },
-      "damageType": "magical",
-      "damageAmount": 250000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_78_c9txhh",
-      "time": 409,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_79_p6pi0m",
-      "time": 409,
-      "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_80_cptnd1",
-      "time": 416,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_81_9acrgw",
-      "time": 420,
-      "name": {
-        "ja": "スカージブレス or ラプターナックル",
-        "en": "Scourge Breath or Raptor Knuckle"
-      },
-      "damageType": "physical",
-      "damageAmount": 45000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_82_e0xrz9",
-      "time": 424,
+      "id": "tpl_87_dmscjn",
+      "time": 334,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_88_oc9xxn",
+      "time": 343,
+      "name": {
+        "ja": "スローターシェッド",
+        "en": "Slaughtershed"
+      },
+      "damageType": "magical",
+      "damageAmount": 267000,
       "target": "AoE"
     },
     {
-      "id": "tpl_83_2kkukd",
-      "time": 427,
+      "id": "tpl_89_3iw0fz",
+      "time": 352,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "細胞爆発",
+        "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 100000,
+      "damageAmount": 173000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_l2gah7",
+      "time": 352,
+      "name": {
+        "ja": "細胞重爆",
+        "en": "Fourth-Wall Fusion"
+      },
+      "damageType": "magical",
+      "damageAmount": 185000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_y2046l",
+      "time": 372,
+      "name": {
+        "ja": "スローターシェッド",
+        "en": "Slaughtershed"
+      },
+      "damageType": "magical",
+      "damageAmount": 267000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_t748za",
+      "time": 381,
+      "name": {
+        "ja": "細胞爆発",
+        "en": "Dramatic Lysis"
+      },
+      "damageType": "magical",
+      "damageAmount": 173000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_dl643t",
+      "time": 381,
+      "name": {
+        "ja": "細胞重爆",
+        "en": "Fourth-Wall Fusion"
+      },
+      "damageType": "magical",
+      "damageAmount": 185000,
       "target": "AoE"
     }
   ],
-  "phases": []
+  "phases": [],
+  "_warning": "Phase split data not available; full timeline included"
 }

@@ -42,7 +42,7 @@ function askChoice(question, choices) {
 async function main() {
     console.log('');
     console.log('┌─────────────────────────────────────┐');
-    console.log('│   Grapl コンテンツ追加ツール         │');
+    console.log('│   LoPo コンテンツ追加ツール           │');
     console.log('│   Add new content to contents.json  │');
     console.log('└─────────────────────────────────────┘');
     console.log('');
