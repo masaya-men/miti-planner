@@ -1291,26 +1291,26 @@ const Timeline: React.FC = () => {
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
-                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full border",
+                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
                                         hideEmptyRows
-                                            ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                            : "water-drop text-slate-700 dark:text-slate-200 border-white/20"
+                                            ? "bg-[rgba(var(--app-accent-rgb),0.12)] text-app-accent shadow-[inset_0_0_8px_rgba(var(--app-accent-rgb),0.15)]"
+                                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                     )}
                                 >
                                     <AlignJustify
                                         size={14}
                                         className={clsx(
-                                            "transition-all duration-300 group-hover/btn:scale-110",
+                                            "transition-all duration-300 group-hover/btn:scale-110 shrink-0",
                                             hideEmptyRows
                                                 ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]"
-                                                : "text-blue-600 dark:text-blue-300 group-hover/btn:text-blue-800 dark:group-hover/btn:text-white shrink-0"
+                                                : ""
                                         )}
                                     />
                                     <span className={clsx(
-                                        "uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block",
+                                        "uppercase tracking-wider hidden md:block",
                                         hideEmptyRows
                                             ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]"
-                                            : "text-app-text-secondary group-hover/btn:text-app-text"
+                                            : ""
                                     )}>
                                         {t('ui.compact_view')}
                                     </span>
@@ -1320,26 +1320,24 @@ const Timeline: React.FC = () => {
                             {/* Area B: MECHANIC(200) */}
                             <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] flex items-center px-1 md:px-2">
                                 <div className={clsx(
-                                    "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full border",
-                                    isAaModeEnabled
-                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                        : "water-drop border-white/20"
+                                    "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
+                                    isAaModeEnabled && "bg-[rgba(var(--app-accent-rgb),0.12)] shadow-[inset_0_0_8px_rgba(var(--app-accent-rgb),0.15)]"
                                 )}>
                                     <button
                                         onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
                                         className={clsx(
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
-                                                ? "text-app-accent hover:bg-[rgba(var(--app-accent-rgb),0.1)]"
-                                                : "text-app-text-secondary hover:text-app-text"
+                                                ? "text-app-accent"
+                                                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                         )}
                                     >
-                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110", isAaModeEnabled ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary shadow-black/50 drop-shadow-sm shrink-0")} />
-                                        <span className="font-black text-[10px] uppercase tracking-wider shadow-black/50 drop-shadow-sm pt-[0.5px] hidden md:block">{t('aa_settings.title')}</span>
+                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "")} />
+                                        <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
                                     <div className={clsx(
                                         "h-3 w-[1px]",
-                                        isAaModeEnabled ? "bg-blue-400/50" : "bg-slate-300/50 dark:bg-white/10"
+                                        isAaModeEnabled ? "bg-app-accent/40" : "bg-slate-300/50 dark:bg-white/10"
                                     )} />
                                     <button
                                         ref={aaSettingsButtonRef}
@@ -1347,8 +1345,8 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "px-2 h-full transition-all duration-300 cursor-pointer flex items-center justify-center group/opt",
                                             isAaModeEnabled
-                                                ? "text-white hover:bg-white/10"
-                                                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                                                ? "text-app-accent hover:text-app-accent/70"
+                                                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                                         )}
                                     >
                                         <Settings size={12} className="transition-transform duration-300 group-hover/opt:rotate-45" />
@@ -1638,7 +1636,7 @@ const Timeline: React.FC = () => {
                                             if (!showPreStart && phase.endTime <= 0) return null;
 
                                             const offsetTime = showPreStart ? -10 : 0;
-                                            const startTime = index === 0 ? -10 : phases[index - 1].endTime;
+                                            const startTime = index === 0 ? 0 : phases[index - 1].endTime;
                                             const endTime = phase.endTime;
 
                                             if (!showPreStart && endTime <= 0) return null;
@@ -1659,8 +1657,15 @@ const Timeline: React.FC = () => {
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
-                                                            <div className="transform -rotate-90 whitespace-nowrap overflow-visible text-ellipsis px-2 drop-shadow-md text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 origin-center leading-none">
-                                                                {phase.name}
+                                                            <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
+                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 leading-none">
+                                                                    {phase.name.split('\n')[0]}
+                                                                </span>
+                                                                {phase.name.split('\n')[1] && (
+                                                                    <span className="whitespace-nowrap text-[8px] md:text-[10px] font-medium text-blue-700/70 dark:text-slate-300/70 leading-none">
+                                                                        {phase.name.split('\n')[1]}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </Tooltip>

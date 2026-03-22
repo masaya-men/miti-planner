@@ -140,14 +140,14 @@
 
   .theme-light {
     color-scheme: light;
-    --color-bg-primary: #f0f4ff;
-    --color-bg-secondary: #f0f4ff;
-    --color-bg-tertiary: #eaefff;
+    --color-bg-primary: #f8fafb;
+    --color-bg-secondary: #f8fafb;
+    --color-bg-tertiary: #f1f5f5;
 
-    --color-accent-primary: #2563eb;
-    --app-accent-rgb: 99, 102, 241;
-    --color-accent-secondary: #0284c7;
-    --color-accent-dim: rgba(37, 99, 235, 0.1);
+    --color-accent-primary: #10b981;
+    --app-accent-rgb: 16, 185, 129;
+    --color-accent-secondary: #059669;
+    --color-accent-dim: rgba(16, 185, 129, 0.1);
 
     --color-text-primary: #0a0a14;
     --color-text-secondary: #1e293b;
@@ -155,7 +155,7 @@
     --color-text-on-accent: #ffffff;    /* White text on blue accent in light mode */
 
     --color-border: rgba(0, 0, 0, 0.2);
-    --color-border-accent: rgba(37, 99, 235, 0.5);
+    --color-border-accent: rgba(16, 185, 129, 0.5);
 
     --glass-bg-header: rgba(255, 255, 255, 0.0);
     --glass-bg-panel: rgba(255, 255, 255, 0.0);

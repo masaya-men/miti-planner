@@ -218,18 +218,40 @@ export function mapFFLogsToTimeline(
         };
     });
 
-    // MT/ST identification
+    // MT/ST identification（時系列追跡でタンクスイッチ検出）
     const hits = new Map<number, { c: number; f: number }>();
     for (const n of norm) {
         if (!n.aa) continue;
         const e = hits.get(n.tgtID); if (!e) hits.set(n.tgtID, { c: 1, f: n.timeMs }); else e.c++;
     }
     const sorted = [...hits.entries()].sort((a, b) => b[1].c - a[1].c || a[1].f - b[1].f);
-    const mtId = sorted[0]?.[0] ?? null;
-    const stId = sorted[1]?.[0] ?? null;
+    const tankA = sorted[0]?.[0] ?? null; // 初期MT（AA被弾最多）
+    const tankB = sorted[1]?.[0] ?? null;
+    const mtId = tankA; // 後方互換（非AA技のtarget判定に使用）
+    const stId = tankB;
     const tanks = new Set<number>();
-    if (mtId !== null) tanks.add(mtId);
-    if (stId !== null) tanks.add(stId);
+    if (tankA !== null) tanks.add(tankA);
+    if (tankB !== null) tanks.add(tankB);
+
+    // AAイベントを時系列で追跡し、AA対象の切り替わり（タンクスイッチ）を検出
+    const aaTimeSorted = norm.filter(n => n.aa).sort((a, b) => a.timeMs - b.timeMs);
+    let currentMtId = tankA;
+    const mtAtTime = new Map<number, number | null>();
+    for (const ev of aaTimeSorted) {
+        if (ev.tgtID === tankA || ev.tgtID === tankB) {
+            currentMtId = ev.tgtID;
+        }
+        mtAtTime.set(ev.timeSec, currentMtId);
+    }
+    const allAaTimeSecs = [...mtAtTime.keys()].sort((a, b) => a - b);
+    function getMtIdAt(timeSec: number): number | null {
+        let result = tankA;
+        for (const t of allAaTimeSecs) {
+            if (t > timeSec) break;
+            result = mtAtTime.get(t) ?? tankA;
+        }
+        return result;
+    }
 
     // AA timestamp unification (500ms proximity → first event's ms)
     const aaList = norm.filter(n => n.aa).sort((a, b) => a.timeMs - b.timeMs);
@@ -428,22 +450,26 @@ export function mapFFLogsToTimeline(
         }
     }
 
-    // AA events
+    // AA events（全件出力。タンクスイッチを時系列追跡で反映）
+    // 同時に両タンクにAAが来るボス（M4S前半等）にも対応
     const aaGr = new Map<string, Norm[]>();
     for (const n of norm) {
         if (!n.aa) continue;
         const k = `${n.timeSec}:${n.tgtID}`;
-        if (!aaGr.has(k)) aaGr.set(k, []); aaGr.get(k)!.push(n);
+        if (!aaGr.has(k)) aaGr.set(k, []);
+        aaGr.get(k)!.push(n);
     }
 
     let aaC = 0;
     for (const [k, gr] of aaGr) {
         const [s, t] = k.split(':');
         const sec = parseInt(s, 10), tid = parseInt(t, 10);
+        const curMt = getMtIdAt(sec);
+        const target = tid === curMt ? 'MT' : 'ST';
         tl.push({
             id: genId(), time: sec, name: { ja: gr[0].jpName, en: gr[0].enName },
             damageType: mapDamageType(gr[0].aType), damageAmount: aaBD > 0 ? aaBD : undefined,
-            target: tid === stId ? 'ST' : 'MT'
+            target
         });
         aaC++;
     }

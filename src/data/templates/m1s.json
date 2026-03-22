@@ -1,594 +1,397 @@
 {
   "contentId": "m1s",
-  "generatedAt": "2026-03-21T07:58:42.649Z",
-  "sourceLogsCount": 5,
+  "generatedAt": "2026-03-22T05:32:46.539Z",
+  "sourceLogsCount": 1,
+  "sourceLog": "jYPMdDn3Gr8NQy7T#11",
   "timelineEvents": [
     {
-      "id": "tpl_0_p4ob0x",
-      "time": 1,
+      "id": "tpl_0_alc8hn",
+      "time": 3,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_1_hrpx1j",
-      "time": 4,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_2_qej0pg",
-      "time": 15,
+      "id": "tpl_1_22cls5",
+      "time": 14,
       "name": {
         "ja": "クアドラプルネイル",
         "en": "Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 126000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_3_cputzi",
-      "time": 18,
+      "id": "tpl_2_iwj03l",
+      "time": 17,
       "name": {
         "ja": "クアドラプルネイル",
         "en": "Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 126000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_4_51oliu",
-      "time": 24,
-      "name": {
-        "ja": "クアドラプルネイル",
-        "en": "Quadruple Crossing"
-      },
-      "damageType": "physical",
-      "damageAmount": 59000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_5_3dunl8",
+      "id": "tpl_3_0z2u6q",
       "time": 25,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_6_0yfjz7",
-      "time": 31,
-      "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
-      },
-      "damageType": "magical",
-      "damageAmount": 216000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_7_lhfg1q",
+      "id": "tpl_4_r1gaz2",
       "time": 33,
       "name": {
         "ja": "ビスケットメーカー",
         "en": "Biscuit Maker"
       },
       "damageType": "physical",
-      "damageAmount": 241000,
+      "damageAmount": 229000,
       "target": "MT"
     },
     {
-      "id": "tpl_8_zelzew",
+      "id": "tpl_5_0md1n1",
       "time": 36,
       "name": {
-        "ja": "ビスケットメーカー",
-        "en": "Biscuit Maker"
-      },
-      "damageType": "physical",
-      "damageAmount": 237000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_9_gi7me6",
-      "time": 36,
-      "name": {
-        "ja": "ビスケットメーカー",
-        "en": "Biscuit Maker"
-      },
-      "damageType": "physical",
-      "damageAmount": 241000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_10_qypsk8",
-      "time": 37,
-      "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_11_ta1fqo",
-      "time": 37,
+      "id": "tpl_6_cg4bco",
+      "time": 39,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 40000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_12_dp76xo",
-      "time": 40,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_13_haxsiw",
-      "time": 43,
+      "id": "tpl_7_lzvs9n",
+      "time": 42,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_14_ua2j5a",
+      "id": "tpl_8_nm1e7b",
       "time": 67,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_15_4nq8hf",
+      "id": "tpl_9_xrnf3y",
       "time": 70,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_16_19ur0x",
+      "id": "tpl_10_xnh9sq",
       "time": 73,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_17_7ppmrh",
-      "time": 89,
-      "name": {
-        "ja": "クァッドクロウ",
-        "en": "Quadruple Swipe"
-      },
-      "damageType": "physical",
-      "damageAmount": 106000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_18_w3makm",
-      "time": 89,
+      "id": "tpl_11_hwjots",
+      "time": 88,
       "name": {
         "ja": "ダブルクロウ",
         "en": "Double Swipe"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
+      "damageAmount": 105000,
       "target": "AoE"
     },
     {
-      "id": "tpl_19_9ha3z2",
+      "id": "tpl_12_d085dn",
       "time": 102,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 127000,
+      "damageAmount": 123000,
       "target": "AoE"
     },
     {
-      "id": "tpl_20_ya6zbm",
+      "id": "tpl_13_6qr3nc",
       "time": 105,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 127000,
+      "damageAmount": 123000,
       "target": "AoE"
     },
     {
-      "id": "tpl_21_2ati6o",
-      "time": 112,
+      "id": "tpl_14_kdzlo4",
+      "time": 111,
       "name": {
         "ja": "ダブルクロウ",
         "en": "Double Swipe"
       },
       "damageType": "physical",
-      "damageAmount": 69500,
+      "damageAmount": 70700,
       "target": "AoE"
     },
     {
-      "id": "tpl_22_mlrbqw",
-      "time": 113,
-      "name": {
-        "ja": "クァッドクロウ",
-        "en": "Quadruple Swipe"
-      },
-      "damageType": "physical",
-      "damageAmount": 74900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_23_r487gu",
+      "id": "tpl_15_swxqnn",
       "time": 116,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_24_274p5k",
-      "time": 124,
+      "id": "tpl_16_3egsgs",
+      "time": 122,
       "name": {
         "ja": "ブラッディースクラッチ",
         "en": "Bloody Scratch"
       },
       "damageType": "physical",
-      "damageAmount": 175000,
+      "damageAmount": 154000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_17_dnixf2",
+      "time": 123,
+      "name": {
+        "ja": "ブラッディースクラッチ",
+        "en": "Bloody Scratch"
+      },
+      "damageType": "physical",
+      "damageAmount": 154000,
       "target": "AoE"
     },
     {
-      "id": "tpl_25_b69z4b",
+      "id": "tpl_18_fnaxm4",
       "time": 124,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_26_iuss6b",
+      "id": "tpl_19_yj8m9w",
       "time": 127,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_27_cyhd6q",
-      "time": 130,
+      "id": "tpl_20_fvylfn",
+      "time": 129,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_28_2p5ws8",
-      "time": 154,
-      "name": {
-        "ja": "マウサーラッシュ",
-        "en": "Mouser"
-      },
-      "damageType": "physical",
-      "damageAmount": 62100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_29_nhghm0",
+      "id": "tpl_21_e3igtl",
       "time": 158,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_30_04na4t",
-      "time": 158,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 67000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_31_wlje1m",
+      "id": "tpl_22_cmt32d",
       "time": 161,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_32_uo7kwj",
-      "time": 161,
+      "id": "tpl_23_mde9eb",
+      "time": 163,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 67000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_33_o1w6f3",
-      "time": 164,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_34_8g7jxk",
-      "time": 164,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 67000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_35_gqn8og",
+      "id": "tpl_24_ix8qn4",
       "time": 170,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_36_454h8v",
-      "time": 170,
+      "id": "tpl_25_aurqv7",
+      "time": 172,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_37_km9bkp",
-      "time": 173,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_38_6c02ej",
-      "time": 174,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_39_kve8kj",
-      "time": 176,
+      "id": "tpl_26_zqmlxx",
+      "time": 175,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_40_c0wqkx",
-      "time": 177,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_41_aen3c0",
+      "id": "tpl_27_ld6dcu",
       "time": 179,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 48200,
+      "damageAmount": 45700,
       "target": "AoE"
     },
     {
-      "id": "tpl_42_h1kbqt",
+      "id": "tpl_28_lwhhxw",
       "time": 179,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_43_qj8x0w",
-      "time": 181,
+      "id": "tpl_29_3nh7eh",
+      "time": 180,
       "name": {
         "ja": "衝撃",
         "en": "Impact"
       },
       "damageType": "physical",
-      "damageAmount": 16100,
+      "damageAmount": 14800,
       "target": "AoE"
     },
     {
-      "id": "tpl_44_f3fnov",
+      "id": "tpl_30_0vbjvw",
       "time": 182,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_45_s3dkyz",
-      "time": 182,
+      "id": "tpl_31_62he05",
+      "time": 184,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_46_1dinpm",
-      "time": 185,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_47_f0dc04",
-      "time": 185,
+      "id": "tpl_32_v6oj8r",
+      "time": 187,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_48_5qegyn",
-      "time": 188,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_49_6ysao6",
-      "time": 189,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_50_7jn7wm",
+      "id": "tpl_33_s27zpi",
       "time": 190,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 48000,
+      "damageAmount": 47800,
       "target": "AoE"
     },
     {
-      "id": "tpl_51_6fuibw",
-      "time": 191,
+      "id": "tpl_34_9n3tg5",
+      "time": 190,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_52_z2sf14",
-      "time": 191,
-      "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
-      },
-      "damageType": "physical",
-      "damageAmount": 45500,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_53_5z6hxm",
-      "time": 194,
+      "id": "tpl_35_o7gcv7",
+      "time": 193,
       "name": {
         "ja": "衝撃",
         "en": "Impact"
@@ -598,239 +401,129 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_u6tx20",
+      "id": "tpl_36_zyqjkm",
       "time": 194,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_55_5froxk",
-      "time": 195,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_56_bdvf8y",
+      "id": "tpl_37_x00iwd",
       "time": 197,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_57_jfzveg",
-      "time": 198,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_58_liapgp",
+      "id": "tpl_38_v3icz4",
       "time": 200,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_59_255v0i",
-      "time": 200,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_60_mc3grz",
-      "time": 202,
+      "id": "tpl_39_jly7nl",
+      "time": 201,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 47500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_61_ey4xlu",
-      "time": 202,
-      "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
-      },
-      "damageType": "physical",
-      "damageAmount": 46200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_62_86ct89",
-      "time": 203,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 15300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_ogj3hs",
-      "time": 203,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 45700,
       "target": "MT"
     },
     {
-      "id": "tpl_64_60fb4i",
+      "id": "tpl_40_0e6kea",
+      "time": 202,
+      "name": {
+        "ja": "衝撃",
+        "en": "Impact"
+      },
+      "damageType": "physical",
+      "damageAmount": 14800,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_41_nxcwp7",
       "time": 203,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
+      "damageAmount": 70000,
+      "target": "MT"
     },
     {
-      "id": "tpl_65_b7fve4",
-      "time": 203,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 15300,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_66_bcbuia",
-      "time": 206,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 14700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_67_u4d9t5",
+      "id": "tpl_42_dxeb2d",
       "time": 206,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_68_lrahzc",
-      "time": 207,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_69_42smu5",
+      "id": "tpl_43_frgqto",
       "time": 209,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_70_197isl",
-      "time": 210,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_71_81yvho",
+      "id": "tpl_44_m6toz5",
       "time": 212,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 48200,
+      "damageAmount": 47800,
       "target": "AoE"
     },
     {
-      "id": "tpl_72_7yrqdy",
+      "id": "tpl_45_16e4qu",
       "time": 212,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_73_m8il28",
-      "time": 213,
-      "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
-      },
-      "damageType": "physical",
-      "damageAmount": 47500,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_74_9tgvga",
-      "time": 213,
+      "id": "tpl_46_w00jmi",
+      "time": 215,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_75_rr5hww",
-      "time": 214,
+      "id": "tpl_47_gyxycj",
+      "time": 216,
       "name": {
         "ja": "衝撃",
         "en": "Impact"
@@ -840,95 +533,39 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_c5orqy",
-      "time": 215,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_77_csdmb0",
-      "time": 216,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 15300,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_78_e4eynb",
-      "time": 216,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_79_7nxuct",
-      "time": 217,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 15300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_80_z192ji",
+      "id": "tpl_48_f88qdi",
       "time": 224,
       "name": {
         "ja": "ビスケットメーカー",
         "en": "Biscuit Maker"
       },
       "damageType": "physical",
-      "damageAmount": 237000,
+      "damageAmount": 229000,
       "target": "MT"
     },
     {
-      "id": "tpl_81_7tntpg",
-      "time": 225,
+      "id": "tpl_49_u6ro41",
+      "time": 226,
       "name": {
         "ja": "ビスケットメーカー",
         "en": "Biscuit Maker"
       },
       "damageType": "physical",
-      "damageAmount": 241000,
-      "target": "ST"
+      "damageAmount": 230000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_82_1ncrbb",
-      "time": 227,
-      "name": {
-        "ja": "ビスケットメーカー",
-        "en": "Biscuit Maker"
-      },
-      "damageType": "physical",
-      "damageAmount": 117000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_83_ymwq77",
-      "time": 237,
+      "id": "tpl_50_5852xp",
+      "time": 236,
       "name": {
         "ja": "衝撃波",
         "en": "Shockwave"
       },
       "damageType": "magical",
-      "damageAmount": 12500,
       "target": "AoE"
     },
     {
-      "id": "tpl_84_ac0o4q",
+      "id": "tpl_51_sn9zho",
       "time": 241,
       "name": {
         "ja": "キャッタクリスム・ゲイル",
@@ -939,795 +576,575 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_z2lqu7",
-      "time": 242,
+      "id": "tpl_52_lnv6fy",
+      "time": 241,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_86_hzvis3",
-      "time": 245,
+      "id": "tpl_53_vvjyjw",
+      "time": 244,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_87_cn4du7",
-      "time": 248,
+      "id": "tpl_54_6vgze5",
+      "time": 247,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_88_mmvctp",
-      "time": 251,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 72100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_89_fepljw",
-      "time": 265,
-      "name": {
-        "ja": "リーピング・デュアルネイル",
-        "en": "Leaping One-two Paw"
-      },
-      "damageType": "physical",
-      "damageAmount": 46000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_90_idi501",
-      "time": 287,
+      "id": "tpl_55_688cd4",
+      "time": 286,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 127000,
+      "damageAmount": 123000,
       "target": "AoE"
     },
     {
-      "id": "tpl_91_y1bk3x",
-      "time": 290,
+      "id": "tpl_56_1zfomt",
+      "time": 289,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 127000,
+      "damageAmount": 123000,
       "target": "AoE"
     },
     {
-      "id": "tpl_92_q1e3da",
-      "time": 303,
+      "id": "tpl_57_u2dxck",
+      "time": 302,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_93_nui39v",
+      "id": "tpl_58_f8bt90",
       "time": 305,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_94_ol8nj2",
-      "time": 308,
+      "id": "tpl_59_1k08t0",
+      "time": 309,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_95_xnqom8",
-      "time": 311,
+      "id": "tpl_60_5iq6j9",
+      "time": 312,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_96_glusqu",
-      "time": 314,
+      "id": "tpl_61_rjryam",
+      "time": 315,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_97_tb0lek",
+      "id": "tpl_62_cdlop3",
       "time": 317,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_98_y52kfn",
-      "time": 327,
-      "name": {
-        "ja": "リーピング・クアドラプルネイル",
-        "en": "Leaping Quadruple Crossing"
-      },
-      "damageType": "physical",
-      "damageAmount": 874000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_99_tsilbe",
-      "time": 327,
-      "name": {
-        "ja": "ネイルチッパー",
-        "en": "Nailchipper"
-      },
-      "damageType": "magical",
-      "damageAmount": 152000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_100_f4001d",
-      "time": 327,
+      "id": "tpl_63_29v467",
+      "time": 326,
       "name": {
         "ja": "テンペストテアー",
         "en": "Tempestuous Tear"
       },
       "damageType": "magical",
-      "damageAmount": 115000,
+      "damageAmount": 110000,
       "target": "AoE"
     },
     {
-      "id": "tpl_101_qzqsmr",
-      "time": 327,
+      "id": "tpl_64_6ircb4",
+      "time": 326,
       "name": {
-        "ja": "リーピング・クアドラプルネイル (TB)",
-        "en": "Leaping Quadruple Crossing (TB)"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 514000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_102_fdkmpv",
-      "time": 327,
-      "name": {
-        "ja": "リーピング・クアドラプルネイル (TB)",
-        "en": "Leaping Quadruple Crossing (TB)"
-      },
-      "damageType": "physical",
-      "damageAmount": 514000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_103_jcpa9e",
+      "id": "tpl_65_18ke08",
       "time": 329,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_104_937omi",
-      "time": 330,
-      "name": {
-        "ja": "リーピング・クアドラプルネイル",
-        "en": "Leaping Quadruple Crossing"
-      },
-      "damageType": "physical",
-      "damageAmount": 874000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_105_qnirg7",
-      "time": 330,
-      "name": {
-        "ja": "リーピング・クアドラプルネイル (TB)",
-        "en": "Leaping Quadruple Crossing (TB)"
-      },
-      "damageType": "physical",
-      "damageAmount": 514000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_106_4yxlq4",
+      "id": "tpl_66_wjbyx6",
       "time": 332,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_107_547975",
-      "time": 333,
-      "name": {
-        "ja": "リーピング・クアドラプルネイル",
-        "en": "Leaping Quadruple Crossing"
-      },
-      "damageType": "physical",
-      "damageAmount": 914000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_108_2b65e3",
-      "time": 334,
+      "id": "tpl_67_vfeams",
+      "time": 335,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_109_xijflq",
-      "time": 336,
+      "id": "tpl_68_zmty3t",
+      "time": 339,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 70000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_69_t7do0m",
+      "time": 342,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 70000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_70_64cr48",
+      "time": 351,
       "name": {
         "ja": "ネイルチッパー",
         "en": "Nailchipper"
       },
       "damageType": "magical",
-      "damageAmount": 152000,
+      "damageAmount": 92900,
       "target": "AoE"
     },
     {
-      "id": "tpl_110_8jqa64",
-      "time": 337,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_111_n4j7fi",
-      "time": 341,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_112_ae32rw",
-      "time": 343,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_113_30x77i",
-      "time": 346,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_114_yhh9u6",
-      "time": 349,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 82000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_115_6ooi66",
+      "id": "tpl_71_b4q0hb",
       "time": 351,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 83300,
+      "damageAmount": 93100,
       "target": "AoE"
     },
     {
-      "id": "tpl_116_mxwp5c",
+      "id": "tpl_72_yc2gib",
       "time": 352,
-      "name": {
-        "ja": "ネイルチッパー",
-        "en": "Nailchipper"
-      },
-      "damageType": "magical",
-      "damageAmount": 171000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_117_eze1f6",
-      "time": 353,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 67000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_118_oxxp16",
+      "id": "tpl_73_pboatz",
       "time": 354,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
         "en": "Leaping Quadruple Crossing"
       },
       "damageType": "physical",
-      "damageAmount": 83300,
+      "damageAmount": 93100,
       "target": "AoE"
     },
     {
-      "id": "tpl_119_wn73gj",
-      "time": 357,
+      "id": "tpl_74_ahzex1",
+      "time": 354,
       "name": {
-        "ja": "テンペストテアー",
-        "en": "Tempestuous Tear"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 128000,
-      "target": "AoE"
+      "damageType": "physical",
+      "damageAmount": 70000,
+      "target": "MT"
     },
     {
-      "id": "tpl_120_rkffdt",
+      "id": "tpl_75_9cadpj",
       "time": 358,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_121_40zdk9",
-      "time": 360,
+      "id": "tpl_76_jfb33m",
+      "time": 359,
       "name": {
         "ja": "ネイルチッパー",
         "en": "Nailchipper"
       },
       "damageType": "magical",
-      "damageAmount": 171000,
+      "damageAmount": 92900,
       "target": "AoE"
     },
     {
-      "id": "tpl_122_z16uqs",
-      "time": 362,
+      "id": "tpl_77_bjf7jz",
+      "time": 361,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_123_vux1ac",
-      "time": 365,
+      "id": "tpl_78_qu9uwr",
+      "time": 363,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_124_3zp798",
-      "time": 372,
+      "id": "tpl_79_692yrc",
+      "time": 371,
       "name": {
         "ja": "ブラッディースクラッチ",
         "en": "Bloody Scratch"
       },
       "damageType": "physical",
-      "damageAmount": 175000,
+      "damageAmount": 154000,
       "target": "AoE"
     },
     {
-      "id": "tpl_125_3d33dk",
+      "id": "tpl_80_nu577x",
       "time": 372,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_126_x6j11v",
-      "time": 375,
+      "id": "tpl_81_vnso5g",
+      "time": 374,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_127_gmz9gb",
+      "id": "tpl_82_ngiw92",
       "time": 378,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_128_6x0wx4",
-      "time": 407,
+      "id": "tpl_83_3ur2af",
+      "time": 395,
+      "name": {
+        "ja": "マウサーラッシュ",
+        "en": "Mouser"
+      },
+      "damageType": "physical",
+      "damageAmount": 70000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_1yfmhr",
+      "time": 406,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_129_43zlrs",
-      "time": 410,
+      "id": "tpl_85_hgkm33",
+      "time": 409,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_130_bzbwkz",
-      "time": 413,
+      "id": "tpl_86_b6sjtm",
+      "time": 412,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_131_vym4mb",
-      "time": 419,
+      "id": "tpl_87_j1xgs8",
+      "time": 418,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_132_c0nztg",
-      "time": 422,
+      "id": "tpl_88_v534ca",
+      "time": 421,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 82000,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_133_ig0sv0",
-      "time": 427,
-      "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
-      },
-      "damageType": "physical",
-      "damageAmount": 48000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_134_vk2j2g",
+      "id": "tpl_89_qn5xf3",
       "time": 428,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 48200,
+      "damageAmount": 45700,
       "target": "AoE"
     },
     {
-      "id": "tpl_135_tz3oao",
-      "time": 429,
-      "name": {
-        "ja": "オーバーシャドウ",
-        "en": "Overshadow"
-      },
-      "damageType": "magical",
-      "damageAmount": 114000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_136_hlvymm",
-      "time": 429,
+      "id": "tpl_90_zhyir1",
+      "time": 428,
       "name": {
         "ja": "衝撃",
         "en": "Impact"
       },
       "damageType": "physical",
-      "damageAmount": 16100,
+      "damageAmount": 14800,
       "target": "AoE"
     },
     {
-      "id": "tpl_137_vepc9w",
-      "time": 430,
-      "name": {
-        "ja": "オーバーシャドウ",
-        "en": "Overshadow"
-      },
-      "damageType": "magical",
-      "damageAmount": 113000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_138_xv0bq3",
-      "time": 430,
+      "id": "tpl_91_a49xvm",
+      "time": 429,
       "name": {
         "ja": "スプレッドネイル",
         "en": "Splintering Nails"
       },
       "damageType": "physical",
-      "damageAmount": 91800,
+      "damageAmount": 93700,
       "target": "AoE"
     },
     {
-      "id": "tpl_139_yqvalm",
+      "id": "tpl_92_cmoqel",
       "time": 431,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_140_2q47u4",
-      "time": 434,
+      "id": "tpl_93_g29gy4",
+      "time": 433,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_141_tr1ymu",
-      "time": 441,
+      "id": "tpl_94_kw2qoi",
+      "time": 440,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 48200,
+      "damageAmount": 47800,
       "target": "AoE"
     },
     {
-      "id": "tpl_142_nzkuln",
+      "id": "tpl_95_ujusjf",
       "time": 441,
       "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
+        "ja": "オーバーシャドウ",
+        "en": "Overshadow"
       },
-      "damageType": "physical",
-      "damageAmount": 47500,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_143_py2ubj",
-      "time": 442,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 16100,
+      "damageType": "magical",
+      "damageAmount": 106000,
       "target": "AoE"
     },
     {
-      "id": "tpl_144_cih6qf",
-      "time": 442,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 16100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_145_f3rgcb",
+      "id": "tpl_96_4ik0wc",
       "time": 443,
       "name": {
-        "ja": "オーバーシャドウ",
-        "en": "Overshadow"
+        "ja": "衝撃",
+        "en": "Impact"
       },
-      "damageType": "magical",
-      "damageAmount": 166000,
+      "damageType": "physical",
+      "damageAmount": 16100,
       "target": "AoE"
     },
     {
-      "id": "tpl_146_lydl1y",
-      "time": 445,
+      "id": "tpl_97_h39luq",
+      "time": 443,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_147_oqd3qm",
-      "time": 448,
+      "id": "tpl_98_1nfkxs",
+      "time": 446,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_148_t53eot",
-      "time": 454,
+      "id": "tpl_99_jaoi8a",
+      "time": 453,
       "name": {
         "ja": "エレベート・エビセレート",
         "en": "Elevate and Eviscerate"
       },
       "damageType": "physical",
-      "damageAmount": 47500,
+      "damageAmount": 47800,
       "target": "AoE"
     },
     {
-      "id": "tpl_149_qjy9ii",
+      "id": "tpl_100_20b5en",
       "time": 454,
-      "name": {
-        "ja": "エレベート・エビセレート",
-        "en": "Elevate and Eviscerate"
-      },
-      "damageType": "physical",
-      "damageAmount": 43600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_150_nwvl50",
-      "time": 454,
-      "name": {
-        "ja": "オーバーシャドウ",
-        "en": "Overshadow"
-      },
-      "damageType": "magical",
-      "damageAmount": 166000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_151_esjf4l",
-      "time": 455,
-      "name": {
-        "ja": "オーバーシャドウ",
-        "en": "Overshadow"
-      },
-      "damageType": "magical",
-      "damageAmount": 166000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_152_2t5at9",
-      "time": 456,
       "name": {
         "ja": "スプレッドネイル",
         "en": "Splintering Nails"
       },
       "damageType": "physical",
-      "damageAmount": 88500,
+      "damageAmount": 93700,
       "target": "AoE"
     },
     {
-      "id": "tpl_153_8yai5n",
-      "time": 456,
+      "id": "tpl_101_ahz524",
+      "time": 455,
+      "name": {
+        "ja": "衝撃",
+        "en": "Impact"
+      },
+      "damageType": "physical",
+      "damageAmount": 16100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_knpxhf",
+      "time": 455,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     },
     {
-      "id": "tpl_154_1qyp9e",
-      "time": 456,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 14700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_155_aty8au",
-      "time": 457,
-      "name": {
-        "ja": "衝撃",
-        "en": "Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 15300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_156_o1xvcq",
-      "time": 459,
+      "id": "tpl_103_jxac59",
+      "time": 458,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 65900,
+      "damageAmount": 70000,
       "target": "MT"
     }
   ],

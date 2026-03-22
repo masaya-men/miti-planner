@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
-    ChevronUp, ChevronDown
+    ChevronUp, ChevronDown,
+    Users, Activity, Wand2, Star
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -25,6 +26,18 @@ interface ConsolidatedHeaderProps {
     setPartySettingsOpen: (open: boolean) => void;
 }
 
+// ホバー: 白黒反転（ライト→黒塗り白文字 / ダーク→白塗り黒文字）
+const hoverInvert = "hover:bg-slate-900 hover:border-slate-900 hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-slate-900";
+
+// アイコン丸ボタン共通スタイル（1px border で統一）
+const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
+const iconBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-slate-500 dark:text-slate-400 ${hoverInvert}`;
+
+// テキスト付きピルボタン共通スタイル（1px border で統一）
+const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
+const pillBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-slate-500 dark:text-slate-400 ${hoverInvert}`;
+const pillBtnActive = `bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35)] ${hoverInvert}`;
+
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
     onImportLogs,
@@ -41,8 +54,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const {
         isHeaderCollapsed, setIsHeaderCollapsed
     } = useContext(MobileTriggersContext);
-    
-    // Check if timeline is empty to guide the user to import logs
+
     const timelineEvents = useMitigationStore(state => state.timelineEvents);
     const needsImport = timelineEvents?.length === 0;
 
@@ -59,9 +71,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
         }
     };
 
-    // マウスが離れた方向を判定してリセット方法を切り替える
-    // e.clientY がハンドルより上側（ヘッダーエリア方向）なら即リセット
-    // 下側（表エリア方向）なら80ms遅延してリセット
     const handleLeave = (e: React.MouseEvent) => {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         const isMovingUp = e.clientY < rect.top;
@@ -84,36 +93,37 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             className="absolute top-0 left-0 w-full z-[100] flex flex-col pointer-events-none"
             initial={false}
         >
-            {/* [1] ── ヘッダー本体コンテナ (height アニメーション) ── */}
+            {/* [1] ── ヘッダー本体コンテナ ── */}
             <motion.div
                 initial={false}
                 animate={{
                     height: isHeaderCollapsed ? 0 : 96,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full overflow-hidden pointer-events-auto bg-glass-header backdrop-blur-xl shadow-2xl flex flex-col"
+                className="w-full overflow-hidden pointer-events-auto bg-glass-header backdrop-blur-xl shadow-2xl"
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div
-                    className="flex flex-col w-full"
+                    className="flex flex-col w-full h-[96px]"
                     initial={false}
                     animate={{ y: (isNear || isHovered) ? -5 : 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
-                    {/* Layer A: App Controls (h-12 = 48px) */}
-                    <div className="h-12 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
-                        <div className="flex items-center gap-3">
+                    {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
+                    <div className="h-12 flex items-center justify-between pl-12 pr-6 border-b border-slate-200/30 dark:border-white/5 shrink-0">
+                        <div className="flex items-center gap-2">
                             <Tooltip content={t('app.return_home')}>
                                 <button
                                     onClick={() => navigate('/')}
-                                    className="p-2.5 rounded-full text-app-text-muted hover:text-app-accent border border-transparent hover:border-[rgba(var(--app-accent-rgb),0.3)] hover:bg-[rgba(var(--app-accent-rgb),0.08)] transition-all duration-300 cursor-pointer active:scale-95 group"
+                                    className={clsx(iconBtnBase, iconBtnDefault)}
                                 >
-                                    <Home size={16} className="group-hover:scale-110 transition-transform" />
+                                    <Home size={16} className="group-hover:-translate-y-0.5 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
+                            {/* Tutorial */}
                             <button
                                 onClick={() => {
                                     const path = window.location.pathname;
@@ -123,113 +133,117 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         useTutorialStore.getState().startFromStep(1);
                                     }
                                 }}
-                                className="relative px-4 py-1.5 bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.12)] border border-[rgba(var(--app-accent-rgb),0.25)] hover:border-[rgba(var(--app-accent-rgb),0.5)] rounded-full text-app-accent flex items-center gap-2 transition-all duration-300 cursor-pointer active:scale-95 group"
+                                className={clsx(pillBtnBase, pillBtnDefault)}
                             >
-                                <HelpCircle size={14} className="group-hover:rotate-12 transition-transform" />
-                                <span className="text-[10px] font-black uppercase tracking-wider">{t('app.view_tutorial')}</span>
+                                <HelpCircle size={14} className="group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('app.view_tutorial')}</span>
                             </button>
 
-                            <div className="h-4 w-[1px] bg-white/10 mx-1" />
+                            <div className="h-5 w-[1px] bg-slate-200/50 dark:bg-white/10 mx-0.5 rounded-full" />
 
+                            {/* Theme toggle */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
                                 <button
                                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                    className="p-2.5 rounded-full text-app-text-muted hover:text-app-accent border border-transparent hover:border-[rgba(var(--app-accent-rgb),0.3)] hover:bg-[rgba(var(--app-accent-rgb),0.08)] flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-300"
+                                    className={clsx(iconBtnBase, iconBtnDefault)}
                                 >
-                                    {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                                    {theme === 'dark'
+                                        ? <Sun size={16} className="group-hover:rotate-90 transition-transform duration-500" />
+                                        : <Moon size={16} className="group-hover:-rotate-12 transition-transform duration-300" />
+                                    }
                                 </button>
                             </Tooltip>
+
                             <LanguageSwitcher />
                         </div>
                     </div>
 
-                    {/* Layer B: Timeline Tools (h-12 = 48px) */}
+                    {/* Layer B（下段・表に近い）: ツールボタン群 */}
                     <div className="h-12 flex items-center justify-between px-6 shrink-0">
-                        <div className="flex items-center gap-1.5 px-3">
+                        <div className="flex items-center gap-1.5">
+                            {/* Party Comp */}
                             <button
                                 data-tutorial="party-comp"
                                 onClick={() => {
                                     setPartySettingsOpen(true);
                                     useTutorialStore.getState().completeEvent('party-settings:opened');
                                 }}
-                                className="flex items-center gap-2 px-4 h-8 rounded-full text-app-text-secondary group/btn relative overflow-hidden cursor-pointer bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:text-app-accent transition-all duration-300"
+                                className={clsx(pillBtnBase, pillBtnDefault)}
                             >
-                                <span className="font-black text-[10px] uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
+                                <Users size={14} className="group-hover:scale-110 transition-transform duration-300 shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
                             </button>
 
+                            {/* Status */}
                             <button
                                 onClick={() => {
                                     setStatusOpen(!statusOpen);
                                     if (!statusOpen) useTutorialStore.getState().completeEvent('status:opened');
                                 }}
-                                className={clsx(
-                                    "flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                    statusOpen
-                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                        : "bg-transparent border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:bg-[rgba(var(--app-accent-rgb),0.08)]"
-                                )}
+                                className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault)}
                             >
-                                <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", statusOpen ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('settings.config_short')}</span>
+                                <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "group-hover:scale-110")} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
                             </button>
 
+                            {/* Auto Plan */}
                             <button
                                 onClick={onAutoPlan}
-                                className="flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 cursor-pointer text-app-text-secondary hover:text-app-accent bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] group/btn"
+                                className={clsx(pillBtnBase, pillBtnDefault)}
                             >
+                                <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
                             </button>
 
-                            <button
-                                onClick={onImportLogs}
-                                className={clsx(
-                                    "flex items-center gap-2 px-4 h-8 rounded-full transition-all duration-300 cursor-pointer group/btn",
-                                    needsImport
-                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.3)] animate-pulse"
-                                        : "text-app-text-secondary hover:text-app-accent bg-transparent hover:bg-[rgba(var(--app-accent-rgb),0.08)] border border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)]"
-                                )}
-                            >
-                                <CloudDownload size={12} className={clsx("transition-transform shrink-0", !needsImport && "group-hover/btn:-translate-y-0.5")} />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('timeline.import_fflogs')}</span>
-                            </button>
+                            {/* Import（アイコンのみ） */}
+                            <Tooltip content={t('timeline.import_fflogs')}>
+                                <button
+                                    onClick={onImportLogs}
+                                    className={clsx(
+                                        iconBtnBase,
+                                        needsImport
+                                            ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_20px_rgba(var(--app-accent-rgb),0.25)] animate-pulse"
+                                            : iconBtnDefault
+                                    )}
+                                >
+                                    <CloudDownload size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                                </button>
+                            </Tooltip>
                         </div>
 
-                        <div className="flex items-center gap-1.5 px-3">
+                        <div className="flex items-center gap-1.5">
+                            {/* My Job Highlight */}
                             <button
                                 data-tutorial="my-job-highlight-btn"
                                 onClick={() => {
                                     setMyJobHighlight(!myJobHighlight);
                                     useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
                                 }}
-                                className={clsx(
-                                    "flex items-center gap-3 px-4 h-8 rounded-full transition-all duration-300 relative overflow-hidden group/btn cursor-pointer border",
-                                    myJobHighlight
-                                        ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35),inset_0_1px_0_rgba(var(--app-accent-rgb),0.45)]"
-                                        : "bg-transparent border-white/10 hover:border-[rgba(var(--app-accent-rgb),0.4)] hover:bg-[rgba(var(--app-accent-rgb),0.08)]"
-                                )}
+                                className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
                             >
-                                <span className={clsx("font-black text-[10px] uppercase tracking-[0.1em]", myJobHighlight ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "text-app-text-secondary group-hover/btn:text-app-text")}>{t('ui.highlight_my_job')}</span>
+                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "group-hover:rotate-12 group-hover:scale-110")} />
+                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
-                            <div className="h-4 w-[1px] bg-white/10 mx-1" />
+                            <div className="h-5 w-[1px] bg-slate-200/50 dark:bg-white/10 mx-0.5 rounded-full" />
 
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                                <div className="flex h-8 bg-transparent rounded-full p-0.5 border border-white/10">
-                                    {(['light_party', 'role'] as const).map((order) => (
-                                        <button
-                                            key={order}
-                                            onClick={() => setPartySortOrder(order)}
-                                            className={clsx(
-                                                "px-3 h-full rounded-full text-[8px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
-                                                partySortOrder === order
-                                                    ? "bg-[rgba(var(--app-accent-rgb),0.2)] text-app-accent border border-[rgba(var(--app-accent-rgb),0.5)] shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.25)]"
-                                                    : "text-app-text-secondary hover:text-app-accent border border-transparent"
-                                            )}
-                                        >
-                                            {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}
-                                        </button>
-                                    ))}
-                                </div>
+                            {/* Sort */}
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em]">{t('ui.sort')}</span>
+                            <div className="flex h-9 rounded-full p-[3px] border border-slate-300 dark:border-white/20">
+                                {(['light_party', 'role'] as const).map((order) => (
+                                    <button
+                                        key={order}
+                                        onClick={() => setPartySortOrder(order)}
+                                        className={clsx(
+                                            "px-3 h-full rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                                            partySortOrder === order
+                                                ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.3)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
+                                                : "text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                                        )}
+                                    >
+                                        {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -245,7 +259,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     onMouseLeave={(e) => handleLeave(e)}
                 />
 
-                {/* ハンドル本体：Sidebar の縦ストリップを横に転換した設計 */}
+                {/* ハンドル本体 */}
                 <motion.div
                     className="absolute bottom-0 left-0 right-0 z-50 bg-glass-header dark:bg-glass-header bg-white backdrop-blur-3xl pointer-events-auto"
                     initial={false}
@@ -259,29 +273,26 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         onMouseLeave={(e) => handleLeave(e)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
+                            "hover:bg-white/10 dark:hover:bg-white/10 active:bg-white/20 transition-colors duration-200"
                         )}
                     >
-                        {/* 迫り出し感のある背景グラデ（Sidebar 準拠） */}
                         <motion.div
-                            className="absolute inset-0 bg-gradient-to-b from-transparent via-app-accent/[0.08] to-transparent"
-                            animate={{ opacity: isNear ? 0.3 : 0.1 }}
+                            className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent"
+                            animate={{ opacity: isNear ? 0.5 : 0.1 }}
                             transition={{ duration: 0.15 }}
                         />
 
-                        {/* 上端の固定ライン（Sidebar の左端ラインと同じ役割） */}
                         <div className={clsx(
                             "absolute inset-x-0 top-0 h-[1px] transition-colors duration-200",
                             isHeaderCollapsed
-                                ? "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]"
-                                : "bg-app-accent/40 group-hover/btn:bg-app-accent/70"
+                                ? "bg-slate-400 dark:bg-white/30"
+                                : "bg-slate-300 dark:bg-white/20 group-hover/btn:bg-slate-500 dark:group-hover/btn:bg-white/40"
                         )} />
 
-                        {/* 下端の境界線（Sidebar の右端ラインと同じ役割） */}
                         <div className={clsx(
                             "absolute inset-x-0 bottom-0 h-[1px] transition-all duration-200",
                             isHeaderCollapsed
-                                ? "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]"
+                                ? "bg-slate-400 dark:bg-white/30"
                                 : "bg-glass-border"
                         )} />
 
@@ -304,7 +315,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 {isHeaderCollapsed ? (
                                     <ChevronDown
                                         size={18}
-                                        className="text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]"
+                                        className="text-slate-600 dark:text-white/60"
                                     />
                                 ) : (
                                     <ChevronUp
@@ -312,8 +323,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         className={clsx(
                                             "transition-all duration-200",
                                             isNear
-                                                ? "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]"
-                                                : "text-app-text-muted group-hover/btn:text-app-accent"
+                                                ? "text-slate-700 dark:text-white/70"
+                                                : "text-slate-400 dark:text-white/30 group-hover/btn:text-slate-600 dark:group-hover/btn:text-white/50"
                                         )}
                                     />
                                 )}

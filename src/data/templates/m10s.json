@@ -1,2965 +1,2384 @@
 {
   "contentId": "m10s",
-  "generatedAt": "2026-03-21T08:07:20.825Z",
-  "sourceLogsCount": 5,
+  "generatedAt": "2026-03-22T08:40:32.938Z",
+  "source": "spreadsheet",
+  "sourceSheetId": "1w0JT2aHnGtqtSq_YmntjUBuFdga6jhS5_VCBQvgCSHk",
   "timelineEvents": [
     {
-      "id": "tpl_0_glevff",
-      "time": 3,
+      "id": "tpl_0_ffmjyu",
+      "time": 4,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_1_2sskdw",
-      "time": 3,
+      "id": "tpl_1_e86afv",
+      "time": 7,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_2_gy2dz2",
-      "time": 6,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_3_t878k6",
-      "time": 6,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_4_wvp1bc",
-      "time": 9,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_5_3g9xwn",
+      "id": "tpl_2_nsizqj",
       "time": 10,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_6_lg7sni",
+      "id": "tpl_3_5pi0ri",
       "time": 15,
       "name": {
-        "ja": "Hot Impact",
+        "ja": "ホットインパクト",
         "en": "Hot Impact"
       },
       "damageType": "physical",
-      "damageAmount": 413000,
-      "target": "MT"
+      "damageAmount": 500000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_7_eus0a6",
-      "time": 15,
-      "name": {
-        "ja": "Hot Impact",
-        "en": "Hot Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 413000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_8_otqtnw",
-      "time": 17,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_9_14yy92",
+      "id": "tpl_4_960aj6",
       "time": 18,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_10_w4l3vy",
-      "time": 30,
-      "name": {
-        "ja": "Flame Floater",
-        "en": "Flame Floater"
-      },
-      "damageType": "magical",
-      "damageAmount": 128000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_11_ojhio4",
+      "id": "tpl_5_wdjmf7",
       "time": 31,
       "name": {
-        "ja": "Flame Floater",
+        "ja": "フレイムフローター",
         "en": "Flame Floater"
       },
       "damageType": "magical",
-      "damageAmount": 81900,
-      "target": "ST"
+      "damageAmount": 135000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_12_0cspd2",
+      "id": "tpl_6_43ar20",
       "time": 34,
       "name": {
-        "ja": "Flame Floater",
+        "ja": "フレイムフローター",
         "en": "Flame Floater"
       },
       "damageType": "magical",
-      "damageAmount": 134000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_13_8oe3cf",
+      "id": "tpl_7_0o7hsa",
       "time": 37,
       "name": {
-        "ja": "Flame Floater",
+        "ja": "フレイムフローター",
         "en": "Flame Floater"
       },
       "damageType": "magical",
-      "damageAmount": 134000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_14_cpu846",
-      "time": 39,
-      "name": {
-        "ja": "Flame Floater",
-        "en": "Flame Floater"
-      },
-      "damageType": "magical",
-      "damageAmount": 77800,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_15_2wy8we",
+      "id": "tpl_8_6lmp6z",
       "time": 40,
       "name": {
-        "ja": "Flame Floater",
+        "ja": "フレイムフローター",
         "en": "Flame Floater"
       },
       "damageType": "magical",
-      "damageAmount": 81800,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_16_5sp3jf",
-      "time": 41,
-      "name": {
-        "ja": "Flame Floater",
-        "en": "Flame Floater"
-      },
-      "damageType": "magical",
-      "damageAmount": 134000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_17_pag14u",
-      "time": 45,
+      "id": "tpl_9_1bf6qu",
+      "time": 47,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_18_04ebjr",
-      "time": 45,
+      "id": "tpl_10_ef3gmm",
+      "time": 54,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_19_zxjkgw",
-      "time": 48,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_20_n10y30",
-      "time": 53,
-      "name": {
-        "ja": "Alley-oop Inferno",
+        "ja": "フレイムアリウープ",
         "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_21_hv33uf",
-      "time": 53,
+      "id": "tpl_11_d655ph",
+      "time": 55,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 63800,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_22_v3jzvy",
-      "time": 53,
+      "id": "tpl_12_dcprye",
+      "time": 58,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_23_4kjg7q",
-      "time": 56,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_24_qmmppi",
-      "time": 57,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_25_5ws6rv",
+      "id": "tpl_13_xq3inz",
       "time": 63,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_26_ibmk7m",
-      "time": 64,
-      "name": {
-        "ja": "Cutback Blaze",
+        "ja": "フレイムカットバック",
         "en": "Cutback Blaze"
       },
       "damageType": "magical",
-      "damageAmount": 138000,
+      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_27_ajb786",
-      "time": 68,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_28_uxyoj0",
+      "id": "tpl_14_em3drv",
       "time": 70,
       "name": {
-        "ja": "Pyrotation",
+        "ja": "パイロローテーション",
         "en": "Pyrotation"
       },
       "damageType": "magical",
-      "damageAmount": 192000,
+      "damageAmount": 60000,
       "target": "AoE"
     },
     {
-      "id": "tpl_29_w5topp",
-      "time": 71,
-      "name": {
-        "ja": "Pyrotation",
-        "en": "Pyrotation"
-      },
-      "damageType": "magical",
-      "damageAmount": 192000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_30_v7jx3x",
+      "id": "tpl_15_mebhmy",
       "time": 71,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_31_bbpgft",
-      "time": 74,
-      "name": {
-        "ja": "Pyrotation",
-        "en": "Pyrotation"
-      },
-      "damageType": "magical",
-      "damageAmount": 192000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_32_sb9ny3",
+      "id": "tpl_16_qk17ij",
+      "time": 72,
+      "name": {
+        "ja": "パイロローテーション",
+        "en": "Pyrotation"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_64rqwv",
+      "time": 74,
+      "name": {
+        "ja": "パイロローテーション",
+        "en": "Pyrotation"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_sj6l4v",
       "time": 74,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_33_edgddm",
-      "time": 76,
+      "id": "tpl_19_prwoez",
+      "time": 77,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_34_pqonzb",
+      "id": "tpl_20_mfpu1g",
       "time": 83,
       "name": {
-        "ja": "Divers' Dare",
+        "ja": "ファイティングスピリット",
         "en": "Divers' Dare"
       },
       "damageType": "magical",
-      "damageAmount": 213000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_35_7vnvmc",
-      "time": 84,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_36_csxxxs",
+      "id": "tpl_21_nhj38x",
       "time": 85,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_37_e33p92",
+      "id": "tpl_22_8izuqx",
       "time": 88,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_38_oogmsw",
+      "id": "tpl_23_x1aepf",
       "time": 90,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 55700,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_39_kb1tva",
-      "time": 94,
+      "id": "tpl_24_8rmd4t",
+      "time": 93,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_40_7x43kb",
-      "time": 101,
+      "id": "tpl_25_5igxas",
+      "time": 99,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_41_kggucz",
+      "id": "tpl_26_f4svn4",
+      "time": 102,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_1mm5j9",
       "time": 116,
       "name": {
-        "ja": "Sick Swell",
+        "ja": "シック・スウェル",
         "en": "Sick Swell"
       },
       "damageType": "magical",
-      "damageAmount": 137000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_42_2ppvdt",
+      "id": "tpl_28_v62r4a",
       "time": 118,
       "name": {
-        "ja": "Awesome Splash",
-        "en": "Awesome Splash"
+        "ja": "ヘビー・ハイドロスプラッシュ or ハイドロスプラッシュ",
+        "en": "Awesome Slab or Awesome Slab"
       },
       "damageType": "magical",
-      "damageAmount": 131000,
+      "damageAmount": 145000,
       "target": "AoE"
     },
     {
-      "id": "tpl_43_y5aiz9",
-      "time": 119,
-      "name": {
-        "ja": "Awesome Slab",
-        "en": "Awesome Slab"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_44_xrvr3p",
+      "id": "tpl_29_cjlbm7",
       "time": 119,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_45_j5znhi",
-      "time": 127,
-      "name": {
-        "ja": "Alley-oop Double-dip",
-        "en": "Alley-oop Double-dip"
-      },
-      "damageType": "magical",
-      "damageAmount": 160000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_46_6ikyyo",
+      "id": "tpl_30_pu85dm",
       "time": 127,
       "name": {
-        "ja": "Reverse Alley-oop",
-        "en": "Reverse Alley-oop"
+        "ja": "アリウープ",
+        "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_47_hdanzi",
+      "id": "tpl_31_n55spo",
       "time": 127,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_48_7uswuv",
-      "time": 128,
-      "name": {
-        "ja": "Alley-oop Double-dip",
-        "en": "Alley-oop Double-dip"
-      },
-      "damageType": "magical",
-      "damageAmount": 147000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_49_gii0uc",
+      "id": "tpl_32_784f1y",
       "time": 130,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_50_llwh1w",
-      "time": 133,
+      "id": "tpl_33_5108q1",
+      "time": 137,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_51_9tb96g",
-      "time": 136,
-      "name": {
-        "ja": "Deep Impact",
+        "ja": "ディープインパクト",
         "en": "Deep Impact"
       },
       "damageType": "physical",
-      "damageAmount": 395000,
-      "target": "ST"
+      "damageAmount": 600000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_52_0lxf0s",
-      "time": 138,
-      "name": {
-        "ja": "Deep Impact",
-        "en": "Deep Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 414000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_53_ugysdw",
+      "id": "tpl_34_2ma0t7",
       "time": 139,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_54_57tx5i",
+      "id": "tpl_35_vf8wyn",
       "time": 144,
       "name": {
-        "ja": "Divers' Dare",
+        "ja": "ファイティングスピリット",
         "en": "Divers' Dare"
       },
       "damageType": "magical",
-      "damageAmount": 123000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_55_7jmueu",
-      "time": 146,
+      "id": "tpl_36_nnlihf",
+      "time": 147,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_56_i2xxtb",
-      "time": 149,
+      "id": "tpl_37_cox1q3",
+      "time": 150,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_57_7m0afe",
-      "time": 168,
+      "id": "tpl_38_20234j",
+      "time": 170,
       "name": {
-        "ja": "Xtreme Spectacular (TB)",
-        "en": "Xtreme Spectacular (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 150000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_58_100ulf",
-      "time": 168,
-      "name": {
-        "ja": "Xtreme Spectacular (TB)",
-        "en": "Xtreme Spectacular (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 150000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_59_q2bdo4",
-      "time": 169,
-      "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 186000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_60_r005wl",
+      "id": "tpl_39_b4kdc8",
       "time": 171,
       "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 186000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_61_cghje5",
+      "id": "tpl_40_igagri",
       "time": 172,
       "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 265000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_62_0m4892",
+      "id": "tpl_41_w9jdvw",
       "time": 173,
       "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 35700,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_63_mzawhp",
+      "id": "tpl_42_0qiw1s",
       "time": 173,
       "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 68100,
-      "target": "MT"
+      "damageAmount": 12000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_64_l1xi37",
+      "id": "tpl_43_vole8m",
       "time": 174,
       "name": {
-        "ja": "Xtreme Spectacular",
+        "ja": "エクストリーム・スペクタクル",
         "en": "Xtreme Spectacular"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_65_pdka5e",
+      "id": "tpl_44_666apz",
+      "time": 174,
+      "name": {
+        "ja": "エクストリーム・スペクタクル",
+        "en": "Xtreme Spectacular"
+      },
+      "damageType": "magical",
+      "damageAmount": 12000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_vugg8n",
+      "time": 174,
+      "name": {
+        "ja": "エクストリーム・スペクタクル",
+        "en": "Xtreme Spectacular"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_r4y9g1",
       "time": 179,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_66_tx2kz7",
+      "id": "tpl_47_kzacd9",
       "time": 179,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_67_ddlufe",
+      "id": "tpl_48_60qa3l",
       "time": 182,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_68_1eyqzy",
+      "id": "tpl_49_vcrmts",
       "time": 182,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_69_oiczrn",
+      "id": "tpl_50_3dxe0l",
       "time": 185,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_70_5fqr0x",
-      "time": 186,
+      "id": "tpl_51_bf15fs",
+      "time": 185,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_71_exdbv7",
+      "id": "tpl_52_97uivm",
       "time": 198,
       "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 92100,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_72_0fvooa",
+      "id": "tpl_53_aztt9m",
       "time": 198,
       "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 92400,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_73_dk8nok",
+      "id": "tpl_54_fcgvu4",
       "time": 198,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 167000,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_74_afsqch",
-      "time": 198,
-      "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 91700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_75_2bvruy",
-      "time": 198,
-      "name": {
-        "ja": "Vertical Plunge",
-        "en": "Vertical Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 328000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_76_bq1aic",
-      "time": 199,
-      "name": {
-        "ja": "Vertical Blast",
-        "en": "Vertical Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 303000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_77_myz2sc",
-      "time": 205,
-      "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_78_4hkzs0",
-      "time": 205,
-      "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 90900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_79_7s7631",
-      "time": 205,
-      "name": {
-        "ja": "Vertical Plunge",
-        "en": "Vertical Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 293000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_80_1ip2s0",
+      "id": "tpl_55_8r6a4e",
       "time": 206,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 93400,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_81_21avzl",
+      "id": "tpl_56_mpqbhn",
       "time": 206,
       "name": {
-        "ja": "Vertical Blast",
-        "en": "Vertical Blast"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 338000,
-      "target": "ST"
+      "damageAmount": 100000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_82_s7gfoi",
+      "id": "tpl_57_mls9ky",
       "time": 206,
       "name": {
-        "ja": "Re-entry Plunge (TB)",
-        "en": "Re-entry Plunge (TB)"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 222000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_83_s6v7vd",
-      "time": 212,
-      "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 91800,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_84_t0rbij",
+      "id": "tpl_58_juo860",
       "time": 213,
       "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 92400,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_85_wh3j2u",
+      "id": "tpl_59_1arwsu",
       "time": 213,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 167000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_86_9rsybt",
+      "id": "tpl_60_lp5kgj",
       "time": 213,
       "name": {
-        "ja": "Vertical Plunge",
-        "en": "Vertical Plunge"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 318000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_87_fiwcx3",
-      "time": 213,
-      "name": {
-        "ja": "Re-entry Blast (TB)",
-        "en": "Re-entry Blast (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 212000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_88_4f5lvs",
-      "time": 219,
-      "name": {
-        "ja": "Vertical Blast",
-        "en": "Vertical Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 317000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_89_0ibc26",
-      "time": 220,
-      "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 92700,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_90_z4ruxn",
+      "id": "tpl_61_zt6vqe",
       "time": 220,
       "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 91700,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_91_domytn",
+      "id": "tpl_62_ohdahb",
       "time": 220,
       "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 92500,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_92_blx7ui",
+      "id": "tpl_63_detnyx",
       "time": 220,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 93400,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_93_vv49c7",
-      "time": 221,
-      "name": {
-        "ja": "Vertical Plunge",
-        "en": "Vertical Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 336000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_94_x8j6vm",
-      "time": 221,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_95_bfibl7",
+      "id": "tpl_64_r66ra6",
       "time": 222,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_96_ttm1et",
-      "time": 224,
+      "id": "tpl_65_wtu5f2",
+      "time": 222,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_97_3fjqpt",
+      "id": "tpl_66_iyjj10",
       "time": 225,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_98_4ivp9s",
-      "time": 230,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 213000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_99_64557c",
-      "time": 230,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_100_hx3ous",
-      "time": 231,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_101_l7lwqn",
-      "time": 231,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_102_7pe0uc",
-      "time": 232,
+      "id": "tpl_67_z4jjja",
+      "time": 225,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_103_2so33a",
+      "id": "tpl_68_yapbwt",
+      "time": 230,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_9sji6k",
+      "time": 230,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_1x3mjx",
       "time": 233,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_104_ev1xrh",
+      "id": "tpl_71_szmk7b",
+      "time": 233,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_nm5grp",
       "time": 235,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_105_n2ihyj",
+      "id": "tpl_73_cohlpb",
       "time": 236,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_106_ru9nne",
-      "time": 246,
-      "name": {
-        "ja": "Firesnaking",
-        "en": "Firesnaking"
-      },
-      "damageType": "magical",
-      "damageAmount": 202000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_107_zhj0bl",
+      "id": "tpl_74_nuzpa0",
       "time": 246,
       "name": {
-        "ja": "Watersnaking",
+        "ja": "ハイドロスネーキング",
         "en": "Watersnaking"
       },
       "damageType": "magical",
-      "damageAmount": 204000,
+      "damageAmount": 210000,
       "target": "AoE"
     },
     {
-      "id": "tpl_108_5t0fxk",
+      "id": "tpl_75_vnpude",
+      "time": 246,
+      "name": {
+        "ja": "フレイムスネーキング",
+        "en": "Firesnaking"
+      },
+      "damageType": "magical",
+      "damageAmount": 210000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_yqjzx7",
       "time": 248,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_109_tgr7qn",
+      "id": "tpl_77_mw4r75",
       "time": 248,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_110_8oecso",
+      "id": "tpl_78_dgnquk",
       "time": 251,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_111_s9oazr",
-      "time": 251,
+      "id": "tpl_79_a884sd",
+      "time": 259,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_112_9059jz",
-      "time": 258,
-      "name": {
-        "ja": "Alley-oop Inferno",
+        "ja": "フレイムアリウープ",
         "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_113_r8m995",
+      "id": "tpl_80_dvpzy7",
       "time": 259,
       "name": {
-        "ja": "Reverse Alley-oop",
-        "en": "Reverse Alley-oop"
+        "ja": "アリウープ",
+        "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_114_bpm6ni",
-      "time": 259,
-      "name": {
-        "ja": "Alley-oop Double-dip",
-        "en": "Alley-oop Double-dip"
-      },
-      "damageType": "magical",
-      "damageAmount": 160000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_115_8t4ch8",
+      "id": "tpl_81_s0d6cb",
       "time": 259,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_116_8fzgen",
+      "id": "tpl_82_grr3ab",
       "time": 260,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_117_z60xkw",
-      "time": 262,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_118_5vu3mt",
-      "time": 263,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_119_nzg10m",
-      "time": 266,
-      "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
-      },
-      "damageType": "magical",
-      "damageAmount": 132000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_120_rrp250",
+      "id": "tpl_83_hyrlcx",
       "time": 266,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_121_5mgk74",
-      "time": 267,
-      "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
-      },
-      "damageType": "magical",
-      "damageAmount": 295000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_122_inmdlw",
-      "time": 268,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_123_5wpk14",
-      "time": 270,
-      "name": {
-        "ja": "Hot Impact",
-        "en": "Hot Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 727000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_124_lgzxyf",
-      "time": 270,
-      "name": {
-        "ja": "Hot Impact",
-        "en": "Hot Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 372000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_125_h4y2yt",
-      "time": 271,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_126_juajl4",
-      "time": 274,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_127_5craq3",
-      "time": 274,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_128_h8d1zm",
-      "time": 277,
-      "name": {
-        "ja": "Deep Varial",
-        "en": "Deep Varial"
-      },
-      "damageType": "magical",
-      "damageAmount": 143000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_129_a0vgge",
-      "time": 277,
+      "id": "tpl_84_k777h3",
+      "time": 270,
       "name": {
-        "ja": "Deep Varial",
-        "en": "Deep Varial"
+        "ja": "ホットインパクト",
+        "en": "Hot Impact"
       },
-      "damageType": "magical",
-      "damageAmount": 90800,
-      "target": "MT"
+      "damageType": "physical",
+      "damageAmount": 500000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_130_enr73o",
-      "time": 279,
+      "id": "tpl_85_8sdw14",
+      "time": 270,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_131_uzmoqk",
-      "time": 280,
-      "name": {
-        "ja": "Awesome Slab",
-        "en": "Awesome Slab"
-      },
-      "damageType": "magical",
-      "damageAmount": 156000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_132_tbrsxi",
+      "id": "tpl_86_tnm11a",
+      "time": 273,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_zi0gbj",
+      "time": 276,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_i2ji91",
       "time": 280,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_133_k0nhp7",
-      "time": 281,
-      "name": {
-        "ja": "Awesome Splash",
-        "en": "Awesome Splash"
-      },
-      "damageType": "magical",
-      "damageAmount": 118000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_134_dw3igc",
+      "id": "tpl_89_1o384l",
       "time": 281,
       "name": {
-        "ja": "Alley-oop Inferno",
+        "ja": "ヘビー・ハイドロスプラッシュ or ハイドロスプラッシュ",
+        "en": "Awesome Slab or Awesome Slab"
+      },
+      "damageType": "magical",
+      "damageAmount": 145000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_d7ly6h",
+      "time": 281,
+      "name": {
+        "ja": "フレイムアリウープ",
         "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_135_qgadne",
-      "time": 282,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_136_v6h8d0",
-      "time": 283,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_137_7yp6y3",
+      "id": "tpl_91_cys444",
       "time": 285,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_138_g65rof",
-      "time": 286,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_139_rh4gc5",
+      "id": "tpl_92_trnsn3",
       "time": 288,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_140_atbfoa",
-      "time": 290,
-      "name": {
-        "ja": "Hot Aerial",
-        "en": "Hot Aerial"
-      },
-      "damageType": "magical",
-      "damageAmount": 111000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_141_syjys7",
+      "id": "tpl_93_ks53eg",
       "time": 291,
       "name": {
-        "ja": "Hot Aerial",
+        "ja": "フレイムエアリアル",
         "en": "Hot Aerial"
       },
       "damageType": "magical",
-      "damageAmount": 165000,
+      "damageAmount": 180000,
       "target": "AoE"
     },
     {
-      "id": "tpl_142_trfn7l",
+      "id": "tpl_94_hpapej",
       "time": 293,
       "name": {
-        "ja": "Hot Aerial",
+        "ja": "フレイムエアリアル",
         "en": "Hot Aerial"
       },
       "damageType": "magical",
-      "damageAmount": 184000,
+      "damageAmount": 180000,
       "target": "AoE"
     },
     {
-      "id": "tpl_143_u9bjg4",
-      "time": 293,
-      "name": {
-        "ja": "Hot Aerial",
-        "en": "Hot Aerial"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_144_zc841p",
+      "id": "tpl_95_w0b9dn",
       "time": 295,
       "name": {
-        "ja": "Hot Aerial",
+        "ja": "フレイムエアリアル",
         "en": "Hot Aerial"
       },
       "damageType": "magical",
-      "damageAmount": 111000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_145_afbgoy",
-      "time": 297,
-      "name": {
-        "ja": "Hot Aerial",
-        "en": "Hot Aerial"
-      },
-      "damageType": "magical",
-      "damageAmount": 176000,
+      "damageAmount": 180000,
       "target": "AoE"
     },
     {
-      "id": "tpl_146_natljo",
+      "id": "tpl_96_0s25qk",
       "time": 297,
       "name": {
-        "ja": "Hot Aerial",
+        "ja": "フレイムエアリアル",
         "en": "Hot Aerial"
       },
       "damageType": "magical",
-      "damageAmount": 106000,
-      "target": "MT"
+      "damageAmount": 180000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_147_xbiu6h",
-      "time": 300,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_148_rvehew",
+      "id": "tpl_97_g5ft0s",
       "time": 302,
       "name": {
-        "ja": "Sick Swell",
+        "ja": "シック・スウェル",
         "en": "Sick Swell"
       },
       "damageType": "magical",
-      "damageAmount": 137000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_149_glyr4v",
-      "time": 302,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_150_uznno7",
-      "time": 303,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_151_sa891v",
-      "time": 304,
-      "name": {
-        "ja": "Awesome Splash",
-        "en": "Awesome Splash"
-      },
-      "damageType": "magical",
-      "damageAmount": 131000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_152_riwglh",
+      "id": "tpl_98_5qhb3d",
       "time": 305,
       "name": {
-        "ja": "Awesome Slab",
-        "en": "Awesome Slab"
+        "ja": "ヘビー・ハイドロスプラッシュ or ハイドロスプラッシュ",
+        "en": "Awesome Slab or Awesome Slab"
       },
       "damageType": "magical",
-      "damageAmount": 204000,
+      "damageAmount": 145000,
       "target": "AoE"
     },
     {
-      "id": "tpl_153_k3giej",
-      "time": 305,
+      "id": "tpl_99_fxmbpl",
+      "time": 306,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_154_rgeios",
+      "id": "tpl_100_6g1mvm",
       "time": 308,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_155_q7bh9p",
-      "time": 309,
-      "name": {
-        "ja": "Cutback Blaze",
-        "en": "Cutback Blaze"
-      },
-      "damageType": "magical",
-      "damageAmount": 138000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_156_44jced",
+      "id": "tpl_101_rjm06v",
       "time": 309,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "フレイムカットバック",
+        "en": "Cutback Blaze"
       },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageType": "magical",
+      "damageAmount": 135000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_157_km4af2",
+      "id": "tpl_102_ekwusc",
       "time": 311,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 63800,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_158_fsb949",
-      "time": 312,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_159_36uc25",
+      "id": "tpl_103_j7q2ci",
       "time": 314,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_160_3ux2cx",
+      "id": "tpl_104_3w6ehr",
       "time": 315,
       "name": {
-        "ja": "Deep Impact",
+        "ja": "ディープインパクト",
         "en": "Deep Impact"
       },
       "damageType": "physical",
-      "damageAmount": 414000,
-      "target": "MT"
+      "damageAmount": 600000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_161_xndevh",
-      "time": 315,
-      "name": {
-        "ja": "Deep Impact",
-        "en": "Deep Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 400000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_162_k7z1e9",
-      "time": 316,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_163_0grr6x",
+      "id": "tpl_105_6lq5u8",
       "time": 317,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 55700,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_164_gd7pv6",
-      "time": 321,
+      "id": "tpl_106_1sv9ny",
+      "time": 322,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_rsy4al",
+      "time": 322,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_gpoyv1",
+      "time": 324,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_165_4vlgqo",
-      "time": 322,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 213000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_166_k83dg0",
-      "time": 322,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_167_ls8j6n",
-      "time": 323,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_168_tja66o",
+      "id": "tpl_109_i78at3",
       "time": 325,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_169_7dcq66",
-      "time": 325,
+      "id": "tpl_110_4p0i7x",
+      "time": 327,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_170_efn19t",
+      "id": "tpl_111_f2yyfn",
       "time": 328,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_171_co221d",
-      "time": 328,
+      "id": "tpl_112_8xxnh1",
+      "time": 330,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_172_0vhk9t",
+      "id": "tpl_113_57ao2a",
       "time": 331,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_173_mv8aqk",
-      "time": 333,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_174_uwm5n2",
+      "id": "tpl_114_kzrlmc",
       "time": 334,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_175_wo4gvy",
-      "time": 336,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_176_hmwsq9",
-      "time": 337,
-      "name": {
-        "ja": "Deep Aerial",
-        "en": "Deep Aerial"
-      },
-      "damageType": "magical",
-      "damageAmount": 84400,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_177_go8kyo",
+      "id": "tpl_115_vn09gk",
+      "time": 337,
+      "name": {
+        "ja": "ハイドロエアリアル",
+        "en": "Deep Aerial"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_o7a4qv",
       "time": 337,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_178_ijubb5",
+      "id": "tpl_117_rgh5e9",
       "time": 339,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_179_rwsgkj",
-      "time": 348,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_180_rpxhei",
+      "id": "tpl_118_nzextz",
       "time": 348,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 52200,
-      "target": "ST"
+      "damageAmount": 140000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_181_1jlnvr",
-      "time": 348,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 54100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_182_hz30sr",
+      "id": "tpl_119_iuljba",
       "time": 350,
       "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 8928,
       "target": "AoE"
     },
     {
-      "id": "tpl_183_tnqg9p",
-      "time": 355,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 56000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_184_56hyx2",
+      "id": "tpl_120_w2armm",
       "time": 356,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_185_e8jviy",
-      "time": 356,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 52200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_186_7f4fr4",
-      "time": 357,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 54600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_187_u6e141",
+      "id": "tpl_121_2ke5xw",
       "time": 358,
       "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 9000,
       "target": "AoE"
     },
     {
-      "id": "tpl_188_7tvu06",
+      "id": "tpl_122_1l5pjq",
       "time": 365,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_189_jsj40f",
-      "time": 365,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 54100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_190_f89cz4",
-      "time": 366,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 52200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_191_z4ownl",
-      "time": 366,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 54600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_192_3vizkn",
+      "id": "tpl_123_cfo4tn",
       "time": 367,
       "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 9000,
       "target": "AoE"
     },
     {
-      "id": "tpl_193_yxwmv2",
-      "time": 373,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 55700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_194_kip3nw",
+      "id": "tpl_124_v4prw5",
       "time": 374,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_195_n3hbyl",
-      "time": 374,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 52200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_196_ha0phh",
+      "id": "tpl_125_if8vw3",
       "time": 375,
       "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 9000,
       "target": "AoE"
     },
     {
-      "id": "tpl_197_v2v52v",
+      "id": "tpl_126_0jlix4",
       "time": 382,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_198_8uagdg",
-      "time": 382,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 56000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_199_dv5y57",
+      "id": "tpl_127_hlry09",
       "time": 384,
       "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 9000,
       "target": "AoE"
     },
     {
-      "id": "tpl_200_7a67pn",
+      "id": "tpl_128_41h84k",
       "time": 391,
       "name": {
-        "ja": "Xtreme Wave",
+        "ja": "エクストリームウェーブ",
         "en": "Xtreme Wave"
       },
       "damageType": "magical",
-      "damageAmount": 56600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_201_1s1xav",
-      "time": 391,
+      "id": "tpl_129_4fz3ql",
+      "time": 393,
       "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 52200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_202_ishqe7",
-      "time": 391,
-      "name": {
-        "ja": "Xtreme Wave",
-        "en": "Xtreme Wave"
-      },
-      "damageType": "magical",
-      "damageAmount": 53400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_203_vm7n1f",
-      "time": 392,
-      "name": {
-        "ja": "Scathing Steam",
+        "ja": "ミックスエクスプロージョン",
         "en": "Scathing Steam"
       },
       "damageType": "magical",
-      "damageAmount": 142000,
+      "damageAmount": 9000,
       "target": "AoE"
     },
     {
-      "id": "tpl_204_wsv9m9",
+      "id": "tpl_130_6wm992",
       "time": 401,
       "name": {
-        "ja": "Divers' Dare",
+        "ja": "ファイティングスピリット",
         "en": "Divers' Dare"
       },
       "damageType": "magical",
-      "damageAmount": 213000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_205_nj10nt",
+      "id": "tpl_131_v29t77",
       "time": 401,
       "name": {
-        "ja": "Divers' Dare",
+        "ja": "ファイティングスピリット",
         "en": "Divers' Dare"
       },
       "damageType": "magical",
-      "damageAmount": 108000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_206_el2kjl",
-      "time": 401,
-      "name": {
-        "ja": "テンペラグラッサ",
-        "en": "Tempera Grassa"
-      },
-      "damageType": "magical",
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_207_ejdqz1",
-      "time": 402,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_208_wirw4v",
+      "id": "tpl_132_uaxrwf",
       "time": 403,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_209_amyaj5",
+      "id": "tpl_133_t9il4j",
       "time": 403,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_210_y55hcz",
+      "id": "tpl_134_evo0aa",
       "time": 406,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_211_sv2pxq",
+      "id": "tpl_135_9eovvc",
       "time": 406,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_212_adoaaw",
-      "time": 409,
+      "id": "tpl_136_mhaqpr",
+      "time": 410,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_213_g8yifz",
-      "time": 409,
+      "id": "tpl_137_w0qwga",
+      "time": 410,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_214_p5vsnt",
-      "time": 415,
+      "id": "tpl_138_2962xj",
+      "time": 416,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_215_udq7jx",
-      "time": 417,
+      "id": "tpl_139_uk2d13",
+      "time": 419,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_216_ed3cgj",
-      "time": 418,
+      "id": "tpl_140_pieh5g",
+      "time": 419,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_217_gy3jcp",
-      "time": 421,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_218_1ts4kh",
+      "id": "tpl_141_61favd",
       "time": 422,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_219_vczae9",
+      "id": "tpl_142_sx707h",
       "time": 426,
       "name": {
-        "ja": "Alley-oop Inferno",
+        "ja": "フレイムアリウープ",
         "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_220_gu4kx6",
-      "time": 429,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_221_pmb5sg",
-      "time": 430,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_222_43s8zr",
+      "id": "tpl_143_3rgflj",
       "time": 432,
       "name": {
-        "ja": "Reverse Alley-oop",
-        "en": "Reverse Alley-oop"
+        "ja": "アリウープ",
+        "en": "Alley-Oop Inferno"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_223_ku36oa",
-      "time": 432,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_224_i09v09",
-      "time": 433,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_225_xjohhv",
-      "time": 433,
-      "name": {
-        "ja": "Reverse Alley-oop",
-        "en": "Reverse Alley-oop"
-      },
-      "damageType": "magical",
-      "damageAmount": 146000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_226_ap8i4y",
-      "time": 435,
-      "name": {
-        "ja": "Steam Burst",
-        "en": "Steam Burst"
-      },
-      "damageType": "magical",
-      "damageAmount": 54600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_227_7mfknu",
+      "id": "tpl_144_dto6lo",
       "time": 439,
       "name": {
-        "ja": "Freaky Pyrotation",
+        "ja": "フリーキー・パイロローテーション",
         "en": "Freaky Pyrotation"
       },
       "damageType": "magical",
-      "damageAmount": 197000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_228_m2tj6w",
-      "time": 441,
+      "id": "tpl_145_ajf71u",
+      "time": 444,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_229_83no1d",
-      "time": 443,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_230_efxfjn",
-      "time": 445,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_231_qmr5ex",
+      "id": "tpl_146_2pq23b",
       "time": 447,
       "name": {
-        "ja": "Sick Swell",
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_zj8lff",
+      "time": 447,
+      "name": {
+        "ja": "シック・スウェル",
         "en": "Sick Swell"
       },
       "damageType": "magical",
-      "damageAmount": 137000,
+      "damageAmount": 12000,
       "target": "AoE"
     },
     {
-      "id": "tpl_232_x0fztk",
-      "time": 448,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_233_dxu76y",
-      "time": 449,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 97000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_234_h8xd0l",
+      "id": "tpl_148_zs9sx1",
       "time": 450,
       "name": {
-        "ja": "Awesome Slab",
-        "en": "Awesome Slab"
-      },
-      "damageType": "magical",
-      "damageAmount": 204000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_235_8a8pdj",
-      "time": 454,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 213000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_236_t5wddn",
-      "time": 454,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_237_3qp3vl",
-      "time": 454,
-      "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 75400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_238_8l4p1o",
-      "time": 455,
-      "name": {
-        "ja": "Divers' Dare",
-        "en": "Divers' Dare"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_239_l6swy6",
+      "id": "tpl_149_bqflcg",
+      "time": 450,
+      "name": {
+        "ja": "ヘビー・ハイドロスプラッシュ or ハイドロスプラッシュ",
+        "en": "Awesome Slab or Awesome Slab"
+      },
+      "damageType": "magical",
+      "damageAmount": 145000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_g516vy",
+      "time": 455,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_vy9u50",
+      "time": 455,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_2ymudh",
       "time": 455,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_240_18o07v",
-      "time": 458,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_241_8k5udk",
-      "time": 458,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_242_mufmw5",
-      "time": 471,
-      "name": {
-        "ja": "Xtreme Firesnaking",
-        "en": "Xtreme Firesnaking"
-      },
-      "damageType": "magical",
-      "damageAmount": 204000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_243_a41zpw",
-      "time": 471,
+      "id": "tpl_153_4mb4gs",
+      "time": 458,
       "name": {
-        "ja": "Xtreme Watersnaking",
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_p7nu26",
+      "time": 458,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_6jc2jl",
+      "time": 461,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_13eg45",
+      "time": 470,
+      "name": {
+        "ja": "エクストリーム・ハイドロスネーキング",
         "en": "Xtreme Watersnaking"
       },
       "damageType": "magical",
-      "damageAmount": 201000,
+      "damageAmount": 210000,
       "target": "AoE"
     },
     {
-      "id": "tpl_244_41jaxg",
-      "time": 472,
+      "id": "tpl_157_8gm42v",
+      "time": 470,
+      "name": {
+        "ja": "エクストリーム・フレイムスネーキング",
+        "en": "Xtreme Firesnaking"
+      },
+      "damageType": "magical",
+      "damageAmount": 210000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_qc62v6",
+      "time": 473,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_245_wrg86d",
-      "time": 472,
+      "id": "tpl_159_e5znug",
+      "time": 473,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_246_1d9dlq",
-      "time": 488,
-      "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 87000,
+      "damageAmount": 89000,
       "target": "AoE"
     },
     {
-      "id": "tpl_247_61tbqs",
+      "id": "tpl_160_z6wlwg",
       "time": 488,
       "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 92100,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_248_gndzly",
+      "id": "tpl_161_4k1ej2",
       "time": 488,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 167000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_249_k2gtez",
+      "id": "tpl_162_nijzxj",
       "time": 488,
       "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 92500,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_250_e708vi",
+      "id": "tpl_163_mby0d9",
       "time": 490,
       "name": {
-        "ja": "Bailout",
+        "ja": "ベイルアウト",
         "en": "Bailout"
       },
       "damageType": "magical",
-      "damageAmount": 34900,
+      "damageAmount": 20000,
       "target": "AoE"
     },
     {
-      "id": "tpl_251_4rxsvx",
-      "time": 490,
-      "name": {
-        "ja": "Bailout",
-        "en": "Bailout"
-      },
-      "damageType": "magical",
-      "damageAmount": 17300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_252_i89c85",
-      "time": 498,
-      "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
-      },
-      "damageType": "magical",
-      "damageAmount": 89600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_253_9j6xfj",
-      "time": 498,
-      "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
-      },
-      "damageType": "magical",
-      "damageAmount": 91100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_254_ftciyy",
-      "time": 498,
-      "name": {
-        "ja": "Re-entry Plunge (TB)",
-        "en": "Re-entry Plunge (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 222000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_255_z7cxw5",
-      "time": 498,
-      "name": {
-        "ja": "Re-entry Blast (TB)",
-        "en": "Re-entry Blast (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 212000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_256_t42r8n",
-      "time": 498,
-      "name": {
-        "ja": "Vertical Plunge",
-        "en": "Vertical Plunge"
-      },
-      "damageType": "magical",
-      "damageAmount": 328000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_257_a01tv9",
-      "time": 498,
-      "name": {
-        "ja": "Vertical Blast",
-        "en": "Vertical Blast"
-      },
-      "damageType": "magical",
-      "damageAmount": 338000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_258_85o1eg",
+      "id": "tpl_164_0dpd2t",
       "time": 499,
       "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 88000,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_259_r77aob",
+      "id": "tpl_165_iyevx9",
       "time": 499,
       "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 84300,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_260_1o1qyn",
+      "id": "tpl_166_w1cmyt",
       "time": 499,
       "name": {
-        "ja": "Bailout",
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
+      },
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_6u8s0b",
+      "time": 500,
+      "name": {
+        "ja": "ベイルアウト",
         "en": "Bailout"
       },
       "damageType": "magical",
-      "damageAmount": 34900,
+      "damageAmount": 20000,
       "target": "AoE"
     },
     {
-      "id": "tpl_261_lm78ds",
-      "time": 508,
+      "id": "tpl_168_w2rsem",
+      "time": 509,
       "name": {
-        "ja": "Plunging Snap",
-        "en": "Plunging Snap"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 93400,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_262_fid4rv",
-      "time": 508,
+      "id": "tpl_169_3t2qj3",
+      "time": 509,
       "name": {
-        "ja": "Blasting Snap",
-        "en": "Blasting Snap"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 92400,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_263_wlyu8g",
-      "time": 510,
+      "id": "tpl_170_oa4wex",
+      "time": 509,
       "name": {
-        "ja": "Bailout",
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
+      },
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_e5nlqr",
+      "time": 511,
+      "name": {
+        "ja": "ベイルアウト",
         "en": "Bailout"
       },
       "damageType": "magical",
-      "damageAmount": 34900,
+      "damageAmount": 20000,
       "target": "AoE"
     },
     {
-      "id": "tpl_264_87yprc",
-      "time": 518,
+      "id": "tpl_172_mdkslq",
+      "time": 519,
       "name": {
-        "ja": "Re-entry Plunge",
-        "en": "Re-entry Plunge"
+        "ja": "フレイムエントリー or ハイドロエントリー",
+        "en": "Flame Entry or Hydro Entry"
       },
       "damageType": "magical",
-      "damageAmount": 92700,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_265_v8fhew",
-      "time": 518,
+      "id": "tpl_173_8wymwv",
+      "time": 519,
       "name": {
-        "ja": "Re-entry Blast",
-        "en": "Re-entry Blast"
+        "ja": "フレイムスナップ or ハイドロスナップ",
+        "en": "Blasting Snap or Plunging Snap"
       },
       "damageType": "magical",
-      "damageAmount": 91700,
+      "damageAmount": 100000,
       "target": "AoE"
     },
     {
-      "id": "tpl_266_umu3p0",
-      "time": 520,
+      "id": "tpl_174_80yrib",
+      "time": 519,
       "name": {
-        "ja": "Bailout",
-        "en": "Bailout"
+        "ja": "フレイムバーティカル or ハイドロバーティカル",
+        "en": "Vertical Blast or Vertical Plunge"
       },
       "damageType": "magical",
-      "damageAmount": 34900,
+      "damageAmount": 400000,
       "target": "AoE"
     },
     {
-      "id": "tpl_267_cp22rm",
-      "time": 522,
+      "id": "tpl_175_ujnts4",
+      "time": 521,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "ST"
+      "damageAmount": 89000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_268_zmk7ge",
-      "time": 522,
+      "id": "tpl_176_qynyq2",
+      "time": 521,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 107000,
-      "target": "MT"
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_177_bnrm0y",
+      "time": 521,
+      "name": {
+        "ja": "ベイルアウト",
+        "en": "Bailout"
+      },
+      "damageType": "magical",
+      "damageAmount": 20000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_178_3s4um1",
+      "time": 524,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_179_af702d",
+      "time": 524,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_180_l0uu9u",
+      "time": 529,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_181_lafcyq",
+      "time": 529,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_9srfap",
+      "time": 532,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_yi4rw3",
+      "time": 533,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_3x2vcq",
+      "time": 535,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_ukju5e",
+      "time": 538,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_186_nzwho7",
+      "time": 538,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_wd4778",
+      "time": 541,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_188_qvv255",
+      "time": 545,
+      "name": {
+        "ja": "アリウープ",
+        "en": "Alley-Oop Inferno"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_189_7c8rjc",
+      "time": 548,
+      "name": {
+        "ja": "フレイムアリウープ",
+        "en": "Alley-Oop Inferno"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_q6ds59",
+      "time": 548,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_rrlgzw",
+      "time": 551,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_5jetcr",
+      "time": 551,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_tm9bf2",
+      "time": 557,
+      "name": {
+        "ja": "パイロローテーション",
+        "en": "Pyrotation"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_byw2dc",
+      "time": 557,
+      "name": {
+        "ja": "ディープインパクト",
+        "en": "Deep Impact"
+      },
+      "damageType": "physical",
+      "damageAmount": 600000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_195_n78tbu",
+      "time": 558,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_gab7q9",
+      "time": 559,
+      "name": {
+        "ja": "パイロローテーション",
+        "en": "Pyrotation"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_197_8l470z",
+      "time": 560,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_lu2rzx",
+      "time": 561,
+      "name": {
+        "ja": "パイロローテーション",
+        "en": "Pyrotation"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_dqbjpv",
+      "time": 561,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_opvt8g",
+      "time": 563,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_fm68gx",
+      "time": 564,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_cf26lm",
+      "time": 570,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_203_dse6gj",
+      "time": 570,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_204_bg2em3",
+      "time": 571,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_205_drdekb",
+      "time": 573,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_206_0z6820",
+      "time": 579,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_207_0d9s2u",
+      "time": 579,
+      "name": {
+        "ja": "ファイティングスピリット",
+        "en": "Divers' Dare"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_208_gkitud",
+      "time": 579,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_209_y1pxrv",
+      "time": 582,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_210_8dtrqi",
+      "time": 582,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_211_zpzpew",
+      "time": 585,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_212_stt6sz",
+      "time": 585,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_wea9yi",
+      "time": 588,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_214_za414d",
+      "time": 588,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 89000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_215_b6r5ky",
+      "time": 600,
+      "name": {
+        "ja": "オーバー・ザ・フォール",
+        "en": "Over the Fall"
+      },
+      "damageType": "magical",
+      "damageAmount": 9999999,
+      "target": "AoE"
     }
   ],
   "phases": []

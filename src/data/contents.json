@@ -62,6 +62,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級2",
     "en": "AAC Cruiserweight M2 (Savage)",
+    "phaseNames": { "1": "Phase One", "2": "Phase Two", "3": "Phase Three" },
     "fflogsEncounterId": 98
   },
   {
@@ -71,6 +72,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級3",
     "en": "AAC Cruiserweight M3 (Savage)",
+    "phaseNames": { "1": "Phase One", "2": "Phase Two", "3": "Phase Three" },
     "fflogsEncounterId": 99
   },
   {
@@ -80,6 +82,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級4",
     "en": "AAC Cruiserweight M4 (Savage)",
+    "phaseNames": { "1": "Phase One", "2": "Phase Two" },
     "fflogsEncounterId": 100
   },
   {
@@ -90,7 +93,8 @@
     "ja": "絶もうひとつの未来",
     "en": "Futures Rewritten (Ultimate)",
     "shortNameJa": "FRU",
-    "fflogsEncounterId": 1079
+    "fflogsEncounterId": 1079,
+    "phaseNames": { "1": "Fatebreaker", "2": "Usurper of Frost", "3": "Oracle of Darkness", "4": "Enter the Dragon", "5": "Pandora" }
   },
   {
     "id": "m1s",
@@ -183,7 +187,8 @@
     "ja": "絶オメガ検証戦",
     "en": "The Omega Protocol (Ultimate)",
     "shortNameJa": "TOP",
-    "fflogsEncounterId": 1077
+    "fflogsEncounterId": 1077,
+    "phaseNames": { "1": "Omega", "2": "Omega-M/F", "3": "Omega Reconfigured", "4": "Blue Screen", "5": "Run: Dynamis", "6": "Alpha Omega" }
   },
   {
     "id": "p5s",
@@ -233,6 +238,17 @@
     "fflogsEncounterId": 87
   },
   {
+    "id": "dsr_p1",
+    "category": "ultimate",
+    "level": 90,
+    "patch": "6.11",
+    "ja": "絶竜詩戦争P1",
+    "en": "Dragonsong's Reprise P1",
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 1076,
+    "phaseNames": { "1": "Adelphel, Grinnaux and Charibert" }
+  },
+  {
     "id": "dsr",
     "category": "ultimate",
     "level": 90,
@@ -240,7 +256,9 @@
     "ja": "絶竜詩戦争",
     "en": "Dragonsong's Reprise (Ultimate)",
     "shortNameJa": "DSR",
-    "fflogsEncounterId": 1076
+    "hasCheckpoint": true,
+    "fflogsEncounterId": 1076,
+    "phaseNames": { "1": "King Thordan", "2": "Nidhogg", "3": "The Eyes", "4": "Rewind!", "5": "King Thordan II", "6": "Nidhogg and Hraesvelgr", "7": "The Dragon King" }
   },
   {
     "id": "p1s",
@@ -380,7 +398,8 @@
     "ja": "絶アレキサンダー討滅戦",
     "en": "The Epic of Alexander (Ultimate)",
     "shortNameJa": "TEA",
-    "fflogsEncounterId": 1075
+    "fflogsEncounterId": 1075,
+    "phaseNames": { "1": "Living Liquid", "2": "Limit Cut", "3": "Brute Justice and Cruise Chaser", "4": "Temporal Stasis", "5": "Alexander Prime", "6": "Perfect Alexander" }
   },
   {
     "id": "e1s",
@@ -473,7 +492,8 @@
     "ja": "絶アルテマウェポン破壊作戦",
     "en": "The Weapon's Refrain (Ultimate)",
     "shortNameJa": "UWU",
-    "fflogsEncounterId": 1074
+    "fflogsEncounterId": 1074,
+    "phaseNames": { "1": "Garuda", "2": "Ifrit", "3": "Titan", "4": "Magitek Bits", "5": "The Ultima Weapon" }
   },
   {
     "id": "o5s",
@@ -530,7 +550,8 @@
     "ja": "絶バハムート討滅戦",
     "en": "The Unending Coil of Bahamut (Ultimate)",
     "shortNameJa": "UCOB",
-    "fflogsEncounterId": 1073
+    "fflogsEncounterId": 1073,
+    "phaseNames": { "1": "Twintania", "2": "Nael deus Darnus", "3": "Bahamut Prime", "4": "Triple Threat", "5": "Reborn!" }
   },
   {
     "id": "o1s",

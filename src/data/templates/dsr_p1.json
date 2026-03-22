@@ -1,0 +1,730 @@
+{
+  "contentId": "dsr_p1",
+  "generatedAt": "2026-03-22T08:17:19.290Z",
+  "source": "spreadsheet",
+  "sourceSheetId": "1N-ZrBSEzxsVRsCmwScSeAGSCfaGMwv-Tl99zGozC5ss",
+  "timelineEvents": [
+    {
+      "id": "tpl_0_jlebg5",
+      "time": 2,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_1_5aascp",
+      "time": 2,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_o05z6g",
+      "time": 5,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_d2terq",
+      "time": 5,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_2a81rp",
+      "time": 8,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_5_sx4fjf",
+      "time": 9,
+      "name": {
+        "ja": "ホリエストホーリー",
+        "en": "Holiest of Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_hts6n1",
+      "time": 11,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_zlxbhk",
+      "time": 12,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_gu8fc9",
+      "time": 14,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_5geef1",
+      "time": 15,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_yjglxj",
+      "time": 17,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_fri5v5",
+      "time": 23,
+      "name": {
+        "ja": "ホーリーシールドバッシュ",
+        "en": "Holy Shield Bash"
+      },
+      "damageType": "physical",
+      "damageAmount": 380000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_3phm90",
+      "time": 26,
+      "name": {
+        "ja": "ホーリーブレードダンス",
+        "en": "Holy Bladedance"
+      },
+      "damageType": "physical",
+      "damageAmount": 27000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_npwnqd",
+      "time": 26,
+      "name": {
+        "ja": "ホーリーブレードダンス",
+        "en": "Holy Bladedance"
+      },
+      "damageType": "physical",
+      "damageAmount": 27000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_ae7n6y",
+      "time": 26,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_qq1qbs",
+      "time": 27,
+      "name": {
+        "ja": "ホーリーブレードダンス",
+        "en": "Holy Bladedance"
+      },
+      "damageType": "physical",
+      "damageAmount": 27000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_crt9uv",
+      "time": 28,
+      "name": {
+        "ja": "ホーリーブレードダンス",
+        "en": "Holy Bladedance"
+      },
+      "damageType": "physical",
+      "damageAmount": 27000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_leuj9n",
+      "time": 28,
+      "name": {
+        "ja": "ヘヴンブレイズ",
+        "en": "Heavensblaze"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_xkwcik",
+      "time": 28,
+      "name": {
+        "ja": "ホーリーブレードダンス",
+        "en": "Holy Bladedance"
+      },
+      "damageType": "physical",
+      "damageAmount": 27000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_pgrvtt",
+      "time": 29,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_g31h8e",
+      "time": 30,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_u7c2lp",
+      "time": 32,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_uer1bq",
+      "time": 33,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_ausxwh",
+      "time": 35,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_csws34",
+      "time": 36,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_f1kiix",
+      "time": 44,
+      "name": {
+        "ja": "ハイパーディメンション",
+        "en": "Planar Prison"
+      },
+      "damageType": "magical",
+      "damageAmount": 50000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_07vv5w",
+      "time": 51,
+      "name": {
+        "ja": "ハイパーディメンション",
+        "en": "Planar Prison"
+      },
+      "damageType": "magical",
+      "damageAmount": 50000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_taqw3l",
+      "time": 60,
+      "name": {
+        "ja": "ホリエストホーリー",
+        "en": "Holiest of Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_n8snuy",
+      "time": 62,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_szdphh",
+      "time": 65,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_c0k04l",
+      "time": 68,
+      "name": {
+        "ja": "エクスキューション",
+        "en": "Execution"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_cx1did",
+      "time": 68,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_ar5ar8",
+      "time": 70,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_v2qf1k",
+      "time": 74,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_41zqie",
+      "time": 77,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_4zrvrc",
+      "time": 77,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_nuii8c",
+      "time": 80,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_ko7lur",
+      "time": 80,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_qspmul",
+      "time": 83,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_ncriof",
+      "time": 87,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_ynwiok",
+      "time": 88,
+      "name": {
+        "ja": "ヘヴンフレイム",
+        "en": "Heavensflame"
+      },
+      "damageType": "magical",
+      "damageAmount": 66000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_7gxuea",
+      "time": 88,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_r65jzx",
+      "time": 94,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_zhyamj",
+      "time": 95,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_l4htyz",
+      "time": 97,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_nv11f4",
+      "time": 101,
+      "name": {
+        "ja": "ホリエストホーリー",
+        "en": "Holiest of Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_56c0e2",
+      "time": 105,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_gwzt6c",
+      "time": 109,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_snb0nk",
+      "time": 109,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_w0110x",
+      "time": 115,
+      "name": {
+        "ja": "グリノー_AA",
+        "en": "グリノー_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_y7hn2p",
+      "time": 115,
+      "name": {
+        "ja": "アデルフェル_AA",
+        "en": "アデルフェル_AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 32000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_1gr34p",
+      "time": 121,
+      "name": {
+        "ja": "ホリエストホーリー",
+        "en": "Holiest of Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 62000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_98f21r",
+      "time": 121,
+      "name": {
+        "ja": "ディメンションジェイル",
+        "en": "Planar Prison"
+      },
+      "damageType": "magical",
+      "damageAmount": 26000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_4oyk99",
+      "time": 133,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_6k3xse",
+      "time": 134,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_6busou",
+      "time": 135,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_a15jk9",
+      "time": 136,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_l2hiat",
+      "time": 137,
+      "name": {
+        "ja": "光翼閃",
+        "en": "Brightwing"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_sou0cg",
+      "time": 137,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_7gqsbd",
+      "time": 139,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_73zocj",
+      "time": 140,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 6000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_kr11va",
+      "time": 142,
+      "name": {
+        "ja": "光翼閃",
+        "en": "Brightwing"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_7yhj33",
+      "time": 147,
+      "name": {
+        "ja": "光翼閃",
+        "en": "Brightwing"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_q3t3cx",
+      "time": 152,
+      "name": {
+        "ja": "光翼閃",
+        "en": "Brightwing"
+      },
+      "damageType": "magical",
+      "damageAmount": 56000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_5q01um",
+      "time": 157,
+      "name": {
+        "ja": "ピュア・オブ・ハート",
+        "en": "Pure of Heart"
+      },
+      "damageType": "magical",
+      "damageAmount": 64000,
+      "target": "AoE"
+    }
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "startTimeSec": 0,
+      "name": "Adelphel, Grinnaux and Charibert"
+    }
+  ]
+}
