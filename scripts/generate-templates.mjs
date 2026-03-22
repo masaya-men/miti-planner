@@ -886,7 +886,7 @@ async function main() {
 
     console.log('');
     console.log('┌───────────────────────────────────────────┐');
-    console.log('│   Grapl Template Generator                │');
+    console.log('│   LoPo Template Generator                 │');
     console.log('│   FFLogs → Template JSON                  │');
     console.log('└───────────────────────────────────────────┘');
 

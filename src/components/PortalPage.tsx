@@ -82,7 +82,7 @@ export const PortalPage: React.FC = () => {
 
     // Set page title
     useEffect(() => {
-        document.title = "FF14 Toolbox";
+        document.title = "LoPo | FF14 軽減プランナー";
     }, []);
 
     const bgClass = "bg-slate-50 dark:bg-slate-950";

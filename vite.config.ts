@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/favicon-192x192.png', 'icons/favicon-512x512.png'],
       manifest: {
-        name: 'FF14 Toolbox — FF14 ツールボックス',
-        short_name: 'FF14 Toolbox',
-        description: 'FF14の冒険をサポートするツール（軽減プランナー、ハウジングツアー等）',
+        name: 'LoPo — FF14 軽減プランナー',
+        short_name: 'LoPo',
+        description: 'FF14の軽減プランをサクサク作れるウェブアプリ',
         theme_color: '#0f172a',
         background_color: '#020617',
         display: 'standalone',

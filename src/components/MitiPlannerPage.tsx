@@ -23,7 +23,7 @@ export const MitiPlannerPage: React.FC = () => {
 
     // Set page title
     useEffect(() => {
-        document.title = "MitiXIV | FF14 Toolbox";
+        document.title = "LoPo | 軽減プランナー";
     }, []);
 
     // Auto-start tutorial if timeline is empty (fresh state)

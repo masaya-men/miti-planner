@@ -1,1216 +1,1250 @@
 {
   "contentId": "p12s_p2",
-  "generatedAt": "2026-03-21T06:51:19.481Z",
+  "generatedAt": "2026-03-22T12:10:39.846Z",
   "sourceLogsCount": 1,
+  "sourceLog": "hXy3RwLtxJ4gHfYz#7",
   "timelineEvents": [
     {
-      "id": "tpl_0_sh7hh6",
+      "id": "tpl_0_ln8pgr",
       "time": 2,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_1_swr57e",
-      "time": 5,
+      "id": "tpl_1_ypyjwf",
+      "time": 3,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_2_xdfdcc",
-      "time": 6,
+      "id": "tpl_2_p6mwoy",
+      "time": 8,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_3_wncpej",
+      "id": "tpl_3_3pqqrq",
       "time": 11,
       "name": {
-        "ja": "On the Soul",
+        "ja": "オン・ザ・ソウル",
         "en": "On the Soul"
       },
       "damageType": "magical",
-      "damageAmount": 88300,
+      "damageAmount": 92600,
       "target": "AoE"
     },
     {
-      "id": "tpl_4_j29pub",
+      "id": "tpl_4_pltb2e",
       "time": 13,
       "name": {
-        "ja": "On the Soul",
+        "ja": "オン・ザ・ソウル",
         "en": "On the Soul"
       },
       "damageType": "magical",
-      "damageAmount": 88300,
+      "damageAmount": 92600,
       "target": "AoE"
     },
     {
-      "id": "tpl_5_zsd7r8",
+      "id": "tpl_5_66l5va",
       "time": 14,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_6_8zkvi8",
+      "id": "tpl_6_5tp529",
       "time": 17,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_7_6va753",
-      "time": 24,
+      "id": "tpl_7_6cy0ox",
+      "time": 23,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_8_31h6na",
-      "time": 27,
+      "id": "tpl_8_tjasf8",
+      "time": 26,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_9_ln5h20",
-      "time": 38,
+      "id": "tpl_9_llu1v2",
+      "time": 35,
       "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_10_0xesy2",
-      "time": 43,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_11_xb1cyh",
-      "time": 50,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_12_6hz9yv",
-      "time": 52,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_13_f04s9b",
-      "time": 55,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_14_34ub0b",
-      "time": 61,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_15_dtlh6a",
-      "time": 69,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_16_c9dwew",
-      "time": 72,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_17_vumaew",
-      "time": 75,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_18_69ckx4",
-      "time": 75,
-      "name": {
-        "ja": "Searing Radiance",
-        "en": "Searing Radiance"
-      },
-      "damageType": "magical",
-      "damageAmount": 61200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_19_ksu8vg",
-      "time": 76,
-      "name": {
-        "ja": "Shadowsear",
-        "en": "Shadowsear"
-      },
-      "damageType": "magical",
-      "damageAmount": 59200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_20_hi5c9a",
-      "time": 77,
-      "name": {
-        "ja": "Astral Glow",
-        "en": "Astral Glow"
-      },
-      "damageType": "magical",
-      "damageAmount": 58100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_21_r5tuk2",
-      "time": 77,
-      "name": {
-        "ja": "Umbral Glow",
-        "en": "Umbral Glow"
-      },
-      "damageType": "magical",
-      "damageAmount": 57400,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_22_bqa2fz",
-      "time": 80,
-      "name": {
-        "ja": "Astral Advance",
-        "en": "Astral Advance"
-      },
-      "damageType": "magical",
-      "damageAmount": 24700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_23_6l77gw",
-      "time": 80,
-      "name": {
-        "ja": "Umbral Advance",
-        "en": "Umbral Advance"
-      },
-      "damageType": "magical",
-      "damageAmount": 22800,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_24_g37dnh",
-      "time": 82,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_25_ixkunj",
-      "time": 89,
-      "name": {
-        "ja": "On the Soul",
-        "en": "On the Soul"
-      },
-      "damageType": "magical",
-      "damageAmount": 88300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_26_ygry2u",
-      "time": 90,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_27_ns8dy8",
-      "time": 91,
-      "name": {
-        "ja": "On the Soul",
-        "en": "On the Soul"
-      },
-      "damageType": "magical",
-      "damageAmount": 88300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_28_2do4op",
-      "time": 99,
-      "name": {
-        "ja": "Glaukopis",
-        "en": "Glaukopis"
-      },
-      "damageType": "magical",
-      "damageAmount": 177000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_29_a041dv",
-      "time": 102,
-      "name": {
-        "ja": "Glaukopis",
-        "en": "Glaukopis"
-      },
-      "damageType": "magical",
-      "damageAmount": 177000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_30_0ao62d",
-      "time": 104,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_31_womn8w",
-      "time": 107,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_32_7v6yq3",
-      "time": 110,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_33_endcte",
-      "time": 119,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_34_y7rz9b",
-      "time": 125,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_35_z270v2",
-      "time": 128,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_36_hvae7d",
-      "time": 129,
-      "name": {
-        "ja": "Superchain Emission",
-        "en": "Superchain Emission"
-      },
-      "damageType": "magical",
-      "damageAmount": 113000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_37_qeaa3v",
-      "time": 132,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_38_naixru",
-      "time": 135,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_39_3spqn6",
-      "time": 136,
-      "name": {
-        "ja": "Astral Impact",
-        "en": "Astral Impact"
-      },
-      "damageType": "magical",
-      "damageAmount": 70600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_40_19y4b1",
-      "time": 136,
-      "name": {
-        "ja": "Umbral Impact",
-        "en": "Umbral Impact"
-      },
-      "damageType": "magical",
-      "damageAmount": 70100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_41_vxgizh",
-      "time": 138,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_42_fojdb0",
-      "time": 141,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_43_vyh6km",
-      "time": 145,
-      "name": {
-        "ja": "Umbral Glow",
-        "en": "Umbral Glow"
-      },
-      "damageType": "magical",
-      "damageAmount": 57400,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_44_1jztcs",
-      "time": 145,
-      "name": {
-        "ja": "Astral Glow",
-        "en": "Astral Glow"
-      },
-      "damageType": "magical",
-      "damageAmount": 58100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_45_dunsex",
-      "time": 146,
-      "name": {
-        "ja": "Theos's Holy",
-        "en": "Theos's Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 59600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_46_5kla9r",
-      "time": 148,
-      "name": {
-        "ja": "Umbral Advance",
-        "en": "Umbral Advance"
-      },
-      "damageType": "magical",
-      "damageAmount": 22800,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_47_sj01pj",
-      "time": 148,
-      "name": {
-        "ja": "Astral Advance",
-        "en": "Astral Advance"
-      },
-      "damageType": "magical",
-      "damageAmount": 24700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_48_l5rt78",
-      "time": 172,
-      "name": {
-        "ja": "Peridialogos",
-        "en": "Peridialogos"
-      },
-      "damageType": "physical",
-      "damageAmount": 139000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_49_foufov",
-      "time": 173,
-      "name": {
-        "ja": "Dialogos",
-        "en": "Dialogos"
-      },
-      "damageType": "magical",
-      "damageAmount": 92000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_50_tvt3dh",
-      "time": 173,
-      "name": {
-        "ja": "Peridialogos",
-        "en": "Peridialogos"
-      },
-      "damageType": "physical",
-      "damageAmount": 139000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_51_9fvi75",
-      "time": 175,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_52_nbgli4",
-      "time": 180,
-      "name": {
-        "ja": "On the Soul",
-        "en": "On the Soul"
-      },
-      "damageType": "magical",
-      "damageAmount": 88300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_53_pdzcgh",
-      "time": 183,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_54_buy6jd",
-      "time": 186,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_55_2l1dsb",
-      "time": 189,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_56_y83qjj",
-      "time": 192,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_57_qyp96c",
-      "time": 198,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_58_s4n0ph",
-      "time": 205,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_59_swk8rj",
-      "time": 214,
-      "name": {
-        "ja": "Shock",
-        "en": "Shock"
-      },
-      "damageType": "magical",
-      "damageAmount": 24300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_60_cfpvx0",
-      "time": 216,
-      "name": {
-        "ja": "Searing Radiance",
-        "en": "Searing Radiance"
-      },
-      "damageType": "magical",
-      "damageAmount": 61200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_61_ec6o3y",
-      "time": 216,
-      "name": {
-        "ja": "Shadowsear",
-        "en": "Shadowsear"
-      },
-      "damageType": "magical",
-      "damageAmount": 59200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_62_t8o2wl",
-      "time": 217,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_16xf9y",
-      "time": 220,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_64_phfqbz",
-      "time": 222,
-      "name": {
-        "ja": "Astral Glow",
-        "en": "Astral Glow"
-      },
-      "damageType": "magical",
-      "damageAmount": 58100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_65_msfeo0",
-      "time": 224,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_66_vhbc5l",
-      "time": 226,
-      "name": {
-        "ja": "Astral Advance",
-        "en": "Astral Advance"
-      },
-      "damageType": "magical",
-      "damageAmount": 24700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_67_qn03r3",
-      "time": 233,
-      "name": {
-        "ja": "On the Soul",
-        "en": "On the Soul"
-      },
-      "damageType": "magical",
-      "damageAmount": 88300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_68_5s1ird",
-      "time": 234,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_69_b8hdey",
-      "time": 237,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_70_2xmvji",
-      "time": 245,
-      "name": {
-        "ja": "Glaukopis",
-        "en": "Glaukopis"
-      },
-      "damageType": "magical",
-      "damageAmount": 177000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_71_mc2vzq",
-      "time": 247,
-      "name": {
-        "ja": "Glaukopis",
-        "en": "Glaukopis"
-      },
-      "damageType": "magical",
-      "damageAmount": 177000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_72_rozyei",
-      "time": 250,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_73_3a27mu",
-      "time": 253,
-      "name": {
-        "ja": "attack",
-        "en": "attack"
-      },
-      "damageType": "magical",
-      "damageAmount": 305000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_74_ahvhvb",
-      "time": 269,
-      "name": {
-        "ja": "Ultima Blade",
-        "en": "Ultima Blade"
-      },
-      "damageType": "magical",
-      "damageAmount": 80400,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_75_h58a91",
-      "time": 292,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_76_6pojw9",
-      "time": 292,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_77_yhr0fg",
-      "time": 295,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_78_xe9dmd",
-      "time": 295,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_79_e1k4ab",
-      "time": 298,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_80_2pbls5",
-      "time": 298,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_81_bwod1c",
-      "time": 299,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_82_j6oaca",
-      "time": 301,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_83_oc10sy",
-      "time": 302,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_84_t7corw",
-      "time": 302,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_85_stzseh",
-      "time": 304,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_86_yu8pyb",
-      "time": 305,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_87_k86jjm",
-      "time": 305,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_88_l0el8t",
-      "time": 307,
-      "name": {
-        "ja": "White Flame",
-        "en": "White Flame"
-      },
-      "damageType": "magical",
-      "damageAmount": 416000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_89_hwt30h",
-      "time": 308,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_90_8f8270",
-      "time": 308,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_91_pn2ovh",
-      "time": 311,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_92_6k7lsy",
-      "time": 311,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_93_wwt15k",
-      "time": 314,
-      "name": {
-        "ja": "Palladion",
-        "en": "Palladion"
-      },
-      "damageType": "magical",
-      "damageAmount": 93200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_94_8384w2",
-      "time": 314,
-      "name": {
-        "ja": "Shockwave",
-        "en": "Shockwave"
-      },
-      "damageType": "magical",
-      "damageAmount": 31000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_95_i5j4y7",
-      "time": 338,
-      "name": {
-        "ja": "Theos's Ultima",
-        "en": "Theos's Ultima"
+        "ja": "ボーライド",
+        "en": "Superbolide"
       },
       "damageType": "magical",
       "damageAmount": 123000,
       "target": "AoE"
     },
     {
-      "id": "tpl_96_h99gva",
+      "id": "tpl_10_qjzddo",
+      "time": 38,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_uylbtq",
+      "time": 43,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_wynvor",
+      "time": 49,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_0iddp2",
+      "time": 52,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_om59cy",
+      "time": 55,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_eaxen3",
+      "time": 61,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_s8y8ia",
+      "time": 69,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_6pc2o3",
+      "time": 71,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_c2i0v0",
+      "time": 75,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_m5a7e4",
+      "time": 76,
+      "name": {
+        "ja": "レイディアンス",
+        "en": "Searing Radiance"
+      },
+      "damageType": "magical",
+      "damageAmount": 58700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_9wr0l0",
+      "time": 76,
+      "name": {
+        "ja": "シャドーシアー",
+        "en": "Shadowsear"
+      },
+      "damageType": "magical",
+      "damageAmount": 60800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_58bxor",
+      "time": 77,
+      "name": {
+        "ja": "アストラルグロウ",
+        "en": "Astral Glow"
+      },
+      "damageType": "magical",
+      "damageAmount": 59800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_o6rqzq",
+      "time": 77,
+      "name": {
+        "ja": "アンブラルグロウ",
+        "en": "Umbral Glow"
+      },
+      "damageType": "magical",
+      "damageAmount": 76200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_42lr7n",
+      "time": 80,
+      "name": {
+        "ja": "アストラルアドバンス",
+        "en": "Astral Advance"
+      },
+      "damageType": "magical",
+      "damageAmount": 25400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_ttqje2",
+      "time": 80,
+      "name": {
+        "ja": "アンブラルアドバンス",
+        "en": "Umbral Advance"
+      },
+      "damageType": "magical",
+      "damageAmount": 24700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_ywo5y7",
+      "time": 83,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_vbdviq",
+      "time": 89,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_zjgz0d",
+      "time": 90,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_exwjbq",
+      "time": 91,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_9euwa8",
+      "time": 99,
+      "name": {
+        "ja": "グラウコピス",
+        "en": "Glaukopis"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_zd2rno",
+      "time": 102,
+      "name": {
+        "ja": "グラウコピス",
+        "en": "Glaukopis"
+      },
+      "damageType": "magical",
+      "damageAmount": 167000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_6wbdh6",
+      "time": 104,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_mhk40s",
+      "time": 107,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_qyniuf",
+      "time": 110,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_zt98pt",
+      "time": 119,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_4nj4k6",
+      "time": 125,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_ti9nk4",
+      "time": 128,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_z1dilg",
+      "time": 129,
+      "name": {
+        "ja": "スーパーチェイン・ラジエーション",
+        "en": "Superchain Radiation"
+      },
+      "damageType": "magical",
+      "damageAmount": 61300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_63p3c8",
+      "time": 132,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_szlphi",
+      "time": 135,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_jfx5zc",
+      "time": 137,
+      "name": {
+        "ja": "霊撃",
+        "en": "Umbral Impact"
+      },
+      "damageType": "magical",
+      "damageAmount": 87600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_kti24p",
+      "time": 137,
+      "name": {
+        "ja": "星撃",
+        "en": "Astral Impact"
+      },
+      "damageType": "magical",
+      "damageAmount": 70400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_i5goid",
+      "time": 138,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_4c72xc",
+      "time": 142,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_tfw0j5",
+      "time": 145,
+      "name": {
+        "ja": "アストラルグロウ",
+        "en": "Astral Glow"
+      },
+      "damageType": "magical",
+      "damageAmount": 59800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_yldi8t",
+      "time": 145,
+      "name": {
+        "ja": "アンブラルグロウ",
+        "en": "Umbral Glow"
+      },
+      "damageType": "magical",
+      "damageAmount": 76200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_mporcc",
+      "time": 146,
+      "name": {
+        "ja": "テオス・ホーリー",
+        "en": "Theos's Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 61400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_5jg4mk",
+      "time": 148,
+      "name": {
+        "ja": "アストラルアドバンス",
+        "en": "Astral Advance"
+      },
+      "damageType": "magical",
+      "damageAmount": 25400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_s027d2",
+      "time": 148,
+      "name": {
+        "ja": "アンブラルアドバンス",
+        "en": "Umbral Advance"
+      },
+      "damageType": "magical",
+      "damageAmount": 24700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_ky7rjs",
+      "time": 172,
+      "name": {
+        "ja": "ペリ・ディアロゴス",
+        "en": "Peridialogos"
+      },
+      "damageType": "physical",
+      "damageAmount": 285000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_ug9kjv",
+      "time": 173,
+      "name": {
+        "ja": "ディアロゴス",
+        "en": "Dialogos"
+      },
+      "damageType": "magical",
+      "damageAmount": 285000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_9bviyx",
+      "time": 173,
+      "name": {
+        "ja": "ペリ・ディアロゴス",
+        "en": "Peridialogos"
+      },
+      "damageType": "physical",
+      "damageAmount": 285000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_y6k60z",
+      "time": 175,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_gaqz7x",
+      "time": 180,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_d84lqs",
+      "time": 182,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_7le1ue",
+      "time": 183,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_srefei",
+      "time": 186,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_jthh0i",
+      "time": 189,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_j7erlz",
+      "time": 192,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_epd3gy",
+      "time": 198,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_xtgmm0",
+      "time": 205,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_6pgt3o",
+      "time": 214,
+      "name": {
+        "ja": "放電",
+        "en": "Shock"
+      },
+      "damageType": "magical",
+      "damageAmount": 8120,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_3z7los",
+      "time": 216,
+      "name": {
+        "ja": "レイディアンス",
+        "en": "Searing Radiance"
+      },
+      "damageType": "magical",
+      "damageAmount": 58700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_kk41da",
+      "time": 216,
+      "name": {
+        "ja": "シャドーシアー",
+        "en": "Shadowsear"
+      },
+      "damageType": "magical",
+      "damageAmount": 60800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_wqzw1x",
+      "time": 218,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_y53ara",
+      "time": 220,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_1xifj9",
+      "time": 222,
+      "name": {
+        "ja": "アンブラルグロウ",
+        "en": "Umbral Glow"
+      },
+      "damageType": "magical",
+      "damageAmount": 76200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_nre8f9",
+      "time": 224,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_ssgnpj",
+      "time": 226,
+      "name": {
+        "ja": "アンブラルアドバンス",
+        "en": "Umbral Advance"
+      },
+      "damageType": "magical",
+      "damageAmount": 24700,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_q728h2",
+      "time": 233,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_zgfv48",
+      "time": 234,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_a7yqoc",
+      "time": 237,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_aflu17",
+      "time": 245,
+      "name": {
+        "ja": "グラウコピス",
+        "en": "Glaukopis"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_eyej2x",
+      "time": 248,
+      "name": {
+        "ja": "グラウコピス",
+        "en": "Glaukopis"
+      },
+      "damageType": "magical",
+      "damageAmount": 167000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_ieipcm",
+      "time": 250,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_e0sdrs",
+      "time": 253,
+      "name": {
+        "ja": "attack",
+        "en": "attack"
+      },
+      "damageType": "magical",
+      "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_9pz23f",
+      "time": 269,
+      "name": {
+        "ja": "アルテマブレイド",
+        "en": "Ultima Blade"
+      },
+      "damageType": "magical",
+      "damageAmount": 83200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_ltxbyi",
+      "time": 293,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_3j5u15",
+      "time": 293,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_79_gehrxm",
+      "time": 293,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_fg0xk4",
+      "time": 296,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_6d4zz9",
+      "time": 296,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_opy21o",
+      "time": 299,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_i2cs8t",
+      "time": 299,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_li9qx0",
+      "time": 302,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_f3x5ye",
+      "time": 302,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_o2l2dq",
+      "time": 302,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_gr57dk",
+      "time": 305,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_ee3pvd",
+      "time": 305,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_89_xen0j2",
+      "time": 308,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_lfea6r",
+      "time": 308,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_b2gvwe",
+      "time": 308,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_abtbm7",
+      "time": 310,
+      "name": {
+        "ja": "白火",
+        "en": "White Flame"
+      },
+      "damageType": "magical",
+      "damageAmount": 78200,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_szhfnc",
+      "time": 311,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_fd7l0y",
+      "time": 312,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_lj1wd1",
+      "time": 314,
+      "name": {
+        "ja": "衝撃波",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "damageAmount": 8710,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_19uf7l",
+      "time": 315,
+      "name": {
+        "ja": "パラディオン",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "damageAmount": 76400,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_s13y41",
+      "time": 339,
+      "name": {
+        "ja": "テオス・アルテマ",
+        "en": "Theos's Ultima"
+      },
+      "damageType": "magical",
+      "damageAmount": 124000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_num0c5",
       "time": 343,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_97_fd4hfo",
+      "id": "tpl_99_edopq1",
       "time": 346,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_98_lgzy84",
+      "id": "tpl_100_ryic90",
       "time": 349,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_99_gynrbv",
-      "time": 357,
+      "id": "tpl_101_uhfemv",
+      "time": 359,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_100_8j6zem",
-      "time": 367,
+      "id": "tpl_102_suv33n",
+      "time": 368,
       "name": {
-        "ja": "Superchain Emission",
+        "ja": "スーパーチェイン・エミッション",
         "en": "Superchain Emission"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 61700,
       "target": "AoE"
     },
     {
-      "id": "tpl_101_rv91zd",
+      "id": "tpl_103_gdmvyo",
       "time": 376,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_102_lgsypg",
-      "time": 376,
+      "id": "tpl_104_d4we89",
+      "time": 377,
       "name": {
-        "ja": "Superchain Emission",
+        "ja": "スーパーチェイン・エミッション",
         "en": "Superchain Emission"
       },
       "damageType": "magical",
-      "damageAmount": 113000,
+      "damageAmount": 61700,
       "target": "AoE"
     },
     {
-      "id": "tpl_103_idcgoh",
-      "time": 382,
+      "id": "tpl_105_16e1dz",
+      "time": 384,
       "name": {
-        "ja": "Apodialogos",
-        "en": "Apodialogos"
+        "ja": "ペリ・ディアロゴス",
+        "en": "Peridialogos"
       },
       "damageType": "physical",
-      "damageAmount": 140000,
+      "damageAmount": 285000,
       "target": "AoE"
     },
     {
-      "id": "tpl_104_t3mh3w",
-      "time": 383,
+      "id": "tpl_106_e06y8h",
+      "time": 384,
       "name": {
-        "ja": "Dialogos",
+        "ja": "ディアロゴス",
         "en": "Dialogos"
       },
       "damageType": "magical",
-      "damageAmount": 92000,
+      "damageAmount": 285000,
       "target": "AoE"
     },
     {
-      "id": "tpl_105_sklzut",
+      "id": "tpl_107_g1693a",
       "time": 385,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_106_526qjd",
+      "id": "tpl_108_f2hyvr",
       "time": 390,
       "name": {
-        "ja": "On the Soul",
+        "ja": "オン・ザ・ソウル",
         "en": "On the Soul"
       },
       "damageType": "magical",
-      "damageAmount": 88300,
+      "damageAmount": 92600,
       "target": "AoE"
     },
     {
-      "id": "tpl_107_ocq86z",
-      "time": 394,
+      "id": "tpl_109_fqdbrs",
+      "time": 392,
+      "name": {
+        "ja": "オン・ザ・ソウル",
+        "en": "On the Soul"
+      },
+      "damageType": "magical",
+      "damageAmount": 92600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_rqc1g1",
+      "time": 393,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_108_3j5vlh",
-      "time": 397,
+      "id": "tpl_111_2hqmpz",
+      "time": 396,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     },
     {
-      "id": "tpl_109_pzky6d",
+      "id": "tpl_112_dootx5",
       "time": 399,
       "name": {
         "ja": "attack",
         "en": "attack"
       },
       "damageType": "magical",
-      "damageAmount": 305000,
+      "damageAmount": 49600,
       "target": "AoE"
     }
   ],

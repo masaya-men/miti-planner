@@ -6,7 +6,7 @@
         "unassigned": "未設定"
     },
     "app": {
-        "title": "FF14 軽減シミュレーター",
+        "title": "LoPo 軽減プランナー",
         "language": "言語",
         "timeline": "タイムライン",
         "party": "パーティ構成",
@@ -271,7 +271,7 @@
         "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。"
     },
     "portal": {
-        "title": "FF14 ツールボックス",
+        "title": "LoPo",
         "subtitle": "軽減プランナーやハウジングツアーなど、冒険をサポートするツール群",
         "coming_soon": "準備中",
         "tools": {

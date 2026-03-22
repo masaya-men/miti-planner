@@ -1,11 +1,11 @@
 {
   "contentId": "p12s_p1",
-  "generatedAt": "2026-03-22T08:45:58.985Z",
+  "generatedAt": "2026-03-22T12:10:39.845Z",
   "sourceLogsCount": 1,
   "sourceLog": "hXy3RwLtxJ4gHfYz#7",
   "timelineEvents": [
     {
-      "id": "tpl_0_u0elco",
+      "id": "tpl_0_ln8pgr",
       "time": 2,
       "name": {
         "ja": "attack",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_z58wvg",
+      "id": "tpl_1_ypyjwf",
       "time": 3,
       "name": {
         "ja": "attack",
@@ -27,7 +27,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_adf8it",
+      "id": "tpl_2_p6mwoy",
       "time": 8,
       "name": {
         "ja": "attack",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_s3zryb",
+      "id": "tpl_3_3pqqrq",
       "time": 11,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_ko0mz2",
+      "id": "tpl_4_pltb2e",
       "time": 13,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -60,7 +60,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_5jqw9j",
+      "id": "tpl_5_66l5va",
       "time": 14,
       "name": {
         "ja": "attack",
@@ -71,7 +71,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_emmfr4",
+      "id": "tpl_6_5tp529",
       "time": 17,
       "name": {
         "ja": "attack",
@@ -82,7 +82,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_j25aim",
+      "id": "tpl_7_6cy0ox",
       "time": 23,
       "name": {
         "ja": "attack",
@@ -93,7 +93,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_rwmi4d",
+      "id": "tpl_8_tjasf8",
       "time": 26,
       "name": {
         "ja": "attack",
@@ -104,7 +104,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_rvyn0x",
+      "id": "tpl_9_llu1v2",
       "time": 35,
       "name": {
         "ja": "ボーライド",
@@ -115,7 +115,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_zs2o0h",
+      "id": "tpl_10_qjzddo",
       "time": 38,
       "name": {
         "ja": "白火",
@@ -126,7 +126,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_bnjqqz",
+      "id": "tpl_11_uylbtq",
       "time": 43,
       "name": {
         "ja": "白火",
@@ -137,7 +137,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_06xfgo",
+      "id": "tpl_12_wynvor",
       "time": 49,
       "name": {
         "ja": "attack",
@@ -148,7 +148,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_euix6c",
+      "id": "tpl_13_0iddp2",
       "time": 52,
       "name": {
         "ja": "attack",
@@ -159,7 +159,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_o7ygin",
+      "id": "tpl_14_om59cy",
       "time": 55,
       "name": {
         "ja": "attack",
@@ -170,7 +170,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_verphy",
+      "id": "tpl_15_eaxen3",
       "time": 61,
       "name": {
         "ja": "attack",
@@ -181,7 +181,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_lmpbfp",
+      "id": "tpl_16_s8y8ia",
       "time": 69,
       "name": {
         "ja": "attack",
@@ -192,7 +192,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_c60wop",
+      "id": "tpl_17_6pc2o3",
       "time": 71,
       "name": {
         "ja": "attack",
@@ -203,7 +203,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_e8hzgu",
+      "id": "tpl_18_c2i0v0",
       "time": 75,
       "name": {
         "ja": "attack",
@@ -214,7 +214,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_te8ctp",
+      "id": "tpl_19_m5a7e4",
       "time": 76,
       "name": {
         "ja": "レイディアンス",
@@ -225,7 +225,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_2apxfy",
+      "id": "tpl_20_9wr0l0",
       "time": 76,
       "name": {
         "ja": "シャドーシアー",
@@ -236,7 +236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_khfwlp",
+      "id": "tpl_21_58bxor",
       "time": 77,
       "name": {
         "ja": "アストラルグロウ",
@@ -247,7 +247,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_wiq8yu",
+      "id": "tpl_22_o6rqzq",
       "time": 77,
       "name": {
         "ja": "アンブラルグロウ",
@@ -258,7 +258,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_9vjvrb",
+      "id": "tpl_23_42lr7n",
       "time": 80,
       "name": {
         "ja": "アストラルアドバンス",
@@ -269,7 +269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_habwul",
+      "id": "tpl_24_ttqje2",
       "time": 80,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -280,7 +280,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_jwcr95",
+      "id": "tpl_25_ywo5y7",
       "time": 83,
       "name": {
         "ja": "attack",
@@ -291,7 +291,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_glkhs9",
+      "id": "tpl_26_vbdviq",
       "time": 89,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -302,7 +302,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_gw8qdz",
+      "id": "tpl_27_zjgz0d",
       "time": 90,
       "name": {
         "ja": "attack",
@@ -313,7 +313,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_kay6ru",
+      "id": "tpl_28_exwjbq",
       "time": 91,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -324,7 +324,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_b5nxgd",
+      "id": "tpl_29_9euwa8",
       "time": 99,
       "name": {
         "ja": "グラウコピス",
@@ -335,7 +335,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_i1ahk8",
+      "id": "tpl_30_zd2rno",
       "time": 102,
       "name": {
         "ja": "グラウコピス",
@@ -346,7 +346,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_b1cdpk",
+      "id": "tpl_31_6wbdh6",
       "time": 104,
       "name": {
         "ja": "attack",
@@ -357,7 +357,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_51dib2",
+      "id": "tpl_32_mhk40s",
       "time": 107,
       "name": {
         "ja": "attack",
@@ -368,7 +368,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_j23bv3",
+      "id": "tpl_33_qyniuf",
       "time": 110,
       "name": {
         "ja": "attack",
@@ -379,7 +379,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_gv26bm",
+      "id": "tpl_34_zt98pt",
       "time": 119,
       "name": {
         "ja": "attack",
@@ -390,7 +390,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_lwcxg8",
+      "id": "tpl_35_4nj4k6",
       "time": 125,
       "name": {
         "ja": "attack",
@@ -401,7 +401,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_oi8r92",
+      "id": "tpl_36_ti9nk4",
       "time": 128,
       "name": {
         "ja": "attack",
@@ -412,7 +412,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_1zltik",
+      "id": "tpl_37_z1dilg",
       "time": 129,
       "name": {
         "ja": "スーパーチェイン・ラジエーション",
@@ -423,7 +423,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_ukx959",
+      "id": "tpl_38_63p3c8",
       "time": 132,
       "name": {
         "ja": "attack",
@@ -434,7 +434,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_2rmc66",
+      "id": "tpl_39_szlphi",
       "time": 135,
       "name": {
         "ja": "attack",
@@ -445,7 +445,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_9pl7pt",
+      "id": "tpl_40_jfx5zc",
       "time": 137,
       "name": {
         "ja": "霊撃",
@@ -456,7 +456,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_e8jffm",
+      "id": "tpl_41_kti24p",
       "time": 137,
       "name": {
         "ja": "星撃",
@@ -467,7 +467,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_4nerwq",
+      "id": "tpl_42_i5goid",
       "time": 138,
       "name": {
         "ja": "attack",
@@ -478,7 +478,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_r2rxym",
+      "id": "tpl_43_4c72xc",
       "time": 142,
       "name": {
         "ja": "attack",
@@ -489,7 +489,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_krixyw",
+      "id": "tpl_44_tfw0j5",
       "time": 145,
       "name": {
         "ja": "アストラルグロウ",
@@ -500,7 +500,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_fuhjq4",
+      "id": "tpl_45_yldi8t",
       "time": 145,
       "name": {
         "ja": "アンブラルグロウ",
@@ -511,7 +511,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_87kjm3",
+      "id": "tpl_46_mporcc",
       "time": 146,
       "name": {
         "ja": "テオス・ホーリー",
@@ -522,7 +522,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_8w0hv5",
+      "id": "tpl_47_5jg4mk",
       "time": 148,
       "name": {
         "ja": "アストラルアドバンス",
@@ -533,7 +533,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_uat210",
+      "id": "tpl_48_s027d2",
       "time": 148,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -544,7 +544,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_81c7wd",
+      "id": "tpl_49_ky7rjs",
       "time": 172,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -555,7 +555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_mx3y59",
+      "id": "tpl_50_ug9kjv",
       "time": 173,
       "name": {
         "ja": "ディアロゴス",
@@ -566,7 +566,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_ln3vg1",
+      "id": "tpl_51_9bviyx",
       "time": 173,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -577,7 +577,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_l8oiw2",
+      "id": "tpl_52_y6k60z",
       "time": 175,
       "name": {
         "ja": "attack",
@@ -588,7 +588,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_v7lprm",
+      "id": "tpl_53_gaqz7x",
       "time": 180,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -599,7 +599,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_nfon0s",
+      "id": "tpl_54_d84lqs",
       "time": 182,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -610,7 +610,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_auc0lr",
+      "id": "tpl_55_7le1ue",
       "time": 183,
       "name": {
         "ja": "attack",
@@ -621,7 +621,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_tue2pt",
+      "id": "tpl_56_srefei",
       "time": 186,
       "name": {
         "ja": "attack",
@@ -632,7 +632,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_s20u94",
+      "id": "tpl_57_jthh0i",
       "time": 189,
       "name": {
         "ja": "attack",
@@ -643,7 +643,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_f64f6d",
+      "id": "tpl_58_j7erlz",
       "time": 192,
       "name": {
         "ja": "attack",
@@ -654,7 +654,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_7n7yth",
+      "id": "tpl_59_epd3gy",
       "time": 198,
       "name": {
         "ja": "attack",
@@ -665,7 +665,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_qbozg8",
+      "id": "tpl_60_xtgmm0",
       "time": 205,
       "name": {
         "ja": "attack",
@@ -676,7 +676,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_6otfqj",
+      "id": "tpl_61_6pgt3o",
       "time": 214,
       "name": {
         "ja": "放電",
@@ -687,7 +687,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_0vqubg",
+      "id": "tpl_62_3z7los",
       "time": 216,
       "name": {
         "ja": "レイディアンス",
@@ -698,7 +698,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_jsx5mj",
+      "id": "tpl_63_kk41da",
       "time": 216,
       "name": {
         "ja": "シャドーシアー",
@@ -709,7 +709,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_u0dlpe",
+      "id": "tpl_64_wqzw1x",
       "time": 218,
       "name": {
         "ja": "attack",
@@ -720,7 +720,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_wvedmu",
+      "id": "tpl_65_y53ara",
       "time": 220,
       "name": {
         "ja": "attack",
@@ -731,7 +731,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_3surh3",
+      "id": "tpl_66_1xifj9",
       "time": 222,
       "name": {
         "ja": "アンブラルグロウ",
@@ -742,7 +742,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_edsw03",
+      "id": "tpl_67_nre8f9",
       "time": 224,
       "name": {
         "ja": "白火",
@@ -753,7 +753,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_vkbxxi",
+      "id": "tpl_68_ssgnpj",
       "time": 226,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -764,7 +764,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_en4ias",
+      "id": "tpl_69_q728h2",
       "time": 233,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -775,7 +775,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_2emtcr",
+      "id": "tpl_70_zgfv48",
       "time": 234,
       "name": {
         "ja": "attack",
@@ -786,7 +786,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_mf3xcr",
+      "id": "tpl_71_a7yqoc",
       "time": 237,
       "name": {
         "ja": "attack",
@@ -797,7 +797,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_j498uo",
+      "id": "tpl_72_aflu17",
       "time": 245,
       "name": {
         "ja": "グラウコピス",
@@ -808,7 +808,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_j5libf",
+      "id": "tpl_73_eyej2x",
       "time": 248,
       "name": {
         "ja": "グラウコピス",
@@ -819,7 +819,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_g2i6ij",
+      "id": "tpl_74_ieipcm",
       "time": 250,
       "name": {
         "ja": "attack",
@@ -830,7 +830,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_p1zgww",
+      "id": "tpl_75_e0sdrs",
       "time": 253,
       "name": {
         "ja": "attack",
@@ -841,7 +841,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_s2w6np",
+      "id": "tpl_76_9pz23f",
       "time": 269,
       "name": {
         "ja": "アルテマブレイド",
@@ -852,7 +852,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_ehnnj9",
+      "id": "tpl_77_ltxbyi",
       "time": 293,
       "name": {
         "ja": "衝撃波",
@@ -863,7 +863,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_3r2ve8",
+      "id": "tpl_78_3j5u15",
       "time": 293,
       "name": {
         "ja": "白火",
@@ -874,7 +874,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_jlx6gi",
+      "id": "tpl_79_gehrxm",
       "time": 293,
       "name": {
         "ja": "パラディオン",
@@ -885,7 +885,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_3bpga8",
+      "id": "tpl_80_fg0xk4",
       "time": 296,
       "name": {
         "ja": "衝撃波",
@@ -896,7 +896,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_uvtzuq",
+      "id": "tpl_81_6d4zz9",
       "time": 296,
       "name": {
         "ja": "パラディオン",
@@ -907,7 +907,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_oke30l",
+      "id": "tpl_82_opy21o",
       "time": 299,
       "name": {
         "ja": "パラディオン",
@@ -918,7 +918,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_qwtdi5",
+      "id": "tpl_83_i2cs8t",
       "time": 299,
       "name": {
         "ja": "衝撃波",
@@ -929,7 +929,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_8he1u0",
+      "id": "tpl_84_li9qx0",
       "time": 302,
       "name": {
         "ja": "パラディオン",
@@ -940,7 +940,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_166kd8",
+      "id": "tpl_85_f3x5ye",
       "time": 302,
       "name": {
         "ja": "衝撃波",
@@ -951,7 +951,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_ed873z",
+      "id": "tpl_86_o2l2dq",
       "time": 302,
       "name": {
         "ja": "白火",
@@ -962,7 +962,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_467018",
+      "id": "tpl_87_gr57dk",
       "time": 305,
       "name": {
         "ja": "衝撃波",
@@ -973,7 +973,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_o2x25u",
+      "id": "tpl_88_ee3pvd",
       "time": 305,
       "name": {
         "ja": "パラディオン",
@@ -984,7 +984,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_i9f2lz",
+      "id": "tpl_89_xen0j2",
       "time": 308,
       "name": {
         "ja": "パラディオン",
@@ -995,7 +995,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_034u0i",
+      "id": "tpl_90_lfea6r",
       "time": 308,
       "name": {
         "ja": "衝撃波",
@@ -1006,7 +1006,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_0w1f4z",
+      "id": "tpl_91_b2gvwe",
       "time": 308,
       "name": {
         "ja": "白火",
@@ -1017,7 +1017,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_snon7a",
+      "id": "tpl_92_abtbm7",
       "time": 310,
       "name": {
         "ja": "白火",
@@ -1028,7 +1028,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_5ftzu6",
+      "id": "tpl_93_szhfnc",
       "time": 311,
       "name": {
         "ja": "衝撃波",
@@ -1039,7 +1039,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_kttixf",
+      "id": "tpl_94_fd7l0y",
       "time": 312,
       "name": {
         "ja": "パラディオン",
@@ -1050,7 +1050,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_3tzp1e",
+      "id": "tpl_95_lj1wd1",
       "time": 314,
       "name": {
         "ja": "衝撃波",
@@ -1061,7 +1061,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_7qzexx",
+      "id": "tpl_96_19uf7l",
       "time": 315,
       "name": {
         "ja": "パラディオン",
@@ -1072,7 +1072,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_khuzwf",
+      "id": "tpl_97_s13y41",
       "time": 339,
       "name": {
         "ja": "テオス・アルテマ",
@@ -1083,7 +1083,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_2v8z9f",
+      "id": "tpl_98_num0c5",
       "time": 343,
       "name": {
         "ja": "attack",
@@ -1094,7 +1094,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_rvhoon",
+      "id": "tpl_99_edopq1",
       "time": 346,
       "name": {
         "ja": "attack",
@@ -1105,7 +1105,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_3ku5on",
+      "id": "tpl_100_ryic90",
       "time": 349,
       "name": {
         "ja": "attack",
@@ -1116,7 +1116,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_lwky59",
+      "id": "tpl_101_uhfemv",
       "time": 359,
       "name": {
         "ja": "attack",
@@ -1127,7 +1127,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_qw0ff2",
+      "id": "tpl_102_suv33n",
       "time": 368,
       "name": {
         "ja": "スーパーチェイン・エミッション",
@@ -1138,7 +1138,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_ovcmob",
+      "id": "tpl_103_gdmvyo",
       "time": 376,
       "name": {
         "ja": "attack",
@@ -1149,7 +1149,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_z91m6v",
+      "id": "tpl_104_d4we89",
       "time": 377,
       "name": {
         "ja": "スーパーチェイン・エミッション",
@@ -1160,7 +1160,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_mxwc7y",
+      "id": "tpl_105_16e1dz",
       "time": 384,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -1171,7 +1171,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_106_hcxq45",
+      "id": "tpl_106_e06y8h",
       "time": 384,
       "name": {
         "ja": "ディアロゴス",
@@ -1182,7 +1182,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_107_qicgo9",
+      "id": "tpl_107_g1693a",
       "time": 385,
       "name": {
         "ja": "attack",
@@ -1193,7 +1193,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_d3eadi",
+      "id": "tpl_108_f2hyvr",
       "time": 390,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -1204,7 +1204,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_109_opppzc",
+      "id": "tpl_109_fqdbrs",
       "time": 392,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -1215,7 +1215,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_wmb0qe",
+      "id": "tpl_110_rqc1g1",
       "time": 393,
       "name": {
         "ja": "attack",
@@ -1226,7 +1226,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_y8ye6x",
+      "id": "tpl_111_2hqmpz",
       "time": 396,
       "name": {
         "ja": "attack",
@@ -1237,7 +1237,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_qcvry1",
+      "id": "tpl_112_dootx5",
       "time": 399,
       "name": {
         "ja": "attack",
@@ -1248,5 +1248,6 @@
       "target": "AoE"
     }
   ],
-  "phases": []
+  "phases": [],
+  "_warning": "Phase split data not available; full timeline included"
 }
