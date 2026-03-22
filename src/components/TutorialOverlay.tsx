@@ -243,7 +243,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             <UiTooltip content={t('common.close')}>
                 <button
                     onClick={requestExit}
-                    className="absolute top-4 right-4 p-1 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
+                    className="absolute top-4 right-4 p-1 rounded-lg text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
                 >
                     <X size={16} />
                 </button>
@@ -270,7 +270,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             <h3 className="text-lg font-bold text-app-text mb-3">{title}</h3>
 
             {/* Description */}
-            <p className="text-sm text-app-text-sec leading-relaxed mb-6 mx-auto max-w-[90%]">{description}</p>
+            <p className="text-sm text-app-text leading-relaxed mb-6 mx-auto max-w-[90%]">{description}</p>
 
             <div className="flex items-center justify-center">
                 <div>
@@ -339,7 +339,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 <div className="text-5xl mb-4">🎉</div>
 
                 <h3 className="text-xl font-bold text-app-text mb-3">{title}</h3>
-                <p className="text-sm text-app-text-sec leading-relaxed mb-6">{description}</p>
+                <p className="text-sm text-app-text leading-relaxed mb-6">{description}</p>
 
                 <button
                     onClick={onComplete}
@@ -537,7 +537,7 @@ export const TutorialOverlay: React.FC = () => {
                             <h3 className="text-lg font-bold text-app-text mb-3">
                                 {t('tutorial.restart_title')}
                             </h3>
-                            <p className="text-sm text-app-text-sec leading-relaxed mb-6">
+                            <p className="text-sm text-app-text leading-relaxed mb-6">
                                 {t('tutorial.restart_desc')}
                             </p>
                             <div className="flex gap-3 justify-center">
@@ -545,7 +545,7 @@ export const TutorialOverlay: React.FC = () => {
                                     onClick={() => useTutorialStore.getState().cancelRestart()}
                                     className={clsx(
                                         "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
-                                        "border-app-border text-app-text-muted hover:bg-app-surface2"
+                                        "border-app-border text-app-text hover:bg-app-surface2"
                                     )}
                                 >
                                     {t('tutorial.restart_cancel')}
@@ -640,20 +640,20 @@ export const TutorialOverlay: React.FC = () => {
                                 </h3>
                                 <button
                                     onClick={() => useTutorialStore.getState().cancelExit()}
-                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
                                 >
                                     <X size={18} />
                                 </button>
                             </div>
 
-                            <p className="text-sm text-app-text-sec leading-relaxed mb-10 text-left px-1 font-medium">
+                            <p className="text-sm text-app-text leading-relaxed mb-10 text-left px-1 font-medium">
                                 {t('tutorial.exit_desc')}
                             </p>
 
                             <div className="flex gap-4 justify-end items-center">
                                 <button
                                     onClick={() => useTutorialStore.getState().cancelExit()}
-                                    className="px-6 py-2 text-sm font-bold text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                                    className="px-6 py-2 text-sm font-bold text-app-text transition-colors cursor-pointer"
                                 >
                                     {t('tutorial.exit_cancel')}
                                 </button>

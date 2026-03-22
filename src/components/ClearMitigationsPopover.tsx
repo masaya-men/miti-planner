@@ -103,7 +103,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                 <Tooltip content={t('common.close', '閉じる')}>
                     <button
                         onClick={onClose}
-                        className="p-1.5 text-app-text-muted hover:text-app-text hover:bg-app-surface2 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-app-text hover:bg-app-surface2 rounded-lg transition-colors cursor-pointer"
                     >
                         <X size={14} />
                     </button>

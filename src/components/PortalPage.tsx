@@ -101,7 +101,7 @@ export const PortalPage: React.FC = () => {
             <div className="absolute top-4 right-4 z-50">
                 <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text-sec hover:text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
+                    className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
                     aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -135,7 +135,7 @@ export const PortalPage: React.FC = () => {
                 {/* Subtitle */}
                 <motion.p
                     variants={fadeUpVariants}
-                    className="text-app-text-sec text-center text-sm md:text-base mb-12 max-w-md"
+                    className="text-app-text text-center text-sm md:text-base mb-12 max-w-md"
                 >
                     {t('portal.subtitle', '軽減プランナーやハウジングツアーなど、冒険をサポートするツール群')}
                 </motion.p>
@@ -192,7 +192,7 @@ export const PortalPage: React.FC = () => {
                                 </h2>
 
                                 {/* Description */}
-                                <p className="relative z-10 text-sm text-app-text-sec text-center leading-relaxed">
+                                <p className="relative z-10 text-sm text-app-text text-center leading-relaxed">
                                     {t(`portal.tools.${card.id}.description`, '')}
                                 </p>
 

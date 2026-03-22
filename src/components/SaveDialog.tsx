@@ -70,7 +70,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                         </h2>
                         <button 
                             onClick={onClose} 
-                            className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text-muted hover:text-app-text cursor-pointer"
+                            className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
                         >
                             <X size={18} />
                         </button>
@@ -78,7 +78,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
 
                     <div className="p-6 space-y-6">
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('save_dialog.plan_name_label', 'Plan Name')}
                             </label>
                             <input
@@ -99,7 +99,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text-muted hover:bg-glass-hover hover:text-app-text transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                         >
                             {t('common.cancel', 'Cancel')}
                         </button>

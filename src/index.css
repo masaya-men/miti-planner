@@ -75,8 +75,8 @@
     --color-accent-dim: rgba(255, 255, 255, 0.08);
 
     --color-text-primary: #ffffff;
-    --color-text-secondary: #a1a1aa;
-    --color-text-muted: #71717a;
+    --color-text-secondary: #d4d4d8;
+    --color-text-muted: #a1a1aa;
     --color-text-on-accent: #000000;
 
     --color-border: rgba(255, 255, 255, 0.12);
@@ -103,8 +103,8 @@
     --color-accent-dim: rgba(0, 0, 0, 0.05);
 
     --color-text-primary: #000000;
-    --color-text-secondary: #52525b;
-    --color-text-muted: #a1a1aa;
+    --color-text-secondary: #27272a;
+    --color-text-muted: #52525b;
     --color-text-on-accent: #ffffff;
 
     --color-border: rgba(0, 0, 0, 0.12);

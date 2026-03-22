@@ -56,7 +56,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         <h2 className="text-sm font-bold text-white tracking-wide">
                             {t('migration.title')}
                         </h2>
-                        <p className="text-[10px] text-app-text-muted mt-0.5">
+                        <p className="text-[10px] text-app-text mt-0.5">
                             {batchTasks && batchTasks.length >= 2
                                 ? t('migration.batch_desc', { count: batchTasks.length })
                                 : t('migration.individual_desc', { 
