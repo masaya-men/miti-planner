@@ -70,7 +70,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
         <div
             ref={popoverRef}
             className={clsx(
-                "fixed w-[190px] glass-panel rounded-xl z-[9999] py-1 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95",
+                "fixed w-[190px] glass-panel rounded-xl z-[9999] py-1 shadow-sm overflow-hidden animate-in fade-in zoom-in-95",
                 !isPositioned ? "opacity-0 pointer-events-none" : "opacity-100 duration-200"
             )}
             style={{

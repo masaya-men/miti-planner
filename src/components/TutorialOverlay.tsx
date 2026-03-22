@@ -234,8 +234,8 @@ const Tooltip: React.FC<TooltipProps> = ({
             transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
             className={clsx(
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
-                "backdrop-blur-xl shadow-2xl",
-                "bg-white/90 border-slate-200/60 shadow-[0_8px_32px_rgba(0,0,0,0.1)] dark:bg-black/85 dark:border-white/15 dark:shadow-[0_8px_32px_rgba(0,0,0,0.8)]"
+                "shadow-sm",
+                "bg-white border-slate-200/60 dark:bg-black dark:border-white/15"
             )}
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
@@ -331,8 +331,8 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 className={clsx(
                     "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
-                    "backdrop-blur-xl shadow-2xl",
-                    "bg-white/95 border-slate-200/60 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-black/95 dark:border-white/15 dark:shadow-[0_16px_64px_rgba(0,0,0,0.8)]"
+                    "shadow-sm",
+                    "bg-white border-slate-200/60 dark:bg-black dark:border-white/15"
                 )}
             >
                 {/* Celebration emoji */}
@@ -529,8 +529,8 @@ export const TutorialOverlay: React.FC = () => {
                             className={clsx(
                                 "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
-                                "backdrop-blur-xl shadow-2xl",
-                                "bg-white/95 border-blue-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-slate-900/95 dark:border-cyan-500/20 dark:shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
+                                "shadow-sm",
+                                "bg-white border-blue-200/40 dark:bg-slate-900 dark:border-cyan-500/20"
                             )}
                         >
                             <div className="text-4xl mb-4">⚠️</div>
@@ -627,8 +627,8 @@ export const TutorialOverlay: React.FC = () => {
                             className={clsx(
                                 "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
-                                "backdrop-blur-xl shadow-2xl overflow-hidden",
-                                "bg-white/95 border-amber-200/40 shadow-[0_16px_64px_rgba(0,0,0,0.15)] dark:bg-slate-900/95 dark:border-amber-500/20 dark:shadow-[0_16px_64px_rgba(0,0,0,0.7)]"
+                                "shadow-sm overflow-hidden",
+                                "bg-white border-amber-200/40 dark:bg-slate-900 dark:border-amber-500/20"
                             )}
                         >
                             <div className="flex items-center gap-3 mb-6 pr-6">

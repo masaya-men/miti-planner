@@ -61,7 +61,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <nav className={clsx(
             "md:hidden fixed bottom-0 left-0 right-0 z-[200]",
             "flex items-stretch justify-around",
-            "bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl",
+            "bg-app-bg",
             "border-t border-slate-200/50 dark:border-white/10",
             "shadow-[0_-4px_30px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_30px_rgba(0,0,0,0.6)]",
         )}

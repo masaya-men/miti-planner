@@ -382,8 +382,8 @@ export const CheatSheetView: React.FC = () => {
 
     return (
         <div className={clsx(
-            "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-2xl ",
-            "bg-white/90 backdrop-blur-md border-slate-200 dark:bg-slate-950/40 dark:backdrop-blur-3xl dark:border-white/10"
+            "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-sm",
+            "bg-white/90 border-slate-200 dark:bg-slate-950/40 dark:border-white/10"
         )}>
             <div className={clsx(
                 "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl  [scrollbar-gutter:stable] overflow-hidden",
@@ -426,7 +426,7 @@ export const CheatSheetView: React.FC = () => {
                         onClick={() => setMemberSelectOpen(false)}
                     >
                         <div
-                            className="bg-white/10 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl animate-in zoom-in-95 fade-in duration-200"
+                            className="bg-white dark:bg-slate-900 border border-white/20 p-4 rounded-2xl shadow-sm animate-in zoom-in-95 fade-in duration-200"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">

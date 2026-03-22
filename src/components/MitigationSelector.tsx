@@ -212,7 +212,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 data-tutorial-modal
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
-                    "pointer-events-auto shadow-2xl p-2 flex flex-col glass-panel",
+                    "pointer-events-auto shadow-sm p-2 flex flex-col glass-panel",
                     isMobile && !isCentered
                         ? "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none border-b-0 translate-y-0"
                         : "rounded-xl w-64",

@@ -646,7 +646,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 ref={popoverRef}
                 data-tutorial="party-settings"
                 className={clsx(
-                    "relative flex flex-col glass-panel shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                    "relative flex flex-col glass-panel shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
                     // 👇 変更：スマホ時の高さ上限を 85vh に広げる

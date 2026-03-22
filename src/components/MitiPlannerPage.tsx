@@ -43,7 +43,7 @@ export const MitiPlannerPage: React.FC = () => {
             <div className="flex flex-col h-full relative z-10">
 
                 {/* Floating View Toggle */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-glass-header backdrop-blur-xl p-1.5 rounded-full hidden md:flex items-center gap-1 border border-glass-border shadow-glass">
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-glass-header p-1.5 rounded-full hidden md:flex items-center gap-1 border border-glass-border">
                     <div className="flex items-center gap-1">
                         <Tooltip content={t('app.timeline')} position="bottom">
                             <button

@@ -486,7 +486,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             initial={false}
             animate={{ width: isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="h-full bg-glass-header backdrop-blur-3xl flex z-40 relative group/sidebar shadow-2xl"
+            className="h-full bg-app-bg flex z-40 relative group/sidebar shadow-sm"
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
             <motion.div
@@ -667,7 +667,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
                     {multiSelect.isEnabled && (
                         <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-glass-header backdrop-blur-xl border border-app-accent/30 rounded-2xl shadow-2xl p-3 flex items-center justify-between gap-3 overflow-hidden group">
+                            <div className="bg-app-bg border border-app-accent/30 rounded-2xl shadow-sm p-3 flex items-center justify-between gap-3 overflow-hidden group">
                                 <div className="absolute inset-0 bg-app-accent/5 animate-pulse" />
                                 <div className="relative flex flex-col">
                                     <span className="text-[10px] font-bold text-app-accent">

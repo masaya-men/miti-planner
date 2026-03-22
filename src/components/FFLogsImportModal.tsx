@@ -241,7 +241,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[#0f1115] rounded-t-2xl border-t border-white/10 shadow-2xl flex flex-col max-h-[65vh]"
+                        className="bg-[#0f1115] rounded-t-2xl border-t border-white/10 shadow-sm flex flex-col max-h-[65vh]"
                     >
                         {/* Drag handle */}
                         <div
@@ -338,7 +338,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="hidden md:flex relative w-full max-w-lg bg-[#0f1115] border border-white/10 shadow-2xl rounded-2xl overflow-hidden flex-col"
+                    className="hidden md:flex relative w-full max-w-lg bg-[#0f1115] border border-white/10 shadow-sm rounded-2xl overflow-hidden flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}

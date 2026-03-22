@@ -87,7 +87,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={`absolute bg-[#020203] border border-white/[0.08] shadow-2xl overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
+                        className={`absolute bg-[#020203] border border-white/[0.08] shadow-sm overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
                     >
                         {/* Mobile Drag Handle Indicator */}

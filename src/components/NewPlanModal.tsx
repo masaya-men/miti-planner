@@ -121,14 +121,14 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
-                    className="absolute inset-0 bg-black/40 backdrop-blur-md cursor-pointer"
+                    className="absolute inset-0 bg-black/40 cursor-pointer"
                 />
 
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                    className="relative w-full max-w-[440px] bg-glass-panel/70 backdrop-blur-2xl border border-glass-border/50 rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col pointer-events-auto"
+                    className="relative w-full max-w-[440px] bg-glass-panel border border-glass-border/50 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
                     style={{ maxHeight: 'min(720px, calc(100vh - 64px))' }}
                 >
                     {/* Header */}
@@ -220,7 +220,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="absolute top-full left-0 right-0 mt-3 bg-app-bg/98 backdrop-blur-3xl border border-glass-border shadow-[0_24px_48px_rgba(0,0,0,0.8)] rounded-2xl z-[110] max-h-64 overflow-y-auto no-scrollbar p-2"
+                                        className="absolute top-full left-0 right-0 mt-3 bg-app-bg border border-glass-border shadow-sm rounded-2xl z-[110] max-h-64 overflow-y-auto no-scrollbar p-2"
                                     >
                                         {filteredBosses.length > 0 ? (
                                             filteredBosses.map(b => (
