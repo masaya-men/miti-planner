@@ -1293,7 +1293,7 @@ const Timeline: React.FC = () => {
                                     className={clsx(
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
                                         hideEmptyRows
-                                            ? "bg-[rgba(var(--app-accent-rgb),0.12)] text-app-accent shadow-[inset_0_0_8px_rgba(var(--app-accent-rgb),0.15)]"
+                                            ? "bg-app-text text-app-bg"
                                             : "text-app-text"
                                     )}
                                 >
@@ -1302,14 +1302,14 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "transition-all duration-300 group-hover/btn:scale-110 shrink-0",
                                             hideEmptyRows
-                                                ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]"
+                                                ? ""
                                                 : ""
                                         )}
                                     />
                                     <span className={clsx(
                                         "uppercase tracking-wider hidden md:block",
                                         hideEmptyRows
-                                            ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]"
+                                            ? ""
                                             : ""
                                     )}>
                                         {t('ui.compact_view')}
@@ -1321,7 +1321,7 @@ const Timeline: React.FC = () => {
                             <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] flex items-center px-1 md:px-2">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
-                                    isAaModeEnabled && "bg-[rgba(var(--app-accent-rgb),0.12)] shadow-[inset_0_0_8px_rgba(var(--app-accent-rgb),0.15)]"
+                                    isAaModeEnabled && "bg-app-text/10"
                                 )}>
                                     <button
                                         onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
@@ -1332,7 +1332,7 @@ const Timeline: React.FC = () => {
                                                 : "text-app-text"
                                         )}
                                     >
-                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "")} />
+                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-text" : "")} />
                                         <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
                                     <div className={clsx(
@@ -1448,7 +1448,7 @@ const Timeline: React.FC = () => {
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className={clsx(
                                                     "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
-                                                    "bg-app-surface border-app-border hover:border-amber-400/60 hover:bg-app-surface2"
+                                                    "bg-app-surface border-app-border hover:border-app-text hover:bg-app-surface2"
                                                 )}
                                             >
                                                 <span className="text-[8px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
@@ -1456,7 +1456,7 @@ const Timeline: React.FC = () => {
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
                                                         isPatternOne
-                                                            ? "ring-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]"
+                                                            ? "ring-app-text/60"
                                                             : "ring-white/10 opacity-60"
                                                     )}>
                                                         <img src="/icons/Dissipation.png" alt={t('mitigation.dissipation', 'Dissipation')} className="w-full h-full object-contain" />
@@ -1467,7 +1467,7 @@ const Timeline: React.FC = () => {
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
                                                         !isPatternOne
-                                                            ? "ring-cyan-400/60 shadow-[0_0_8px_rgba(34,211,238,0.3)]"
+                                                            ? "ring-app-text/60"
                                                             : "ring-white/10 opacity-60"
                                                     )}>
                                                         <img src="/icons/Aetherflow.png" alt={t('mitigation.aetherflow', 'Aetherflow')} className="w-full h-full object-contain" />
@@ -1651,14 +1651,14 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-app-border bg-blue-50 dark:bg-app-surface2 cursor-pointer hover:bg-blue-100 dark:hover:bg-app-surface2 pointer-events-auto z-10"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
-                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-blue-900 dark:text-app-text leading-none">
+                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-app-text leading-none">
                                                                     {phase.name.split('\n')[0]}
                                                                 </span>
                                                                 {phase.name.split('\n')[1] && (
@@ -1868,14 +1868,14 @@ const Timeline: React.FC = () => {
             </div>
 
             {clipboardEvent && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600 text-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-app-text text-app-bg px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-app-text">
                     <div className="flex items-center gap-2">
                         <span className="text-xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
                             <span className="font-bold text-sm leading-tight drop-shadow-md">
                                 {clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : 'イベント'} {t('timeline.copying')}
                             </span>
-                            <span className="text-[10px] text-blue-100/90 leading-tight">
+                            <span className="text-[10px] text-app-bg/70 leading-tight">
                                 {t('timeline.paste_hint')}
                             </span>
                         </div>
@@ -1943,7 +1943,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
                                                     "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
-                                                    "bg-app-surface2 border-app-border active:bg-blue-100 dark:active:bg-blue-500/30"
+                                                    "bg-app-surface2 border-app-border active:bg-app-text/10"
                                                 )}>
                                                     <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
                                                     <span className={clsx(
@@ -2010,7 +2010,7 @@ const Timeline: React.FC = () => {
                                                             isAlreadyPlaced
                                                                 ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
                                                                 : status.available
-                                                                    ? "bg-app-surface2 border-app-border active:bg-blue-100 dark:active:bg-blue-500/30"
+                                                                    ? "bg-app-surface2 border-app-border active:bg-app-text/10"
                                                                     : "bg-black/40 border-transparent opacity-40"
                                                         )}
                                                     >
@@ -2115,7 +2115,7 @@ const Timeline: React.FC = () => {
                             className={clsx(
                                 "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 useMitigationStore.getState().hideEmptyRows
-                                    ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-300"
+                                    ? "bg-app-text/15 border-app-text text-app-text"
                                     : "bg-app-surface2 border-app-border text-app-text"
                             )}
                         >
@@ -2154,12 +2154,12 @@ const Timeline: React.FC = () => {
                             setMobileToolsSheetOpen(false);
                             setImportModalOpen(true);
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 hover:bg-blue-500/20 dark:hover:bg-blue-500/30  cursor-pointer"
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
                     >
                         <CloudDownload size={20} />
                         <div className="text-left">
                             <div className="text-sm font-bold">FFLogs Import</div>
-                            <div className="text-[10px] text-blue-600/70 dark:text-blue-400/70">FFLogsからタイムラインをインポート</div>
+                            <div className="text-[10px] text-app-text-muted">FFLogsからタイムラインをインポート</div>
                         </div>
                     </button>
                     <button
@@ -2167,12 +2167,12 @@ const Timeline: React.FC = () => {
                             setMobileToolsSheetOpen(false);
                             handleAutoPlan();
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 dark:hover:bg-emerald-500/30  cursor-pointer"
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
                     >
                         <Sparkles size={20} />
                         <div className="text-left">
                             <div className="text-sm font-bold">Auto Plan</div>
-                            <div className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70">軽減を自動配置</div>
+                            <div className="text-[10px] text-app-text-muted">軽減を自動配置</div>
                         </div>
                     </button>
                 </div>

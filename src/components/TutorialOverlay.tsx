@@ -256,7 +256,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                         key={i}
                         className={clsx(
                             "h-2 rounded-full transition-all duration-300",
-                            i === stepIndex ? "w-8 bg-app-accent shadow-[0_0_8px_rgba(226,232,240,0.5)]" : "w-2 bg-app-text-muted/30"
+                            i === stepIndex ? "w-8 bg-app-text" : "w-2 bg-app-text-muted/30"
                         )}
                     />
                 ))}

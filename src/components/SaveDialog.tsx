@@ -65,7 +65,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                 >
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
                         <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
-                            <span className="w-1.5 h-4 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
+                            <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('save_dialog.title', 'Save Plan')}
                         </h2>
                         <button 
@@ -91,7 +91,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                                     if (e.key === 'Escape') onClose();
                                 }}
                                 placeholder={t('save_dialog.plan_name_placeholder', 'Enter plan name...')}
-                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-emerald-500/50 focus:ring-4 ring-emerald-500/15 transition-all font-black text-app-text placeholder:text-app-text-muted/50"
+                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text transition-all font-black text-app-text placeholder:text-app-text-muted/50"
                             />
                         </div>
                     </div>
@@ -109,7 +109,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                             className={clsx(
                                 "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95 flex items-center justify-center gap-2",
                                 title.trim()
-                                    ? "bg-emerald-500 text-white shadow-[0_12px_24px_-4px_rgba(16,185,129,0.4)] hover:brightness-110"
+                                    ? "bg-app-text text-app-bg hover:opacity-80"
                                     : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
                             )}
                         >

@@ -160,10 +160,10 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                 // Highlight template if no saved plan is selected
                                 !currentPlanId || !contentPlans.some(p => p.id === currentPlanId)
                                     ? "bg-app-accent/15 text-app-accent"
-                                    : "text-emerald-400/80 hover:bg-glass-hover hover:text-emerald-400"
+                                    : "text-app-text hover:bg-glass-hover"
                             )}
                         >
-                            <span className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                            <span className="w-1 h-1 rounded-full bg-app-text" />
                             {lang === 'en' ? 'Template' : 'テンプレート'}
                         </button>
                     )}
@@ -514,7 +514,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             className={clsx(
                                 "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer",
                                 !currentPlanId && selectedContentId 
-                                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 active:scale-[0.97]" 
+                                    ? "bg-app-text text-app-bg border border-app-text hover:opacity-80 active:scale-[0.97]"
                                     : currentPlanId 
                                         ? "bg-glass-card border border-glass-border text-app-text hover:bg-glass-hover active:scale-[0.97]"
                                         : "bg-glass-card/40 border border-glass-border/40 text-app-text-muted opacity-50 cursor-not-allowed",

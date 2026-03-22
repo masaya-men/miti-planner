@@ -36,7 +36,7 @@ const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverIn
 // テキスト付きピルボタン共通スタイル（1px border で統一）
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
-const pillBtnActive = `bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35)] ${hoverInvert}`;
+const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
@@ -182,7 +182,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 }}
                                 className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault)}
                             >
-                                <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "group-hover:scale-110")} />
+                                <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "" : "group-hover:scale-110")} />
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
                             </button>
 
@@ -202,7 +202,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     className={clsx(
                                         iconBtnBase,
                                         needsImport
-                                            ? "bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_20px_rgba(var(--app-accent-rgb),0.25)] animate-pulse"
+                                            ? "bg-app-text text-app-bg border-app-text animate-pulse"
                                             : iconBtnDefault
                                     )}
                                 >
@@ -221,7 +221,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 }}
                                 className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
                             >
-                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "group-hover:rotate-12 group-hover:scale-110")} />
+                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-app-bg" : "group-hover:rotate-12 group-hover:scale-110")} />
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
@@ -237,7 +237,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         className={clsx(
                                             "px-3 h-full rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
                                             partySortOrder === order
-                                                ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.3)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
+                                                ? "bg-app-text text-app-bg"
                                                 : "text-app-text"
                                         )}
                                     >

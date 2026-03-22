@@ -61,7 +61,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
-                            <Download size={18} className="text-blue-400" />
+                            <Download size={18} className="text-app-text" />
                             Import Timeline (CSV)
                         </h2>
                         <button
@@ -91,7 +91,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                         <textarea
                             value={csvText}
                             onChange={(e) => setCsvText(e.target.value)}
-                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-sm font-mono text-app-text focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none placeholder:text-app-text-muted"
+                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-sm font-mono text-app-text focus:outline-none focus:border-app-text resize-none placeholder:text-app-text-muted"
                             placeholder="0:00, Start&#10;0:15, First AOE, 100000, magical, PT"
                             spellCheck={false}
                         />
@@ -118,7 +118,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             className={clsx(
                                 "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
                                 csvText.trim()
-                                    ? "bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] uppercase"
+                                    ? "bg-app-text text-app-bg hover:opacity-80 uppercase"
                                     : "bg-app-surface2 text-app-text-muted cursor-not-allowed uppercase"
                             )}
                         >

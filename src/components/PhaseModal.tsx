@@ -110,7 +110,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-sm text-app-text placeholder-app-text-muted focus:border-blue-500/50 focus:bg-app-surface focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-sm text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
                                     placeholder={t('phase_modal.placeholder')}
                                     autoFocus
                                 />
@@ -141,7 +141,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all border border-blue-500/50 uppercase cursor-pointer"
+                                        className="px-4 py-1.5 bg-app-text text-app-bg hover:opacity-80 rounded-md text-xs font-semibold transition-all border border-app-text uppercase cursor-pointer"
                                     >
                                         {t('phase_modal.add_button')}
                                     </button>

@@ -142,8 +142,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 {/* Header */}
                 <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-500/10 rounded-xl">
-                            <Shield className="text-blue-500" size={16} />
+                        <div className="p-2 bg-app-text/10 rounded-xl">
+                            <Shield className="text-app-text" size={16} />
                         </div>
                         <div>
                             <h2 className="text-xs font-bold text-white tracking-wider">{t('party.settings_title', 'パラメータ設定')}</h2>
@@ -166,7 +166,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         <div className="bg-glass-card border border-glass-border rounded-xl p-4 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                                     <h4 className="text-xs font-bold text-blue-100 uppercase tracking-wider">TANK</h4>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -183,7 +183,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         {/* Healer Settings */}
                         <div className="bg-glass-card border border-glass-border rounded-xl p-4 shadow-sm">
                             <div className="flex items-center gap-2 mb-3">
-                                <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></span>
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
                                 <h4 className="text-xs font-bold text-green-100 uppercase tracking-wider">HEALER</h4>
                             </div>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">

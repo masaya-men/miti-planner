@@ -101,7 +101,7 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
         className={clsx(
             "flex flex-col items-center justify-center w-9 h-9 rounded border transition-all relative overflow-hidden group cursor-pointer",
             currentJobId === job.id
-                ? "bg-blue-500/30 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.4)] ring-1 ring-blue-500/40"
+                ? "bg-app-text/15 border-app-text ring-1 ring-app-text/40"
                 : clsx(
                     "transition-all duration-200 hover:scale-110",
                     "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border hover:shadow-md"
