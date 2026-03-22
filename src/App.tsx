@@ -32,8 +32,8 @@ function App() {
   // Update document title based on language
   useEffect(() => {
     const title = i18n.language.startsWith('ja')
-      ? '軽減表│FFXIV'
-      : 'Mitigation Table│FFXIV';
+      ? 'LoPo │ 軽減プランナー'
+      : 'LoPo │ Mitigation Planner';
     document.title = title;
     // Sync <html lang> for SEO and accessibility
     document.documentElement.lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
