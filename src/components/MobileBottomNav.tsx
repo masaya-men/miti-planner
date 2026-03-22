@@ -77,7 +77,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                         "relative",
                         item.active
                             ? "text-blue-500 dark:text-blue-400"
-                            : "text-app-text-muted hover:text-app-text-secondary"
+                            : "text-app-text"
                     )}
                 >
                     {/* Active indicator dot */}

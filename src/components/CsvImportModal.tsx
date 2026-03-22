@@ -66,7 +66,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                         </h2>
                         <button
                             onClick={onClose}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors"
+                            className="p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors"
                         >
                             <X size={18} />
                         </button>
@@ -75,14 +75,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     {/* Content */}
                     <div className="p-5 flex-1 overflow-y-auto">
                         <div className="mb-4">
-                            <p className="text-sm text-app-text-muted mb-2 leading-relaxed">
+                            <p className="text-sm text-app-text mb-2 leading-relaxed">
                                 Paste CSV text to import timeline events. The expected format is:
                                 <br />
                                 <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-cyan-300">
                                     Time, Name, DamageAmount, DamageType, Target
                                 </code>
                             </p>
-                            <p className="text-xs text-app-text-muted mb-2">
+                            <p className="text-xs text-app-text mb-2">
                                 Example: <span className="font-mono text-app-text">0:15, Raidwide, 120000, magical, PT</span><br />
                                 Note: Only Time and Name are strictly required.
                             </p>

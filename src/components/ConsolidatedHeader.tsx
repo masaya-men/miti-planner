@@ -31,11 +31,11 @@ const hoverInvert = "hover:bg-app-text hover:border-app-text hover:text-app-bg";
 
 // アイコン丸ボタン共通スタイル（1px border で統一）
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
-const iconBtnDefault = `bg-transparent border-app-border text-app-text-muted ${hoverInvert}`;
+const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 
 // テキスト付きピルボタン共通スタイル（1px border で統一）
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
-const pillBtnDefault = `bg-transparent border-app-border text-app-text-muted ${hoverInvert}`;
+const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35)] ${hoverInvert}`;
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
@@ -228,7 +228,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
 
                             {/* Sort */}
-                            <span className="text-[10px] font-black text-app-text-muted uppercase tracking-[0.15em]">{t('ui.sort')}</span>
+                            <span className="text-[10px] font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
                             <div className="flex h-9 rounded-full p-[3px] border border-app-border">
                                 {(['light_party', 'role'] as const).map((order) => (
                                     <button
@@ -238,7 +238,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             "px-3 h-full rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
                                             partySortOrder === order
                                                 ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.3)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
-                                                : "text-app-text-muted hover:text-app-text"
+                                                : "text-app-text"
                                         )}
                                     >
                                         {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}

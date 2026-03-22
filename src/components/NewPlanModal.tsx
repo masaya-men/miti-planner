@@ -139,7 +139,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         </h2>
                         <button 
                             onClick={onClose} 
-                            className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text-muted hover:text-app-text cursor-pointer"
+                            className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
                         >
                             <X size={18} />
                         </button>
@@ -149,7 +149,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* Level Tabs */}
                         <div className="space-y-3.5">
                             <div className="flex items-center justify-between px-1">
-                                <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.25em]">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em]">
                                     {t('new_plan.level_label')}
                                 </label>
                                 <span className="text-[9px] font-bold text-app-accent/60 bg-app-accent/5 px-2 py-0.5 rounded-full border border-app-accent/10">REQUIRED</span>
@@ -163,7 +163,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             "flex-1 py-2 rounded-lg text-[11px] font-black transition-all duration-300 cursor-pointer",
                                             level === l 
                                                 ? "bg-app-accent text-app-text-on-accent shadow-lg shadow-app-accent/30 scale-[1.02]" 
-                                                : "text-app-text-muted hover:text-app-text hover:bg-glass-hover"
+                                                : "text-app-text hover:bg-glass-hover"
                                         )}
                                     >
                                         {l}
@@ -174,7 +174,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                         {/* Category Tabs */}
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.category_label')}
                             </label>
                             <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -186,7 +186,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             "whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black transition-all border cursor-pointer",
                                             category === cat
                                                 ? "bg-app-accent/20 text-app-accent border-app-accent/40 shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.2)]"
-                                                : "bg-glass-card/30 text-app-text-muted border-glass-border/40 hover:border-glass-hover hover:text-app-text"
+                                                : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
                                         )}
                                     >
                                         {(CATEGORY_LABELS[cat][lang] || CATEGORY_LABELS[cat].ja).toUpperCase()}
@@ -197,14 +197,14 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                         {/* Content Dropdown */}
                         <div className="space-y-3.5 relative">
-                            <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.content_label')}
                             </label>
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className={clsx(
                                     "w-full flex items-center justify-between px-4.5 py-4 bg-glass-card/40 border rounded-2xl text-[13px] transition-all duration-300 cursor-pointer",
-                                    boss ? "text-app-text font-black" : "text-app-text-muted",
+                                    boss ? "text-app-text font-black" : "text-app-text-muted",  // placeholder
                                     isDropdownOpen ? "border-app-accent ring-4 ring-app-accent/15" : "border-glass-border/40 hover:border-glass-hover"
                                 )}
                             >
@@ -231,7 +231,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                                         "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs transition-all cursor-pointer text-left mb-1 last:mb-0",
                                                         boss?.id === b.id 
                                                             ? "bg-app-accent/20 text-app-accent font-black shadow-inner" 
-                                                            : "text-app-text-secondary hover:bg-app-surface2 hover:text-app-text"
+                                                            : "text-app-text hover:bg-app-surface2"
                                                     )}
                                                 >
                                                     <span className="truncate">{b.name[lang] || b.name.ja}</span>
@@ -250,7 +250,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                         {/* Plan Name */}
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.plan_name_label')}
                             </label>
                             <input
@@ -270,7 +270,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 <p className="text-[10px] text-app-accent font-black tracking-[0.2em] uppercase opacity-80">
                                     {t('new_plan.template_guidance', 'Want to start from a pre-filled template?')}
                                 </p>
-                                <button className="text-[11px] text-app-text-secondary hover:text-app-accent transition-all font-black flex items-center gap-2 cursor-pointer group">
+                                <button className="text-[11px] text-app-text hover:text-app-accent transition-all font-black flex items-center gap-2 cursor-pointer group">
                                     {t('new_plan.browse_templates', 'Browse Templates')} 
                                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                                 </button>
@@ -282,7 +282,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text-muted hover:bg-glass-hover hover:text-app-text transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                         >
                             {t('new_plan.cancel_button')}
                         </button>

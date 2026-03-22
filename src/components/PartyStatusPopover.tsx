@@ -152,7 +152,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-app-surface2 cursor-pointer">
+                    <button onClick={onClose} className="text-app-text hover:text-white transition-colors p-1.5 rounded-lg hover:bg-app-surface2 cursor-pointer">
                         <X size={16} />
                     </button>
                 </div>

@@ -261,7 +261,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             </h2>
                             <button
                                 onClick={handleClose}
-                                className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -284,7 +284,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -322,7 +322,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -349,7 +349,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
                         >
                             <X size={18} />
                         </button>

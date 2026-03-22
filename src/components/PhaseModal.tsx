@@ -97,14 +97,14 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                             <h2 className="text-sm font-bold text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
-                            <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-app-surface2 cursor-pointer">
+                            <button onClick={onClose} className="text-app-text hover:text-white transition-colors p-1 rounded hover:bg-app-surface2 cursor-pointer">
                                 <X size={16} />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('phase_modal.name_label')}</label>
+                                <label className="block text-xs font-medium text-app-text mb-1.5">{t('phase_modal.name_label')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
@@ -135,7 +135,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text-muted hover:text-white hover:bg-app-surface2 rounded-md transition-colors text-xs font-medium cursor-pointer"
+                                        className="px-4 py-1.5 text-app-text hover:text-white hover:bg-app-surface2 rounded-md transition-colors text-xs font-medium cursor-pointer"
                                     >
                                         {t('modal.cancel')}
                                     </button>

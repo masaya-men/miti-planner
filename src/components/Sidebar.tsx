@@ -99,7 +99,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
                     isActive && !multiSelect.isEnabled
                         ? "bg-glass-active border border-glass-border/30 text-app-text shadow-sm"
-                        : "bg-transparent border border-transparent text-app-text-muted hover:bg-glass-hover hover:text-app-text",
+                        : "bg-transparent border border-transparent text-app-text hover:bg-glass-hover",
                     isDisabled && "opacity-40 cursor-not-allowed grayscale"
                 )}
             >
@@ -113,7 +113,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                             "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
                             isActive && !multiSelect.isEnabled
                                 ? "bg-app-accent/20 text-app-accent-bold"
-                                : "bg-glass-card text-app-text-muted group-hover:bg-glass-hover group-hover:text-app-text"
+                                : "bg-glass-card text-app-text group-hover:bg-glass-hover"
                         )}>
                             {shortName.split('\n')[0]}
                         </div>
@@ -188,7 +188,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                 "text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
                                 currentPlanId === plan.id
                                     ? "bg-white/10 text-white"
-                                    : "text-app-text-muted hover:bg-glass-hover hover:text-app-text"
+                                    : "text-app-text hover:bg-glass-hover"
                             )}
                         >
                             <span className="w-1 h-1 rounded-full bg-white/40" />
@@ -261,12 +261,12 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
         <div className="mb-1">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full text-[10px] text-app-text-secondary font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer"
+                className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer"
             >
                 <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                     <ChevronRight size={10} className="text-app-text-muted" />
                 </div>
-                <span className={clsx("flex-1 text-left truncate", isExpanded ? "text-app-text" : "text-app-text-secondary")}>
+                <span className={clsx("flex-1 text-left truncate", "text-app-text")}>
                     {seriesName}
                 </span>
             </button>
@@ -323,7 +323,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
                     "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200",
-                    isExpanded ? "bg-glass-active text-app-text" : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover",
+                    isExpanded ? "bg-glass-active text-app-text" : "text-app-text hover:bg-glass-hover",
                     "font-bold text-[10px] tracking-widest uppercase"
                 )}
                 data-tutorial="sidebar-category"
@@ -516,7 +516,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                 !currentPlanId && selectedContentId 
                                     ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 active:scale-[0.97]" 
                                     : currentPlanId 
-                                        ? "bg-glass-card border border-glass-border text-app-text-secondary hover:text-app-text hover:bg-glass-hover active:scale-[0.97]"
+                                        ? "bg-glass-card border border-glass-border text-app-text hover:bg-glass-hover active:scale-[0.97]"
                                         : "bg-glass-card/40 border border-glass-border/40 text-app-text-muted opacity-50 cursor-not-allowed",
                                 "tutorial-create-btn"
                             )}
@@ -539,7 +539,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     {!multiSelect.isEnabled && (
                         <div className="px-3 pb-3 shrink-0 mt-3">
                             <div className="flex items-center mb-2 px-1">
-                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
+                                <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
@@ -579,7 +579,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
                     <div className="px-3 flex items-center justify-between mb-2 shrink-0">
                         <div className="flex items-center px-1">
-                            <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter">
+                            <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
                                 {t('ui.explorer')}
                             </span>
                         </div>
@@ -589,7 +589,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                 "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
                                 multiSelect.isEnabled
                                     ? "bg-app-accent text-app-text-on-accent border-app-border shadow-md"
-                                    : "bg-glass-card text-app-text-secondary border-glass-border hover:bg-glass-hover hover:text-app-text shadow-sm"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
                             )}
                         >
                             {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
@@ -610,7 +610,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                         "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
                                         activeLevel === level
                                             ? "bg-app-accent text-app-text-on-accent shadow-lg scale-[1.02] z-10"
-                                            : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover"
+                                            : "text-app-text hover:bg-glass-hover"
                                     )}
                                 >
                                     {level}
@@ -625,7 +625,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                     "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
                                     activeCategory === 'all'
                                         ? "bg-app-accent text-app-text-on-accent border-app-accent shadow-md"
-                                        : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
+                                        : "bg-glass-card text-app-text border-glass-border hover:border-glass-hover"
                                 )}
                             >
                                 {t('ui.all').toUpperCase()}
@@ -638,7 +638,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                         "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
                                         activeCategory === cat
                                             ? "bg-app-accent text-app-text-on-accent border-app-accent shadow-md"
-                                            : "bg-glass-card text-app-text-secondary border-glass-border hover:border-glass-hover hover:text-app-text"
+                                            : "bg-glass-card text-app-text border-glass-border hover:border-glass-hover"
                                     )}
                                 >
                                     {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
@@ -677,7 +677,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                 <div className="relative flex items-center gap-2">
                                     <button
                                         onClick={toggleMultiSelectMode}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text-muted hover:text-app-text cursor-pointer"
+                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text cursor-pointer"
                                     >
                                         {t('sidebar.cancel')}
                                     </button>

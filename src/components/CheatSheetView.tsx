@@ -396,7 +396,7 @@ export const CheatSheetView: React.FC = () => {
                     "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
                     "border-app-border bg-app-surface2"
                 )}>
-                    <span className="text-[9px] font-black text-app-text-secondary uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
+                    <span className="text-[9px] font-black text-app-text uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center border-l border-app-border bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent relative">
                     <div className="absolute inset-y-0 left-full w-20 bg-orange-600/30 pointer-events-none" />

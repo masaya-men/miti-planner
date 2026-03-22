@@ -242,7 +242,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                             )}
                         </div>
                     </div>
-                    <button onClick={handleClose} className="text-app-text-muted hover:text-app-text transition-colors cursor-pointer shrink-0">
+                    <button onClick={handleClose} className="text-app-text transition-colors cursor-pointer shrink-0">
                         <X size={14} />
                     </button>
                 </div>

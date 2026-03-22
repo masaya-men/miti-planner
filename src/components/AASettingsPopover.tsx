@@ -88,7 +88,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-app-text-muted hover:text-app-text-light dark:text-white transition-colors cursor-pointer"
+                    className="text-app-text transition-colors cursor-pointer"
                 >
                     <X size={14} />
                 </button>
@@ -99,7 +99,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Target */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.target')}</label>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.target')}</label>
                     <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
                         {['MT', 'ST'].map((target) => (
                             <button
@@ -108,7 +108,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                     "flex-1 py-1 px-2 text-xs font-black rounded transition-colors cursor-pointer",
                                     settings.target === target
                                         ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                        : "text-app-text-secondary hover:text-app-text hover:bg-glass-hover"
+                                        : "text-app-text hover:bg-glass-hover"
                                 )}
                                 onClick={() => handleChange('target', target)}
                             >
@@ -121,7 +121,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.damage')}</label>
+                        <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
                         <div className="group relative">
                             <Info size={12} className="text-app-text-secondary cursor-help" />
                             <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-app-border rounded text-[10px] text-app-text-secondary leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
@@ -141,7 +141,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Damage Type */}
                 <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.type')}</label>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.type')}</label>
                     <div className="flex gap-2">
                         {[
                             { id: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png', color: 'text-cyan-300' },
@@ -159,7 +159,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                 onClick={() => handleChange('type', type.id)}
                             >
                                 <img src={type.icon} alt={String(type.label)} className="w-5 h-5 object-contain opacity-90" />
-                                <span className={clsx("text-[9px] font-black", settings.type === type.id ? 'text-blue-300' : 'text-app-text-muted')}>{type.label}</span>
+                                <span className={clsx("text-[9px] font-black", settings.type === type.id ? 'text-blue-300' : 'text-app-text')}>{type.label}</span>
                             </button>
                         ))}
                     </div>

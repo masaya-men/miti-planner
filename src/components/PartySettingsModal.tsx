@@ -683,7 +683,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer">
+                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer">
                         <X size={18} />
                     </button>
                 </div>
