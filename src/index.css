@@ -24,7 +24,6 @@
 
   --shadow-glass: var(--glass-shadow);
 
-  --animate-blob: blob 10s infinite;
   --animate-ripple: ripple 600ms linear;
   --animate-tutorial-ripple: tutorial-ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
@@ -35,7 +34,6 @@
     transform: scale(1);
     opacity: 1;
   }
-
   100% {
     box-shadow: 0 0 0 40px rgba(226, 232, 240, 0);
     transform: scale(1);
@@ -43,56 +41,19 @@
   }
 }
 
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes dialogIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 @layer base {
@@ -104,38 +65,30 @@
     letter-spacing: -0.01em;
     color-scheme: dark;
 
-    /* Pure Black & Silver Ultra Glass Theme */
     --color-bg-primary: #000000;
-    /* Pure black */
     --color-bg-secondary: #000000;
-    /* Pure black */
-    --color-bg-tertiary: #050505;
-    /* Barely visible contrast */
+    --color-bg-tertiary: #0a0a0a;
 
-    --color-accent-primary: #e2e8f0;
-    --app-accent-rgb: 34, 211, 238;
-    /* Bright Silver */
-    --color-accent-secondary: #f8fafc;
-    /* White Silver */
-    --color-accent-dim: rgba(226, 232, 240, 0.15);
+    --color-accent-primary: #ffffff;
+    --app-accent-rgb: 255, 255, 255;
+    --color-accent-secondary: #ffffff;
+    --color-accent-dim: rgba(255, 255, 255, 0.08);
 
     --color-text-primary: #ffffff;
-    --color-text-secondary: #d4d4d8;
-    --color-text-muted: #a1a1aa;
-    --color-text-on-accent: #000000;    /* Black text on silver accent in dark mode */
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+    --color-text-on-accent: #000000;
 
-    /* ボーダー */
     --color-border: rgba(255, 255, 255, 0.12);
-    --color-border-accent: rgba(255, 255, 255, 0.4);
+    --color-border-accent: rgba(255, 255, 255, 0.3);
 
-    /* Extreme Transparency Glassmorphism Variables */
-    --glass-bg-header: rgba(0, 0, 0, 0.2);
-    --glass-bg-panel: rgba(0, 0, 0, 0.25);
-    --glass-bg-card: rgba(255, 255, 255, 0.02);
-    --glass-border: rgba(255, 255, 255, 0.25);
-    --glass-hover: rgba(255, 255, 255, 0.1);
-    --glass-active: rgba(255, 255, 255, 0.15);
-    --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-hover: rgba(255, 255, 255, 0.06);
+    --glass-active: rgba(255, 255, 255, 0.1);
+    --glass-shadow: none;
   }
 
   .theme-light {
@@ -144,26 +97,26 @@
     --color-bg-secondary: #ffffff;
     --color-bg-tertiary: #f5f5f5;
 
-    --color-accent-primary: #18181b;
-    --app-accent-rgb: 24, 24, 27;
+    --color-accent-primary: #000000;
+    --app-accent-rgb: 0, 0, 0;
     --color-accent-secondary: #000000;
-    --color-accent-dim: rgba(0, 0, 0, 0.06);
+    --color-accent-dim: rgba(0, 0, 0, 0.05);
 
     --color-text-primary: #000000;
-    --color-text-secondary: #27272a;
-    --color-text-muted: #52525b;
+    --color-text-secondary: #52525b;
+    --color-text-muted: #a1a1aa;
     --color-text-on-accent: #ffffff;
 
     --color-border: rgba(0, 0, 0, 0.12);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
-    --glass-bg-header: rgba(255, 255, 255, 0.0);
-    --glass-bg-panel: rgba(255, 255, 255, 0.0);
-    --glass-bg-card: rgba(0, 0, 0, 0.02);
-    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(0, 0, 0, 0.12);
     --glass-hover: rgba(0, 0, 0, 0.04);
     --glass-active: rgba(0, 0, 0, 0.08);
-    --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --glass-shadow: none;
   }
 
   body {
@@ -173,226 +126,79 @@
   }
 }
 
-body {
-  /* Dynamic Background with fixed attachment */
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-}
+/* 背景: 単色 */
+.bg-abstract-dark { background-color: #000000; }
+.bg-abstract-light { background-color: #ffffff; }
 
-/* 背景: グラデーションなし、純粋な単色 */
-.bg-abstract-dark {
-  background-color: #000000;
-}
-
-.bg-abstract-light {
-  background-color: #ffffff;
-}
-
-/* Modern Scrollbar */
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-}
-
+/* スクロールバー */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(56, 189, 248, 0.2);
-  /* Blue tint scrollbar */
-  border-radius: 6px;
-  border: 3px solid transparent;
-  background-clip: content-box;
-  transition: background-color 0.2s;
+  background-color: rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
+::-webkit-scrollbar-corner { background: transparent; }
 
-/* Modern Glass Utility - Light Blue Glass */
+.ime-active { ime-mode: active; }
+
+/* ガラスパネル — 装飾なし、ボーダーのみ */
 .glass-panel {
-  background-color: var(--glass-bg-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.55);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-.ime-active {
-  ime-mode: active;
-}
-
-/* Water Drop Glass Effect (Stable) */
-.water-drop {
-  @apply bg-white/[0.12] border border-white/30 shadow-sm transition-colors duration-200;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  /* Stronger highlight */
-  backface-visibility: hidden;
-  background-clip: padding-box;
-  /* Prevent border bleed */
-}
-
-.water-drop:hover {
-  @apply bg-white/[0.2] border-white/50;
-  box-shadow:
-    0 8px 15px -3px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    /* Very bright gloss on hover */
-    0 0 15px rgba(255, 255, 255, 0.15);
-}
-
-/* Glass Interactive Effect */
+/* ボタン・インタラクティブ要素 — シンプルなホバー */
 .glass-interactive {
-  @apply transition-all duration-300 relative overflow-hidden;
+  @apply transition-colors duration-150;
 }
-
 .glass-interactive:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15), inset 0 0 10px rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--glass-hover);
+}
+/* シャイン効果を無効化 */
+.glass-interactive::after { display: none; }
+
+/* water-drop — シンプル化 */
+.water-drop {
+  @apply border border-[var(--color-border)] transition-colors duration-150;
+}
+.water-drop:hover {
+  background-color: var(--glass-hover);
 }
 
-.glass-interactive::after {
-  content: '';
-  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] skew-x-12;
-  transition: transform 0.5s;
-}
+/* hover-shine — 無効化 */
+.hover-shine::after { display: none; }
 
-.glass-interactive:hover::after {
-  @apply translate-x-[150%];
-  transition: transform 0.7s;
-}
-
-/* Moving Shine Effect */
-@keyframes shine {
-  0% {
-    left: -100%;
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 0.5;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
-
-  100% {
-    left: 200%;
-    opacity: 0;
-  }
-}
-
-.hover-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.hover-shine::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  /* Softer, glass-like shine */
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transform: skewX(-25deg);
-  transition: none;
-  pointer-events: none;
-}
-
-.hover-shine:hover::after {
-  animation: shine 0.8s ease-in-out;
-}
-
-/* Tutorial unified target highlight */
+/* チュートリアルハイライト */
 @keyframes tutorial-breathing-glow {
-
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.2);
-    border-color: rgba(56, 189, 248, 0.6);
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
   }
-
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.9), inset 0 0 15px rgba(56, 189, 248, 0.5);
-    border-color: rgba(56, 189, 248, 1);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.8);
   }
 }
-
 .tutorial-target-highlight {
   animation: tutorial-breathing-glow 2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
   position: relative;
   z-index: 50;
-  /* Ensure it pops out slightly above siblings */
 }
-
 
 @layer components {
-
-  /* Tactile Spring Effect */
+  /* ボタンのタクタイルフィードバック — 最小限 */
   .btn-tactile {
-    @apply transition-all duration-200 relative overflow-hidden;
+    @apply transition-colors duration-150;
   }
-
-  .btn-tactile:hover {
-    @apply -translate-y-0.5 shadow-lg;
-  }
-
   .btn-tactile:active {
-    @apply scale-95 translate-y-0 shadow-sm;
+    @apply opacity-80;
   }
 
-  /* Background Blobs */
-  .bg-blob {
-    @apply absolute rounded-full filter blur-[100px] md:blur-[120px] opacity-50 animate-blob;
-    will-change: transform;
-  }
-
-  .theme-light .bg-blob.blob-1 {
-    @apply bg-sky-300/40 mix-blend-multiply;
-  }
-
-  .theme-light .bg-blob.blob-2 {
-    @apply bg-rose-200/40 mix-blend-multiply;
-    animation-delay: 2s;
-  }
-
-  .theme-light .bg-blob.blob-3 {
-    @apply bg-indigo-200/40 mix-blend-multiply;
-    animation-delay: 4s;
-  }
-
-  .theme-dark .bg-blob.blob-1 {
-    @apply bg-blue-900/30 mix-blend-screen;
-  }
-
-  .theme-dark .bg-blob.blob-2 {
-    @apply bg-purple-900/20 mix-blend-screen;
-    animation-delay: 2s;
-  }
-
-  .theme-dark .bg-blob.blob-3 {
-    @apply bg-indigo-900/20 mix-blend-screen;
-    animation-delay: 4s;
-  }
+  /* 背景ブロブ — 無効化（非表示） */
+  .bg-blob { display: none; }
 }
 
-/* Safe-area padding for devices with home indicators (iPhone X+) */
+/* Safe-area padding for devices with home indicators */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
