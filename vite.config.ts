@@ -7,14 +7,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['icons/favicon-192x192.png', 'icons/favicon-512x512.png'],
       manifest: {
         name: 'LoPo — FF14 軽減プランナー',
         short_name: 'LoPo',
         description: 'FF14の軽減プランをサクサク作れるウェブアプリ',
-        theme_color: '#0f172a',
-        background_color: '#020617',
+        theme_color: '#000000',
+        background_color: '#000000',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',
@@ -34,6 +34,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+        // 新バージョン検知時にすぐ反映（待たない）
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
