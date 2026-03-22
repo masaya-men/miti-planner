@@ -107,7 +107,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                 className={clsx(
                                     "flex-1 py-1 px-2 text-xs font-black rounded transition-colors cursor-pointer",
                                     settings.target === target
-                                        ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                                        ? "bg-app-text text-app-bg border border-app-text"
                                         : "text-app-text hover:bg-glass-hover"
                                 )}
                                 onClick={() => handleChange('target', target)}
@@ -134,7 +134,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-black font-mono text-app-text focus:outline-none focus:border-blue-500/50 transition-colors"
+                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>
@@ -153,13 +153,13 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                 className={clsx(
                                     "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1 cursor-pointer",
                                     settings.type === type.id
-                                        ? `bg-blue-500/10 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.2)]`
+                                        ? "bg-app-text/10 border-app-text"
                                         : "bg-glass-card border-glass-border hover:bg-glass-hover hover:border-app-border"
                                 )}
                                 onClick={() => handleChange('type', type.id)}
                             >
                                 <img src={type.icon} alt={String(type.label)} className="w-5 h-5 object-contain opacity-90" />
-                                <span className={clsx("text-[9px] font-black", settings.type === type.id ? 'text-blue-300' : 'text-app-text')}>{type.label}</span>
+                                <span className={clsx("text-[9px] font-black", settings.type === type.id ? 'text-app-text' : 'text-app-text')}>{type.label}</span>
                             </button>
                         ))}
                     </div>

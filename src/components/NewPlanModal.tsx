@@ -134,7 +134,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
                         <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
-                            <span className="w-1.5 h-4 bg-app-accent rounded-full shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.6)]" />
+                            <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('new_plan.modal_title')}
                         </h2>
                         <button 
@@ -185,7 +185,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                         className={clsx(
                                             "whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black transition-all border cursor-pointer",
                                             category === cat
-                                                ? "bg-app-accent/20 text-app-accent border-app-accent/40 shadow-[0_0_15px_rgba(var(--app-accent-rgb),0.2)]"
+                                                ? "bg-app-text text-app-bg border-app-text"
                                                 : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
                                         )}
                                     >

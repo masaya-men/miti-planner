@@ -118,16 +118,16 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
                     isFocused
                         ? activeColor === 'blue'
-                            ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.6),inset_0_0_24px_rgba(59,130,246,0.2),0_0_20px_rgba(59,130,246,0.35),0_0_0_3px_rgba(59,130,246,0.2)]"
+                            ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80"
                             : activeColor === 'green'
-                                ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.6),inset_0_0_24px_rgba(16,185,129,0.2),0_0_20px_rgba(16,185,129,0.35),0_0_0_3px_rgba(16,185,129,0.2)]"
-                                : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.6),inset_0_0_24px_rgba(244,63,94,0.2),0_0_20px_rgba(244,63,94,0.35),0_0_0_3px_rgba(244,63,94,0.2)]"
+                                ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80"
+                                : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80"
                         : job
                             ? activeColor === 'blue'
-                                ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 shadow-[inset_0_1.5px_0_rgba(147,197,253,0.4),inset_0_0_20px_rgba(59,130,246,0.12),0_0_12px_rgba(59,130,246,0.15)] hover:bg-blue-500/[0.10] hover:border-blue-300/70"
+                                ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 hover:bg-blue-500/[0.10] hover:border-blue-300/70"
                                 : activeColor === 'green'
-                                    ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 shadow-[inset_0_1.5px_0_rgba(110,231,183,0.4),inset_0_0_20px_rgba(16,185,129,0.12),0_0_12px_rgba(16,185,129,0.15)] hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
-                                    : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 shadow-[inset_0_1.5px_0_rgba(253,164,175,0.4),inset_0_0_20px_rgba(244,63,94,0.12),0_0_12px_rgba(244,63,94,0.15)] hover:bg-rose-500/[0.10] hover:border-rose-300/70"
+                                    ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
+                                    : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 hover:bg-rose-500/[0.10] hover:border-rose-300/70"
                             : activeColor === 'blue'
                                 ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
                                 : activeColor === 'green'
@@ -135,26 +135,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
                 )}
             >
-                {/* 光の反射グラデーション */}
-                <div className="absolute inset-0 pointer-events-none"
-                    style={{
-                        background: activeColor === 'blue'
-                            ? 'linear-gradient(135deg,rgba(147,197,253,0.12) 0%,rgba(59,130,246,0.02) 50%,transparent 100%)'
-                            : activeColor === 'green'
-                                ? 'linear-gradient(135deg,rgba(110,231,183,0.12) 0%,rgba(16,185,129,0.02) 50%,transparent 100%)'
-                                : 'linear-gradient(135deg,rgba(253,164,175,0.12) 0%,rgba(244,63,94,0.02) 50%,transparent 100%)'
-                    }}
-                />
-                {/* 上端の輝くライン */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
-                    style={{
-                        background: activeColor === 'blue'
-                            ? 'linear-gradient(90deg,transparent,rgba(147,197,253,0.8),transparent)'
-                            : activeColor === 'green'
-                                ? 'linear-gradient(90deg,transparent,rgba(110,231,183,0.8),transparent)'
-                                : 'linear-gradient(90deg,transparent,rgba(253,164,175,0.8),transparent)'
-                    }}
-                />
+                {/* 光の反射グラデーション（removed for B/W theme） */}
+                {/* 上端の輝くライン（removed for B/W theme） */}
 
                 <Ripple />
 
@@ -164,10 +146,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         "text-[10px] font-black tracking-tighter w-6 z-10",
                         theme === 'dark'
                             ? activeColor === 'blue'
-                                ? "text-blue-200 drop-shadow-[0_0_8px_rgba(147,197,253,0.6)]"
+                                ? "text-blue-200"
                                 : activeColor === 'green'
-                                    ? "text-emerald-200 drop-shadow-[0_0_8px_rgba(110,231,183,0.6)]"
-                                    : "text-rose-200 drop-shadow-[0_0_8px_rgba(253,164,175,0.6)]"
+                                    ? "text-emerald-200"
+                                    : "text-rose-200"
                             : activeColor === 'blue'
                                 ? "text-blue-800"
                                 : activeColor === 'green'
@@ -180,14 +162,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <img
                             src={job.icon}
                             alt={job.name?.ja}
-                            className={clsx(
-                                "w-8 h-8 object-contain",
-                                activeColor === 'blue'
-                                    ? "drop-shadow-[0_0_6px_rgba(59,130,246,0.5)]"
-                                    : activeColor === 'green'
-                                        ? "drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]"
-                                        : "drop-shadow-[0_0_6px_rgba(244,63,94,0.5)]"
-                            )}
+                            className="w-8 h-8 object-contain"
                         />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
@@ -213,14 +188,14 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 }}
                                 className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
-                                        ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
+                                        ? "bg-app-text/10 border-app-text text-app-text scale-110"
                                         : "bg-app-surface2 text-white/30 border-app-border hover:bg-app-surface2 hover:text-white/80"
                                 )}
                             >
                                 <Tooltip content={t('party.my_job')}>
                                     <Star size={16} className={clsx("transition-all duration-300",
                                         isMyJob
-                                            ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                                            ? "fill-app-text text-app-text"
                                             : "group-hover/star:scale-110"
                                     )} />
                                 </Tooltip>
@@ -667,15 +642,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 {/* ヘッダーエリア */}
                 <div className="flex justify-between items-center px-5 py-4 border-b border-glass-border bg-glass-header flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-500/10 rounded-xl">
-                            <User className="text-blue-500" size={16} />
+                        <div className="p-2 bg-app-text/10 rounded-xl">
+                            <User className="text-app-text" size={16} />
                         </div>
                         <div>
                             <h2 className="text-sm font-black text-white tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
                             <p className="text-[10px] mt-0.5 font-bold">
                                 {focusedSlot !== null
-                                    ? <span className="flex items-center gap-1.5 text-blue-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-black">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse inline-block shadow-[0_0_8px_rgba(147,197,253,0.8)]" />
+                                    ? <span className="flex items-center gap-1.5 text-app-text font-black">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-app-text animate-pulse inline-block" />
                                         {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
                                     </span>
                                     : <span className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>
@@ -697,7 +672,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <div>
                             <div className="flex items-center justify-between mb-2 pl-1 pr-2">
                                 <div className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-300 shadow-[0_0_10px_rgba(147,197,253,0.8)]"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
                                     <h3 className="text-white text-[11px] font-black tracking-widest uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">MT Group</h3>
                                 </div>
                                 <span className="text-[9px] text-white font-bold hidden md:inline-block drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
@@ -735,7 +710,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {/* STグループ */}
                         <div>
                             <div className="flex items-center gap-2 mb-2 pl-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-300 shadow-[0_0_10px_rgba(216,180,254,0.8)]"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
                                 <h3 className="text-white text-[11px] font-black tracking-widest uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">ST Group</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-2">

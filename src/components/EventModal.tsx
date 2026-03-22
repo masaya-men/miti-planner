@@ -473,7 +473,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             className={clsx(
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'reverse'
-                                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                                    ? "bg-app-text text-app-bg border border-app-text"
                                     : "text-app-text border border-transparent"
                             )}
                         >
@@ -486,7 +486,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             className={clsx(
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'direct'
-                                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                                    ? "bg-app-text text-app-bg border border-app-text"
                                     : "text-app-text border border-transparent"
                             )}
                         >
@@ -506,7 +506,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
-                                    "bg-app-surface2 border-app-border text-app-text focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
+                                    "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
                             />
@@ -521,7 +521,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
-                                    "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
+                                    "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
                                 placeholder={t('mechanic_modal.placeholder')}
@@ -547,14 +547,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         className={`
                                             relative group p-1.5 rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all h-[52px] cursor-pointer
                                             ${damageType === item.type
-                                                ? 'border-blue-500/50 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
+                                                ? 'border-app-text bg-app-text/10'
                                                 : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'}
                                         `}
                                     >
                                         <Tooltip content={item.label}>
                                             <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
                                         </Tooltip>
-                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-app-text group-hover:text-app-text'}`}>
+                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-app-text' : 'text-app-text group-hover:text-app-text'}`}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -578,7 +578,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         className={`
                                             h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center cursor-pointer
                                             ${target === t.value
-                                                ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.15)]'
+                                                ? 'bg-app-text text-app-bg border-app-text'
                                                 : 'bg-app-surface2 border-app-border text-app-text hover:bg-app-surface2'}
                                         `}
                                     >
@@ -607,7 +607,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
                                         "w-full rounded-lg p-2.5 text-lg font-mono transition-all font-bold border focus:outline-none focus:ring-1",
-                                        "bg-app-surface2 border-app-border text-app-text focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
+                                        "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                     )}
                                 />
                             </div>
@@ -629,7 +629,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     onFocus={(e) => e.target.select()}
                                                     className={clsx(
                                                         "flex-1 border rounded-lg px-4 py-2.5 text-lg font-mono outline-none transition-all",
-                                                        "bg-app-surface border-app-border text-app-text focus:border-blue-500/50"
+                                                        "bg-app-surface border-app-border text-app-text focus:border-app-text"
                                                     )}
                                                     placeholder="0"
                                                 />
@@ -637,10 +637,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         </div>
                                         <div className={clsx(
                                             "flex items-center justify-between p-3 rounded-lg border transition-colors",
-                                            "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20"
+                                            "bg-app-text/5 border-app-border"
                                         )}>
-                                            <span className="text-xs font-bold text-blue-500 dark:text-blue-300 uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
-                                            <span className="text-xl font-mono font-bold text-blue-700 dark:text-white tracking-tight drop-shadow-md">{damageAmount.toLocaleString()}</span>
+                                            <span className="text-xs font-bold text-app-text uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
+                                            <span className="text-xl font-mono font-bold text-app-text tracking-tight">{damageAmount.toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -671,7 +671,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     className={clsx(
                                                         "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
                                                         selectedMitigations.includes(mit.id)
-                                                            ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
+                                                            ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
                                                             : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
                                                     )}
                                                 >
@@ -722,7 +722,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <button
                             data-tutorial="event-save-btn"
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-blue-400/50 hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-text text-app-bg hover:opacity-80 rounded-lg text-sm font-bold transition-all border border-app-text hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
                         >
                             <Save size={16} />
                             {t('mechanic_modal.add_button')}

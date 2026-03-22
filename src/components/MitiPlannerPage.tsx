@@ -51,7 +51,7 @@ export const MitiPlannerPage: React.FC = () => {
                                 className={clsx(
                                     "p-2 rounded-lg transition-all duration-300 flex items-center justify-center cursor-pointer",
                                     viewMode === 'timeline'
-                                        ? "bg-blue-500/40 text-blue-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
+                                        ? "bg-app-text text-app-bg"
                                         : "text-app-text hover:bg-app-surface2"
                                 )}
                             >
@@ -64,7 +64,7 @@ export const MitiPlannerPage: React.FC = () => {
                                 className={clsx(
                                     "p-2 rounded-lg transition-all duration-300 flex items-center justify-center cursor-pointer",
                                     viewMode === 'cheatsheet'
-                                        ? "bg-amber-500/40 text-amber-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]"
+                                        ? "bg-app-text text-app-bg"
                                         : "text-app-text hover:bg-app-surface2"
                                 )}
                             >

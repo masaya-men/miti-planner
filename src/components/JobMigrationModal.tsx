@@ -48,8 +48,8 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
             <div className="relative bg-glass-panel border border-glass-border shadow-sm rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
 
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-app-border bg-gradient-to-r from-blue-500/10 to-transparent flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-xl text-blue-400">
+                <div className="px-5 py-4 border-b border-app-border flex items-center gap-3">
+                    <div className="p-2 bg-app-text/10 rounded-xl text-app-text">
                         <ArrowRightLeft size={20} />
                     </div>
                     <div>
@@ -80,17 +80,17 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         className={clsx(
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'inherit'
-                                ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                                ? "bg-app-text/10 border-app-text"
                                 : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'inherit' ? "border-blue-400 bg-blue-400" : "border-app-border"
+                            selectedMode === 'inherit' ? "border-app-text bg-app-text" : "border-app-border"
                         )}>
-                            {selectedMode === 'inherit' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
+                            {selectedMode === 'inherit' && <Check size={10} className="text-app-bg" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-blue-100' : 'text-app-text')}>
+                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-app-text' : 'text-app-text')}>
                                 {t('migration.mode.inherit.title', '互換スキルを引き継ぐ (推奨)')}
                             </div>
                             <div className="text-[10px] text-app-text-muted leading-snug">
@@ -104,17 +104,17 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         className={clsx(
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'common_only'
-                                ? "bg-yellow-500/10 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
+                                ? "bg-app-text/10 border-app-text"
                                 : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'common_only' ? "border-yellow-400 bg-yellow-400" : "border-app-border"
+                            selectedMode === 'common_only' ? "border-app-text bg-app-text" : "border-app-border"
                         )}>
-                            {selectedMode === 'common_only' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
+                            {selectedMode === 'common_only' && <Check size={10} className="text-app-bg" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-yellow-100' : 'text-app-text')}>
+                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-app-text' : 'text-app-text')}>
                                 {t('migration.mode.common.title', '共通スキル（ロールアクション）のみ残す')}
                             </div>
                             <div className="text-[10px] text-app-text-muted leading-snug">
@@ -162,8 +162,8 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         onClick={() => onConfirm(selectedMode)}
                         className={clsx(
                             "px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
-                            selectedMode === 'inherit' ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/30" :
-                                selectedMode === 'common_only' ? "bg-yellow-600 hover:bg-yellow-500 text-white shadow-yellow-500/30" :
+                            selectedMode === 'inherit' ? "bg-app-text text-app-bg hover:opacity-80" :
+                                selectedMode === 'common_only' ? "bg-app-text text-app-bg hover:opacity-80" :
                                     "bg-red-600 hover:bg-red-500 text-white shadow-red-500/30"
                         )}
                     >
