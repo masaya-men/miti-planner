@@ -296,7 +296,7 @@ export const CheatSheetView: React.FC = () => {
                         {hasDamage && dmgInfo && (
                             <span className={clsx(
                                 "text-[10px] font-mono font-black drop-shadow-md shrink-0",
-                                isLethal ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-200"
+                                isLethal ? "text-red-600 dark:text-red-400" : "text-app-text"
                             )}>
                                 {dmgInfo.isInvincible ? t('timeline.invuln') : actualDamage.toLocaleString()}
                             </span>
@@ -408,7 +408,7 @@ export const CheatSheetView: React.FC = () => {
             <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth thin-scrollbar pb-10 [scrollbar-gutter:stable]">
                 <div className="flex-1 flex flex-col">
                     {damageEvents.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-slate-500 text-sm font-medium">
+                        <div className="flex items-center justify-center h-full text-app-text-muted text-sm font-medium">
                             {t('ui.no_damage_events')}
                         </div>
                     ) : (

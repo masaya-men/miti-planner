@@ -78,13 +78,13 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-slate-900 dark:group-hover:text-slate-100 hover:bg-black/[0.04] dark:hover:bg-white/[0.05]",
+                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-app-text hover:bg-black/[0.04] dark:hover:bg-white/[0.05]",
                         "border-slate-200 dark:border-white/[0.02]"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
             >
                 <Tooltip content={t('timeline.end_phase')} position="right">
-                    <div className="flex items-center justify-center w-full h-full text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
                         <Plus size={16} />
                     </div>
                 </Tooltip>
@@ -118,7 +118,7 @@ export const TimelineRow = memo(({
                         <Tooltip content={t('timeline.add_event')} position="top">
                             <Plus size={16} className={clsx(
                                 "",
-                                "text-slate-600 hover:text-slate-600 dark:text-slate-400",
+                                "text-app-text-muted",
                                 // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
                                 "[.tutorial-target-highlight_&]:text-sky-400"
                             )} />
@@ -186,7 +186,7 @@ export const TimelineRow = memo(({
                             <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                 {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                     <>
-                                        <span className="text-[10px] text-slate-500 font-mono">on</span>
+                                        <span className="text-[10px] text-app-text-muted font-mono">on</span>
                                         {(() => {
                                             const member = partyMembers.find(m => m.id === events[0].target);
                                             const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -215,7 +215,7 @@ export const TimelineRow = memo(({
                                 onAddEventClick(time, e);
                             }}
                         >
-                            <Plus size={10} className="text-slate-600 dark:text-slate-400 scale-75" />
+                            <Plus size={10} className="text-app-text-muted scale-75" />
                         </div>
                     </div>
                 ) : (
@@ -247,7 +247,7 @@ export const TimelineRow = memo(({
                                 <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                     {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                         <>
-                                            <span className="text-[10px] text-slate-500 font-mono">on</span>
+                                            <span className="text-[10px] text-app-text-muted font-mono">on</span>
                                             {(() => {
                                                 const member = partyMembers.find(m => m.id === events[0].target);
                                                 const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -295,7 +295,7 @@ export const TimelineRow = memo(({
                                 <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
                                     {(events[1].target === 'MT' || events[1].target === 'ST') && (
                                         <>
-                                            <span className="text-[10px] text-slate-500 font-mono">on</span>
+                                            <span className="text-[10px] text-app-text-muted font-mono">on</span>
                                             {(() => {
                                                 const member = partyMembers.find(m => m.id === events[1].target);
                                                 const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -450,11 +450,11 @@ export const TimelineRow = memo(({
                                         {damages[0].mitigated.toLocaleString()}
                                     </span>
                                     {damages[0].isInvincible ? (
-                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
                                             {t('timeline.invuln', 'Invuln')}
                                         </div>
                                     ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                             {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
                                             {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                             {damages[0].shieldTotal > 0 && (
@@ -498,11 +498,11 @@ export const TimelineRow = memo(({
                                         {damages[1].mitigated.toLocaleString()}
                                     </span>
                                     {damages[1].isInvincible ? (
-                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
                                             {t('timeline.invuln', 'Invuln')}
                                         </div>
                                     ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) ? (
-                                        <div className="text-[9px] text-slate-500 font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                             {damages[1].mitigationPercent > 0 && <span>▼ {damages[1].mitigationPercent}%</span>}
                                             {damages[1].mitigationPercent > 0 && damages[1].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                             {damages[1].shieldTotal > 0 && (

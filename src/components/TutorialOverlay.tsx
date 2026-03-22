@@ -545,7 +545,7 @@ export const TutorialOverlay: React.FC = () => {
                                     onClick={() => useTutorialStore.getState().cancelRestart()}
                                     className={clsx(
                                         "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
-                                        "border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/10"
+                                        "border-slate-200 text-app-text-muted hover:bg-slate-100 dark:border-white/10 dark:hover:bg-white/10"
                                     )}
                                 >
                                     {t('tutorial.restart_cancel')}

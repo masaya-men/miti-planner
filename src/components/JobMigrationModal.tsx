@@ -56,7 +56,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         <h2 className="text-sm font-bold text-white tracking-wide">
                             {t('migration.title')}
                         </h2>
-                        <p className="text-[10px] text-slate-400 mt-0.5">
+                        <p className="text-[10px] text-app-text-muted mt-0.5">
                             {batchTasks && batchTasks.length >= 2
                                 ? t('migration.batch_desc', { count: batchTasks.length })
                                 : t('migration.individual_desc', { 
@@ -70,7 +70,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
 
                 {/* Content */}
                 <div className="p-5 flex flex-col gap-3 bg-[#0a0a0c]/80">
-                    <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+                    <p className="text-xs text-app-text mb-2 leading-relaxed">
                         {t('migration.description', 'すでに配置されているタイムライン上のスキルをどのように処理するか選択してください。')}
                     </p>
 
@@ -90,10 +90,10 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {selectedMode === 'inherit' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-blue-100' : 'text-slate-300')}>
+                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-blue-100' : 'text-app-text')}>
                                 {t('migration.mode.inherit.title', '互換スキルを引き継ぐ (推奨)')}
                             </div>
-                            <div className="text-[10px] text-slate-400 leading-snug">
+                            <div className="text-[10px] text-app-text-muted leading-snug">
                                 {t('migration.mode.inherit.desc', '新しいジョブの対応するスキルに自動で変換します。1対多の専用変換（サモン・セラフィム＋フェイイルミネーションへの置換等）も適用されます。')}
                             </div>
                         </div>
@@ -114,10 +114,10 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {selectedMode === 'common_only' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-yellow-100' : 'text-slate-300')}>
+                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-yellow-100' : 'text-app-text')}>
                                 {t('migration.mode.common.title', '共通スキル（ロールアクション）のみ残す')}
                             </div>
-                            <div className="text-[10px] text-slate-400 leading-snug">
+                            <div className="text-[10px] text-app-text-muted leading-snug">
                                 {t('migration.mode.common.desc', 'リプライザルや牽制・アドルなど、全ジョブ共通で持つアクションのみを残し、固有スキルは削除します。')}
                             </div>
                         </div>
@@ -138,11 +138,11 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {selectedMode === 'reset' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-red-100' : 'text-slate-300')}>
-                                <ShieldAlert size={14} className={selectedMode === 'reset' ? "text-red-400" : "text-slate-500"} />
+                            <div className={clsx("text-sm font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-red-100' : 'text-app-text')}>
+                                <ShieldAlert size={14} className={selectedMode === 'reset' ? "text-red-400" : "text-app-text-muted"} />
                                 {t('migration.mode.reset.title', '配置をすべてリセットする')}
                             </div>
-                            <div className="text-[10px] text-slate-400 leading-snug">
+                            <div className="text-[10px] text-app-text-muted leading-snug">
                                 {t('migration.mode.reset.desc', 'このメンバーが配置しているすべてのスキルをタイムラインから削除します。')}
                             </div>
                         </div>
@@ -154,7 +154,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 <div className="px-5 py-3 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-lg text-xs font-medium text-app-text hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                     >
                         {t('common.cancel', 'キャンセル')}
                     </button>

@@ -34,14 +34,14 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Labels */}
                 <button
                     onClick={() => handleLanguageChange('ja')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]' : 'text-slate-500 hover:text-slate-700 dark:text-white/60 dark:hover:text-white'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]' : 'text-app-text-muted hover:text-app-text'
                         }`}
                 >
                     JP
                 </button>
                 <button
                     onClick={() => handleLanguageChange('en')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]' : 'text-slate-500 hover:text-slate-700 dark:text-white/60 dark:hover:text-white'
+                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.6)]' : 'text-app-text-muted hover:text-app-text'
                         }`}
                 >
                     EN
