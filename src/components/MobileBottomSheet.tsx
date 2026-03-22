@@ -96,7 +96,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                 className={clsx(
                     "fixed bottom-0 left-0 right-0 z-[301]",
                     "bg-app-bg",
-                    "rounded-t-2xl shadow-sm border-t border-white/20 dark:border-white/10",
+                    "rounded-t-2xl shadow-sm border-t border-app-border",
                     "flex flex-col overflow-hidden",
                     "transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
                     visible ? "translate-y-0" : "translate-y-full"
@@ -105,16 +105,16 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
             >
                 {/* Drag handle — visual cue for swipe */}
                 <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
-                    <div className="w-10 h-1 rounded-full bg-slate-400 dark:bg-slate-500" />
+                    <div className="w-10 h-1 rounded-full bg-app-border" />
                 </div>
 
                 {/* Title bar */}
                 {title && (
-                    <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-200/50 dark:border-white/5">
+                    <div className="flex items-center justify-between px-4 pb-2 border-b border-app-border">
                         <h3 className="text-sm font-black text-app-text tracking-wide">{title}</h3>
                         <button
                             onClick={onClose}
-                            className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer"
                         >
                             <X size={16} className="text-app-text-secondary" />
                         </button>

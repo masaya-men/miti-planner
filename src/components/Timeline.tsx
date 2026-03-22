@@ -447,7 +447,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 >
                     <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full">
                         <div className={clsx(
-                            "w-full h-full bg-black/50 overflow-hidden rounded border border-white/20 flex items-center justify-center",
+                            "w-full h-full bg-black/50 overflow-hidden rounded border border-app-border flex items-center justify-center",
                             isVirtual && "bg-transparent border-none shadow-none"
                         )}>
                             <img
@@ -501,7 +501,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
                 {recastPx > durationHeight && (
                     <div
                         className={clsx(
-                            "absolute w-0 border-l-[2px] border-dotted border-slate-500/40 z-0 pointer-events-none",
+                            "absolute w-0 border-l-[2px] border-dotted border-app-border z-0 pointer-events-none",
                             myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-30"
                         )}
                         style={{
@@ -1275,14 +1275,14 @@ const Timeline: React.FC = () => {
 
                 <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-sm border transition-all duration-300 ease-out",
-                    "border-slate-200 dark:border-white/5 h-full z-[1]",
+                    "border-app-border h-full z-[1]",
                     "mx-2 md:mx-6 mt-2 md:mt-4 mb-2 rounded-xl"
                 )}>
                     <div
                         ref={controlBarRef}
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative border-b select-none overflow-hidden",
-                            "bg-white/10 border-slate-200/50 dark:bg-transparent dark:border-white/10"
+                            "bg-app-surface2 border-app-border"
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
@@ -1337,7 +1337,7 @@ const Timeline: React.FC = () => {
                                     </button>
                                     <div className={clsx(
                                         "h-3 w-[1px]",
-                                        isAaModeEnabled ? "bg-app-accent/40" : "bg-slate-300/50 dark:bg-white/10"
+                                        isAaModeEnabled ? "bg-app-accent/40" : "bg-app-border"
                                     )} />
                                     <button
                                         ref={aaSettingsButtonRef}
@@ -1362,7 +1362,7 @@ const Timeline: React.FC = () => {
                             </div>
 
                             {/* Area C: Remaining (RAW/TAKEN/Columns) */}
-                            <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-white/5 pl-2 h-full">
+                            <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-app-border pl-2 h-full">
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}
@@ -1370,7 +1370,7 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
                                             useMitigationStore.getState()._history.length > 0
-                                                ? "text-app-text-muted hover:bg-white/10 hover:text-white"
+                                                ? "text-app-text-muted hover:bg-app-surface2 hover:text-white"
                                                 : "text-app-text-sec cursor-default"
                                         )}
                                     >
@@ -1384,14 +1384,14 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
                                             useMitigationStore.getState()._future.length > 0
-                                                ? "text-app-text-muted hover:bg-white/10 hover:text-white"
+                                                ? "text-app-text-muted hover:bg-app-surface2 hover:text-white"
                                                 : "text-app-text-sec cursor-default"
                                         )}
                                     >
                                         <Redo2 size={12} />
                                     </button>
                                 </Tooltip>
-                                <div className="w-[1px] h-3 bg-white/10 mx-0.5" />
+                                <div className="w-[1px] h-3 bg-app-border mx-0.5" />
                                 <div className="relative">
                                     <Tooltip content={t('timeline.clear_mitigations')}>
                                         <button
@@ -1448,7 +1448,7 @@ const Timeline: React.FC = () => {
                                                 onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
                                                 className={clsx(
                                                     "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
-                                                    "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50 dark:bg-black/50 dark:border-white/10 dark:hover:border-amber-400/40 dark:hover:bg-black/70"
+                                                    "bg-app-surface border-app-border hover:border-amber-400/60 hover:bg-app-surface2"
                                                 )}
                                             >
                                                 <span className="text-[8px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
@@ -1462,7 +1462,7 @@ const Timeline: React.FC = () => {
                                                         <img src="/icons/Dissipation.png" alt={t('mitigation.dissipation', 'Dissipation')} className="w-full h-full object-contain" />
                                                     </div>
                                                 </div>
-                                                <div className="w-[1px] h-3.5 bg-slate-900/ dark:bg-white/ mx-0.5" />
+                                                <div className="w-[1px] h-3.5 bg-app-border mx-0.5" />
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1491,20 +1491,20 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center text-app-accent font-black bg-transparent text-[8px] md:text-[11px]">
+                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-accent font-black bg-transparent text-[8px] md:text-[11px]">
                                 {t('timeline.header_phase')}
                             </div>
-                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-white/5 h-full flex items-center bg-transparent text-app-text-secondary text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_raw')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-white/5 h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_taken')}</div>
+                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-secondary font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-secondary text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_raw')}</div>
+                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-secondary text-[8px] md:text-[10px] font-black">{t('timeline.header_taken')}</div>
 
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
                                     style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                                     className={clsx(
-                                        "hidden md:flex flex-none border-r border-white/5 h-full flex-col items-center justify-center p-0.5 relative group",
+                                        "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
                                         index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
                                         partySortOrder === 'role' ? (
                                             member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
@@ -1520,14 +1520,14 @@ const Timeline: React.FC = () => {
                                     <Tooltip content={`${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
                                         <div
                                             className={clsx(
-                                                "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all duration-300 relative"
+                                                "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-app-surface2 transition-all duration-300 relative"
                                             )}
                                             onClick={(e) => handleJobIconClick(member.id, e)}
                                         >
                                             {member.jobId ? (
                                                 <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
                                             ) : (
-                                                <div className="w-5 h-5 rounded-full border border-white/10 bg-slate-900/ dark:bg-white/ flex items-center justify-center hover:bg-slate-900/ dark:hover:bg-white/ ">
+                                                <div className="w-5 h-5 rounded-full border border-app-border bg-app-surface2 flex items-center justify-center hover:bg-app-surface2">
                                                     <Plus size={10} className="text-app-text-muted" />
                                                 </div>
                                             )}
@@ -1651,7 +1651,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 cursor-pointer hover:bg-blue-100 dark:hover:bg-white/10 pointer-events-auto z-10"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-app-border bg-blue-50 dark:bg-app-surface2 cursor-pointer hover:bg-blue-100 dark:hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                 >
@@ -1918,11 +1918,11 @@ const Timeline: React.FC = () => {
                     <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                         <div className={clsx(
                             "rounded-2xl w-full max-w-sm shadow-sm overflow-hidden flex flex-col transition-all duration-200",
-                            "bg-white border border-slate-200 dark:bg-slate-900 dark:border dark:border-white/10"
+                            "bg-app-surface border border-app-border"
                         )} onClick={e => e.stopPropagation()}>
                             <div className={clsx(
                                 "p-4 border-b flex justify-between items-center ",
-                                "border-slate-100 bg-slate-50/50 dark:border-white/5 dark:bg-white/5"
+                                "border-app-border bg-app-surface2"
                             )}>
                                 <h3 className={clsx(
                                     "font-bold text-sm tracking-wider ",
@@ -1930,7 +1930,7 @@ const Timeline: React.FC = () => {
                                 )}>
                                     {mobileMitiFlow.step === 'job' ? t('timeline.select_member') : t('timeline.select_mitigation')}
                                 </h3>
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-app-text-muted p-1.5 bg-white/5 hover:bg-white/10 rounded-lg ">
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-app-text-muted p-1.5 bg-app-surface2 hover:bg-app-surface2 rounded-lg ">
                                     <X size={16} />
                                 </button>
                             </div>
@@ -1943,7 +1943,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
                                                     "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
-                                                    "bg-slate-50 border-slate-200 active:bg-blue-100 dark:bg-white/5 dark:border-white/10 dark:active:bg-blue-500/30"
+                                                    "bg-app-surface2 border-app-border active:bg-blue-100 dark:active:bg-blue-500/30"
                                                 )}>
                                                     <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
                                                     <span className={clsx(
@@ -2010,7 +2010,7 @@ const Timeline: React.FC = () => {
                                                             isAlreadyPlaced
                                                                 ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
                                                                 : status.available
-                                                                    ? "bg-slate-50 border-slate-200 active:bg-blue-100 dark:bg-white/5 dark:border-white/10 dark:active:bg-blue-500/30"
+                                                                    ? "bg-app-surface2 border-app-border active:bg-blue-100 dark:active:bg-blue-500/30"
                                                                     : "bg-black/40 border-transparent opacity-40"
                                                         )}
                                                     >
@@ -2033,7 +2033,7 @@ const Timeline: React.FC = () => {
                             {mobileMitiFlow.step === 'skill' && (
                                 <div className={clsx(
                                     "p-3 border-t ",
-                                    "border-slate-100 bg-slate-50 dark:border-white/5 dark:bg-black/40"
+                                    "border-app-border bg-app-surface2"
                                 )}>
                                     <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 ">
                                         ← メンバー選択に戻る
@@ -2116,7 +2116,7 @@ const Timeline: React.FC = () => {
                                 "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 useMitigationStore.getState().hideEmptyRows
                                     ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-300"
-                                    : "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
+                                    : "bg-app-surface2 border-app-border text-app-text-muted"
                             )}
                         >
                             <AlignJustify size={16} />
@@ -2127,7 +2127,7 @@ const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._history.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
+                                "bg-app-surface2 border-app-border text-app-text-muted"
                             )}
                         >
                             <Undo2 size={16} />
@@ -2137,7 +2137,7 @@ const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._future.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
+                                "bg-app-surface2 border-app-border text-app-text-muted"
                             )}
                         >
                             <Redo2 size={16} />
@@ -2146,7 +2146,7 @@ const Timeline: React.FC = () => {
 
                     <div className={clsx(
                         "h-px ",
-                        "bg-slate-100 dark:bg-white/10"
+                        "bg-app-border"
                     )} />
 
                     <button
@@ -2197,7 +2197,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverEdit}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-app-text hover:bg-slate-100/80 dark:hover:bg-white/10"
+                                "text-app-text hover:bg-app-surface2"
                             )}
                         >
                             <Pencil size={15} className="text-blue-500 dark:text-blue-400 shrink-0" />
@@ -2207,13 +2207,13 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverAdd}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-app-text hover:bg-slate-100/80 dark:hover:bg-white/10"
+                                "text-app-text hover:bg-app-surface2"
                             )}
                         >
                             <Plus size={15} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
                             <span>{t('timeline.event_add_here')}</span>
                         </button>
-                        <div className={clsx("h-px mx-3 my-1", "bg-slate-200/60 dark:bg-white/10")} />
+                        <div className={clsx("h-px mx-3 my-1", "bg-app-border")} />
                         <button
                             onClick={handlePopoverDelete}
                             className={clsx(

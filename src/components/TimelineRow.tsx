@@ -70,7 +70,7 @@ export const TimelineRow = memo(({
             data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit border-b flex h-[50px] group  duration-75",
-                "border-slate-200 hover:bg-black/[0.02] dark:border-white/[0.03] dark:hover:bg-white/[0.04]"
+                "border-app-border hover:bg-app-surface2"
             )}
             style={{ top: `${top}px` }}
         >
@@ -78,8 +78,8 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-app-text hover:bg-black/[0.04] dark:hover:bg-white/[0.05]",
-                        "border-slate-200 dark:border-white/[0.02]"
+                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-app-text hover:bg-app-surface2",
+                        "border-app-border"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
             >
@@ -93,7 +93,7 @@ export const TimelineRow = memo(({
             {/* Time Column */}
             <div className={clsx(
                 "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-app-text group-hover:font-black",
-                "border-slate-200 text-app-text-secondary dark:border-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                "border-app-border text-app-text-secondary hover:bg-app-surface2"
             )}>
                 {formattedTime}
             </div >
@@ -101,7 +101,7 @@ export const TimelineRow = memo(({
             {/* Event Column (Vertical Stack, Max 2) */}
             <div className={clsx(
                 "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col ",
-                "border-slate-200 dark:border-white/[0.02] hover:bg-black/[0.04] dark:hover:bg-white/[0.05]"
+                "border-app-border hover:bg-app-surface2"
             )}>
                 {events.length === 0 ? (
                     <div
@@ -109,7 +109,7 @@ export const TimelineRow = memo(({
                         className={clsx(
                             "w-full h-full flex items-center justify-center cursor-pointer transition-all",
                             // ▼ 通常時の挙動（ホバーで表示）
-                            "opacity-0 group-hover:opacity-100 hover:bg-white/[0.05]",
+                            "opacity-0 group-hover:opacity-100 hover:bg-app-surface2",
                             // ▼ チュートリアルでターゲットに指定された瞬間だけ強制表示＆ハイライト！
                             "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-sky-500/20"
                         )}
@@ -128,7 +128,7 @@ export const TimelineRow = memo(({
                     <div className="w-full h-full relative group/slot">
                         <div
                             // 👇 スマホ表示用に少し padding や flex-col を調整
-                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-0.5 md:gap-2"
+                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-0.5 md:gap-2"
                             onClick={(e) => onEventClick(events[0], e)}
                         >
                             {/* Left Side: Icon + Name */}
@@ -208,7 +208,7 @@ export const TimelineRow = memo(({
 
                         <div
                             className={clsx(
-                                "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-slate-900/ dark:hover:bg-white/ transition-all opacity-0 group-hover/slot:opacity-100 z-10"
+                                "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-all opacity-0 group-hover/slot:opacity-100 z-10"
                             )}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -220,9 +220,9 @@ export const TimelineRow = memo(({
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 w-full border-b border-white/[0.02] relative group/slot">
+                        <div className="flex-1 w-full border-b border-app-border relative group/slot">
                             <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
+                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-2"
                                 onClick={(e) => onEventClick(events[0], e)}
                             >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -270,7 +270,7 @@ export const TimelineRow = memo(({
 
                         <div className="flex-1 w-full relative group/slot">
                             <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-white/[0.05]  gap-2"
+                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-2"
                                 onClick={(e) => onEventClick(events[1], e)}
                             >
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -323,7 +323,7 @@ export const TimelineRow = memo(({
             <div
                 className={clsx(
                     "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
-                    "border-slate-200 text-app-text-secondary dark:border-white/[0.02]"
+                    "border-app-border text-app-text-secondary"
                 )}
                 // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
                 onClick={(e) => {
@@ -340,7 +340,7 @@ export const TimelineRow = memo(({
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 w-full flex items-center justify-center border-b border-white/[0.02]">
+                        <div className="flex-1 w-full flex items-center justify-center border-b border-app-border">
                             {damages[0] && damages[0].unmitigated > 0 ? damages[0].unmitigated.toLocaleString() : ''}
                         </div>
                         <div className="flex-1 w-full flex items-center justify-center">
@@ -359,7 +359,7 @@ export const TimelineRow = memo(({
                 }
                 className={clsx(
                     "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
-                    "border-slate-200 text-app-text-primary dark:border-white/[0.02]"
+                    "border-app-border text-app-text-primary"
                 )}
                 // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
                 onClick={(e) => {
@@ -419,7 +419,7 @@ export const TimelineRow = memo(({
                     </div>
                 ) : (
                     <>
-                        <div className={clsx("flex-1 w-full flex flex-col items-center justify-center border-b border-white/[0.02] gap-0.5 leading-none",
+                        <div className={clsx("flex-1 w-full flex flex-col items-center justify-center border-b border-app-border gap-0.5 leading-none",
                             (() => {
                                 const evt = events[0];
                                 const dmg = damages[0];
@@ -530,7 +530,7 @@ export const TimelineRow = memo(({
                         }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
-                            "border-slate-200 hover:bg-black/[0.04] dark:border-white/[0.02] dark:hover:bg-white/[0.05]"
+                            "border-app-border hover:bg-app-surface2"
                         )}
                         style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                         onClick={(e) => onCellClick(member.id, time, e)}

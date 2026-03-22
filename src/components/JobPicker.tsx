@@ -53,7 +53,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                         top: Math.min(position.y + 10, window.innerHeight - 300)
                     }}
                 >
-                    <div className="flex justify-between items-center border-b border-white/[0.03] pb-1.5 px-1">
+                    <div className="flex justify-between items-center border-b border-app-border pb-1.5 px-1">
                         <h3 className="font-bold text-app-text-primary text-xs tracking-wide">{t('jobs.select_job')}</h3>
                         <button onClick={onClose} className="text-app-text-muted hover:text-slate-800 dark:text-white transition-colors cursor-pointer">
                             <X size={14} />
@@ -70,14 +70,14 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                         </div>
 
                         {/* Healers */}
-                        <div className="flex gap-1 flex-wrap justify-start pl-1 border-t border-white/[0.05] pt-1.5">
+                        <div className="flex gap-1 flex-wrap justify-start pl-1 border-t border-app-border pt-1.5">
                             {healers.map(job => (
                                 <JobButton key={job.id} job={job} currentJobId={currentJobId} onSelect={() => onSelect(job.id)} contentLanguage={contentLanguage} theme={theme} />
                             ))}
                         </div>
 
                         {/* DPS */}
-                        <div className="flex gap-1 flex-wrap justify-start pl-1 border-t border-white/[0.05] pt-1.5">
+                        <div className="flex gap-1 flex-wrap justify-start pl-1 border-t border-app-border pt-1.5">
                             {melee.map(job => (
                                 <JobButton key={job.id} job={job} currentJobId={currentJobId} onSelect={() => onSelect(job.id)} contentLanguage={contentLanguage} theme={theme} />
                             ))}
@@ -95,7 +95,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
     );
 };
 
-const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: 'ja' | 'en', theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage, theme }) => (
+const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: 'ja' | 'en', theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage }) => (
     <button
         onClick={onSelect}
         className={clsx(
@@ -104,9 +104,7 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
                 ? "bg-blue-500/30 border-blue-500/60 shadow-[0_0_12px_rgba(59,130,246,0.4)] ring-1 ring-blue-500/40"
                 : clsx(
                     "transition-all duration-200 hover:scale-110",
-                    theme === 'dark'
-                        ? "bg-white/[0.03] border-white/[0.05] hover:bg-white/[0.1] hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-                        : "bg-black/[0.03] border-black/[0.05] hover:bg-blue-500/[0.08] hover:border-blue-500/30 hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)]"
+                    "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border hover:shadow-md"
                 )
         )}
     >

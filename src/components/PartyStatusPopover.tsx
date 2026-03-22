@@ -136,7 +136,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                     onTouchMove={handleSheetTouchMove}
                     onTouchEnd={handleSheetTouchEnd}
                 >
-                    <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                    <div className="w-10 h-1 rounded-full bg-app-border" />
                 </div>
 
                 {/* Header */}
@@ -152,7 +152,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10 cursor-pointer">
+                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1.5 rounded-lg hover:bg-app-surface2 cursor-pointer">
                         <X size={16} />
                     </button>
                 </div>
@@ -174,7 +174,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={tankRep?.stats.hp || 0}
                                         onChange={(val) => updateTankHP(val)}
-                                        className="w-24 bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-white/20 focus:border-app-accent focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-24 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                             </div>
@@ -192,7 +192,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.hp || 0}
                                         onChange={(val) => updateHealerHP(val)}
-                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -200,7 +200,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.wd || 0}
                                         onChange={(val) => updateHealerStats({ wd: val })}
-                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -208,7 +208,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.mainStat || 0}
                                         onChange={(val) => updateHealerStats({ mainStat: val })}
-                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -216,7 +216,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     <FormattedNumberInput
                                         value={healerRep?.stats.det || 0}
                                         onChange={(val) => updateHealerStats({ det: val })}
-                                        className="w-20 bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-black/20 dark:hover:border-white/20 focus:border-app-accent focus:bg-black/10 dark:focus:bg-black/40 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-white font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                             </div>
@@ -326,7 +326,7 @@ const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, h
                     {iconUrl ? (
                         <img src={iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
                     ) : (
-                        <div className="w-6 h-6 bg-slate-900/50 rounded-md flex items-center justify-center text-[10px] text-white/50">?</div>
+                        <div className="w-6 h-6 bg-app-surface2 rounded-md flex items-center justify-center text-[10px] text-white/50">?</div>
                     )}
                     <span className="font-mono text-white font-bold text-[10px] tracking-tight leading-none">
                         {value.toLocaleString()}

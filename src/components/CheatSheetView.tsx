@@ -218,7 +218,7 @@ export const CheatSheetView: React.FC = () => {
                             <div
                                 key={m.id}
                                 className={clsx(
-                                    "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-white/20",
+                                    "relative flex items-center justify-center w-5 h-5 rounded overflow-hidden shadow-sm border border-app-border",
                                     !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
                             >
@@ -249,16 +249,16 @@ export const CheatSheetView: React.FC = () => {
                     "flex w-full items-stretch min-h-[44px] border-b  relative group cursor-pointer",
                     isLethal
                         ? ("bg-red-50/50 hover:bg-red-100/50 dark:bg-red-500/10 dark:hover:bg-red-500/20")
-                        : ("hover:bg-slate-50 dark:hover:bg-white/[0.02]"),
-                    "border-slate-200 dark:border-white/5"
+                        : ("hover:bg-app-surface2"),
+                    "border-app-border"
                 )}>
-                <div className="flex-1 p-1.5 flex items-center justify-end border-r border-white/5 pr-3">
+                <div className="flex-1 p-1.5 flex items-center justify-end border-r border-app-border pr-3">
                     {renderMitigationGroup(mtGroupMitigations, true)}
                 </div>
 
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center p-1.5 relative z-10 border-x mx-[-1px] shadow-[0_0_15px_rgba(0,0,0,0.1)] pointer-events-none ",
-                    "bg-slate-100/90 border-slate-300 dark:bg-black/60 dark:border-white/20"
+                    "bg-app-surface2 border-app-border"
                 )}>
                     {/* 1段目: 時間 */}
                     <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
@@ -342,7 +342,7 @@ export const CheatSheetView: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 p-1.5 flex items-center justify-start border-l border-white/5 pl-3">
+                <div className="flex-1 p-1.5 flex items-center justify-start border-l border-app-border pl-3">
                     {renderMitigationGroup(stGroupMitigations, false)}
                 </div>
             </div>
@@ -383,22 +383,22 @@ export const CheatSheetView: React.FC = () => {
     return (
         <div className={clsx(
             "flex flex-col h-full w-full max-w-4xl mx-auto rounded-2xl border overflow-hidden relative shadow-sm",
-            "bg-white/90 border-slate-200 dark:bg-slate-950/40 dark:border-white/10"
+            "bg-app-surface2 border-app-border"
         )}>
             <div className={clsx(
                 "flex items-stretch h-11 border-b shrink-0 z-20 shadow-xl  [scrollbar-gutter:stable] overflow-hidden",
-                "bg-slate-50 border-slate-200 dark:bg-slate-900/60 dark:border-white/10"
+                "bg-app-surface2 border-app-border"
             )}>
-                <div className="flex-1 flex items-center justify-center border-r border-slate-300/20 bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
+                <div className="flex-1 flex items-center justify-center border-r border-app-border bg-gradient-to-r from-blue-600/30 via-blue-500/10 to-transparent">
                     <span className="text-[10px] font-black text-blue-700 dark:text-cyan-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">MT Group</span>
                 </div>
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
-                    "border-slate-200 bg-slate-100/50 dark:border-white/10 dark:bg-white/5"
+                    "border-app-border bg-app-surface2"
                 )}>
                     <span className="text-[9px] font-black text-app-text-secondary uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
-                <div className="flex-1 flex items-center justify-center border-l border-slate-300/20 bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent relative">
+                <div className="flex-1 flex items-center justify-center border-l border-app-border bg-gradient-to-l from-orange-600/30 via-orange-500/10 to-transparent relative">
                     <div className="absolute inset-y-0 left-full w-20 bg-orange-600/30 pointer-events-none" />
                     <span className="text-[10px] font-black text-orange-700 dark:text-amber-300 uppercase tracking-[0.2em] px-2 text-center drop-shadow-sm">ST Group</span>
                 </div>
@@ -426,7 +426,7 @@ export const CheatSheetView: React.FC = () => {
                         onClick={() => setMemberSelectOpen(false)}
                     >
                         <div
-                            className="bg-white dark:bg-slate-900 border border-white/20 p-4 rounded-2xl shadow-sm animate-in zoom-in-95 fade-in duration-200"
+                            className="bg-app-surface border border-app-border p-4 rounded-2xl shadow-sm animate-in zoom-in-95 fade-in duration-200"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
@@ -444,7 +444,7 @@ export const CheatSheetView: React.FC = () => {
                                                 setMemberSelectOpen(false);
                                                 setMitigationSelectorOpen(true);
                                             }}
-                                            className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-white/20 bg-white/5 hover:bg-white/20 dark:hover:bg-white/10  shadow-sm cursor-pointer"
+                                            className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-app-border bg-app-surface2 hover:bg-app-surface2 shadow-sm cursor-pointer"
                                         >
                                             <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
                                             <span className="text-[9px] font-black text-app-text-secondary mt-1">{m.id}</span>

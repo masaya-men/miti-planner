@@ -55,18 +55,18 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="relative w-full max-w-lg bg-[#0f1115] border border-white/10 shadow-sm rounded-2xl overflow-hidden flex flex-col"
+                    className="relative w-full max-w-lg bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden flex flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+                    <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                             <Download size={18} className="text-blue-400" />
                             Import Timeline (CSV)
                         </h2>
                         <button
                             onClick={onClose}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-slate-900/ dark:hover:bg-white/ transition-colors"
+                            className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors"
                         >
                             <X size={18} />
                         </button>
@@ -78,7 +78,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             <p className="text-sm text-app-text-muted mb-2 leading-relaxed">
                                 Paste CSV text to import timeline events. The expected format is:
                                 <br />
-                                <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-white/10 text-cyan-300">
+                                <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-cyan-300">
                                     Time, Name, DamageAmount, DamageType, Target
                                 </code>
                             </p>
@@ -91,7 +91,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                         <textarea
                             value={csvText}
                             onChange={(e) => setCsvText(e.target.value)}
-                            className="w-full h-48 bg-black/40 border border-white/10 rounded-xl p-3 text-sm font-mono text-app-text focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none placeholder:text-slate-600"
+                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-sm font-mono text-app-text focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 resize-none placeholder:text-app-text-muted"
                             placeholder="0:00, Start&#10;0:15, First AOE, 100000, magical, PT"
                             spellCheck={false}
                         />
@@ -105,10 +105,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     </div>
 
                     {/* Footer */}
-                    <div className="px-5 py-4 border-t border-white/5 bg-black/20 flex justify-end gap-3 shrink-0">
+                    <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex justify-end gap-3 shrink-0">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-app-text hover:bg-slate-900/ dark:hover:bg-white/ transition-colors"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-app-text hover:bg-app-surface2 transition-colors"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>
@@ -119,7 +119,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                                 "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
                                 csvText.trim()
                                     ? "bg-blue-600 hover:bg-blue-500 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(37,99,235,0.4)] uppercase"
-                                    : "bg-slate-900/ dark:bg-white/ text-app-text-muted cursor-not-allowed uppercase"
+                                    : "bg-app-surface2 text-app-text-muted cursor-not-allowed uppercase"
                             )}
                         >
                             <Download size={16} />

@@ -17,7 +17,7 @@ export const LanguageSwitcher: React.FC = () => {
     return (
         <div className="flex items-center bg-[rgba(var(--app-accent-rgb),0.08)] dark:bg-[rgba(var(--app-accent-rgb),0.06)] rounded-full pl-2 pr-1 py-1 border border-[rgba(var(--app-accent-rgb),0.3)] dark:border-[rgba(var(--app-accent-rgb),0.25)] relative h-[32px] select-none shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.15)] group transition-colors hover:border-[rgba(var(--app-accent-rgb),0.5)]">
             {/* Globe Icon - Left */}
-            <div className="pr-2 border-r border-slate-300 dark:border-white/10 flex items-center justify-center text-[rgba(var(--app-accent-rgb),0.6)] group-hover:text-app-accent transition-colors mr-1">
+            <div className="pr-2 border-r border-app-border flex items-center justify-center text-[rgba(var(--app-accent-rgb),0.6)] group-hover:text-app-accent transition-colors mr-1">
                 <Globe size={14} />
             </div>
 
