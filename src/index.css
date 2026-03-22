@@ -119,14 +119,14 @@
     /* White Silver */
     --color-accent-dim: rgba(226, 232, 240, 0.15);
 
-    --color-text-primary: #ffffff;      /* Brighter for contrast */
-    --color-text-secondary: #cbd5e1;    /* Lighter slate for visibility */
-    --color-text-muted: #94a3b8;       /* Significantly brighter than original #64748b */
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #d4d4d8;
+    --color-text-muted: #a1a1aa;
     --color-text-on-accent: #000000;    /* Black text on silver accent in dark mode */
 
-    /* Glass Borders */
-    --color-border: rgba(255, 255, 255, 0.08); /* Slightly more visible */
-    --color-border-accent: rgba(226, 232, 240, 0.6);
+    /* ボーダー */
+    --color-border: rgba(255, 255, 255, 0.12);
+    --color-border-accent: rgba(255, 255, 255, 0.4);
 
     /* Extreme Transparency Glassmorphism Variables */
     --glass-bg-header: rgba(0, 0, 0, 0.2);
@@ -140,30 +140,30 @@
 
   .theme-light {
     color-scheme: light;
-    --color-bg-primary: #f8fafb;
-    --color-bg-secondary: #f8fafb;
-    --color-bg-tertiary: #f1f5f5;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #f5f5f5;
 
-    --color-accent-primary: #10b981;
-    --app-accent-rgb: 16, 185, 129;
-    --color-accent-secondary: #059669;
-    --color-accent-dim: rgba(16, 185, 129, 0.1);
+    --color-accent-primary: #18181b;
+    --app-accent-rgb: 24, 24, 27;
+    --color-accent-secondary: #000000;
+    --color-accent-dim: rgba(0, 0, 0, 0.06);
 
-    --color-text-primary: #0a0a14;
-    --color-text-secondary: #1e293b;
-    --color-text-muted: #374151;
-    --color-text-on-accent: #ffffff;    /* White text on blue accent in light mode */
+    --color-text-primary: #000000;
+    --color-text-secondary: #27272a;
+    --color-text-muted: #52525b;
+    --color-text-on-accent: #ffffff;
 
-    --color-border: rgba(0, 0, 0, 0.2);
-    --color-border-accent: rgba(16, 185, 129, 0.5);
+    --color-border: rgba(0, 0, 0, 0.12);
+    --color-border-accent: rgba(0, 0, 0, 0.3);
 
     --glass-bg-header: rgba(255, 255, 255, 0.0);
     --glass-bg-panel: rgba(255, 255, 255, 0.0);
-    --glass-bg-card: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-hover: rgba(0, 0, 0, 0.05);
-    --glass-active: rgba(0, 0, 0, 0.1);
-    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 0 1px 1px rgba(255, 255, 255, 0.5);
+    --glass-bg-card: rgba(0, 0, 0, 0.02);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-hover: rgba(0, 0, 0, 0.04);
+    --glass-active: rgba(0, 0, 0, 0.08);
+    --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   body {
@@ -180,21 +180,13 @@ body {
   background-position: center;
 }
 
-/* Modern Abstract Backgrounds */
+/* 背景: グラデーションなし、純粋な単色 */
 .bg-abstract-dark {
   background-color: #000000;
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%),
-    linear-gradient(to bottom right, rgba(0, 0, 0, 1) 0%, rgba(10, 15, 25, 1) 100%);
 }
 
 .bg-abstract-light {
   background-color: #ffffff;
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%),
-    linear-gradient(to bottom right, #ffffff 0%, #f1f5f9 100%);
 }
 
 /* Modern Scrollbar */
