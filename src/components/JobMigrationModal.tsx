@@ -45,7 +45,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
             />
 
             {/* Modal Box */}
-            <div className="relative bg-glass-panel border border-glass-border shadow-2xl rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+            <div className="relative bg-glass-panel border border-glass-border shadow-sm rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
 
                 {/* Header */}
                 <div className="px-5 py-4 border-b border-white/[0.05] bg-gradient-to-r from-blue-500/10 to-transparent flex items-center gap-3">

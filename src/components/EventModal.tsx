@@ -437,7 +437,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             <div
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
-                    "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-2xl ring-1 ring-inset pointer-events-auto glass-panel",
+                    "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto glass-panel",
                     "ring-black/[0.02] dark:ring-white/5",
                     isMobile ? "w-full rounded-t-2xl rounded-b-none border-b-0" : "w-[500px] rounded-xl"
                 )}

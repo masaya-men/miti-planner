@@ -100,7 +100,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 96,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full overflow-hidden pointer-events-auto bg-glass-header backdrop-blur-xl shadow-2xl"
+                className="w-full overflow-hidden pointer-events-auto bg-glass-header shadow-sm"
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div
@@ -261,7 +261,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                 {/* ハンドル本体 */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 bg-glass-header dark:bg-glass-header bg-white backdrop-blur-3xl pointer-events-auto"
+                    className="absolute bottom-0 left-0 right-0 z-50 bg-glass-header dark:bg-glass-header bg-white pointer-events-auto"
                     initial={false}
                     animate={{ height: (isNear || isHovered) ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}

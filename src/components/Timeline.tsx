@@ -485,7 +485,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
                 <div
                     className={clsx(
-                        "absolute top-3 w-1.5 z-10 rounded-b-sm border-x backdrop-blur-sm pointer-events-none",
+                        "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-none",
                         colors.bg,
                         colors.border,
                         colors.shadow,
@@ -1274,14 +1274,14 @@ const Timeline: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 <div className={clsx(
-                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-2xl border transition-all duration-300 ease-out",
+                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-sm border transition-all duration-300 ease-out",
                     "border-slate-200 dark:border-white/5 h-full z-[1]",
                     "mx-2 md:mx-6 mt-2 md:mt-4 mb-2 rounded-xl"
                 )}>
                     <div
                         ref={controlBarRef}
                         className={clsx(
-                            "flex-shrink-0 z-[51] h-7 relative backdrop-blur-md border-b select-none overflow-hidden",
+                            "flex-shrink-0 z-[51] h-7 relative border-b select-none overflow-hidden",
                             "bg-white/10 border-slate-200/50 dark:bg-transparent dark:border-white/10"
                         )}
                     >
@@ -1487,7 +1487,7 @@ const Timeline: React.FC = () => {
                     <div
                         ref={headerRef}
                         className={clsx(
-                            "flex-shrink-0 z-50 bg-glass-header backdrop-blur-xl border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 shadow-glass select-none overflow-hidden"
+                            "flex-shrink-0 z-50 bg-glass-header border-b border-glass-border text-[11px] font-barlow font-medium text-app-text-muted uppercase tracking-wider text-center h-10 select-none overflow-hidden"
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
@@ -1651,7 +1651,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 cursor-pointer hover:bg-blue-100 dark:hover:bg-white/10 pointer-events-auto z-10 backdrop-blur-sm shadow-[inset_4px_0_0_0_rgba(255,255,255,0.2)]"
+                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-blue-200 dark:border-white/20 bg-blue-50 dark:bg-white/5 cursor-pointer hover:bg-blue-100 dark:hover:bg-white/10 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                 >
@@ -1868,7 +1868,7 @@ const Timeline: React.FC = () => {
             </div>
 
             {clipboardEvent && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600/90 text-white px-5 py-2.5 rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] backdrop-blur-md flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-blue-600 text-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-blue-400/50">
                     <div className="flex items-center gap-2">
                         <span className="text-xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
@@ -1917,7 +1917,7 @@ const Timeline: React.FC = () => {
                 mobileMitiFlow.isOpen && (
                     <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                         <div className={clsx(
-                            "rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col transition-all duration-200",
+                            "rounded-2xl w-full max-w-sm shadow-sm overflow-hidden flex flex-col transition-all duration-200",
                             "bg-white border border-slate-200 dark:bg-slate-900 dark:border dark:border-white/10"
                         )} onClick={e => e.stopPropagation()}>
                             <div className={clsx(

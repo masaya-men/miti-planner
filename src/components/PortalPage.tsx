@@ -97,33 +97,11 @@ export const PortalPage: React.FC = () => {
     return (
         <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text', bgClass)}>
 
-            {/* ── Animated Background Blobs ── */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px]",
-                    "w-[80vw] h-[80vw] md:w-[50vw] md:h-[50vw] left-[-15%] top-[-20%]",
-                    "animate-[float-blob-1_8s_ease-in-out_infinite]",
-                    "bg-sky-300/30 dark:bg-blue-800/25"
-                )} />
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[120px]",
-                    "w-[70vw] h-[70vw] md:w-[45vw] md:h-[45vw] right-[-15%] bottom-[-15%]",
-                    "animate-[float-blob-2_10s_ease-in-out_infinite]",
-                    "bg-indigo-200/30 dark:bg-indigo-900/25"
-                )} />
-                <div className={clsx(
-                    "absolute rounded-full mix-blend-screen dark:mix-blend-color-dodge filter blur-[100px]",
-                    "w-[40vw] h-[40vw] left-[30%] top-[50%]",
-                    "animate-[float-blob-1_12s_ease-in-out_infinite_reverse]",
-                    "bg-rose-200/20 dark:bg-purple-900/15"
-                )} />
-            </div>
-
             {/* ── Theme Toggle (top-right) ── */}
             <div className="absolute top-4 right-4 z-50">
                 <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="p-2.5 rounded-xl bg-glass-panel backdrop-blur-xl border border-glass-border text-app-text-sec hover:text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
+                    className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text-sec hover:text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
                     aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                     {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -183,9 +161,9 @@ export const PortalPage: React.FC = () => {
                                 data-tutorial={card.id === 'miti_planner' ? 'portal-miti-card' : undefined}
                                 className={clsx(
                                     "group relative flex flex-col items-center p-8 rounded-2xl border transition-all duration-300 text-left overflow-hidden",
-                                    "bg-glass-panel backdrop-blur-xl border-glass-border",
+                                    "bg-glass-panel border-glass-border",
                                     card.enabled
-                                        ? "cursor-pointer hover:border-app-border-accent hover:shadow-glass"
+                                        ? "cursor-pointer hover:border-app-border-accent"
                                         : "cursor-not-allowed opacity-50"
                                 )}
                             >

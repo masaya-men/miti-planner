@@ -112,7 +112,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
                     "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative",
-                    "bg-white/60 border-slate-200/50 backdrop-blur-xl dark:bg-slate-900/60 dark:border-slate-700/50 dark:backdrop-blur-xl"
+                    "bg-app-bg border-slate-200/50 dark:border-slate-700/50"
                 )}>
                     {/* Home button for mobile */}
                     <button
@@ -145,7 +145,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
-                    "h-6 shrink-0 backdrop-blur-md border-t hidden md:flex items-center justify-center z-50 pointer-events-none",
+                    "h-6 shrink-0 border-t hidden md:flex items-center justify-center z-50 pointer-events-none",
                     "border-white/20 dark:border-white/10",
                     "bg-white/40 dark:bg-slate-900/40"
                 )}>
