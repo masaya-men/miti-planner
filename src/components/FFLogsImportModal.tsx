@@ -148,14 +148,14 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
                     <div className="space-y-4">
                         <div>
-                            <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
-                            <span className="text-lg font-bold text-slate-100">
+                            <span className="text-app-text-muted block text-xs mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
+                            <span className="text-lg font-bold text-app-text">
                                 {status.fight.name}
                             </span>
                         </div>
                         <div>
-                            <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
-                            <span className="text-slate-100 font-bold">
+                            <span className="text-app-text-muted block text-xs mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
+                            <span className="text-app-text font-bold">
                                 {Math.floor((status.fight.endTime - status.fight.startTime) / 1000 / 60)}m{' '}
                                 {Math.floor(((status.fight.endTime - status.fight.startTime) / 1000) % 60)}s
                             </span>
@@ -176,23 +176,23 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     /* ────── URL input + parse info (shared) ────── */
     const renderUrlInput = () => (
         <>
-            <p className="text-sm text-slate-400 mb-1 leading-relaxed">
+            <p className="text-sm text-app-text-muted mb-1 leading-relaxed">
                 {t('fflogs.description')}
             </p>
-            <p className="text-xs text-slate-500 mb-4 font-mono">
+            <p className="text-xs text-app-text-muted mb-4 font-mono">
                 {t('fflogs.url_format')}
             </p>
 
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Link size={16} className="text-slate-500" />
+                    <Link size={16} className="text-app-text-muted" />
                 </div>
                 <input
                     type="text"
                     value={url}
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 placeholder:text-slate-600 disabled:opacity-50"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-app-text focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 placeholder:text-slate-600 disabled:opacity-50"
                     placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />
@@ -255,13 +255,13 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                         {/* Header */}
                         <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
-                            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                            <h2 className="text-base font-bold text-app-text flex items-center gap-2">
                                 <CloudDownload size={18} className="text-purple-400" />
                                 {t('fflogs.title')}
                             </h2>
                             <button
                                 onClick={handleClose}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -284,7 +284,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-slate-400 bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -322,7 +322,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-slate-400 bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -343,13 +343,13 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 >
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-                        <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+                        <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                             <CloudDownload size={18} className="text-purple-400" />
                             {t('fflogs.title')}
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                         >
                             <X size={18} />
                         </button>
@@ -370,7 +370,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         <button
                             onClick={handleClose}
                             disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>
@@ -383,7 +383,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 cursor-pointer',
                                     canFetch
                                         ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.4)]'
-                                        : 'bg-white/5 text-slate-500 cursor-not-allowed'
+                                        : 'bg-white/5 text-app-text-muted cursor-not-allowed'
                                 )}
                             >
                                 {isLoading

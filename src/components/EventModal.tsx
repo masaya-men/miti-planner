@@ -452,11 +452,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 )}>
                     <h2 className={clsx(
                         "text-sm font-bold transition-colors",
-                        "text-slate-700 dark:text-slate-200"
+                        "text-app-text"
                     )}>
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
+                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
                         <X size={16} />
                     </button>
                 </div>
@@ -474,7 +474,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'reverse'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                    : "text-slate-500 hover:text-slate-900 border border-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border dark:border-transparent"
+                                    : "text-app-text-muted hover:text-app-text border border-transparent"
                             )}
                         >
                             <Calculator size={14} className="inline-block mr-2" />
@@ -487,7 +487,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 "flex-1 py-2 px-4 text-xs font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
                                 inputMode === 'direct'
                                     ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                    : "text-slate-500 hover:text-slate-900 border border-transparent dark:text-slate-400 dark:hover:text-slate-200 dark:border dark:border-transparent"
+                                    : "text-app-text-muted hover:text-app-text border border-transparent"
                             )}
                         >
                             {t('modal.mode_direct', '直接入力 (Direct)')}
@@ -497,7 +497,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Common Event Properties */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.time')}</label>
+                            <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('modal.time')}</label>
                             <input
                                 type="number"
                                 inputMode="decimal"
@@ -506,13 +506,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
-                                    "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                    "bg-slate-50 border-slate-200 text-app-text focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                 )}
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('mechanic_modal.name_label')}</label>
+                            <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('mechanic_modal.name_label')}</label>
                             <input
                                 data-tutorial="event-name-input"
                                 type="text"
@@ -521,7 +521,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
-                                    "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                    "bg-slate-50 border-slate-200 text-app-text placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:placeholder-slate-500 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                 )}
                                 required
                                 placeholder={t('mechanic_modal.placeholder')}
@@ -533,7 +533,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     <div className="grid grid-cols-2 gap-4">
                         {/* Damage Type */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.damage_type')}</label>
+                            <label className="block text-xs font-medium text-app-text-muted mb-2">{t('modal.damage_type')}</label>
                             <div className="flex gap-2">
                                 {[
                                     { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
@@ -554,7 +554,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         <Tooltip content={item.label}>
                                             <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
                                         </Tooltip>
-                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                                        <span className={`text-[9px] font-bold ${damageType === item.type ? 'text-blue-400' : 'text-app-text-muted group-hover:text-app-text'}`}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -564,7 +564,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         {/* Target Selection */}
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">{t('modal.target')}</label>
+                            <label className="block text-xs font-medium text-app-text-muted mb-2">{t('modal.target')}</label>
                             <div className="flex gap-2 h-[52px] items-center">
                                 {[
                                     { value: 'AoE', label: t('modal.aoe') },
@@ -579,7 +579,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center cursor-pointer
                                             ${target === t.value
                                                 ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.15)]'
-                                                : 'bg-white/[0.02] border-white/10 text-slate-400 hover:bg-white/[0.05] hover:text-slate-200'}
+                                                : 'bg-white/[0.02] border-white/10 text-app-text-muted hover:bg-white/[0.05] hover:text-app-text'}
                                         `}
                                     >
                                         {t.label}
@@ -598,7 +598,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     <div className="space-y-6">
                         {inputMode === 'direct' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('modal.damage_amount')}</label>
+                                <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('modal.damage_amount')}</label>
                                 <input
                                     type="number"
                                     inputMode="numeric"
@@ -607,7 +607,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
                                         "w-full rounded-lg p-2.5 text-lg font-mono transition-all font-bold border focus:outline-none focus:ring-1",
-                                        "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:text-slate-100 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                        "bg-slate-50 border-slate-200 text-app-text focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
                                     )}
                                 />
                             </div>
@@ -619,7 +619,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 )}>
                                     <div className="flex flex-col gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('mechanic_modal.actual_damage')}</label>
+                                            <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('mechanic_modal.actual_damage')}</label>
                                             <div className="flex gap-2">
                                                 <input
                                                     data-tutorial="event-actual-damage-input"
@@ -647,8 +647,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <label className="block text-xs font-medium text-slate-400">{t('mechanic_modal.calc_mitigations')}</label>
-                                        <span className="text-[10px] text-slate-400 bg-white/10 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
+                                        <label className="block text-xs font-medium text-app-text-muted">{t('mechanic_modal.calc_mitigations')}</label>
+                                        <span className="text-[10px] text-app-text-muted bg-white/10 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
                                     </div>
                                     <div
                                         id="mitigation-grid-container"

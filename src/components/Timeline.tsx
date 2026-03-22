@@ -1294,7 +1294,7 @@ const Timeline: React.FC = () => {
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
                                         hideEmptyRows
                                             ? "bg-[rgba(var(--app-accent-rgb),0.12)] text-app-accent shadow-[inset_0_0_8px_rgba(var(--app-accent-rgb),0.15)]"
-                                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                            : "text-app-text-muted hover:text-app-text"
                                     )}
                                 >
                                     <AlignJustify
@@ -1329,7 +1329,7 @@ const Timeline: React.FC = () => {
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
                                                 ? "text-app-accent"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                                : "text-app-text-muted hover:text-app-text"
                                         )}
                                     >
                                         <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-accent drop-shadow-[0_0_6px_rgba(var(--app-accent-rgb),0.5)]" : "")} />
@@ -1346,7 +1346,7 @@ const Timeline: React.FC = () => {
                                             "px-2 h-full transition-all duration-300 cursor-pointer flex items-center justify-center group/opt",
                                             isAaModeEnabled
                                                 ? "text-app-accent hover:text-app-accent/70"
-                                                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                                                : "text-app-text-muted hover:text-app-text"
                                         )}
                                     >
                                         <Settings size={12} className="transition-transform duration-300 group-hover/opt:rotate-45" />
@@ -1370,8 +1370,8 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
                                             useMitigationStore.getState()._history.length > 0
-                                                ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                                : "text-slate-700 cursor-default"
+                                                ? "text-app-text-muted hover:bg-white/10 hover:text-white"
+                                                : "text-app-text-sec cursor-default"
                                         )}
                                     >
                                         <Undo2 size={12} />
@@ -1384,8 +1384,8 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
                                             useMitigationStore.getState()._future.length > 0
-                                                ? "text-slate-400 hover:bg-white/10 hover:text-white"
-                                                : "text-slate-700 cursor-default"
+                                                ? "text-app-text-muted hover:bg-white/10 hover:text-white"
+                                                : "text-app-text-sec cursor-default"
                                         )}
                                     >
                                         <Redo2 size={12} />
@@ -1397,7 +1397,7 @@ const Timeline: React.FC = () => {
                                         <button
                                             ref={clearMenuButtonRef}
                                             onClick={() => setClearMenuOpen(!clearMenuOpen)}
-                                            className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-slate-500 hover:bg-red-500/10 hover:text-red-400"
+                                            className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-app-text-muted hover:bg-red-500/10 hover:text-red-400"
                                         >
                                             <Trash2 size={12} />
                                             <ChevronDown size={7} />
@@ -1451,7 +1451,7 @@ const Timeline: React.FC = () => {
                                                     "bg-white border-slate-200 hover:border-amber-400/60 hover:bg-slate-50 dark:bg-black/50 dark:border-white/10 dark:hover:border-amber-400/40 dark:hover:bg-black/70"
                                                 )}
                                             >
-                                                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
+                                                <span className="text-[8px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1658,11 +1658,11 @@ const Timeline: React.FC = () => {
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
-                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-blue-900 dark:text-slate-100 leading-none">
+                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-blue-900 dark:text-app-text leading-none">
                                                                     {phase.name.split('\n')[0]}
                                                                 </span>
                                                                 {phase.name.split('\n')[1] && (
-                                                                    <span className="whitespace-nowrap text-[8px] md:text-[10px] font-medium text-blue-700/70 dark:text-slate-300/70 leading-none">
+                                                                    <span className="whitespace-nowrap text-[8px] md:text-[10px] font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
                                                                         {phase.name.split('\n')[1]}
                                                                     </span>
                                                                 )}
@@ -1930,7 +1930,7 @@ const Timeline: React.FC = () => {
                                 )}>
                                     {mobileMitiFlow.step === 'job' ? t('timeline.select_member') : t('timeline.select_mitigation')}
                                 </h3>
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-slate-400 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg ">
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-app-text-muted p-1.5 bg-white/5 hover:bg-white/10 rounded-lg ">
                                     <X size={16} />
                                 </button>
                             </div>
@@ -1948,7 +1948,7 @@ const Timeline: React.FC = () => {
                                                     <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
                                                     <span className={clsx(
                                                         "text-[10px] font-bold ",
-                                                        "text-slate-600 dark:text-slate-300"
+                                                        "text-app-text"
                                                     )}>{m.id}</span>
                                                 </button>
                                             )
@@ -2022,7 +2022,7 @@ const Timeline: React.FC = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <span className="text-[9px] font-bold text-slate-300 truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
+                                                        <span className="text-[9px] font-bold text-app-text truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
                                                     </button>
                                                 );
                                             });
@@ -2116,7 +2116,7 @@ const Timeline: React.FC = () => {
                                 "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 useMitigationStore.getState().hideEmptyRows
                                     ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600 dark:text-emerald-300"
-                                    : "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
+                                    : "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
                             )}
                         >
                             <AlignJustify size={16} />
@@ -2127,7 +2127,7 @@ const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._history.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
+                                "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
                             )}
                         >
                             <Undo2 size={16} />
@@ -2137,7 +2137,7 @@ const Timeline: React.FC = () => {
                             disabled={useMitigationStore.getState()._future.length === 0}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-slate-50 border-slate-200 text-slate-500 dark:bg-white/5 dark:border-white/10 dark:text-slate-400"
+                                "bg-slate-50 border-slate-200 text-app-text-muted dark:bg-white/5 dark:border-white/10"
                             )}
                         >
                             <Redo2 size={16} />
@@ -2197,7 +2197,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverEdit}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-white/10"
+                                "text-app-text hover:bg-slate-100/80 dark:hover:bg-white/10"
                             )}
                         >
                             <Pencil size={15} className="text-blue-500 dark:text-blue-400 shrink-0" />
@@ -2207,7 +2207,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverAdd}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-slate-700 hover:bg-slate-100/80 dark:text-slate-200 dark:hover:bg-white/10"
+                                "text-app-text hover:bg-slate-100/80 dark:hover:bg-white/10"
                             )}
                         >
                             <Plus size={15} className="text-emerald-500 dark:text-emerald-400 shrink-0" />

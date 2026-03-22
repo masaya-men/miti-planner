@@ -94,23 +94,23 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         {isMobile && <div className="w-12 h-1 bg-slate-700 dark:bg-slate-600 rounded-full mx-auto mt-3 shrink-0" />}
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-black/40 shrink-0">
-                            <h2 className="text-sm font-bold text-slate-200">
+                            <h2 className="text-sm font-bold text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
-                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
+                            <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
                                 <X size={16} />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1.5">{t('phase_modal.name_label')}</label>
+                                <label className="block text-xs font-medium text-app-text-muted mb-1.5">{t('phase_modal.name_label')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg p-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                    className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg p-2.5 text-sm text-app-text placeholder-slate-500 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
                                     placeholder={t('phase_modal.placeholder')}
                                     autoFocus
                                 />
@@ -135,7 +135,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium cursor-pointer"
+                                        className="px-4 py-1.5 text-app-text-muted hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium cursor-pointer"
                                     >
                                         {t('modal.cancel')}
                                     </button>

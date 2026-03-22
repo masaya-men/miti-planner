@@ -117,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     {/* Home button for mobile */}
                     <button
                         onClick={() => navigate('/')}
-                        className="p-1.5 text-slate-500 dark:text-slate-400 flex items-center gap-1"
+                        className="p-1.5 text-app-text-muted flex items-center gap-1"
                     >
                         <Home size={18} />
                     </button>
@@ -125,7 +125,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                            className="p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
                         >
                             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                         </button>
@@ -149,7 +149,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "border-white/20 dark:border-white/10",
                     "bg-white/40 dark:bg-slate-900/40"
                 )}>
-                    <p className="text-[8px] text-slate-500 dark:text-slate-600 tracking-wide">
+                    <p className="text-[8px] text-app-text-muted tracking-wide">
                         {t('footer.copyright')} · {t('footer.disclaimer')}
                     </p>
                 </footer>

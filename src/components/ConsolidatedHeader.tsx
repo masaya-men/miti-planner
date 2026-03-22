@@ -31,11 +31,11 @@ const hoverInvert = "hover:bg-slate-900 hover:border-slate-900 hover:text-white 
 
 // アイコン丸ボタン共通スタイル（1px border で統一）
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
-const iconBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-slate-500 dark:text-slate-400 ${hoverInvert}`;
+const iconBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-app-text-muted ${hoverInvert}`;
 
 // テキスト付きピルボタン共通スタイル（1px border で統一）
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
-const pillBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-slate-500 dark:text-slate-400 ${hoverInvert}`;
+const pillBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-app-text-muted ${hoverInvert}`;
 const pillBtnActive = `bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35)] ${hoverInvert}`;
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
@@ -228,7 +228,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <div className="h-5 w-[1px] bg-slate-200/50 dark:bg-white/10 mx-0.5 rounded-full" />
 
                             {/* Sort */}
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em]">{t('ui.sort')}</span>
+                            <span className="text-[10px] font-black text-app-text-muted uppercase tracking-[0.15em]">{t('ui.sort')}</span>
                             <div className="flex h-9 rounded-full p-[3px] border border-slate-300 dark:border-white/20">
                                 {(['light_party', 'role'] as const).map((order) => (
                                     <button
@@ -238,7 +238,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             "px-3 h-full rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
                                             partySortOrder === order
                                                 ? "bg-[rgba(var(--app-accent-rgb),0.15)] text-app-accent shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.3)] drop-shadow-[0_0_4px_rgba(var(--app-accent-rgb),0.4)]"
-                                                : "text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                                                : "text-app-text-muted hover:text-app-text"
                                         )}
                                     >
                                         {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}
@@ -315,7 +315,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 {isHeaderCollapsed ? (
                                     <ChevronDown
                                         size={18}
-                                        className="text-slate-600 dark:text-white/60"
+                                        className="text-app-text-muted"
                                     />
                                 ) : (
                                     <ChevronUp
@@ -323,8 +323,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         className={clsx(
                                             "transition-all duration-200",
                                             isNear
-                                                ? "text-slate-700 dark:text-white/70"
-                                                : "text-slate-400 dark:text-white/30 group-hover/btn:text-slate-600 dark:group-hover/btn:text-white/50"
+                                                ? "text-app-text-sec"
+                                                : "text-app-text-muted group-hover/btn:text-app-text-sec"
                                         )}
                                     />
                                 )}

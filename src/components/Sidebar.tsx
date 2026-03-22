@@ -764,9 +764,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                     className={clsx(
                                         "transition-all duration-200",
                                         isOpen
-                                            ? "text-slate-400 dark:text-white/30 group-hover/btn:text-slate-600 dark:group-hover/btn:text-white/50"
-                                            : "text-slate-600 dark:text-white/60",
-                                        isHovered && "text-slate-700 dark:text-white/70"
+                                            ? "text-app-text-muted group-hover/btn:text-app-text-sec"
+                                            : "text-app-text-muted",
+                                        isHovered && "text-app-text-sec"
                                     )}
                                 />
                             </motion.div>
