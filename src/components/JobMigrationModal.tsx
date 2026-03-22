@@ -48,7 +48,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
             <div className="relative bg-glass-panel border border-glass-border shadow-sm rounded-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
 
                 {/* Header */}
-                <div className="px-5 py-4 border-b border-white/[0.05] bg-gradient-to-r from-blue-500/10 to-transparent flex items-center gap-3">
+                <div className="px-5 py-4 border-b border-app-border bg-gradient-to-r from-blue-500/10 to-transparent flex items-center gap-3">
                     <div className="p-2 bg-blue-500/20 rounded-xl text-blue-400">
                         <ArrowRightLeft size={20} />
                     </div>
@@ -81,11 +81,11 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'inherit'
                                 ? "bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                                : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'inherit' ? "border-blue-400 bg-blue-400" : "border-slate-500"
+                            selectedMode === 'inherit' ? "border-blue-400 bg-blue-400" : "border-app-border"
                         )}>
                             {selectedMode === 'inherit' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
@@ -105,11 +105,11 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'common_only'
                                 ? "bg-yellow-500/10 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
-                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                                : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'common_only' ? "border-yellow-400 bg-yellow-400" : "border-slate-500"
+                            selectedMode === 'common_only' ? "border-yellow-400 bg-yellow-400" : "border-app-border"
                         )}>
                             {selectedMode === 'common_only' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
@@ -129,11 +129,11 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             "flex items-start gap-3 p-3 rounded-xl border transition-all text-left group cursor-pointer",
                             selectedMode === 'reset'
                                 ? "bg-red-500/10 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
-                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                                : "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border"
                         )}
                     >
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
-                            selectedMode === 'reset' ? "border-red-400 bg-red-400" : "border-slate-500"
+                            selectedMode === 'reset' ? "border-red-400 bg-red-400" : "border-app-border"
                         )}>
                             {selectedMode === 'reset' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
                         </div>
@@ -151,10 +151,10 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 </div>
 
                 {/* Footer Controls */}
-                <div className="px-5 py-3 border-t border-white/[0.05] bg-[#050505]/50 flex justify-end gap-2 shrink-0">
+                <div className="px-5 py-3 border-t border-app-border bg-[#050505]/50 flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-xs font-medium text-app-text hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-lg text-xs font-medium text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
                     >
                         {t('common.cancel', 'キャンセル')}
                     </button>

@@ -190,7 +190,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             )}
                         />
                     ) : (
-                        <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex flex-col items-center justify-center">
+                        <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
                             <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
                         </div>
                     )}
@@ -214,7 +214,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
                                         ? "bg-amber-400/10 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.3)] scale-110"
-                                        : "bg-white/5 text-white/30 border-white/10 hover:bg-white/10 hover:text-white/80"
+                                        : "bg-app-surface2 text-white/30 border-app-border hover:bg-app-surface2 hover:text-white/80"
                                 )}
                             >
                                 <Tooltip content={t('party.my_job')}>
@@ -232,7 +232,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
                                         onRemoveJob(member.id);
                                     }}
-                                    className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 cursor-pointer"
+                                    className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -580,7 +580,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
-                        {idx !== 0 && <div className="h-[1px] bg-white/[0.05] w-full" />}
+                        {idx !== 0 && <div className="h-[1px] bg-app-border w-full" />}
                         <div className="flex items-center gap-3">
                             <div className="w-12 text-right text-[9px] font-black text-white uppercase tracking-wider shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                                 {cat.name}
@@ -605,7 +605,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             }}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
-                                                "bg-white/10 border-white/10 hover:bg-white/20 hover:border-white/30 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20",
+                                                "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border",
                                                 cat.color,
                                                 isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
                                             )}
@@ -661,7 +661,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     onTouchMove={handleSheetTouchMove}
                     onTouchEnd={handleSheetTouchEnd}
                 >
-                    <div className="w-10 h-1 rounded-full bg-slate-400 dark:bg-slate-500" />
+                    <div className="w-10 h-1 rounded-full bg-app-border" />
                 </div>
 
                 {/* ヘッダーエリア */}
@@ -683,7 +683,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
+                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer">
                         <X size={18} />
                     </button>
                 </div>

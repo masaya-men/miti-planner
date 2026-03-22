@@ -192,7 +192,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     value={url}
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-app-text focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 placeholder:text-slate-600 disabled:opacity-50"
+                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-app-text focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 placeholder:text-app-text-muted disabled:opacity-50"
                     placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />
@@ -241,7 +241,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[#0f1115] rounded-t-2xl border-t border-white/10 shadow-sm flex flex-col max-h-[65vh]"
+                        className="bg-[#0f1115] rounded-t-2xl border-t border-app-border shadow-sm flex flex-col max-h-[65vh]"
                     >
                         {/* Drag handle */}
                         <div
@@ -250,18 +250,18 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         >
-                            <div className="w-10 h-1 rounded-full bg-slate-600" />
+                            <div className="w-10 h-1 rounded-full bg-app-border" />
                         </div>
 
                         {/* Header */}
-                        <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
+                        <div className="px-5 py-3 border-b border-app-border flex items-center justify-between shrink-0">
                             <h2 className="text-base font-bold text-app-text flex items-center gap-2">
                                 <CloudDownload size={18} className="text-purple-400" />
                                 {t('fflogs.title')}
                             </h2>
                             <button
                                 onClick={handleClose}
-                                className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
                             >
                                 <X size={18} />
                             </button>
@@ -284,7 +284,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -322,7 +322,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-white/5 border border-white/10 active:bg-white/10 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text-muted bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -338,18 +338,18 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="hidden md:flex relative w-full max-w-lg bg-[#0f1115] border border-white/10 shadow-sm rounded-2xl overflow-hidden flex-col"
+                    className="hidden md:flex relative w-full max-w-lg bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
+                    <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                             <CloudDownload size={18} className="text-purple-400" />
                             {t('fflogs.title')}
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-app-text-muted hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
                         >
                             <X size={18} />
                         </button>
@@ -366,11 +366,11 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
 
                     {/* Footer — desktop only */}
-                    <div className="px-5 py-4 border-t border-white/5 bg-black/20 flex justify-end gap-3 shrink-0">
+                    <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex justify-end gap-3 shrink-0">
                         <button
                             onClick={handleClose}
                             disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 cursor-pointer"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-white hover:bg-app-surface2 transition-colors disabled:opacity-50 cursor-pointer"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>
@@ -383,7 +383,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 cursor-pointer',
                                     canFetch
                                         ? 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(147,51,234,0.4)]'
-                                        : 'bg-white/5 text-app-text-muted cursor-not-allowed'
+                                        : 'bg-app-surface2 text-app-text-muted cursor-not-allowed'
                                 )}
                             >
                                 {isLoading

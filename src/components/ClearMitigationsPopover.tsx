@@ -103,7 +103,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                 <Tooltip content={t('common.close', '閉じる')}>
                     <button
                         onClick={onClose}
-                        className="p-1.5 text-app-text-muted hover:text-app-text hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-app-text-muted hover:text-app-text hover:bg-app-surface2 rounded-lg transition-colors cursor-pointer"
                     >
                         <X size={14} />
                     </button>
@@ -143,11 +143,11 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                             disabled={!hasMitigations}
                             className={clsx(
                                 "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
-                                "bg-slate-100/50 dark:bg-white/[0.03] border-black/5 dark:border-white/5",
-                                "shadow-sm dark:shadow-none",
+                                "bg-app-surface2 border-app-border",
+                                "shadow-sm",
                                 !hasMitigations
                                     ? "opacity-20 cursor-not-allowed grayscale shadow-none"
-                                    : "cursor-pointer hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10 active:scale-95 hover:scale-[1.03] hover:shadow-md"
+                                    : "cursor-pointer hover:bg-app-surface2 hover:border-app-border active:scale-95 hover:scale-[1.03] hover:shadow-md"
                             )}
                         >
                             {hasMitigations ? (

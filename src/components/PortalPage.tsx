@@ -85,7 +85,7 @@ export const PortalPage: React.FC = () => {
         document.title = "LoPo | FF14 軽減プランナー";
     }, []);
 
-    const bgClass = "bg-slate-50 dark:bg-slate-950";
+    const bgClass = "bg-app-bg";
 
     React.useEffect(() => {
         const { hasCompleted, isActive, startTutorial } = useTutorialStore.getState();

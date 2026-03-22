@@ -62,7 +62,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             "md:hidden fixed bottom-0 left-0 right-0 z-[200]",
             "flex items-stretch justify-around",
             "bg-app-bg",
-            "border-t border-slate-200/50 dark:border-white/10",
+            "border-t border-app-border",
             "shadow-[0_-4px_30px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_30px_rgba(0,0,0,0.6)]",
         )}
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4rem' }}

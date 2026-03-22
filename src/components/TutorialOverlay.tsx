@@ -235,7 +235,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             className={clsx(
                 "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
                 "shadow-sm",
-                "bg-white border-slate-200/60 dark:bg-black dark:border-white/15"
+                "bg-app-surface border-app-border"
             )}
             style={{ ...getPosition(), pointerEvents: 'auto' }}
         >
@@ -332,7 +332,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                     "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                     "shadow-sm",
-                    "bg-white border-slate-200/60 dark:bg-black dark:border-white/15"
+                    "bg-app-surface border-app-border"
                 )}
             >
                 {/* Celebration emoji */}
@@ -530,7 +530,7 @@ export const TutorialOverlay: React.FC = () => {
                                 "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                                 "shadow-sm",
-                                "bg-white border-blue-200/40 dark:bg-slate-900 dark:border-cyan-500/20"
+                                "bg-app-surface border-app-border"
                             )}
                         >
                             <div className="text-4xl mb-4">⚠️</div>
@@ -545,7 +545,7 @@ export const TutorialOverlay: React.FC = () => {
                                     onClick={() => useTutorialStore.getState().cancelRestart()}
                                     className={clsx(
                                         "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
-                                        "border-slate-200 text-app-text-muted hover:bg-slate-100 dark:border-white/10 dark:hover:bg-white/10"
+                                        "border-app-border text-app-text-muted hover:bg-app-surface2"
                                     )}
                                 >
                                     {t('tutorial.restart_cancel')}
@@ -628,7 +628,7 @@ export const TutorialOverlay: React.FC = () => {
                                 "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                                 "shadow-sm overflow-hidden",
-                                "bg-white border-amber-200/40 dark:bg-slate-900 dark:border-amber-500/20"
+                                "bg-app-surface border-app-border"
                             )}
                         >
                             <div className="flex items-center gap-3 mb-6 pr-6">
@@ -640,7 +640,7 @@ export const TutorialOverlay: React.FC = () => {
                                 </h3>
                                 <button
                                     onClick={() => useTutorialStore.getState().cancelExit()}
-                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-white/10 transition-colors cursor-pointer"
+                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
                                 >
                                     <X size={18} />
                                 </button>

@@ -444,11 +444,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 style={style}
             >
                 {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-slate-700 dark:bg-slate-600 rounded-full mx-auto mt-3 shrink-0" />}
+                {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
                 <div className={clsx(
                     "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
-                    "border-slate-100 bg-white/40 dark:border-white/[0.05] dark:bg-white/[0.03]"
+                    "border-app-border bg-app-surface2"
                 )}>
                     <h2 className={clsx(
                         "text-sm font-bold transition-colors",
@@ -456,7 +456,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     )}>
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
                     </h2>
-                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
+                    <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-app-surface2 cursor-pointer">
                         <X size={16} />
                     </button>
                 </div>
@@ -465,7 +465,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Input Mode Toggle (Segmented Control) */}
                     <div className={clsx(
                         "flex p-1 rounded-lg border mb-6 transition-colors",
-                        "bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/10"
+                        "bg-app-surface2 border-app-border"
                     )}>
                         <button
                             type="button"
@@ -506,7 +506,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
-                                    "bg-slate-50 border-slate-200 text-app-text focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                    "bg-app-surface2 border-app-border text-app-text focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
                                 )}
                                 required
                             />
@@ -521,7 +521,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
-                                    "bg-slate-50 border-slate-200 text-app-text placeholder-slate-400 focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:placeholder-slate-500 dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                    "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
                                 )}
                                 required
                                 placeholder={t('mechanic_modal.placeholder')}
@@ -548,7 +548,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             relative group p-1.5 rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all h-[52px] cursor-pointer
                                             ${damageType === item.type
                                                 ? 'border-blue-500/50 bg-blue-500/10 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
-                                                : 'border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.1]'}
+                                                : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'}
                                         `}
                                     >
                                         <Tooltip content={item.label}>
@@ -579,7 +579,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             h-full flex-1 rounded text-xs font-medium transition-all border flex items-center justify-center cursor-pointer
                                             ${target === t.value
                                                 ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.15)]'
-                                                : 'bg-white/[0.02] border-white/10 text-app-text-muted hover:bg-white/[0.05] hover:text-app-text'}
+                                                : 'bg-app-surface2 border-app-border text-app-text-muted hover:bg-app-surface2 hover:text-app-text'}
                                         `}
                                     >
                                         {t.label}
@@ -591,7 +591,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                     <div className={clsx(
                         "w-full h-px my-6 transition-colors",
-                        "bg-slate-100 dark:bg-white/[0.05]"
+                        "bg-app-surface2"
                     )} />
 
                     {/* Dynamic Inputs Area */}
@@ -607,7 +607,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
                                         "w-full rounded-lg p-2.5 text-lg font-mono transition-all font-bold border focus:outline-none focus:ring-1",
-                                        "bg-slate-50 border-slate-200 text-app-text focus:border-blue-500/50 focus:bg-white focus:ring-blue-500/10 dark:bg-white/[0.05] dark:border-white/[0.1] dark:focus:border-blue-500/50 dark:focus:bg-blue-500/[0.05] dark:focus:ring-blue-500/20"
+                                        "bg-app-surface2 border-app-border text-app-text focus:border-blue-500/50 focus:bg-app-surface focus:ring-blue-500/10"
                                     )}
                                 />
                             </div>
@@ -615,7 +615,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                 <div className={clsx(
                                     "p-5 rounded-xl border shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] transition-colors",
-                                    "bg-slate-50 border-slate-200 dark:bg-white/[0.02] dark:border-white/10"
+                                    "bg-app-surface2 border-app-border"
                                 )}>
                                     <div className="flex flex-col gap-4">
                                         <div>
@@ -629,7 +629,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     onFocus={(e) => e.target.select()}
                                                     className={clsx(
                                                         "flex-1 border rounded-lg px-4 py-2.5 text-lg font-mono outline-none transition-all",
-                                                        "bg-white border-slate-200 text-slate-900 focus:border-blue-500/50 dark:bg-black/40 dark:border-white/10 dark:text-white dark:focus:border-blue-500/50"
+                                                        "bg-app-surface border-app-border text-app-text focus:border-blue-500/50"
                                                     )}
                                                     placeholder="0"
                                                 />
@@ -648,13 +648,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
                                         <label className="block text-xs font-medium text-app-text-muted">{t('mechanic_modal.calc_mitigations')}</label>
-                                        <span className="text-[10px] text-app-text-muted bg-white/10 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
+                                        <span className="text-[10px] text-app-text-muted bg-app-surface2 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
                                     </div>
                                     <div
                                         id="mitigation-grid-container"
                                         className={clsx(
                                             "grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
-                                            "bg-slate-100 border-slate-200 dark:bg-black/20 dark:border-white/5"
+                                            "bg-app-surface2 border-app-border"
                                         )}
                                     >
                                         {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
@@ -672,7 +672,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                         "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
                                                         selectedMitigations.includes(mit.id)
                                                             ? "bg-green-500/20 border-green-500/50 shadow-[0_0_12px_rgba(34,197,94,0.3)] ring-1 ring-green-500/30"
-                                                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 opacity-80 hover:opacity-100 dark:bg-white/[0.02] dark:border-white/10 dark:hover:bg-white/[0.05] dark:hover:border-white/20 dark:opacity-60 dark:hover:opacity-100"
+                                                            : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
                                                     )}
                                                 >
                                                     <Tooltip content={getTooltipText(mit)}>
@@ -701,7 +701,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Actions */}
                     <div className={clsx(
                         "flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-6 border-t transition-colors",
-                        "border-slate-100 dark:border-white/5"
+                        "border-app-border"
                     )}>
                         {onDelete && initialData ? (
                             <button

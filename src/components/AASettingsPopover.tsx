@@ -124,7 +124,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         <label className="text-[10px] font-black text-app-text-secondary uppercase tracking-wider block">{t('aa_settings.damage')}</label>
                         <div className="group relative">
                             <Info size={12} className="text-app-text-secondary cursor-help" />
-                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-white/10 rounded text-[10px] text-app-text-secondary leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-app-border rounded text-[10px] text-app-text-secondary leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {t('aa_settings.help_text')}
                             </div>
                         </div>
@@ -154,7 +154,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                                     "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1 cursor-pointer",
                                     settings.type === type.id
                                         ? `bg-blue-500/10 border-blue-500/50 shadow-[0_0_8px_rgba(59,130,246,0.2)]`
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover hover:border-white/10"
+                                        : "bg-glass-card border-glass-border hover:bg-glass-hover hover:border-app-border"
                                 )}
                                 onClick={() => handleChange('type', type.id)}
                             >

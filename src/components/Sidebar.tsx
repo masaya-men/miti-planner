@@ -486,7 +486,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             initial={false}
             animate={{ width: isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="h-full bg-app-bg flex z-40 relative group/sidebar shadow-sm"
+            className="h-full bg-transparent flex z-40 relative group/sidebar shadow-sm"
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
             <motion.div
@@ -588,7 +588,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             className={clsx(
                                 "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
                                 multiSelect.isEnabled
-                                    ? "bg-app-accent text-app-text-on-accent border-white/20 shadow-md"
+                                    ? "bg-app-accent text-app-text-on-accent border-app-border shadow-md"
                                     : "bg-glass-card text-app-text-secondary border-glass-border hover:bg-glass-hover hover:text-app-text shadow-sm"
                             )}
                         >
@@ -729,7 +729,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         onMouseLeave={() => setIsHovered(false)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-white/10 dark:hover:bg-white/10 active:bg-white/20 transition-colors duration-200"
+                            "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
                         {/* 迫り出し感のある背景 */}
@@ -743,7 +743,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         />
 
                         {/* 左端の固定ライン */}
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-slate-300 dark:bg-white/20 group-hover/btn:bg-slate-500 dark:group-hover/btn:bg-white/40 transition-colors duration-200" />
+                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div
@@ -775,7 +775,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         {/* 右端の境界線 (拡張に合わせて移動) */}
                         <div className={clsx(
                             "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
-                            isOpen ? "bg-glass-border" : "bg-slate-300 dark:bg-white/20"
+                            isOpen ? "bg-glass-border" : "bg-app-border"
                         )} />
                     </button>
                     </Tooltip>

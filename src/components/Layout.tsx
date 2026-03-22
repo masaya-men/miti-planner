@@ -49,7 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, [isTutorialActive]);
 
     // ベースの背景色（テーマ変数を参照するように変更）
-    const bgClass = "bg-slate-50 dark:bg-app-bg";
+    const bgClass = "bg-app-bg";
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
@@ -112,7 +112,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* ── Mobile Header ── */}
                 <header className={clsx(
                     "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative",
-                    "bg-app-bg border-slate-200/50 dark:border-slate-700/50"
+                    "bg-app-bg border-app-border"
                 )}>
                     {/* Home button for mobile */}
                     <button
@@ -125,7 +125,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                            className="p-1.5 w-8 h-8 rounded-lg text-app-text-muted hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
                         >
                             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                         </button>
@@ -146,8 +146,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
                     "h-6 shrink-0 border-t hidden md:flex items-center justify-center z-50 pointer-events-none",
-                    "border-white/20 dark:border-white/10",
-                    "bg-white/40 dark:bg-slate-900/40"
+                    "border-app-border",
+                    "bg-transparent"
                 )}>
                     <p className="text-[8px] text-app-text-muted tracking-wide">
                         {t('footer.copyright')} · {t('footer.disclaimer')}

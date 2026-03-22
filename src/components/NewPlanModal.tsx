@@ -231,7 +231,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                                         "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs transition-all cursor-pointer text-left mb-1 last:mb-0",
                                                         boss?.id === b.id 
                                                             ? "bg-app-accent/20 text-app-accent font-black shadow-inner" 
-                                                            : "text-app-text-secondary hover:bg-white/10 hover:text-app-text"
+                                                            : "text-app-text-secondary hover:bg-app-surface2 hover:text-app-text"
                                                     )}
                                                 >
                                                     <span className="truncate">{b.name[lang] || b.name.ja}</span>

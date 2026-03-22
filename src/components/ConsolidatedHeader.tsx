@@ -27,15 +27,15 @@ interface ConsolidatedHeaderProps {
 }
 
 // ホバー: 白黒反転（ライト→黒塗り白文字 / ダーク→白塗り黒文字）
-const hoverInvert = "hover:bg-slate-900 hover:border-slate-900 hover:text-white dark:hover:bg-white dark:hover:border-white dark:hover:text-slate-900";
+const hoverInvert = "hover:bg-app-text hover:border-app-text hover:text-app-bg";
 
 // アイコン丸ボタン共通スタイル（1px border で統一）
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
-const iconBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-app-text-muted ${hoverInvert}`;
+const iconBtnDefault = `bg-transparent border-app-border text-app-text-muted ${hoverInvert}`;
 
 // テキスト付きピルボタン共通スタイル（1px border で統一）
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
-const pillBtnDefault = `bg-transparent border-slate-300 dark:border-white/20 text-app-text-muted ${hoverInvert}`;
+const pillBtnDefault = `bg-transparent border-app-border text-app-text-muted ${hoverInvert}`;
 const pillBtnActive = `bg-[rgba(var(--app-accent-rgb),0.15)] border-[rgba(var(--app-accent-rgb),0.6)] text-app-accent shadow-[0_0_14px_rgba(var(--app-accent-rgb),0.35)] ${hoverInvert}`;
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
@@ -110,7 +110,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
-                    <div className="h-12 flex items-center justify-between pl-12 pr-6 border-b border-slate-200/30 dark:border-white/5 shrink-0">
+                    <div className="h-12 flex items-center justify-between pl-12 pr-6 border-b border-app-border shrink-0">
                         <div className="flex items-center gap-2">
                             <Tooltip content={t('app.return_home')}>
                                 <button
@@ -139,7 +139,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('app.view_tutorial')}</span>
                             </button>
 
-                            <div className="h-5 w-[1px] bg-slate-200/50 dark:bg-white/10 mx-0.5 rounded-full" />
+                            <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
 
                             {/* Theme toggle */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
@@ -225,11 +225,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
-                            <div className="h-5 w-[1px] bg-slate-200/50 dark:bg-white/10 mx-0.5 rounded-full" />
+                            <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
 
                             {/* Sort */}
                             <span className="text-[10px] font-black text-app-text-muted uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            <div className="flex h-9 rounded-full p-[3px] border border-slate-300 dark:border-white/20">
+                            <div className="flex h-9 rounded-full p-[3px] border border-app-border">
                                 {(['light_party', 'role'] as const).map((order) => (
                                     <button
                                         key={order}
@@ -273,7 +273,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         onMouseLeave={(e) => handleLeave(e)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-white/10 dark:hover:bg-white/10 active:bg-white/20 transition-colors duration-200"
+                            "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
                         <motion.div
@@ -285,14 +285,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         <div className={clsx(
                             "absolute inset-x-0 top-0 h-[1px] transition-colors duration-200",
                             isHeaderCollapsed
-                                ? "bg-slate-400 dark:bg-white/30"
-                                : "bg-slate-300 dark:bg-white/20 group-hover/btn:bg-slate-500 dark:group-hover/btn:bg-white/40"
+                                ? "bg-app-border"
+                                : "bg-app-border group-hover/btn:bg-app-text-muted"
                         )} />
 
                         <div className={clsx(
                             "absolute inset-x-0 bottom-0 h-[1px] transition-all duration-200",
                             isHeaderCollapsed
-                                ? "bg-slate-400 dark:bg-white/30"
+                                ? "bg-app-border"
                                 : "bg-glass-border"
                         )} />
 

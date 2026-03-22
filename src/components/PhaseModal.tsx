@@ -87,17 +87,17 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
-                        className={`absolute bg-[#020203] border border-white/[0.08] shadow-sm overflow-hidden ring-1 ring-white/5 glass-panel pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
+                        className={`absolute bg-[#020203] border border-app-border shadow-sm overflow-hidden ring-1 ring-app-border glass-panel pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
                     >
                         {/* Mobile Drag Handle Indicator */}
-                        {isMobile && <div className="w-12 h-1 bg-slate-700 dark:bg-slate-600 rounded-full mx-auto mt-3 shrink-0" />}
+                        {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-white/[0.05] bg-black/40 shrink-0">
+                        <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-black/40 shrink-0">
                             <h2 className="text-sm font-bold text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
-                            <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-white/10 cursor-pointer">
+                            <button onClick={onClose} className="text-app-text-muted hover:text-white transition-colors p-1 rounded hover:bg-app-surface2 cursor-pointer">
                                 <X size={16} />
                             </button>
                         </div>
@@ -110,7 +110,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-white/[0.05] border border-white/[0.1] rounded-lg p-2.5 text-sm text-app-text placeholder-slate-500 focus:border-blue-500/50 focus:bg-blue-500/[0.05] focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
+                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-sm text-app-text placeholder-app-text-muted focus:border-blue-500/50 focus:bg-app-surface focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all font-barlow"
                                     placeholder={t('phase_modal.placeholder')}
                                     autoFocus
                                 />
@@ -135,7 +135,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text-muted hover:text-white hover:bg-white/10 rounded-md transition-colors text-xs font-medium cursor-pointer"
+                                        className="px-4 py-1.5 text-app-text-muted hover:text-white hover:bg-app-surface2 rounded-md transition-colors text-xs font-medium cursor-pointer"
                                     >
                                         {t('modal.cancel')}
                                     </button>

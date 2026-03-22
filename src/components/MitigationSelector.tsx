@@ -220,8 +220,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 )}
                 style={isMobile && !isCentered ? { maxHeight: '75vh' } : !isCentered ? { left: adjustedPos.x || position.x, top: adjustedPos.y || position.y, maxHeight: '50vh' } : { maxHeight: '60vh' }}
             >
-                {isMobile && !isCentered && <div className="w-12 h-1 bg-slate-400 dark:bg-slate-500 rounded-full mx-auto mb-3 shrink-0" />}
-                <div className="flex justify-between items-center mb-2 pb-2 border-b border-black/5 dark:border-white/[0.03] px-1 shrink-0 relative z-[101]">
+                {isMobile && !isCentered && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mb-3 shrink-0" />}
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-app-border px-1 shrink-0 relative z-[101]">
                     <div className="flex items-center pl-1">
                         <div className="flex flex-col justify-center min-w-0">
                             {selectedSingleTargetMit ? (
@@ -301,14 +301,14 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         className={clsx(
                                             "w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-left group border text-app-text",
                                             isBlurred ? "opacity-30 blur-[2px] grayscale" : "",
-                                            isSelectedTargetMit ? "z-10 shadow-md bg-white/10 dark:bg-white/5 border-white/20" : 
+                                            isSelectedTargetMit ? "z-10 shadow-md bg-app-surface2 border-app-border" :
                                             isAlreadyPlaced
                                                 ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
                                                 : !status.available
                                                     ? ("border-red-100 bg-red-50/50 cursor-not-allowed opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:cursor-not-allowed dark:opacity-70")
                                                     : status.warning
                                                         ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
-                                                        : ("hover:bg-slate-50 border-transparent hover:border-slate-200 dark:hover:bg-white/[0.08] dark:border-transparent dark:hover:border-white/[0.03]"),
+                                                        : ("hover:bg-app-surface2 border-transparent hover:border-app-border"),
                                             isClickable ? "cursor-pointer" : "cursor-not-allowed"
                                         )}
                                     >
@@ -322,7 +322,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                         ? ("bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-500/30")
                                                         : status.warning
                                                             ? ("bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-500/30")
-                                                            : ("bg-slate-100 border-slate-200 dark:bg-black/30 dark:border-white/5")
+                                                            : ("bg-app-surface2 border-app-border")
                                                 )}
                                             />
                                             {status.badge && (
@@ -404,8 +404,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                             disabled={isDisabled}
                                                             className={clsx(
                                                                 "flex items-center justify-center p-2 rounded-lg border transition-all duration-200",
-                                                                "bg-slate-100/50 dark:bg-white/[0.03] border-black/5 dark:border-white/5",
-                                                                "hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10",
+                                                                "bg-app-surface2 border-app-border",
+                                                                "hover:bg-app-surface2 hover:border-app-border",
                                                                 "shadow-sm dark:shadow-none hover:shadow-md",
                                                                 isDisabled ? "opacity-30 cursor-not-allowed grayscale shadow-none" : "cursor-pointer active:scale-95 hover:scale-[1.03]"
                                                             )}
