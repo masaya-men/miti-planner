@@ -60,11 +60,18 @@ export const usePlanStore = create<PlanState>()(
                     data: {
                         ...initialData,
                         timelineEvents: [...templateData.timelineEvents],
-                        phases: templateData.phases ? templateData.phases.map((p, i) => ({
-                            id: `phase_${p.id}`,
-                            name: `Phase ${i + 1}`,
-                            endTime: p.startTimeSec
-                        })) : [],
+                        phases: templateData.phases ? templateData.phases
+                            .filter(p => p.startTimeSec >= 0) // 戦闘開始前のフェーズを除外
+                            .map((p, i, arr) => {
+                            // endTime = 次のフェーズの開始時刻。最後のフェーズはタイムラインの最大時刻
+                            const nextStart = arr[i + 1]?.startTimeSec;
+                            const maxTime = Math.max(...templateData.timelineEvents.map(e => e.time), 0);
+                            return {
+                                id: `phase_${p.id}`,
+                                name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                                endTime: nextStart !== undefined ? nextStart : maxTime + 10
+                            };
+                        }) : [],
                     },
                     createdAt: Date.now(),
                     updatedAt: Date.now()

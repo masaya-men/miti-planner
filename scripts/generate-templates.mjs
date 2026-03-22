@@ -247,11 +247,69 @@ function matchEncountersToContent(contents, encounters) {
     return { matched, unmatched };
 }
 
-// ─── Step 3: Fetch rankings (slow kills) ───
-async function fetchSlowKills(token, encounterId, count = 3, region = undefined) {
-    // Get rankings sorted by duration (ascending = fastest, so we need page to get slowest)
-    // FFLogs fightRankings metric: "speed" gives fights sorted by duration
-    const regionArg = region ? `, serverRegion: "${region}"` : '';
+// ─── Step 3: Fetch best single log (死亡0・JP・遅いキル優先) ───
+async function findBestLog(token, encounterId) {
+    // JPリージョンの遅いキルから死亡0のログを探す
+    // 見つからなければグローバルも探す
+    for (const region of ['JP', undefined]) {
+        const regionLabel = region || 'Global';
+        const regionArg = region ? `, serverRegion: "${region}"` : '';
+
+        // 複数ページ分探す（最大3ページ）
+        for (let page = 1; page <= 3; page++) {
+            const queryStr = `
+                query GetRankings($encounterId: Int!, $page: Int!) {
+                    worldData {
+                        encounter(id: $encounterId) {
+                            name
+                            fightRankings(page: $page, metric: speed${regionArg})
+                        }
+                    }
+                }
+            `;
+            const data = await gql(token, queryStr, { encounterId, page });
+            await sleep(API_DELAY_MS);
+
+            const rankings = data.worldData.encounter?.fightRankings;
+            if (!rankings || !rankings.rankings || rankings.rankings.length === 0) break;
+
+            // 遅い順（末尾から）に死亡0のログを探す
+            const allRankings = rankings.rankings;
+            const candidates = allRankings.slice().reverse();
+
+            for (const r of candidates) {
+                if (!r.report?.code || !r.report?.fightID) continue;
+
+                // このログの死亡数を確認
+                try {
+                    const fight = await fetchFightMeta(token, r.report.code, r.report.fightID);
+                    await sleep(API_DELAY_MS);
+
+                    const deaths = await fetchDeathEvents(token, r.report.code, fight);
+                    await sleep(API_DELAY_MS);
+
+                    if (deaths.length === 0) {
+                        console.log(`   ✅ Found deathless log: ${r.report.code}#${r.report.fightID} (${regionLabel}, ${Math.round(r.duration / 1000)}s)`);
+                        return {
+                            reportCode: r.report.code,
+                            fightId: r.report.fightID,
+                            duration: r.duration,
+                            fight,
+                            deaths,
+                        };
+                    } else {
+                        console.log(`   ⏭️  ${r.report.code}#${r.report.fightID}: ${deaths.length} deaths — skipping`);
+                    }
+                } catch (err) {
+                    console.log(`   ⏭️  ${r.report.code}#${r.report.fightID}: error — ${err.message}`);
+                }
+            }
+        }
+    }
+
+    // 死亡0が見つからなかった場合、最も死亡が少ないJPログを使う
+    console.log(`   ⚠️  No deathless log found. Falling back to slowest JP kill...`);
+    const regionArg = ', serverRegion: "JP"';
     const queryStr = `
         query GetRankings($encounterId: Int!, $page: Int!) {
             worldData {
@@ -263,24 +321,29 @@ async function fetchSlowKills(token, encounterId, count = 3, region = undefined)
         }
     `;
     const data = await gql(token, queryStr, { encounterId, page: 1 });
+    await sleep(API_DELAY_MS);
 
     const rankings = data.worldData.encounter?.fightRankings;
-    if (!rankings || !rankings.rankings || rankings.rankings.length === 0) {
-        console.log(`   ⚠️  No rankings found for encounter ${encounterId}`);
-        return [];
+    if (!rankings?.rankings?.length) {
+        // JP無ければグローバル
+        const gData = await gql(token, queryStr.replace(regionArg, ''), { encounterId, page: 1 });
+        await sleep(API_DELAY_MS);
+        const gRankings = gData.worldData.encounter?.fightRankings;
+        if (!gRankings?.rankings?.length) return null;
+        const r = gRankings.rankings[gRankings.rankings.length - 1];
+        const fight = await fetchFightMeta(token, r.report.code, r.report.fightID);
+        await sleep(API_DELAY_MS);
+        const deaths = await fetchDeathEvents(token, r.report.code, fight);
+        await sleep(API_DELAY_MS);
+        return { reportCode: r.report.code, fightId: r.report.fightID, duration: r.duration, fight, deaths };
     }
 
-    // fightRankings sorted by speed = fastest first
-    // We want SLOWEST kills → take from the end
-    const allRankings = rankings.rankings;
-    const slowest = allRankings.slice(-count).reverse();
-
-    return slowest.map(r => ({
-        reportCode: r.report?.code,
-        fightId: r.report?.fightID,
-        duration: r.duration,
-        startTime: r.startTime,
-    })).filter(r => r.reportCode && r.fightId);
+    const r = rankings.rankings[rankings.rankings.length - 1];
+    const fight = await fetchFightMeta(token, r.report.code, r.report.fightID);
+    await sleep(API_DELAY_MS);
+    const deaths = await fetchDeathEvents(token, r.report.code, fight);
+    await sleep(API_DELAY_MS);
+    return { reportCode: r.report.code, fightId: r.report.fightID, duration: r.duration, fight, deaths };
 }
 
 // ─── Step 4: Fetch fight metadata (start/end times) ───
@@ -366,6 +429,34 @@ async function fetchDamageEvents(token, reportCode, fight, translate = false) {
     return allEvents;
 }
 
+// ─── Step 5b: Fetch death events ───
+async function fetchDeathEvents(token, reportCode, fight) {
+    const data = await gql(token, `
+        query GetDeaths($reportCode: String!, $fightIds: [Int]!, $startTime: Float!, $endTime: Float!) {
+            reportData {
+                report(code: $reportCode) {
+                    events(
+                        dataType: Deaths
+                        fightIDs: $fightIds
+                        startTime: $startTime
+                        endTime: $endTime
+                        limit: 10000
+                        hostilityType: Friendlies
+                    ) {
+                        data
+                    }
+                }
+            }
+        }
+    `, {
+        reportCode,
+        fightIds: [fight.id],
+        startTime: fight.startTime,
+        endTime: fight.endTime,
+    });
+    return data.reportData.report.events.data || [];
+}
+
 // ─── Step 6: Simplified mapper (Node.js version of fflogsMapper) ───
 function getRawDamage(ev) {
     if (ev.unmitigatedAmount !== undefined && ev.unmitigatedAmount > 0) return ev.unmitigatedAmount;
@@ -383,7 +474,7 @@ function mapDamageType(t) {
     return 'magical';
 }
 
-function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
+function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map(), deaths = []) {
     // Deduplicate
     const deduped = new Map();
     for (const ev of rawEn) {
@@ -405,12 +496,47 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
 
     if (!filtered.length) return [];
 
+    // デス後のダメージ除外（戦闘不能後15秒間のイベントを除外）
+    const DEATH_WINDOW_MS = 15000;
+    const deathMap = new Map();
+    for (const d of deaths) {
+        if (!deathMap.has(d.targetID)) deathMap.set(d.targetID, []);
+        deathMap.get(d.targetID).push(d.timestamp);
+    }
+    for (const ts of deathMap.values()) ts.sort((a, b) => a - b);
+
+    const alive = filtered.filter(ev => {
+        const deathTs = deathMap.get(ev.targetID);
+        if (!deathTs) return true;
+        return !deathTs.some(dt => ev.timestamp > dt && ev.timestamp - dt < DEATH_WINDOW_MS);
+    });
+
+    if (deaths.length > 0) {
+        const removed = filtered.length - alive.length;
+        if (removed > 0) console.log(`   🪦 Death filter: removed ${removed} events on dead players`);
+    }
+
+    // _rsv_ で始まる名前は未公開スキルの内部予約名なので無効とみなす
+    const isValidName = (name) => name && !name.startsWith('_rsv_');
+
+    // 不明なスキル名を GUID ごとに一貫した番号で命名（同じ技 = 同じ名前）
+    const unknownCounter = new Map();
+    let unknownIdx = 0;
+    const getUnknownName = (guid) => {
+        if (unknownCounter.has(guid)) return unknownCounter.get(guid);
+        unknownIdx++;
+        const padded = String(unknownIdx).padStart(2, '0');
+        const name = `Unknown_${padded}`;
+        unknownCounter.set(guid, name);
+        return name;
+    };
+
     // JP names map (FFLogs fallback)
     const jpMap = new Map();
     for (const ev of rawJp) {
         const g = ev.ability?.guid ?? ev.abilityGameID;
         const n = ev.ability?.name?.trim();
-        if (g !== undefined && n && !jpMap.has(g)) jpMap.set(g, n);
+        if (g !== undefined && isValidName(n) && !jpMap.has(g)) jpMap.set(g, n);
     }
 
     // Normalize — priority: XIVAPI dict > FFLogs JP > FFLogs EN
@@ -418,31 +544,35 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
     const GROUPING_WINDOW_MS = 800;
     const TB_DAMAGE_RATIO = 1.5;
 
-    const norm = filtered.filter(ev => ev.timestamp >= ref).map(ev => {
+    const norm = alive.filter(ev => ev.timestamp >= ref).map(ev => {
         const ms = ev.timestamp - ref;
         const a = isAutoAttack(ev);
         const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
         const en = a ? 'AA' : (ev.ability?.name?.trim() || 'Unknown');
 
-        // Resolve JP name: XIVAPI (authoritative) > FFLogs JP > fallback to EN
-        let jpN;
+        // スキル名解決（優先度: XIVAPI > FFLogs JP > FFLogs EN）
+        // _rsv_ で始まる無効名は各段階でスキップ
+        let jpN, enN;
         if (a) {
-            jpN = 'AA'; // User requested AA stays as "AA"
+            jpN = 'AA';
+            enN = 'AA';
         } else {
             const xiv = xivApiDict.get(g);
-            if (xiv && xiv.ja) {
-                jpN = xiv.ja;
-            } else {
-                const jp = jpMap.get(g);
-                jpN = (jp && !AA_NAMES.has(jp)) ? jp : en;
-            }
-        }
+            const ffJp = jpMap.get(g);
+            const ffEn = isValidName(en) ? en : null;
 
-        // Also fix EN name from XIVAPI if available (handles garbled names)
-        let enN = en;
-        if (!a) {
-            const xiv = xivApiDict.get(g);
-            if (xiv && xiv.en) enN = xiv.en;
+            const unknownFallback = getUnknownName(g);
+
+            // JP名: XIVAPI → FFLogs JP → FFLogs EN → Unknown_XX
+            jpN = (xiv && isValidName(xiv.ja)) ? xiv.ja
+                : (ffJp && !AA_NAMES.has(ffJp)) ? ffJp
+                : ffEn || unknownFallback;
+
+            // EN名: XIVAPI → FFLogs EN → FFLogs JP → Unknown_XX
+            enN = (xiv && isValidName(xiv.en)) ? xiv.en
+                : ffEn ? ffEn
+                : (ffJp && !AA_NAMES.has(ffJp)) ? ffJp
+                : unknownFallback;
         }
 
         return {
@@ -452,7 +582,8 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
         };
     });
 
-    // MT/ST identification
+    // MT/ST identification（時系列追跡でタンクスイッチ検出）
+    // まず全AA被弾者からタンク2名を特定（被弾数Top2）
     const hits = new Map();
     for (const n of norm) {
         if (!n.aa) continue;
@@ -461,11 +592,43 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
         else e.c++;
     }
     const sorted = [...hits.entries()].sort((a, b) => b[1].c - a[1].c || a[1].f - b[1].f);
-    const mtId = sorted[0]?.[0] ?? null;
-    const stId = sorted[1]?.[0] ?? null;
+    const tankA = sorted[0]?.[0] ?? null; // AA被弾が最も多い = 初期MT
+    const tankB = sorted[1]?.[0] ?? null;
     const tanks = new Set();
-    if (mtId !== null) tanks.add(mtId);
-    if (stId !== null) tanks.add(stId);
+    if (tankA !== null) tanks.add(tankA);
+    if (tankB !== null) tanks.add(tankB);
+
+    // AAイベントを時系列で並べ、現在のAA対象を追跡
+    // 初期MT(tankA)がAAを受けている間 → その人=MT, もう一方=ST
+    // AA対象が切り替わった時点でスイッチ発生
+    const aaEvents = norm.filter(n => n.aa).sort((a, b) => a.timeMs - b.timeMs);
+    let currentMtId = tankA; // 初期MTはAA被弾数最多の人
+
+    // 各時刻でのMT/ST状態を記録するMap（timeSec → currentMtId）
+    const mtAtTime = new Map();
+    for (const ev of aaEvents) {
+        if (ev.tgtID === tankA || ev.tgtID === tankB) {
+            currentMtId = ev.tgtID; // AA対象が切り替わった = スイッチ
+        }
+        mtAtTime.set(ev.timeSec, currentMtId);
+    }
+
+    // 指定時刻でのMT/STを返すヘルパー
+    // AAイベントがない時刻では直前の状態を引き継ぐ
+    const allAaTimeSecs = [...mtAtTime.keys()].sort((a, b) => a - b);
+    function getMtIdAt(timeSec) {
+        // その時刻以前で最も近いAA時刻を探す
+        let result = tankA; // デフォルトは初期MT
+        for (const t of allAaTimeSecs) {
+            if (t > timeSec) break;
+            result = mtAtTime.get(t);
+        }
+        return result;
+    }
+
+    // 後方互換: mtId/stIdは初期MT/STとして保持（非AA技のtarget判定に使用）
+    const mtId = tankA;
+    const stId = tankB;
 
     // Pre-compute damage info
     const admg = new Map();
@@ -574,25 +737,30 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map()) {
         }
     }
 
-    // AA events (grouped)
+    // AA events（全件出力。タンクスイッチを時系列追跡で反映）
+    // 同時に両タンクにAAが来るボス（M4S前半等）にも対応
     const aaGuid = norm.find(n => n.aa)?.guid ?? -1;
     const aaInfo = admg.get(aaGuid);
     const aaMax = Math.max(aaInfo?.mt ?? 0, aaInfo?.pt ?? 0);
     const aaBD = Math.floor((aaMax / 1.05) * 0.8);
 
+    // timeSec:tgtID でグループ化（同秒・同対象のAAをまとめる）
     const aaGr = new Map();
     for (const n of norm) {
         if (!n.aa) continue;
         const k = `${n.timeSec}:${n.tgtID}`;
-        if (!aaGr.has(k)) aaGr.set(k, []); aaGr.get(k).push(n);
+        if (!aaGr.has(k)) aaGr.set(k, []);
+        aaGr.get(k).push(n);
     }
     for (const [k, gr] of aaGr) {
         const [s, t] = k.split(':');
         const sec = parseInt(s, 10), tid = parseInt(t, 10);
+        const curMt = getMtIdAt(sec);
+        const target = tid === curMt ? 'MT' : 'ST';
         tl.push({
             time: sec, name: { ja: gr[0].jpName, en: gr[0].enName },
             damageType: mapDamageType(gr[0].aType), damageAmount: aaBD > 0 ? aaBD : undefined,
-            target: tid === stId ? 'ST' : 'MT'
+            target
         });
     }
 
@@ -615,10 +783,13 @@ function mergeTimelines(timelines) {
         const other = timelines[tIdx];
 
         for (const oEv of other) {
-            // Try to find matching event in merged
+            const isAA = oEv.name.en === 'AA';
+
+            // AAはtargetを無視して時刻のみでマッチ（ログごとにMT/STが異なるため）
+            // 非AAは従来通り name + target + 時刻でマッチ
             const matchIdx = merged.findIndex(mEv =>
                 mEv.name.en === oEv.name.en &&
-                mEv.target === oEv.target &&
+                (isAA || mEv.target === oEv.target) &&
                 Math.abs(mEv.time - oEv.time) <= MERGE_WINDOW_SEC
             );
 
@@ -630,10 +801,24 @@ function mergeTimelines(timelines) {
                         mEv.damageAmount = oEv.damageAmount;
                     }
                 }
+                // AAのtargetは多数決：同じ時刻でMT/STどちらが多いかを追跡
+                if (isAA) {
+                    if (!mEv._targetVotes) mEv._targetVotes = { MT: 0, ST: 0 };
+                    mEv._targetVotes[mEv.target] = (mEv._targetVotes[mEv.target] || 0) + 1;
+                    mEv._targetVotes[oEv.target] = (mEv._targetVotes[oEv.target] || 0) + 1;
+                }
             } else {
                 // New event not in base — add it
                 merged.push({ ...oEv });
             }
+        }
+    }
+
+    // AAイベントのtargetを多数決で確定し、内部プロパティを除去
+    for (const ev of merged) {
+        if (ev._targetVotes) {
+            ev.target = (ev._targetVotes.ST || 0) > (ev._targetVotes.MT || 0) ? 'ST' : 'MT';
+            delete ev._targetVotes;
         }
     }
 
@@ -657,14 +842,38 @@ function finalizeTimeline(events) {
 }
 
 // ─── Phase extraction from fight metadata ───
-function extractPhases(fight) {
+function extractPhases(fight, phaseNames = {}) {
     if (!fight.phaseTransitions || fight.phaseTransitions.length === 0) return [];
 
     const ref = fight.startTime;
-    return fight.phaseTransitions.map(pt => ({
+    const raw = fight.phaseTransitions.map(pt => ({
         id: pt.id,
         startTimeSec: Math.floor((pt.startTime - ref) / 1000),
+        ...(phaseNames[String(pt.id)] ? { name: phaseNames[String(pt.id)] } : {}),
     }));
+
+    // 同じstartTimeSecが連続するフェーズを修正（例: DSRのP1/P2が両方0s）
+    // 後続フェーズのstartTimeSecから区間を按分して境界を推定する
+    for (let i = 1; i < raw.length; i++) {
+        if (raw[i].startTimeSec === raw[i - 1].startTimeSec) {
+            // 次の異なるstartTimeSecを持つフェーズを探す
+            const nextDiff = raw.find((p, j) => j > i && p.startTimeSec > raw[i].startTimeSec);
+            if (nextDiff) {
+                // P1=0s, P2=0s, P3=182s の場合 → P2の開始を P3の半分付近に設定
+                // ただしフェーズ数に応じて按分
+                const span = nextDiff.startTimeSec - raw[i - 1].startTimeSec;
+                const duplicateCount = raw.filter((p, j) => j >= i - 1 && j < raw.indexOf(nextDiff) && p.startTimeSec === raw[i - 1].startTimeSec).length;
+                for (let k = i; k < raw.indexOf(nextDiff); k++) {
+                    if (raw[k].startTimeSec === raw[i - 1].startTimeSec) {
+                        const idx = k - (i - 1);
+                        raw[k].startTimeSec = raw[i - 1].startTimeSec + Math.floor(span * idx / duplicateCount);
+                    }
+                }
+            }
+        }
+    }
+
+    return raw;
 }
 
 // ─── Main ───
@@ -762,87 +971,47 @@ async function main() {
         console.log(`📦 ${primary.en} (encounter ${encId})`);
 
         try {
-            // Fetch rankings (slow kills). Mix global and JP logs to ensure translation works
-            console.log(`   🔍 Fetching ${LOGS_PER_CONTENT} slow kills (Global + JP)...`);
-            const globalKills = await fetchSlowKills(token, encId, LOGS_PER_CONTENT);
-            await sleep(API_DELAY_MS);
-            
-            // To guarantee we get JP names (translate:false returns original client string), we must fetch 
-            // from JP region where players are almost guaranteed to be using the Japanese client.
-            const jpKills = await fetchSlowKills(token, encId, 2, 'JP');
-            await sleep(API_DELAY_MS);
-            
-            // Combine and deduplicate kills
-            const allKillsMap = new Map();
-            for (const kill of [...globalKills, ...jpKills]) {
-                if (!allKillsMap.has(kill.reportCode)) {
-                    allKillsMap.set(kill.reportCode, kill);
-                }
-            }
-            const kills = Array.from(allKillsMap.values());
+            // 単一ログ方式：死亡0のJP遅いキルを1つ探す
+            console.log(`   🔍 Searching for best deathless log (JP preferred, slowest kill)...`);
+            const best = await findBestLog(token, encId);
 
-            if (kills.length === 0) {
-                console.log(`   ⚠️  No kills found — skipping`);
+            if (!best) {
+                console.log(`   ⚠️  No log found — skipping`);
                 skipped += groupContents.length;
                 continue;
             }
 
-            console.log(`   📊 Found ${kills.length} kills to process`);
+            const { reportCode, fightId, fight, deaths } = best;
+            console.log(`   📥 Using: ${reportCode}#${fightId} (${Math.round(best.duration / 1000)}s, ${deaths.length} deaths)`);
 
-            // Fetch events for each kill and build timelines
-            const allTimelines = [];
+            const eventsEn = await fetchDamageEvents(token, reportCode, fight, true);
+            await sleep(API_DELAY_MS);
 
-            for (let i = 0; i < kills.length; i++) {
-                const kill = kills[i];
-                console.log(`   📥 Log ${i + 1}/${kills.length}: ${kill.reportCode}#${kill.fightId} (${Math.round(kill.duration / 1000)}s)`);
+            const eventsJp = await fetchDamageEvents(token, reportCode, fight, false);
+            await sleep(API_DELAY_MS);
 
-                try {
-                    const fight = await fetchFightMeta(token, kill.reportCode, kill.fightId);
-                    await sleep(API_DELAY_MS);
+            // Collect all unique ability GUIDs for XIVAPI lookup
+            const allGuids = [...eventsEn, ...eventsJp]
+                .map(e => e.ability?.guid ?? e.abilityGameID)
+                .filter(g => g !== undefined && g > 0);
+            const xivApiDict = await buildXivApiDict(allGuids);
 
-                    const eventsEn = await fetchDamageEvents(token, kill.reportCode, fight, true);
-                    await sleep(API_DELAY_MS);
+            const timeline = mapEventsToTimeline(eventsEn, eventsJp, fight, xivApiDict, deaths);
+            console.log(`      → ${timeline.length} events`);
 
-                    const eventsJp = await fetchDamageEvents(token, kill.reportCode, fight, false);
-                    await sleep(API_DELAY_MS);
+            const finalized = finalizeTimeline(timeline);
+            console.log(`   → ${finalized.length} events`);
 
-                    // Collect all unique ability GUIDs for XIVAPI lookup
-                    const allGuids = [...eventsEn, ...eventsJp]
-                        .map(e => e.ability?.guid ?? e.abilityGameID)
-                        .filter(g => g !== undefined && g > 0);
-                    const xivApiDict = await buildXivApiDict(allGuids);
-
-                    const timeline = mapEventsToTimeline(eventsEn, eventsJp, fight, xivApiDict);
-                    allTimelines.push({ timeline, fight });
-                    console.log(`      → ${timeline.length} events`);
-                } catch (err) {
-                    console.log(`      ❌ Error: ${err.message}`);
-                }
-            }
-
-            if (allTimelines.length === 0) {
-                console.log(`   ⚠️  No valid timelines — skipping`);
-                skipped += groupContents.length;
-                continue;
-            }
-
-            // Merge timelines
-            console.log(`   🔀 Merging ${allTimelines.length} timelines...`);
-            const merged = mergeTimelines(allTimelines.map(t => t.timeline));
-            const finalized = finalizeTimeline(merged);
-            console.log(`   → ${finalized.length} events after merge`);
-
-            // Get phases from the first fight that has them
-            const phases = allTimelines.find(t => t.fight.phaseTransitions?.length > 0)
-                ? extractPhases(allTimelines.find(t => t.fight.phaseTransitions?.length > 0).fight)
+            // Get phases
+            const phaseNames = primary.phaseNames || {};
+            const phases = fight.phaseTransitions?.length > 0
+                ? extractPhases(fight, phaseNames)
                 : [];
 
             // Handle phase splitting for checkpoint content
             if (groupContents.length > 1 && groupContents.some(c => c.hasCheckpoint)) {
-                // We have p1/p2 split — divide the timeline
                 if (phases.length >= 2) {
-                    // Use phase boundary to split
-                    const p2Start = phases[1].startTimeSec; // Phase 2 start time
+                    const p2Start = phases[1].startTimeSec;
 
                     for (const content of groupContents) {
                         const isP1 = content.id.endsWith('_p1');
@@ -850,13 +1019,14 @@ async function main() {
                             ? finalized.filter(ev => ev.time < p2Start)
                             : finalized.filter(ev => ev.time >= p2Start).map(ev => ({
                                 ...ev,
-                                time: ev.time - p2Start, // Normalize to 0-based
+                                time: ev.time - p2Start,
                             }));
 
                         const template = {
                             contentId: content.id,
                             generatedAt: new Date().toISOString(),
-                            sourceLogsCount: allTimelines.length,
+                            sourceLogsCount: 1,
+                            sourceLog: `${reportCode}#${fightId}`,
                             timelineEvents: phaseEvents,
                             phases: isP1
                                 ? phases.filter(p => p.startTimeSec < p2Start)
@@ -872,13 +1042,13 @@ async function main() {
                         success++;
                     }
                 } else {
-                    // No phase info — save full timeline for each, with a warning
                     console.log(`   ⚠️  No phase data for splitting — saving full timeline for each`);
                     for (const content of groupContents) {
                         const template = {
                             contentId: content.id,
                             generatedAt: new Date().toISOString(),
-                            sourceLogsCount: allTimelines.length,
+                            sourceLogsCount: 1,
+                            sourceLog: `${reportCode}#${fightId}`,
                             timelineEvents: finalized,
                             phases,
                             _warning: 'Phase split data not available; full timeline included',
@@ -891,12 +1061,12 @@ async function main() {
                     }
                 }
             } else {
-                // Single content — save as-is
                 const content = groupContents[0];
                 const template = {
                     contentId: content.id,
                     generatedAt: new Date().toISOString(),
-                    sourceLogsCount: allTimelines.length,
+                    sourceLogsCount: 1,
+                    sourceLog: `${reportCode}#${fightId}`,
                     timelineEvents: finalized,
                     phases,
                 };

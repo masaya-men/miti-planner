@@ -35,8 +35,15 @@ export const PROJECT_LABELS: Record<string, LocalizedString> = {
 // Parses the prefix of the ID from RAID_CONTENTS to group floors into Series.
 function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: string; seriesJa: string; seriesEn: string; order: number; shortJa: string; shortEn: string } {
     if (category === 'ultimate') {
-        const uppercase = id.toUpperCase();
-        return { seriesId: id, seriesJa: '', seriesEn: '', order: 1, shortJa: uppercase, shortEn: uppercase };
+        // dsr_p1 → seriesId: "dsr", shortJa: "DSR\nP1", order: 0.1
+        const baseId = id.replace(/_p\d+$/, '');
+        const pMatch = id.match(/_p(\d+)$/);
+        const uppercase = baseId.toUpperCase();
+        if (pMatch) {
+            const pNum = parseInt(pMatch[1], 10);
+            return { seriesId: baseId, seriesJa: '', seriesEn: '', order: pNum * 0.1, shortJa: `${uppercase}\nP${pNum}`, shortEn: `${uppercase}\nP${pNum}` };
+        }
+        return { seriesId: baseId, seriesJa: '', seriesEn: '', order: 1, shortJa: uppercase, shortEn: uppercase };
     }
 
     // Match patterns like "m4s", "p12s_p1", "o8s_p2"
@@ -123,10 +130,12 @@ export const CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => 
 });
 
 // Build unique ContentSeries parent nodes
+// _p1等のサフィックスがないコンテンツの名前をシリーズ名として優先する
 const seriesMap = new Map<string, ContentSeries>();
 RAID_CONTENTS.forEach(rc => {
     const { seriesId, seriesJa, seriesEn } = getSeriesMetadata(rc.id, rc.category);
-    if (!seriesMap.has(seriesId)) {
+    const hasPhaseSuffix = /_p\d+$/.test(rc.id);
+    if (!seriesMap.has(seriesId) || (!hasPhaseSuffix && seriesMap.has(seriesId))) {
         seriesMap.set(seriesId, {
             id: seriesId,
             name: rc.category === 'ultimate' ? { ja: rc.ja, en: rc.en } : { ja: seriesJa, en: seriesEn },

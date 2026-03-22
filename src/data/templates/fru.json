@@ -1,4941 +1,2290 @@
 {
   "contentId": "fru",
-  "generatedAt": "2026-03-21T07:52:52.804Z",
-  "sourceLogsCount": 4,
+  "generatedAt": "2026-03-22T08:16:04.568Z",
+  "source": "spreadsheet",
+  "sourceSheetId": "1SE42_C609lQnsgbyeXwyB3xVu-6Fjl6cjP1nY5g_DAU",
   "timelineEvents": [
     {
-      "id": "tpl_0_c7pmol",
-      "time": 1,
+      "id": "tpl_0_e1oike",
+      "time": 0,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_1_4mo78u",
-      "time": 1,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 47400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_2_ki7eu5",
+      "id": "tpl_1_2cgcps",
       "time": 3,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_3_qj2inv",
+      "id": "tpl_2_gbil70",
       "time": 6,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_4_vf9zlx",
+      "id": "tpl_3_1gsc1o",
       "time": 15,
       "name": {
-        "ja": "Cyclonic Break",
+        "ja": "サイクロニックブレイク",
         "en": "Cyclonic Break"
       },
       "damageType": "physical",
-      "damageAmount": 91400,
+      "damageAmount": 92000,
       "target": "AoE"
     },
     {
-      "id": "tpl_5_q1el03",
+      "id": "tpl_4_l6qzpq",
       "time": 17,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
+        "ja": "シンフレイム or シンボルト",
+        "en": "Sinflame or Sinbolt"
       },
       "damageType": "magical",
-      "damageAmount": 116000,
+      "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_6_u01dnu",
-      "time": 17,
-      "name": {
-        "ja": "Sinsmoke",
-        "en": "Sinsmoke"
-      },
-      "damageType": "magical",
-      "damageAmount": 136000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_7_k4p7ox",
-      "time": 22,
-      "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
-      },
-      "damageType": "magical",
-      "damageAmount": 223000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_8_d7u2y5",
+      "id": "tpl_5_1hzp1d",
       "time": 24,
       "name": {
-        "ja": "Powder Mark Trail",
+        "ja": "連鎖爆印刻",
         "en": "Powder Mark Trail"
       },
       "damageType": "magical",
-      "damageAmount": 652000,
-      "target": "MT"
+      "damageAmount": 800000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_9_o2758p",
+      "id": "tpl_6_x4cxec",
       "time": 27,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 47400,
-      "target": "MT"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_10_01gmj2",
-      "time": 27,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 59000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_11_kyup8l",
+      "id": "tpl_7_2dzoa8",
       "time": 30,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 47400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_12_rhxfvi",
-      "time": 31,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 59000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_13_2defvz",
-      "time": 41,
-      "name": {
-        "ja": "Burn Mark",
-        "en": "Burn Mark"
-      },
-      "damageType": "magical",
-      "damageAmount": 292000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_14_bhmvxb",
-      "time": 41,
-      "name": {
-        "ja": "Burn Mark",
-        "en": "Burn Mark"
-      },
-      "damageType": "magical",
-      "damageAmount": 292000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_15_2zaeoy",
-      "time": 50,
-      "name": {
-        "ja": "Sinbound Fire III",
-        "en": "Sinbound Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 118000,
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_16_9v0kxt",
+      "id": "tpl_8_bqqugz",
+      "time": 41,
+      "name": {
+        "ja": "爆印",
+        "en": "Burn Mark"
+      },
+      "damageType": "magical",
+      "damageAmount": 380000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_nrxi4d",
       "time": 50,
       "name": {
-        "ja": "Sinbound Thunder III",
-        "en": "Sinbound Thunder III"
+        "ja": "シンファイガ",
+        "en": "Sinfire"
       },
       "damageType": "magical",
       "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_17_mun42f",
-      "time": 51,
+      "id": "tpl_10_l737ba",
+      "time": 56,
       "name": {
-        "ja": "Sinbound Fire III",
-        "en": "Sinbound Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 118000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_18_vu2rno",
-      "time": 57,
-      "name": {
-        "ja": "Cyclonic Break",
+        "ja": "サイクロニックブレイク",
         "en": "Cyclonic Break"
       },
       "damageType": "physical",
-      "damageAmount": 91400,
+      "damageAmount": 92000,
       "target": "AoE"
     },
     {
-      "id": "tpl_19_f1v5hr",
+      "id": "tpl_11_w7ch7y",
       "time": 58,
       "name": {
-        "ja": "Sinsmoke",
-        "en": "Sinsmoke"
+        "ja": "シンフレイム or シンボルト",
+        "en": "Sinflame or Sinbolt"
       },
       "damageType": "magical",
-      "damageAmount": 89200,
+      "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_20_kztate",
-      "time": 59,
+      "id": "tpl_12_qda9r4",
+      "time": 79,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
+        "ja": "シンフレイム",
+        "en": "Sinflame"
       },
       "damageType": "magical",
-      "damageAmount": 116000,
+      "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_21_gyxvxo",
-      "time": 80,
-      "name": {
-        "ja": "Sinsmoke",
-        "en": "Sinsmoke"
-      },
-      "damageType": "magical",
-      "damageAmount": 120000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_22_63ryep",
+      "id": "tpl_13_dcb0vl",
       "time": 81,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 59000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_23_znmhna",
-      "time": 82,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_24_vhuqe5",
-      "time": 87,
-      "name": {
-        "ja": "Burnished Glory",
-        "en": "Burnished Glory"
-      },
-      "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_25_8ur95p",
-      "time": 90,
+      "id": "tpl_14_rtoqmb",
+      "time": 86,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_26_83niab",
-      "time": 90,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_27_p68o7v",
-      "time": 93,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_28_14r4o7",
-      "time": 93,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_29_kag2y5",
-      "time": 107,
-      "name": {
-        "ja": "Sinblaze",
-        "en": "Sinblaze"
+        "ja": "光焔光背",
+        "en": "Turn of the Heavens"
       },
       "damageType": "magical",
-      "damageAmount": 121000,
+      "damageAmount": 132000,
       "target": "AoE"
     },
     {
-      "id": "tpl_30_luspab",
-      "time": 110,
+      "id": "tpl_15_80xva2",
+      "time": 89,
       "name": {
-        "ja": "Sinblaze",
-        "en": "Sinblaze"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 121000,
+      "damageType": "physical",
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_31_go0zkp",
-      "time": 110,
+      "id": "tpl_16_89aa3t",
+      "time": 92,
       "name": {
-        "ja": "Bow Shock",
-        "en": "Bow Shock"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 119000,
+      "damageType": "physical",
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_32_33xp0l",
-      "time": 110,
+      "id": "tpl_17_gtl1ag",
+      "time": 106,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
+        "ja": "シンブレイズ or シンボルト",
+        "en": "Sinblaze or Sinbolt"
       },
       "damageType": "magical",
       "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_33_vtfpma",
-      "time": 110,
+      "id": "tpl_18_gp76fq",
+      "time": 107,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
-      },
-      "damageType": "magical",
-      "damageAmount": 75200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_34_z52azo",
-      "time": 112,
-      "name": {
-        "ja": "Sinblaze",
-        "en": "Sinblaze"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_35_2u57ip",
-      "time": 115,
-      "name": {
-        "ja": "Bow Shock",
+        "ja": "バウショック",
         "en": "Bow Shock"
       },
       "damageType": "magical",
-      "damageAmount": 116000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_36_pd0t26",
-      "time": 115,
+      "id": "tpl_19_rpkbx7",
+      "time": 109,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
+        "ja": "シンブレイズ or シンボルト",
+        "en": "Sinblaze or Sinbolt"
       },
       "damageType": "magical",
-      "damageAmount": 116000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_37_rfk07r",
-      "time": 115,
+      "id": "tpl_20_q5ag49",
+      "time": 110,
       "name": {
-        "ja": "Sinsmite",
-        "en": "Sinsmite"
+        "ja": "バウショック",
+        "en": "Bow Shock"
       },
       "damageType": "magical",
-      "damageAmount": 70400,
-      "target": "MT"
+      "damageAmount": 120000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_38_f4ypt8",
+      "id": "tpl_21_43qy1l",
+      "time": 112,
+      "name": {
+        "ja": "シンブレイズ or シンボルト",
+        "en": "Sinblaze or Sinbolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_8lgegk",
+      "time": 113,
+      "name": {
+        "ja": "バウショック",
+        "en": "Bow Shock"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_tbtai0",
+      "time": 114,
+      "name": {
+        "ja": "シンブレイズ or シンボルト",
+        "en": "Sinblaze or Sinbolt"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_fxc3l1",
+      "time": 115,
+      "name": {
+        "ja": "バウショック",
+        "en": "Bow Shock"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_8nsb2h",
       "time": 116,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_39_ojoyq3",
-      "time": 116,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_40_4o565p",
-      "time": 123,
-      "name": {
-        "ja": "Burnished Glory",
-        "en": "Burnished Glory"
-      },
-      "damageType": "magical",
-      "damageAmount": 145000,
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_41_rtsh7d",
-      "time": 124,
+      "id": "tpl_26_s1fg7x",
+      "time": 122,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "光焔光背",
+        "en": "Turn of the Heavens"
       },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageType": "magical",
+      "damageAmount": 132000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_42_z1oo2b",
-      "time": 125,
+      "id": "tpl_27_wkr39o",
+      "time": 130,
       "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_43_g8jlwo",
-      "time": 131,
-      "name": {
-        "ja": "Powder Mark Trail",
+        "ja": "連鎖爆印刻",
         "en": "Powder Mark Trail"
       },
       "damageType": "magical",
-      "damageAmount": 646000,
-      "target": "MT"
+      "damageAmount": 800000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_44_76hfz8",
-      "time": 132,
-      "name": {
-        "ja": "Powder Mark Trail",
-        "en": "Powder Mark Trail"
-      },
-      "damageType": "magical",
-      "damageAmount": 652000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_45_40bu1i",
+      "id": "tpl_28_3se7m8",
       "time": 133,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_46_ufvfgn",
-      "time": 133,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_47_o59l49",
-      "time": 146,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 44900,
+      "damageAmount": 78000,
       "target": "AoE"
     },
     {
-      "id": "tpl_48_tpfny6",
+      "id": "tpl_29_w80qnj",
       "time": 146,
       "name": {
-        "ja": "Explosion",
+        "ja": "爆発",
         "en": "Explosion"
       },
       "damageType": "magical",
-      "damageAmount": 45600,
+      "damageAmount": 46000,
       "target": "AoE"
     },
     {
-      "id": "tpl_49_28vn46",
-      "time": 147,
-      "name": {
-        "ja": "Burn Mark",
-        "en": "Burn Mark"
-      },
-      "damageType": "magical",
-      "damageAmount": 292000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_50_m5ia6v",
-      "time": 147,
-      "name": {
-        "ja": "Burn Mark",
-        "en": "Burn Mark"
-      },
-      "damageType": "magical",
-      "damageAmount": 292000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_51_pwvpun",
-      "time": 147,
+      "id": "tpl_30_oo1rqz",
+      "time": 146,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "ST"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_52_qu2u2d",
-      "time": 147,
+      "id": "tpl_31_5cov59",
+      "time": 146,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "爆印",
+        "en": "Burn Mark"
       },
-      "damageType": "physical",
-      "damageAmount": 59000,
-      "target": "MT"
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_53_liy4hk",
+      "id": "tpl_32_w35iel",
       "time": 149,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "ST"
+      "damageAmount": 78000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_54_jit920",
-      "time": 175,
+      "id": "tpl_33_2wurmx",
+      "time": 155,
       "name": {
-        "ja": "Quadruple Slap",
+        "ja": "光焔光背",
+        "en": "Turn of the Heavens"
+      },
+      "damageType": "magical",
+      "damageAmount": 9999999,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_oz0ayg",
+      "time": 332,
+      "name": {
+        "ja": "クアドラスラップ",
         "en": "Quadruple Slap"
       },
       "damageType": "physical",
-      "damageAmount": 478000,
-      "target": "ST"
+      "damageAmount": 650000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_55_ze6i35",
-      "time": 175,
+      "id": "tpl_35_8nuvyy",
+      "time": 336,
       "name": {
-        "ja": "Quadruple Slap",
+        "ja": "クアドラスラップ",
         "en": "Quadruple Slap"
       },
       "damageType": "physical",
-      "damageAmount": 529000,
-      "target": "MT"
+      "damageAmount": 650000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_56_k5az73",
-      "time": 180,
-      "name": {
-        "ja": "Quadruple Slap",
-        "en": "Quadruple Slap"
-      },
-      "damageType": "physical",
-      "target": "ST"
-    },
-    {
-      "id": "tpl_57_dwp93u",
-      "time": 183,
+      "id": "tpl_36_njpnyk",
+      "time": 339,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_58_ag17l8",
-      "time": 186,
+      "id": "tpl_37_h8fdo6",
+      "time": 342,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_59_4m1kbe",
-      "time": 196,
+      "id": "tpl_38_omu2lo",
+      "time": 352,
       "name": {
-        "ja": "Diamond Dust",
+        "ja": "ダイアモンドダスト",
         "en": "Diamond Dust"
       },
       "damageType": "magical",
-      "damageAmount": 193000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_60_0bjeqy",
-      "time": 197,
-      "name": {
-        "ja": "Diamond Dust",
-        "en": "Diamond Dust"
-      },
-      "damageType": "magical",
-      "damageAmount": 193000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_61_otbfwi",
-      "time": 206,
-      "name": {
-        "ja": "the House of Light",
-        "en": "The House of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_62_kafuby",
-      "time": 208,
-      "name": {
-        "ja": "Frigid Stone",
-        "en": "Frigid Stone"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_s2g16e",
-      "time": 213,
-      "name": {
-        "ja": "Heavenly Strike",
-        "en": "Heavenly Strike"
-      },
-      "damageType": "magical",
-      "damageAmount": 24500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_64_kmvv2i",
-      "time": 216,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_65_5rze8v",
-      "time": 218,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_66_yqz0ub",
-      "time": 219,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_67_hb8vy2",
-      "time": 221,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_68_7uuoll",
-      "time": 222,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 97100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_69_nzehn1",
-      "time": 222,
-      "name": {
-        "ja": "Sinbound Holy",
-        "en": "Sinbound Holy"
-      },
-      "damageType": "magical",
-      "damageAmount": 97100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_70_6ixwk7",
-      "time": 224,
-      "name": {
-        "ja": "Shining Armor",
-        "en": "Shining Armor"
-      },
-      "damageType": "magical",
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_71_vgqrfm",
-      "time": 239,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_72_t77lmt",
-      "time": 245,
-      "name": {
-        "ja": "Hallowed Ray",
-        "en": "Hallowed Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 186000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_73_6ngjh2",
-      "time": 245,
-      "name": {
-        "ja": "Hallowed Ray",
-        "en": "Hallowed Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 180000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_74_wjesag",
-      "time": 246,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_75_vunrc7",
-      "time": 250,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_76_3ch4pt",
-      "time": 256,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_77_z2xshd",
-      "time": 259,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_78_yn4f69",
-      "time": 268,
-      "name": {
-        "ja": "the House of Light",
-        "en": "The House of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_79_qy52tj",
-      "time": 268,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_80_rskg2g",
-      "time": 271,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_81_d9g4bs",
-      "time": 274,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_82_s7mt1n",
-      "time": 277,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_83_45d1fo",
-      "time": 278,
-      "name": {
-        "ja": "the House of Light",
-        "en": "The House of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_84_wsoj2y",
-      "time": 283,
-      "name": {
-        "ja": "Banish III Divided",
-        "en": "Banish III Divided"
-      },
-      "damageType": "magical",
-      "damageAmount": 88500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_85_tl7dgx",
-      "time": 284,
-      "name": {
-        "ja": "Banish III",
-        "en": "Banish III"
-      },
-      "damageType": "magical",
-      "damageAmount": 89100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_86_4396od",
-      "time": 285,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_87_chkqvk",
-      "time": 289,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_88_4h8sys",
-      "time": 293,
-      "name": {
-        "ja": "Light Rampant",
-        "en": "Light Rampant"
-      },
-      "damageType": "magical",
-      "damageAmount": 194000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_89_pcu0pe",
-      "time": 294,
-      "name": {
-        "ja": "Light Rampant",
-        "en": "Light Rampant"
-      },
-      "damageType": "magical",
-      "damageAmount": 194000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_90_jxbod2",
-      "time": 296,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_91_ab1ygv",
-      "time": 301,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 70900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_92_crnv0x",
-      "time": 303,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 70900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_93_tqa3ly",
-      "time": 304,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 48500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_94_kf1an4",
-      "time": 305,
-      "name": {
-        "ja": "Bright Hunger",
-        "en": "Bright Hunger"
-      },
-      "damageType": "magical",
-      "damageAmount": 44200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_95_ca5c47",
-      "time": 306,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 21300,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_96_nlrilm",
-      "time": 307,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 70900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_97_3hjtwh",
-      "time": 307,
-      "name": {
-        "ja": "Luminous Hammer",
-        "en": "Luminous Hammer"
-      },
-      "damageType": "magical",
-      "damageAmount": 21300,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_98_0ke7cv",
-      "time": 310,
-      "name": {
-        "ja": "Powerful Light",
-        "en": "Powerful Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 165000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_99_lhmpqp",
-      "time": 319,
-      "name": {
-        "ja": "Bright Hunger",
-        "en": "Bright Hunger"
-      },
-      "damageType": "magical",
-      "damageAmount": 44200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_100_qta5t2",
-      "time": 323,
-      "name": {
-        "ja": "Banish III",
-        "en": "Banish III"
-      },
-      "damageType": "magical",
-      "damageAmount": 89100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_101_pfro4a",
-      "time": 323,
-      "name": {
-        "ja": "Banish III Divided",
-        "en": "Banish III Divided"
-      },
-      "damageType": "magical",
-      "damageAmount": 123000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_102_cagrfq",
-      "time": 325,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_103_iva2eg",
-      "time": 331,
-      "name": {
-        "ja": "the House of Light",
-        "en": "The House of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_104_sj6tw6",
-      "time": 334,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_105_3dog4l",
-      "time": 337,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_106_b3y1c2",
-      "time": 350,
-      "name": {
-        "ja": "Absolute Zero",
-        "en": "Absolute Zero"
-      },
-      "damageType": "magical",
-      "damageAmount": 192000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_107_wy5qsh",
-      "time": 392,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_108_65dgas",
-      "time": 392,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_109_f8edjo",
-      "time": 393,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 44100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_110_rlzw21",
-      "time": 394,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_111_ar66x2",
-      "time": 394,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_112_907tvh",
-      "time": 396,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_113_ogmzkw",
-      "time": 396,
-      "name": {
-        "ja": "Hiemal Ray",
-        "en": "Hiemal Ray"
-      },
-      "damageType": "magical",
-      "damageAmount": 28400,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_114_ia0uc3",
-      "time": 427,
-      "name": {
-        "ja": "Junction",
-        "en": "Junction"
-      },
-      "damageType": "magical",
-      "damageAmount": 166000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_115_afnfkv",
-      "time": 430,
-      "name": {
-        "ja": "Junction",
-        "en": "Junction"
-      },
-      "damageType": "magical",
-      "damageAmount": 172000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_116_o6phtb",
-      "time": 460,
-      "name": {
-        "ja": "Ultimate Relativity",
-        "en": "Ultimate Relativity"
-      },
-      "damageType": "magical",
-      "damageAmount": 189000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_117_qt7qk1",
-      "time": 463,
-      "name": {
-        "ja": "Ultimate Relativity",
-        "en": "Ultimate Relativity"
-      },
-      "damageType": "magical",
-      "damageAmount": 193000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_118_zkhowv",
-      "time": 472,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_119_sp0ybc",
-      "time": 473,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 119000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_120_csy82h",
-      "time": 474,
-      "name": {
-        "ja": "Dark Fire III",
-        "en": "Dark Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 153000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_121_fzkuiq",
-      "time": 475,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_122_sydzo4",
-      "time": 477,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_123_pgy1bz",
-      "time": 480,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 120000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_124_191q4v",
-      "time": 482,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_125_xnqlhw",
-      "time": 483,
-      "name": {
-        "ja": "Dark Fire III",
-        "en": "Dark Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 151000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_126_ik4e3a",
-      "time": 484,
-      "name": {
-        "ja": "Dark Fire III",
-        "en": "Dark Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 153000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_127_dwrllg",
-      "time": 485,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_128_2k67p1",
-      "time": 487,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_129_p3dq0u",
-      "time": 490,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 120000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_130_xhlibf",
-      "time": 494,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_131_z625kc",
-      "time": 494,
-      "name": {
-        "ja": "Dark Fire III",
-        "en": "Dark Fire III"
-      },
-      "damageType": "magical",
-      "damageAmount": 153000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_132_k48mk9",
-      "time": 495,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 116000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_133_rjqlsn",
-      "time": 498,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_134_kjdaqb",
-      "time": 500,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 120000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_135_twd2gd",
-      "time": 501,
-      "name": {
-        "ja": "Sinbound Meltdown",
-        "en": "Sinbound Meltdown"
-      },
-      "damageType": "magical",
-      "damageAmount": 120000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_136_36bpdh",
-      "time": 503,
-      "name": {
-        "ja": "Shadoweye",
-        "en": "Shadoweye"
-      },
-      "damageType": "magical",
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_137_5jtaga",
-      "time": 506,
-      "name": {
-        "ja": "Dark Eruption",
-        "en": "Dark Eruption"
-      },
-      "damageType": "magical",
-      "damageAmount": 76000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_138_7kgyvr",
-      "time": 506,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_139_loo3u0",
-      "time": 506,
-      "name": {
-        "ja": "Shadoweye",
-        "en": "Shadoweye"
-      },
-      "damageType": "magical",
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_140_eg7nke",
-      "time": 511,
-      "name": {
-        "ja": "Shell Crusher",
-        "en": "Shell Crusher"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_141_6cyhmz",
-      "time": 511,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_142_kpytrr",
-      "time": 513,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 59000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_143_9yag47",
-      "time": 514,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_144_o2ftlj",
-      "time": 518,
-      "name": {
-        "ja": "Shockwave Pulsar",
-        "en": "Shockwave Pulsar"
-      },
-      "damageType": "magical",
-      "damageAmount": 156000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_145_rpu0zs",
-      "time": 518,
-      "name": {
-        "ja": "Shockwave Pulsar",
-        "en": "Shockwave Pulsar"
-      },
-      "damageType": "magical",
-      "damageAmount": 158000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_146_5bsoew",
-      "time": 519,
-      "name": {
-        "ja": "Shockwave Pulsar",
-        "en": "Shockwave Pulsar"
-      },
-      "damageType": "magical",
-      "damageAmount": 158000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_147_kmexwc",
-      "time": 521,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_148_qcfvkm",
-      "time": 521,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 59000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_149_j4eizt",
-      "time": 525,
-      "name": {
-        "ja": "Black Halo",
-        "en": "Black Halo"
-      },
-      "damageType": "physical",
-      "damageAmount": 680000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_150_ma1bvy",
-      "time": 527,
-      "name": {
-        "ja": "Black Halo",
-        "en": "Black Halo"
-      },
-      "damageType": "physical",
-      "damageAmount": 631000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_151_g4itg7",
-      "time": 527,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_152_pvou56",
-      "time": 528,
-      "name": {
-        "ja": "Black Halo",
-        "en": "Black Halo"
-      },
-      "damageType": "physical",
-      "damageAmount": 572000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_153_av2qcp",
-      "time": 530,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_154_615ezm",
-      "time": 533,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_155_1pguqf",
-      "time": 537,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_156_rt100a",
-      "time": 543,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_157_35zt04",
-      "time": 546,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_158_s2y7cm",
-      "time": 553,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_159_0is4f1",
-      "time": 555,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_160_wwk7jj",
-      "time": 556,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 69900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_161_pxjq9a",
-      "time": 557,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 64800,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_162_422tsc",
-      "time": 565,
-      "name": {
-        "ja": "Dark Eruption",
-        "en": "Dark Eruption"
-      },
-      "damageType": "magical",
-      "damageAmount": 75300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_163_6v8mig",
-      "time": 568,
-      "name": {
-        "ja": "Dark Eruption",
-        "en": "Dark Eruption"
-      },
-      "damageType": "magical",
-      "damageAmount": 76000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_164_4zkmwd",
-      "time": 571,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 75700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_165_dvz6x4",
-      "time": 573,
-      "name": {
-        "ja": "Darkest Dance",
-        "en": "Darkest Dance"
-      },
-      "damageType": "physical",
-      "target": "ST"
-    },
-    {
-      "id": "tpl_166_ov65vv",
-      "time": 574,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_167_gfj26o",
-      "time": 575,
-      "name": {
-        "ja": "Darkest Dance",
-        "en": "Darkest Dance"
-      },
-      "damageType": "physical",
-      "damageAmount": 616000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_168_bkip5l",
-      "time": 576,
-      "name": {
-        "ja": "Darkest Dance",
-        "en": "Darkest Dance"
-      },
-      "damageType": "magical",
-      "damageAmount": 15000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_169_o95mtq",
-      "time": 577,
-      "name": {
-        "ja": "Darkest Dance",
-        "en": "Darkest Dance"
-      },
-      "damageType": "physical",
-      "damageAmount": 574000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_170_1zdcwu",
-      "time": 579,
-      "name": {
-        "ja": "Darkest Dance",
-        "en": "Darkest Dance"
-      },
-      "damageType": "magical",
-      "damageAmount": 15600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_171_p05rsz",
-      "time": 579,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_172_ovsgm4",
-      "time": 580,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 75700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_173_s6pbs0",
-      "time": 583,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_174_u352e5",
-      "time": 583,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_175_qif8mt",
-      "time": 586,
-      "name": {
-        "ja": "Shockwave Pulsar",
-        "en": "Shockwave Pulsar"
-      },
-      "damageType": "magical",
-      "damageAmount": 157000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_176_zjlkqr",
-      "time": 587,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_177_ye4mqy",
-      "time": 589,
-      "name": {
-        "ja": "Shockwave Pulsar",
-        "en": "Shockwave Pulsar"
-      },
-      "damageType": "magical",
-      "damageAmount": 158000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_178_ni4zyn",
-      "time": 591,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_179_796dg0",
-      "time": 599,
-      "name": {
-        "ja": "Memory's End",
-        "en": "Memory's End"
-      },
-      "damageType": "magical",
-      "damageAmount": 188000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_180_pa1b21",
-      "time": 602,
-      "name": {
-        "ja": "Memory's End",
-        "en": "Memory's End"
-      },
-      "damageType": "magical",
-      "damageAmount": 194000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_181_l5gpvd",
-      "time": 630,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_182_6ngnfr",
-      "time": 630,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_183_3xa9uj",
-      "time": 632,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_184_m8nyos",
-      "time": 632,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_185_krasyt",
-      "time": 634,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_186_yya01v",
-      "time": 634,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_187_euuz0t",
-      "time": 635,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_188_f6zvk3",
-      "time": 636,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 59700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_189_q6vfrv",
-      "time": 636,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_190_vhw18v",
-      "time": 636,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_191_ko95w2",
-      "time": 639,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_192_ymzhp1",
-      "time": 639,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_193_mu26r2",
-      "time": 642,
-      "name": {
-        "ja": "Darklit Dragonsong",
-        "en": "Darklit Dragonsong"
-      },
-      "damageType": "magical",
-      "damageAmount": 191000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_194_yiw43h",
-      "time": 642,
-      "name": {
-        "ja": "Darklit Dragonsong",
-        "en": "Darklit Dragonsong"
-      },
-      "damageType": "magical",
-      "damageAmount": 191000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_195_9tiqkc",
-      "time": 643,
-      "name": {
-        "ja": "Darklit Dragonsong",
-        "en": "Darklit Dragonsong"
-      },
-      "damageType": "magical",
-      "damageAmount": 191000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_196_9so5i1",
-      "time": 646,
-      "name": {
-        "ja": "Darklit Dragonsong",
-        "en": "Darklit Dragonsong"
-      },
-      "damageType": "magical",
-      "damageAmount": 194000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_197_bnhd8f",
-      "time": 656,
-      "name": {
-        "ja": "Bright Hunger",
-        "en": "Bright Hunger"
-      },
-      "damageType": "magical",
-      "damageAmount": 44200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_198_1y1s7p",
-      "time": 656,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 68400,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_199_y3flpj",
-      "time": 657,
-      "name": {
-        "ja": "the Path of Light",
-        "en": "The Path of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_200_1kkf9z",
-      "time": 659,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 69900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_201_2v19sm",
-      "time": 659,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 64800,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_202_bd5kj9",
-      "time": 661,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 75700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_203_it1x7w",
-      "time": 663,
-      "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
-      },
-      "damageType": "magical",
-      "damageAmount": 223000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_204_34avwo",
-      "time": 664,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_205_gp4lgp",
-      "time": 666,
-      "name": {
-        "ja": "Somber Dance",
-        "en": "Somber Dance"
-      },
-      "damageType": "physical",
-      "damageAmount": 248000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_206_a9cgpr",
-      "time": 667,
-      "name": {
-        "ja": "Somber Dance",
-        "en": "Somber Dance"
-      },
-      "damageType": "physical",
-      "damageAmount": 269000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_207_tf4w5m",
-      "time": 671,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_208_o1dds0",
-      "time": 671,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_209_r6awcx",
-      "time": 671,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_210_y05s3z",
-      "time": 671,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 48600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_211_bkjyd6",
-      "time": 674,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_212_jfae03",
-      "time": 674,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_213_6420nh",
-      "time": 674,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 91200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_214_er4vbz",
-      "time": 675,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 59700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_215_1w95mp",
-      "time": 679,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_216_d0at67",
-      "time": 679,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 238000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_217_tkomzd",
-      "time": 680,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 40200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_218_nzx41l",
-      "time": 682,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 221000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_219_nieqlf",
-      "time": 682,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 238000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_220_2m4bsv",
-      "time": 683,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 74300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_221_hpltd2",
-      "time": 683,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 176000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_222_nvr19z",
-      "time": 684,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 208000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_223_be9p7f",
-      "time": 684,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 176000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_224_bztty9",
-      "time": 685,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 74300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_225_6kkatq",
-      "time": 685,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 74300,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_226_n62lym",
-      "time": 689,
-      "name": {
-        "ja": "Morn Afah",
-        "en": "Morn Afah"
-      },
-      "damageType": "magical",
-      "damageAmount": 203000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_227_3xlphy",
-      "time": 692,
-      "name": {
-        "ja": "Morn Afah",
-        "en": "Morn Afah"
-      },
-      "damageType": "magical",
-      "damageAmount": 205000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_228_jf3zy9",
-      "time": 704,
-      "name": {
-        "ja": "Crystallize Time",
-        "en": "Crystallize Time"
-      },
-      "damageType": "magical",
-      "damageAmount": 188000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_229_8sq6pf",
-      "time": 707,
-      "name": {
-        "ja": "Crystallize Time",
-        "en": "Crystallize Time"
-      },
-      "damageType": "magical",
-      "damageAmount": 193000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_230_w8jf22",
-      "time": 710,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_231_ja0oqc",
-      "time": 710,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_232_p4gruv",
-      "time": 710,
-      "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_233_o9rlbs",
-      "time": 713,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_234_g4tk35",
-      "time": 717,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 75700,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_235_t1e3ah",
-      "time": 718,
-      "name": {
-        "ja": "Dark Aero III",
-        "en": "Dark Aero III"
-      },
-      "damageType": "magical",
-      "damageAmount": 25400,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_236_4vhaff",
-      "time": 720,
-      "name": {
-        "ja": "Dark Water III",
-        "en": "Dark Water III"
-      },
-      "damageType": "magical",
-      "damageAmount": 86600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_237_pratj7",
-      "time": 720,
-      "name": {
-        "ja": "Dark Eruption",
-        "en": "Dark Eruption"
-      },
-      "damageType": "magical",
-      "damageAmount": 75800,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_238_q83o9a",
-      "time": 720,
-      "name": {
-        "ja": "Longing of the Lost",
-        "en": "Longing of the Lost"
-      },
-      "damageType": "magical",
-      "damageAmount": 115000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_239_ut8mrw",
-      "time": 720,
-      "name": {
-        "ja": "Longing of the Lost",
-        "en": "Longing of the Lost"
-      },
-      "damageType": "magical",
-      "damageAmount": 115000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_240_mr7q0p",
-      "time": 721,
-      "name": {
-        "ja": "Dark Aero III",
-        "en": "Dark Aero III"
-      },
-      "damageType": "magical",
-      "damageAmount": 25600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_241_3w3u2n",
-      "time": 721,
-      "name": {
-        "ja": "Longing of the Lost",
-        "en": "Longing of the Lost"
-      },
-      "damageType": "magical",
-      "damageAmount": 106000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_242_40c6pp",
-      "time": 721,
-      "name": {
-        "ja": "Dark Eruption",
-        "en": "Dark Eruption"
-      },
-      "damageType": "magical",
-      "damageAmount": 76000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_243_yc9zah",
-      "time": 722,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_244_82xnmq",
-      "time": 723,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_245_p44jab",
-      "time": 725,
-      "name": {
-        "ja": "Unholy Darkness",
-        "en": "Unholy Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 119000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_246_fnsr3k",
-      "time": 725,
-      "name": {
-        "ja": "Longing of the Lost",
-        "en": "Longing of the Lost"
-      },
-      "damageType": "magical",
-      "damageAmount": 106000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_247_fv445d",
-      "time": 726,
-      "name": {
-        "ja": "Longing of the Lost",
-        "en": "Longing of the Lost"
-      },
-      "damageType": "magical",
-      "damageAmount": 115000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_248_jwdp9n",
-      "time": 735,
-      "name": {
-        "ja": "Quietus",
-        "en": "Quietus"
-      },
-      "damageType": "magical",
-      "damageAmount": 54500,
+      "damageAmount": 190000,
       "target": "AoE"
     },
     {
-      "id": "tpl_249_lkkkex",
-      "time": 737,
+      "id": "tpl_39_qzp8g1",
+      "time": 362,
       "name": {
-        "ja": "Tidal Light",
+        "ja": "光の津波",
         "en": "Tidal Light"
       },
       "damageType": "magical",
-      "damageAmount": 131000,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_250_od33lu",
-      "time": 738,
+      "id": "tpl_40_fh84et",
+      "time": 364,
       "name": {
-        "ja": "Quietus",
-        "en": "Quietus"
+        "ja": "アイスストーン",
+        "en": "Icestone"
       },
       "damageType": "magical",
-      "damageAmount": 54500,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_251_nuixnk",
-      "time": 742,
+      "id": "tpl_41_lfoknb",
+      "time": 368,
       "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
+        "ja": "ヘヴンリーストライク",
+        "en": "Heavenly Strike"
       },
-      "damageType": "physical",
-      "damageAmount": 69900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_252_legkq5",
-      "time": 743,
-      "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 64800,
+      "damageType": "magical",
+      "damageAmount": 30000,
       "target": "AoE"
     },
     {
-      "id": "tpl_253_d0j45e",
-      "time": 745,
+      "id": "tpl_42_4myx15",
+      "time": 372,
       "name": {
-        "ja": "Spirit Taker",
-        "en": "Spirit Taker"
-      },
-      "damageType": "physical",
-      "damageAmount": 40100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_254_r3oq6x",
-      "time": 747,
-      "name": {
-        "ja": "Hallowed Wings (TB)",
-        "en": "Hallowed Wings (TB)"
+        "ja": "シンホーリー",
+        "en": "Sinholy"
       },
       "damageType": "magical",
-      "damageAmount": 220000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_255_02ju1u",
-      "time": 749,
-      "name": {
-        "ja": "Hallowed Wings",
-        "en": "Hallowed Wings"
-      },
-      "damageType": "magical",
-      "damageAmount": 215000,
+      "damageAmount": 65000,
       "target": "AoE"
     },
     {
-      "id": "tpl_256_5usnj9",
-      "time": 749,
+      "id": "tpl_43_sd1k6c",
+      "time": 374,
       "name": {
-        "ja": "Hallowed Wings (TB)",
-        "en": "Hallowed Wings (TB)"
+        "ja": "シンホーリー",
+        "en": "Sinholy"
       },
       "damageType": "magical",
-      "damageAmount": 220000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_257_4v6swf",
-      "time": 751,
-      "name": {
-        "ja": "Hallowed Wings",
-        "en": "Hallowed Wings"
-      },
-      "damageType": "magical",
-      "damageAmount": 215000,
+      "damageAmount": 65000,
       "target": "AoE"
     },
     {
-      "id": "tpl_258_6fpkxf",
-      "time": 752,
+      "id": "tpl_44_zsgz7p",
+      "time": 375,
       "name": {
-        "ja": "Hallowed Wings (TB)",
-        "en": "Hallowed Wings (TB)"
+        "ja": "シンホーリー",
+        "en": "Sinholy"
       },
       "damageType": "magical",
-      "damageAmount": 220000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_259_70tezy",
-      "time": 753,
-      "name": {
-        "ja": "Hallowed Wings (TB)",
-        "en": "Hallowed Wings (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 220000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_260_16hfbd",
-      "time": 754,
-      "name": {
-        "ja": "Hallowed Wings",
-        "en": "Hallowed Wings"
-      },
-      "damageType": "magical",
-      "damageAmount": 164000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_261_cpvrks",
-      "time": 755,
-      "name": {
-        "ja": "Hallowed Wings",
-        "en": "Hallowed Wings"
-      },
-      "damageType": "magical",
-      "damageAmount": 164000,
+      "damageAmount": 65000,
       "target": "AoE"
     },
     {
-      "id": "tpl_262_poiwds",
-      "time": 764,
+      "id": "tpl_45_6jseh9",
+      "time": 377,
       "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
+        "ja": "シンホーリー",
+        "en": "Sinholy"
       },
       "damageType": "magical",
-      "damageAmount": 221000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_263_bxhi4w",
-      "time": 764,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 238000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_264_9o4s07",
-      "time": 765,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 67300,
+      "damageAmount": 65000,
       "target": "AoE"
     },
     {
-      "id": "tpl_265_o3usbc",
-      "time": 766,
+      "id": "tpl_46_raptoh",
+      "time": 395,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 67300,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_266_obtno2",
-      "time": 766,
+      "id": "tpl_47_8336uy",
+      "time": 400,
       "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
+        "ja": "ホーリーレイ",
+        "en": "Holy Ray"
       },
       "damageType": "magical",
-      "damageAmount": 208000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_267_m7b7hw",
-      "time": 767,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 208000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_268_w4v5dz",
-      "time": 767,
-      "name": {
-        "ja": "Akh Morn (TB)",
-        "en": "Akh Morn (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 176000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_269_wz0u7x",
-      "time": 768,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 67300,
+      "damageAmount": 150000,
       "target": "AoE"
     },
     {
-      "id": "tpl_270_hfuftv",
-      "time": 768,
+      "id": "tpl_48_u3i1mb",
+      "time": 403,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 67300,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_271_vyxc8d",
-      "time": 768,
+      "id": "tpl_49_5u4gwe",
+      "time": 406,
       "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_272_pdmqwy",
-      "time": 769,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60400,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_273_se1j9t",
-      "time": 769,
+      "id": "tpl_50_gk15ce",
+      "time": 412,
       "name": {
-        "ja": "Edge of Oblivion (TB)",
-        "en": "Edge of Oblivion (TB)"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 108000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_274_10wzno",
-      "time": 772,
-      "name": {
-        "ja": "Edge of Oblivion",
-        "en": "Edge of Oblivion"
-      },
-      "damageType": "magical",
-      "damageAmount": 60900,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_275_43mqk9",
-      "time": 772,
+      "id": "tpl_51_h5fpjx",
+      "time": 415,
       "name": {
-        "ja": "Morn Afah",
-        "en": "Morn Afah"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 203000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_276_7wl1t8",
-      "time": 775,
+      "id": "tpl_52_mwwrbw",
+      "time": 424,
       "name": {
-        "ja": "Morn Afah",
-        "en": "Morn Afah"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 205000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_277_yag900",
-      "time": 855,
+      "id": "tpl_53_6y6joi",
+      "time": 424,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "光の津波",
+        "en": "Tidal Light"
       },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_278_vhfre6",
-      "time": 855,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_279_pvh5hj",
-      "time": 861,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_280_u940xn",
-      "time": 861,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_281_uqv3ha",
-      "time": 863,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 187000,
+      "damageType": "magical",
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_282_1zr1he",
-      "time": 864,
+      "id": "tpl_54_7geyoi",
+      "time": 427,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_283_lpvcjl",
-      "time": 864,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_284_4slvg4",
-      "time": 868,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_285_newoiy",
-      "time": 868,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_286_rwnidr",
-      "time": 869,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_287_2jq663",
-      "time": 869,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_288_dvlomi",
-      "time": 871,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_289_fs4snn",
-      "time": 874,
+      "id": "tpl_55_vsbroa",
+      "time": 430,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_290_xj6orw",
-      "time": 874,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_291_rai4fb",
-      "time": 878,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_292_5mtbv3",
-      "time": 878,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_293_m53p8o",
-      "time": 881,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_294_dket3a",
-      "time": 881,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_295_kixum5",
-      "time": 884,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_296_v18xy6",
-      "time": 884,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_297_bzgpwi",
-      "time": 888,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_298_gp0nq3",
-      "time": 888,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_299_e49olv",
-      "time": 889,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 186000,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_300_i6d3f0",
-      "time": 893,
+      "id": "tpl_56_h5dw6q",
+      "time": 433,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_301_1izik9",
-      "time": 893,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_302_mq19s0",
-      "time": 895,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 194000,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_303_wifox3",
-      "time": 898,
+      "id": "tpl_57_975yuf",
+      "time": 434,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "光の津波",
+        "en": "Tidal Light"
       },
       "damageType": "magical",
-      "damageAmount": 192000,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_304_9uq645",
-      "time": 898,
+      "id": "tpl_58_06eo0e",
+      "time": 440,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "バニシュガ or ディバイデッド・バニシュガ",
+        "en": "Banishga or Divided Banishga"
       },
       "damageType": "magical",
-      "damageAmount": 193000,
+      "damageAmount": 95000,
       "target": "AoE"
     },
     {
-      "id": "tpl_305_spxnf0",
-      "time": 898,
+      "id": "tpl_59_oy7m4o",
+      "time": 441,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_306_wiszvv",
-      "time": 898,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_307_43ndgr",
-      "time": 901,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_308_k3b2rq",
-      "time": 901,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_309_hhomm4",
-      "time": 907,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45600,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_310_tfsgr5",
-      "time": 908,
+      "id": "tpl_60_ih387x",
+      "time": 444,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 451000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_311_tgzv6o",
-      "time": 909,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 468000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_312_a8qs9c",
-      "time": 913,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45700,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_313_n3jqqu",
-      "time": 913,
+      "id": "tpl_61_sjdpqv",
+      "time": 449,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "physical",
-      "damageAmount": 447000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_314_bg7dha",
-      "time": 914,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "光の暴走",
+        "en": "Light Rampant"
       },
       "damageType": "magical",
-      "damageAmount": 429000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_315_nk4mzy",
-      "time": 916,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
+      "damageAmount": 180000,
       "target": "AoE"
     },
     {
-      "id": "tpl_316_zgybrm",
-      "time": 916,
+      "id": "tpl_62_y29370",
+      "time": 452,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 454000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_317_cusma4",
-      "time": 918,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 511000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_318_jjcsjt",
-      "time": 918,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_319_s6u28e",
-      "time": 918,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_320_ke76mo",
-      "time": 920,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_321_nswuty",
-      "time": 921,
+      "id": "tpl_63_36yt34",
+      "time": 457,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "physical",
-      "damageAmount": 452000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_322_jl8h7a",
-      "time": 921,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "ルミナスイロード",
+        "en": "Luminous Erode"
       },
       "damageType": "magical",
-      "damageAmount": 560000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_323_8bkb3m",
-      "time": 923,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_324_ltfqxh",
-      "time": 923,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_325_gdg4s1",
-      "time": 924,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
+      "damageAmount": 23000,
       "target": "AoE"
     },
     {
-      "id": "tpl_326_4g4n1w",
-      "time": 926,
+      "id": "tpl_64_5sselk",
+      "time": 459,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_327_qj9tx1",
-      "time": 926,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_328_sq3uvc",
-      "time": 929,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_329_h6nw4k",
-      "time": 929,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_330_mg3q26",
-      "time": 930,
-      "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "ルミナスイロード",
+        "en": "Luminous Erode"
       },
       "damageType": "magical",
-      "damageAmount": 115000,
+      "damageAmount": 23000,
       "target": "AoE"
     },
     {
-      "id": "tpl_331_1ooehb",
-      "time": 930,
+      "id": "tpl_65_8audi8",
+      "time": 460,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "ルミナスイロード",
+        "en": "Luminous Erode"
       },
       "damageType": "magical",
-      "damageAmount": 115000,
+      "damageAmount": 23000,
       "target": "AoE"
     },
     {
-      "id": "tpl_332_swozok",
-      "time": 935,
+      "id": "tpl_66_6ycrdl",
+      "time": 460,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "浸食光",
+        "en": "Erosion Light"
       },
       "damageType": "magical",
-      "damageAmount": 119000,
+      "damageAmount": 46000,
       "target": "AoE"
     },
     {
-      "id": "tpl_333_35ojxn",
-      "time": 935,
+      "id": "tpl_67_1c4vyq",
+      "time": 462,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "ルミナスイロード",
+        "en": "Luminous Erode"
       },
       "damageType": "magical",
-      "damageAmount": 122000,
+      "damageAmount": 23000,
       "target": "AoE"
     },
     {
-      "id": "tpl_334_t6n4ki",
-      "time": 938,
+      "id": "tpl_68_ay67nx",
+      "time": 463,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "ルミナスイロード",
+        "en": "Luminous Erode"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 23000,
       "target": "AoE"
     },
     {
-      "id": "tpl_335_uss0xo",
-      "time": 938,
+      "id": "tpl_69_1urfuf",
+      "time": 466,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "光爆",
+        "en": "Lightsteeped"
       },
       "damageType": "magical",
-      "damageAmount": 144000,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_336_w53ijs",
-      "time": 943,
+      "id": "tpl_70_urhbr9",
+      "time": 475,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "浸食光",
+        "en": "Erosion Light"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 46000,
       "target": "AoE"
     },
     {
-      "id": "tpl_337_mbf942",
-      "time": 943,
+      "id": "tpl_71_hoa5sz",
+      "time": 478,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "バニシュガ or ディバイデッド・バニシュガ",
+        "en": "Banishga or Divided Banishga"
       },
       "damageType": "magical",
-      "damageAmount": 144000,
+      "damageAmount": 95000,
       "target": "AoE"
     },
     {
-      "id": "tpl_338_i4fcv6",
-      "time": 946,
+      "id": "tpl_72_5jwwx4",
+      "time": 481,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_339_2ipsex",
-      "time": 946,
+      "id": "tpl_73_9mi0ih",
+      "time": 487,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_340_7vqgvj",
-      "time": 948,
-      "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "光の津波",
+        "en": "Tidal Light"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_341_1wb8hd",
-      "time": 948,
+      "id": "tpl_74_c6f8ap",
+      "time": 489,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_jsbfc6",
+      "time": 492,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_nq4psp",
+      "time": 507,
+      "name": {
+        "ja": "絶対零度",
+        "en": "Absolute Zero"
       },
       "damageType": "magical",
-      "damageAmount": 144000,
+      "damageAmount": 185000,
       "target": "AoE"
     },
     {
-      "id": "tpl_342_7f66j7",
-      "time": 951,
+      "id": "tpl_77_4hupfj",
+      "time": 549,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_343_7mkyry",
-      "time": 951,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_344_b0ygaw",
-      "time": 952,
-      "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "ハイマルレイ",
+        "en": "Hiemal Ray"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 46000,
       "target": "AoE"
     },
     {
-      "id": "tpl_345_wkmes3",
-      "time": 952,
+      "id": "tpl_78_za2vde",
+      "time": 551,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "ハイマルレイ",
+        "en": "Hiemal Ray"
       },
       "damageType": "magical",
-      "damageAmount": 144000,
+      "damageAmount": 46000,
       "target": "AoE"
     },
     {
-      "id": "tpl_346_pzcv1u",
-      "time": 954,
+      "id": "tpl_79_axw1hp",
+      "time": 584,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_347_sob6h1",
-      "time": 954,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_348_qut0d9",
-      "time": 957,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_349_vxesfz",
-      "time": 957,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_350_3pfzwy",
-      "time": 965,
-      "name": {
-        "ja": "Pandora's Box",
-        "en": "Pandora's Box"
+        "ja": "ジャンクション",
+        "en": "Junction"
       },
       "damageType": "magical",
-      "damageAmount": 783000,
+      "damageAmount": 180000,
       "target": "AoE"
     },
     {
-      "id": "tpl_351_cp2efn",
-      "time": 971,
+      "id": "tpl_80_2wbitc",
+      "time": 1046,
       "name": {
-        "ja": "Pandora's Box",
-        "en": "Pandora's Box"
+        "ja": "時間圧縮・絶",
+        "en": "Ultimate Relativity"
       },
       "damageType": "magical",
-      "damageAmount": 757000,
+      "damageAmount": 137081,
       "target": "AoE"
     },
     {
-      "id": "tpl_352_7d1tit",
-      "time": 974,
+      "id": "tpl_81_v0alto",
+      "time": 1058,
       "name": {
-        "ja": "Pandora's Box",
-        "en": "Pandora's Box"
+        "ja": "ダークファイガ",
+        "en": "Dark Firaga"
       },
       "damageType": "magical",
-      "damageAmount": 779000,
+      "damageAmount": 155000,
       "target": "AoE"
     },
     {
-      "id": "tpl_353_0kf9jc",
-      "time": 976,
+      "id": "tpl_82_qn8q8r",
+      "time": 1058,
       "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 187000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_354_va5gih",
-      "time": 979,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_355_qb98wp",
-      "time": 979,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_356_h3ghnl",
-      "time": 981,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_357_5rmtos",
-      "time": 982,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_358_7u8u8w",
-      "time": 982,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_359_3nszo0",
-      "time": 985,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_360_zyb2ag",
-      "time": 985,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 190000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_361_ni2hz4",
-      "time": 985,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_362_t1jb7h",
-      "time": 985,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_363_k1gykp",
-      "time": 988,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_364_b61z3u",
-      "time": 988,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_365_qhlbla",
-      "time": 991,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_366_fa3pmj",
-      "time": 991,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_367_ik3586",
-      "time": 994,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_368_w1vuh4",
-      "time": 994,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_369_l79mhd",
-      "time": 997,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_370_wgoc7a",
-      "time": 997,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_371_up3c2t",
-      "time": 1000,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_372_56stvd",
-      "time": 1000,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_373_9hvq32",
-      "time": 1002,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "ダークホーリー",
+        "en": "Dark Holy"
       },
       "damageType": "magical",
-      "damageAmount": 186000,
+      "damageAmount": 90000,
       "target": "AoE"
     },
     {
-      "id": "tpl_374_g5qby7",
-      "time": 1006,
+      "id": "tpl_83_04r6mj",
+      "time": 1063,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_375_qj6hiw",
-      "time": 1006,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_376_8035p5",
-      "time": 1008,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "シンメルトン",
+        "en": "Sinmeltdown"
       },
       "damageType": "magical",
-      "damageAmount": 194000,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_377_4dlr3g",
-      "time": 1011,
+      "id": "tpl_84_i1zzrr",
+      "time": 1067,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "ダークファイガ",
+        "en": "Dark Firaga"
       },
       "damageType": "magical",
-      "damageAmount": 192000,
+      "damageAmount": 155000,
       "target": "AoE"
     },
     {
-      "id": "tpl_378_7xvfoz",
-      "time": 1011,
+      "id": "tpl_85_7mm3r4",
+      "time": 1067,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "ダークホーリー",
+        "en": "Dark Holy"
       },
       "damageType": "magical",
-      "damageAmount": 193000,
+      "damageAmount": 90000,
       "target": "AoE"
     },
     {
-      "id": "tpl_379_a63s8d",
-      "time": 1011,
+      "id": "tpl_86_knzcq7",
+      "time": 1073,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_380_x0cld5",
-      "time": 1011,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_381_fybf9e",
-      "time": 1015,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_382_7culh4",
-      "time": 1015,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_383_39mvm5",
-      "time": 1018,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_384_bsyfld",
-      "time": 1018,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_385_0gcbsi",
-      "time": 1025,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
+        "ja": "シンメルトン",
+        "en": "Sinmeltdown"
       },
       "damageType": "magical",
-      "damageAmount": 45600,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_386_ye3haf",
-      "time": 1025,
+      "id": "tpl_87_kkhku2",
+      "time": 1077,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "physical",
-      "damageAmount": 468000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_387_hv0mf8",
-      "time": 1025,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "ダークファイガ",
+        "en": "Dark Firaga"
       },
       "damageType": "magical",
-      "damageAmount": 436000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_388_xun47x",
-      "time": 1028,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "physical",
-      "damageAmount": 451000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_389_08hab1",
-      "time": 1030,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45700,
+      "damageAmount": 155000,
       "target": "AoE"
     },
     {
-      "id": "tpl_390_alugi1",
-      "time": 1031,
+      "id": "tpl_88_m36ro6",
+      "time": 1077,
       "name": {
-        "ja": "ボーライド",
-        "en": "Superbolide"
+        "ja": "ダークホーリー",
+        "en": "Dark Holy"
       },
       "damageType": "magical",
-      "damageAmount": 223000,
-      "target": "MT"
+      "damageAmount": 90000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_391_ewyvj0",
-      "time": 1031,
+      "id": "tpl_89_s0w733",
+      "time": 1084,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "シンメルトン",
+        "en": "Sinmeltdown"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_t29tol",
+      "time": 1090,
+      "name": {
+        "ja": "ダークエラプション",
+        "en": "Dark Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 75000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_ity2a6",
+      "time": 1090,
+      "name": {
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 75000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_grfjat",
+      "time": 1094,
+      "name": {
+        "ja": "シェルクラッシャー",
+        "en": "Shell Crusher"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_sc5a82",
+      "time": 1097,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_oy3n6x",
+      "time": 1102,
+      "name": {
+        "ja": "ショックウェーブ・パルサー",
+        "en": "Shockwave Pulsar"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_lyghev",
+      "time": 1105,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_2rmtab",
+      "time": 1110,
+      "name": {
+        "ja": "ブラックヘイロー",
+        "en": "Black Halo"
       },
       "damageType": "physical",
       "damageAmount": 450000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_392_c2qxrw",
-      "time": 1031,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 442000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_393_sttsm1",
-      "time": 1034,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
       "target": "AoE"
     },
     {
-      "id": "tpl_394_2j7sn4",
-      "time": 1034,
+      "id": "tpl_97_bixaa4",
+      "time": 1113,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_j10gnn",
+      "time": 1116,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_ytflek",
+      "time": 1121,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_h20zqy",
+      "time": 1129,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_1a3nak",
+      "time": 1136,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_0pp090",
+      "time": 1138,
+      "name": {
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_5662k5",
+      "time": 1140,
+      "name": {
+        "ja": "スピリットテイカー",
+        "en": "Spirit Taker"
       },
       "damageType": "physical",
-      "damageAmount": 454000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_395_v6v2it",
-      "time": 1034,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 447000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_396_4cd3xb",
-      "time": 1037,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
+      "damageAmount": 80000,
       "target": "AoE"
     },
     {
-      "id": "tpl_397_8wmo9r",
-      "time": 1037,
+      "id": "tpl_104_oerhf8",
+      "time": 1151,
       "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
+        "ja": "ダークエラプション",
+        "en": "Dark Eruption"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_zypy81",
+      "time": 1157,
+      "name": {
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_y5ccho",
+      "time": 1160,
+      "name": {
+        "ja": "暗夜の舞踏技",
+        "en": "Somber Dance"
+      },
+      "damageType": "magical",
+      "damageAmount": 700000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_rl8k78",
+      "time": 1166,
+      "name": {
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_bipzho",
+      "time": 1172,
+      "name": {
+        "ja": "ショックウェーブ・パルサー",
+        "en": "Shockwave Pulsar"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_s1ujzl",
+      "time": 1174,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_nshhzz",
+      "time": 1185,
+      "name": {
+        "ja": "エンド・オブ・メモリーズ",
+        "en": "End of Memories"
+      },
+      "damageType": "magical",
+      "damageAmount": 170000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_jeu0a7",
+      "time": 1817,
+      "name": {
+        "ja": "シヴァ・ミトロン AA",
+        "en": "Shiva-Mitron AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_112_saclxm",
+      "time": 1817,
+      "name": {
+        "ja": "闇の巫女 AA",
+        "en": "Oracle of Darkness AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_62a9cr",
+      "time": 1819,
+      "name": {
+        "ja": "忘却の彼方",
+        "en": "Memory's End"
+      },
+      "damageType": "magical",
+      "damageAmount": 50000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_l4ua18",
+      "time": 1820,
+      "name": {
+        "ja": "シヴァ・ミトロン AA",
+        "en": "Shiva-Mitron AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_wlovvz",
+      "time": 1820,
+      "name": {
+        "ja": "闇の巫女 AA",
+        "en": "Oracle of Darkness AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_moo13x",
+      "time": 1823,
+      "name": {
+        "ja": "シヴァ・ミトロン AA",
+        "en": "Shiva-Mitron AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_mgfa2e",
+      "time": 1823,
+      "name": {
+        "ja": "闇の巫女 AA",
+        "en": "Oracle of Darkness AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_bgwn8t",
+      "time": 1829,
+      "name": {
+        "ja": "光と闇の竜詩",
+        "en": "Dragonsong of Light and Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 170000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_hzlpyj",
+      "time": 1840,
+      "name": {
+        "ja": "浸食光",
+        "en": "Erosion Light"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_6fenuv",
+      "time": 1841,
+      "name": {
+        "ja": "光の波動",
+        "en": "Wave of Light"
+      },
+      "damageType": "magical",
+      "damageAmount": 130000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_7lxnwa",
+      "time": 1843,
+      "name": {
+        "ja": "スピリットテイカー",
+        "en": "Spirit Taker"
       },
       "damageType": "physical",
-      "damageAmount": 511000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_398_s9fqec",
-      "time": 1038,
-      "name": {
-        "ja": "Wings Dark and Light",
-        "en": "Wings Dark and Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 560000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_399_wxlrnl",
-      "time": 1041,
-      "name": {
-        "ja": "Explosion",
-        "en": "Explosion"
-      },
-      "damageType": "magical",
-      "damageAmount": 45800,
+      "damageAmount": 75000,
       "target": "AoE"
     },
     {
-      "id": "tpl_400_er8bru",
-      "time": 1042,
+      "id": "tpl_122_hsj5yo",
+      "time": 1848,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_s65fih",
+      "time": 1851,
+      "name": {
+        "ja": "宵闇の舞踏技",
+        "en": "Somber Dance"
+      },
+      "damageType": "physical",
+      "damageAmount": 450000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_efub8a",
+      "time": 1854,
+      "name": {
+        "ja": "宵闇の舞踏技",
+        "en": "Somber Dance"
+      },
+      "damageType": "physical",
+      "damageAmount": 450000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_pzdsaj",
+      "time": 1858,
+      "name": {
+        "ja": "忘却の彼方",
+        "en": "Memory's End"
+      },
+      "damageType": "magical",
+      "damageAmount": 50000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_qc8zd1",
+      "time": 1858,
+      "name": {
+        "ja": "シヴァ・ミトロン AA",
+        "en": "Shiva-Mitron AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_59rw89",
+      "time": 1858,
+      "name": {
+        "ja": "闇の巫女 AA",
+        "en": "Oracle of Darkness AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 80000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_ijv2f8",
+      "time": 1865,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_pwde0r",
+      "time": 1866,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_f66xuj",
+      "time": 1867,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_kf24b4",
+      "time": 1868,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_xikgho",
+      "time": 1875,
+      "name": {
+        "ja": "モーン・アファー",
+        "en": "Morn Afah"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_jt6xa7",
+      "time": 1890,
+      "name": {
+        "ja": "時間結晶",
+        "en": "Crystallize Time"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_723d2t",
+      "time": 1896,
+      "name": {
+        "ja": "忘却の彼方",
+        "en": "Memory's End"
+      },
+      "damageType": "magical",
+      "damageAmount": 46190,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_4a9b0c",
+      "time": 1903,
+      "name": {
+        "ja": "ダークウォタガ",
+        "en": "Dark Waterga"
+      },
+      "damageType": "magical",
+      "damageAmount": 75000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_hl7o1r",
+      "time": 1905,
+      "name": {
+        "ja": "ダークエアロガ",
+        "en": "Dark Aeroga"
+      },
+      "damageType": "magical",
+      "damageAmount": 28000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_3b5u2n",
+      "time": 1905,
+      "name": {
+        "ja": "聖竜気",
+        "en": "Hallowed Ray"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_f7u7ea",
+      "time": 1908,
+      "name": {
+        "ja": "ダークホーリー",
+        "en": "Dark Holy"
+      },
+      "damageType": "magical",
+      "damageAmount": 113749,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_048rar",
+      "time": 1915,
+      "name": {
+        "ja": "聖竜気",
+        "en": "Hallowed Ray"
+      },
+      "damageType": "magical",
+      "damageAmount": 90000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_0yaw82",
+      "time": 1922,
+      "name": {
+        "ja": "クワイタス",
+        "en": "Quietus"
+      },
+      "damageType": "magical",
+      "damageAmount": 20000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_zxdv67",
+      "time": 1922,
+      "name": {
+        "ja": "クワイタス",
+        "en": "Quietus"
+      },
+      "damageType": "magical",
+      "damageAmount": 20000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_zj6qfe",
+      "time": 1922,
+      "name": {
+        "ja": "クワイタス",
+        "en": "Quietus"
+      },
+      "damageType": "magical",
+      "damageAmount": 20000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_143_w2r1ww",
+      "time": 1928,
+      "name": {
+        "ja": "スピリットテイカー",
+        "en": "Spirit Taker"
+      },
+      "damageType": "physical",
+      "damageAmount": 75000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_qu07d8",
+      "time": 1933,
+      "name": {
+        "ja": "ホーリーウィング",
+        "en": "Holy Wing"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_64t3ne",
+      "time": 1938,
+      "name": {
+        "ja": "ホーリーウィング",
+        "en": "Holy Wing"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_qn591i",
+      "time": 1948,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_jwoe7j",
+      "time": 1949,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_mukhhj",
+      "time": 1950,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_i0zqzl",
+      "time": 1951,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 60000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_dual0q",
+      "time": 1958,
+      "name": {
+        "ja": "モーン・アファー",
+        "en": "Morn Afah"
+      },
+      "damageType": "magical",
+      "damageAmount": 160000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_cspxzr",
+      "time": 1971,
+      "name": {
+        "ja": "絶対零度",
+        "en": "Absolute Zero"
+      },
+      "damageType": "magical",
+      "damageAmount": 9999999,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_71ybmb",
+      "time": 1971,
+      "name": {
+        "ja": "エンド・オブ・メモリーズ",
+        "en": "End of Memories"
+      },
+      "damageType": "magical",
+      "damageAmount": 9999999,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_5sk7b5",
+      "time": 2838,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_ooeq5j",
+      "time": 2846,
+      "name": {
+        "ja": "光塵の剣",
+        "en": "Sword of Light"
+      },
+      "damageType": "physical",
+      "damageAmount": 185000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_a1qai3",
+      "time": 2849,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_ltylcn",
+      "time": 2853,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_yz6dlq",
+      "time": 2856,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_uunzmx",
+      "time": 2859,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_rc1j6g",
+      "time": 2862,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_160_xo7gpk",
+      "time": 2873,
+      "name": {
+        "ja": "アク・モーン",
+        "en": "Akh Morn"
+      },
+      "damageType": "magical",
+      "damageAmount": 190000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_161_tihbnm",
+      "time": 2876,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_5354iw",
+      "time": 2891,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_163_x32o1t",
+      "time": 2892,
+      "name": {
+        "ja": "光と闇の片翼",
+        "en": "Wings of Light and Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 650000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_164_67mp9j",
+      "time": 2895,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_165_jnpbbv",
+      "time": 2895,
+      "name": {
+        "ja": "光と闇の片翼",
+        "en": "Wings of Light and Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 650000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_166_hggrm8",
+      "time": 2898,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_oy5hwr",
+      "time": 2901,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_168_i3xl7j",
+      "time": 2904,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_wsnld7",
+      "time": 2913,
+      "name": {
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
       },
       "damageType": "magical",
       "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_401_stgwyk",
-      "time": 1042,
+      "id": "tpl_170_k5j9pr",
+      "time": 2917,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
       },
       "damageType": "magical",
       "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_402_qfcku7",
-      "time": 1047,
+      "id": "tpl_171_cjxhuk",
+      "time": 2922,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
       },
       "damageType": "magical",
-      "damageAmount": 119000,
+      "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_403_abol5c",
-      "time": 1047,
+      "id": "tpl_172_6pv3j8",
+      "time": 2927,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
       },
       "damageType": "magical",
-      "damageAmount": 122000,
+      "damageAmount": 115000,
       "target": "AoE"
     },
     {
-      "id": "tpl_404_9jip2j",
-      "time": 1051,
+      "id": "tpl_173_gphit6",
+      "time": 2929,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_174_n5xbdc",
+      "time": 2932,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_175_1uhzku",
+      "time": 2946,
+      "name": {
+        "ja": "パンドラの櫃",
+        "en": "Pandora's Box"
       },
       "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 750000,
       "target": "AoE"
     },
     {
-      "id": "tpl_405_nhsugt",
-      "time": 1051,
+      "id": "tpl_176_ld7aew",
+      "time": 2959,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "光塵の剣",
+        "en": "Sword of Light"
       },
-      "damageType": "magical",
-      "damageAmount": 144000,
+      "damageType": "physical",
+      "damageAmount": 185000,
       "target": "AoE"
     },
     {
-      "id": "tpl_406_myrtru",
-      "time": 1055,
+      "id": "tpl_177_lopds2",
+      "time": 2963,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 129000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_407_ev31fm",
-      "time": 1055,
+      "id": "tpl_178_lkjasu",
+      "time": 2966,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 144000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_408_twy3tt",
-      "time": 1058,
+      "id": "tpl_179_ie9mr8",
+      "time": 2969,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_409_tqpk68",
-      "time": 1058,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_410_g4ia8i",
-      "time": 1060,
-      "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
-      },
-      "damageType": "magical",
-      "damageAmount": 129000,
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_411_hfhrsn",
-      "time": 1060,
+      "id": "tpl_180_6879d5",
+      "time": 2972,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 395000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_412_qgkgxs",
-      "time": 1064,
+      "id": "tpl_181_ae3672",
+      "time": 2975,
       "name": {
-        "ja": "Cruel Path of Light",
-        "en": "Cruel Path of Light"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 129000,
+      "damageType": "physical",
+      "damageAmount": 85000,
       "target": "AoE"
     },
     {
-      "id": "tpl_413_g1xl4f",
-      "time": 1064,
+      "id": "tpl_182_tisz2m",
+      "time": 2986,
       "name": {
-        "ja": "Cruel Path of Darkness",
-        "en": "Cruel Path of Darkness"
-      },
-      "damageType": "magical",
-      "damageAmount": 144000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_414_4w8p02",
-      "time": 1066,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 187000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_415_52golp",
-      "time": 1066,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_416_fwvtw7",
-      "time": 1066,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_417_x54gdd",
-      "time": 1069,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_418_8kllti",
-      "time": 1069,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_419_bu5f0o",
-      "time": 1072,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_420_3cpyyl",
-      "time": 1075,
-      "name": {
-        "ja": "Fulgent Blade",
-        "en": "Fulgent Blade"
-      },
-      "damageType": "physical",
-      "damageAmount": 191000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_421_kacbq6",
-      "time": 1075,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_422_fauakb",
-      "time": 1075,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_423_d5focy",
-      "time": 1078,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_424_st5kmx",
-      "time": 1078,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_425_vjx0ov",
-      "time": 1082,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_426_zke157",
-      "time": 1082,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_427_fg773n",
-      "time": 1085,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_428_dvrh3w",
-      "time": 1085,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_429_7yf643",
-      "time": 1089,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_430_cviyy9",
-      "time": 1089,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_431_ce353r",
-      "time": 1092,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_432_76h0us",
-      "time": 1092,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_433_4nbffi",
-      "time": 1093,
-      "name": {
-        "ja": "Akh Morn",
+        "ja": "アク・モーン",
         "en": "Akh Morn"
       },
       "damageType": "magical",
-      "damageAmount": 186000,
+      "damageAmount": 190000,
       "target": "AoE"
     },
     {
-      "id": "tpl_434_9he8ho",
-      "time": 1095,
+      "id": "tpl_183_53cr5s",
+      "time": 2989,
       "name": {
-        "ja": "the Path of Light",
-        "en": "The Path of Light"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_p0s55g",
+      "time": 2993,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_klakkq",
+      "time": 3008,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
       },
       "damageType": "magical",
-      "damageAmount": 80700,
-      "target": "ST"
+      "damageAmount": 46000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_435_de5tu5",
-      "time": 1096,
+      "id": "tpl_186_tg4r7q",
+      "time": 3008,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "光と闇の片翼",
+        "en": "Wings of Light and Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 650000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_9566cz",
+      "time": 3012,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_188_pwhxov",
+      "time": 3013,
+      "name": {
+        "ja": "光と闇の片翼",
+        "en": "Wings of Light and Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 650000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_189_w7yydu",
+      "time": 3015,
+      "name": {
+        "ja": "爆発",
+        "en": "Explosion"
+      },
+      "damageType": "magical",
+      "damageAmount": 46000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_ddsyo3",
+      "time": 3025,
+      "name": {
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_g00lxt",
+      "time": 3029,
+      "name": {
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_cn5nfd",
+      "time": 3034,
+      "name": {
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_mu2njp",
+      "time": 3039,
+      "name": {
+        "ja": "光の重波動 & 闇の重波動",
+        "en": "Heavy Wave of Light & Heavy Wave of Dark"
+      },
+      "damageType": "magical",
+      "damageAmount": 115000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_git35q",
+      "time": 3041,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_436_01xkna",
-      "time": 1096,
+      "id": "tpl_195_7xlxo4",
+      "time": 3049,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "光塵の剣",
+        "en": "Sword of Light"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
+      "damageAmount": 185000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_437_ata2u4",
-      "time": 1098,
+      "id": "tpl_196_9pirpm",
+      "time": 3053,
       "name": {
-        "ja": "Akh Morn",
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_197_rkdvjj",
+      "time": 3056,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_eja0vc",
+      "time": 3059,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_34seep",
+      "time": 3063,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_eofz27",
+      "time": 3066,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 85000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_r9n6na",
+      "time": 3076,
+      "name": {
+        "ja": "アク・モーン",
         "en": "Akh Morn"
       },
       "damageType": "magical",
-      "damageAmount": 194000,
+      "damageAmount": 190000,
       "target": "AoE"
     },
     {
-      "id": "tpl_438_1zi1kf",
-      "time": 1099,
+      "id": "tpl_202_rdwj7g",
+      "time": 3080,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "ST"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_439_30my9m",
-      "time": 1099,
+      "id": "tpl_203_udg3w0",
+      "time": 3083,
       "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
+        "ja": "AA",
+        "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 66000,
-      "target": "MT"
+      "damageAmount": 85000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_440_fcuo0f",
-      "time": 1102,
+      "id": "tpl_204_m038bs",
+      "time": 3106,
       "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
+        "ja": "パラダイス・ロスト",
+        "en": "Paradise Lost"
       },
       "damageType": "magical",
-      "damageAmount": 192000,
+      "damageAmount": 9999999,
       "target": "AoE"
-    },
-    {
-      "id": "tpl_441_nls3q1",
-      "time": 1102,
-      "name": {
-        "ja": "Akh Morn",
-        "en": "Akh Morn"
-      },
-      "damageType": "magical",
-      "damageAmount": 193000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_442_ubwow9",
-      "time": 1102,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 102000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_443_11k3lc",
-      "time": 1105,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_444_6glo75",
-      "time": 1105,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_445_hgnd6j",
-      "time": 1108,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_446_rvdjs6",
-      "time": 1108,
-      "name": {
-        "ja": "unknown_9cb3",
-        "en": "unknown_9cb3"
-      },
-      "damageType": "physical",
-      "damageAmount": 110000,
-      "target": "MT"
     }
   ],
   "phases": [
     {
       "id": 1,
-      "startTimeSec": 0
+      "startTimeSec": 0,
+      "name": "Fatebreaker"
     },
     {
       "id": 2,
-      "startTimeSec": 164
+      "startTimeSec": 160,
+      "name": "Usurper of Frost"
     },
     {
       "id": 3,
-      "startTimeSec": 444
+      "startTimeSec": 589,
+      "name": "Oracle of Darkness"
     },
     {
       "id": 4,
-      "startTimeSec": 611
+      "startTimeSec": 1190,
+      "name": "Enter the Dragon"
     },
     {
       "id": 5,
-      "startTimeSec": 859
+      "startTimeSec": 1976,
+      "name": "Pandora"
     }
   ]
 }

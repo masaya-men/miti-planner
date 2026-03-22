@@ -1,1975 +1,1141 @@
 {
   "contentId": "m5s",
-  "generatedAt": "2026-03-21T08:02:28.204Z",
-  "sourceLogsCount": 5,
+  "generatedAt": "2026-03-22T08:20:35.710Z",
+  "source": "spreadsheet",
+  "sourceSheetId": "1_Xgu2xfV3uw_rDyoRJr1UrO5XCmsLuLBWQWSjEFOp-0",
   "timelineEvents": [
     {
-      "id": "tpl_0_h4mgsy",
-      "time": 4,
+      "id": "tpl_0_ucrcxh",
+      "time": 3,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_1_gtxnxi",
-      "time": 7,
+      "id": "tpl_1_euw36e",
+      "time": 6,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_2_1smwvs",
-      "time": 7,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_3_bqp4p8",
+      "id": "tpl_2_l6tp9w",
       "time": 9,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_4_gmghtd",
-      "time": 10,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_5_aed5az",
-      "time": 15,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_6_uts0ru",
-      "time": 15,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_7_ttrxmg",
-      "time": 17,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_8_856czj",
-      "time": 17,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_9_g835au",
-      "time": 20,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_10_pjbee2",
-      "time": 39,
-      "name": {
-        "ja": "Play B-side",
-        "en": "Play B-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 163000,
+      "damageAmount": 77000,
       "target": "AoE"
     },
     {
-      "id": "tpl_11_amc2dp",
+      "id": "tpl_3_1gf5m7",
+      "time": 15,
+      "name": {
+        "ja": "ディープカット",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_niurbf",
+      "time": 18,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_5_de710z",
+      "time": 21,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_37hc6t",
       "time": 40,
       "name": {
-        "ja": "Play A-side",
-        "en": "Play A-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 87200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_12_fa1wqq",
-      "time": 59,
-      "name": {
-        "ja": "Play A-side",
-        "en": "Play A-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 91600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_13_4ahyvp",
-      "time": 60,
-      "name": {
-        "ja": "Play B-side",
-        "en": "Play B-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 144000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_14_y88lp6",
-      "time": 60,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_15_7j3ifu",
-      "time": 66,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_16_jdujxd",
-      "time": 67,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 169000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_17_orlbh3",
-      "time": 68,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_18_0bzzsc",
-      "time": 71,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_19_mw9z2y",
-      "time": 77,
-      "name": {
-        "ja": "Disco Infernal",
-        "en": "Disco Infernal"
-      },
-      "damageType": "magical",
-      "damageAmount": 126000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_20_bui37z",
-      "time": 91,
-      "name": {
-        "ja": "Outside In",
-        "en": "Outside In"
-      },
-      "damageType": "magical",
-      "damageAmount": 72900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_21_we6m21",
-      "time": 93,
-      "name": {
-        "ja": "Outside In",
-        "en": "Outside In"
-      },
-      "damageType": "magical",
-      "damageAmount": 71900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_22_enewi8",
-      "time": 93,
-      "name": {
-        "ja": "Inside Out",
-        "en": "Inside Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 70700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_23_zwp5gn",
-      "time": 95,
-      "name": {
-        "ja": "Funky Floor",
-        "en": "Funky Floor"
-      },
-      "damageType": "magical",
-      "damageAmount": 104000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_24_tvoazw",
-      "time": 102,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_25_y5ztos",
-      "time": 103,
-      "name": {
-        "ja": "Funky Floor",
-        "en": "Funky Floor"
-      },
-      "damageType": "magical",
-      "damageAmount": 104000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_26_nikik1",
-      "time": 104,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_27_34csaa",
-      "time": 107,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_28_ahoa1x",
-      "time": 111,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_29_1hce8p",
-      "time": 115,
-      "name": {
-        "ja": "Funky Floor",
-        "en": "Funky Floor"
-      },
-      "damageType": "magical",
-      "damageAmount": 104000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_30_gsg0ks",
-      "time": 118,
-      "name": {
-        "ja": "3ポイント、ポーズ＆ジングル",
-        "en": "3-Snap Twist & Drop the Needle"
-      },
-      "damageType": "magical",
-      "damageAmount": 124000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_31_6vrzud",
-      "time": 119,
-      "name": {
-        "ja": "2-snap Twist & Drop the Needle",
-        "en": "2-Snap Twist & Drop the Needle"
-      },
-      "damageType": "magical",
-      "damageAmount": 113000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_32_t5zkpd",
-      "time": 121,
-      "name": {
-        "ja": "4-snap Twist & Drop the Needle",
-        "en": "4-Snap Twist & Drop the Needle"
-      },
-      "damageType": "magical",
-      "damageAmount": 104000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_33_uro4xx",
-      "time": 122,
-      "name": {
-        "ja": "Play A-side",
-        "en": "Play A-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 91600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_34_xlokmg",
-      "time": 122,
-      "name": {
-        "ja": "Play B-side",
-        "en": "Play B-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 163000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_35_g5jci6",
-      "time": 130,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_36_qr10b8",
-      "time": 136,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 289000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_37_xhgsw4",
-      "time": 136,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 289000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_38_95z9r5",
-      "time": 137,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_39_vh4f07",
-      "time": 137,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_40_o4m54c",
-      "time": 140,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_41_n1ht2b",
-      "time": 156,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_42_6l9ruu",
-      "time": 156,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92800,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_43_05aznw",
-      "time": 159,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_44_gd8b60",
-      "time": 161,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 112000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_45_nppfnr",
-      "time": 161,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_46_rf4qqp",
-      "time": 164,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_47_8xukx8",
-      "time": 166,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_48_n9ag5q",
-      "time": 168,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_49_esnd6f",
-      "time": 168,
-      "name": {
-        "ja": "ゲットダウン！",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_50_wzpdj5",
-      "time": 171,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_51_97s4q4",
-      "time": 171,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92800,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_52_6vmqhp",
-      "time": 171,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_53_ovay1j",
-      "time": 173,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 112000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_54_rymvol",
-      "time": 184,
-      "name": {
-        "ja": "Let's Dance!",
-        "en": "Let's Dance!"
-      },
-      "damageType": "magical",
-      "damageAmount": 118000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_55_jydigs",
-      "time": 186,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 31200,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_56_a3tfm1",
-      "time": 186,
-      "name": {
-        "ja": "静音爆発",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 26900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_57_kw7kln",
-      "time": 191,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 30800,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_58_lbpafc",
-      "time": 192,
-      "name": {
-        "ja": "Let's Dance!",
-        "en": "Let's Dance!"
-      },
-      "damageType": "magical",
-      "damageAmount": 121000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_59_ozzraa",
-      "time": 192,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 28600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_60_m0wcy5",
-      "time": 196,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 29000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_61_3uznep",
-      "time": 196,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 26300,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_62_75pd19",
-      "time": 197,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 31100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_63_587sbx",
-      "time": 201,
-      "name": {
-        "ja": "Minor Freak Out",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 30900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_64_st528q",
-      "time": 201,
-      "name": {
-        "ja": "静音爆発",
-        "en": "Minor Freak Out"
-      },
-      "damageType": "magical",
-      "target": "ST"
-    },
-    {
-      "id": "tpl_65_squxam",
-      "time": 211,
-      "name": {
-        "ja": "Let's Pose!",
-        "en": "Let's Pose!"
-      },
-      "damageType": "magical",
-      "damageAmount": 148000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_66_60vbmz",
-      "time": 215,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_67_r1s3fl",
-      "time": 217,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_68_kceeny",
-      "time": 220,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_69_vqpfv5",
-      "time": 223,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_70_gdbqu7",
-      "time": 229,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_71_az9ic9",
-      "time": 234,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_72_96q6q9",
-      "time": 237,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_73_377m0z",
-      "time": 238,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_74_zrxvyb",
-      "time": 243,
-      "name": {
-        "ja": "Quarter Beats",
-        "en": "Quarter Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 124000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_75_q18yv8",
-      "time": 244,
-      "name": {
-        "ja": "Eighth Beats",
-        "en": "Eighth Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 126000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_76_g5l0k5",
-      "time": 245,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_77_ojplfa",
-      "time": 246,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_78_broj7w",
-      "time": 251,
-      "name": {
-        "ja": "Quarter Beats",
-        "en": "Quarter Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_79_b8s3ma",
-      "time": 251,
-      "name": {
-        "ja": "Eighth Beats",
-        "en": "Eighth Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 122000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_80_zpkucd",
-      "time": 253,
-      "name": {
-        "ja": "Ride the Waves",
-        "en": "Ride the Waves"
-      },
-      "damageType": "magical",
-      "damageAmount": 106000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_81_oypk2m",
-      "time": 253,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_82_vsuplm",
-      "time": 254,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_83_vtnyl9",
-      "time": 260,
-      "name": {
-        "ja": "ウェーブ・オン・ウェーブ",
-        "en": "Ride the Waves"
-      },
-      "damageType": "magical",
-      "damageAmount": 104000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_84_ojex1q",
-      "time": 262,
-      "name": {
-        "ja": "インサイドアウト",
-        "en": "Inside Out"
-      },
-      "damageType": "magical",
-      "damageAmount": 115000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_85_t9vxf2",
-      "time": 265,
-      "name": {
-        "ja": "Outside In",
-        "en": "Outside In"
-      },
-      "damageType": "magical",
-      "damageAmount": 110000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_86_pt7xtp",
-      "time": 278,
-      "name": {
-        "ja": "Play B-side",
-        "en": "Play B-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 163000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_87_bsbyhz",
-      "time": 284,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_88_nreomt",
-      "time": 284,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_89_enirlv",
-      "time": 291,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_90_z7zqwn",
-      "time": 291,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_91_9ifvbi",
-      "time": 292,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 170000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_92_rowtwu",
-      "time": 293,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_93_ygpmvf",
-      "time": 294,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_94_em7ng3",
-      "time": 296,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_95_8s6zbo",
-      "time": 297,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_96_vkjj9e",
-      "time": 305,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_97_hz74yc",
-      "time": 308,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_98_pdf8lz",
-      "time": 311,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_99_nwy7ya",
-      "time": 316,
-      "name": {
-        "ja": "Eighth Beats",
-        "en": "Eighth Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 122000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_100_e8hfep",
-      "time": 317,
-      "name": {
-        "ja": "Quarter Beats",
-        "en": "Quarter Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 210000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_101_ge9rk9",
-      "time": 318,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_102_q5xusm",
-      "time": 325,
-      "name": {
-        "ja": "Disco Infernal",
-        "en": "Disco Infernal"
-      },
-      "damageType": "magical",
-      "damageAmount": 126000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_103_kiexmw",
-      "time": 326,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_104_6118uh",
-      "time": 329,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_105_vu7wqc",
-      "time": 332,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_106_rumve4",
-      "time": 335,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_107_zwwuno",
-      "time": 336,
-      "name": {
-        "ja": "Back-up Dance",
-        "en": "Back-Up Dance"
-      },
-      "damageType": "magical",
-      "damageAmount": 101000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_108_rgtcko",
-      "time": 336,
-      "name": {
-        "ja": "ダンシングウェーブ (TB)",
-        "en": "Back-Up Dance (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 736000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_109_cyo8mh",
-      "time": 336,
-      "name": {
-        "ja": "ダンシングウェーブ (TB)",
-        "en": "Back-Up Dance (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 736000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_110_980xi7",
-      "time": 338,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_111_m02ehk",
-      "time": 341,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_112_g8qs9u",
-      "time": 347,
-      "name": {
-        "ja": "Back-up Dance",
-        "en": "Back-Up Dance"
-      },
-      "damageType": "magical",
-      "damageAmount": 101000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_113_p7mql0",
-      "time": 358,
-      "name": {
-        "ja": "Play B-side",
-        "en": "Play B-Side"
-      },
-      "damageType": "magical",
-      "damageAmount": 163000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_114_s4pf3w",
-      "time": 364,
-      "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_115_2ot76y",
-      "time": 367,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_116_8oq6wi",
-      "time": 369,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_117_tlgstj",
-      "time": 385,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_118_690sh2",
-      "time": 387,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_119_ed8n6l",
-      "time": 387,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_120_5u6o40",
-      "time": 390,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 122000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_121_kvtp4v",
-      "time": 390,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92800,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_122_l1i63i",
-      "time": 392,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_123_3reoju",
-      "time": 392,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92800,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_124_cbb6d9",
-      "time": 395,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_125_p9lvzy",
-      "time": 395,
-      "name": {
-        "ja": "ゲットダウン！",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92500,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_126_7hrqht",
-      "time": 397,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_127_3kvfav",
-      "time": 397,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_128_wu67bb",
-      "time": 400,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 92800,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_129_wezfup",
-      "time": 400,
-      "name": {
-        "ja": "ゲットダウン！",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_130_rtho2d",
-      "time": 402,
-      "name": {
-        "ja": "Get Down!",
-        "en": "Get Down!"
-      },
-      "damageType": "magical",
-      "damageAmount": 93100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_131_31jcr9",
-      "time": 414,
-      "name": {
-        "ja": "Let's Dance! Remix",
-        "en": "Let's Dance! Remix"
+        "ja": "ラウドジングルA or ラウドジングルB",
+        "en": "Play A-Side or Play B-Side"
       },
       "damageType": "magical",
       "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_132_o6pu1r",
-      "time": 418,
+      "id": "tpl_7_h45tp5",
+      "time": 59,
       "name": {
-        "ja": "Let's Dance! Remix",
-        "en": "Let's Dance! Remix"
+        "ja": "ラウドジングルA or ラウドジングルB",
+        "en": "Play A-Side or Play B-Side"
       },
       "damageType": "magical",
-      "damageAmount": 123000,
+      "damageAmount": 120000,
       "target": "AoE"
     },
     {
-      "id": "tpl_133_yvejx1",
-      "time": 420,
-      "name": {
-        "ja": "Let's Dance! Remix",
-        "en": "Let's Dance! Remix"
-      },
-      "damageType": "magical",
-      "damageAmount": 123000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_134_j0ddxq",
-      "time": 420,
-      "name": {
-        "ja": "Let's Dance! Remix",
-        "en": "Let's Dance! Remix"
-      },
-      "damageType": "magical",
-      "damageAmount": 116000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_135_kt9dzs",
-      "time": 423,
-      "name": {
-        "ja": "Let's Dance! Remix",
-        "en": "Let's Dance! Remix"
-      },
-      "damageType": "magical",
-      "damageAmount": 116000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_136_a63xf8",
-      "time": 430,
-      "name": {
-        "ja": "Let's Pose!",
-        "en": "Let's Pose!"
-      },
-      "damageType": "magical",
-      "damageAmount": 154000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_137_s4mae1",
-      "time": 436,
+      "id": "tpl_8_sywbk5",
+      "time": 60,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_138_bhgmqe",
+      "id": "tpl_9_2jrngw",
+      "time": 65,
+      "name": {
+        "ja": "セレブレート・グッドタイムズ",
+        "en": "Celebrate Good Times"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_d8ua43",
+      "time": 68,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_k7yvn8",
+      "time": 71,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_lpa9a9",
+      "time": 77,
+      "name": {
+        "ja": "ディスコインファーナル",
+        "en": "Disco Infernal"
+      },
+      "damageType": "magical",
+      "damageAmount": 95000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_4ywkyb",
+      "time": 101,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_m585k2",
+      "time": 104,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_acemr0",
+      "time": 122,
+      "name": {
+        "ja": "ラウドジングルA or ラウドジングルB",
+        "en": "Play A-Side or Play B-Side"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_apwh04",
+      "time": 128,
+      "name": {
+        "ja": "セレブレート・グッドタイムズ",
+        "en": "Celebrate Good Times"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_zoufot",
+      "time": 136,
+      "name": {
+        "ja": "ディープカット",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_3ztaya",
+      "time": 137,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_teumsg",
+      "time": 140,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_fnacas",
+      "time": 156,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_6uey3q",
+      "time": 158,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_gzl5t0",
+      "time": 160,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_g2fmcw",
+      "time": 163,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_u0ztp1",
+      "time": 165,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_igi3ju",
+      "time": 168,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_rku86c",
+      "time": 170,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_jz7wv0",
+      "time": 173,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_dce1m6",
+      "time": 186,
+      "name": {
+        "ja": "静音爆発",
+        "en": "Minor Freak Out"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_qwptad",
+      "time": 191,
+      "name": {
+        "ja": "静音爆発",
+        "en": "Minor Freak Out"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_i3rfz3",
+      "time": 196,
+      "name": {
+        "ja": "静音爆発",
+        "en": "Minor Freak Out"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_wgev2l",
+      "time": 201,
+      "name": {
+        "ja": "静音爆発",
+        "en": "Minor Freak Out"
+      },
+      "damageType": "magical",
+      "damageAmount": 25000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_vj0q72",
+      "time": 209,
+      "name": {
+        "ja": "レッツポーズ！",
+        "en": "Let's Pose!"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_5yflh7",
+      "time": 214,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_yuiwtn",
+      "time": 217,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_oborpf",
+      "time": 220,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_pku375",
+      "time": 223,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_lwp963",
+      "time": 234,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_eeqhb1",
+      "time": 237,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_00fwfz",
+      "time": 243,
+      "name": {
+        "ja": "4ビート or 8ビート",
+        "en": "Quarter Beats or Eighth Beats"
+      },
+      "damageType": "magical",
+      "damageAmount": 130000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_ksb3td",
+      "time": 245,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_lt0303",
+      "time": 251,
+      "name": {
+        "ja": "4ビート or 8ビート",
+        "en": "Quarter Beats or Eighth Beats"
+      },
+      "damageType": "magical",
+      "damageAmount": 130000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_k6wzcq",
+      "time": 253,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_1yaz6p",
+      "time": 277,
+      "name": {
+        "ja": "ラウドジングルA or ラウドジングルB",
+        "en": "Play A-Side or Play B-Side"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_q0grwk",
+      "time": 285,
+      "name": {
+        "ja": "ディープカット",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "damageAmount": 400000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_qd9os9",
+      "time": 291,
+      "name": {
+        "ja": "セレブレート・グッドタイムズ",
+        "en": "Celebrate Good Times"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_qknepn",
+      "time": 293,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_0h63wf",
+      "time": 296,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_utm4fm",
+      "time": 304,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_ml60q2",
+      "time": 307,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_sjccmv",
+      "time": 310,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_wsx7af",
+      "time": 317,
+      "name": {
+        "ja": "4ビート or 8ビート",
+        "en": "Quarter Beats or Eighth Beats"
+      },
+      "damageType": "magical",
+      "damageAmount": 130000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_7wegc7",
+      "time": 319,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_3eagb9",
+      "time": 325,
+      "name": {
+        "ja": "ディスコインファーナル",
+        "en": "Disco Infernal"
+      },
+      "damageType": "magical",
+      "damageAmount": 95000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_jssefs",
+      "time": 326,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_r483n3",
+      "time": 329,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_0v0i6w",
+      "time": 332,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_7a7go1",
+      "time": 336,
+      "name": {
+        "ja": "ダンシングウェーブ",
+        "en": "Back-Up Dance"
+      },
+      "damageType": "magical",
+      "damageAmount": 95000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_qoaw0a",
+      "time": 340,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_u0o2wy",
+      "time": 347,
+      "name": {
+        "ja": "ダンシングウェーブ",
+        "en": "Back-Up Dance"
+      },
+      "damageType": "magical",
+      "damageAmount": 95000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_ysmhpz",
+      "time": 358,
+      "name": {
+        "ja": "ラウドジングルA or ラウドジングルB",
+        "en": "Play A-Side or Play B-Side"
+      },
+      "damageType": "magical",
+      "damageAmount": 120000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_1w14ha",
+      "time": 364,
+      "name": {
+        "ja": "セレブレート・グッドタイムズ",
+        "en": "Celebrate Good Times"
+      },
+      "damageType": "magical",
+      "damageAmount": 140000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_akq1up",
+      "time": 366,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_far8hm",
+      "time": 369,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_4ri4p2",
+      "time": 385,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_n8tfs5",
+      "time": 387,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_2zxxhv",
+      "time": 389,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_zalxcd",
+      "time": 392,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_t1undk",
+      "time": 394,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_f3afez",
+      "time": 397,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_g5hyym",
+      "time": 399,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_cj9loh",
+      "time": 402,
+      "name": {
+        "ja": "ゲットダウン！",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "damageAmount": 100000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_8wdvqd",
+      "time": 430,
+      "name": {
+        "ja": "レッツポーズ！",
+        "en": "Let's Pose!"
+      },
+      "damageType": "magical",
+      "damageAmount": 150000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_jj3vxr",
+      "time": 435,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_ly6knx",
       "time": 438,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_139_dbh2m7",
+      "id": "tpl_75_6q20v5",
       "time": 441,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_140_ohxhv9",
+      "id": "tpl_76_t76z21",
       "time": 452,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_141_i0cm00",
+      "id": "tpl_77_i59zsg",
       "time": 455,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_142_fyy0or",
+      "id": "tpl_78_ykn6oe",
       "time": 458,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_143_wy8bki",
-      "time": 468,
+      "id": "tpl_79_4eubo2",
+      "time": 467,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_144_qja3zp",
+      "id": "tpl_80_9m4zao",
       "time": 470,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_145_4r41eu",
+      "id": "tpl_81_9ftpcm",
       "time": 473,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_146_jluv6t",
-      "time": 477,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_147_6nruse",
-      "time": 480,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_148_d0mp7d",
-      "time": 482,
-      "name": {
-        "ja": "Back-up Dance",
-        "en": "Back-Up Dance"
-      },
-      "damageType": "magical",
-      "damageAmount": 101000,
+      "damageAmount": 77000,
       "target": "AoE"
     },
     {
-      "id": "tpl_149_6wxtqf",
-      "time": 482,
+      "id": "tpl_82_4hfll9",
+      "time": 476,
       "name": {
-        "ja": "ダンシングウェーブ (TB)",
-        "en": "Back-Up Dance (TB)"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 736000,
-      "target": "MT"
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_150_gmk5r4",
+      "id": "tpl_83_e77lhu",
       "time": 482,
       "name": {
-        "ja": "ダンシングウェーブ (TB)",
-        "en": "Back-Up Dance (TB)"
+        "ja": "ダンシングウェーブ",
+        "en": "Back-Up Dance"
       },
       "damageType": "magical",
-      "damageAmount": 736000,
-      "target": "ST"
+      "damageAmount": 95000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_151_j7biom",
+      "id": "tpl_84_ke5vxi",
       "time": 483,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_152_jb955z",
-      "time": 487,
+      "id": "tpl_85_0uv3az",
+      "time": 486,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_153_yqucl2",
-      "time": 490,
+      "id": "tpl_86_sk1je2",
+      "time": 489,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_154_q59h0z",
+      "id": "tpl_87_o7d86f",
       "time": 492,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 49500,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_155_1cl5oe",
-      "time": 496,
+      "id": "tpl_88_v8y1b5",
+      "time": 495,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 51700,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_156_qps8h7",
+      "id": "tpl_89_ihd8rx",
       "time": 498,
       "name": {
-        "ja": "ムーンバーン",
-        "en": "Moonburn"
-      },
-      "damageType": "magical",
-      "damageAmount": 59600,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_157_gopomr",
-      "time": 498,
-      "name": {
-        "ja": "ダンシングウェーブ (TB)",
-        "en": "Back-Up Dance (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 736000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_158_jdlsd0",
-      "time": 499,
-      "name": {
-        "ja": "Back-up Dance",
+        "ja": "ダンシングウェーブ",
         "en": "Back-Up Dance"
       },
       "damageType": "magical",
-      "damageAmount": 101000,
+      "damageAmount": 95000,
       "target": "AoE"
     },
     {
-      "id": "tpl_159_lh7hp9",
-      "time": 499,
+      "id": "tpl_90_5ma5rz",
+      "time": 498,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 62900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_160_ru5wgg",
-      "time": 508,
-      "name": {
-        "ja": "ドゥ・ザ・ハッスル",
-        "en": "Do the Hustle"
-      },
-      "damageType": "magical",
-      "damageAmount": 114000,
+      "damageAmount": 77000,
       "target": "AoE"
     },
     {
-      "id": "tpl_161_3dla6q",
-      "time": 516,
-      "name": {
-        "ja": "Deep Cut",
-        "en": "Deep Cut"
-      },
-      "damageType": "magical",
-      "damageAmount": 470000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_162_bi4y9k",
-      "time": 516,
+      "id": "tpl_91_ea4bgd",
+      "time": 515,
       "name": {
         "ja": "ディープカット",
         "en": "Deep Cut"
       },
       "damageType": "magical",
-      "damageAmount": 287000,
-      "target": "ST"
+      "damageAmount": 400000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_163_b7f4w9",
-      "time": 517,
+      "id": "tpl_92_ddvolm",
+      "time": 516,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_164_ugpjna",
-      "time": 520,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_165_y7hgdh",
-      "time": 526,
-      "name": {
-        "ja": "ダンシングフィールド",
-        "en": "Funky Floor"
-      },
-      "damageType": "magical",
-      "damageAmount": 94700,
+      "damageAmount": 77000,
       "target": "AoE"
     },
     {
-      "id": "tpl_166_ei3bm7",
-      "time": 530,
+      "id": "tpl_93_gt4fzi",
+      "time": 533,
       "name": {
-        "ja": "Funky Floor",
-        "en": "Funky Floor"
+        "ja": "4ビート or 8ビート",
+        "en": "Quarter Beats or Eighth Beats"
       },
       "damageType": "magical",
-      "damageAmount": 94700,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_167_0i45zy",
-      "time": 534,
+      "id": "tpl_94_c1mhqm",
+      "time": 553,
       "name": {
-        "ja": "4ビート",
-        "en": "Quarter Beats"
+        "ja": "4ビート or 8ビート",
+        "en": "Quarter Beats or Eighth Beats"
       },
       "damageType": "magical",
-      "damageAmount": 210000,
+      "damageAmount": 130000,
       "target": "AoE"
     },
     {
-      "id": "tpl_168_i9cxgj",
-      "time": 534,
-      "name": {
-        "ja": "Eighth Beats",
-        "en": "Eighth Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 123000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_169_xif4cc",
-      "time": 544,
-      "name": {
-        "ja": "アウトサイドイン",
-        "en": "Outside In"
-      },
-      "damageType": "magical",
-      "damageAmount": 139000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_170_r76ims",
-      "time": 554,
-      "name": {
-        "ja": "8ビート",
-        "en": "Eighth Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 126000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_171_k3jv5u",
-      "time": 554,
-      "name": {
-        "ja": "Quarter Beats",
-        "en": "Quarter Beats"
-      },
-      "damageType": "magical",
-      "damageAmount": 145000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_172_w6qavs",
-      "time": 562,
+      "id": "tpl_95_wrh98j",
+      "time": 561,
       "name": {
         "ja": "セレブレート・グッドタイムズ",
         "en": "Celebrate Good Times"
       },
       "damageType": "magical",
-      "damageAmount": 173000,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_173_ave14w",
+      "id": "tpl_96_ydiw6k",
       "time": 563,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_174_7lf9lh",
+      "id": "tpl_97_7ceeb9",
       "time": 566,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_175_7j97ri",
-      "time": 572,
+      "id": "tpl_98_molxqj",
+      "time": 571,
       "name": {
         "ja": "セレブレート・グッドタイムズ",
         "en": "Celebrate Good Times"
       },
       "damageType": "magical",
-      "damageAmount": 173000,
+      "damageAmount": 140000,
       "target": "AoE"
     },
     {
-      "id": "tpl_176_g0fevc",
+      "id": "tpl_99_pwqj8r",
       "time": 574,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_177_03ozgb",
-      "time": 578,
+      "id": "tpl_100_3szsne",
+      "time": 577,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
     },
     {
-      "id": "tpl_178_86pc1a",
-      "time": 584,
+      "id": "tpl_101_629kjv",
+      "time": 580,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
       "damageType": "physical",
-      "damageAmount": 58100,
-      "target": "MT"
+      "damageAmount": 77000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_r8mneh",
+      "time": 583,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 77000,
+      "target": "AoE"
     }
   ],
   "phases": []

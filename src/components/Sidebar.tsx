@@ -107,8 +107,8 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-accent rounded-full animate-in fade-in zoom-in duration-300" />
                 )}
 
-                <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-                    <div className="relative flex flex-col items-center shrink-0 w-6 h-6">
+                <div className="w-6 shrink-0 flex items-center justify-center">
+                    <div className="relative flex flex-col items-center shrink-0 w-6">
                         <div className={clsx(
                             "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
                             isActive && !multiSelect.isEnabled
@@ -117,6 +117,11 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         )}>
                             {shortName.split('\n')[0]}
                         </div>
+                        {shortName.split('\n')[1] && (
+                            <span className="text-[7px] text-app-text-muted/60 font-bold leading-none mt-0.5">
+                                {shortName.split('\n')[1]}
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -400,11 +405,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             store.loadSnapshot({
                 ...snap,
                 timelineEvents: tpl.timelineEvents,
-                phases: tpl.phases ? tpl.phases.map((p, i) => ({
-                    id: `phase_${p.id}`,
-                    name: `Phase ${i + 1}`,
-                    endTime: p.startTimeSec
-                })) : []
+                phases: tpl.phases ? tpl.phases
+                    .filter(p => p.startTimeSec >= 0)
+                    .map((p, i, arr) => {
+                        const nextStart = arr[i + 1]?.startTimeSec;
+                        const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
+                        return {
+                            id: `phase_${p.id}`,
+                            name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                            endTime: nextStart !== undefined ? nextStart : maxTime + 10
+                        };
+                    }) : []
             });
             
             setPendingSaveTitle((content.name[lang as ContentLanguage] || content.name.ja) + " Plan");
@@ -718,21 +729,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         onMouseLeave={() => setIsHovered(false)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-app-accent/[0.12] active:bg-app-accent/[0.2] transition-colors duration-200"
+                            "hover:bg-white/10 dark:hover:bg-white/10 active:bg-white/20 transition-colors duration-200"
                         )}
                     >
                         {/* 迫り出し感のある背景 */}
                         <motion.div
                             className={clsx(
-                                "absolute inset-0 bg-gradient-to-r from-transparent via-app-accent/[0.08] to-transparent",
+                                "absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent",
                                 isOpen ? "opacity-0" : "opacity-10"
                             )}
-                            animate={{ opacity: isNear ? 0.3 : 0.1 }}
+                            animate={{ opacity: isNear ? 0.5 : 0.1 }}
                             transition={{ duration: 0.15 }}
                         />
 
                         {/* 左端の固定ライン */}
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-accent/40 group-hover/btn:bg-app-accent/70 transition-colors duration-200" />
+                        <div className="absolute inset-y-0 left-0 w-[1px] bg-slate-300 dark:bg-white/20 group-hover/btn:bg-slate-500 dark:group-hover/btn:bg-white/40 transition-colors duration-200" />
 
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div
@@ -753,9 +764,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                     className={clsx(
                                         "transition-all duration-200",
                                         isOpen
-                                            ? "text-app-text-muted group-hover/btn:text-app-accent"
-                                            : "text-app-accent drop-shadow-[0_0_12px_rgba(var(--app-accent-rgb),0.5)]",
-                                        isHovered && "drop-shadow-[0_0_8px_rgba(var(--app-accent-rgb),0.6)]"
+                                            ? "text-slate-400 dark:text-white/30 group-hover/btn:text-slate-600 dark:group-hover/btn:text-white/50"
+                                            : "text-slate-600 dark:text-white/60",
+                                        isHovered && "text-slate-700 dark:text-white/70"
                                     )}
                                 />
                             </motion.div>
@@ -764,7 +775,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         {/* 右端の境界線 (拡張に合わせて移動) */}
                         <div className={clsx(
                             "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
-                            isOpen ? "bg-glass-border" : "bg-app-accent/30 shadow-[0_0_10px_rgba(var(--app-accent-rgb),0.3)]"
+                            isOpen ? "bg-glass-border" : "bg-slate-300 dark:bg-white/20"
                         )} />
                     </button>
                     </Tooltip>
