@@ -63,9 +63,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const needsImport = timelineEvents?.length === 0;
 
     // 認証状態
-    const { user } = useAuthStore();
+    const { user, justLoggedInUser } = useAuthStore();
     const [showShareMenu, setShowShareMenu] = React.useState(false);
     const [showLoginModal, setShowLoginModal] = React.useState(false);
+
+    // ログイン成功時にモーダルを自動表示
+    React.useEffect(() => {
+        if (justLoggedInUser) setShowLoginModal(true);
+    }, [justLoggedInUser]);
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));

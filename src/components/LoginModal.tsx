@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { X, LogOut, Shield } from 'lucide-react';
+import { X, LogOut, Shield, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 interface LoginModalProps {
@@ -15,7 +15,6 @@ const providers = [
     {
         id: 'discord' as const,
         label: 'Discord',
-        color: '#5865F2',
         bgHover: 'hover:bg-[#5865F2]/10',
         icon: (
             <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="#5865F2">
@@ -26,7 +25,6 @@ const providers = [
     {
         id: 'google' as const,
         label: 'Google',
-        color: '#4285F4',
         bgHover: 'hover:bg-[#4285F4]/10',
         icon: (
             <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
@@ -40,7 +38,6 @@ const providers = [
     {
         id: 'twitter' as const,
         label: 'X (Twitter)',
-        color: '#000',
         bgHover: 'hover:bg-app-surface2',
         icon: (
             <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="currentColor">
@@ -52,22 +49,30 @@ const providers = [
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { user, signInWith, signOut } = useAuthStore();
+    const { user, signInWith, signOut, justLoggedInUser, clearJustLoggedIn } = useAuthStore();
 
-    if (!isOpen) return null;
+    // 成功画面表示中か
+    const isSuccess = !!justLoggedInUser;
 
-    // リダイレクト方式: ページ遷移するのでonCloseやトーストは不要
-    // トーストはリダイレクト後にuseAuthStoreが自動表示する
+    if (!isOpen && !isSuccess) return null;
+
     const handleSignIn = (providerId: 'google' | 'discord' | 'twitter') => {
         signInWith(providerId);
     };
+
+    const handleCloseSuccess = () => {
+        clearJustLoggedIn();
+        onClose();
+    };
+
+    const handleClose = isSuccess ? handleCloseSuccess : onClose;
 
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-[2px] animate-[fadeIn_150ms_ease-out]"
-                onClick={onClose}
+                onClick={handleClose}
             />
 
             {/* Modal */}
@@ -75,94 +80,144 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 "relative w-[380px] max-w-[90vw] rounded-2xl bg-app-bg glass-panel",
                 "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
             )}>
-                {/* ヘッダー */}
-                <div className="flex items-center justify-between px-6 pt-6 pb-2">
-                    <h2
-                        className="text-[18px] text-app-text tracking-wide"
-                        style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
-                    >
-                        {user ? (user.displayName || 'Account') : t('login.title')}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
-                    >
-                        <X size={16} />
-                    </button>
-                </div>
 
-                {/* ログイン済み */}
-                {user && (
-                    <div className="px-6 pb-6 pt-2">
-                        {/* ユーザー情報 */}
-                        <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-app-surface2/50 border border-app-border">
-                            {user.photoURL && (
-                                <img src={user.photoURL} alt="" className="w-10 h-10 rounded-full shrink-0" referrerPolicy="no-referrer" />
-                            )}
-                            <div className="min-w-0">
-                                <div className="text-[13px] font-bold text-app-text truncate">
-                                    {user.displayName || 'User'}
-                                </div>
-                                <div className="text-[11px] text-app-text-muted truncate flex items-center gap-1">
-                                    {user.providerData[0]?.providerId === 'google.com' ? 'Google'
-                                        : user.providerData[0]?.providerId === 'twitter.com' ? 'X (Twitter)'
-                                            : user.uid.startsWith('discord:') ? 'Discord'
-                                                : user.uid.startsWith('twitter:') ? 'X (Twitter)'
-                                                    : (user.providerData[0]?.providerId || '')}
-                                    {t('app.sign_in_via')}
-                                </div>
-                            </div>
+                {/* ===== ログイン成功画面 ===== */}
+                {isSuccess && (
+                    <>
+                        <div className="flex justify-end px-6 pt-4">
+                            <button
+                                onClick={handleCloseSuccess}
+                                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                            >
+                                <X size={16} />
+                            </button>
                         </div>
-
-                        {/* ログアウトボタン */}
-                        <button
-                            onClick={() => { signOut(); onClose(); }}
-                            className={clsx(
-                                "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
-                                "text-red-400 border border-red-400/30 hover:bg-red-500/10 hover:border-red-400/50"
+                        <div className="flex flex-col items-center px-6 pb-8 pt-1">
+                            {/* アイコン */}
+                            {justLoggedInUser.photoURL ? (
+                                <img
+                                    src={justLoggedInUser.photoURL}
+                                    alt=""
+                                    className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg mb-4"
+                                    referrerPolicy="no-referrer"
+                                />
+                            ) : (
+                                <div className="w-16 h-16 rounded-full bg-app-surface2 flex items-center justify-center ring-2 ring-app-border mb-4">
+                                    <span className="text-2xl font-bold text-app-text">
+                                        {(justLoggedInUser.displayName || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
                             )}
-                        >
-                            <LogOut size={14} />
-                            {t('app.sign_out')}
-                        </button>
-                    </div>
-                )}
 
-                {/* 未ログイン: プロバイダー選択 */}
-                {!user && (
-                    <div className="px-6 pb-6 pt-1">
-                        {/* 説明文 */}
-                        <p className="text-[11px] text-app-text-muted leading-relaxed mb-4">
-                            {t('login.benefit_message')}
-                        </p>
-
-                        {/* プロバイダーボタン群 */}
-                        <div className="flex flex-col gap-2 mb-5">
-                            {providers.map(({ id, label, icon, bgHover }) => (
-                                <button
-                                    key={id}
-                                    onClick={() => handleSignIn(id)}
-                                    className={clsx(
-                                        "w-full px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 flex items-center gap-3 cursor-pointer",
-                                        "text-app-text border border-app-border",
-                                        bgHover,
-                                        "hover:border-app-text/30 active:scale-[0.98]"
-                                    )}
+                            {/* 成功メッセージ */}
+                            <div className="flex items-center gap-2 mb-2">
+                                <CheckCircle size={18} className="text-emerald-500" />
+                                <h2
+                                    className="text-[18px] text-app-text"
+                                    style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
                                 >
-                                    {icon}
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
+                                    {t('login.success_title')}
+                                </h2>
+                            </div>
 
-                        {/* プライバシーメッセージ */}
-                        <div className="flex items-start gap-2 px-1">
-                            <Shield size={13} className="text-app-text-muted shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-app-text-muted leading-relaxed">
-                                {t('login.privacy_message')}
+                            <p
+                                className="text-[15px] text-app-text"
+                                style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 600 }}
+                            >
+                                {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
                             </p>
                         </div>
-                    </div>
+                    </>
+                )}
+
+                {/* ===== 通常画面（未成功時のみ） ===== */}
+                {!isSuccess && (
+                    <>
+                        {/* ヘッダー */}
+                        <div className="flex items-center justify-between px-6 pt-6 pb-2">
+                            <h2
+                                className="text-[18px] text-app-text tracking-wide"
+                                style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
+                            >
+                                {user ? (user.displayName || 'Account') : t('login.title')}
+                            </h2>
+                            <button
+                                onClick={onClose}
+                                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+
+                        {/* ログイン済み */}
+                        {user && (
+                            <div className="px-6 pb-6 pt-2">
+                                <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-app-surface2/50 border border-app-border">
+                                    {user.photoURL && (
+                                        <img src={user.photoURL} alt="" className="w-10 h-10 rounded-full shrink-0" referrerPolicy="no-referrer" />
+                                    )}
+                                    <div className="min-w-0">
+                                        <div className="text-[13px] font-bold text-app-text truncate">
+                                            {user.displayName || 'User'}
+                                        </div>
+                                        <div className="text-[11px] text-app-text-muted truncate flex items-center gap-1">
+                                            {user.providerData[0]?.providerId === 'google.com' ? 'Google'
+                                                : user.providerData[0]?.providerId === 'twitter.com' ? 'X (Twitter)'
+                                                    : user.uid.startsWith('discord:') ? 'Discord'
+                                                        : user.uid.startsWith('twitter:') ? 'X (Twitter)'
+                                                            : (user.providerData[0]?.providerId || '')}
+                                            {t('app.sign_in_via')}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => { signOut(); onClose(); }}
+                                    className={clsx(
+                                        "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
+                                        "text-red-400 border border-red-400/30 hover:bg-red-500/10 hover:border-red-400/50"
+                                    )}
+                                >
+                                    <LogOut size={14} />
+                                    {t('app.sign_out')}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 未ログイン: プロバイダー選択 */}
+                        {!user && (
+                            <div className="px-6 pb-6 pt-1">
+                                <p className="text-[11px] text-app-text-muted leading-relaxed mb-4">
+                                    {t('login.benefit_message')}
+                                </p>
+
+                                <div className="flex flex-col gap-2 mb-5">
+                                    {providers.map(({ id, label, icon, bgHover }) => (
+                                        <button
+                                            key={id}
+                                            onClick={() => handleSignIn(id)}
+                                            className={clsx(
+                                                "w-full px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 flex items-center gap-3 cursor-pointer",
+                                                "text-app-text border border-app-border",
+                                                bgHover,
+                                                "hover:border-app-text/30 active:scale-[0.98]"
+                                            )}
+                                        >
+                                            {icon}
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-start gap-2 px-1">
+                                    <Shield size={13} className="text-app-text-muted shrink-0 mt-0.5" />
+                                    <p className="text-[10px] text-app-text-muted leading-relaxed">
+                                        {t('login.privacy_message')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>,
