@@ -104,14 +104,14 @@ export function getAddersgallStacks(
     if (consumptions.length === 0) return 3; // No consumption, always 3
 
     // Simulate: start at 3, process consumptions with regen
+    // アダーガルは戦闘状態に関係なく常に20秒ごとにリチャージ
+    // 初期ゲージ3個 = 最初の消費前は常に最大なのでリチャージ起点は最初の消費時刻
     let stacks = 3;
-    let lastTime = 0; // combat start
-    let regenAccumulator = 0; // partial regen time
+    let lastTime = consumptions[0].time;
+    let regenAccumulator = 0;
 
     for (const consumption of consumptions) {
-        // Calculate regen between lastTime and consumption time
-        // 戦闘前（負の時刻）ではリチャージは発生しない
-        const elapsed = Math.max(0, consumption.time - Math.max(0, lastTime));
+        const elapsed = consumption.time - lastTime;
         const totalRegenTime = regenAccumulator + elapsed;
         const regenGains = Math.floor(totalRegenTime / 20);
         stacks = Math.min(3, stacks + regenGains);
@@ -133,8 +133,7 @@ export function getAddersgallStacks(
     }
 
     // Regen from last consumption to target time
-    // 戦闘前の時間帯はリチャージなし
-    const finalElapsed = Math.max(0, time - Math.max(0, lastTime));
+    const finalElapsed = time - lastTime;
     const finalRegenTime = regenAccumulator + finalElapsed;
     const finalRegenGains = Math.floor(finalRegenTime / 20);
     stacks = Math.min(3, stacks + finalRegenGains);
