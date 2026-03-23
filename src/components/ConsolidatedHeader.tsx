@@ -530,7 +530,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 {icon}
                                 {label}
                             </button>
-                        )))}
+                        ))}
                     </div>
                 </>,
                 document.body
