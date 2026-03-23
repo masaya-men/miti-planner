@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useThemeStore } from './store/useThemeStore';
 import { PortalPage } from './components/PortalPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
+import { SharePage } from './components/SharePage';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +46,7 @@ function App() {
       <Routes>
         <Route path="/" element={<PortalPage />} />
         <Route path="/miti" element={<MitiPlannerPage />} />
+        <Route path="/share/:shareId" element={<SharePage />} />
         {/* Catch-all: redirect unknown paths to portal */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

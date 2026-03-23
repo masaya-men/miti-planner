@@ -264,18 +264,6 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                             />
                         </div>
 
-                        {/* Template Guidance (Phase 4 Hint) */}
-                        <div className="pt-3">
-                            <div className="bg-app-accent/5 border border-app-accent/20 rounded-2xl p-5 flex flex-col gap-2.5 shadow-sm">
-                                <p className="text-[10px] text-app-accent font-black tracking-[0.2em] uppercase opacity-80">
-                                    {t('new_plan.template_guidance', 'Want to start from a pre-filled template?')}
-                                </p>
-                                <button className="text-[11px] text-app-text hover:text-app-accent transition-all font-black flex items-center gap-2 cursor-pointer group">
-                                    {t('new_plan.browse_templates', 'Browse Templates')} 
-                                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Footer */}

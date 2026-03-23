@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, Link2, LogIn, LogOut
+    Users, Activity, Wand2, Star, LogIn, LogOut
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -19,7 +19,7 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
-import { showToast } from './Toast';
+import { ShareButtons } from './ShareButtons';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -140,12 +140,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
-                    <div className="h-12 flex items-center justify-between px-6 border-b border-app-border shrink-0">
-                        <div className="flex items-center gap-3">
+                    <div className="h-12 flex items-center justify-between px-6 border-b border-app-border shrink-0 overflow-hidden">
+                        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
                                 <button
                                     onClick={() => navigate('/')}
-                                    className={clsx(iconBtnBase, iconBtnDefault)}
+                                    className={clsx(iconBtnBase, iconBtnDefault, "shrink-0")}
                                 >
                                     <Home size={16} className="group-hover:-translate-y-0.5 transition-transform duration-300" />
                                 </button>
@@ -153,14 +153,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* 現在のコンテンツ名 — ヒーロー表示 + 共有ボタン */}
                             {currentPlan && (
-                                <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex items-center gap-2 min-w-0">
                                     <div
                                         className="flex items-baseline gap-2 min-w-0 origin-left"
                                         style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
                                     >
                                         {contentLabel && (
                                             <span
-                                                className="text-[26px] text-app-text leading-tight whitespace-nowrap"
+                                                className="text-[26px] text-app-text leading-tight whitespace-nowrap shrink-0"
                                                 style={{
                                                     fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
                                                     fontWeight: 700,
@@ -171,48 +171,19 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             </span>
                                         )}
                                         {currentPlan.title && currentPlan.title !== contentLabel && (
-                                            <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap">
+                                            <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
                                                 {currentPlan.title}
                                             </span>
                                         )}
                                     </div>
 
                                     {/* 共有ボタン群 */}
-                                    <div className="flex items-center gap-1 shrink-0">
-                                        {/* X (Twitter) 共有 */}
-                                        <Tooltip content={t('app.share_x')}>
-                                            <button
-                                                onClick={() => {
-                                                    const url = window.location.href;
-                                                    const text = `${contentLabel || 'LoPo'} - FF14 軽減プランナー`;
-                                                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-                                                }}
-                                                className={clsx(iconBtnBase, iconBtnDefault, "w-8 h-8")}
-                                            >
-                                                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor">
-                                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                                                </svg>
-                                            </button>
-                                        </Tooltip>
-
-                                        {/* リンクコピー */}
-                                        <Tooltip content={t('app.copy_link')}>
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(window.location.href);
-                                                    showToast(t('app.link_copied'));
-                                                }}
-                                                className={clsx(iconBtnBase, iconBtnDefault, "w-8 h-8")}
-                                            >
-                                                <Link2 size={14} />
-                                            </button>
-                                        </Tooltip>
-                                    </div>
+                                    <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             {/* Tutorial */}
                             <button
                                 onClick={() => {

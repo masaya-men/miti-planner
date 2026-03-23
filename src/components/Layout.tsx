@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { usePlanStore } from '../store/usePlanStore';
+import { showToast } from './Toast';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -47,6 +49,34 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             setMobileMenuOpen(false);
         }
     }, [isTutorialActive]);
+
+    // 自動保存（ページ離脱 + タブ切替 + 30秒間隔）
+    React.useEffect(() => {
+        const saveSilently = () => {
+            const planStore = usePlanStore.getState();
+            const mitiStore = useMitigationStore.getState();
+            if (planStore.currentPlanId) {
+                planStore.updatePlan(planStore.currentPlanId, { data: mitiStore.getSnapshot() });
+            }
+        };
+        const saveWithFeedback = () => {
+            const planStore = usePlanStore.getState();
+            if (planStore.currentPlanId) {
+                saveSilently();
+                showToast(t('app.auto_saved') || '自動保存しました');
+            }
+        };
+        window.addEventListener('beforeunload', saveSilently);
+        const onVisibilityChange = () => { if (document.hidden) saveSilently(); };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        // 30秒間隔の定期保存（フィードバック付き）
+        const interval = setInterval(saveWithFeedback, 30_000);
+        return () => {
+            window.removeEventListener('beforeunload', saveSilently);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            clearInterval(interval);
+        };
+    }, [t]);
 
     // ベースの背景色（テーマ変数を参照するように変更）
     const bgClass = "bg-app-bg";

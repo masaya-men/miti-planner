@@ -26,7 +26,16 @@
         "share": "共有",
         "share_x": "Xで共有",
         "copy_link": "リンクをコピー",
-        "link_copied": "リンクをコピーしました"
+        "link_copied": "リンクをコピーしました",
+        "share_failed": "共有リンクの生成に失敗しました",
+        "share_loading": "読み込み中...",
+        "share_not_found": "この共有リンクは見つかりませんでした",
+        "share_error": "データの取得に失敗しました",
+        "share_open_editor": "エディタで開く",
+        "share_copy_to_mine": "自分の軽減表にコピー",
+        "share_copied_toast": "軽減表をコピーしました",
+        "shared_plan": "共有された軽減プラン",
+        "auto_saved": "自動保存しました"
     },
     "login": {
         "title": "ログイン",
