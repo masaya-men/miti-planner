@@ -5,7 +5,6 @@ import { PortalPage } from './components/PortalPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
-import { LoginSuccessOverlay } from './components/LoginSuccessOverlay';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -51,7 +50,6 @@ function App() {
       </Routes>
       <TutorialOverlay />
       <ToastContainer />
-      <LoginSuccessOverlay />
     </div>
   );
 }

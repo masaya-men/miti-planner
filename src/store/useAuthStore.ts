@@ -49,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         switch (provider) {
             case 'google': {
                 const googleProvider = new GoogleAuthProvider();
+                googleProvider.setCustomParameters({ prompt: 'select_account' });
                 signInWithPopup(auth, googleProvider)
                     .then((result) => {
                         set({
