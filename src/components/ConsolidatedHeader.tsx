@@ -133,21 +133,24 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* 現在のコンテンツ名 — ヒーロー表示 */}
                             {currentPlan && (
-                                <div className="flex items-baseline gap-2 min-w-0">
+                                <div
+                                    className="flex items-baseline gap-2 min-w-0 origin-left"
+                                    style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
+                                >
                                     {contentLabel && (
                                         <span
-                                            className="text-[26px] text-app-text leading-tight shrink-0"
+                                            className="text-[26px] text-app-text leading-tight whitespace-nowrap"
                                             style={{
                                                 fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
                                                 fontWeight: 700,
-                                                letterSpacing: i18n.language.startsWith('ja') ? '-0.05em' : '0.04em',
+                                                letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
                                             }}
                                         >
                                             {contentLabel}
                                         </span>
                                     )}
                                     {currentPlan.title && currentPlan.title !== contentLabel && (
-                                        <span className="text-[11px] text-app-text-muted tracking-wider uppercase truncate">
+                                        <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap">
                                             {currentPlan.title}
                                         </span>
                                     )}
