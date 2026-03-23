@@ -1,11 +1,11 @@
 {
   "contentId": "m5s",
-  "generatedAt": "2026-03-22T11:55:37.788Z",
+  "generatedAt": "2026-03-23T05:01:41.375Z",
   "sourceLogsCount": 1,
   "sourceLog": "BpVDC4WYx1QJh2Gm#1",
   "timelineEvents": [
     {
-      "id": "tpl_0_k4h8m6",
+      "id": "tpl_0_9uj3gt",
       "time": 4,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_077t4v",
+      "id": "tpl_1_1hnx7p",
       "time": 7,
       "name": {
         "ja": "AA",
@@ -27,7 +27,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_frwhx2",
+      "id": "tpl_2_q5pcb3",
+      "time": 9,
+      "name": {
+        "ja": "Deep Cut",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_t7fdee",
       "time": 10,
       "name": {
         "ja": "AA",
@@ -38,7 +48,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_3_2yn9kd",
+      "id": "tpl_4_pmexo7",
       "time": 16,
       "name": {
         "ja": "Deep Cut",
@@ -49,7 +59,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_4_rn238b",
+      "id": "tpl_5_drnpxr",
       "time": 16,
       "name": {
         "ja": "Deep Cut",
@@ -60,7 +70,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_5_a50dnz",
+      "id": "tpl_6_rnbrpn",
       "time": 17,
       "name": {
         "ja": "AA",
@@ -71,7 +81,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_6_tz0bhk",
+      "id": "tpl_7_d1bpmd",
       "time": 21,
       "name": {
         "ja": "AA",
@@ -82,7 +92,67 @@
       "target": "MT"
     },
     {
-      "id": "tpl_7_0hjmyx",
+      "id": "tpl_8_zj1y3w",
+      "time": 23,
+      "name": {
+        "ja": "Flip to B-side",
+        "en": "Flip to B-Side"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_uzq7zl",
+      "time": 29,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_56bpyk",
+      "time": 34,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_hnyux0",
+      "time": 34,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_k51ulg",
+      "time": 34,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_5vfzn8",
+      "time": 34,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_hqzzm2",
       "time": 39,
       "name": {
         "ja": "Play B-side",
@@ -93,7 +163,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_pb5d4q",
+      "id": "tpl_15_trug91",
+      "time": 42,
+      "name": {
+        "ja": "Flip to A-side",
+        "en": "Flip to A-Side"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_uln2zo",
+      "time": 49,
+      "name": {
+        "ja": "2-snap Twist & Drop the Needle",
+        "en": "2-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_aroqy5",
+      "time": 54,
+      "name": {
+        "ja": "2-snap Twist & Drop the Needle",
+        "en": "2-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_1metwm",
+      "time": 54,
+      "name": {
+        "ja": "2-snap Twist & Drop the Needle",
+        "en": "2-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_b62l4j",
       "time": 59,
       "name": {
         "ja": "Play A-side",
@@ -104,7 +214,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_ou3cpy",
+      "id": "tpl_20_321b3u",
       "time": 60,
       "name": {
         "ja": "AA",
@@ -115,7 +225,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_10_g89nq8",
+      "id": "tpl_21_4nqlvw",
       "time": 66,
       "name": {
         "ja": "Celebrate Good Times",
@@ -126,7 +236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_32a0kb",
+      "id": "tpl_22_gdh63t",
       "time": 68,
       "name": {
         "ja": "AA",
@@ -137,7 +247,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_12_9refa3",
+      "id": "tpl_23_fdgz9o",
       "time": 71,
       "name": {
         "ja": "AA",
@@ -148,7 +258,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_13_8rh610",
+      "id": "tpl_24_7idi1s",
       "time": 77,
       "name": {
         "ja": "Disco Infernal",
@@ -159,7 +269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_b9t40k",
+      "id": "tpl_25_s91gr0",
       "time": 78,
       "name": {
         "ja": "Disco Infernal",
@@ -170,7 +280,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_jiih9g",
+      "id": "tpl_26_st980w",
+      "time": 79,
+      "name": {
+        "ja": "Funky Floor",
+        "en": "Funky Floor"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_b821ha",
+      "time": 85,
+      "name": {
+        "ja": "Inside Out",
+        "en": "Inside Out"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_46d0pm",
+      "time": 95,
+      "name": {
+        "ja": "Flip to B-side",
+        "en": "Flip to B-Side"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_tzbvlc",
       "time": 101,
       "name": {
         "ja": "AA",
@@ -181,7 +321,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_16_n9cx39",
+      "id": "tpl_30_wmnxgs",
       "time": 104,
       "name": {
         "ja": "AA",
@@ -192,7 +332,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_17_2j1vcb",
+      "id": "tpl_31_9c5q9t",
       "time": 108,
       "name": {
         "ja": "AA",
@@ -203,7 +343,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_18_811clr",
+      "id": "tpl_32_5zpwto",
       "time": 110,
       "name": {
         "ja": "AA",
@@ -214,7 +354,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_8vxdv5",
+      "id": "tpl_33_jvqnli",
+      "time": 112,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_h3aa5j",
+      "time": 117,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_1ar6jh",
+      "time": 117,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_zeg2ei",
+      "time": 117,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_7i3zdu",
+      "time": 117,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_pziskk",
       "time": 122,
       "name": {
         "ja": "Play B-side",
@@ -225,7 +415,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_aurr9c",
+      "id": "tpl_39_avdn1g",
       "time": 128,
       "name": {
         "ja": "Celebrate Good Times",
@@ -236,18 +426,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_l8dah8",
-      "time": 136,
+      "id": "tpl_40_dikkco",
+      "time": 130,
       "name": {
         "ja": "Deep Cut",
         "en": "Deep Cut"
       },
       "damageType": "magical",
-      "damageAmount": 285000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_22_rgipd6",
+      "id": "tpl_41_7ozppi",
       "time": 136,
       "name": {
         "ja": "Deep Cut",
@@ -258,7 +447,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_23_igw7nv",
+      "id": "tpl_42_4vdtgc",
+      "time": 136,
+      "name": {
+        "ja": "Deep Cut",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "damageAmount": 285000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_43_cg1o6j",
       "time": 137,
       "name": {
         "ja": "AA",
@@ -269,7 +469,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_3vvnc4",
+      "id": "tpl_44_6xar6z",
       "time": 140,
       "name": {
         "ja": "AA",
@@ -280,7 +480,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_90x1wt",
+      "id": "tpl_45_ra13e5",
+      "time": 144,
+      "name": {
+        "ja": "Ensemble Assemble",
+        "en": "Ensemble Assemble"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_dlvb63",
+      "time": 150,
+      "name": {
+        "ja": "Arcady Night Fever",
+        "en": "Arcady Night Fever"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_nv03u3",
+      "time": 150,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_q57p34",
+      "time": 155,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_cxxiq2",
+      "time": 155,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_9jk3pv",
       "time": 155,
       "name": {
         "ja": "Get Down!",
@@ -291,7 +541,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_648y14",
+      "id": "tpl_51_em0rsl",
+      "time": 157,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_mio22v",
       "time": 158,
       "name": {
         "ja": "Get Down!",
@@ -302,7 +562,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_rkpdeh",
+      "id": "tpl_53_7fztbq",
+      "time": 158,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_3an8xi",
+      "time": 160,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_povsn7",
+      "time": 160,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_loor77",
       "time": 160,
       "name": {
         "ja": "Get Down!",
@@ -313,7 +603,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_28_gbbi81",
+      "id": "tpl_57_3d0nxx",
+      "time": 162,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_t6d7ei",
       "time": 163,
       "name": {
         "ja": "Get Down!",
@@ -324,7 +624,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_gi2jiv",
+      "id": "tpl_59_cyl3bp",
+      "time": 163,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_9uowfg",
       "time": 165,
       "name": {
         "ja": "Get Down!",
@@ -335,7 +645,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_l4521c",
+      "id": "tpl_61_2ibxnd",
+      "time": 165,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_71r6st",
+      "time": 165,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_daxy6k",
+      "time": 167,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_52jmhk",
       "time": 168,
       "name": {
         "ja": "Get Down!",
@@ -346,7 +686,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_lqhnvt",
+      "id": "tpl_65_p680t4",
+      "time": 168,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_66_bwn0b1",
       "time": 170,
       "name": {
         "ja": "Get Down!",
@@ -357,7 +707,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_6y1ejc",
+      "id": "tpl_67_cvokbo",
+      "time": 170,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_68_lmz0d3",
+      "time": 170,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_yvwnu9",
       "time": 172,
       "name": {
         "ja": "Get Down!",
@@ -368,7 +738,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_j7xdfq",
+      "id": "tpl_70_t2lj6g",
+      "time": 172,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_1b0wsd",
+      "time": 173,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_evwj2x",
+      "time": 177,
+      "name": {
+        "ja": "Let's Dance!",
+        "en": "Let's Dance!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_b4qrtd",
       "time": 186,
       "name": {
         "ja": "Minor Freak Out",
@@ -379,7 +779,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_gwja9k",
+      "id": "tpl_74_65rrkv",
       "time": 191,
       "name": {
         "ja": "Minor Freak Out",
@@ -390,7 +790,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_43oqnw",
+      "id": "tpl_75_feh53m",
       "time": 196,
       "name": {
         "ja": "Minor Freak Out",
@@ -401,7 +801,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_bzefff",
+      "id": "tpl_76_5o6ycz",
       "time": 201,
       "name": {
         "ja": "Minor Freak Out",
@@ -412,7 +812,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_491jrv",
+      "id": "tpl_77_xxn71x",
+      "time": 204,
+      "name": {
+        "ja": "Let's Pose!",
+        "en": "Let's Pose!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_bcgg5s",
       "time": 214,
       "name": {
         "ja": "AA",
@@ -423,7 +833,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_38_j8v7qi",
+      "id": "tpl_79_fnnn2o",
       "time": 217,
       "name": {
         "ja": "AA",
@@ -434,7 +844,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_39_bq3wrg",
+      "id": "tpl_80_r5iy9z",
       "time": 220,
       "name": {
         "ja": "AA",
@@ -445,7 +855,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_40_5ze78i",
+      "id": "tpl_81_i0e7ta",
+      "time": 223,
+      "name": {
+        "ja": "Flip to B-side",
+        "en": "Flip to B-Side"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_zg8qv9",
       "time": 223,
       "name": {
         "ja": "AA",
@@ -456,7 +876,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_41_t47e4u",
+      "id": "tpl_83_21vd9p",
+      "time": 229,
+      "name": {
+        "ja": "Ride the Waves",
+        "en": "Ride the Waves"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_gffwmr",
       "time": 234,
       "name": {
         "ja": "AA",
@@ -467,7 +897,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_42_2a3kec",
+      "id": "tpl_85_9kpepq",
       "time": 237,
       "name": {
         "ja": "AA",
@@ -478,7 +908,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_43_nzdfwq",
+      "id": "tpl_86_nbxya9",
+      "time": 238,
+      "name": {
+        "ja": "Eighth Beats",
+        "en": "Eighth Beats"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_u987ec",
       "time": 243,
       "name": {
         "ja": "Eighth Beats",
@@ -489,7 +929,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_ljrqzs",
+      "id": "tpl_88_iuocfj",
       "time": 245,
       "name": {
         "ja": "AA",
@@ -500,7 +940,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_45_wfgv36",
+      "id": "tpl_89_a1dig7",
+      "time": 246,
+      "name": {
+        "ja": "Quarter Beats",
+        "en": "Quarter Beats"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_khx9i9",
       "time": 252,
       "name": {
         "ja": "Quarter Beats",
@@ -511,7 +961,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_aejnbr",
+      "id": "tpl_91_2z8536",
       "time": 253,
       "name": {
         "ja": "AA",
@@ -522,7 +972,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_47_uzz3cb",
+      "id": "tpl_92_h98co5",
+      "time": 256,
+      "name": {
+        "ja": "Inside Out",
+        "en": "Inside Out"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_nwi76h",
       "time": 264,
       "name": {
         "ja": "Inside Out",
@@ -533,7 +993,57 @@
       "target": "ST"
     },
     {
-      "id": "tpl_48_tbji63",
+      "id": "tpl_94_jymlb8",
+      "time": 266,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_5lfgu6",
+      "time": 271,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_le33an",
+      "time": 271,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_zd1cad",
+      "time": 271,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_92gdm6",
+      "time": 271,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_2z4bbd",
       "time": 277,
       "name": {
         "ja": "Play B-side",
@@ -544,18 +1054,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_ohq8rx",
-      "time": 285,
+      "id": "tpl_100_i4ti0f",
+      "time": 279,
       "name": {
         "ja": "Deep Cut",
         "en": "Deep Cut"
       },
       "damageType": "magical",
-      "damageAmount": 285000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_50_5831st",
+      "id": "tpl_101_jf2vw1",
       "time": 285,
       "name": {
         "ja": "Deep Cut",
@@ -566,18 +1075,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_51_gj504o",
-      "time": 291,
+      "id": "tpl_102_nkmtt3",
+      "time": 285,
       "name": {
-        "ja": "Celebrate Good Times",
-        "en": "Celebrate Good Times"
+        "ja": "Deep Cut",
+        "en": "Deep Cut"
       },
       "damageType": "magical",
-      "damageAmount": 170000,
+      "damageAmount": 285000,
       "target": "ST"
     },
     {
-      "id": "tpl_52_qtqpmz",
+      "id": "tpl_103_jffrx3",
       "time": 291,
       "name": {
         "ja": "Celebrate Good Times",
@@ -588,7 +1097,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_53_2ewwtd",
+      "id": "tpl_104_flh1rv",
+      "time": 291,
+      "name": {
+        "ja": "Celebrate Good Times",
+        "en": "Celebrate Good Times"
+      },
+      "damageType": "magical",
+      "damageAmount": 170000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_105_l1to7z",
       "time": 292,
       "name": {
         "ja": "Celebrate Good Times",
@@ -599,7 +1119,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_4fzzm3",
+      "id": "tpl_106_fl0n67",
       "time": 293,
       "name": {
         "ja": "AA",
@@ -610,7 +1130,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_55_6yk82p",
+      "id": "tpl_107_p3m2ak",
       "time": 296,
       "name": {
         "ja": "AA",
@@ -621,7 +1141,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_56_8ff95m",
+      "id": "tpl_108_p18r64",
+      "time": 299,
+      "name": {
+        "ja": "Frogtourage",
+        "en": "Frogtourage"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_bkpca5",
       "time": 304,
       "name": {
         "ja": "AA",
@@ -632,7 +1162,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_57_ibfv12",
+      "id": "tpl_110_q5fylr",
       "time": 307,
       "name": {
         "ja": "AA",
@@ -643,7 +1173,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_v8uo3x",
+      "id": "tpl_111_hgajif",
       "time": 310,
       "name": {
         "ja": "AA",
@@ -654,7 +1184,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_59_eav2fn",
+      "id": "tpl_112_hhk4sf",
+      "time": 311,
+      "name": {
+        "ja": "Quarter Beats",
+        "en": "Quarter Beats"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_f267e4",
       "time": 316,
       "name": {
         "ja": "Quarter Beats",
@@ -665,7 +1205,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_bbxggr",
+      "id": "tpl_114_tcggly",
       "time": 318,
       "name": {
         "ja": "AA",
@@ -676,7 +1216,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_hd8p70",
+      "id": "tpl_115_icryiq",
       "time": 324,
       "name": {
         "ja": "Disco Infernal",
@@ -687,7 +1227,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_nyhm85",
+      "id": "tpl_116_u609y9",
       "time": 325,
       "name": {
         "ja": "AA",
@@ -698,7 +1238,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_e2yvsj",
+      "id": "tpl_117_iiaib0",
       "time": 328,
       "name": {
         "ja": "AA",
@@ -709,7 +1249,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_idgdq7",
+      "id": "tpl_118_7jvy3n",
       "time": 336,
       "name": {
         "ja": "Back-up Dance",
@@ -720,7 +1260,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_jq5njg",
+      "id": "tpl_119_2prug4",
       "time": 340,
       "name": {
         "ja": "AA",
@@ -731,7 +1271,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_66_7gxjr2",
+      "id": "tpl_120_7lnzn0",
+      "time": 342,
+      "name": {
+        "ja": "Flip to A-side",
+        "en": "Flip to A-Side"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_szafe1",
       "time": 346,
       "name": {
         "ja": "Back-up Dance",
@@ -742,7 +1292,57 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_f6v3bz",
+      "id": "tpl_122_8dpyzj",
+      "time": 348,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_3imthl",
+      "time": 353,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_7vdvnd",
+      "time": 353,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_fd47k5",
+      "time": 353,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_7y2ou9",
+      "time": 353,
+      "name": {
+        "ja": "4-snap Twist & Drop the Needle",
+        "en": "4-Snap Twist & Drop the Needle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_4i2w7j",
       "time": 359,
       "name": {
         "ja": "Play A-side",
@@ -753,7 +1353,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_0ac2s1",
+      "id": "tpl_128_1ucclb",
       "time": 364,
       "name": {
         "ja": "Celebrate Good Times",
@@ -764,7 +1364,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_g6751d",
+      "id": "tpl_129_vauqce",
       "time": 366,
       "name": {
         "ja": "AA",
@@ -775,7 +1375,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_70_wqyd14",
+      "id": "tpl_130_g4dgh3",
       "time": 370,
       "name": {
         "ja": "AA",
@@ -786,7 +1386,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_71_1s1tqq",
+      "id": "tpl_131_39pv7v",
+      "time": 373,
+      "name": {
+        "ja": "Ensemble Assemble",
+        "en": "Ensemble Assemble"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_92zasa",
+      "time": 379,
+      "name": {
+        "ja": "Arcady Night Encore",
+        "en": "Arcady Night Encore"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_zuae6m",
+      "time": 379,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_bh6lqz",
+      "time": 384,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_3r4s2i",
+      "time": 384,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_m4lrsc",
       "time": 385,
       "name": {
         "ja": "Get Down!",
@@ -797,7 +1447,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_qqx6su",
+      "id": "tpl_137_se3rp7",
+      "time": 386,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_tgwo29",
       "time": 387,
       "name": {
         "ja": "Get Down!",
@@ -808,7 +1468,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_xdsw6m",
+      "id": "tpl_139_1edd1j",
+      "time": 387,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_obzwd0",
+      "time": 389,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_bidwpm",
+      "time": 389,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_142_z8dzn7",
       "time": 390,
       "name": {
         "ja": "Get Down!",
@@ -819,7 +1509,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_74_uzmgg8",
+      "id": "tpl_143_j7r5s9",
+      "time": 391,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_kma96z",
       "time": 392,
       "name": {
         "ja": "Get Down!",
@@ -830,7 +1530,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_qjrusj",
+      "id": "tpl_145_fe71dj",
+      "time": 392,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_08piq8",
+      "time": 394,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_3i8600",
+      "time": 394,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_u548pj",
       "time": 395,
       "name": {
         "ja": "Get Down!",
@@ -841,7 +1571,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_jktvur",
+      "id": "tpl_149_1jq8tc",
+      "time": 396,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_kg66qq",
       "time": 397,
       "name": {
         "ja": "Get Down!",
@@ -852,7 +1592,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_ynizap",
+      "id": "tpl_151_k5lrni",
+      "time": 397,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_ws1dhk",
+      "time": 398,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_z0ni21",
+      "time": 399,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_nykfdu",
       "time": 399,
       "name": {
         "ja": "Get Down!",
@@ -863,7 +1633,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_78_px52jv",
+      "id": "tpl_155_dsj38b",
       "time": 401,
       "name": {
         "ja": "Get Down!",
@@ -874,7 +1644,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_mkgzlk",
+      "id": "tpl_156_3brbfg",
+      "time": 401,
+      "name": {
+        "ja": "unknown_93c1",
+        "en": "unknown_93c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_hos3em",
+      "time": 401,
+      "name": {
+        "ja": "Get Down!",
+        "en": "Get Down!"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_gsyxix",
+      "time": 406,
+      "name": {
+        "ja": "Let's Dance! Remix",
+        "en": "Let's Dance! Remix"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_9l8ap0",
       "time": 418,
       "name": {
         "ja": "Let's Dance! Remix",
@@ -885,7 +1685,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_80_7k9l0j",
+      "id": "tpl_160_jch0ed",
       "time": 431,
       "name": {
         "ja": "Let's Pose!",
@@ -896,7 +1696,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_81_9a42cj",
+      "id": "tpl_161_jgvljr",
       "time": 435,
       "name": {
         "ja": "AA",
@@ -907,7 +1707,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_82_7xc6qw",
+      "id": "tpl_162_hcn1cj",
       "time": 438,
       "name": {
         "ja": "AA",
@@ -918,7 +1718,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_83_8bpdqm",
+      "id": "tpl_163_ox96e5",
       "time": 441,
       "name": {
         "ja": "AA",
@@ -929,7 +1729,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_84_0if7j1",
+      "id": "tpl_164_nngeo9",
+      "time": 446,
+      "name": {
+        "ja": "Frogtourage",
+        "en": "Frogtourage"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_165_v94js9",
       "time": 452,
       "name": {
         "ja": "AA",
@@ -940,7 +1750,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_85_v1arkd",
+      "id": "tpl_166_26u94z",
       "time": 454,
       "name": {
         "ja": "AA",
@@ -951,7 +1761,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_4cax83",
+      "id": "tpl_167_bvafop",
       "time": 457,
       "name": {
         "ja": "AA",
@@ -962,7 +1772,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_87_qo9z5w",
+      "id": "tpl_168_ve00no",
+      "time": 460,
+      "name": {
+        "ja": "Do the Hustle",
+        "en": "Do the Hustle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_3oj2fp",
       "time": 467,
       "name": {
         "ja": "AA",
@@ -973,7 +1793,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_88_nlkcfq",
+      "id": "tpl_170_j9gf3s",
       "time": 470,
       "name": {
         "ja": "AA",
@@ -984,7 +1804,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_89_wiujgk",
+      "id": "tpl_171_c9aflm",
       "time": 473,
       "name": {
         "ja": "AA",
@@ -995,7 +1815,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_90_mxjnwh",
+      "id": "tpl_172_fz5ij4",
       "time": 476,
       "name": {
         "ja": "AA",
@@ -1006,7 +1826,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_91_o3cn7v",
+      "id": "tpl_173_q5c1jj",
       "time": 479,
       "name": {
         "ja": "AA",
@@ -1017,7 +1837,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_92_u1j7a4",
+      "id": "tpl_174_lrg9np",
       "time": 482,
       "name": {
         "ja": "Back-up Dance",
@@ -1028,7 +1848,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_axphqf",
+      "id": "tpl_175_remp5u",
       "time": 482,
       "name": {
         "ja": "AA",
@@ -1039,7 +1859,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_94_b3jt79",
+      "id": "tpl_176_f3bnfj",
       "time": 485,
       "name": {
         "ja": "AA",
@@ -1050,7 +1870,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_95_i693ua",
+      "id": "tpl_177_2x8fz0",
       "time": 488,
       "name": {
         "ja": "AA",
@@ -1061,7 +1881,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_96_xkd5j0",
+      "id": "tpl_178_s45n8q",
       "time": 498,
       "name": {
         "ja": "Back-up Dance",
@@ -1072,7 +1892,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_dz9286",
+      "id": "tpl_179_jom2o3",
       "time": 498,
       "name": {
         "ja": "Moonburn",
@@ -1083,7 +1903,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_98_skiwh9",
+      "id": "tpl_180_mqhwlu",
       "time": 498,
       "name": {
         "ja": "Moonburn",
@@ -1094,7 +1914,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_99_z1s48t",
+      "id": "tpl_181_jcne8o",
       "time": 499,
       "name": {
         "ja": "AA",
@@ -1103,6 +1923,26 @@
       "damageType": "physical",
       "damageAmount": 95400,
       "target": "MT"
+    },
+    {
+      "id": "tpl_182_si4rax",
+      "time": 502,
+      "name": {
+        "ja": "Do the Hustle",
+        "en": "Do the Hustle"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_qepnh7",
+      "time": 509,
+      "name": {
+        "ja": "Deep Cut",
+        "en": "Deep Cut"
+      },
+      "damageType": "magical",
+      "target": "AoE"
     }
   ],
   "phases": []

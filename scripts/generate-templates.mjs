@@ -429,7 +429,56 @@ async function fetchDamageEvents(token, reportCode, fight, translate = false) {
     return allEvents;
 }
 
-// ─── Step 5b: Fetch death events ───
+// ─── Step 5b: Fetch cast events (詠唱イベント) ───
+async function fetchCastEvents(token, reportCode, fight, translate = false) {
+    const allEvents = [];
+    let pageStart = fight.startTime;
+
+    while (true) {
+        const data = await gql(token, `
+            query GetCasts(
+                $reportCode: String!
+                $fightIds: [Int]!
+                $startTime: Float!
+                $endTime: Float!
+            ) {
+                reportData {
+                    report(code: $reportCode) {
+                        events(
+                            dataType: Casts
+                            fightIDs: $fightIds
+                            hostilityType: Enemies
+                            startTime: $startTime
+                            endTime: $endTime
+                            limit: 10000
+                            useAbilityIDs: false
+                            includeResources: false
+                            translate: ${translate}
+                        ) {
+                            data
+                            nextPageTimestamp
+                        }
+                    }
+                }
+            }
+        `, {
+            reportCode,
+            fightIds: [fight.id],
+            startTime: pageStart,
+            endTime: fight.endTime,
+        });
+
+        const page = data.reportData.report.events;
+        allEvents.push(...page.data);
+
+        if (!page.nextPageTimestamp) break;
+        pageStart = page.nextPageTimestamp;
+    }
+
+    return allEvents;
+}
+
+// ─── Step 5c: Fetch death events ───
 async function fetchDeathEvents(token, reportCode, fight) {
     const data = await gql(token, `
         query GetDeaths($reportCode: String!, $fightIds: [Int]!, $startTime: Float!, $endTime: Float!) {
@@ -474,7 +523,7 @@ function mapDamageType(t) {
     return 'magical';
 }
 
-function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map(), deaths = []) {
+function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map(), deaths = [], castEn = [], castJp = []) {
     // Deduplicate
     const deduped = new Map();
     for (const ev of rawEn) {
@@ -765,7 +814,51 @@ function mapEventsToTimeline(rawEn, rawJp, fight, xivApiDict = new Map(), deaths
     }
 
     // Sort
-    tl.sort((a, b) => a.time !== b.time ? a.time - b.time : (a.target === 'AoE' ? 0 : 1) - (b.target === 'AoE' ? 0 : 1));
+    tl.sort((a, b) => a.time !== b.time ? a.time - b.time : ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[a.target] ?? 0) - ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[b.target] ?? 0));
+
+    // ── ダメージなし詠唱イベントの追加 ──
+    if (castEn.length > 0) {
+        const damageGuids = new Set(norm.map(n => n.guid));
+        const castJpMap = new Map();
+        for (const ev of castJp) {
+            const g = ev.ability?.guid ?? ev.abilityGameID;
+            const n = ev.ability?.name?.trim();
+            if (g !== undefined && n && !castJpMap.has(g)) castJpMap.set(g, n);
+        }
+
+        const castSorted = castEn
+            .filter(ev => {
+                const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
+                const name = ev.ability?.name?.trim() ?? '';
+                if (damageGuids.has(g)) return false;
+                if (AA_NAMES.has(name) || !name) return false;
+                if (ev.type !== 'begincast') return false;
+                return true;
+            })
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        const seenCasts = new Set();
+        for (const ev of castSorted) {
+            const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
+            const timeSec = Math.floor((ev.timestamp - fight.startTime) / 1000);
+            const key = `${g}:${timeSec}`;
+            if (seenCasts.has(key)) continue;
+            seenCasts.add(key);
+
+            const enName = ev.ability?.name?.trim() ?? 'Unknown';
+            const jpName = castJpMap.get(g) ?? xivApiDict.get(g) ?? enName;
+
+            tl.push({
+                id: `tpl_cast_${Math.random().toString(36).slice(2, 8)}`,
+                time: timeSec,
+                name: { ja: jpName, en: enName },
+                damageType: 'magical',
+                target: 'AoE',
+            });
+        }
+
+        tl.sort((a, b) => a.time !== b.time ? a.time - b.time : ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[a.target] ?? 0) - ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[b.target] ?? 0));
+    }
 
     return tl;
 }
@@ -823,7 +916,7 @@ function mergeTimelines(timelines) {
     }
 
     // Re-sort
-    merged.sort((a, b) => a.time !== b.time ? a.time - b.time : (a.target === 'AoE' ? 0 : 1) - (b.target === 'AoE' ? 0 : 1));
+    merged.sort((a, b) => a.time !== b.time ? a.time - b.time : ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[a.target] ?? 0) - ({ 'AoE': 0, 'MT': 1, 'ST': 2 }[b.target] ?? 0));
 
     return merged;
 }
@@ -990,13 +1083,20 @@ async function main() {
             const eventsJp = await fetchDamageEvents(token, reportCode, fight, false);
             await sleep(API_DELAY_MS);
 
+            // キャストイベント取得（ダメージなし詠唱をタイムラインに含めるため）
+            const castEn = await fetchCastEvents(token, reportCode, fight, true);
+            await sleep(API_DELAY_MS);
+
+            const castJp = await fetchCastEvents(token, reportCode, fight, false);
+            await sleep(API_DELAY_MS);
+
             // Collect all unique ability GUIDs for XIVAPI lookup
-            const allGuids = [...eventsEn, ...eventsJp]
+            const allGuids = [...eventsEn, ...eventsJp, ...castEn, ...castJp]
                 .map(e => e.ability?.guid ?? e.abilityGameID)
                 .filter(g => g !== undefined && g > 0);
             const xivApiDict = await buildXivApiDict(allGuids);
 
-            const timeline = mapEventsToTimeline(eventsEn, eventsJp, fight, xivApiDict, deaths);
+            const timeline = mapEventsToTimeline(eventsEn, eventsJp, fight, xivApiDict, deaths, castEn, castJp);
             console.log(`      → ${timeline.length} events`);
 
             const finalized = finalizeTimeline(timeline);

@@ -1,11 +1,11 @@
 {
   "contentId": "m6s",
-  "generatedAt": "2026-03-22T11:56:03.781Z",
+  "generatedAt": "2026-03-23T05:02:35.167Z",
   "sourceLogsCount": 1,
   "sourceLog": "LMcH7Y6PmWn3hCgd#25",
   "timelineEvents": [
     {
-      "id": "tpl_0_08tyy8",
+      "id": "tpl_0_i87nh2",
       "time": 1,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_v0sshi",
+      "id": "tpl_1_102cin",
       "time": 3,
       "name": {
         "ja": "AA",
@@ -27,7 +27,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_iiax88",
+      "id": "tpl_2_0gi98e",
       "time": 6,
       "name": {
         "ja": "AA",
@@ -38,7 +38,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_3_b3onuf",
+      "id": "tpl_3_2hupk2",
       "time": 12,
       "name": {
         "ja": "ムースシャワー",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_zcj4c5",
+      "id": "tpl_4_g325wj",
       "time": 14,
       "name": {
         "ja": "AA",
@@ -60,7 +60,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_5_4fa6k7",
+      "id": "tpl_5_mjjrtf",
       "time": 17,
       "name": {
         "ja": "AA",
@@ -71,18 +71,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_6_af68xr",
-      "time": 25,
+      "id": "tpl_6_o3jy81",
+      "time": 18,
       "name": {
-        "ja": "コールドペイントボム",
-        "en": "Cool Bomb"
+        "ja": "カラーライオット",
+        "en": "Color Riot"
       },
       "damageType": "magical",
-      "damageAmount": 324000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_7_ojch7i",
+      "id": "tpl_7_rp9jw6",
       "time": 25,
       "name": {
         "ja": "ウォームペイントボム",
@@ -93,7 +92,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_8_v1yjli",
+      "id": "tpl_8_od84f1",
+      "time": 25,
+      "name": {
+        "ja": "コールドペイントボム",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_9_vtdf4s",
       "time": 28,
       "name": {
         "ja": "AA",
@@ -104,7 +114,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_9_n2elzu",
+      "id": "tpl_10_vqhgqm",
+      "time": 31,
+      "name": {
+        "ja": "ウイングマーク",
+        "en": "Wingmark"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_affrg1",
+      "time": 38,
+      "name": {
+        "ja": "カラークラッシュ",
+        "en": "Color Clash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_g70lzc",
+      "time": 46,
+      "name": {
+        "ja": "ダブル・グラフィティ",
+        "en": "Double Style"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_fc2r92",
       "time": 63,
       "name": {
         "ja": "カラークラッシュ",
@@ -115,7 +155,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_zrn2vx",
+      "id": "tpl_14_wyxajw",
+      "time": 65,
+      "name": {
+        "ja": "ねばねばムース",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_zhcs1i",
       "time": 72,
       "name": {
         "ja": "ねばねばムース",
@@ -126,7 +176,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_juc9qn",
+      "id": "tpl_16_22zznc",
       "time": 77,
       "name": {
         "ja": "爆発",
@@ -137,18 +187,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_z445au",
-      "time": 85,
+      "id": "tpl_17_ysgurt",
+      "time": 77,
       "name": {
-        "ja": "ウォームペイントボム",
-        "en": "Warm Bomb"
+        "ja": "カラーライオット",
+        "en": "Color Riot"
       },
       "damageType": "magical",
-      "damageAmount": 317000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_13_ah341p",
+      "id": "tpl_18_sn911p",
       "time": 85,
       "name": {
         "ja": "コールドペイントボム",
@@ -159,7 +208,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_14_ku2sn2",
+      "id": "tpl_19_7n4pdh",
+      "time": 85,
+      "name": {
+        "ja": "ウォームペイントボム",
+        "en": "Warm Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 317000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_20_6f6gon",
       "time": 88,
       "name": {
         "ja": "AA",
@@ -170,7 +230,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_15_exxtgm",
+      "id": "tpl_21_fzfo0g",
+      "time": 91,
+      "name": {
+        "ja": "ランドスケープ",
+        "en": "Sugarscape"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_zl2lwl",
       "time": 91,
       "name": {
         "ja": "AA",
@@ -181,7 +251,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_16_uzctko",
+      "id": "tpl_23_8afayi",
       "time": 100,
       "name": {
         "ja": "AA",
@@ -192,7 +262,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_17_fm92mn",
+      "id": "tpl_24_8udusb",
       "time": 103,
       "name": {
         "ja": "AA",
@@ -203,7 +273,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_18_9x7mje",
+      "id": "tpl_25_imio0l",
       "time": 106,
       "name": {
         "ja": "AA",
@@ -214,7 +284,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_8qr6mi",
+      "id": "tpl_26_t6drv6",
+      "time": 107,
+      "name": {
+        "ja": "アレンジ",
+        "en": "Layer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_u11dia",
+      "time": 115,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_d5cqdb",
       "time": 115,
       "name": {
         "ja": "AA",
@@ -225,7 +315,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_20_0lakof",
+      "id": "tpl_29_x66bu7",
+      "time": 118,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_ljdf0r",
       "time": 118,
       "name": {
         "ja": "AA",
@@ -236,7 +336,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_21_zqusdw",
+      "id": "tpl_31_ea9g4o",
+      "time": 121,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_muz1u5",
       "time": 121,
       "name": {
         "ja": "AA",
@@ -247,7 +357,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_22_yzqt08",
+      "id": "tpl_33_76pr5u",
+      "time": 124,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_uaq77b",
       "time": 125,
       "name": {
         "ja": "AA",
@@ -258,7 +378,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_23_iybrod",
+      "id": "tpl_35_6exhij",
+      "time": 127,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_212hzy",
       "time": 127,
       "name": {
         "ja": "AA",
@@ -269,7 +399,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_zo221n",
+      "id": "tpl_37_82usz0",
+      "time": 130,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_zwoqii",
       "time": 130,
       "name": {
         "ja": "AA",
@@ -280,7 +420,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_sy71qz",
+      "id": "tpl_39_tfketf",
       "time": 133,
       "name": {
         "ja": "AA",
@@ -291,7 +431,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_58augm",
+      "id": "tpl_40_mdi1rg",
       "time": 136,
       "name": {
         "ja": "AA",
@@ -302,7 +442,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_27_1iqj6q",
+      "id": "tpl_41_kav23g",
       "time": 140,
       "name": {
         "ja": "AA",
@@ -313,7 +453,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_tdwyl1",
+      "id": "tpl_42_vgbe3o",
       "time": 142,
       "name": {
         "ja": "重熱放散",
@@ -324,18 +464,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_gwx4lp",
-      "time": 142,
-      "name": {
-        "ja": "熱放散",
-        "en": "Brûlée"
-      },
-      "damageType": "magical",
-      "damageAmount": 98200,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_30_fz10wl",
+      "id": "tpl_43_ysyk14",
       "time": 142,
       "name": {
         "ja": "AA",
@@ -346,7 +475,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_31_a3h5d4",
+      "id": "tpl_44_ef063s",
+      "time": 142,
+      "name": {
+        "ja": "熱放散",
+        "en": "Brûlée"
+      },
+      "damageType": "magical",
+      "damageAmount": 98200,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_45_tcpk2n",
       "time": 143,
       "name": {
         "ja": "重熱放散",
@@ -357,7 +497,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_gab3oe",
+      "id": "tpl_46_zuxh8u",
+      "time": 144,
+      "name": {
+        "ja": "ねばねばムース",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_i6g6kb",
       "time": 151,
       "name": {
         "ja": "ねばねばムース",
@@ -368,7 +518,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_mvr27v",
+      "id": "tpl_48_skqqvt",
       "time": 157,
       "name": {
         "ja": "爆発",
@@ -379,7 +529,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_fjuvic",
+      "id": "tpl_49_5mj44e",
+      "time": 157,
+      "name": {
+        "ja": "アレンジ",
+        "en": "Layer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_2w0k1a",
+      "time": 165,
+      "name": {
+        "ja": "針飛ばし",
+        "en": "Spray Pain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_ka1svb",
       "time": 165,
       "name": {
         "ja": "AA",
@@ -390,7 +560,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_35_d41kig",
+      "id": "tpl_52_6lt9r1",
       "time": 168,
       "name": {
         "ja": "AA",
@@ -401,7 +571,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_36_nplsns",
+      "id": "tpl_53_j96tp3",
       "time": 171,
       "name": {
         "ja": "AA",
@@ -412,7 +582,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_37_0tf4zq",
+      "id": "tpl_54_ouhiba",
       "time": 173,
       "name": {
         "ja": "熱放散",
@@ -423,7 +593,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_5v85gj",
+      "id": "tpl_55_6r1xa8",
+      "time": 174,
+      "name": {
+        "ja": "ぼっかんプリン",
+        "en": "Pudding Graf"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_ucley0",
       "time": 174,
       "name": {
         "ja": "AA",
@@ -434,7 +614,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_39_20xg11",
+      "id": "tpl_57_s9d1jl",
       "time": 180,
       "name": {
         "ja": "AA",
@@ -445,7 +625,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_40_9i1nuu",
+      "id": "tpl_58_e2rlun",
+      "time": 181,
+      "name": {
+        "ja": "ダブル・グラフィティ",
+        "en": "Double Style"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_g1pj87",
       "time": 190,
       "name": {
         "ja": "ぼっかんプリン",
@@ -456,7 +646,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_2v69vs",
+      "id": "tpl_60_ftvcvk",
       "time": 192,
       "name": {
         "ja": "ぼっかんプリン",
@@ -467,7 +657,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_x1aydy",
+      "id": "tpl_61_d5nu1f",
       "time": 200,
       "name": {
         "ja": "ムースシャワー",
@@ -478,18 +668,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_wpk8w6",
-      "time": 211,
+      "id": "tpl_62_at50hi",
+      "time": 203,
       "name": {
-        "ja": "コールドペイントボム",
-        "en": "Cool Bomb"
+        "ja": "カラーライオット",
+        "en": "Color Riot"
       },
       "damageType": "magical",
-      "damageAmount": 324000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_44_8exnuq",
+      "id": "tpl_63_gdp0vg",
       "time": 211,
       "name": {
         "ja": "ウォームペイントボム",
@@ -500,7 +689,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_45_5ag065",
+      "id": "tpl_64_gf59cr",
+      "time": 211,
+      "name": {
+        "ja": "コールドペイントボム",
+        "en": "Cool Bomb"
+      },
+      "damageType": "magical",
+      "damageAmount": 324000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_65_hrbyfg",
       "time": 213,
       "name": {
         "ja": "AA",
@@ -511,7 +711,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_46_8haxp4",
+      "id": "tpl_66_rlq9q2",
+      "time": 215,
+      "name": {
+        "ja": "シュガーソウル",
+        "en": "Soul Sugar"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_joqd7o",
       "time": 219,
       "name": {
         "ja": "AA",
@@ -522,7 +732,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_47_7e8dsm",
+      "id": "tpl_68_1qofve",
+      "time": 221,
+      "name": {
+        "ja": "ライブペインティング",
+        "en": "Live Painting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_wgq2u0",
       "time": 226,
       "name": {
         "ja": "AA",
@@ -533,7 +753,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_48_bs9u1k",
+      "id": "tpl_70_xz361k",
+      "time": 229,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 66100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_71_3urwv0",
       "time": 229,
       "name": {
         "ja": "ボーライド",
@@ -544,18 +775,18 @@
       "target": "ST"
     },
     {
-      "id": "tpl_49_0qljyf",
-      "time": 229,
+      "id": "tpl_72_7yqahi",
+      "time": 231,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
+      "damageType": "physical",
       "damageAmount": 66100,
       "target": "MT"
     },
     {
-      "id": "tpl_50_d8srcu",
+      "id": "tpl_73_nevpd7",
       "time": 231,
       "name": {
         "ja": "AA",
@@ -566,18 +797,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_51_m1eswo",
-      "time": 231,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_52_63jxid",
+      "id": "tpl_74_zs7f2z",
       "time": 232,
       "name": {
         "ja": "AA",
@@ -588,18 +808,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_53_z8lq0i",
-      "time": 234,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_54_ojvjaa",
+      "id": "tpl_75_l1rj7g",
       "time": 234,
       "name": {
         "ja": "AA",
@@ -610,7 +819,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_55_qn5ale",
+      "id": "tpl_76_vizb55",
+      "time": 234,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_77_b45vdi",
       "time": 235,
       "name": {
         "ja": "AA",
@@ -621,18 +841,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_56_p3uv4b",
-      "time": 237,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_57_d6ks60",
+      "id": "tpl_78_354hav",
       "time": 237,
       "name": {
         "ja": "AA",
@@ -643,7 +852,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_mdqrv6",
+      "id": "tpl_79_b6speb",
+      "time": 237,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_80_hdn6jq",
       "time": 238,
       "name": {
         "ja": "AA",
@@ -654,7 +874,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_59_oa7pqz",
+      "id": "tpl_81_kx0z8v",
+      "time": 239,
+      "name": {
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_hsyjme",
       "time": 240,
       "name": {
         "ja": "AA",
@@ -665,7 +895,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_3h17lk",
+      "id": "tpl_83_9230z9",
       "time": 241,
       "name": {
         "ja": "AA",
@@ -676,7 +906,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_khhnu9",
+      "id": "tpl_84_iv2zku",
       "time": 241,
       "name": {
         "ja": "AA",
@@ -687,7 +917,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_62_0slxj1",
+      "id": "tpl_85_kg5fiq",
       "time": 243,
       "name": {
         "ja": "AA",
@@ -698,7 +928,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_199ba1",
+      "id": "tpl_86_ou797l",
       "time": 244,
       "name": {
         "ja": "AA",
@@ -709,7 +939,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_o8gkfb",
+      "id": "tpl_87_metppi",
       "time": 244,
       "name": {
         "ja": "AA",
@@ -720,18 +950,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_65_pv2ml9",
-      "time": 246,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_66_s880lt",
+      "id": "tpl_88_9c46lg",
       "time": 246,
       "name": {
         "ja": "AA",
@@ -742,7 +961,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_67_78zyki",
+      "id": "tpl_89_m3ievd",
+      "time": 246,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_90_0lqaxo",
       "time": 247,
       "name": {
         "ja": "AA",
@@ -753,7 +983,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_68_ksfk34",
+      "id": "tpl_91_8142qa",
       "time": 249,
       "name": {
         "ja": "AA",
@@ -764,7 +994,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_69_o9grkv",
+      "id": "tpl_92_tm6b1n",
+      "time": 250,
+      "name": {
+        "ja": "ライブペインティング",
+        "en": "Live Painting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_9vcq5z",
       "time": 250,
       "name": {
         "ja": "AA",
@@ -775,7 +1015,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_70_d7xbr0",
+      "id": "tpl_94_i6671e",
       "time": 250,
       "name": {
         "ja": "AA",
@@ -786,18 +1026,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_71_z25cxe",
-      "time": 252,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_72_snosqe",
+      "id": "tpl_95_kq21sq",
       "time": 252,
       "name": {
         "ja": "AA",
@@ -808,8 +1037,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_73_oajhny",
-      "time": 255,
+      "id": "tpl_96_lt1j85",
+      "time": 252,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -819,7 +1048,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_74_tls4tp",
+      "id": "tpl_97_mbm36k",
       "time": 255,
       "name": {
         "ja": "AA",
@@ -830,7 +1059,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_75_mw6g3j",
+      "id": "tpl_98_dxfsnb",
+      "time": 255,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_99_hb8s49",
       "time": 258,
       "name": {
         "ja": "AA",
@@ -841,7 +1081,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_76_1cbnj4",
+      "id": "tpl_100_0xe8u7",
       "time": 260,
       "name": {
         "ja": "AA",
@@ -852,7 +1092,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_77_shhtve",
+      "id": "tpl_101_2xbhtw",
       "time": 261,
       "name": {
         "ja": "AA",
@@ -863,7 +1103,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_78_pkqw6a",
+      "id": "tpl_102_zkfx8u",
+      "time": 262,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_k8dy6o",
       "time": 262,
       "name": {
         "ja": "AA",
@@ -874,7 +1124,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_79_md33zq",
+      "id": "tpl_104_cw6z5n",
       "time": 263,
       "name": {
         "ja": "AA",
@@ -885,7 +1135,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_s050et",
+      "id": "tpl_105_w994h4",
       "time": 264,
       "name": {
         "ja": "AA",
@@ -896,7 +1146,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_81_1wsl0w",
+      "id": "tpl_106_03alri",
       "time": 265,
       "name": {
         "ja": "AA",
@@ -907,7 +1157,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_82_4knfgh",
+      "id": "tpl_107_h9fkou",
       "time": 266,
       "name": {
         "ja": "ウォタガ",
@@ -918,7 +1168,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_hjey7t",
+      "id": "tpl_108_yx5awq",
       "time": 266,
       "name": {
         "ja": "AA",
@@ -929,7 +1179,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_84_p2ptev",
+      "id": "tpl_109_356cqz",
       "time": 267,
       "name": {
         "ja": "ウォタガ",
@@ -940,7 +1190,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_qzltig",
+      "id": "tpl_110_dvwmmx",
       "time": 267,
       "name": {
         "ja": "AA",
@@ -951,7 +1201,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_czpjj0",
+      "id": "tpl_111_amqoww",
       "time": 269,
       "name": {
         "ja": "AA",
@@ -962,7 +1212,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_87_nzhmfz",
+      "id": "tpl_112_t7eefw",
       "time": 270,
       "name": {
         "ja": "AA",
@@ -973,7 +1223,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_88_0xm5iv",
+      "id": "tpl_113_doow5r",
+      "time": 272,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_zyg2sj",
+      "time": 272,
+      "name": {
+        "ja": "ライブペインティング",
+        "en": "Live Painting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_on7iwb",
       "time": 272,
       "name": {
         "ja": "AA",
@@ -984,7 +1254,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_89_7cxarm",
+      "id": "tpl_116_aqgk4d",
       "time": 273,
       "name": {
         "ja": "AA",
@@ -995,7 +1265,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_90_eg6x1m",
+      "id": "tpl_117_owq9ft",
       "time": 274,
       "name": {
         "ja": "AA",
@@ -1006,7 +1276,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_91_jpfzzl",
+      "id": "tpl_118_vto9w0",
       "time": 275,
       "name": {
         "ja": "ウォタガ",
@@ -1017,7 +1287,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_sbkmke",
+      "id": "tpl_119_d8vpoi",
       "time": 275,
       "name": {
         "ja": "AA",
@@ -1028,7 +1298,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_93_i9l3kd",
+      "id": "tpl_120_e1p0yo",
       "time": 276,
       "name": {
         "ja": "AA",
@@ -1039,7 +1309,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_94_rfbh3m",
+      "id": "tpl_121_fkhj57",
       "time": 277,
       "name": {
         "ja": "AA",
@@ -1050,7 +1320,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_95_9fmin3",
+      "id": "tpl_122_jvnv06",
       "time": 278,
       "name": {
         "ja": "AA",
@@ -1061,7 +1331,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_96_d27e32",
+      "id": "tpl_123_dykrbx",
       "time": 279,
       "name": {
         "ja": "AA",
@@ -1072,7 +1342,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_97_x4hiok",
+      "id": "tpl_124_ymcnn9",
       "time": 280,
       "name": {
         "ja": "AA",
@@ -1083,7 +1353,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_98_u2pa3d",
+      "id": "tpl_125_ne96sd",
+      "time": 281,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_lihfqx",
       "time": 281,
       "name": {
         "ja": "AA",
@@ -1094,7 +1374,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_99_rjesyz",
+      "id": "tpl_127_2t8xwr",
       "time": 282,
       "name": {
         "ja": "AA",
@@ -1105,7 +1385,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_100_fuaeac",
+      "id": "tpl_128_yv7uoo",
       "time": 283,
       "name": {
         "ja": "AA",
@@ -1116,7 +1396,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_101_wk047s",
+      "id": "tpl_129_iddm8h",
+      "time": 284,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_130_50l0tz",
       "time": 284,
       "name": {
         "ja": "AA",
@@ -1127,18 +1418,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_102_7ebgm2",
-      "time": 284,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_103_xxi64u",
+      "id": "tpl_131_n3dpuv",
       "time": 285,
       "name": {
         "ja": "ひとしばりし念",
@@ -1149,7 +1429,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_bcv7yw",
+      "id": "tpl_132_j133t6",
       "time": 285,
       "name": {
         "ja": "AA",
@@ -1160,7 +1440,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_105_0b8s5v",
+      "id": "tpl_133_v9gsiv",
       "time": 286,
       "name": {
         "ja": "AA",
@@ -1171,18 +1451,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_106_ixpefm",
-      "time": 287,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_107_lxbteo",
+      "id": "tpl_134_b3az3d",
       "time": 287,
       "name": {
         "ja": "AA",
@@ -1193,7 +1462,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_108_fpuxme",
+      "id": "tpl_135_8ir3q2",
+      "time": 287,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_136_hyrk7f",
       "time": 288,
       "name": {
         "ja": "AA",
@@ -1204,7 +1484,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_109_zt4kd0",
+      "id": "tpl_137_sh5stb",
       "time": 289,
       "name": {
         "ja": "AA",
@@ -1215,7 +1495,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_110_w2bqeh",
+      "id": "tpl_138_0kru3p",
+      "time": 290,
+      "name": {
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_5ttkol",
       "time": 290,
       "name": {
         "ja": "AA",
@@ -1226,18 +1516,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_111_7l3ity",
-      "time": 291,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_112_m63so8",
+      "id": "tpl_140_zxstr0",
       "time": 291,
       "name": {
         "ja": "AA",
@@ -1248,7 +1527,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_113_bl3s38",
+      "id": "tpl_141_xfysin",
+      "time": 291,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_142_trcad0",
       "time": 293,
       "name": {
         "ja": "AA",
@@ -1259,18 +1549,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_114_nwrlvx",
-      "time": 294,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_115_jdpr5q",
+      "id": "tpl_143_18g40g",
       "time": 294,
       "name": {
         "ja": "AA",
@@ -1281,8 +1560,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_116_38pyut",
-      "time": 296,
+      "id": "tpl_144_wgrnvb",
+      "time": 294,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -1292,7 +1571,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_117_sqo9vl",
+      "id": "tpl_145_wu1b0s",
       "time": 296,
       "name": {
         "ja": "AA",
@@ -1303,7 +1582,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_118_zupk3h",
+      "id": "tpl_146_1l4kb2",
+      "time": 296,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_147_br1iie",
       "time": 297,
       "name": {
         "ja": "AA",
@@ -1314,18 +1604,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_119_bwijnh",
-      "time": 299,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_120_svje04",
+      "id": "tpl_148_yq2dlc",
       "time": 299,
       "name": {
         "ja": "AA",
@@ -1336,8 +1615,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_121_ee5yf0",
-      "time": 302,
+      "id": "tpl_149_38nf91",
+      "time": 299,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -1347,7 +1626,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_122_ianq0g",
+      "id": "tpl_150_x478hd",
       "time": 302,
       "name": {
         "ja": "AA",
@@ -1358,7 +1637,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_123_g4fjcn",
+      "id": "tpl_151_da8x70",
+      "time": 302,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_152_nvp0gn",
+      "time": 305,
+      "name": {
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_qr7t0o",
       "time": 306,
       "name": {
         "ja": "AA",
@@ -1369,7 +1669,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_124_onp3ui",
+      "id": "tpl_154_dqriaw",
       "time": 307,
       "name": {
         "ja": "AA",
@@ -1380,7 +1680,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_125_tue6a2",
+      "id": "tpl_155_bb08uf",
       "time": 308,
       "name": {
         "ja": "原石あげる",
@@ -1391,7 +1691,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_126_v2tj53",
+      "id": "tpl_156_m1xf1j",
       "time": 309,
       "name": {
         "ja": "AA",
@@ -1402,7 +1702,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_127_n9amtz",
+      "id": "tpl_157_19v674",
       "time": 311,
       "name": {
         "ja": "AA",
@@ -1413,7 +1713,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_128_o1xcpp",
+      "id": "tpl_158_n1crbz",
+      "time": 312,
+      "name": {
+        "ja": "ライブペインティング",
+        "en": "Live Painting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_9qc1a4",
       "time": 312,
       "name": {
         "ja": "AA",
@@ -1424,7 +1734,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_129_7q1xhd",
+      "id": "tpl_160_vuxn3y",
       "time": 315,
       "name": {
         "ja": "AA",
@@ -1435,18 +1745,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_130_77oxqi",
-      "time": 318,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_131_rhusgc",
+      "id": "tpl_161_eic5v7",
       "time": 318,
       "name": {
         "ja": "AA",
@@ -1457,7 +1756,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_132_ciuxke",
+      "id": "tpl_162_ts774r",
+      "time": 318,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_163_35k2x1",
       "time": 320,
       "name": {
         "ja": "AA",
@@ -1468,7 +1778,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_133_7qafbg",
+      "id": "tpl_164_ezopet",
       "time": 321,
       "name": {
         "ja": "AA",
@@ -1479,7 +1789,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_134_w4bpjj",
+      "id": "tpl_165_rfkx4i",
       "time": 322,
       "name": {
         "ja": "AA",
@@ -1490,18 +1800,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_135_lp2qkt",
-      "time": 323,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_136_kxgbxe",
+      "id": "tpl_166_qylkki",
       "time": 323,
       "name": {
         "ja": "AA",
@@ -1512,7 +1811,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_137_ksz5q1",
+      "id": "tpl_167_kp5g72",
+      "time": 323,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_168_btuts3",
+      "time": 324,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_bd721v",
       "time": 324,
       "name": {
         "ja": "AA",
@@ -1523,7 +1843,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_138_bjxj8t",
+      "id": "tpl_170_n58eaa",
       "time": 325,
       "name": {
         "ja": "ひとしばりし念",
@@ -1534,7 +1854,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_139_odt3eh",
+      "id": "tpl_171_4k59wi",
       "time": 325,
       "name": {
         "ja": "AA",
@@ -1545,7 +1865,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_140_b0gqnu",
+      "id": "tpl_172_da0qpg",
       "time": 326,
       "name": {
         "ja": "AA",
@@ -1556,18 +1876,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_141_b7lkhj",
-      "time": 327,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_142_jt696c",
+      "id": "tpl_173_4sabpi",
       "time": 327,
       "name": {
         "ja": "AA",
@@ -1578,7 +1887,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_143_5ww5rv",
+      "id": "tpl_174_ore6xp",
+      "time": 327,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_175_rb2w9b",
       "time": 329,
       "name": {
         "ja": "ウォタガ",
@@ -1589,18 +1909,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_144_xev8iv",
+      "id": "tpl_176_auqrer",
       "time": 329,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
       },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_145_gnm5m3",
+      "id": "tpl_177_85njzf",
       "time": 329,
       "name": {
         "ja": "AA",
@@ -1611,8 +1930,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_146_z3cw5v",
-      "time": 330,
+      "id": "tpl_178_2gg6kh",
+      "time": 329,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -1622,7 +1941,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_147_r0e57m",
+      "id": "tpl_179_lee9ne",
       "time": 330,
       "name": {
         "ja": "AA",
@@ -1633,7 +1952,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_148_gfc832",
+      "id": "tpl_180_f32psz",
+      "time": 330,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_181_zwsoq6",
       "time": 331,
       "name": {
         "ja": "AA",
@@ -1644,7 +1974,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_149_6pkx8w",
+      "id": "tpl_182_1rb2uv",
       "time": 332,
       "name": {
         "ja": "AA",
@@ -1655,7 +1985,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_150_n94c8o",
+      "id": "tpl_183_q6dkcu",
+      "time": 333,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_6eh40h",
       "time": 333,
       "name": {
         "ja": "AA",
@@ -1666,7 +2006,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_151_vujzmt",
+      "id": "tpl_185_td1us0",
       "time": 333,
       "name": {
         "ja": "AA",
@@ -1677,7 +2017,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_152_h4oxaa",
+      "id": "tpl_186_ut67ql",
       "time": 334,
       "name": {
         "ja": "AA",
@@ -1688,18 +2028,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_153_do474x",
-      "time": 335,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_154_a97my7",
+      "id": "tpl_187_3udmhg",
       "time": 335,
       "name": {
         "ja": "AA",
@@ -1710,8 +2039,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_155_sxat9y",
-      "time": 336,
+      "id": "tpl_188_bezf26",
+      "time": 335,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -1721,7 +2050,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_156_iha69m",
+      "id": "tpl_189_a42560",
       "time": 336,
       "name": {
         "ja": "AA",
@@ -1732,7 +2061,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_157_ya1qzp",
+      "id": "tpl_190_9mydhf",
+      "time": 336,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_191_qw8ieq",
       "time": 337,
       "name": {
         "ja": "AA",
@@ -1743,7 +2083,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_158_yuk7c0",
+      "id": "tpl_192_rbwv9b",
       "time": 338,
       "name": {
         "ja": "ウォタガ",
@@ -1754,7 +2094,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_159_pwtovt",
+      "id": "tpl_193_hd4cyn",
       "time": 338,
       "name": {
         "ja": "AA",
@@ -1765,18 +2105,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_160_ws1qu9",
-      "time": 339,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_161_m1c075",
+      "id": "tpl_194_xiby74",
       "time": 339,
       "name": {
         "ja": "AA",
@@ -1787,8 +2116,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_162_5nm33m",
-      "time": 340,
+      "id": "tpl_195_ifb470",
+      "time": 339,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -1798,7 +2127,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_163_pq54dc",
+      "id": "tpl_196_r065dv",
       "time": 340,
       "name": {
         "ja": "AA",
@@ -1809,7 +2138,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_164_dzg1ar",
+      "id": "tpl_197_lj41dg",
+      "time": 340,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_198_zydcjr",
       "time": 341,
       "name": {
         "ja": "AA",
@@ -1820,7 +2160,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_165_yf8i93",
+      "id": "tpl_199_xzi4qx",
       "time": 342,
       "name": {
         "ja": "AA",
@@ -1831,18 +2171,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_166_flll3m",
+      "id": "tpl_200_kenx7c",
       "time": 343,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "ウォタガ",
+        "en": "Water III"
       },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_167_8nb76l",
+      "id": "tpl_201_mp1ig0",
       "time": 343,
       "name": {
         "ja": "AA",
@@ -1853,7 +2192,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_168_7gnvsj",
+      "id": "tpl_202_5c5sax",
+      "time": 343,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_203_ajklzr",
+      "time": 344,
+      "name": {
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_204_mp0w89",
       "time": 345,
       "name": {
         "ja": "AA",
@@ -1864,7 +2224,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_169_7zinwt",
+      "id": "tpl_205_ujrflc",
       "time": 346,
       "name": {
         "ja": "ウォタガ",
@@ -1875,18 +2235,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_170_qin560",
-      "time": 346,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_171_w6hmo7",
+      "id": "tpl_206_2cbyr3",
       "time": 346,
       "name": {
         "ja": "AA",
@@ -1897,7 +2246,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_172_nshcj6",
+      "id": "tpl_207_txoqwq",
+      "time": 346,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_208_1whuoh",
       "time": 348,
       "name": {
         "ja": "AA",
@@ -1908,18 +2268,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_173_3a5g6c",
-      "time": 349,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_174_f990f2",
+      "id": "tpl_209_vn37a6",
       "time": 349,
       "name": {
         "ja": "AA",
@@ -1930,7 +2279,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_175_awa5g9",
+      "id": "tpl_210_as8bev",
+      "time": 349,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_211_m49r64",
       "time": 351,
       "name": {
         "ja": "AA",
@@ -1941,7 +2301,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_176_92dwkb",
+      "id": "tpl_212_s7w8ze",
+      "time": 352,
+      "name": {
+        "ja": "ウォタガ",
+        "en": "Water III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_qkuq1i",
       "time": 352,
       "name": {
         "ja": "AA",
@@ -1952,7 +2322,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_177_izbgqh",
+      "id": "tpl_214_qpaiay",
       "time": 353,
       "name": {
         "ja": "AA",
@@ -1963,7 +2333,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_178_xw3ew2",
+      "id": "tpl_215_4by1dg",
       "time": 354,
       "name": {
         "ja": "AA",
@@ -1974,7 +2344,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_179_w4nl14",
+      "id": "tpl_216_2tjs6i",
       "time": 355,
       "name": {
         "ja": "ウォタガ",
@@ -1985,7 +2355,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_180_0g4zt2",
+      "id": "tpl_217_76long",
       "time": 355,
       "name": {
         "ja": "AA",
@@ -1996,7 +2366,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_181_umfahs",
+      "id": "tpl_218_uy9ky7",
       "time": 356,
       "name": {
         "ja": "AA",
@@ -2007,7 +2377,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_182_wfrf74",
+      "id": "tpl_219_97i6i8",
       "time": 357,
       "name": {
         "ja": "AA",
@@ -2018,18 +2388,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_183_0uhuf5",
-      "time": 359,
+      "id": "tpl_220_wlj7vt",
+      "time": 358,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "いただきニャー",
+        "en": "I Crave Violence"
       },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_184_j4wggv",
+      "id": "tpl_221_012tb0",
       "time": 359,
       "name": {
         "ja": "AA",
@@ -2040,7 +2409,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_185_16zeqh",
+      "id": "tpl_222_q9xxdt",
+      "time": 359,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_223_jr26tj",
       "time": 360,
       "name": {
         "ja": "AA",
@@ -2051,18 +2431,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_186_flil65",
+      "id": "tpl_224_8ed4du",
       "time": 361,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "ウォタガ",
+        "en": "Water III"
       },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_187_zykltz",
+      "id": "tpl_225_6ca8es",
       "time": 361,
       "name": {
         "ja": "AA",
@@ -2073,7 +2452,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_188_ulcjj1",
+      "id": "tpl_226_f7f2h1",
+      "time": 361,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_227_24p86c",
       "time": 363,
       "name": {
         "ja": "AA",
@@ -2084,18 +2474,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_189_9ysaq1",
-      "time": 365,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_190_u357pz",
+      "id": "tpl_228_lwzt39",
       "time": 365,
       "name": {
         "ja": "AA",
@@ -2106,7 +2485,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_191_pfokb5",
+      "id": "tpl_229_omgqm8",
+      "time": 365,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_230_85kdiv",
       "time": 366,
       "name": {
         "ja": "ウォタガ",
@@ -2117,7 +2507,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_192_mkp83k",
+      "id": "tpl_231_2nf0ks",
       "time": 366,
       "name": {
         "ja": "AA",
@@ -2128,7 +2518,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_193_v0ukoq",
+      "id": "tpl_232_nur9dd",
       "time": 367,
       "name": {
         "ja": "AA",
@@ -2139,7 +2529,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_194_tmfsza",
+      "id": "tpl_233_0k9us8",
       "time": 367,
       "name": {
         "ja": "AA",
@@ -2150,7 +2540,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_195_ix1pev",
+      "id": "tpl_234_69jt6z",
       "time": 369,
       "name": {
         "ja": "AA",
@@ -2161,18 +2551,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_196_5hco5x",
+      "id": "tpl_235_3zoaus",
       "time": 370,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "ウォタガ",
+        "en": "Water III"
       },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_197_unnnxy",
+      "id": "tpl_236_m7qscd",
       "time": 370,
       "name": {
         "ja": "AA",
@@ -2183,7 +2572,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_198_gt31z8",
+      "id": "tpl_237_dtlvy1",
+      "time": 370,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_238_8zth32",
       "time": 372,
       "name": {
         "ja": "AA",
@@ -2194,18 +2594,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_199_994rj7",
-      "time": 373,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_200_i5luje",
+      "id": "tpl_239_yi17uj",
       "time": 373,
       "name": {
         "ja": "AA",
@@ -2216,7 +2605,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_201_d0gqw2",
+      "id": "tpl_240_pq1dih",
+      "time": 373,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_241_kh1pq7",
       "time": 375,
       "name": {
         "ja": "AA",
@@ -2227,18 +2627,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_202_xp96w0",
-      "time": 376,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_203_77fniu",
+      "id": "tpl_242_w87k9h",
       "time": 376,
       "name": {
         "ja": "AA",
@@ -2249,7 +2638,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_204_f55h7g",
+      "id": "tpl_243_qoildd",
+      "time": 376,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_244_o43v4l",
       "time": 378,
       "name": {
         "ja": "AA",
@@ -2260,7 +2660,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_205_82rxif",
+      "id": "tpl_245_j24og6",
       "time": 379,
       "name": {
         "ja": "AA",
@@ -2271,7 +2671,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_206_tsipms",
+      "id": "tpl_246_elap3m",
       "time": 380,
       "name": {
         "ja": "AA",
@@ -2282,7 +2682,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_207_zlvcrk",
+      "id": "tpl_247_xzueji",
       "time": 381,
       "name": {
         "ja": "AA",
@@ -2293,18 +2693,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_208_h2393n",
-      "time": 382,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_209_k9g82o",
+      "id": "tpl_248_do29ut",
       "time": 382,
       "name": {
         "ja": "AA",
@@ -2315,7 +2704,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_210_mkp478",
+      "id": "tpl_249_93gv16",
+      "time": 382,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_250_edend4",
       "time": 384,
       "name": {
         "ja": "AA",
@@ -2326,18 +2726,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_211_jxwp95",
-      "time": 386,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 66100,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_212_irl8xv",
+      "id": "tpl_251_ifhxds",
       "time": 386,
       "name": {
         "ja": "AA",
@@ -2348,8 +2737,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_213_3q93nl",
-      "time": 389,
+      "id": "tpl_252_tpnk6q",
+      "time": 386,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -2359,7 +2748,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_214_10j6bi",
+      "id": "tpl_253_0p89qt",
       "time": 389,
       "name": {
         "ja": "AA",
@@ -2370,7 +2759,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_215_cv23x5",
+      "id": "tpl_254_fu2zqp",
+      "time": 389,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 66100,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_255_qamdfh",
       "time": 391,
       "name": {
         "ja": "原石あげる",
@@ -2381,7 +2781,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_216_hf727y",
+      "id": "tpl_256_wi86l8",
       "time": 391,
       "name": {
         "ja": "AA",
@@ -2392,7 +2792,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_217_1omuv5",
+      "id": "tpl_257_if53wo",
       "time": 392,
       "name": {
         "ja": "AA",
@@ -2403,7 +2803,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_218_xhldko",
+      "id": "tpl_258_txrxjy",
+      "time": 393,
+      "name": {
+        "ja": "シングル・グラフィティ",
+        "en": "Single Style"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_259_uwt1j5",
       "time": 395,
       "name": {
         "ja": "AA",
@@ -2414,7 +2824,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_219_lix1f0",
+      "id": "tpl_260_rnt6rh",
       "time": 398,
       "name": {
         "ja": "AA",
@@ -2425,7 +2835,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_220_8x3uts",
+      "id": "tpl_261_sto65q",
       "time": 401,
       "name": {
         "ja": "AA",
@@ -2436,7 +2846,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_221_o4k2lt",
+      "id": "tpl_262_3f85c3",
       "time": 403,
       "name": {
         "ja": "AA",
@@ -2447,7 +2857,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_222_yawze4",
+      "id": "tpl_263_gv0v15",
       "time": 406,
       "name": {
         "ja": "AA",
@@ -2458,7 +2868,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_223_pr4ads",
+      "id": "tpl_264_rceev0",
+      "time": 407,
+      "name": {
+        "ja": "カラーライオット",
+        "en": "Color Riot"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_265_hm3atr",
       "time": 415,
       "name": {
         "ja": "コールドペイントボム",
@@ -2469,7 +2889,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_224_ed64e0",
+      "id": "tpl_266_7qpii3",
       "time": 415,
       "name": {
         "ja": "ウォームペイントボム",
@@ -2480,7 +2900,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_225_vjlgdd",
+      "id": "tpl_267_5ytvhx",
       "time": 421,
       "name": {
         "ja": "ムースシャワー",
@@ -2491,7 +2911,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_226_1umlwf",
+      "id": "tpl_268_nkbo5y",
       "time": 423,
       "name": {
         "ja": "AA",
@@ -2502,7 +2922,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_227_0tkvmb",
+      "id": "tpl_269_giuzio",
       "time": 427,
       "name": {
         "ja": "AA",
@@ -2513,7 +2933,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_228_r4ej6y",
+      "id": "tpl_270_yxwjjp",
+      "time": 429,
+      "name": {
+        "ja": "ランドスケープ",
+        "en": "Sugarscape"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_271_9xthe5",
       "time": 438,
       "name": {
         "ja": "AA",
@@ -2524,7 +2954,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_229_ez4xlx",
+      "id": "tpl_272_0si6ta",
       "time": 441,
       "name": {
         "ja": "AA",
@@ -2535,7 +2965,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_230_rtujpt",
+      "id": "tpl_273_jgx1pj",
+      "time": 444,
+      "name": {
+        "ja": "ダブル・グラフィティ",
+        "en": "Double Style"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_274_960jyd",
       "time": 455,
       "name": {
         "ja": "シュガーファイア",
@@ -2546,7 +2986,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_231_e4onin",
+      "id": "tpl_275_3utmom",
+      "time": 456,
+      "name": {
+        "ja": "アレンジ",
+        "en": "Layer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_276_jlsi8m",
       "time": 464,
       "name": {
         "ja": "AA",
@@ -2557,7 +3007,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_232_5ljpwv",
+      "id": "tpl_277_b86b63",
+      "time": 466,
+      "name": {
+        "ja": "シュガーサンダー",
+        "en": "Taste of Thunder"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_278_r8vjs1",
       "time": 467,
       "name": {
         "ja": "AA",
@@ -2568,7 +3028,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_233_u93ual",
+      "id": "tpl_279_4x09gz",
       "time": 470,
       "name": {
         "ja": "AA",
@@ -2579,7 +3039,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_234_5k8pv8",
+      "id": "tpl_280_e3fr1h",
+      "time": 472,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_281_gzg00i",
       "time": 473,
       "name": {
         "ja": "AA",
@@ -2590,7 +3060,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_235_gd96mu",
+      "id": "tpl_282_k8gj4h",
+      "time": 475,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_283_91t36p",
       "time": 476,
       "name": {
         "ja": "AA",
@@ -2601,7 +3081,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_236_emsxov",
+      "id": "tpl_284_w0oq5d",
       "time": 479,
       "name": {
         "ja": "AA",
@@ -2612,7 +3092,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_237_6n39q4",
+      "id": "tpl_285_sm9zgt",
       "time": 481,
       "name": {
         "ja": "百雷",
@@ -2623,7 +3103,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_238_mljiyi",
+      "id": "tpl_286_jgelbu",
       "time": 482,
       "name": {
         "ja": "AA",
@@ -2634,7 +3114,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_239_ol8rm0",
+      "id": "tpl_287_4n5ker",
+      "time": 483,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_288_9dimxw",
+      "time": 485,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_289_fmpljg",
       "time": 485,
       "name": {
         "ja": "AA",
@@ -2645,7 +3145,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_240_udj6ey",
+      "id": "tpl_290_7sakj8",
       "time": 488,
       "name": {
         "ja": "AA",
@@ -2656,7 +3156,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_241_2r1ig9",
+      "id": "tpl_291_viu9de",
       "time": 491,
       "name": {
         "ja": "AA",
@@ -2667,7 +3167,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_242_zwdpr1",
+      "id": "tpl_292_c5medv",
       "time": 492,
       "name": {
         "ja": "百雷",
@@ -2678,7 +3178,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_243_8xw633",
+      "id": "tpl_293_5f5g66",
+      "time": 493,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_294_937mxl",
       "time": 494,
       "name": {
         "ja": "AA",
@@ -2689,7 +3199,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_244_mklxae",
+      "id": "tpl_295_a5i2at",
+      "time": 496,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_296_gdp52r",
       "time": 497,
       "name": {
         "ja": "AA",
@@ -2700,7 +3220,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_245_mlm2qb",
+      "id": "tpl_297_c7jp6j",
       "time": 500,
       "name": {
         "ja": "AA",
@@ -2711,7 +3231,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_246_e530f5",
+      "id": "tpl_298_x0wxts",
       "time": 502,
       "name": {
         "ja": "百雷",
@@ -2722,7 +3242,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_247_7i5x3f",
+      "id": "tpl_299_x1938c",
       "time": 503,
       "name": {
         "ja": "AA",
@@ -2733,7 +3253,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_248_krm0yg",
+      "id": "tpl_300_su0b1o",
+      "time": 504,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_301_sr7yso",
+      "time": 506,
+      "name": {
+        "ja": "落雷",
+        "en": "Lightning Bolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_302_c4eoks",
       "time": 507,
       "name": {
         "ja": "AA",
@@ -2744,7 +3284,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_249_gz6v62",
+      "id": "tpl_303_qsg1dw",
       "time": 510,
       "name": {
         "ja": "AA",
@@ -2755,7 +3295,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_250_yu8ue0",
+      "id": "tpl_304_47n9uv",
       "time": 512,
       "name": {
         "ja": "AA",
@@ -2766,7 +3306,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_251_lil41w",
+      "id": "tpl_305_v9khko",
       "time": 513,
       "name": {
         "ja": "百雷",
@@ -2777,7 +3317,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_252_06t41f",
+      "id": "tpl_306_5q75e1",
+      "time": 514,
+      "name": {
+        "ja": "プリンパーティー",
+        "en": "Pudding Party"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_307_ekom9b",
       "time": 520,
       "name": {
         "ja": "プリンパーティー",
@@ -2788,7 +3338,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_253_1drl9b",
+      "id": "tpl_308_42pkps",
       "time": 520,
       "name": {
         "ja": "AA",
@@ -2799,7 +3349,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_254_pz83kz",
+      "id": "tpl_309_zjuopa",
       "time": 521,
       "name": {
         "ja": "プリンパーティー",
@@ -2810,7 +3360,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_255_q7nv6r",
+      "id": "tpl_310_rk1uqk",
       "time": 522,
       "name": {
         "ja": "プリンパーティー",
@@ -2821,7 +3371,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_256_currps",
+      "id": "tpl_311_zzis1u",
       "time": 523,
       "name": {
         "ja": "プリンパーティー",
@@ -2832,7 +3382,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_257_966cjx",
+      "id": "tpl_312_fyar4n",
       "time": 523,
       "name": {
         "ja": "AA",
@@ -2843,7 +3393,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_258_selrqh",
+      "id": "tpl_313_f4dfay",
       "time": 524,
       "name": {
         "ja": "プリンパーティー",
@@ -2854,7 +3404,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_259_iex77x",
+      "id": "tpl_314_w8t6sf",
       "time": 526,
       "name": {
         "ja": "AA",
@@ -2865,7 +3415,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_260_g20mqz",
+      "id": "tpl_315_eaz2qi",
       "time": 529,
       "name": {
         "ja": "AA",
@@ -2876,7 +3426,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_261_3akgam",
+      "id": "tpl_316_l0jzp0",
+      "time": 531,
+      "name": {
+        "ja": "アレンジ",
+        "en": "Layer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_317_gol9ls",
       "time": 532,
       "name": {
         "ja": "AA",
@@ -2887,7 +3447,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_262_m9bb3l",
+      "id": "tpl_318_weyjt8",
       "time": 539,
       "name": {
         "ja": "AA",
@@ -2898,7 +3458,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_263_w8il1l",
+      "id": "tpl_319_8wu5fu",
+      "time": 543,
+      "name": {
+        "ja": "びちゃっとムース",
+        "en": "Mousse Drip"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_320_e4kgqj",
       "time": 543,
       "name": {
         "ja": "AA",
@@ -2909,7 +3479,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_264_75ej40",
+      "id": "tpl_321_cwb3oy",
       "time": 551,
       "name": {
         "ja": "AA",
@@ -2920,7 +3490,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_265_9khlv5",
+      "id": "tpl_322_yu2g9h",
       "time": 554,
       "name": {
         "ja": "AA",
@@ -2931,7 +3501,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_266_rfljcb",
+      "id": "tpl_323_67cusc",
       "time": 555,
       "name": {
         "ja": "びちゃっとムース",
@@ -2942,7 +3512,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_267_nsyfo9",
+      "id": "tpl_324_h6lexz",
+      "time": 555,
+      "name": {
+        "ja": "ムース大行進",
+        "en": "Moussacre"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_325_d8mehy",
       "time": 556,
       "name": {
         "ja": "びちゃっとムース",
@@ -2953,7 +3533,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_268_2xr0vl",
+      "id": "tpl_326_bimsru",
       "time": 558,
       "name": {
         "ja": "びちゃっとムース",
@@ -2964,7 +3544,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_269_m0a2q2",
+      "id": "tpl_327_0uzhat",
       "time": 559,
       "name": {
         "ja": "びちゃっとムース",
@@ -2975,7 +3555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_270_ij9wl0",
+      "id": "tpl_328_6gvcot",
       "time": 559,
       "name": {
         "ja": "ムース大行進",
@@ -2986,7 +3566,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_271_ct6vsf",
+      "id": "tpl_329_ymler8",
       "time": 560,
       "name": {
         "ja": "びちゃっとムース",
@@ -2997,7 +3577,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_272_k8kx97",
+      "id": "tpl_330_irdxwn",
+      "time": 563,
+      "name": {
+        "ja": "シュガーサンダー",
+        "en": "Taste of Thunder"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_331_hfilgr",
       "time": 567,
       "name": {
         "ja": "爆発",
@@ -3008,7 +3598,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_273_tn4k1y",
+      "id": "tpl_332_xqpzt2",
+      "time": 568,
+      "name": {
+        "ja": "ウイングマーク",
+        "en": "Wingmark"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_333_9vradw",
       "time": 568,
       "name": {
         "ja": "AA",
@@ -3019,7 +3619,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_274_8n5g3d",
+      "id": "tpl_334_fvdkrn",
       "time": 575,
       "name": {
         "ja": "AA",
@@ -3030,7 +3630,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_275_4ahh4h",
+      "id": "tpl_335_i372m4",
       "time": 578,
       "name": {
         "ja": "AA",
@@ -3041,7 +3641,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_276_xe5sc8",
+      "id": "tpl_336_u1mqhb",
       "time": 581,
       "name": {
         "ja": "AA",
@@ -3052,7 +3652,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_277_xb31yl",
+      "id": "tpl_337_lm31pi",
       "time": 584,
       "name": {
         "ja": "AA",
@@ -3063,7 +3663,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_278_v5c4v2",
+      "id": "tpl_338_ihqm3b",
       "time": 587,
       "name": {
         "ja": "AA",
@@ -3074,7 +3674,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_279_ixzem8",
+      "id": "tpl_339_sv7i7i",
+      "time": 589,
+      "name": {
+        "ja": "シュガーサンダー",
+        "en": "Taste of Thunder"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_340_tz0exy",
       "time": 590,
       "name": {
         "ja": "AA",
@@ -3085,7 +3695,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_280_53c3ac",
+      "id": "tpl_341_goayyw",
       "time": 593,
       "name": {
         "ja": "AA",
@@ -3096,7 +3706,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_281_nhuvth",
+      "id": "tpl_342_bgx864",
       "time": 594,
       "name": {
         "ja": "爆発",
@@ -3107,7 +3717,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_282_0udp41",
+      "id": "tpl_343_3sx46p",
       "time": 600,
       "name": {
         "ja": "ムースシャワー",
@@ -3118,7 +3728,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_283_37qix3",
+      "id": "tpl_344_b3z8gq",
       "time": 601,
       "name": {
         "ja": "AA",
@@ -3129,7 +3739,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_284_ke6mog",
+      "id": "tpl_345_i5wyev",
+      "time": 604,
+      "name": {
+        "ja": "ねばねばムース",
+        "en": "Sticky Mousse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_346_nbpday",
       "time": 605,
       "name": {
         "ja": "AA",
@@ -3140,7 +3760,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_285_g64pwq",
+      "id": "tpl_347_2htnxu",
       "time": 611,
       "name": {
         "ja": "ねばねばムース",
@@ -3151,7 +3771,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_286_j3e4gj",
+      "id": "tpl_348_6tke1z",
       "time": 616,
       "name": {
         "ja": "爆発",
@@ -3162,7 +3782,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_287_w182x2",
+      "id": "tpl_349_uu0hc0",
+      "time": 616,
+      "name": {
+        "ja": "カラーライオット",
+        "en": "Color Riot"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_350_bznib3",
       "time": 624,
       "name": {
         "ja": "ウォームペイントボム",
@@ -3173,7 +3803,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_288_dnyopy",
+      "id": "tpl_351_dz3t6t",
       "time": 624,
       "name": {
         "ja": "コールドペイントボム",
@@ -3184,7 +3814,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_289_gqxb3s",
+      "id": "tpl_352_87ymmi",
       "time": 627,
       "name": {
         "ja": "AA",
@@ -3195,7 +3825,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_290_41o44z",
+      "id": "tpl_353_6f2b8s",
+      "time": 630,
+      "name": {
+        "ja": "ウイングマーク",
+        "en": "Wingmark"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_354_1sdi4b",
+      "time": 637,
+      "name": {
+        "ja": "カラークラッシュ",
+        "en": "Color Clash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_355_xozhtf",
+      "time": 644,
+      "name": {
+        "ja": "ダブル・グラフィティ",
+        "en": "Double Style"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_356_7z0lif",
       "time": 661,
       "name": {
         "ja": "カラークラッシュ",

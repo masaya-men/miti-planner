@@ -1,11 +1,11 @@
 {
   "contentId": "m2s",
-  "generatedAt": "2026-03-22T11:59:17.120Z",
+  "generatedAt": "2026-03-23T05:09:01.635Z",
   "sourceLogsCount": 1,
   "sourceLog": "aqF9RjGp2YbXnwJM#12",
   "timelineEvents": [
     {
-      "id": "tpl_0_lsuhrg",
+      "id": "tpl_0_zsg9xq",
       "time": 5,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_rbc7pa",
+      "id": "tpl_1_tux93a",
       "time": 12,
       "name": {
         "ja": "ラブリーコール",
@@ -27,7 +27,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_ueoy1l",
+      "id": "tpl_2_8gscqg",
       "time": 13,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -38,7 +38,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_t9bwfv",
+      "id": "tpl_3_5i27o9",
+      "time": 13,
+      "name": {
+        "ja": "Drop of Venom",
+        "en": "Drop of Venom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_ksh1z0",
       "time": 20,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -49,7 +59,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_0ao5lt",
+      "id": "tpl_5_ajnz60",
+      "time": 24,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_y8o2uy",
+      "time": 24,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_k8rwzt",
       "time": 34,
       "name": {
         "ja": "ベノムドロップ",
@@ -60,7 +90,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_vhmxa2",
+      "id": "tpl_8_aa4wcg",
+      "time": 35,
+      "name": {
+        "ja": "Splash of Venom",
+        "en": "Splash of Venom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_5u2s29",
+      "time": 42,
+      "name": {
+        "ja": "Tempting Twist",
+        "en": "Tempting Twist"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_nuxsox",
+      "time": 42,
+      "name": {
+        "ja": "Tempting Twist",
+        "en": "Tempting Twist"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_952a5h",
       "time": 54,
       "name": {
         "ja": "ベノムレイン",
@@ -71,7 +131,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_xaa3lk",
+      "id": "tpl_12_o9ysyd",
+      "time": 56,
+      "name": {
+        "ja": "Killer Sting",
+        "en": "Killer Sting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_64nkai",
       "time": 61,
       "name": {
         "ja": "キラースティング",
@@ -82,7 +152,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_vs7sp3",
+      "id": "tpl_14_lfcvxu",
       "time": 62,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -93,7 +163,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_9zntsa",
+      "id": "tpl_15_jrokqi",
       "time": 65,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -104,7 +174,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_8c35kj",
+      "id": "tpl_16_frso8r",
       "time": 68,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -115,7 +185,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_rlb3ho",
+      "id": "tpl_17_513foq",
+      "time": 71,
+      "name": {
+        "ja": "Honey B. Live: 1st Beat",
+        "en": "Honey B. Live: 1st Beat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_5tollg",
       "time": 80,
       "name": {
         "ja": "ハニー・B・ライヴ【1st】",
@@ -126,7 +206,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_ie7i9m",
+      "id": "tpl_19_o5711x",
+      "time": 83,
+      "name": {
+        "ja": "Outerstage Combo",
+        "en": "Outerstage Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_dlzae7",
       "time": 92,
       "name": {
         "ja": "斬撃",
@@ -137,7 +227,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_zj3582",
+      "id": "tpl_21_gsbjwe",
+      "time": 99,
+      "name": {
+        "ja": "Love Me Tender",
+        "en": "Love Me Tender"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_kn7g2j",
       "time": 105,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -148,7 +248,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_6vtaap",
+      "id": "tpl_23_zj823i",
       "time": 109,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -159,7 +259,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_gh8ghr",
+      "id": "tpl_24_booss4",
       "time": 111,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -170,7 +270,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_97gkb3",
+      "id": "tpl_25_cdnqmk",
       "time": 113,
       "name": {
         "ja": "炸裂",
@@ -181,7 +281,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_n5mf8r",
+      "id": "tpl_26_iwlgyh",
       "time": 114,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -192,7 +292,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_c6bdfs",
+      "id": "tpl_27_r19hvc",
       "time": 117,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -203,7 +303,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_x26py6",
+      "id": "tpl_28_k06zvu",
       "time": 117,
       "name": {
         "ja": "炸裂",
@@ -214,7 +314,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_fpxymb",
+      "id": "tpl_29_dsicsp",
       "time": 121,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -225,7 +325,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_awqm19",
+      "id": "tpl_30_re01av",
       "time": 121,
       "name": {
         "ja": "炸裂",
@@ -236,7 +336,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_cehu5f",
+      "id": "tpl_31_you3xd",
       "time": 123,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -247,7 +347,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_hs1318",
+      "id": "tpl_32_c6lf6m",
       "time": 125,
       "name": {
         "ja": "炸裂",
@@ -258,7 +358,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_7ptk41",
+      "id": "tpl_33_yuu8pc",
       "time": 126,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -269,7 +369,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_v62r35",
+      "id": "tpl_34_kgwoea",
       "time": 129,
       "name": {
         "ja": "炸裂",
@@ -280,7 +380,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_yniejm",
+      "id": "tpl_35_zjc9yx",
       "time": 129,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -291,7 +391,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_lbov3o",
+      "id": "tpl_36_4bmw6r",
       "time": 132,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -302,7 +402,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_cnxhw5",
+      "id": "tpl_37_iw74xy",
       "time": 133,
       "name": {
         "ja": "炸裂",
@@ -313,7 +413,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_ofymjg",
+      "id": "tpl_38_x8ns30",
+      "time": 133,
+      "name": {
+        "ja": "Loveseeker",
+        "en": "Loveseeker"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_zqyaov",
+      "time": 133,
+      "name": {
+        "ja": "Loveseeker",
+        "en": "Loveseeker"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_ey54b7",
       "time": 140,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -324,7 +444,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_g1lkzx",
+      "id": "tpl_41_4apcue",
       "time": 143,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -335,7 +455,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_3a5k9l",
+      "id": "tpl_42_kzd2if",
       "time": 146,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -346,7 +466,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_b9fu31",
+      "id": "tpl_43_gxomkz",
+      "time": 147,
+      "name": {
+        "ja": "Love Me Tender",
+        "en": "Love Me Tender"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_0vytpl",
       "time": 153,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -357,7 +487,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_ik38x4",
+      "id": "tpl_45_ljbmox",
       "time": 153,
       "name": {
         "ja": "破裂",
@@ -368,7 +498,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_rzxxcr",
+      "id": "tpl_46_gs3c78",
       "time": 156,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -379,7 +509,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_2tmrtl",
+      "id": "tpl_47_8bjclx",
       "time": 159,
       "name": {
         "ja": "ハートシック",
@@ -390,7 +520,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_h45msb",
+      "id": "tpl_48_mmotu8",
       "time": 159,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -401,7 +531,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_ll2tgv",
+      "id": "tpl_49_lc9kls",
       "time": 162,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -412,7 +542,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_crkjb9",
+      "id": "tpl_50_s4765c",
+      "time": 164,
+      "name": {
+        "ja": "Centerstage Combo",
+        "en": "Centerstage Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_4pgpec",
       "time": 179,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -423,7 +563,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_dv832i",
+      "id": "tpl_52_ffc729",
       "time": 182,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -434,7 +574,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_2ea9ez",
+      "id": "tpl_53_x8s53f",
       "time": 187,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -445,7 +585,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_guijd3",
+      "id": "tpl_54_2slhrc",
       "time": 189,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -456,7 +596,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_b7ydwk",
+      "id": "tpl_55_kp3s0x",
       "time": 192,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -467,7 +607,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_01tmb3",
+      "id": "tpl_56_avk1b5",
       "time": 195,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -478,7 +618,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_mtdm0m",
+      "id": "tpl_57_3tnoz0",
+      "time": 198,
+      "name": {
+        "ja": "Stinging Slash",
+        "en": "Stinging Slash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_03prhy",
       "time": 203,
       "name": {
         "ja": "キラースラッシュ",
@@ -489,7 +639,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_hngyns",
+      "id": "tpl_59_ceyo6w",
       "time": 204,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -500,7 +650,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_dxg7j4",
+      "id": "tpl_60_vuttao",
       "time": 207,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -511,7 +661,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_tjwjhy",
+      "id": "tpl_61_8156r4",
+      "time": 207,
+      "name": {
+        "ja": "Alarm Pheromones",
+        "en": "Alarm Pheromones"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_55865f",
       "time": 213,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -522,7 +682,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_ymmea0",
+      "id": "tpl_63_s38lbr",
+      "time": 213,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_kxcshs",
+      "time": 215,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_65_tvsumv",
       "time": 216,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -533,7 +713,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_03s55m",
+      "id": "tpl_66_rzo9g8",
+      "time": 216,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_llcrl7",
       "time": 219,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -544,7 +734,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_sxktju",
+      "id": "tpl_68_1rl17g",
+      "time": 219,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_zs3l4v",
       "time": 222,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -555,7 +755,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_qe0iyf",
+      "id": "tpl_70_r7je9c",
+      "time": 223,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_zqbpwf",
+      "time": 224,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_u863te",
       "time": 225,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -566,7 +786,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_bi20gv",
+      "id": "tpl_73_tmskyi",
+      "time": 225,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_8whtx8",
+      "time": 227,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_slkbkn",
       "time": 228,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -577,7 +817,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_6eg9ew",
+      "id": "tpl_76_8acduy",
+      "time": 228,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_77_z16pio",
+      "time": 229,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_5xgieg",
       "time": 231,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -588,7 +848,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_j0jltb",
+      "id": "tpl_79_kaurd2",
+      "time": 231,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_0mgps9",
       "time": 234,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -599,7 +869,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_oqh91j",
+      "id": "tpl_81_cwm7i8",
       "time": 238,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -610,7 +880,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_241fs4",
+      "id": "tpl_82_di4ffg",
       "time": 241,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -621,7 +891,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_yrc2kw",
+      "id": "tpl_83_8q3jj4",
       "time": 244,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -632,7 +902,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_htlu5r",
+      "id": "tpl_84_87g454",
+      "time": 246,
+      "name": {
+        "ja": "Honey B. Live: 2nd Beat",
+        "en": "Honey B. Live: 2nd Beat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_sikujh",
       "time": 255,
       "name": {
         "ja": "ハニー・B・ライヴ【2nd】",
@@ -643,7 +923,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_3d1eg6",
+      "id": "tpl_86_ej5h0w",
       "time": 256,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -654,7 +934,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_u2jvjl",
+      "id": "tpl_87_fc21wo",
+      "time": 257,
+      "name": {
+        "ja": "Spread Love",
+        "en": "Spread Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_zvi4ma",
       "time": 265,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -665,7 +955,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_fqtzow",
+      "id": "tpl_89_jqm1y2",
       "time": 268,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -676,7 +966,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_0n2q2u",
+      "id": "tpl_90_cp9sn1",
+      "time": 268,
+      "name": {
+        "ja": "Love Me Tender",
+        "en": "Love Me Tender"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_o352tm",
+      "time": 274,
+      "name": {
+        "ja": "Heart-struck",
+        "en": "Heart-Struck"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_uz0f2u",
+      "time": 276,
+      "name": {
+        "ja": "Heart-struck",
+        "en": "Heart-Struck"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_bo5fz5",
+      "time": 278,
+      "name": {
+        "ja": "Heart-struck",
+        "en": "Heart-Struck"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_nhii57",
       "time": 280,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -687,7 +1017,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_saek5o",
+      "id": "tpl_95_og77vs",
+      "time": 280,
+      "name": {
+        "ja": "Heart-struck",
+        "en": "Heart-Struck"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_rg2yny",
       "time": 281,
       "name": {
         "ja": "ハートシック",
@@ -698,7 +1038,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_wksjc5",
+      "id": "tpl_97_w77bjq",
+      "time": 282,
+      "name": {
+        "ja": "Heart-struck",
+        "en": "Heart-Struck"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_7hnwsg",
       "time": 283,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -709,7 +1059,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_k2iguc",
+      "id": "tpl_99_xct43q",
       "time": 286,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -720,7 +1070,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_21u0el",
+      "id": "tpl_100_28wwuc",
       "time": 287,
       "name": {
         "ja": "ハートソゥ",
@@ -731,7 +1081,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_2uim61",
+      "id": "tpl_101_6r3ppr",
       "time": 288,
       "name": {
         "ja": "炸裂",
@@ -742,7 +1092,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_jw7609",
+      "id": "tpl_102_y59rf5",
       "time": 289,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -753,7 +1103,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_nv4au5",
+      "id": "tpl_103_gl7s3z",
+      "time": 291,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_7b68ff",
+      "time": 291,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_r33f11",
+      "time": 299,
+      "name": {
+        "ja": "Splinter",
+        "en": "Splinter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_i0zfj1",
       "time": 302,
       "name": {
         "ja": "ラブレイン",
@@ -764,7 +1144,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_t5cwns",
+      "id": "tpl_107_wgb1od",
       "time": 305,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -775,7 +1155,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_ctyy4g",
+      "id": "tpl_108_rphj6l",
       "time": 311,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -786,7 +1166,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_0rdy5a",
+      "id": "tpl_109_wyssxq",
       "time": 312,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -797,7 +1177,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_86vsx1",
+      "id": "tpl_110_8vyspt",
       "time": 314,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -808,7 +1188,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_r6j8cl",
+      "id": "tpl_111_hakhyq",
       "time": 317,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -819,7 +1199,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_bsbnks",
+      "id": "tpl_112_mygf8g",
       "time": 320,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -830,7 +1210,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_bs9di5",
+      "id": "tpl_113_dp31wf",
+      "time": 324,
+      "name": {
+        "ja": "Splash of Venom",
+        "en": "Splash of Venom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_hxmohf",
+      "time": 331,
+      "name": {
+        "ja": "Alarm Pheromones",
+        "en": "Alarm Pheromones"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_115_g86q7h",
+      "time": 338,
+      "name": {
+        "ja": "Poison Sting",
+        "en": "Poison Sting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_qwp3b8",
       "time": 343,
       "name": {
         "ja": "ポイズンスティング",
@@ -841,7 +1251,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_vd6yy5",
+      "id": "tpl_117_qfcyx9",
       "time": 349,
       "name": {
         "ja": "ポイズンスティング",
@@ -852,7 +1262,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_hzvsf3",
+      "id": "tpl_118_8u17iv",
+      "time": 353,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_6fqqh5",
       "time": 354,
       "name": {
         "ja": "ポイズンスティング",
@@ -863,7 +1283,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_0jpyjy",
+      "id": "tpl_120_hb79u0",
+      "time": 358,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_udiaq1",
       "time": 359,
       "name": {
         "ja": "ポイズンスティング",
@@ -874,7 +1304,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_nmg93m",
+      "id": "tpl_122_73pcom",
+      "time": 363,
+      "name": {
+        "ja": "Blinding Love",
+        "en": "Blinding Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_qy359q",
+      "time": 363,
+      "name": {
+        "ja": "Bee Sting",
+        "en": "Bee Sting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_v9icgc",
       "time": 368,
       "name": {
         "ja": "ビースティング",
@@ -885,7 +1335,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_t12dhh",
+      "id": "tpl_125_31btp6",
+      "time": 372,
+      "name": {
+        "ja": "Stinging Slash",
+        "en": "Stinging Slash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_4o7uh0",
       "time": 376,
       "name": {
         "ja": "キラースラッシュ",
@@ -896,7 +1356,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_n9dg68",
+      "id": "tpl_127_y89jsk",
       "time": 378,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -907,7 +1367,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_e8lzib",
+      "id": "tpl_128_r9pgsz",
       "time": 381,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -918,7 +1378,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_0eidrg",
+      "id": "tpl_129_kdgl8w",
+      "time": 383,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_q9wc13",
+      "time": 383,
+      "name": {
+        "ja": "Honey Beeline",
+        "en": "Honey Beeline"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_927lbb",
       "time": 395,
       "name": {
         "ja": "ベノムレイン",
@@ -929,7 +1409,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_kahbrb",
+      "id": "tpl_132_qflqmy",
       "time": 397,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -940,7 +1420,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_16nrh8",
+      "id": "tpl_133_db41ns",
       "time": 399,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -951,7 +1431,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_zehj8c",
+      "id": "tpl_134_b668su",
       "time": 402,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -962,7 +1442,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_iixu67",
+      "id": "tpl_135_in9f93",
+      "time": 405,
+      "name": {
+        "ja": "Honey B. Live: 3rd Beat",
+        "en": "Honey B. Live: 3rd Beat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_tuatq8",
       "time": 414,
       "name": {
         "ja": "ハニー・B・ライヴ【3rd】",
@@ -973,7 +1463,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_68avc1",
+      "id": "tpl_137_x88rbw",
+      "time": 415,
+      "name": {
+        "ja": "Drop of Love",
+        "en": "Drop of Love"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_9f9xfb",
+      "time": 423,
+      "name": {
+        "ja": "Outerstage Combo",
+        "en": "Outerstage Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_139_teder2",
       "time": 440,
       "name": {
         "ja": "爆発",
@@ -984,7 +1494,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_q3tdru",
+      "id": "tpl_140_xk34zq",
+      "time": 442,
+      "name": {
+        "ja": "Centerstage Combo",
+        "en": "Centerstage Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_pk4pw1",
       "time": 443,
       "name": {
         "ja": "炸裂",
@@ -995,7 +1515,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_9n1wuz",
+      "id": "tpl_142_9zulmi",
       "time": 460,
       "name": {
         "ja": "爆発",
@@ -1006,7 +1526,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_smgoi0",
+      "id": "tpl_143_n9xppc",
       "time": 463,
       "name": {
         "ja": "炸裂",
@@ -1017,7 +1537,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_o81wj5",
+      "id": "tpl_144_opa1y0",
+      "time": 467,
+      "name": {
+        "ja": "Tempting Twist",
+        "en": "Tempting Twist"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_oktop9",
+      "time": 467,
+      "name": {
+        "ja": "Tempting Twist",
+        "en": "Tempting Twist"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_bkkls3",
+      "time": 474,
+      "name": {
+        "ja": "Splinter",
+        "en": "Splinter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_g1mzv1",
       "time": 477,
       "name": {
         "ja": "ラブドロップ",
@@ -1028,7 +1578,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_v6nlyo",
+      "id": "tpl_148_0gej06",
       "time": 485,
       "name": {
         "ja": "ハニー・B・フィナーレ",
@@ -1039,7 +1589,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_u0xir7",
+      "id": "tpl_149_wthbx9",
       "time": 488,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1050,7 +1600,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_x538r2",
+      "id": "tpl_150_kesj5w",
       "time": 491,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1061,7 +1611,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_iipnp8",
+      "id": "tpl_151_3oybtg",
       "time": 495,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1072,7 +1622,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_x6dvyy",
+      "id": "tpl_152_lkig9i",
+      "time": 495,
+      "name": {
+        "ja": "Stinging Slash",
+        "en": "Stinging Slash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_fdgl71",
       "time": 500,
       "name": {
         "ja": "キラースラッシュ",
@@ -1083,7 +1643,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_kbmrub",
+      "id": "tpl_154_f7ulbq",
       "time": 502,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1094,7 +1654,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_ybw7ur",
+      "id": "tpl_155_dmlal5",
       "time": 505,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1105,7 +1665,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_3x7u4d",
+      "id": "tpl_156_lri3sa",
       "time": 508,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1116,7 +1676,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_50kji6",
+      "id": "tpl_157_wipnab",
+      "time": 511,
+      "name": {
+        "ja": "Rotten Heart",
+        "en": "Rotten Heart"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_jqvi3f",
       "time": 516,
       "name": {
         "ja": "ブラックハート",
@@ -1127,7 +1697,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_mi07na",
+      "id": "tpl_159_izzke0",
       "time": 520,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1138,7 +1708,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_1bsp33",
+      "id": "tpl_160_47wvo7",
       "time": 522,
       "name": {
         "ja": "大爆発",
@@ -1149,7 +1719,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_62qyuq",
+      "id": "tpl_161_8txxod",
       "time": 522,
       "name": {
         "ja": "Leftward Dustdevil",
@@ -1160,7 +1730,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_t80xrf",
+      "id": "tpl_162_yranmg",
       "time": 523,
       "name": {
         "ja": "大爆発",

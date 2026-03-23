@@ -1,11 +1,11 @@
 {
   "contentId": "m7s",
-  "generatedAt": "2026-03-22T11:56:28.655Z",
+  "generatedAt": "2026-03-23T05:03:36.946Z",
   "sourceLogsCount": 1,
   "sourceLog": "jKbChf4zyL1DTFtY#13",
   "timelineEvents": [
     {
-      "id": "tpl_0_0nnxvn",
+      "id": "tpl_0_k2zktx",
       "time": 3,
       "name": {
         "ja": "AA",
@@ -16,7 +16,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_lqls9a",
+      "id": "tpl_1_vut1p1",
+      "time": 5,
+      "name": {
+        "ja": "Brutal Impact",
+        "en": "Brutal Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_jqxg5r",
       "time": 11,
       "name": {
         "ja": "Brutal Impact",
@@ -27,7 +37,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_bxjo1d",
+      "id": "tpl_3_qdev5f",
       "time": 12,
       "name": {
         "ja": "Brutal Impact",
@@ -38,7 +48,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_3mjnla",
+      "id": "tpl_4_e24jhg",
       "time": 13,
       "name": {
         "ja": "Brutal Impact",
@@ -49,7 +59,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_rvtaet",
+      "id": "tpl_5_74dxju",
       "time": 14,
       "name": {
         "ja": "Brutal Impact",
@@ -60,7 +70,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_9gt3ow",
+      "id": "tpl_6_iv83lz",
       "time": 15,
       "name": {
         "ja": "Brutal Impact",
@@ -71,7 +81,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_6jur37",
+      "id": "tpl_7_zwq3o7",
       "time": 16,
       "name": {
         "ja": "Brutal Impact",
@@ -82,7 +92,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_9ljfbf",
+      "id": "tpl_8_ajnssv",
       "time": 18,
       "name": {
         "ja": "AA",
@@ -93,7 +103,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_8_g2gn69",
+      "id": "tpl_9_nwpucz",
+      "time": 21,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_tmtbmr",
+      "time": 29,
+      "name": {
+        "ja": "Smash There",
+        "en": "Smash There"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_gznxvz",
+      "time": 29,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_12_18224k",
       "time": 35,
       "name": {
         "ja": "Brutal Smash",
@@ -104,7 +144,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_9_83kyfc",
+      "id": "tpl_13_8rdbuh",
       "time": 36,
       "name": {
         "ja": "AA",
@@ -115,7 +155,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_10_njnyfw",
+      "id": "tpl_14_2ks0uf",
       "time": 39,
       "name": {
         "ja": "AA",
@@ -126,7 +166,87 @@
       "target": "MT"
     },
     {
-      "id": "tpl_11_iv84nv",
+      "id": "tpl_15_ozfy9j",
+      "time": 40,
+      "name": {
+        "ja": "Spore Sac",
+        "en": "Spore Sac"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_3tbyab",
+      "time": 44,
+      "name": {
+        "ja": "Spore Sac",
+        "en": "Spore Sac"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_dxkkx3",
+      "time": 49,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_03prq4",
+      "time": 50,
+      "name": {
+        "ja": "Pollen",
+        "en": "Pollen"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_unj07b",
+      "time": 54,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_qv0e6q",
+      "time": 56,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_21_0kiogx",
+      "time": 58,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_vurwjk",
+      "time": 60,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_pe49uv",
       "time": 61,
       "name": {
         "ja": "Sinister Seeds",
@@ -137,7 +257,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_8z0lzj",
+      "id": "tpl_24_qtxj40",
+      "time": 63,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_x983zx",
       "time": 66,
       "name": {
         "ja": "Impact",
@@ -148,7 +278,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_mralsz",
+      "id": "tpl_26_4rb1oz",
       "time": 66,
       "name": {
         "ja": "AA",
@@ -159,7 +289,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_14_rf0gm7",
+      "id": "tpl_27_se2ge0",
       "time": 67,
       "name": {
         "ja": "AA",
@@ -170,7 +300,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_15_ru6xv3",
+      "id": "tpl_28_x84vff",
       "time": 67,
       "name": {
         "ja": "AA",
@@ -181,7 +311,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_16_yf8oto",
+      "id": "tpl_29_wj59mw",
+      "time": 68,
+      "name": {
+        "ja": "Roots of Evil",
+        "en": "Roots of Evil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_nkzrvs",
       "time": 69,
       "name": {
         "ja": "AA",
@@ -192,7 +332,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_17_lmr2ge",
+      "id": "tpl_31_ruoaxz",
       "time": 70,
       "name": {
         "ja": "AA",
@@ -203,7 +343,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_18_6m8wwk",
+      "id": "tpl_32_hcmigb",
       "time": 71,
       "name": {
         "ja": "AA",
@@ -214,7 +354,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_vtjkjf",
+      "id": "tpl_33_ch2q7f",
+      "time": 72,
+      "name": {
+        "ja": "Winding Wildwinds",
+        "en": "Winding Wildwinds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_rii7tq",
       "time": 76,
       "name": {
         "ja": "AA",
@@ -225,7 +375,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_20_5wipfa",
+      "id": "tpl_35_6s27hg",
       "time": 79,
       "name": {
         "ja": "Crossing Crosswinds",
@@ -236,7 +386,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_21_24tz9f",
+      "id": "tpl_36_1bdpur",
       "time": 79,
       "name": {
         "ja": "AA",
@@ -247,18 +397,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_22_ryff3l",
-      "time": 82,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_23_2o459k",
+      "id": "tpl_37_lkojf7",
       "time": 82,
       "name": {
         "ja": "AA",
@@ -269,7 +408,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_65mtro",
+      "id": "tpl_38_s771ly",
+      "time": 82,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 46600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_39_64rfl8",
       "time": 85,
       "name": {
         "ja": "AA",
@@ -280,7 +430,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_rpy1q0",
+      "id": "tpl_40_nnn1xb",
       "time": 88,
       "name": {
         "ja": "AA",
@@ -291,7 +441,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_wd1usn",
+      "id": "tpl_41_kf8i4o",
+      "time": 90,
+      "name": {
+        "ja": "Quarry Swamp",
+        "en": "Quarry Swamp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_6el92r",
       "time": 95,
       "name": {
         "ja": "AA",
@@ -302,7 +462,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_27_grhae1",
+      "id": "tpl_43_b8id2n",
       "time": 98,
       "name": {
         "ja": "AA",
@@ -313,7 +473,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_2sbryb",
+      "id": "tpl_44_gl54h7",
       "time": 102,
       "name": {
         "ja": "AA",
@@ -324,7 +484,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_29_b6ufa8",
+      "id": "tpl_45_iu3g53",
       "time": 105,
       "name": {
         "ja": "AA",
@@ -335,7 +495,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_30_1ycupf",
+      "id": "tpl_46_iyjbdj",
       "time": 106,
       "name": {
         "ja": "Explosion (TB)",
@@ -346,7 +506,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_31_uzw2up",
+      "id": "tpl_47_900p2w",
       "time": 106,
       "name": {
         "ja": "Explosion (TB)",
@@ -357,7 +517,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_32_8y8rth",
+      "id": "tpl_48_5rypdh",
       "time": 107,
       "name": {
         "ja": "Explosion",
@@ -368,7 +528,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_z6mohm",
+      "id": "tpl_49_bzqgxd",
+      "time": 107,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_cak4xo",
       "time": 109,
       "name": {
         "ja": "Explosion (TB)",
@@ -379,7 +549,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_34_tl36ad",
+      "id": "tpl_51_syn885",
       "time": 109,
       "name": {
         "ja": "Explosion (TB)",
@@ -390,7 +560,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_35_9noupp",
+      "id": "tpl_52_s3qzz5",
       "time": 110,
       "name": {
         "ja": "Explosion",
@@ -401,18 +571,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_58c4fr",
-      "time": 111,
-      "name": {
-        "ja": "Explosion (TB)",
-        "en": "Explosion (TB)"
-      },
-      "damageType": "magical",
-      "damageAmount": 178000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_37_hm1ntq",
+      "id": "tpl_53_00eazl",
       "time": 111,
       "name": {
         "ja": "Explosion (TB)",
@@ -423,7 +582,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_38_xf6ann",
+      "id": "tpl_54_ubl80q",
+      "time": 111,
+      "name": {
+        "ja": "Explosion (TB)",
+        "en": "Explosion (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 178000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_55_dhrkkb",
       "time": 112,
       "name": {
         "ja": "Explosion",
@@ -434,7 +604,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_onoezs",
+      "id": "tpl_56_1ghl0x",
+      "time": 115,
+      "name": {
+        "ja": "Smash There",
+        "en": "Smash There"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_ixdpyj",
+      "time": 115,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_fexljc",
       "time": 121,
       "name": {
         "ja": "Brutal Smash",
@@ -445,7 +635,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_40_hhqm5n",
+      "id": "tpl_59_ei5pd2",
+      "time": 123,
+      "name": {
+        "ja": "Pulp Smash",
+        "en": "Pulp Smash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_jjxeup",
       "time": 123,
       "name": {
         "ja": "AA",
@@ -456,7 +656,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_41_cy6q5e",
+      "id": "tpl_61_sdh7cp",
       "time": 128,
       "name": {
         "ja": "Pulp Smash",
@@ -467,7 +667,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_0a78c5",
+      "id": "tpl_62_2phf5p",
+      "time": 128,
+      "name": {
+        "ja": "It Came from the Dirt",
+        "en": "It Came from the Dirt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_a75c6n",
       "time": 130,
       "name": {
         "ja": "The Unpotted",
@@ -478,7 +688,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_r02ff7",
+      "id": "tpl_64_63hgij",
       "time": 131,
       "name": {
         "ja": "AA",
@@ -489,7 +699,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_44_bo78j6",
+      "id": "tpl_65_8l0okq",
       "time": 134,
       "name": {
         "ja": "AA",
@@ -500,7 +710,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_45_re8soo",
+      "id": "tpl_66_u7tg8t",
       "time": 137,
       "name": {
         "ja": "AA",
@@ -511,7 +721,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_46_vb4g7l",
+      "id": "tpl_67_z8ziq6",
       "time": 149,
       "name": {
         "ja": "Neo Bombarian Special",
@@ -522,7 +732,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_0z75gz",
+      "id": "tpl_68_8n5e12",
       "time": 163,
       "name": {
         "ja": "AA",
@@ -533,7 +743,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_48_fx2kpo",
+      "id": "tpl_69_ljt23d",
       "time": 166,
       "name": {
         "ja": "AA",
@@ -544,7 +754,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_49_8sti8n",
+      "id": "tpl_70_7gkihm",
+      "time": 169,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_71_bhmvf5",
+      "time": 176,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_bcvbp4",
+      "time": 176,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_33cszk",
+      "time": 185,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_whegob",
+      "time": 185,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_80tcbr",
       "time": 190,
       "name": {
         "ja": "Electrogenetic Force",
@@ -555,7 +815,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_pw2k88",
+      "id": "tpl_76_wu7dpd",
       "time": 195,
       "name": {
         "ja": "Revenge of the Vines",
@@ -566,7 +826,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_uizcor",
+      "id": "tpl_77_tnmqzm",
       "time": 198,
       "name": {
         "ja": "AA",
@@ -577,7 +837,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_52_kgeqm9",
+      "id": "tpl_78_v0p438",
       "time": 200,
       "name": {
         "ja": "AA",
@@ -588,7 +848,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_53_sgb6ys",
+      "id": "tpl_79_jrokzm",
+      "time": 203,
+      "name": {
+        "ja": "Thorny Deathmatch",
+        "en": "Thorny Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_2qso2d",
+      "time": 208,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_8mh15j",
+      "time": 216,
+      "name": {
+        "ja": "Abominable Blink",
+        "en": "Abominable Blink"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_vich9n",
       "time": 223,
       "name": {
         "ja": "Abominable Blink (TB)",
@@ -599,7 +889,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_54_72r9o2",
+      "id": "tpl_83_qi3t4a",
       "time": 223,
       "name": {
         "ja": "Abominable Blink (TB)",
@@ -610,7 +900,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_55_1pwxhr",
+      "id": "tpl_84_cnonox",
       "time": 224,
       "name": {
         "ja": "Abominable Blink",
@@ -621,7 +911,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_09awuj",
+      "id": "tpl_85_6usnil",
       "time": 224,
       "name": {
         "ja": "AA",
@@ -632,7 +922,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_57_qhpjlp",
+      "id": "tpl_86_sjsevi",
       "time": 227,
       "name": {
         "ja": "AA",
@@ -643,7 +933,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_8fcoiu",
+      "id": "tpl_87_ztptmc",
+      "time": 228,
+      "name": {
+        "ja": "Sporesplosion",
+        "en": "Sporesplosion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_tp9lra",
       "time": 237,
       "name": {
         "ja": "AA",
@@ -654,7 +954,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_59_plovp8",
+      "id": "tpl_89_1lpg6j",
+      "time": 239,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_5xg7zv",
       "time": 240,
       "name": {
         "ja": "Sporesplosion",
@@ -665,7 +975,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_09ufi0",
+      "id": "tpl_91_a9hfyv",
       "time": 247,
       "name": {
         "ja": "Brutish Swing",
@@ -676,7 +986,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_hy8ldr",
+      "id": "tpl_92_jd5s8r",
+      "time": 248,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_lz6rhf",
+      "time": 248,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_x0b35m",
       "time": 252,
       "name": {
         "ja": "Electrogenetic Force",
@@ -687,7 +1017,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_3lpk2x",
+      "id": "tpl_95_tz66zf",
       "time": 259,
       "name": {
         "ja": "Revenge of the Vines",
@@ -698,7 +1028,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_aqhlrw",
+      "id": "tpl_96_lnyvty",
       "time": 260,
       "name": {
         "ja": "AA",
@@ -709,7 +1039,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_bqumwc",
+      "id": "tpl_97_7ncikt",
       "time": 263,
       "name": {
         "ja": "AA",
@@ -720,7 +1050,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_65_gh6jr5",
+      "id": "tpl_98_a9yski",
+      "time": 264,
+      "name": {
+        "ja": "Demolition Deathmatch",
+        "en": "Demolition Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_bvi7bw",
       "time": 269,
       "name": {
         "ja": "AA",
@@ -731,7 +1071,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_66_cti9hv",
+      "id": "tpl_100_lj7b1f",
       "time": 272,
       "name": {
         "ja": "AA",
@@ -742,7 +1082,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_67_van48d",
+      "id": "tpl_101_c9wfgj",
+      "time": 275,
+      "name": {
+        "ja": "Abominable Blink",
+        "en": "Abominable Blink"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_f02vz9",
       "time": 281,
       "name": {
         "ja": "Abominable Blink (TB)",
@@ -753,7 +1103,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_68_wkgbhg",
+      "id": "tpl_103_66sfgz",
       "time": 281,
       "name": {
         "ja": "Abominable Blink (TB)",
@@ -764,7 +1114,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_69_nq7246",
+      "id": "tpl_104_xpjj79",
       "time": 282,
       "name": {
         "ja": "Abominable Blink",
@@ -775,7 +1125,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_bfgt9y",
+      "id": "tpl_105_pqmjrm",
       "time": 283,
       "name": {
         "ja": "AA",
@@ -786,7 +1136,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_71_o2f4xp",
+      "id": "tpl_106_tt4fx9",
+      "time": 284,
+      "name": {
+        "ja": "Strange Seeds",
+        "en": "Strange Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_3y50go",
+      "time": 294,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_a5idze",
       "time": 295,
       "name": {
         "ja": "Strange Seeds",
@@ -797,7 +1167,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_z43f5z",
+      "id": "tpl_109_tb9vfe",
+      "time": 296,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_2kta6b",
+      "time": 296,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_spta5y",
       "time": 300,
       "name": {
         "ja": "Strange Seeds",
@@ -808,7 +1198,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_0t7bcs",
+      "id": "tpl_112_vawyuf",
+      "time": 301,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_x9r56t",
+      "time": 301,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_dhtu1a",
       "time": 305,
       "name": {
         "ja": "Strange Seeds",
@@ -819,7 +1229,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_adourx",
+      "id": "tpl_115_tl9heg",
+      "time": 306,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_vlww7f",
+      "time": 306,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_pnx2tk",
       "time": 310,
       "name": {
         "ja": "Strange Seeds",
@@ -830,7 +1260,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_iquyf3",
+      "id": "tpl_118_kxp494",
+      "time": 311,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_wcd1c4",
+      "time": 311,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_jcn5hw",
       "time": 320,
       "name": {
         "ja": "Killer Seeds",
@@ -841,7 +1291,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_dbv4y2",
+      "id": "tpl_121_ac8qch",
+      "time": 321,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_2tbk9p",
+      "time": 321,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_v2r70m",
+      "time": 321,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_6evjuv",
       "time": 324,
       "name": {
         "ja": "Tendrils of Terror",
@@ -852,7 +1332,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_x0p0dy",
+      "id": "tpl_125_mpzjql",
+      "time": 330,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_nbwlcg",
+      "time": 330,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_90io0e",
       "time": 335,
       "name": {
         "ja": "Electrogenetic Force",
@@ -863,7 +1363,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_94bkwp",
+      "id": "tpl_128_ja2a0m",
       "time": 341,
       "name": {
         "ja": "Revenge of the Vines",
@@ -874,7 +1374,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_nbew7g",
+      "id": "tpl_129_isoi6l",
       "time": 342,
       "name": {
         "ja": "AA",
@@ -885,7 +1385,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_pbjd31",
+      "id": "tpl_130_gdz32r",
       "time": 345,
       "name": {
         "ja": "AA",
@@ -896,7 +1396,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_81_fw425d",
+      "id": "tpl_131_0hiczf",
       "time": 354,
       "name": {
         "ja": "Powerslam",
@@ -907,7 +1407,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_k29700",
+      "id": "tpl_132_osedsv",
       "time": 371,
       "name": {
         "ja": "AA",
@@ -918,7 +1418,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_83_eai2zd",
+      "id": "tpl_133_xx1jvu",
       "time": 374,
       "name": {
         "ja": "AA",
@@ -929,7 +1429,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_84_miop27",
+      "id": "tpl_134_djhsly",
+      "time": 377,
+      "name": {
+        "ja": "Brutal Impact",
+        "en": "Brutal Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_j23baq",
       "time": 383,
       "name": {
         "ja": "Brutal Impact",
@@ -940,7 +1450,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_12x61l",
+      "id": "tpl_136_4l3ow2",
       "time": 384,
       "name": {
         "ja": "Brutal Impact",
@@ -951,7 +1461,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_33h7ot",
+      "id": "tpl_137_hz5gbu",
       "time": 385,
       "name": {
         "ja": "Brutal Impact",
@@ -962,7 +1472,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_s9352p",
+      "id": "tpl_138_q6vj09",
       "time": 387,
       "name": {
         "ja": "Brutal Impact",
@@ -973,7 +1483,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_5u4dqf",
+      "id": "tpl_139_mas4x4",
       "time": 388,
       "name": {
         "ja": "Brutal Impact",
@@ -984,7 +1494,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_cij9pd",
+      "id": "tpl_140_k60xzj",
       "time": 389,
       "name": {
         "ja": "Brutal Impact",
@@ -995,7 +1505,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_x9n85l",
+      "id": "tpl_141_qz2tzm",
       "time": 391,
       "name": {
         "ja": "AA",
@@ -1006,7 +1516,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_91_3ns4kb",
+      "id": "tpl_142_k0s8xu",
+      "time": 394,
+      "name": {
+        "ja": "Stoneringer 2: Stoneringers",
+        "en": "Stoneringer 2: Stoneringers"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_143_nw8m5l",
+      "time": 402,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_bk18f5",
+      "time": 402,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_vyj7sc",
       "time": 411,
       "name": {
         "ja": "Revenge of the Vines",
@@ -1017,7 +1557,67 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_g8w726",
+      "id": "tpl_146_qc0h58",
+      "time": 412,
+      "name": {
+        "ja": "Lashing Lariat",
+        "en": "Lashing Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_tiqmce",
+      "time": 412,
+      "name": {
+        "ja": "Lashing Lariat",
+        "en": "Lashing Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_dqg55o",
+      "time": 418,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_tlgbha",
+      "time": 418,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_1ru0uv",
+      "time": 425,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_kt8jub",
+      "time": 425,
+      "name": {
+        "ja": "Glower Power",
+        "en": "Glower Power"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_3s9zpd",
       "time": 427,
       "name": {
         "ja": "Electrogenetic Force",
@@ -1028,7 +1628,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_2eo6zg",
+      "id": "tpl_153_ge1uoy",
+      "time": 428,
+      "name": {
+        "ja": "Slaminator",
+        "en": "Slaminator"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_451pyg",
       "time": 433,
       "name": {
         "ja": "Slaminator",
@@ -1039,7 +1649,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_94_p4qtnj",
+      "id": "tpl_155_he5g2s",
       "time": 436,
       "name": {
         "ja": "AA",
@@ -1050,7 +1660,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_95_lek7eb",
+      "id": "tpl_156_66xdim",
+      "time": 437,
+      "name": {
+        "ja": "Brutal Impact",
+        "en": "Brutal Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_jt7pyq",
       "time": 443,
       "name": {
         "ja": "Brutal Impact",
@@ -1061,7 +1681,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_7gw99z",
+      "id": "tpl_158_l5aq9f",
       "time": 445,
       "name": {
         "ja": "Brutal Impact",
@@ -1072,7 +1692,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_vo19hb",
+      "id": "tpl_159_xnpf6d",
       "time": 446,
       "name": {
         "ja": "Brutal Impact",
@@ -1083,7 +1703,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_8rypfp",
+      "id": "tpl_160_0lj8z4",
       "time": 447,
       "name": {
         "ja": "Brutal Impact",
@@ -1094,7 +1714,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_yjl50q",
+      "id": "tpl_161_xr203o",
       "time": 448,
       "name": {
         "ja": "Brutal Impact",
@@ -1105,7 +1725,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_u7ak5e",
+      "id": "tpl_162_f6ufuw",
       "time": 449,
       "name": {
         "ja": "Brutal Impact",
@@ -1116,7 +1736,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_jbpd9i",
+      "id": "tpl_163_7mn5sb",
       "time": 450,
       "name": {
         "ja": "Brutal Impact",
@@ -1127,7 +1747,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_echjt5",
+      "id": "tpl_164_dlvnps",
       "time": 451,
       "name": {
         "ja": "Brutal Impact",
@@ -1138,7 +1758,37 @@
       "target": "ST"
     },
     {
-      "id": "tpl_103_ryvp7v",
+      "id": "tpl_165_e0rvhf",
+      "time": 453,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_166_nqg73v",
+      "time": 461,
+      "name": {
+        "ja": "Smash There",
+        "en": "Smash There"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_z3ykem",
+      "time": 461,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_168_sb8ys8",
       "time": 467,
       "name": {
         "ja": "Brutal Smash",
@@ -1149,7 +1799,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_104_orxms1",
+      "id": "tpl_169_31p6za",
       "time": 468,
       "name": {
         "ja": "AA",
@@ -1160,7 +1810,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_105_ciu68n",
+      "id": "tpl_170_0oonng",
       "time": 471,
       "name": {
         "ja": "AA",
@@ -1171,7 +1821,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_106_507we1",
+      "id": "tpl_171_p083eq",
+      "time": 474,
+      "name": {
+        "ja": "Debris Deathmatch",
+        "en": "Debris Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_172_zodoo6",
+      "time": 480,
+      "name": {
+        "ja": "Spore Sac",
+        "en": "Spore Sac"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_173_s1ahm9",
+      "time": 484,
+      "name": {
+        "ja": "Spore Sac",
+        "en": "Spore Sac"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_174_x7udd6",
       "time": 488,
       "name": {
         "ja": "AA",
@@ -1182,7 +1862,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_107_5vq6r3",
+      "id": "tpl_175_240tcp",
+      "time": 489,
+      "name": {
+        "ja": "Pollen",
+        "en": "Pollen"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_176_tldoqg",
       "time": 491,
       "name": {
         "ja": "AA",
@@ -1193,7 +1883,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_108_vt0van",
+      "id": "tpl_177_4x8l2n",
       "time": 493,
       "name": {
         "ja": "AA",
@@ -1204,7 +1894,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_109_8uc03w",
+      "id": "tpl_178_4mw6im",
       "time": 496,
       "name": {
         "ja": "AA",
@@ -1215,7 +1905,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_110_xp6jzd",
+      "id": "tpl_179_04ptwc",
       "time": 497,
       "name": {
         "ja": "Killer Seeds",
@@ -1226,18 +1916,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_h983lh",
+      "id": "tpl_180_q4sii3",
       "time": 498,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
       },
-      "damageType": "physical",
-      "damageAmount": 46600,
-      "target": "ST"
+      "damageType": "magical",
+      "target": "AoE"
     },
     {
-      "id": "tpl_112_7sajjn",
+      "id": "tpl_181_84rkg0",
       "time": 498,
       "name": {
         "ja": "AA",
@@ -1248,7 +1937,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_113_wh6tse",
+      "id": "tpl_182_tuggfh",
       "time": 498,
       "name": {
         "ja": "AA",
@@ -1259,7 +1948,18 @@
       "target": "ST"
     },
     {
-      "id": "tpl_114_7kzgeo",
+      "id": "tpl_183_xw11z2",
+      "time": 498,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 46600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_184_h7prbv",
       "time": 499,
       "name": {
         "ja": "AA",
@@ -1270,7 +1970,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_115_mxwo51",
+      "id": "tpl_185_v8sler",
       "time": 503,
       "name": {
         "ja": "AA",
@@ -1281,7 +1981,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_116_9ureq7",
+      "id": "tpl_186_wdg3f3",
       "time": 506,
       "name": {
         "ja": "AA",
@@ -1292,7 +1992,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_117_m4yj15",
+      "id": "tpl_187_n98eqb",
       "time": 506,
       "name": {
         "ja": "AA",
@@ -1303,18 +2003,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_118_71jz0d",
-      "time": 507,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_119_08e7en",
+      "id": "tpl_188_a2w620",
       "time": 507,
       "name": {
         "ja": "AA",
@@ -1325,7 +2014,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_120_88priw",
+      "id": "tpl_189_onuvv8",
+      "time": 507,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 46600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_190_xp3hf9",
       "time": 508,
       "name": {
         "ja": "AA",
@@ -1336,7 +2036,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_121_uwxjkv",
+      "id": "tpl_191_4y6e4i",
       "time": 509,
       "name": {
         "ja": "AA",
@@ -1347,7 +2047,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_122_l3bdsz",
+      "id": "tpl_192_1xp0mj",
+      "time": 510,
+      "name": {
+        "ja": "Quarry Swamp",
+        "en": "Quarry Swamp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_66g15p",
       "time": 510,
       "name": {
         "ja": "AA",
@@ -1358,7 +2068,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_123_gbqaqx",
+      "id": "tpl_194_g17wej",
       "time": 510,
       "name": {
         "ja": "AA",
@@ -1369,7 +2079,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_124_om57yq",
+      "id": "tpl_195_j5l9ra",
       "time": 511,
       "name": {
         "ja": "AA",
@@ -1380,18 +2090,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_125_qi9k5o",
-      "time": 513,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "physical",
-      "damageAmount": 46600,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_126_vci94q",
+      "id": "tpl_196_ld690b",
       "time": 513,
       "name": {
         "ja": "AA",
@@ -1402,7 +2101,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_127_8czs1h",
+      "id": "tpl_197_2iscbf",
+      "time": 513,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 46600,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_198_xeshu6",
       "time": 514,
       "name": {
         "ja": "AA",
@@ -1413,7 +2123,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_128_bs6gz7",
+      "id": "tpl_199_jq8so6",
       "time": 515,
       "name": {
         "ja": "AA",
@@ -1424,7 +2134,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_129_4dscja",
+      "id": "tpl_200_u117pv",
+      "time": 521,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_1eety8",
+      "time": 526,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_4msclf",
       "time": 527,
       "name": {
         "ja": "AA",
@@ -1435,7 +2165,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_130_d66iqj",
+      "id": "tpl_203_4313yj",
+      "time": 528,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_204_od9zgc",
+      "time": 530,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_205_jffn88",
       "time": 530,
       "name": {
         "ja": "AA",
@@ -1446,7 +2196,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_131_1cioza",
+      "id": "tpl_206_7gmta7",
+      "time": 532,
+      "name": {
+        "ja": "Sinister Seeds",
+        "en": "Sinister Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_207_fv94s3",
       "time": 533,
       "name": {
         "ja": "Sinister Seeds",
@@ -1457,7 +2217,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_132_04p4bz",
+      "id": "tpl_208_p0jtcm",
       "time": 533,
       "name": {
         "ja": "AA",
@@ -1468,7 +2228,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_133_blnjd8",
+      "id": "tpl_209_vy4zte",
+      "time": 537,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_210_4npgfk",
+      "time": 537,
+      "name": {
+        "ja": "Roots of Evil",
+        "en": "Roots of Evil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_211_nquug9",
       "time": 537,
       "name": {
         "ja": "AA",
@@ -1479,7 +2259,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_134_mkozq6",
+      "id": "tpl_212_i0g99n",
+      "time": 538,
+      "name": {
+        "ja": "Pulp Smash",
+        "en": "Pulp Smash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_213_nukgp0",
       "time": 540,
       "name": {
         "ja": "Tendrils of Terror",
@@ -1490,7 +2280,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_135_d2pnzn",
+      "id": "tpl_214_y8bsar",
       "time": 543,
       "name": {
         "ja": "Pulp Smash",
@@ -1501,7 +2291,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_136_ymk550",
+      "id": "tpl_215_64uhwn",
+      "time": 543,
+      "name": {
+        "ja": "It Came from the Dirt",
+        "en": "It Came from the Dirt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_216_23jpli",
       "time": 545,
       "name": {
         "ja": "The Unpotted",
@@ -1512,7 +2312,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_137_lowril",
+      "id": "tpl_217_zb2dbr",
+      "time": 547,
+      "name": {
+        "ja": "Brutal Impact",
+        "en": "Brutal Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_218_tafpxg",
       "time": 552,
       "name": {
         "ja": "Brutal Impact",
@@ -1523,7 +2333,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_138_7froh3",
+      "id": "tpl_219_ve0fk7",
       "time": 554,
       "name": {
         "ja": "Brutal Impact",
@@ -1534,7 +2344,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_139_yivnmf",
+      "id": "tpl_220_nxegv4",
       "time": 555,
       "name": {
         "ja": "Brutal Impact",
@@ -1545,7 +2355,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_140_odc8pt",
+      "id": "tpl_221_bbrp9g",
       "time": 556,
       "name": {
         "ja": "Brutal Impact",
@@ -1556,7 +2366,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_141_gfucqx",
+      "id": "tpl_222_hhvcei",
       "time": 557,
       "name": {
         "ja": "Brutal Impact",
@@ -1567,7 +2377,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_142_ctmeo2",
+      "id": "tpl_223_1672ia",
       "time": 558,
       "name": {
         "ja": "Brutal Impact",
@@ -1578,7 +2388,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_143_kdt2ry",
+      "id": "tpl_224_gbpi9q",
       "time": 559,
       "name": {
         "ja": "Brutal Impact",
@@ -1589,7 +2399,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_144_mn5qtp",
+      "id": "tpl_225_rxfsmh",
       "time": 560,
       "name": {
         "ja": "Brutal Impact",
@@ -1600,7 +2410,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_145_btlle2",
+      "id": "tpl_226_3nrp55",
       "time": 561,
       "name": {
         "ja": "AA",
@@ -1611,7 +2421,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_146_xqxoiy",
+      "id": "tpl_227_jztr97",
       "time": 564,
       "name": {
         "ja": "AA",
@@ -1622,7 +2432,47 @@
       "target": "MT"
     },
     {
-      "id": "tpl_147_66pygx",
+      "id": "tpl_228_v0t4j0",
+      "time": 567,
+      "name": {
+        "ja": "Stoneringer 2: Stoneringers",
+        "en": "Stoneringer 2: Stoneringers"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_229_ynphxt",
+      "time": 577,
+      "name": {
+        "ja": "Strange Seeds",
+        "en": "Strange Seeds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_230_atepae",
+      "time": 585,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_231_s7vktq",
+      "time": 585,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_232_mckkhh",
       "time": 588,
       "name": {
         "ja": "Strange Seeds",
@@ -1633,7 +2483,67 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_148_b1olta",
+      "id": "tpl_233_t2ztca",
+      "time": 590,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_234_sexnru",
+      "time": 590,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_235_i8bhv4",
+      "time": 593,
+      "name": {
+        "ja": "Lashing Lariat",
+        "en": "Lashing Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_236_giygbb",
+      "time": 593,
+      "name": {
+        "ja": "Lashing Lariat",
+        "en": "Lashing Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_237_y5qf54",
+      "time": 600,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_238_h98uho",
+      "time": 600,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_239_cq0buk",
       "time": 602,
       "name": {
         "ja": "Strange Seeds",
@@ -1644,7 +2554,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_149_om9dfh",
+      "id": "tpl_240_5ovp33",
+      "time": 604,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_241_wnxu84",
+      "time": 604,
+      "name": {
+        "ja": "Tendrils of Terror",
+        "en": "Tendrils of Terror"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_242_h5zf2i",
+      "time": 608,
+      "name": {
+        "ja": "Slaminator",
+        "en": "Slaminator"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_243_voyno1",
       "time": 613,
       "name": {
         "ja": "Slaminator",
@@ -1655,7 +2595,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_150_sjqwpy",
+      "id": "tpl_244_e7qo0w",
+      "time": 617,
+      "name": {
+        "ja": "Stoneringer",
+        "en": "Stoneringer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_245_h8cdkn",
       "time": 617,
       "name": {
         "ja": "AA",
@@ -1666,7 +2616,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_151_tdng51",
+      "id": "tpl_246_vvjjzs",
+      "time": 625,
+      "name": {
+        "ja": "Smash Here",
+        "en": "Smash Here"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_247_va6s8i",
+      "time": 625,
+      "name": {
+        "ja": "Brutish Swing",
+        "en": "Brutish Swing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_248_k71uow",
       "time": 632,
       "name": {
         "ja": "Brutal Smash",
@@ -1677,7 +2647,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_152_zycgcz",
+      "id": "tpl_249_fowslf",
       "time": 633,
       "name": {
         "ja": "AA",
@@ -1688,7 +2658,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_153_hbje3y",
+      "id": "tpl_250_njcjnd",
+      "time": 635,
+      "name": {
+        "ja": "Brutal Impact",
+        "en": "Brutal Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_251_rcb2sr",
       "time": 641,
       "name": {
         "ja": "Brutal Impact",
@@ -1699,7 +2679,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_154_9av4fp",
+      "id": "tpl_252_fdnlp8",
       "time": 642,
       "name": {
         "ja": "Brutal Impact",
@@ -1710,7 +2690,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_155_foqgk1",
+      "id": "tpl_253_i5dswl",
       "time": 643,
       "name": {
         "ja": "Brutal Impact",
@@ -1721,7 +2701,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_156_kqp30l",
+      "id": "tpl_254_uzx006",
       "time": 644,
       "name": {
         "ja": "Brutal Impact",
@@ -1732,7 +2712,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_157_hc7jj3",
+      "id": "tpl_255_9er46u",
       "time": 645,
       "name": {
         "ja": "Brutal Impact",
@@ -1743,7 +2723,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_158_1px2op",
+      "id": "tpl_256_fbby34",
       "time": 646,
       "name": {
         "ja": "Brutal Impact",
@@ -1754,7 +2734,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_159_89mcau",
+      "id": "tpl_257_mtnbj9",
       "time": 647,
       "name": {
         "ja": "Brutal Impact",
@@ -1765,7 +2745,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_160_ezof4v",
+      "id": "tpl_258_paosoe",
       "time": 649,
       "name": {
         "ja": "AA",
@@ -1776,7 +2756,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_161_o001qb",
+      "id": "tpl_259_2tp7nu",
       "time": 652,
       "name": {
         "ja": "AA",
@@ -1785,6 +2765,16 @@
       "damageType": "physical",
       "damageAmount": 46600,
       "target": "MT"
+    },
+    {
+      "id": "tpl_260_pzkodo",
+      "time": 658,
+      "name": {
+        "ja": "Special Bombarian Special",
+        "en": "Special Bombarian Special"
+      },
+      "damageType": "magical",
+      "target": "AoE"
     }
   ],
   "phases": [

@@ -1,11 +1,11 @@
 {
   "contentId": "p12s_p1",
-  "generatedAt": "2026-03-22T12:10:39.845Z",
+  "generatedAt": "2026-03-23T03:47:53.963Z",
   "sourceLogsCount": 1,
   "sourceLog": "hXy3RwLtxJ4gHfYz#7",
   "timelineEvents": [
     {
-      "id": "tpl_0_ln8pgr",
+      "id": "tpl_0_q8nisi",
       "time": 2,
       "name": {
         "ja": "attack",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_ypyjwf",
+      "id": "tpl_1_5ovgkv",
       "time": 3,
       "name": {
         "ja": "attack",
@@ -27,7 +27,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_p6mwoy",
+      "id": "tpl_2_exwzvr",
       "time": 8,
       "name": {
         "ja": "attack",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_3pqqrq",
+      "id": "tpl_3_n5jksm",
       "time": 11,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_pltb2e",
+      "id": "tpl_4_cqspcp",
       "time": 13,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -60,7 +60,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_66l5va",
+      "id": "tpl_5_j7dz44",
       "time": 14,
       "name": {
         "ja": "attack",
@@ -71,7 +71,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_5tp529",
+      "id": "tpl_6_3r3x1r",
       "time": 17,
       "name": {
         "ja": "attack",
@@ -82,7 +82,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_6cy0ox",
+      "id": "tpl_7_bfw40y",
+      "time": 19,
+      "name": {
+        "ja": "Paradeigma",
+        "en": "Paradeigma"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_ggurfw",
       "time": 23,
       "name": {
         "ja": "attack",
@@ -93,7 +103,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_tjasf8",
+      "id": "tpl_9_0lf27b",
       "time": 26,
       "name": {
         "ja": "attack",
@@ -104,7 +114,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_llu1v2",
+      "id": "tpl_10_c30198",
+      "time": 27,
+      "name": {
+        "ja": "Trinity of Souls",
+        "en": "Trinity of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_0a7szz",
       "time": 35,
       "name": {
         "ja": "ボーライド",
@@ -115,7 +135,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_qjzddo",
+      "id": "tpl_12_1qw1ss",
       "time": 38,
       "name": {
         "ja": "白火",
@@ -126,7 +146,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_uylbtq",
+      "id": "tpl_13_fdp81c",
       "time": 43,
       "name": {
         "ja": "白火",
@@ -137,7 +157,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_wynvor",
+      "id": "tpl_14_rny1qc",
       "time": 49,
       "name": {
         "ja": "attack",
@@ -148,7 +168,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_0iddp2",
+      "id": "tpl_15_r0fzbx",
       "time": 52,
       "name": {
         "ja": "attack",
@@ -159,7 +179,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_om59cy",
+      "id": "tpl_16_2p2ahy",
       "time": 55,
       "name": {
         "ja": "attack",
@@ -170,7 +190,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_eaxen3",
+      "id": "tpl_17_0tfm6w",
+      "time": 55,
+      "name": {
+        "ja": "Paradeigma",
+        "en": "Paradeigma"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_5ob4w6",
       "time": 61,
       "name": {
         "ja": "attack",
@@ -181,7 +211,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_s8y8ia",
+      "id": "tpl_19_i3qkss",
+      "time": 61,
+      "name": {
+        "ja": "Engravement of Souls",
+        "en": "Engravement of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_eclpal",
       "time": 69,
       "name": {
         "ja": "attack",
@@ -192,7 +232,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_6pc2o3",
+      "id": "tpl_21_iea7yh",
       "time": 71,
       "name": {
         "ja": "attack",
@@ -203,7 +243,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_c2i0v0",
+      "id": "tpl_22_h3c0dg",
       "time": 75,
       "name": {
         "ja": "attack",
@@ -214,7 +254,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_m5a7e4",
+      "id": "tpl_23_4enn3a",
       "time": 76,
       "name": {
         "ja": "レイディアンス",
@@ -225,7 +265,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_9wr0l0",
+      "id": "tpl_24_i00mt0",
       "time": 76,
       "name": {
         "ja": "シャドーシアー",
@@ -236,7 +276,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_58bxor",
+      "id": "tpl_25_ct4hzq",
       "time": 77,
       "name": {
         "ja": "アストラルグロウ",
@@ -247,7 +287,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_o6rqzq",
+      "id": "tpl_26_xwzte9",
       "time": 77,
       "name": {
         "ja": "アンブラルグロウ",
@@ -258,7 +298,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_42lr7n",
+      "id": "tpl_27_ykh0ct",
+      "time": 77,
+      "name": {
+        "ja": "Ray of Light",
+        "en": "Ray of Light"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_fw6lva",
       "time": 80,
       "name": {
         "ja": "アストラルアドバンス",
@@ -269,7 +319,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_ttqje2",
+      "id": "tpl_29_7sa1fj",
       "time": 80,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -280,7 +330,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_ywo5y7",
+      "id": "tpl_30_tgc68s",
       "time": 83,
       "name": {
         "ja": "attack",
@@ -291,7 +341,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_vbdviq",
+      "id": "tpl_31_9uzc0f",
       "time": 89,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -302,7 +352,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_zjgz0d",
+      "id": "tpl_32_87mw9w",
       "time": 90,
       "name": {
         "ja": "attack",
@@ -313,7 +363,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_exwjbq",
+      "id": "tpl_33_2231kx",
       "time": 91,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -324,7 +374,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_9euwa8",
+      "id": "tpl_34_rs4uba",
       "time": 99,
       "name": {
         "ja": "グラウコピス",
@@ -335,7 +385,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_zd2rno",
+      "id": "tpl_35_uxtqj1",
       "time": 102,
       "name": {
         "ja": "グラウコピス",
@@ -346,7 +396,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_6wbdh6",
+      "id": "tpl_36_y9e9vg",
       "time": 104,
       "name": {
         "ja": "attack",
@@ -357,7 +407,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_mhk40s",
+      "id": "tpl_37_k8e1fl",
       "time": 107,
       "name": {
         "ja": "attack",
@@ -368,7 +418,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_qyniuf",
+      "id": "tpl_38_aygf85",
       "time": 110,
       "name": {
         "ja": "attack",
@@ -379,7 +429,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_zt98pt",
+      "id": "tpl_39_iha4if",
+      "time": 112,
+      "name": {
+        "ja": "Superchain Theory I",
+        "en": "Superchain Theory I"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_8awq45",
       "time": 119,
       "name": {
         "ja": "attack",
@@ -390,7 +450,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_4nj4k6",
+      "id": "tpl_41_jejfba",
+      "time": 120,
+      "name": {
+        "ja": "Engravement of Souls",
+        "en": "Engravement of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_u016zu",
       "time": 125,
       "name": {
         "ja": "attack",
@@ -401,7 +471,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_ti9nk4",
+      "id": "tpl_43_fkue1h",
       "time": 128,
       "name": {
         "ja": "attack",
@@ -412,7 +482,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_z1dilg",
+      "id": "tpl_44_r7drvy",
+      "time": 128,
+      "name": {
+        "ja": "Superchain Coil",
+        "en": "Superchain Coil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_d1pert",
       "time": 129,
       "name": {
         "ja": "スーパーチェイン・ラジエーション",
@@ -423,7 +503,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_63p3c8",
+      "id": "tpl_46_7vgoa1",
       "time": 132,
       "name": {
         "ja": "attack",
@@ -434,7 +514,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_szlphi",
+      "id": "tpl_47_bu2mnh",
       "time": 135,
       "name": {
         "ja": "attack",
@@ -445,7 +525,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_jfx5zc",
+      "id": "tpl_48_jjg78g",
+      "time": 135,
+      "name": {
+        "ja": "Superchain Burst",
+        "en": "Superchain Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_5c9e89",
+      "time": 135,
+      "name": {
+        "ja": "Superchain Coil",
+        "en": "Superchain Coil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_z944yu",
       "time": 137,
       "name": {
         "ja": "霊撃",
@@ -456,7 +556,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_kti24p",
+      "id": "tpl_51_sosa2e",
       "time": 137,
       "name": {
         "ja": "星撃",
@@ -467,7 +567,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_i5goid",
+      "id": "tpl_52_6vym22",
       "time": 138,
       "name": {
         "ja": "attack",
@@ -478,7 +578,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_4c72xc",
+      "id": "tpl_53_edlfpd",
+      "time": 140,
+      "name": {
+        "ja": "Superchain Coil",
+        "en": "Superchain Coil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_4ywhec",
       "time": 142,
       "name": {
         "ja": "attack",
@@ -489,7 +599,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_tfw0j5",
+      "id": "tpl_55_0melsv",
+      "time": 142,
+      "name": {
+        "ja": "Superchain Burst",
+        "en": "Superchain Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_xgly65",
       "time": 145,
       "name": {
         "ja": "アストラルグロウ",
@@ -500,7 +620,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_yldi8t",
+      "id": "tpl_57_w1scby",
       "time": 145,
       "name": {
         "ja": "アンブラルグロウ",
@@ -511,7 +631,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_mporcc",
+      "id": "tpl_58_ojnozr",
       "time": 146,
       "name": {
         "ja": "テオス・ホーリー",
@@ -522,7 +642,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_5jg4mk",
+      "id": "tpl_59_y351w8",
       "time": 148,
       "name": {
         "ja": "アストラルアドバンス",
@@ -533,7 +653,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_s027d2",
+      "id": "tpl_60_p26fiy",
       "time": 148,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -544,7 +664,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_ky7rjs",
+      "id": "tpl_61_1qxk8z",
+      "time": 149,
+      "name": {
+        "ja": "Trinity of Souls",
+        "en": "Trinity of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_j12gtt",
+      "time": 167,
+      "name": {
+        "ja": "Peridialogos",
+        "en": "Peridialogos"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_56gc2y",
       "time": 172,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -555,7 +695,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_ug9kjv",
+      "id": "tpl_64_3kpxi0",
       "time": 173,
       "name": {
         "ja": "ディアロゴス",
@@ -566,7 +706,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_9bviyx",
+      "id": "tpl_65_ap2ajp",
       "time": 173,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -577,7 +717,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_y6k60z",
+      "id": "tpl_66_cewv9x",
       "time": 175,
       "name": {
         "ja": "attack",
@@ -588,7 +728,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_gaqz7x",
+      "id": "tpl_67_ra749u",
       "time": 180,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -599,7 +739,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_d84lqs",
+      "id": "tpl_68_pfc97r",
       "time": 182,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -610,7 +750,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_7le1ue",
+      "id": "tpl_69_50fazz",
       "time": 183,
       "name": {
         "ja": "attack",
@@ -621,7 +761,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_srefei",
+      "id": "tpl_70_zd37sm",
       "time": 186,
       "name": {
         "ja": "attack",
@@ -632,7 +772,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_jthh0i",
+      "id": "tpl_71_exj79m",
       "time": 189,
       "name": {
         "ja": "attack",
@@ -643,7 +783,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_j7erlz",
+      "id": "tpl_72_6om7gr",
       "time": 192,
       "name": {
         "ja": "attack",
@@ -654,7 +794,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_epd3gy",
+      "id": "tpl_73_1bn6p0",
+      "time": 194,
+      "name": {
+        "ja": "Paradeigma",
+        "en": "Paradeigma"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_7doq9l",
       "time": 198,
       "name": {
         "ja": "attack",
@@ -665,7 +815,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_xtgmm0",
+      "id": "tpl_75_jpr7t4",
+      "time": 200,
+      "name": {
+        "ja": "Engravement of Souls",
+        "en": "Engravement of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_1dd6wd",
       "time": 205,
       "name": {
         "ja": "attack",
@@ -676,7 +836,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_6pgt3o",
+      "id": "tpl_77_pjvi8u",
+      "time": 207,
+      "name": {
+        "ja": "Unnatural Enchainment",
+        "en": "Unnatural Enchainment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_wjvrg0",
       "time": 214,
       "name": {
         "ja": "放電",
@@ -687,7 +857,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_3z7los",
+      "id": "tpl_79_2l5678",
       "time": 216,
       "name": {
         "ja": "レイディアンス",
@@ -698,7 +868,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_kk41da",
+      "id": "tpl_80_2av6b1",
       "time": 216,
       "name": {
         "ja": "シャドーシアー",
@@ -709,7 +879,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_wqzw1x",
+      "id": "tpl_81_tx26jd",
       "time": 218,
       "name": {
         "ja": "attack",
@@ -720,7 +890,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_y53ara",
+      "id": "tpl_82_7csunm",
+      "time": 219,
+      "name": {
+        "ja": "Theos's Cross",
+        "en": "Theos's Cross"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_4fsfd9",
+      "time": 219,
+      "name": {
+        "ja": "Theos's Saltire",
+        "en": "Theos's Saltire"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_niisam",
       "time": 220,
       "name": {
         "ja": "attack",
@@ -731,7 +921,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_1xifj9",
+      "id": "tpl_85_ijsayv",
       "time": 222,
       "name": {
         "ja": "アンブラルグロウ",
@@ -742,7 +932,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_nre8f9",
+      "id": "tpl_86_dxlmgk",
       "time": 224,
       "name": {
         "ja": "白火",
@@ -753,7 +943,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_ssgnpj",
+      "id": "tpl_87_qny1ni",
       "time": 226,
       "name": {
         "ja": "アンブラルアドバンス",
@@ -764,7 +954,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_q728h2",
+      "id": "tpl_88_c88777",
       "time": 233,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -775,7 +965,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_zgfv48",
+      "id": "tpl_89_stj9fb",
       "time": 234,
       "name": {
         "ja": "attack",
@@ -786,7 +976,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_a7yqoc",
+      "id": "tpl_90_zvsuxx",
       "time": 237,
       "name": {
         "ja": "attack",
@@ -797,7 +987,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_aflu17",
+      "id": "tpl_91_7htdsw",
       "time": 245,
       "name": {
         "ja": "グラウコピス",
@@ -808,7 +998,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_eyej2x",
+      "id": "tpl_92_bbvnj2",
       "time": 248,
       "name": {
         "ja": "グラウコピス",
@@ -819,7 +1009,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_ieipcm",
+      "id": "tpl_93_lp5htz",
       "time": 250,
       "name": {
         "ja": "attack",
@@ -830,7 +1020,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_e0sdrs",
+      "id": "tpl_94_sl7tu5",
       "time": 253,
       "name": {
         "ja": "attack",
@@ -841,7 +1031,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_9pz23f",
+      "id": "tpl_95_386a2k",
       "time": 269,
       "name": {
         "ja": "アルテマブレイド",
@@ -852,7 +1042,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_ltxbyi",
+      "id": "tpl_96_5tu8bi",
+      "time": 284,
+      "name": {
+        "ja": "Palladion",
+        "en": "Palladion"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_pfio5c",
       "time": 293,
       "name": {
         "ja": "衝撃波",
@@ -863,7 +1063,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_3j5u15",
+      "id": "tpl_98_59mjbq",
       "time": 293,
       "name": {
         "ja": "白火",
@@ -874,7 +1074,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_gehrxm",
+      "id": "tpl_99_i1rw7i",
       "time": 293,
       "name": {
         "ja": "パラディオン",
@@ -885,7 +1085,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_fg0xk4",
+      "id": "tpl_100_8l8f4u",
       "time": 296,
       "name": {
         "ja": "衝撃波",
@@ -896,7 +1096,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_6d4zz9",
+      "id": "tpl_101_vtikwo",
       "time": 296,
       "name": {
         "ja": "パラディオン",
@@ -907,7 +1107,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_opy21o",
+      "id": "tpl_102_co0n2t",
       "time": 299,
       "name": {
         "ja": "パラディオン",
@@ -918,7 +1118,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_i2cs8t",
+      "id": "tpl_103_qe9dfb",
       "time": 299,
       "name": {
         "ja": "衝撃波",
@@ -929,7 +1129,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_li9qx0",
+      "id": "tpl_104_kgh30i",
       "time": 302,
       "name": {
         "ja": "パラディオン",
@@ -940,7 +1140,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_f3x5ye",
+      "id": "tpl_105_nwfmtn",
       "time": 302,
       "name": {
         "ja": "衝撃波",
@@ -951,7 +1151,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_o2l2dq",
+      "id": "tpl_106_uke920",
       "time": 302,
       "name": {
         "ja": "白火",
@@ -962,7 +1162,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_gr57dk",
+      "id": "tpl_107_ud7npl",
       "time": 305,
       "name": {
         "ja": "衝撃波",
@@ -973,7 +1173,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_ee3pvd",
+      "id": "tpl_108_hip271",
       "time": 305,
       "name": {
         "ja": "パラディオン",
@@ -984,7 +1184,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_xen0j2",
+      "id": "tpl_109_l7mza2",
       "time": 308,
       "name": {
         "ja": "パラディオン",
@@ -995,7 +1195,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_lfea6r",
+      "id": "tpl_110_mar2p3",
       "time": 308,
       "name": {
         "ja": "衝撃波",
@@ -1006,7 +1206,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_b2gvwe",
+      "id": "tpl_111_s8jl9f",
       "time": 308,
       "name": {
         "ja": "白火",
@@ -1017,7 +1217,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_abtbm7",
+      "id": "tpl_112_sngrug",
       "time": 310,
       "name": {
         "ja": "白火",
@@ -1028,7 +1228,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_szhfnc",
+      "id": "tpl_113_lqsncs",
       "time": 311,
       "name": {
         "ja": "衝撃波",
@@ -1039,7 +1239,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_fd7l0y",
+      "id": "tpl_114_zeqwo1",
       "time": 312,
       "name": {
         "ja": "パラディオン",
@@ -1050,7 +1250,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_lj1wd1",
+      "id": "tpl_115_yg8hek",
       "time": 314,
       "name": {
         "ja": "衝撃波",
@@ -1061,7 +1261,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_19uf7l",
+      "id": "tpl_116_ahqf75",
       "time": 315,
       "name": {
         "ja": "パラディオン",
@@ -1072,7 +1272,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_s13y41",
+      "id": "tpl_117_kh0ykj",
       "time": 339,
       "name": {
         "ja": "テオス・アルテマ",
@@ -1083,7 +1283,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_num0c5",
+      "id": "tpl_118_g795ag",
       "time": 343,
       "name": {
         "ja": "attack",
@@ -1094,7 +1294,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_edopq1",
+      "id": "tpl_119_5gjlnb",
       "time": 346,
       "name": {
         "ja": "attack",
@@ -1105,7 +1305,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_ryic90",
+      "id": "tpl_120_mgway2",
       "time": 349,
       "name": {
         "ja": "attack",
@@ -1116,7 +1316,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_uhfemv",
+      "id": "tpl_121_s2mgct",
+      "time": 349,
+      "name": {
+        "ja": "Superchain Theory IIA",
+        "en": "Superchain Theory IIA"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_gt95jz",
+      "time": 358,
+      "name": {
+        "ja": "Trinity of Souls",
+        "en": "Trinity of Souls"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_9tx54l",
       "time": 359,
       "name": {
         "ja": "attack",
@@ -1127,7 +1347,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_suv33n",
+      "id": "tpl_124_szo2yh",
+      "time": 367,
+      "name": {
+        "ja": "Superchain Burst",
+        "en": "Superchain Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_5kxiua",
       "time": 368,
       "name": {
         "ja": "スーパーチェイン・エミッション",
@@ -1138,7 +1368,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_gdmvyo",
+      "id": "tpl_126_5msmze",
+      "time": 369,
+      "name": {
+        "ja": "Superchain Coil",
+        "en": "Superchain Coil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_127_y9ncnm",
+      "time": 372,
+      "name": {
+        "ja": "Superchain Burst",
+        "en": "Superchain Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_4upmkq",
+      "time": 375,
+      "name": {
+        "ja": "Superchain Burst",
+        "en": "Superchain Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_onzu3u",
       "time": 376,
       "name": {
         "ja": "attack",
@@ -1149,7 +1409,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_d4we89",
+      "id": "tpl_130_ekcyus",
       "time": 377,
       "name": {
         "ja": "スーパーチェイン・エミッション",
@@ -1160,7 +1420,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_16e1dz",
+      "id": "tpl_131_fg6jwz",
+      "time": 377,
+      "name": {
+        "ja": "Peridialogos",
+        "en": "Peridialogos"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_rlpkam",
       "time": 384,
       "name": {
         "ja": "ペリ・ディアロゴス",
@@ -1171,7 +1441,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_106_e06y8h",
+      "id": "tpl_133_a45tah",
       "time": 384,
       "name": {
         "ja": "ディアロゴス",
@@ -1182,7 +1452,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_107_g1693a",
+      "id": "tpl_134_xqip6k",
       "time": 385,
       "name": {
         "ja": "attack",
@@ -1193,7 +1463,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_f2hyvr",
+      "id": "tpl_135_671mj8",
       "time": 390,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -1204,7 +1474,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_109_fqdbrs",
+      "id": "tpl_136_bjt94a",
       "time": 392,
       "name": {
         "ja": "オン・ザ・ソウル",
@@ -1215,7 +1485,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_rqc1g1",
+      "id": "tpl_137_lqrjfp",
       "time": 393,
       "name": {
         "ja": "attack",
@@ -1226,7 +1496,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_2hqmpz",
+      "id": "tpl_138_wi6m18",
       "time": 396,
       "name": {
         "ja": "attack",
@@ -1237,7 +1507,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_dootx5",
+      "id": "tpl_139_ezrztq",
       "time": 399,
       "name": {
         "ja": "attack",
@@ -1245,6 +1515,16 @@
       },
       "damageType": "magical",
       "damageAmount": 49600,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_ocpwcn",
+      "time": 400,
+      "name": {
+        "ja": "Superchain Theory IIB",
+        "en": "Superchain Theory IIB"
+      },
+      "damageType": "magical",
       "target": "AoE"
     }
   ],
