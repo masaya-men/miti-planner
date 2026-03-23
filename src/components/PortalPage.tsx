@@ -4,8 +4,11 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useTranslation } from 'react-i18next';
 import { motion, type Variants } from 'framer-motion';
-import { Sun, Moon, Shield, Home } from 'lucide-react';
+import { Sun, Moon, Shield, Home, LogIn, LogOut } from 'lucide-react';
 import clsx from 'clsx';
+import { useAuthStore } from '../store/useAuthStore';
+import { LoginModal } from './LoginModal';
+import { Tooltip } from './ui/Tooltip';
 
 // ─────────────────────────────────────────────
 // Tool Card Definitions
@@ -79,6 +82,13 @@ export const PortalPage: React.FC = () => {
     const { theme, setTheme } = useThemeStore();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { user, justLoggedInUser } = useAuthStore();
+    const [showLoginModal, setShowLoginModal] = React.useState(false);
+
+    // ログイン成功時にモーダルを自動表示
+    React.useEffect(() => {
+        if (justLoggedInUser) setShowLoginModal(true);
+    }, [justLoggedInUser]);
 
     // Set page title
     useEffect(() => {
@@ -97,8 +107,22 @@ export const PortalPage: React.FC = () => {
     return (
         <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text', bgClass)}>
 
-            {/* ── Theme Toggle (top-right) ── */}
-            <div className="absolute top-4 right-4 z-50">
+            {/* ── Top-right controls ── */}
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+                <Tooltip content={user ? (user.displayName || 'Account') : t('app.sign_in')}>
+                    <button
+                        onClick={() => setShowLoginModal(true)}
+                        className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
+                    >
+                        {user?.photoURL ? (
+                            <img src={user.photoURL} alt="" className="w-[18px] h-[18px] rounded-full" referrerPolicy="no-referrer" />
+                        ) : user ? (
+                            <LogOut size={18} />
+                        ) : (
+                            <LogIn size={18} />
+                        )}
+                    </button>
+                </Tooltip>
                 <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
@@ -219,6 +243,9 @@ export const PortalPage: React.FC = () => {
                     })}
                 </div>
             </motion.div>
+
+            {/* ── Login Modal ── */}
+            <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
 
             {/* ── Footer ── */}
             <footer className="absolute bottom-0 left-0 right-0 py-3 text-center z-10">
