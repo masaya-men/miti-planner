@@ -108,19 +108,19 @@ export default async function handler(req: any, res: any) {
         // Firebase Admin 初期化
         initAdmin();
 
-        // ステップ3: code → アクセストークン交換
+        // ステップ3: code → アクセストークン交換（Confidential Client は Basic auth 必須）
+        const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
         const tokenRes = await fetch(TWITTER_TOKEN_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${basicAuth}`,
             },
             body: new URLSearchParams({
                 grant_type: 'authorization_code',
                 code: code as string,
                 redirect_uri: redirectUri,
                 code_verifier: codeVerifier,
-                client_id: clientId,
-                client_secret: clientSecret,
             }),
         });
 
