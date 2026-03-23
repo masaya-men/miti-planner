@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { resolveFight, fetchFightEvents, fetchDeathEvents } from '../api/fflogs';
+import { resolveFight, fetchFightEvents, fetchDeathEvents, fetchCastEvents } from '../api/fflogs';
 import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
 import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
@@ -72,13 +72,15 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             const eventsJp = await fetchFightEvents(parsedData.reportId, fight, false);
 
             setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'EN', name: fight.name }) });
-            const [eventsEn, deaths] = await Promise.all([
+            const [eventsEn, deaths, castEn, castJp] = await Promise.all([
                 fetchFightEvents(parsedData.reportId, fight, true),
                 fetchDeathEvents(parsedData.reportId, fight),
+                fetchCastEvents(parsedData.reportId, fight, true),
+                fetchCastEvents(parsedData.reportId, fight, false),
             ]);
 
             setStatus({ phase: 'loading', message: t('fflogs.mapping') });
-            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths);
+            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp);
 
             setStatus({ phase: 'preview', fight, events: eventsEn, mapped });
         } catch (err) {
