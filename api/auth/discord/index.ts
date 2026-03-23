@@ -20,15 +20,18 @@ const DISCORD_API = 'https://discord.com/api/v10';
 
 function initAdmin() {
     if (!admin.apps.length) {
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
+        // Vercelの環境変数形式を正規化: リテラル \n → 実際の改行
+        privateKey = privateKey.replace(/\\n/g, '\n');
+        // JSON文字列として渡された場合の対処（前後に引用符がある場合）
+        if (privateKey.startsWith('"')) {
+            try { privateKey = JSON.parse(privateKey); } catch { /* そのまま使う */ }
+        }
         admin.initializeApp({
             credential: admin.credential.cert({
                 projectId: process.env.FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Vercelの環境変数は改行がそのまま入る場合と \\n リテラルの場合がある
-                privateKey: privateKey?.includes('\\n')
-                    ? privateKey.replace(/\\n/g, '\n')
-                    : privateKey,
+                privateKey,
             }),
         });
     }
