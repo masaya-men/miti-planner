@@ -67,15 +67,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const [showShareMenu, setShowShareMenu] = React.useState(false);
     const [showLoginMenu, setShowLoginMenu] = React.useState(false);
     const loginBtnRef = useRef<HTMLDivElement>(null);
-    const loginMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const openLoginMenu = () => {
-        if (loginMenuTimerRef.current) { clearTimeout(loginMenuTimerRef.current); loginMenuTimerRef.current = null; }
-        setShowLoginMenu(true);
-    };
-    const closeLoginMenuDelayed = () => {
-        loginMenuTimerRef.current = setTimeout(() => setShowLoginMenu(false), 150);
-    };
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
@@ -263,9 +254,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <div
                                 className="relative"
                                 ref={loginBtnRef}
-                                onMouseEnter={openLoginMenu}
-                                onMouseLeave={closeLoginMenuDelayed}
                             >
+                                <Tooltip content={user ? (user.displayName || 'Account') : t('app.sign_in') || 'Sign In'}>
                                 <button
                                     onClick={() => setShowLoginMenu(!showLoginMenu)}
                                     className={clsx(iconBtnBase, iconBtnDefault)}
@@ -278,6 +268,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         <LogIn size={16} />
                                     )}
                                 </button>
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
@@ -471,14 +462,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             top: (loginBtnRef.current?.getBoundingClientRect().bottom ?? 0) + 4,
                             right: window.innerWidth - (loginBtnRef.current?.getBoundingClientRect().right ?? 0),
                         }}
-                        onMouseEnter={openLoginMenu}
-                        onMouseLeave={closeLoginMenuDelayed}
                     >
-                        {/* ボタン↔メニュー間の透明ブリッジ（ホバー途切れ防止） */}
-                        <div
-                            className="absolute -top-3 right-0 w-12 h-3"
-                            onMouseEnter={openLoginMenu}
-                        />
                         {/* ログイン中: アカウント情報 + ログアウト */}
                         {user && (
                             <>
