@@ -10,10 +10,15 @@ interface ToastItem {
 
 let toastId = 0;
 let addToastFn: ((message: string) => void) | null = null;
+const pendingQueue: string[] = [];
 
-/** グローバルにトーストを表示する */
+/** グローバルにトーストを表示する（Reactマウント前でもキューに溜まる） */
 export function showToast(message: string) {
-    addToastFn?.(message);
+    if (addToastFn) {
+        addToastFn(message);
+    } else {
+        pendingQueue.push(message);
+    }
 }
 
 export const ToastContainer: React.FC = () => {
@@ -27,6 +32,10 @@ export const ToastContainer: React.FC = () => {
                 setToasts(prev => prev.filter(t => t.id !== id));
             }, 3000);
         };
+        // マウント前にキューに溜まったトーストを処理
+        while (pendingQueue.length > 0) {
+            addToastFn(pendingQueue.shift()!);
+        }
         return () => { addToastFn = null; };
     }, []);
 
