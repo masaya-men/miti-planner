@@ -19,7 +19,12 @@
         "return_home": "トップページに戻る",
         "view_tutorial": "チュートリアルを見る",
         "toggle_theme_light": "ライトテーマにする",
-        "toggle_theme_dark": "ダークテーマにする"
+        "toggle_theme_dark": "ダークテーマにする",
+        "sign_in": "ログイン",
+        "sign_out": "ログアウト",
+        "sign_in_via": "でログイン中",
+        "share": "共有",
+        "copy_link": "リンクをコピー"
     },
     "aa_settings": {
         "title": "AA追加モード",
