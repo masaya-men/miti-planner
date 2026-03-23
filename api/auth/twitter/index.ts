@@ -136,15 +136,30 @@ export default async function handler(req: any, res: any) {
         const { access_token } = await tokenRes.json();
 
         // ステップ4: Twitter ユーザー情報取得
-        const userRes = await fetch(`${TWITTER_USER_URL}?user.fields=profile_image_url,name,username`, {
+        // X無料プランではuser.fieldsが使えない場合があるので、フォールバック付き
+        let twitterUser: any;
+
+        const fieldsRes = await fetch(`${TWITTER_USER_URL}?user.fields=profile_image_url,name,username`, {
             headers: { Authorization: `Bearer ${access_token}` },
         });
 
-        if (!userRes.ok) {
-            return res.status(400).json({ error: 'Failed to fetch Twitter user' });
-        }
+        if (fieldsRes.ok) {
+            const body = await fieldsRes.json();
+            twitterUser = body.data;
+        } else {
+            // user.fields なしでリトライ
+            const basicRes = await fetch(TWITTER_USER_URL, {
+                headers: { Authorization: `Bearer ${access_token}` },
+            });
 
-        const { data: twitterUser } = await userRes.json();
+            if (!basicRes.ok) {
+                const err = await basicRes.text();
+                return res.status(400).json({ error: 'Failed to fetch Twitter user', details: err });
+            }
+
+            const body = await basicRes.json();
+            twitterUser = body.data;
+        }
 
         // ステップ5: Firebase カスタムトークン生成
         const firebaseUid = `twitter:${twitterUser.id}`;
