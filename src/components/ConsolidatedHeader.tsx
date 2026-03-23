@@ -5,13 +5,14 @@ import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star
+    Users, Activity, Wand2, Star, Share2, LogIn, LogOut
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { getContentById } from '../data/contentRegistry';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
@@ -59,6 +60,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     const timelineEvents = useMitigationStore(state => state.timelineEvents);
     const needsImport = timelineEvents?.length === 0;
+
+    // 認証状態
+    const { user, signInWithGoogle, signOut } = useAuthStore();
+    const [showShareMenu, setShowShareMenu] = React.useState(false);
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
@@ -199,6 +204,73 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </Tooltip>
 
                             <LanguageSwitcher />
+
+                            <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
+
+                            {/* 共有ボタン */}
+                            {currentPlan && (
+                                <div className="relative">
+                                    <Tooltip content={t('app.share') || 'Share'}>
+                                        <button
+                                            onClick={() => setShowShareMenu(!showShareMenu)}
+                                            className={clsx(iconBtnBase, iconBtnDefault)}
+                                        >
+                                            <Share2 size={16} />
+                                        </button>
+                                    </Tooltip>
+                                    {showShareMenu && (
+                                        <>
+                                            <div className="fixed inset-0 z-[200]" onClick={() => setShowShareMenu(false)} />
+                                            <div className="absolute right-0 top-11 z-[201] bg-app-bg border border-app-border rounded-lg shadow-lg p-2 min-w-[160px]">
+                                                <button
+                                                    onClick={() => {
+                                                        const url = window.location.href;
+                                                        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('LoPo - FF14 軽減プランナー')}`, '_blank');
+                                                        setShowShareMenu(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-[12px] text-app-text hover:bg-app-surface2 rounded transition-colors"
+                                                >
+                                                    X (Twitter)
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(window.location.href);
+                                                        setShowShareMenu(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-[12px] text-app-text hover:bg-app-surface2 rounded transition-colors"
+                                                >
+                                                    {t('app.copy_link') || 'Copy Link'}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* ログインボタン */}
+                            {user ? (
+                                <Tooltip content={t('app.sign_out') || 'Sign Out'}>
+                                    <button
+                                        onClick={signOut}
+                                        className={clsx(iconBtnBase, iconBtnDefault)}
+                                    >
+                                        {user.photoURL ? (
+                                            <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
+                                        ) : (
+                                            <LogOut size={16} />
+                                        )}
+                                    </button>
+                                </Tooltip>
+                            ) : (
+                                <Tooltip content={t('app.sign_in') || 'Sign In'}>
+                                    <button
+                                        onClick={signInWithGoogle}
+                                        className={clsx(iconBtnBase, iconBtnDefault)}
+                                    >
+                                        <LogIn size={16} />
+                                    </button>
+                                </Tooltip>
+                            )}
                         </div>
                     </div>
 
