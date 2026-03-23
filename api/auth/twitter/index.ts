@@ -15,18 +15,20 @@
  *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
  */
 
-import * as admin from 'firebase-admin';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
+const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
 
 function initAdmin() {
-    if (!admin.apps.length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY || '';
+    if (!getApps().length) {
+        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
         if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
         pk = pk.replace(/\\n/g, '\n');
-        admin.initializeApp({
-            credential: admin.credential.cert({
+        initializeApp({
+            credential: cert({
                 projectId: process.env.FIREBASE_PROJECT_ID!,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
                 privateKey: pk,
@@ -34,7 +36,6 @@ function initAdmin() {
         });
     }
 }
-const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
 const TWITTER_USER_URL = 'https://api.twitter.com/2/users/me';
 
 /** PKCE 用: ランダムな code_verifier を生成（43〜128文字の URL-safe 文字列） */
@@ -143,7 +144,7 @@ export default async function handler(req: any, res: any) {
 
         // ステップ5: Firebase カスタムトークン生成
         const firebaseUid = `twitter:${twitterUser.id}`;
-        const customToken = await admin.auth().createCustomToken(firebaseUid, {
+        const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'twitter',
             twitterId: twitterUser.id,
             username: twitterUser.username,

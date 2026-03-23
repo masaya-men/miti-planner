@@ -14,28 +14,20 @@
  *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
  */
 
-import * as admin from 'firebase-admin';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
 function initAdmin() {
-    if (!admin.apps.length) {
+    if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
         if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
         pk = pk.replace(/\\n/g, '\n');
-
-        const projectId = process.env.FIREBASE_PROJECT_ID;
-        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-
-        // 環境変数が未設定なら早期エラー
-        if (!projectId || !clientEmail || !pk) {
-            throw new Error(`Missing env: projectId=${!!projectId}, clientEmail=${!!clientEmail}, pk_len=${pk.length}`);
-        }
-
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId,
-                clientEmail,
+        initializeApp({
+            credential: cert({
+                projectId: process.env.FIREBASE_PROJECT_ID!,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
                 privateKey: pk,
             }),
         });
@@ -102,7 +94,7 @@ export default async function handler(req: any, res: any) {
 
         // ステップ4: Firebase カスタムトークン生成
         const firebaseUid = `discord:${discordUser.id}`;
-        const customToken = await admin.auth().createCustomToken(firebaseUid, {
+        const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'discord',
             discordId: discordUser.id,
             avatar: discordUser.avatar
