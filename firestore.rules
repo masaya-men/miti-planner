@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================
+    // ヘルパー関数
+    // ========================================
+
+    // 認証済みかどうか
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 自分自身のドキュメントか
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // 文字列の長さ制限チェック
+    function isValidString(s, maxLen) {
+      return s is string && s.size() > 0 && s.size() <= maxLen;
+    }
+
+    // ========================================
+    // users コレクション
+    // 自分のプロファイルのみ読み書き可能
+    // メールアドレスの保存を明示的に禁止
+    // ========================================
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      allow create: if isOwner(uid)
+                    && isValidString(request.resource.data.displayName, 30)
+                    && request.resource.data.keys().hasAll(['displayName', 'provider', 'createdAt', 'updatedAt', 'settings'])
+                    && !('email' in request.resource.data)
+                    && request.resource.data.provider in ['google', 'discord', 'twitter'];
+
+      allow update: if isOwner(uid)
+                    && isValidString(request.resource.data.displayName, 30)
+                    && !('email' in request.resource.data)
+                    && request.resource.data.provider == resource.data.provider;  // プロバイダ変更禁止
+
+      allow delete: if isOwner(uid);
+    }
+
+    // ========================================
+    // plans コレクション
+    // 読み取り: 自分のプラン OR 公開プラン
+    // 書き込み: 自分のプランのみ
+    // ========================================
+    match /plans/{planId} {
+      allow read: if isOwner(resource.data.ownerId)
+                  || resource.data.isPublic == true;
+
+      allow create: if isAuthenticated()
+                    && request.resource.data.ownerId == request.auth.uid
+                    && isValidString(request.resource.data.title, 100)
+                    && request.resource.data.contentId is string
+                    && request.resource.data.isPublic is bool
+                    && request.resource.data.data is map
+                    && request.resource.data.version == 1
+                    && request.resource.data.copyCount == 0
+                    && request.resource.data.useCount == 0
+                    && request.resource.data.data.keys().size() <= 15;
+
+      allow update: if isOwner(resource.data.ownerId)
+                    // オーナーIDの変更禁止
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && isValidString(request.resource.data.title, 100)
+                    // 楽観的ロック: バージョンは+1のみ許可
+                    && request.resource.data.version == resource.data.version + 1
+                    && request.resource.data.data.keys().size() <= 15;
+
+      allow delete: if isOwner(resource.data.ownerId);
+    }
+
+    // ========================================
+    // sharedPlanMeta コレクション
+    // 読み取り: 誰でも（共有URLの解決に必要）
+    // 書き込み: プラン所有者のみ
+    // ========================================
+    match /sharedPlanMeta/{shareId} {
+      allow read: if true;
+
+      allow create: if isAuthenticated()
+                    && request.resource.data.ownerId == request.auth.uid
+                    && isValidString(request.resource.data.title, 100)
+                    && request.resource.data.planId is string
+                    && request.resource.data.isActive == true;
+
+      allow update: if isOwner(resource.data.ownerId)
+                    // ownerIdの変更禁止
+                    && request.resource.data.ownerId == resource.data.ownerId;
+
+      allow delete: if isOwner(resource.data.ownerId);
+    }
+
+    // ========================================
+    // userPlanCounts コレクション
+    // プラン数上限を強制するためのカウンター
+    // ========================================
+    match /userPlanCounts/{uid} {
+      allow read: if isOwner(uid);
+
+      // 初回作成: total=0, byContent=空マップ
+      allow create: if isOwner(uid)
+                    && request.resource.data.total == 0
+                    && request.resource.data.byContent is map
+                    && request.resource.data.byContent.keys().size() == 0;
+
+      // 更新: 上限チェック（全体50件、コンテンツ別5件）
+      allow update: if isOwner(uid)
+                    && request.resource.data.total >= 0
+                    && request.resource.data.total <= 50;
+                    // byContent内の各値のチェックはCloud Functionsで補完
+
+      // カウンターの直接削除は禁止（アカウント削除時はCloud Functionsで処理）
+      allow delete: if false;
+    }
+
+    // ========================================
+    // その他すべてのパスへのアクセスを拒否
+    // ========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
