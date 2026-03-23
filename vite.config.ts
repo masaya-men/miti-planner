@@ -34,6 +34,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+        // /api/ へのリクエストはService Workerを通さない
+        navigateFallbackDenylist: [/^\/api\//],
         // 新バージョン検知時にすぐ反映（待たない）
         skipWaiting: true,
         clientsClaim: true,
