@@ -19,6 +19,7 @@
     "@types/three": "^0.183.1",
     "clsx": "^2.1.1",
     "firebase": "^12.11.0",
+    "firebase-admin": "^13.7.0",
     "framer-motion": "^12.34.0",
     "i18next": "^25.8.10",
     "lucide-react": "^0.564.0",
