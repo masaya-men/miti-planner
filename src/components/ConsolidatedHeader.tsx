@@ -261,7 +261,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                 {/* ハンドル本体 */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 bg-app-bg pointer-events-auto"
+                    className="absolute bottom-0 left-0 right-0 z-50 bg-transparent pointer-events-auto"
                     initial={false}
                     animate={{ height: (isNear || isHovered) ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
