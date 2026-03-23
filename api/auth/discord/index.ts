@@ -15,24 +15,9 @@
  */
 
 import * as admin from 'firebase-admin';
+import { initAdmin } from '../_initAdmin';
 
 const DISCORD_API = 'https://discord.com/api/v10';
-
-function initAdmin() {
-    if (!admin.apps.length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY || '';
-        // リテラル \n → 実際の改行に変換
-        pk = pk.replace(/\\n/g, '\n');
-        // firebase-admin v13 の cert() は camelCase プロパティを期待する
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                privateKey: pk,
-            }),
-        });
-    }
-}
 
 export default async function handler(req: any, res: any) {
     try {
