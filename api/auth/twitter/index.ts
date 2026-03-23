@@ -128,8 +128,7 @@ export default async function handler(req: any, res: any) {
             const err = await tokenRes.text();
             return res.status(400).json({
                 error: 'Twitter token exchange failed',
-                details: err,
-                debug: { id_len: clientId.length, secret_len: clientSecret.length }
+                details: err
             });
         }
 
