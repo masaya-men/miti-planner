@@ -6,7 +6,6 @@
 import { create } from 'zustand';
 import {
     GoogleAuthProvider,
-    TwitterAuthProvider,
     signInWithPopup,
     signInWithCustomToken,
     signOut as firebaseSignOut,
@@ -16,6 +15,41 @@ import {
 import { auth } from '../lib/firebase';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
+
+/** OAuth 2.0 ポップアップフロー共通ヘルパー（Discord / Twitter 共用） */
+function oauthPopupFlow(apiPath: string, messageType: string): Promise<void> {
+    const width = 500, height = 700;
+    const left = window.screenX + (window.innerWidth - width) / 2;
+    const top = window.screenY + (window.innerHeight - height) / 2;
+    const popup = window.open(
+        apiPath,
+        messageType,
+        `width=${width},height=${height},left=${left},top=${top}`
+    );
+
+    return new Promise<void>((resolve, reject) => {
+        const handler = async (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data?.type !== messageType) return;
+            window.removeEventListener('message', handler);
+            try {
+                await signInWithCustomToken(auth, event.data.token);
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        };
+        window.addEventListener('message', handler);
+
+        const check = setInterval(() => {
+            if (popup?.closed) {
+                clearInterval(check);
+                window.removeEventListener('message', handler);
+                resolve();
+            }
+        }, 500);
+    });
+}
 
 interface AuthState {
     user: User | null;
@@ -37,59 +71,22 @@ export const useAuthStore = create<AuthState>((set) => ({
             await signInWithPopup(auth, provider);
         } catch (err: any) {
             console.error('Google login error:', err);
-            alert(`Googleログインエラー: ${err.code || err.message}`);
         }
     },
 
     signInWithDiscord: async () => {
         try {
-            // Discord OAuth はVercel API経由でポップアップフロー
-            const width = 500, height = 700;
-            const left = window.screenX + (window.innerWidth - width) / 2;
-            const top = window.screenY + (window.innerHeight - height) / 2;
-            const popup = window.open(
-                '/api/auth/discord',
-                'discord-auth',
-                `width=${width},height=${height},left=${left},top=${top}`
-            );
-
-            // ポップアップからのpostMessageを待つ
-            return new Promise<void>((resolve, reject) => {
-                const handler = async (event: MessageEvent) => {
-                    if (event.origin !== window.location.origin) return;
-                    if (event.data?.type !== 'discord-auth') return;
-                    window.removeEventListener('message', handler);
-                    try {
-                        await signInWithCustomToken(auth, event.data.token);
-                        resolve();
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
-                window.addEventListener('message', handler);
-
-                // ポップアップが閉じられた場合のタイムアウト
-                const check = setInterval(() => {
-                    if (popup?.closed) {
-                        clearInterval(check);
-                        window.removeEventListener('message', handler);
-                        resolve();
-                    }
-                }, 500);
-            });
+            await oauthPopupFlow('/api/auth/discord', 'discord-auth');
         } catch (err: any) {
             console.error('Discord login error:', err);
-            alert(`Discordログインエラー: ${err.code || err.message}`);
         }
     },
 
     signInWithTwitter: async () => {
         try {
-            const provider = new TwitterAuthProvider();
-            await signInWithPopup(auth, provider);
+            await oauthPopupFlow('/api/auth/twitter', 'twitter-auth');
         } catch (err: any) {
             console.error('Twitter login error:', err);
-            alert(`Twitterログインエラー: ${err.code || err.message}`);
         }
     },
 
