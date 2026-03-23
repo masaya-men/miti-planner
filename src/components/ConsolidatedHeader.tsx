@@ -114,7 +114,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div
-                    className="flex flex-col w-full h-[96px]"
+                    className="flex flex-col w-full h-[96px] pt-[5px]"
                     initial={false}
                     animate={{ y: (isNear || isHovered) ? -5 : 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
