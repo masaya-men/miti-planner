@@ -133,14 +133,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* 現在のコンテンツ名 — ヒーロー表示 */}
                             {currentPlan && (
-                                <div className="flex items-baseline gap-3 min-w-0">
+                                <div className="flex items-baseline gap-2 min-w-0">
                                     {contentLabel && (
                                         <span
-                                            className="text-[26px] text-app-text tracking-[0.04em] truncate leading-tight origin-left"
+                                            className="text-[26px] text-app-text tracking-[0.04em] leading-tight origin-left shrink-0"
                                             style={{
                                                 fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
                                                 fontWeight: 700,
-                                                transform: i18n.language.startsWith('ja') ? 'scaleX(0.85)' : undefined,
+                                                ...(i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)', marginRight: '-15%' } : {}),
                                             }}
                                         >
                                             {contentLabel}
