@@ -107,7 +107,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             <motion.div
                 initial={false}
                 animate={{
-                    height: isHeaderCollapsed ? 0 : 96,
+                    height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="w-full overflow-hidden pointer-events-auto bg-glass-header shadow-sm"
@@ -116,7 +116,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 <motion.div
                     className="flex flex-col w-full h-[96px]"
                     initial={false}
-                    animate={{ y: 0 }}
+                    animate={{ y: (isNear || isHovered) ? -5 : 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
