@@ -135,7 +135,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {currentPlan && (
                                 <div className="flex items-baseline gap-3 min-w-0">
                                     {contentLabel && (
-                                        <span className="text-[26px] text-app-text tracking-[0.04em] truncate leading-tight" style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}>
+                                        <span
+                                            className="text-[26px] text-app-text tracking-[0.04em] truncate leading-tight origin-left"
+                                            style={{
+                                                fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
+                                                fontWeight: 700,
+                                                transform: i18n.language.startsWith('ja') ? 'scaleX(0.85)' : undefined,
+                                            }}
+                                        >
                                             {contentLabel}
                                         </span>
                                     )}
