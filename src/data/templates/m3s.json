@@ -1,11 +1,11 @@
 {
   "contentId": "m3s",
-  "generatedAt": "2026-03-22T11:59:55.754Z",
+  "generatedAt": "2026-03-23T05:10:07.176Z",
   "sourceLogsCount": 1,
   "sourceLog": "yfvQGRM6BKnhVkYC#5",
   "timelineEvents": [
     {
-      "id": "tpl_0_hyr2wb",
+      "id": "tpl_0_1fh3wg",
       "time": 4,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_8c4n7r",
+      "id": "tpl_1_vy0ytl",
       "time": 7,
       "name": {
         "ja": "AA",
@@ -27,7 +27,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_9t2j3d",
+      "id": "tpl_2_ngific",
       "time": 12,
       "name": {
         "ja": "スマッシュインパクト",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_7vjfba",
+      "id": "tpl_3_6czizy",
       "time": 13,
       "name": {
         "ja": "スマッシュインパクト",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_w347dx",
+      "id": "tpl_4_eetorl",
       "time": 13,
       "name": {
         "ja": "スマッシュインパクト",
@@ -60,7 +60,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_x3qhmx",
+      "id": "tpl_5_0jj7ly",
       "time": 15,
       "name": {
         "ja": "スマッシュインパクト",
@@ -71,7 +71,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_a88e42",
+      "id": "tpl_6_qdfssm",
       "time": 16,
       "name": {
         "ja": "スマッシュインパクト",
@@ -82,18 +82,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_7_a2neh2",
-      "time": 21,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 168000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_8_5itqv0",
+      "id": "tpl_7_b8trxv",
       "time": 21,
       "name": {
         "ja": "ナックルパート",
@@ -104,7 +93,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_9_fj3xvl",
+      "id": "tpl_8_h4gxmf",
+      "time": 21,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 168000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_9_o3huys",
       "time": 22,
       "name": {
         "ja": "ナックルパート",
@@ -115,18 +115,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_10_ut9858",
-      "time": 23,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_11_dn9vh4",
+      "id": "tpl_10_b9zukd",
       "time": 23,
       "name": {
         "ja": "ナックルパート",
@@ -137,7 +126,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_12_5zs64m",
+      "id": "tpl_11_3kbync",
+      "time": 23,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_12_ph3q5i",
       "time": 24,
       "name": {
         "ja": "ナックルパート",
@@ -148,7 +148,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_13_7m5u8y",
+      "id": "tpl_13_gvczyv",
       "time": 24,
       "name": {
         "ja": "ナックルパート",
@@ -159,7 +159,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_14_scp3qy",
+      "id": "tpl_14_halu0x",
       "time": 25,
       "name": {
         "ja": "AA",
@@ -170,7 +170,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_15_sdm8ki",
+      "id": "tpl_15_481zh7",
       "time": 28,
       "name": {
         "ja": "AA",
@@ -181,7 +181,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_16_753z9j",
+      "id": "tpl_16_8h9dvl",
+      "time": 31,
+      "name": {
+        "ja": "Octuple Lariat",
+        "en": "Octuple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_48xoli",
+      "time": 31,
+      "name": {
+        "ja": "Octuple Lariat",
+        "en": "Octuple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_jzxqvy",
       "time": 38,
       "name": {
         "ja": "ラリアット・ブレイザー",
@@ -192,18 +212,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_s9436m",
-      "time": 49,
+      "id": "tpl_19_aojcnt",
+      "time": 41,
       "name": {
-        "ja": "4ショック・パワーダイブ (TB)",
-        "en": "Quadroboom Dive (TB)"
+        "ja": "Quadroboom Dive",
+        "en": "Quadroboom Dive"
       },
       "damageType": "magical",
-      "damageAmount": 268000,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_18_kgi4g9",
+      "id": "tpl_20_ei39ok",
       "time": 49,
       "name": {
         "ja": "4ショック・パワーダイブ (TB)",
@@ -214,7 +233,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_39nx1z",
+      "id": "tpl_21_7u05mv",
+      "time": 49,
+      "name": {
+        "ja": "4ショック・パワーダイブ (TB)",
+        "en": "Quadroboom Dive (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 268000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_22_bv7lgx",
       "time": 50,
       "name": {
         "ja": "4ショック・パワーダイブ",
@@ -225,7 +255,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_ktmajy",
+      "id": "tpl_23_tth0va",
       "time": 52,
       "name": {
         "ja": "パワーダイブ・ショック",
@@ -236,7 +266,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_bc0x6r",
+      "id": "tpl_24_9o47lt",
       "time": 61,
       "name": {
         "ja": "スマッシュインパクト",
@@ -247,7 +277,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_h6yxpr",
+      "id": "tpl_25_71ippc",
       "time": 62,
       "name": {
         "ja": "スマッシュインパクト",
@@ -258,7 +288,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_660y55",
+      "id": "tpl_26_9c5b74",
       "time": 63,
       "name": {
         "ja": "スマッシュインパクト",
@@ -269,7 +299,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_u9y0ib",
+      "id": "tpl_27_b3a1aa",
       "time": 65,
       "name": {
         "ja": "AA",
@@ -280,7 +310,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_eft8jl",
+      "id": "tpl_28_0qzluw",
       "time": 68,
       "name": {
         "ja": "AA",
@@ -291,7 +321,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_9wgr1r",
+      "id": "tpl_29_ugcagu",
       "time": 71,
       "name": {
         "ja": "AA",
@@ -302,7 +332,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_27_xjae38",
+      "id": "tpl_30_gdn6fj",
+      "time": 73,
+      "name": {
+        "ja": "Barbarous Barrage",
+        "en": "Barbarous Barrage"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_1xpff1",
       "time": 79,
       "name": {
         "ja": "AA",
@@ -313,7 +353,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_bu2qsz",
+      "id": "tpl_32_1i8ws9",
       "time": 81,
       "name": {
         "ja": "AA",
@@ -324,7 +364,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_29_38cvf1",
+      "id": "tpl_33_qhkom2",
       "time": 84,
       "name": {
         "ja": "AA",
@@ -335,7 +375,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_30_mfor6x",
+      "id": "tpl_34_475ooo",
       "time": 88,
       "name": {
         "ja": "爆発",
@@ -346,7 +386,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_43mfi0",
+      "id": "tpl_35_xpor55",
       "time": 88,
       "name": {
         "ja": "AA",
@@ -357,7 +397,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_32_oshnf1",
+      "id": "tpl_36_2hxctq",
+      "time": 90,
+      "name": {
+        "ja": "Murderous Mist",
+        "en": "Murderous Mist"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_6lhx4b",
       "time": 91,
       "name": {
         "ja": "爆発",
@@ -368,7 +418,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_wpoziu",
+      "id": "tpl_38_jlrp6m",
       "time": 94,
       "name": {
         "ja": "爆発",
@@ -379,7 +429,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_4391hu",
+      "id": "tpl_39_1u5ufy",
       "time": 95,
       "name": {
         "ja": "爆発",
@@ -390,7 +440,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_bgwma9",
+      "id": "tpl_40_72rucl",
       "time": 99,
       "name": {
         "ja": "AA",
@@ -401,7 +451,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_36_jnk0er",
+      "id": "tpl_41_cq64ed",
       "time": 102,
       "name": {
         "ja": "AA",
@@ -412,7 +462,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_37_ecngju",
+      "id": "tpl_42_mp8z5j",
+      "time": 106,
+      "name": {
+        "ja": "Doping Draught",
+        "en": "Doping Draught"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_lg0ccg",
       "time": 129,
       "name": {
         "ja": "AA",
@@ -423,7 +483,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_38_hsao96",
+      "id": "tpl_44_vps4cc",
       "time": 131,
       "name": {
         "ja": "AA",
@@ -434,7 +494,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_39_o6mby8",
+      "id": "tpl_45_jdw0if",
       "time": 134,
       "name": {
         "ja": "AA",
@@ -445,7 +505,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_40_wnl51c",
+      "id": "tpl_46_opwzz0",
+      "time": 137,
+      "name": {
+        "ja": "Quadruple Lariat",
+        "en": "Quadruple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_kyrzma",
+      "time": 137,
+      "name": {
+        "ja": "Quadruple Lariat",
+        "en": "Quadruple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_a4fge7",
       "time": 145,
       "name": {
         "ja": "ラリアット・ブレイザー",
@@ -456,7 +536,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_c8tdki",
+      "id": "tpl_49_u51dmu",
+      "time": 147,
+      "name": {
+        "ja": "Octoboom Dive",
+        "en": "Octoboom Dive"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_uobv37",
       "time": 155,
       "name": {
         "ja": "8ショック・パワーダイブ",
@@ -467,7 +557,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_ozp3iv",
+      "id": "tpl_51_2gh1ch",
       "time": 158,
       "name": {
         "ja": "パワーダイブ・ショック",
@@ -478,7 +568,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_9tre8a",
+      "id": "tpl_52_by3ht5",
       "time": 167,
       "name": {
         "ja": "スマッシュインパクト",
@@ -489,7 +579,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_qh0bao",
+      "id": "tpl_53_l5wq2h",
       "time": 168,
       "name": {
         "ja": "スマッシュインパクト",
@@ -500,7 +590,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_8luoh1",
+      "id": "tpl_54_uckino",
       "time": 169,
       "name": {
         "ja": "スマッシュインパクト",
@@ -511,7 +601,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_q14fnv",
+      "id": "tpl_55_qs0vxw",
       "time": 170,
       "name": {
         "ja": "スマッシュインパクト",
@@ -522,7 +612,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_0j5y4c",
+      "id": "tpl_56_yrb3lh",
       "time": 171,
       "name": {
         "ja": "スマッシュインパクト",
@@ -533,18 +623,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_ryloh4",
-      "time": 173,
-      "name": {
-        "ja": "スマッシュインパクト",
-        "en": "Brutal Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 88900,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_49_cic5le",
+      "id": "tpl_57_c3b5q6",
       "time": 173,
       "name": {
         "ja": "スマッシュインパクト",
@@ -555,18 +634,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_50_25g2io",
-      "time": 178,
+      "id": "tpl_58_wrbbw8",
+      "time": 173,
       "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
+        "ja": "スマッシュインパクト",
+        "en": "Brutal Impact"
       },
       "damageType": "physical",
-      "damageAmount": 168000,
+      "damageAmount": 88900,
       "target": "ST"
     },
     {
-      "id": "tpl_51_hdyqfa",
+      "id": "tpl_59_di1sn8",
       "time": 178,
       "name": {
         "ja": "ナックルパート",
@@ -577,7 +656,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_52_gxu3mh",
+      "id": "tpl_60_13mh8c",
+      "time": 178,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 168000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_61_14m9ns",
       "time": 179,
       "name": {
         "ja": "ナックルパート",
@@ -588,18 +678,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_53_emr698",
-      "time": 180,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_54_971fcp",
+      "id": "tpl_62_23udnw",
       "time": 180,
       "name": {
         "ja": "ナックルパート",
@@ -610,7 +689,29 @@
       "target": "MT"
     },
     {
-      "id": "tpl_55_7iqodd",
+      "id": "tpl_63_eojpvo",
+      "time": 180,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_64_n2str9",
+      "time": 181,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_65_okptoy",
       "time": 181,
       "name": {
         "ja": "ナックルパート",
@@ -621,18 +722,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_56_y4kqck",
-      "time": 181,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_57_el5skg",
+      "id": "tpl_66_weae6k",
       "time": 182,
       "name": {
         "ja": "ナックルパート",
@@ -643,7 +733,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_uacv9a",
+      "id": "tpl_67_44ntkj",
       "time": 182,
       "name": {
         "ja": "ナックルパート",
@@ -654,7 +744,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_59_13e3it",
+      "id": "tpl_68_sqmaz5",
       "time": 183,
       "name": {
         "ja": "ナックルパート",
@@ -665,7 +755,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_d6r4yx",
+      "id": "tpl_69_2midp9",
       "time": 183,
       "name": {
         "ja": "ナックルパート",
@@ -676,7 +766,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_61_k6q7ae",
+      "id": "tpl_70_xbw8yn",
       "time": 184,
       "name": {
         "ja": "AA",
@@ -687,7 +777,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_62_86bvm1",
+      "id": "tpl_71_l5ei8w",
       "time": 187,
       "name": {
         "ja": "AA",
@@ -698,7 +788,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_xn6chc",
+      "id": "tpl_72_55x9g0",
+      "time": 192,
+      "name": {
+        "ja": "Tag Team",
+        "en": "Tag Team"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_ascnnv",
+      "time": 198,
+      "name": {
+        "ja": "Chain Deathmatch",
+        "en": "Chain Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_xmo5z1",
       "time": 208,
       "name": {
         "ja": "AA",
@@ -709,7 +819,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_umjr1b",
+      "id": "tpl_75_56b41o",
       "time": 212,
       "name": {
         "ja": "AA",
@@ -720,7 +830,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_65_zhjve4",
+      "id": "tpl_76_9oneqs",
       "time": 215,
       "name": {
         "ja": "ラリアットコンビネーション",
@@ -731,7 +841,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_wwpgok",
+      "id": "tpl_77_x1gu6q",
       "time": 215,
       "name": {
         "ja": "ラリアットコンビネーション",
@@ -742,7 +852,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_na6n4z",
+      "id": "tpl_78_gg0sjo",
       "time": 215,
       "name": {
         "ja": "AA",
@@ -753,7 +863,47 @@
       "target": "MT"
     },
     {
-      "id": "tpl_68_bobnmd",
+      "id": "tpl_79_m274wk",
+      "time": 216,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_9w97a9",
+      "time": 216,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_3e461v",
+      "time": 220,
+      "name": {
+        "ja": "Octuple Lariat",
+        "en": "Octuple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_sm2p7f",
+      "time": 220,
+      "name": {
+        "ja": "Octuple Lariat",
+        "en": "Octuple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_ld5zys",
       "time": 228,
       "name": {
         "ja": "ラリアット・ブレイザー",
@@ -764,7 +914,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_6ewmaj",
+      "id": "tpl_84_w00zp8",
       "time": 235,
       "name": {
         "ja": "スマッシュインパクト",
@@ -775,7 +925,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_jfvxmw",
+      "id": "tpl_85_5che0s",
       "time": 236,
       "name": {
         "ja": "スマッシュインパクト",
@@ -786,7 +936,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_mjpmpi",
+      "id": "tpl_86_38lseq",
       "time": 237,
       "name": {
         "ja": "スマッシュインパクト",
@@ -797,7 +947,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_givj7z",
+      "id": "tpl_87_xlwbil",
       "time": 239,
       "name": {
         "ja": "スマッシュインパクト",
@@ -808,7 +958,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_tcok6p",
+      "id": "tpl_88_hgqvym",
       "time": 240,
       "name": {
         "ja": "スマッシュインパクト",
@@ -819,7 +969,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_guloup",
+      "id": "tpl_89_ifbsth",
       "time": 242,
       "name": {
         "ja": "AA",
@@ -830,7 +980,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_75_bxditj",
+      "id": "tpl_90_dlrj0z",
       "time": 245,
       "name": {
         "ja": "AA",
@@ -841,7 +991,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_76_sdbq31",
+      "id": "tpl_91_csq9el",
+      "time": 250,
+      "name": {
+        "ja": "Final Fusedown",
+        "en": "Final Fusedown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_uz01t5",
       "time": 256,
       "name": {
         "ja": "AA",
@@ -852,7 +1012,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_77_fqpbyf",
+      "id": "tpl_93_hqan7j",
       "time": 259,
       "name": {
         "ja": "AA",
@@ -863,7 +1023,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_78_6s2lon",
+      "id": "tpl_94_t7eh5e",
+      "time": 261,
+      "name": {
+        "ja": "Self-destruct",
+        "en": "Self-Destruct"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_27mjjg",
       "time": 262,
       "name": {
         "ja": "AA",
@@ -874,7 +1044,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_79_6h1n4z",
+      "id": "tpl_96_1h9h0i",
       "time": 265,
       "name": {
         "ja": "AA",
@@ -885,7 +1055,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_zeta7k",
+      "id": "tpl_97_j51s43",
       "time": 267,
       "name": {
         "ja": "爆発",
@@ -896,7 +1066,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_6jkic2",
+      "id": "tpl_98_1ne14a",
       "time": 269,
       "name": {
         "ja": "AA",
@@ -907,7 +1077,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_82_h6v5r0",
+      "id": "tpl_99_ixv1wg",
       "time": 271,
       "name": {
         "ja": "爆発",
@@ -918,7 +1088,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_rf1owu",
+      "id": "tpl_100_jeg1xx",
+      "time": 271,
+      "name": {
+        "ja": "Octoboom Dive",
+        "en": "Octoboom Dive"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_iby46a",
       "time": 279,
       "name": {
         "ja": "8ショック・パワーダイブ",
@@ -929,7 +1109,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_rt14xm",
+      "id": "tpl_102_lke9sn",
       "time": 283,
       "name": {
         "ja": "パワーダイブ・ショック",
@@ -940,7 +1120,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_18wkum",
+      "id": "tpl_103_kap2l6",
       "time": 285,
       "name": {
         "ja": "AA",
@@ -951,7 +1131,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_g5yh0h",
+      "id": "tpl_104_1hvoyl",
       "time": 287,
       "name": {
         "ja": "AA",
@@ -962,7 +1142,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_87_8s79ur",
+      "id": "tpl_105_7wg4ig",
       "time": 290,
       "name": {
         "ja": "AA",
@@ -973,7 +1153,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_88_mkw8f0",
+      "id": "tpl_106_7c2eed",
+      "time": 294,
+      "name": {
+        "ja": "Fusefield",
+        "en": "Fusefield"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_6jrtv2",
+      "time": 302,
+      "name": {
+        "ja": "Bombarian Flame",
+        "en": "Bombarian Flame"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_3d8mmo",
       "time": 309,
       "name": {
         "ja": "魔力爆発",
@@ -984,7 +1184,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_5rm6me",
+      "id": "tpl_109_dwcjuf",
       "time": 311,
       "name": {
         "ja": "魔力爆発",
@@ -995,7 +1195,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_zead5h",
+      "id": "tpl_110_dhlsgf",
       "time": 315,
       "name": {
         "ja": "魔力爆発",
@@ -1006,7 +1206,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_osh7u6",
+      "id": "tpl_111_ihl21w",
       "time": 319,
       "name": {
         "ja": "魔力爆発",
@@ -1017,7 +1217,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_lhhie4",
+      "id": "tpl_112_2zael2",
       "time": 322,
       "name": {
         "ja": "魔力爆発",
@@ -1028,7 +1228,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_b7rl2s",
+      "id": "tpl_113_ctstsc",
       "time": 326,
       "name": {
         "ja": "魔力爆発",
@@ -1039,7 +1239,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_azjxpm",
+      "id": "tpl_114_9mpk7c",
       "time": 330,
       "name": {
         "ja": "魔力爆発",
@@ -1050,7 +1250,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_evaebt",
+      "id": "tpl_115_ffg404",
       "time": 334,
       "name": {
         "ja": "魔力爆発",
@@ -1061,18 +1261,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_4urpo4",
-      "time": 355,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 168000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_97_6nm6by",
+      "id": "tpl_116_8ndg5q",
       "time": 355,
       "name": {
         "ja": "ナックルパート",
@@ -1083,7 +1272,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_98_ztr8nw",
+      "id": "tpl_117_9kunw8",
+      "time": 355,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 168000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_118_cp88z0",
       "time": 356,
       "name": {
         "ja": "ナックルパート",
@@ -1094,18 +1294,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_99_nk4dm5",
-      "time": 357,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_100_21h7o9",
+      "id": "tpl_119_qpg2au",
       "time": 357,
       "name": {
         "ja": "ナックルパート",
@@ -1116,7 +1305,29 @@
       "target": "MT"
     },
     {
-      "id": "tpl_101_o5d7do",
+      "id": "tpl_120_jsiqlf",
+      "time": 357,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_121_1uchtt",
+      "time": 358,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_122_hxhoj4",
       "time": 358,
       "name": {
         "ja": "ナックルパート",
@@ -1127,29 +1338,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_102_5167xi",
-      "time": 358,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_103_qrji2t",
-      "time": 359,
-      "name": {
-        "ja": "ナックルパート",
-        "en": "Knuckle Sandwich"
-      },
-      "damageType": "physical",
-      "damageAmount": 234000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_104_wcgl0s",
+      "id": "tpl_123_otfi3s",
       "time": 359,
       "name": {
         "ja": "ナックルパート",
@@ -1160,7 +1349,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_105_4hjgzg",
+      "id": "tpl_124_w1wtc8",
+      "time": 359,
+      "name": {
+        "ja": "ナックルパート",
+        "en": "Knuckle Sandwich"
+      },
+      "damageType": "physical",
+      "damageAmount": 234000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_125_tazjt3",
       "time": 360,
       "name": {
         "ja": "ナックルパート",
@@ -1171,7 +1371,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_106_pkiolw",
+      "id": "tpl_126_rqbva2",
       "time": 360,
       "name": {
         "ja": "ナックルパート",
@@ -1182,7 +1382,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_107_ubmz6d",
+      "id": "tpl_127_w07y85",
       "time": 361,
       "name": {
         "ja": "AA",
@@ -1193,7 +1393,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_108_42toim",
+      "id": "tpl_128_dobfw2",
       "time": 364,
       "name": {
         "ja": "AA",
@@ -1204,7 +1404,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_109_o0o56s",
+      "id": "tpl_129_8fgl4e",
+      "time": 368,
+      "name": {
+        "ja": "Doping Draught",
+        "en": "Doping Draught"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_7fw1o2",
+      "time": 385,
+      "name": {
+        "ja": "Octoboom Bombarian Special",
+        "en": "Octoboom Bombarian Special"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_3dwfsy",
+      "time": 385,
+      "name": {
+        "ja": "Bombarian Special",
+        "en": "Bombarian Special"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_nxw9ka",
+      "time": 385,
+      "name": {
+        "ja": "Bombarian Special",
+        "en": "Bombarian Special"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_jmr04d",
+      "time": 385,
+      "name": {
+        "ja": "Bombarian Special",
+        "en": "Bombarian Special"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_v7fbjf",
       "time": 393,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1215,7 +1465,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_cbuld2",
+      "id": "tpl_135_xbp5dn",
       "time": 394,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1226,7 +1476,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_lvkhhq",
+      "id": "tpl_136_up3aiz",
       "time": 396,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1237,7 +1487,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_87tnlt",
+      "id": "tpl_137_135ra2",
       "time": 398,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1248,7 +1498,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_113_gyen0o",
+      "id": "tpl_138_kosj1d",
       "time": 399,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1259,7 +1509,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_114_xlzzmk",
+      "id": "tpl_139_bwrxlm",
       "time": 406,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1270,7 +1520,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_115_1b9j7n",
+      "id": "tpl_140_kn40ak",
       "time": 412,
       "name": {
         "ja": "ボンバリアンスペシャル",
@@ -1281,7 +1531,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_116_vz3zm5",
+      "id": "tpl_141_2alnia",
       "time": 416,
       "name": {
         "ja": "ボンバリアン・ショック",
@@ -1292,7 +1542,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_117_w5mf53",
+      "id": "tpl_142_myi4r0",
       "time": 418,
       "name": {
         "ja": "AA",
@@ -1303,7 +1553,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_118_u6ptg5",
+      "id": "tpl_143_ixcv01",
       "time": 421,
       "name": {
         "ja": "AA",
@@ -1314,7 +1564,47 @@
       "target": "MT"
     },
     {
-      "id": "tpl_119_6je8pf",
+      "id": "tpl_144_r4v9p1",
+      "time": 423,
+      "name": {
+        "ja": "Fuses of Fury",
+        "en": "Fuses of Fury"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_opnqf8",
+      "time": 429,
+      "name": {
+        "ja": "Tag Team",
+        "en": "Tag Team"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_byg4n6",
+      "time": 437,
+      "name": {
+        "ja": "Chain Deathmatch",
+        "en": "Chain Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_j23464",
+      "time": 441,
+      "name": {
+        "ja": "Self-destruct",
+        "en": "Self-Destruct"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_9slzxt",
       "time": 451,
       "name": {
         "ja": "自爆",
@@ -1325,7 +1615,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_120_dhacae",
+      "id": "tpl_149_k0uf50",
       "time": 458,
       "name": {
         "ja": "グリーンミスト",
@@ -1336,7 +1626,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_121_l4bajw",
+      "id": "tpl_150_nggkgf",
       "time": 458,
       "name": {
         "ja": "ラリアットコンビネーション",
@@ -1347,7 +1637,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_122_4l3jie",
+      "id": "tpl_151_qr5pe6",
+      "time": 460,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_laaef2",
       "time": 460,
       "name": {
         "ja": "AA",
@@ -1358,7 +1658,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_123_ozatql",
+      "id": "tpl_153_hxscu0",
+      "time": 464,
+      "name": {
+        "ja": "Quadroboom Dive",
+        "en": "Quadroboom Dive"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_5xoa33",
       "time": 472,
       "name": {
         "ja": "4ショック・パワーダイブ (TB)",
@@ -1369,7 +1679,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_124_67ce2j",
+      "id": "tpl_155_l2lflz",
       "time": 472,
       "name": {
         "ja": "4ショック・パワーダイブ (TB)",
@@ -1380,7 +1690,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_125_gbcvtv",
+      "id": "tpl_156_mr1a14",
       "time": 473,
       "name": {
         "ja": "4ショック・パワーダイブ",
@@ -1391,7 +1701,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_126_uruqhe",
+      "id": "tpl_157_609yd0",
       "time": 475,
       "name": {
         "ja": "パワーダイブ・ショック",
@@ -1402,7 +1712,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_127_xj7ova",
+      "id": "tpl_158_dvyz06",
       "time": 485,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1413,7 +1723,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_128_vdfxit",
+      "id": "tpl_159_4ktr0h",
       "time": 486,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1424,7 +1734,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_129_nprxib",
+      "id": "tpl_160_pic1jr",
       "time": 486,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1435,7 +1745,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_130_z9b5p2",
+      "id": "tpl_161_4n96f7",
       "time": 487,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1446,7 +1756,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_131_rgcbef",
+      "id": "tpl_162_v97r0m",
       "time": 489,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1457,7 +1767,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_132_e48ush",
+      "id": "tpl_163_2gg8vl",
       "time": 490,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1468,7 +1778,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_133_i6yx0n",
+      "id": "tpl_164_xnid4g",
       "time": 491,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1479,7 +1789,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_134_6tgd5k",
+      "id": "tpl_165_sx898g",
       "time": 492,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1490,7 +1800,18 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_135_ngbo6v",
+      "id": "tpl_166_k9y0py",
+      "time": 493,
+      "name": {
+        "ja": "スマッシュインパクト",
+        "en": "Brutal Impact"
+      },
+      "damageType": "physical",
+      "damageAmount": 88900,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_167_p9dqgd",
       "time": 493,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1501,18 +1822,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_136_u3iwvb",
-      "time": 493,
-      "name": {
-        "ja": "スマッシュインパクト",
-        "en": "Brutal Impact"
-      },
-      "damageType": "physical",
-      "damageAmount": 88900,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_137_bbdppe",
+      "id": "tpl_168_wubedt",
       "time": 499,
       "name": {
         "ja": "ナックルパート",
@@ -1523,7 +1833,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_138_1mnq1y",
+      "id": "tpl_169_59mavd",
       "time": 499,
       "name": {
         "ja": "ナックルパート",
@@ -1534,7 +1844,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_139_xurju5",
+      "id": "tpl_170_wilrjg",
       "time": 500,
       "name": {
         "ja": "ナックルパート",
@@ -1545,7 +1855,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_140_c3ovzx",
+      "id": "tpl_171_u460dg",
       "time": 502,
       "name": {
         "ja": "ナックルパート",
@@ -1556,7 +1866,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_141_dpqb20",
+      "id": "tpl_172_kc0vjo",
       "time": 503,
       "name": {
         "ja": "ナックルパート",
@@ -1567,7 +1877,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_142_ao8qcs",
+      "id": "tpl_173_9qq99v",
       "time": 504,
       "name": {
         "ja": "ナックルパート",
@@ -1578,7 +1888,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_143_gael8g",
+      "id": "tpl_174_wk7op3",
       "time": 505,
       "name": {
         "ja": "ナックルパート",
@@ -1589,7 +1899,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_144_s487sw",
+      "id": "tpl_175_6sw4ha",
       "time": 506,
       "name": {
         "ja": "ナックルパート",
@@ -1600,7 +1910,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_145_dih0gf",
+      "id": "tpl_176_zm7321",
       "time": 507,
       "name": {
         "ja": "AA",
@@ -1611,7 +1921,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_146_8drofc",
+      "id": "tpl_177_62mdjm",
       "time": 510,
       "name": {
         "ja": "AA",
@@ -1622,7 +1932,167 @@
       "target": "MT"
     },
     {
-      "id": "tpl_147_sl4tml",
+      "id": "tpl_178_mw20mx",
+      "time": 514,
+      "name": {
+        "ja": "Fuse or Foe",
+        "en": "Fuse or Foe"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_179_xrdzgo",
+      "time": 521,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_180_ledz21",
+      "time": 521,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_181_95ats3",
+      "time": 521,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_nkh14w",
+      "time": 521,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_u0jcaj",
+      "time": 521,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_ztn20h",
+      "time": 528,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_o2evym",
+      "time": 529,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_186_6wgonx",
+      "time": 529,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_sfyd08",
+      "time": 529,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_188_kh2226",
+      "time": 529,
+      "name": {
+        "ja": "Explosive Rain",
+        "en": "Explosive Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_189_mk0o5a",
+      "time": 530,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_1iuxmv",
+      "time": 531,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_p2wdta",
+      "time": 532,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_9lukj9",
+      "time": 533,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_eef53p",
+      "time": 534,
+      "name": {
+        "ja": "Infernal Spin",
+        "en": "Infernal Spin"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_194_ocprmr",
       "time": 534,
       "name": {
         "ja": "AA",
@@ -1633,7 +2103,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_148_ms3pfi",
+      "id": "tpl_195_95qj3d",
       "time": 537,
       "name": {
         "ja": "AA",
@@ -1644,7 +2114,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_149_hsuzza",
+      "id": "tpl_196_sijsd7",
       "time": 538,
       "name": {
         "ja": "爆発",
@@ -1655,7 +2125,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_150_hrcc9r",
+      "id": "tpl_197_w8rmta",
+      "time": 542,
+      "name": {
+        "ja": "Quadruple Lariat",
+        "en": "Quadruple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_2pj1lw",
+      "time": 542,
+      "name": {
+        "ja": "Quadruple Lariat",
+        "en": "Quadruple Lariat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_aldet7",
       "time": 543,
       "name": {
         "ja": "爆発",
@@ -1666,7 +2156,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_151_5c8c0o",
+      "id": "tpl_200_7ciqqp",
       "time": 549,
       "name": {
         "ja": "ラリアット・ブレイザー",
@@ -1677,7 +2167,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_152_b39vnb",
+      "id": "tpl_201_cp1yio",
       "time": 556,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1688,7 +2178,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_153_rjoehu",
+      "id": "tpl_202_zhoan1",
       "time": 557,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1699,7 +2189,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_154_ydwf63",
+      "id": "tpl_203_43m9nl",
       "time": 558,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1710,7 +2200,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_155_t1qrl6",
+      "id": "tpl_204_gqjxvy",
       "time": 559,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1721,7 +2211,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_156_ks88u9",
+      "id": "tpl_205_mfort9",
       "time": 561,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1732,7 +2222,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_157_nb98yk",
+      "id": "tpl_206_5palmu",
       "time": 562,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1743,7 +2233,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_158_8c8yai",
+      "id": "tpl_207_w2y6hj",
       "time": 564,
       "name": {
         "ja": "スマッシュインパクト",
@@ -1754,7 +2244,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_159_z0r5re",
+      "id": "tpl_208_qiq1mt",
       "time": 566,
       "name": {
         "ja": "AA",
@@ -1765,7 +2255,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_160_m2ih1b",
+      "id": "tpl_209_j6nbwi",
       "time": 568,
       "name": {
         "ja": "AA",
@@ -1776,7 +2266,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_161_a8dhar",
+      "id": "tpl_210_jfmim0",
       "time": 571,
       "name": {
         "ja": "AA",
@@ -1787,7 +2277,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_162_7dcouj",
+      "id": "tpl_211_bcds7j",
+      "time": 572,
+      "name": {
+        "ja": "Barbarous Barrage",
+        "en": "Barbarous Barrage"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_212_26inje",
       "time": 578,
       "name": {
         "ja": "AA",
@@ -1798,7 +2298,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_163_1w2llb",
+      "id": "tpl_213_typrp4",
       "time": 581,
       "name": {
         "ja": "AA",
@@ -1809,7 +2309,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_164_6bodf3",
+      "id": "tpl_214_8sg1c2",
       "time": 585,
       "name": {
         "ja": "AA",
@@ -1820,7 +2320,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_165_swhpp8",
+      "id": "tpl_215_85lrxn",
       "time": 587,
       "name": {
         "ja": "爆発",
@@ -1831,7 +2331,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_166_h7yo4z",
+      "id": "tpl_216_nv8n41",
       "time": 588,
       "name": {
         "ja": "AA",
@@ -1842,7 +2342,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_167_a6qn2n",
+      "id": "tpl_217_kgo50h",
       "time": 590,
       "name": {
         "ja": "爆発",
@@ -1853,7 +2353,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_168_sa6tb8",
+      "id": "tpl_218_hrvks4",
+      "time": 590,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_219_9tbs79",
+      "time": 590,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_220_dd4ejr",
       "time": 593,
       "name": {
         "ja": "爆発",
@@ -1864,7 +2384,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_169_6xha0c",
+      "id": "tpl_221_x8w44g",
+      "time": 598,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_222_nlxe6g",
+      "time": 598,
+      "name": {
+        "ja": "Lariat Combo",
+        "en": "Lariat Combo"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_223_8ypy0q",
       "time": 606,
       "name": {
         "ja": "AA",

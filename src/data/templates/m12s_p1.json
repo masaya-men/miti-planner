@@ -1,22 +1,11 @@
 {
   "contentId": "m12s_p1",
-  "generatedAt": "2026-03-22T11:54:37.500Z",
+  "generatedAt": "2026-03-23T05:13:28.255Z",
   "sourceLogsCount": 1,
   "sourceLog": "RwqGnWYMJ6dgQNf2#10",
   "timelineEvents": [
     {
-      "id": "tpl_0_7ulu4t",
-      "time": 4,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_1_omvo34",
+      "id": "tpl_0_x8sl76",
       "time": 4,
       "name": {
         "ja": "AA",
@@ -27,8 +16,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_ze0dj9",
-      "time": 7,
+      "id": "tpl_1_8edtrd",
+      "time": 4,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -38,7 +27,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_3_vnpeok",
+      "id": "tpl_2_iz4f04",
       "time": 7,
       "name": {
         "ja": "AA",
@@ -49,7 +38,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_4_o4ob3s",
+      "id": "tpl_3_o6djgy",
+      "time": 7,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_4_hpum0z",
       "time": 9,
       "name": {
         "ja": "AA",
@@ -60,7 +60,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_5_2oaqty",
+      "id": "tpl_5_v1m421",
       "time": 10,
       "name": {
         "ja": "AA",
@@ -71,7 +71,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_6_4gmiir",
+      "id": "tpl_6_3l1gys",
       "time": 16,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
@@ -82,7 +82,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_7_4x8ppt",
+      "id": "tpl_7_ubmb9k",
       "time": 17,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
@@ -93,18 +93,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_lg8ixf",
-      "time": 18,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_9_rwj1g3",
+      "id": "tpl_8_iytkk0",
       "time": 18,
       "name": {
         "ja": "AA",
@@ -115,8 +104,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_10_n5efln",
-      "time": 21,
+      "id": "tpl_9_zw8qfz",
+      "time": 18,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -126,7 +115,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_11_faf4di",
+      "id": "tpl_10_icb16o",
       "time": 21,
       "name": {
         "ja": "AA",
@@ -137,8 +126,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_12_z4h7k8",
-      "time": 24,
+      "id": "tpl_11_si1mxy",
+      "time": 21,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -148,7 +137,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_13_tzieeh",
+      "id": "tpl_12_wkcazd",
       "time": 24,
       "name": {
         "ja": "AA",
@@ -159,7 +148,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_14_5d6160",
+      "id": "tpl_13_66909w",
+      "time": 24,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_14_5lkqu0",
+      "time": 29,
+      "name": {
+        "ja": "リーサルスカージ",
+        "en": "Mortal Slayer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_hjgeay",
       "time": 41,
       "name": {
         "ja": "リーサルスカージ",
@@ -170,7 +180,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_igt8nu",
+      "id": "tpl_16_cnr6e2",
       "time": 44,
       "name": {
         "ja": "リーサルスカージ",
@@ -181,7 +191,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_msz9gd",
+      "id": "tpl_17_htqeb4",
       "time": 47,
       "name": {
         "ja": "リーサルスカージ",
@@ -192,7 +202,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_xuxgwo",
+      "id": "tpl_18_r8sqfu",
       "time": 47,
       "name": {
         "ja": "リーサルスカージ",
@@ -203,7 +213,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_18_e1m5b6",
+      "id": "tpl_19_01mkiz",
       "time": 50,
       "name": {
         "ja": "リーサルスカージ",
@@ -214,7 +224,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_v5i9lm",
+      "id": "tpl_20_yug2yh",
       "time": 50,
       "name": {
         "ja": "リーサルスカージ",
@@ -225,18 +235,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_20_hdu15j",
-      "time": 56,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_21_ah20t2",
+      "id": "tpl_21_sjny61",
       "time": 56,
       "name": {
         "ja": "AA",
@@ -247,8 +246,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_22_cdxmn8",
-      "time": 59,
+      "id": "tpl_22_gcr2ga",
+      "time": 56,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -258,7 +257,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_23_zjbqtb",
+      "id": "tpl_23_l5mpxg",
       "time": 59,
       "name": {
         "ja": "AA",
@@ -269,7 +268,78 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_jmhyqv",
+      "id": "tpl_24_m10ant",
+      "time": 59,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_25_jhgtus",
+      "time": 67,
+      "name": {
+        "ja": "細胞付着・前期",
+        "en": "Grotesquerie: Act 1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_0f2i8s",
+      "time": 76,
+      "name": {
+        "ja": "ラヴェナスリーチ",
+        "en": "Ravenous Reach"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_s51og6",
+      "time": 76,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_qk06pn",
+      "time": 78,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_ckqotj",
+      "time": 80,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_8bqcp8",
+      "time": 82,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_h9r01r",
       "time": 89,
       "name": {
         "ja": "細胞爆発",
@@ -280,7 +350,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_xdiotc",
+      "id": "tpl_32_z1xyrg",
       "time": 89,
       "name": {
         "ja": "細胞重爆",
@@ -291,7 +361,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_f4ub7y",
+      "id": "tpl_33_f86koj",
+      "time": 95,
+      "name": {
+        "ja": "大爆発",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_b6v28v",
       "time": 98,
       "name": {
         "ja": "細胞重爆",
@@ -302,7 +382,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_gmgszf",
+      "id": "tpl_35_td3b65",
       "time": 98,
       "name": {
         "ja": "ヴィセラルバースト",
@@ -313,7 +393,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_9s0y8h",
+      "id": "tpl_36_26zxdx",
       "time": 98,
       "name": {
         "ja": "ヴィセラルバースト",
@@ -324,7 +404,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_29_bvcrk2",
+      "id": "tpl_37_utgsxx",
       "time": 109,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
@@ -335,18 +415,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_2kz9ww",
-      "time": 111,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_31_zem6ag",
+      "id": "tpl_38_3wtytj",
       "time": 111,
       "name": {
         "ja": "AA",
@@ -357,7 +426,29 @@
       "target": "MT"
     },
     {
-      "id": "tpl_32_qp0s0n",
+      "id": "tpl_39_00izx7",
+      "time": 111,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_40_38mhhe",
+      "time": 114,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_41_7pwdn1",
       "time": 114,
       "name": {
         "ja": "AA",
@@ -368,29 +459,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_33_ua580c",
-      "time": 114,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_34_69cmgf",
+      "id": "tpl_42_6pc1kr",
       "time": 117,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "細胞付着・中期",
+        "en": "Grotesquerie: Act 2"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_35_s9pduj",
+      "id": "tpl_43_ykvbna",
       "time": 117,
       "name": {
         "ja": "AA",
@@ -401,7 +480,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_36_kr077m",
+      "id": "tpl_44_sioexr",
+      "time": 117,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_45_fgl11f",
       "time": 123,
       "name": {
         "ja": "AA",
@@ -412,7 +502,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_37_zk5oru",
+      "id": "tpl_46_npfihv",
       "time": 123,
       "name": {
         "ja": "AA",
@@ -423,7 +513,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_38_v0yun7",
+      "id": "tpl_47_20e1kn",
+      "time": 126,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_ikj61f",
       "time": 126,
       "name": {
         "ja": "AA",
@@ -434,7 +534,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_39_7h5c8l",
+      "id": "tpl_49_ls15us",
       "time": 126,
       "name": {
         "ja": "AA",
@@ -445,18 +545,17 @@
       "target": "ST"
     },
     {
-      "id": "tpl_40_awhjfr",
-      "time": 129,
+      "id": "tpl_50_1spplw",
+      "time": 128,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_41_gbgwj3",
+      "id": "tpl_51_5b5rd4",
       "time": 129,
       "name": {
         "ja": "AA",
@@ -467,8 +566,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_42_wybuuu",
-      "time": 132,
+      "id": "tpl_52_h0qox9",
+      "time": 129,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -478,7 +577,37 @@
       "target": "ST"
     },
     {
-      "id": "tpl_43_vve8a0",
+      "id": "tpl_53_aucyew",
+      "time": 130,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_u04lfg",
+      "time": 132,
+      "name": {
+        "ja": "クルエルコイル",
+        "en": "Cruel Coil"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_2k77a2",
+      "time": 132,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_z0gsb4",
       "time": 132,
       "name": {
         "ja": "AA",
@@ -489,7 +618,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_44_qmnc84",
+      "id": "tpl_57_9um1oj",
+      "time": 132,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_58_5kirml",
+      "time": 141,
+      "name": {
+        "ja": "unknown_b4c1",
+        "en": "unknown_b4c1"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_14dfal",
       "time": 150,
       "name": {
         "ja": "細胞爆発",
@@ -500,7 +650,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_4d8da5",
+      "id": "tpl_60_qs0ouv",
       "time": 153,
       "name": {
         "ja": "細胞変異",
@@ -511,7 +661,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_q8yrav",
+      "id": "tpl_61_3q5k0w",
       "time": 154,
       "name": {
         "ja": "細胞変異",
@@ -522,7 +672,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_wvbkr5",
+      "id": "tpl_62_6cecka",
       "time": 155,
       "name": {
         "ja": "細胞爆発",
@@ -533,7 +683,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_qskqqf",
+      "id": "tpl_63_mhr1yv",
       "time": 158,
       "name": {
         "ja": "細胞変異",
@@ -544,7 +694,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_n8fhf7",
+      "id": "tpl_64_bp718z",
       "time": 159,
       "name": {
         "ja": "細胞変異",
@@ -555,7 +705,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_wf7jqo",
+      "id": "tpl_65_4re0ic",
       "time": 160,
       "name": {
         "ja": "細胞爆発",
@@ -566,7 +716,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_u65jku",
+      "id": "tpl_66_7etdgt",
       "time": 163,
       "name": {
         "ja": "細胞変異",
@@ -577,7 +727,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_52_s61yv6",
+      "id": "tpl_67_8i615z",
       "time": 164,
       "name": {
         "ja": "細胞変異",
@@ -588,7 +738,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_urwtf3",
+      "id": "tpl_68_ogopni",
       "time": 165,
       "name": {
         "ja": "細胞爆発",
@@ -599,7 +749,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_ilu61e",
+      "id": "tpl_69_m76xm1",
       "time": 168,
       "name": {
         "ja": "細胞変異",
@@ -610,7 +760,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_55_eimvlg",
+      "id": "tpl_70_fabp3i",
       "time": 169,
       "name": {
         "ja": "細胞変異",
@@ -621,18 +771,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_8sq4qn",
-      "time": 183,
+      "id": "tpl_71_awr6nd",
+      "time": 176,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "コンストリクター",
+        "en": "Constrictor"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
+      "target": "AoE"
     },
     {
-      "id": "tpl_57_3ll9vk",
+      "id": "tpl_72_gj71a3",
+      "time": 183,
+      "name": {
+        "ja": "スプラッターシェッド",
+        "en": "Splattershed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_yk1hes",
       "time": 183,
       "name": {
         "ja": "AA",
@@ -643,7 +802,18 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_fwhtp6",
+      "id": "tpl_74_7jm0ri",
+      "time": 183,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_75_zzzd0v",
       "time": 188,
       "name": {
         "ja": "スプラッターシェッド",
@@ -654,18 +824,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_c6p6b2",
-      "time": 200,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_60_ek4q6r",
+      "id": "tpl_76_xhk1mi",
       "time": 200,
       "name": {
         "ja": "AA",
@@ -676,8 +835,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_xv5ef1",
-      "time": 202,
+      "id": "tpl_77_w2uhgp",
+      "time": 200,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -687,7 +846,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_62_8mtj2f",
+      "id": "tpl_78_qq9u4f",
       "time": 202,
       "name": {
         "ja": "AA",
@@ -698,7 +857,98 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_zagkpl",
+      "id": "tpl_79_vvuuss",
+      "time": 202,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_80_tkqxom",
+      "time": 203,
+      "name": {
+        "ja": "細胞付着・後期",
+        "en": "Grotesquerie: Act 3"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_9lt9di",
+      "time": 209,
+      "name": {
+        "ja": "フェラルフィッション",
+        "en": "Feral Fission"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_8bjy02",
+      "time": 209,
+      "name": {
+        "ja": "グランドエントランス",
+        "en": "Grand Entrance"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_55gmke",
+      "time": 210,
+      "name": {
+        "ja": "グランドエントランス",
+        "en": "Grand Entrance"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_v398fs",
+      "time": 211,
+      "name": {
+        "ja": "グランドエントランス",
+        "en": "Grand Entrance"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_seareq",
+      "time": 216,
+      "name": {
+        "ja": "ブリングダウン・ハウス",
+        "en": "Bring Down the House"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_f9n7bp",
+      "time": 216,
+      "name": {
+        "ja": "ブリングダウン・ハウス",
+        "en": "Bring Down the House"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_owelpt",
+      "time": 217,
+      "name": {
+        "ja": "細胞飛散",
+        "en": "Metamitosis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_a9m0sd",
       "time": 219,
       "name": {
         "ja": "細胞爆発",
@@ -709,7 +959,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_o7jvuu",
+      "id": "tpl_89_8zsknk",
       "time": 219,
       "name": {
         "ja": "細胞飛散",
@@ -720,7 +970,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_4x4ill",
+      "id": "tpl_90_3hc5am",
       "time": 229,
       "name": {
         "ja": "スプリットスカージ",
@@ -731,7 +981,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_66_ueidce",
+      "id": "tpl_91_jg0a5n",
       "time": 229,
       "name": {
         "ja": "スプリットスカージ",
@@ -742,7 +992,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_67_vyyf06",
+      "id": "tpl_92_i2j6il",
       "time": 232,
       "name": {
         "ja": "ドロップスカージ",
@@ -753,7 +1003,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_cqz76d",
+      "id": "tpl_93_hdlpjt",
       "time": 242,
       "name": {
         "ja": "フィクサー・オブ・アルカディア",
@@ -764,18 +1014,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_nzppqb",
-      "time": 244,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_70_b59vax",
+      "id": "tpl_94_jnt1wr",
       "time": 244,
       "name": {
         "ja": "AA",
@@ -786,8 +1025,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_71_19k5dp",
-      "time": 247,
+      "id": "tpl_95_9xfvf9",
+      "time": 244,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -797,7 +1036,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_72_pvnx8n",
+      "id": "tpl_96_nq8xk3",
       "time": 247,
       "name": {
         "ja": "AA",
@@ -808,7 +1047,88 @@
       "target": "MT"
     },
     {
-      "id": "tpl_73_ya5u28",
+      "id": "tpl_97_ig562z",
+      "time": 247,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_98_hclqv4",
+      "time": 250,
+      "name": {
+        "ja": "細胞付着・終期",
+        "en": "Grotesquerie: Curtain Call"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_bv74ky",
+      "time": 254,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_mbyr48",
+      "time": 256,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_dc25ms",
+      "time": 256,
+      "name": {
+        "ja": "ラヴェナスリーチ",
+        "en": "Ravenous Reach"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_w8ivlm",
+      "time": 258,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_reykrg",
+      "time": 260,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_h2ua7d",
+      "time": 262,
+      "name": {
+        "ja": "細胞落着",
+        "en": "Phagocyte Spotlight"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_9gvtvh",
       "time": 268,
       "name": {
         "ja": "ラヴェナスリーチ",
@@ -819,7 +1139,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_d6qc59",
+      "id": "tpl_106_l2gfe7",
       "time": 268,
       "name": {
         "ja": "細胞消失",
@@ -830,7 +1150,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_wek9us",
+      "id": "tpl_107_3uph43",
       "time": 269,
       "name": {
         "ja": "細胞爆発",
@@ -841,7 +1161,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_jpn2y2",
+      "id": "tpl_108_q7l2pg",
       "time": 276,
       "name": {
         "ja": "細胞爆発",
@@ -852,7 +1172,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_7wwcia",
+      "id": "tpl_109_73ajvu",
       "time": 277,
       "name": {
         "ja": "細胞爆発",
@@ -863,7 +1183,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_er0yl7",
+      "id": "tpl_110_aounau",
+      "time": 278,
+      "name": {
+        "ja": "大爆発",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_111_5ris0a",
+      "time": 285,
+      "name": {
+        "ja": "スプラッターシェッド",
+        "en": "Splattershed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_112_qzpejg",
       "time": 290,
       "name": {
         "ja": "スプラッターシェッド",
@@ -874,7 +1214,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_ahrqm9",
+      "id": "tpl_113_ngszbb",
+      "time": 304,
+      "name": {
+        "ja": "リーサルスカージ",
+        "en": "Mortal Slayer"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_114_djeucx",
       "time": 316,
       "name": {
         "ja": "リーサルスカージ",
@@ -885,7 +1235,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_51rti4",
+      "id": "tpl_115_g6u4ho",
       "time": 316,
       "name": {
         "ja": "リーサルスカージ",
@@ -896,7 +1246,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_81_bieie0",
+      "id": "tpl_116_2q2r5t",
       "time": 319,
       "name": {
         "ja": "リーサルスカージ",
@@ -907,7 +1257,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_16o0go",
+      "id": "tpl_117_wqmx5i",
       "time": 322,
       "name": {
         "ja": "リーサルスカージ",
@@ -918,7 +1268,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_2u3734",
+      "id": "tpl_118_saog2k",
       "time": 325,
       "name": {
         "ja": "リーサルスカージ",
@@ -929,18 +1279,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_3myou5",
-      "time": 331,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_85_ciiofa",
+      "id": "tpl_119_mq5i0m",
       "time": 331,
       "name": {
         "ja": "AA",
@@ -951,8 +1290,8 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_ipr8yy",
-      "time": 334,
+      "id": "tpl_120_c6xxgo",
+      "time": 331,
       "name": {
         "ja": "AA",
         "en": "AA"
@@ -962,7 +1301,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_87_dmscjn",
+      "id": "tpl_121_opr61r",
       "time": 334,
       "name": {
         "ja": "AA",
@@ -973,7 +1312,28 @@
       "target": "MT"
     },
     {
-      "id": "tpl_88_oc9xxn",
+      "id": "tpl_122_q5n9om",
+      "time": 334,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "magical",
+      "damageAmount": 64700,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_123_d222jx",
+      "time": 337,
+      "name": {
+        "ja": "スローターシェッド",
+        "en": "Slaughtershed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_u4hlv7",
       "time": 343,
       "name": {
         "ja": "スローターシェッド",
@@ -984,7 +1344,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_3iw0fz",
+      "id": "tpl_125_c7ok9n",
+      "time": 349,
+      "name": {
+        "ja": "大爆発",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_pwgmg7",
       "time": 352,
       "name": {
         "ja": "細胞爆発",
@@ -995,7 +1365,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_l2gah7",
+      "id": "tpl_127_1om3s3",
       "time": 352,
       "name": {
         "ja": "細胞重爆",
@@ -1006,7 +1376,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_y2046l",
+      "id": "tpl_128_lpl3wd",
+      "time": 357,
+      "name": {
+        "ja": "スカージブレス",
+        "en": "Serpentine Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_8gnsgt",
+      "time": 361,
+      "name": {
+        "ja": "スカージブレス",
+        "en": "Serpentine Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_dpa6ln",
+      "time": 366,
+      "name": {
+        "ja": "スローターシェッド",
+        "en": "Slaughtershed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_131_ldxgdq",
       "time": 372,
       "name": {
         "ja": "スローターシェッド",
@@ -1017,7 +1417,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_t748za",
+      "id": "tpl_132_t7arct",
+      "time": 378,
+      "name": {
+        "ja": "大爆発",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_53n6q7",
       "time": 381,
       "name": {
         "ja": "細胞爆発",
@@ -1028,7 +1438,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_dl643t",
+      "id": "tpl_134_5i7qan",
       "time": 381,
       "name": {
         "ja": "細胞重爆",
@@ -1037,8 +1447,37 @@
       "damageType": "magical",
       "damageAmount": 185000,
       "target": "AoE"
+    },
+    {
+      "id": "tpl_135_dgv3m0",
+      "time": 386,
+      "name": {
+        "ja": "スカージブレス",
+        "en": "Serpentine Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_mxe1o1",
+      "time": 390,
+      "name": {
+        "ja": "スカージブレス",
+        "en": "Serpentine Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_whnoqs",
+      "time": 395,
+      "name": {
+        "ja": "スローターシェッド",
+        "en": "Slaughtershed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
     }
   ],
-  "phases": [],
-  "_warning": "Phase split data not available; full timeline included"
+  "phases": []
 }

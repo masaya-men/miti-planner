@@ -1,11 +1,11 @@
 {
   "contentId": "dsr_p1",
-  "generatedAt": "2026-03-22T12:52:05.294Z",
+  "generatedAt": "2026-03-23T04:31:26.538Z",
   "sourceLogsCount": 1,
   "sourceLog": "Tk9ncy6NXQYMpdZG#13",
   "timelineEvents": [
     {
-      "id": "tpl_0_7h2anw",
+      "id": "tpl_0_94as75",
       "time": 5,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_gzbtqm",
+      "id": "tpl_1_750ii5",
       "time": 7,
       "name": {
         "ja": "AA",
@@ -27,7 +27,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_umg2sk",
+      "id": "tpl_2_sxpxnu",
+      "time": 9,
+      "name": {
+        "ja": "Ascalon's Mercy Concealed",
+        "en": "Ascalon's Mercy Concealed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_jlah18",
+      "time": 12,
+      "name": {
+        "ja": "Ascalon's Mercy Concealed",
+        "en": "Ascalon's Mercy Concealed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_7y6v14",
       "time": 15,
       "name": {
         "ja": "アスカロンマイト",
@@ -38,7 +58,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_3_lr8fis",
+      "id": "tpl_5_flyn7i",
       "time": 17,
       "name": {
         "ja": "アスカロンマイト",
@@ -49,7 +69,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_4_uowc6i",
+      "id": "tpl_6_gvlez4",
       "time": 18,
       "name": {
         "ja": "アスカロンマイト",
@@ -60,7 +80,47 @@
       "target": "ST"
     },
     {
-      "id": "tpl_5_bjdrla",
+      "id": "tpl_7_wlj263",
+      "time": 26,
+      "name": {
+        "ja": "Strength of the Ward",
+        "en": "Strength of the Ward"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_yp1unm",
+      "time": 37,
+      "name": {
+        "ja": "Spiral Thrust",
+        "en": "Spiral Thrust"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_gvv57s",
+      "time": 37,
+      "name": {
+        "ja": "Lightning Storm",
+        "en": "Lightning Storm"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_tzn3tc",
+      "time": 37,
+      "name": {
+        "ja": "Heavy Impact",
+        "en": "Heavy Impact"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_26en4w",
       "time": 43,
       "name": {
         "ja": "百雷",
@@ -71,7 +131,57 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_izumm6",
+      "id": "tpl_12_o5y7bi",
+      "time": 45,
+      "name": {
+        "ja": "Ascalon's Mercy Concealed",
+        "en": "Ascalon's Mercy Concealed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_97et0g",
+      "time": 48,
+      "name": {
+        "ja": "Ascalon's Mercy Concealed",
+        "en": "Ascalon's Mercy Concealed"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_lhjee5",
+      "time": 50,
+      "name": {
+        "ja": "Dimensional Collapse",
+        "en": "Dimensional Collapse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_6y7xxp",
+      "time": 50,
+      "name": {
+        "ja": "Dimensional Collapse",
+        "en": "Dimensional Collapse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_7k8u9r",
+      "time": 53,
+      "name": {
+        "ja": "the Dragon's Rage",
+        "en": "The Dragon's Rage"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_8dsne5",
       "time": 59,
       "name": {
         "ja": "邪竜の魔炎",
@@ -82,7 +192,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_8hrebl",
+      "id": "tpl_18_dimkeh",
       "time": 59,
       "name": {
         "ja": "スカイワードリープ",
@@ -93,7 +203,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_vajozh",
+      "id": "tpl_19_j20p59",
       "time": 60,
       "name": {
         "ja": "ホーリーシールドバッシュ",
@@ -104,7 +214,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_9_4l8yat",
+      "id": "tpl_20_44ooxm",
       "time": 62,
       "name": {
         "ja": "ホーリーブレードダンス",
@@ -115,7 +225,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_10_rje06u",
+      "id": "tpl_21_yeds9k",
       "time": 63,
       "name": {
         "ja": "コンヴィクション",
@@ -126,7 +236,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_p5x19o",
+      "id": "tpl_22_2r5ojc",
       "time": 63,
       "name": {
         "ja": "ホーリーブレードダンス",
@@ -137,7 +247,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_12_hzyfjq",
+      "id": "tpl_23_f2lc16",
       "time": 64,
       "name": {
         "ja": "ホーリーブレードダンス",
@@ -148,7 +258,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_m946h8",
+      "id": "tpl_24_v7cdco",
       "time": 72,
       "name": {
         "ja": "エンシェントクエイガ",
@@ -159,7 +269,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_7fpy3n",
+      "id": "tpl_25_6swrp3",
       "time": 74,
       "name": {
         "ja": "AA",
@@ -170,7 +280,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_15_wibfqw",
+      "id": "tpl_26_xe9ueb",
       "time": 81,
       "name": {
         "ja": "ヘヴンリーヒール",
@@ -181,7 +291,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_ztrq4m",
+      "id": "tpl_27_bu9azb",
       "time": 84,
       "name": {
         "ja": "アスカロンマイト",
@@ -192,7 +302,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_ynj855",
+      "id": "tpl_28_ota4xx",
       "time": 85,
       "name": {
         "ja": "アスカロンマイト",
@@ -203,7 +313,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_4cp9h0",
+      "id": "tpl_29_go8kp7",
       "time": 88,
       "name": {
         "ja": "アスカロンマイト",

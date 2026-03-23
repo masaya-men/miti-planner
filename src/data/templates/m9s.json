@@ -1,11 +1,11 @@
 {
   "contentId": "m9s",
-  "generatedAt": "2026-03-22T11:52:55.092Z",
+  "generatedAt": "2026-03-23T04:57:35.389Z",
   "sourceLogsCount": 1,
   "sourceLog": "Z4DkvJwyjxPX7Hfa#2",
   "timelineEvents": [
     {
-      "id": "tpl_0_ncm5rz",
+      "id": "tpl_0_fyo6jz",
       "time": 4,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_qvaln2",
+      "id": "tpl_1_4xsqbj",
       "time": 11,
       "name": {
         "ja": "Killer Voice",
@@ -27,7 +27,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_pz6hpe",
+      "id": "tpl_2_sm736s",
       "time": 12,
       "name": {
         "ja": "Killer Voice",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_ovtcs5",
+      "id": "tpl_3_c0olta",
       "time": 12,
       "name": {
         "ja": "AA",
@@ -49,7 +49,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_4_labqvv",
+      "id": "tpl_4_sqyboo",
       "time": 15,
       "name": {
         "ja": "AA",
@@ -60,7 +60,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_5_bqrauj",
+      "id": "tpl_5_5q8klp",
+      "time": 16,
+      "name": {
+        "ja": "Hardcore",
+        "en": "Hardcore"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_62tgtd",
       "time": 21,
       "name": {
         "ja": "Hardcore",
@@ -71,7 +81,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_pxzd4j",
+      "id": "tpl_7_313low",
       "time": 23,
       "name": {
         "ja": "AA",
@@ -82,7 +92,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_7_gcnk6e",
+      "id": "tpl_8_75d306",
+      "time": 26,
+      "name": {
+        "ja": "Vamp Stomp",
+        "en": "Vamp Stomp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_zmkb4p",
+      "time": 26,
+      "name": {
+        "ja": "Vamp Stomp",
+        "en": "Vamp Stomp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_6b52lg",
       "time": 35,
       "name": {
         "ja": "Blast Beat",
@@ -93,7 +123,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_e1ylpq",
+      "id": "tpl_11_kusewk",
       "time": 35,
       "name": {
         "ja": "AA",
@@ -104,7 +134,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_9_rpp0x9",
+      "id": "tpl_12_oggpte",
       "time": 37,
       "name": {
         "ja": "Blast Beat",
@@ -115,7 +145,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_zfo7yk",
+      "id": "tpl_13_ee1qiq",
       "time": 37,
       "name": {
         "ja": "AA",
@@ -126,7 +156,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_11_unbojh",
+      "id": "tpl_14_78peob",
       "time": 39,
       "name": {
         "ja": "Blast Beat",
@@ -137,7 +167,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_2ot3y2",
+      "id": "tpl_15_1jol9n",
       "time": 40,
       "name": {
         "ja": "Blast Beat",
@@ -148,7 +178,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_3wdmk4",
+      "id": "tpl_16_x26tp5",
       "time": 40,
       "name": {
         "ja": "AA",
@@ -159,7 +189,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_14_nbuld8",
+      "id": "tpl_17_ycq1rr",
       "time": 41,
       "name": {
         "ja": "Blast Beat",
@@ -170,7 +200,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_dfx3c2",
+      "id": "tpl_18_wvxeru",
+      "time": 42,
+      "name": {
+        "ja": "Brutal Rain",
+        "en": "Brutal Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_hogvti",
       "time": 48,
       "name": {
         "ja": "Brutal Rain",
@@ -181,7 +221,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_rvdnpq",
+      "id": "tpl_20_hd1m8d",
       "time": 50,
       "name": {
         "ja": "Brutal Rain",
@@ -192,7 +232,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_hj2yul",
+      "id": "tpl_21_333lta",
       "time": 50,
       "name": {
         "ja": "AA",
@@ -203,7 +243,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_18_b6luw6",
+      "id": "tpl_22_5rve3w",
       "time": 53,
       "name": {
         "ja": "AA",
@@ -214,7 +254,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_awcjel",
+      "id": "tpl_23_qohd9k",
+      "time": 56,
+      "name": {
+        "ja": "Sadistic Screech",
+        "en": "Sadistic Screech"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_ynjz9h",
       "time": 62,
       "name": {
         "ja": "Sadistic Screech",
@@ -225,7 +275,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_f27y27",
+      "id": "tpl_25_tjlkta",
+      "time": 64,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_ss81ux",
+      "time": 64,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_iuw12k",
       "time": 64,
       "name": {
         "ja": "AA",
@@ -236,7 +306,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_21_5n2ffv",
+      "id": "tpl_28_s5o70j",
       "time": 66,
       "name": {
         "ja": "AA",
@@ -247,7 +317,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_22_umce8y",
+      "id": "tpl_29_chc07y",
+      "time": 71,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_702f6h",
+      "time": 71,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_zz12hz",
+      "time": 71,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_32_p83v3r",
+      "time": 71,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_wy86vf",
+      "time": 74,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_by53re",
       "time": 76,
       "name": {
         "ja": "Half Moon",
@@ -258,7 +378,197 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_p6iqje",
+      "id": "tpl_35_nv2ijm",
+      "time": 81,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_el4j41",
+      "time": 81,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_um173a",
+      "time": 88,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_khdevi",
+      "time": 88,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_evlzxz",
+      "time": 88,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_3j4plu",
+      "time": 88,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_ax31fi",
+      "time": 91,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_5tigy6",
+      "time": 99,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_fch9ze",
+      "time": 99,
+      "name": {
+        "ja": "Dead Wake",
+        "en": "Dead Wake"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_itu1cz",
+      "time": 106,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_4vo2jd",
+      "time": 106,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_g1pc7n",
+      "time": 106,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_ncvbx0",
+      "time": 106,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_2llory",
+      "time": 109,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_86tnnv",
+      "time": 116,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_3547zt",
+      "time": 116,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_26dke5",
+      "time": 116,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_v83v6f",
+      "time": 116,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_91cl7u",
+      "time": 116,
+      "name": {
+        "ja": "Coffinfiller",
+        "en": "Coffinfiller"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_ar2n5r",
       "time": 126,
       "name": {
         "ja": "AA",
@@ -269,7 +579,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_lzx6d7",
+      "id": "tpl_55_qhrz3m",
       "time": 129,
       "name": {
         "ja": "AA",
@@ -280,7 +590,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_ov1xg7",
+      "id": "tpl_56_sll70x",
       "time": 132,
       "name": {
         "ja": "AA",
@@ -291,7 +601,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_ge5m47",
+      "id": "tpl_57_jqs35w",
+      "time": 133,
+      "name": {
+        "ja": "Sadistic Screech",
+        "en": "Sadistic Screech"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_5kad8p",
       "time": 139,
       "name": {
         "ja": "Sadistic Screech",
@@ -302,7 +622,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_hcr564",
+      "id": "tpl_59_y0cyjv",
       "time": 141,
       "name": {
         "ja": "AA",
@@ -313,7 +633,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_75s6nm",
+      "id": "tpl_60_klv828",
       "time": 144,
       "name": {
         "ja": "AA",
@@ -324,7 +644,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_29_dyq4a4",
+      "id": "tpl_61_nzr7c0",
+      "time": 148,
+      "name": {
+        "ja": "Crowd Kill",
+        "en": "Crowd Kill"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_wiubml",
       "time": 154,
       "name": {
         "ja": "Crowd Kill",
@@ -335,7 +665,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_5pyjr2",
+      "id": "tpl_63_y183an",
       "time": 156,
       "name": {
         "ja": "AA",
@@ -346,7 +676,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_31_jguazp",
+      "id": "tpl_64_macrj7",
       "time": 159,
       "name": {
         "ja": "AA",
@@ -357,7 +687,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_32_vcmng2",
+      "id": "tpl_65_aqt61b",
       "time": 163,
       "name": {
         "ja": "AA",
@@ -368,7 +698,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_33_sybsbh",
+      "id": "tpl_66_cagnnx",
+      "time": 166,
+      "name": {
+        "ja": "Finale Fatale",
+        "en": "Finale Fatale"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_cuky7w",
       "time": 173,
       "name": {
         "ja": "Finale Fatale",
@@ -379,7 +719,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_uxjini",
+      "id": "tpl_68_idnj9p",
+      "time": 173,
+      "name": {
+        "ja": "Pulping Pulse",
+        "en": "Pulping Pulse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_fx0hq0",
       "time": 175,
       "name": {
         "ja": "AA",
@@ -390,7 +740,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_35_9edja2",
+      "id": "tpl_70_te08jn",
       "time": 178,
       "name": {
         "ja": "AA",
@@ -401,7 +751,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_36_eigcvu",
+      "id": "tpl_71_uhxhdb",
+      "time": 179,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_xrmu4d",
+      "time": 183,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_cdik3z",
+      "time": 185,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_8d8c8f",
+      "time": 187,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_75_tqsucw",
+      "time": 189,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_xroq80",
       "time": 194,
       "name": {
         "ja": "Aetherletting",
@@ -412,7 +812,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_5s8rel",
+      "id": "tpl_77_sf3t32",
+      "time": 194,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_oow2mt",
       "time": 196,
       "name": {
         "ja": "Aetherletting",
@@ -423,7 +833,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_rjdr1i",
+      "id": "tpl_79_2n92xc",
+      "time": 196,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_80_qmvjez",
       "time": 198,
       "name": {
         "ja": "Aetherletting",
@@ -434,7 +854,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_f8b9l8",
+      "id": "tpl_81_xz620h",
+      "time": 198,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_82_rd5qqw",
       "time": 199,
       "name": {
         "ja": "AA",
@@ -445,7 +875,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_40_jh56wt",
+      "id": "tpl_83_eqmli6",
       "time": 200,
       "name": {
         "ja": "Aetherletting",
@@ -456,7 +886,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_hrfksn",
+      "id": "tpl_84_cuawqz",
+      "time": 200,
+      "name": {
+        "ja": "Aetherletting",
+        "en": "Aetherletting"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_zozyvp",
       "time": 202,
       "name": {
         "ja": "AA",
@@ -467,7 +907,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_42_yaakt3",
+      "id": "tpl_86_bjfatv",
       "time": 206,
       "name": {
         "ja": "AA",
@@ -478,7 +918,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_43_hx9yep",
+      "id": "tpl_87_rxtyqh",
       "time": 209,
       "name": {
         "ja": "AA",
@@ -489,7 +929,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_44_ood7ku",
+      "id": "tpl_88_zv1k1e",
       "time": 211,
       "name": {
         "ja": "AA",
@@ -500,7 +940,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_45_oh7tzz",
+      "id": "tpl_89_dg9hjh",
       "time": 215,
       "name": {
         "ja": "AA",
@@ -511,7 +951,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_46_svohhm",
+      "id": "tpl_90_2fqidw",
+      "time": 216,
+      "name": {
+        "ja": "Hardcore",
+        "en": "Hardcore"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_9090z7",
       "time": 222,
       "name": {
         "ja": "Hardcore",
@@ -522,7 +972,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_gdkgt2",
+      "id": "tpl_92_wt9htw",
+      "time": 222,
+      "name": {
+        "ja": "Pulping Pulse",
+        "en": "Pulping Pulse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_9ofwwv",
       "time": 224,
       "name": {
         "ja": "AA",
@@ -533,7 +993,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_48_n3ufr6",
+      "id": "tpl_94_gxea50",
+      "time": 226,
+      "name": {
+        "ja": "Vamp Stomp",
+        "en": "Vamp Stomp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_95_d6wyvg",
+      "time": 226,
+      "name": {
+        "ja": "Vamp Stomp",
+        "en": "Vamp Stomp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_b0sj35",
       "time": 234,
       "name": {
         "ja": "AA",
@@ -544,7 +1024,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_49_52vrbc",
+      "id": "tpl_97_gdq3wd",
       "time": 236,
       "name": {
         "ja": "Blast Beat",
@@ -555,7 +1035,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_vk8kcg",
+      "id": "tpl_98_cwo73m",
       "time": 237,
       "name": {
         "ja": "AA",
@@ -566,7 +1046,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_51_fm74wx",
+      "id": "tpl_99_bpx2fe",
       "time": 239,
       "name": {
         "ja": "Blast Beat",
@@ -577,7 +1057,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_oitgv7",
+      "id": "tpl_100_yr3jys",
       "time": 240,
       "name": {
         "ja": "Blast Beat",
@@ -588,7 +1068,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_m45znf",
+      "id": "tpl_101_jtyzgr",
       "time": 241,
       "name": {
         "ja": "AA",
@@ -599,7 +1079,47 @@
       "target": "MT"
     },
     {
-      "id": "tpl_54_lpcfui",
+      "id": "tpl_102_z4gee6",
+      "time": 242,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_vro5ni",
+      "time": 242,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_36bab1",
+      "time": 242,
+      "name": {
+        "ja": "Half Moon",
+        "en": "Half Moon"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_mngtnq",
+      "time": 253,
+      "name": {
+        "ja": "Brutal Rain",
+        "en": "Brutal Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_q4rud6",
       "time": 258,
       "name": {
         "ja": "Brutal Rain",
@@ -610,7 +1130,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_31m6ud",
+      "id": "tpl_107_44v3sw",
       "time": 259,
       "name": {
         "ja": "Brutal Rain",
@@ -621,7 +1141,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_k8yzk4",
+      "id": "tpl_108_mbfhn4",
       "time": 260,
       "name": {
         "ja": "Brutal Rain",
@@ -632,7 +1152,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_gtcwnl",
+      "id": "tpl_109_wh41ej",
       "time": 260,
       "name": {
         "ja": "AA",
@@ -643,7 +1163,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_gx2csd",
+      "id": "tpl_110_hkilrr",
       "time": 261,
       "name": {
         "ja": "Brutal Rain",
@@ -654,7 +1174,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_hcrbio",
+      "id": "tpl_111_6zy10c",
       "time": 263,
       "name": {
         "ja": "AA",
@@ -665,7 +1185,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_r5vabw",
+      "id": "tpl_112_sgttiy",
+      "time": 266,
+      "name": {
+        "ja": "Insatiable Thirst",
+        "en": "Insatiable Thirst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_g26mnl",
       "time": 272,
       "name": {
         "ja": "Insatiable Thirst",
@@ -676,7 +1206,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_nqgst9",
+      "id": "tpl_114_vpzv5p",
       "time": 274,
       "name": {
         "ja": "AA",
@@ -687,7 +1217,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_62_1kp8yj",
+      "id": "tpl_115_0n4vja",
+      "time": 279,
+      "name": {
+        "ja": "Sadistic Screech",
+        "en": "Sadistic Screech"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_0vspkh",
       "time": 285,
       "name": {
         "ja": "Sadistic Screech",
@@ -698,7 +1238,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_e4myn9",
+      "id": "tpl_117_q50hfn",
       "time": 286,
       "name": {
         "ja": "AA",
@@ -709,7 +1249,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_xkhyal",
+      "id": "tpl_118_30l1gc",
       "time": 289,
       "name": {
         "ja": "AA",
@@ -720,7 +1260,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_65_0u51d8",
+      "id": "tpl_119_mk5656",
       "time": 292,
       "name": {
         "ja": "AA",
@@ -731,7 +1271,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_66_2jcd43",
+      "id": "tpl_120_w0mqi2",
       "time": 295,
       "name": {
         "ja": "AA",
@@ -742,7 +1282,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_67_0vqmlw",
+      "id": "tpl_121_bbbb74",
       "time": 297,
       "name": {
         "ja": "Plummet",
@@ -753,7 +1293,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_68_w0hjtf",
+      "id": "tpl_122_3v165q",
+      "time": 298,
+      "name": {
+        "ja": "Barbed Burst",
+        "en": "Barbed Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_yeaie9",
       "time": 298,
       "name": {
         "ja": "AA",
@@ -764,7 +1314,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_69_qpli9g",
+      "id": "tpl_124_edmhxn",
       "time": 306,
       "name": {
         "ja": "AA",
@@ -775,7 +1325,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_70_omdpmx",
+      "id": "tpl_125_5a7a60",
       "time": 307,
       "name": {
         "ja": "Killer Voice",
@@ -786,7 +1336,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_z9e2op",
+      "id": "tpl_126_m376qm",
       "time": 309,
       "name": {
         "ja": "AA",
@@ -797,7 +1347,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_72_w2ohrn",
+      "id": "tpl_127_edychc",
       "time": 312,
       "name": {
         "ja": "AA",
@@ -808,7 +1358,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_73_2vgw93",
+      "id": "tpl_128_v3m1ed",
       "time": 313,
       "name": {
         "ja": "Gravegrazer",
@@ -819,7 +1369,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_x226yt",
+      "id": "tpl_129_9n2oxf",
       "time": 315,
       "name": {
         "ja": "Plummet",
@@ -830,7 +1380,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_75_b4b1h6",
+      "id": "tpl_130_ange9s",
       "time": 315,
       "name": {
         "ja": "AA",
@@ -841,7 +1391,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_76_udhf9m",
+      "id": "tpl_131_ynwmal",
+      "time": 316,
+      "name": {
+        "ja": "Barbed Burst",
+        "en": "Barbed Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_5r7e70",
       "time": 318,
       "name": {
         "ja": "AA",
@@ -852,7 +1412,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_77_944jlm",
+      "id": "tpl_133_q2yeku",
       "time": 324,
       "name": {
         "ja": "Killer Voice",
@@ -863,7 +1423,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_e79eik",
+      "id": "tpl_134_36qm81",
       "time": 325,
       "name": {
         "ja": "Killer Voice",
@@ -874,7 +1434,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_u6qzbl",
+      "id": "tpl_135_p6j84n",
       "time": 326,
       "name": {
         "ja": "AA",
@@ -885,7 +1445,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_vch17f",
+      "id": "tpl_136_xt5utt",
       "time": 329,
       "name": {
         "ja": "AA",
@@ -896,7 +1456,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_81_pt9yhz",
+      "id": "tpl_137_pdwyhn",
       "time": 333,
       "name": {
         "ja": "Plummet",
@@ -907,7 +1467,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_7xkjou",
+      "id": "tpl_138_1b2uoe",
       "time": 333,
       "name": {
         "ja": "AA",
@@ -918,7 +1478,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_83_3df1sr",
+      "id": "tpl_139_mc6lxb",
+      "time": 334,
+      "name": {
+        "ja": "Barbed Burst",
+        "en": "Barbed Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_140_5pvbh4",
       "time": 335,
       "name": {
         "ja": "AA",
@@ -929,7 +1499,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_84_87gvb8",
+      "id": "tpl_141_lso5er",
       "time": 338,
       "name": {
         "ja": "AA",
@@ -940,7 +1510,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_85_3d0t5b",
+      "id": "tpl_142_9xk41m",
       "time": 342,
       "name": {
         "ja": "AA",
@@ -951,7 +1521,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_ujcqci",
+      "id": "tpl_143_v4sial",
       "time": 345,
       "name": {
         "ja": "AA",
@@ -962,7 +1532,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_87_d80jin",
+      "id": "tpl_144_xztsdw",
       "time": 347,
       "name": {
         "ja": "Gravegrazer",
@@ -973,7 +1543,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_4y4daj",
+      "id": "tpl_145_1ga8ge",
       "time": 348,
       "name": {
         "ja": "AA",
@@ -984,7 +1554,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_89_t8upbo",
+      "id": "tpl_146_epfg73",
+      "time": 351,
+      "name": {
+        "ja": "Sadistic Screech",
+        "en": "Sadistic Screech"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_m6gjqb",
       "time": 351,
       "name": {
         "ja": "AA",
@@ -995,7 +1575,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_90_dg0t1s",
+      "id": "tpl_148_vpd36g",
       "time": 357,
       "name": {
         "ja": "Sadistic Screech",
@@ -1006,7 +1586,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_m3uqxl",
+      "id": "tpl_149_oj34li",
       "time": 359,
       "name": {
         "ja": "AA",
@@ -1017,7 +1597,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_92_26fuma",
+      "id": "tpl_150_i79odw",
       "time": 362,
       "name": {
         "ja": "AA",
@@ -1028,7 +1608,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_93_2bk01c",
+      "id": "tpl_151_1ql5pp",
+      "time": 366,
+      "name": {
+        "ja": "Crowd Kill",
+        "en": "Crowd Kill"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_weuzx1",
       "time": 372,
       "name": {
         "ja": "Crowd Kill",
@@ -1039,7 +1629,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_qu9u5k",
+      "id": "tpl_153_csgy7z",
       "time": 375,
       "name": {
         "ja": "AA",
@@ -1050,7 +1640,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_95_njo9oc",
+      "id": "tpl_154_vj0w64",
       "time": 377,
       "name": {
         "ja": "AA",
@@ -1061,7 +1651,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_96_3jh5qi",
+      "id": "tpl_155_dkud4k",
       "time": 380,
       "name": {
         "ja": "AA",
@@ -1072,7 +1662,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_97_o2mosm",
+      "id": "tpl_156_yoa6qq",
+      "time": 385,
+      "name": {
+        "ja": "Finale Fatale",
+        "en": "Finale Fatale"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_94pe1n",
       "time": 391,
       "name": {
         "ja": "Finale Fatale",
@@ -1083,7 +1683,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_l4j3be",
+      "id": "tpl_158_k9ff20",
+      "time": 392,
+      "name": {
+        "ja": "Pulping Pulse",
+        "en": "Pulping Pulse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_d84la3",
       "time": 393,
       "name": {
         "ja": "AA",
@@ -1094,7 +1704,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_99_1w35yp",
+      "id": "tpl_160_qsj261",
       "time": 396,
       "name": {
         "ja": "AA",
@@ -1105,7 +1715,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_100_a1cpkl",
+      "id": "tpl_161_9m2akv",
+      "time": 397,
+      "name": {
+        "ja": "Hell in a Cell",
+        "en": "Hell in a Cell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_70mc0r",
       "time": 402,
       "name": {
         "ja": "Bloody Bondage",
@@ -1116,7 +1736,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_nza625",
+      "id": "tpl_163_opudoi",
       "time": 404,
       "name": {
         "ja": "Blood Lash",
@@ -1127,7 +1747,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_6e10l7",
+      "id": "tpl_164_vk2xc9",
       "time": 404,
       "name": {
         "ja": "Blood Lash",
@@ -1138,7 +1758,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_zq61bm",
+      "id": "tpl_165_3u9fyu",
+      "time": 404,
+      "name": {
+        "ja": "Ultrasonic Amp",
+        "en": "Ultrasonic Amp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_166_uog3ml",
       "time": 404,
       "name": {
         "ja": "Blood Lash",
@@ -1149,7 +1779,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_104_2zmq2y",
+      "id": "tpl_167_qesgaj",
       "time": 407,
       "name": {
         "ja": "Blood Lash",
@@ -1160,7 +1790,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_z1x272",
+      "id": "tpl_168_1u6dtg",
       "time": 407,
       "name": {
         "ja": "Blood Lash",
@@ -1171,7 +1801,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_106_9ki8i8",
+      "id": "tpl_169_0pfkbd",
       "time": 407,
       "name": {
         "ja": "Blood Lash",
@@ -1182,7 +1812,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_107_yjviv5",
+      "id": "tpl_170_sg02yq",
       "time": 410,
       "name": {
         "ja": "Ultrasonic Amp",
@@ -1193,7 +1823,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_3rnbew",
+      "id": "tpl_171_5qnsgn",
       "time": 411,
       "name": {
         "ja": "Blood Lash",
@@ -1204,7 +1834,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_109_6vnakf",
+      "id": "tpl_172_2gunv7",
       "time": 411,
       "name": {
         "ja": "Blood Lash",
@@ -1215,7 +1845,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_gmf9el",
+      "id": "tpl_173_pnnafk",
+      "time": 411,
+      "name": {
+        "ja": "Ultrasonic Spread",
+        "en": "Ultrasonic Spread"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_174_zsik4o",
       "time": 411,
       "name": {
         "ja": "Blood Lash",
@@ -1226,7 +1866,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_111_8mfkv4",
+      "id": "tpl_175_r28ddb",
       "time": 414,
       "name": {
         "ja": "Blood Lash",
@@ -1237,7 +1877,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_z8omt6",
+      "id": "tpl_176_i4c9w6",
       "time": 414,
       "name": {
         "ja": "Blood Lash",
@@ -1248,7 +1888,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_113_576l6r",
+      "id": "tpl_177_u1w1qv",
       "time": 414,
       "name": {
         "ja": "Blood Lash",
@@ -1259,7 +1899,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_114_2220eu",
+      "id": "tpl_178_ane18h",
       "time": 416,
       "name": {
         "ja": "Blood Lash",
@@ -1270,7 +1910,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_115_uy4dxp",
+      "id": "tpl_179_nkk003",
       "time": 417,
       "name": {
         "ja": "Ultrasonic Spread",
@@ -1281,7 +1921,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_116_pfe2xl",
+      "id": "tpl_180_kqjq01",
       "time": 417,
       "name": {
         "ja": "Ultrasonic Spread",
@@ -1292,7 +1932,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_117_dsyef7",
+      "id": "tpl_181_l7s5lg",
+      "time": 419,
+      "name": {
+        "ja": "Hell in a Cell",
+        "en": "Hell in a Cell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_sdv1uf",
+      "time": 419,
+      "name": {
+        "ja": "Last Lash",
+        "en": "Last Lash"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_183_4g72m4",
       "time": 424,
       "name": {
         "ja": "Bloody Bondage",
@@ -1303,7 +1963,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_118_r5wfue",
+      "id": "tpl_184_8bj6f5",
+      "time": 426,
+      "name": {
+        "ja": "Ultrasonic Amp",
+        "en": "Ultrasonic Amp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_dgk9e8",
       "time": 427,
       "name": {
         "ja": "Blood Lash",
@@ -1314,7 +1984,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_119_u0sjin",
+      "id": "tpl_186_9tnak8",
       "time": 427,
       "name": {
         "ja": "Blood Lash",
@@ -1325,7 +1995,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_120_hubz76",
+      "id": "tpl_187_sdsk5e",
       "time": 427,
       "name": {
         "ja": "Blood Lash",
@@ -1336,7 +2006,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_121_9q3vjr",
+      "id": "tpl_188_wgqane",
       "time": 430,
       "name": {
         "ja": "Blood Lash",
@@ -1347,7 +2017,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_122_qemr9k",
+      "id": "tpl_189_st7khx",
       "time": 430,
       "name": {
         "ja": "Blood Lash",
@@ -1358,7 +2028,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_123_skub4n",
+      "id": "tpl_190_hiz6s9",
       "time": 430,
       "name": {
         "ja": "Blood Lash",
@@ -1369,7 +2039,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_124_2gsj2e",
+      "id": "tpl_191_1ls37e",
       "time": 433,
       "name": {
         "ja": "Ultrasonic Amp",
@@ -1380,7 +2050,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_125_awg4db",
+      "id": "tpl_192_m2x0jb",
       "time": 433,
       "name": {
         "ja": "Blood Lash",
@@ -1391,7 +2061,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_126_10v95u",
+      "id": "tpl_193_f4gkg8",
       "time": 433,
       "name": {
         "ja": "Blood Lash",
@@ -1402,7 +2072,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_127_i7s3j5",
+      "id": "tpl_194_ryhvnu",
       "time": 433,
       "name": {
         "ja": "Blood Lash",
@@ -1413,7 +2083,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_128_te34d8",
+      "id": "tpl_195_v7l19g",
+      "time": 433,
+      "name": {
+        "ja": "Ultrasonic Spread",
+        "en": "Ultrasonic Spread"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_zkfh0s",
       "time": 440,
       "name": {
         "ja": "Ultrasonic Spread",
@@ -1424,7 +2104,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_129_cdd9yh",
+      "id": "tpl_197_twkynv",
+      "time": 440,
+      "name": {
+        "ja": "Pulping Pulse",
+        "en": "Pulping Pulse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_3lgsvt",
       "time": 440,
       "name": {
         "ja": "Ultrasonic Spread",
@@ -1435,7 +2125,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_130_jvco24",
+      "id": "tpl_199_whzzus",
       "time": 441,
       "name": {
         "ja": "AA",
@@ -1446,7 +2136,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_131_k6hl71",
+      "id": "tpl_200_zmnqwi",
+      "time": 444,
+      "name": {
+        "ja": "Pulping Pulse",
+        "en": "Pulping Pulse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_qs2f4s",
       "time": 444,
       "name": {
         "ja": "AA",
@@ -1457,7 +2157,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_132_2j2xy9",
+      "id": "tpl_202_3uqm9n",
       "time": 447,
       "name": {
         "ja": "AA",
@@ -1468,7 +2168,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_133_743eh4",
+      "id": "tpl_203_9ndg54",
+      "time": 450,
+      "name": {
+        "ja": "Undead Deathmatch",
+        "en": "Undead Deathmatch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_204_mpaand",
       "time": 455,
       "name": {
         "ja": "Bloody Bondage",
@@ -1479,7 +2189,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_134_kiavjb",
+      "id": "tpl_205_kz38to",
       "time": 457,
       "name": {
         "ja": "AA",
@@ -1490,7 +2200,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_135_yiwvo3",
+      "id": "tpl_206_evfsqm",
+      "time": 459,
+      "name": {
+        "ja": "Sanguine Scratch",
+        "en": "Sanguine Scratch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_207_be3hdw",
+      "time": 459,
+      "name": {
+        "ja": "Sanguine Scratch",
+        "en": "Sanguine Scratch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_208_wwakvn",
       "time": 464,
       "name": {
         "ja": "Explosion",
@@ -1501,7 +2231,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_136_ge6dow",
+      "id": "tpl_209_r3t9v8",
       "time": 464,
       "name": {
         "ja": "Sanguine Scratch",
@@ -1512,7 +2242,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_137_rinjbh",
+      "id": "tpl_210_hfbug6",
       "time": 467,
       "name": {
         "ja": "Sanguine Scratch",
@@ -1523,7 +2253,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_138_8303of",
+      "id": "tpl_211_g29p12",
       "time": 471,
       "name": {
         "ja": "Sanguine Scratch",
@@ -1534,7 +2264,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_139_01d3sf",
+      "id": "tpl_212_xc48tp",
       "time": 474,
       "name": {
         "ja": "AA",
@@ -1545,7 +2275,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_140_v6hdqr",
+      "id": "tpl_213_5obvm9",
       "time": 476,
       "name": {
         "ja": "AA",
@@ -1556,7 +2286,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_141_ui6uuy",
+      "id": "tpl_214_j4xu3p",
+      "time": 477,
+      "name": {
+        "ja": "Sanguine Scratch",
+        "en": "Sanguine Scratch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_215_tdma8m",
+      "time": 477,
+      "name": {
+        "ja": "Sanguine Scratch",
+        "en": "Sanguine Scratch"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_216_ohk6zu",
       "time": 491,
       "name": {
         "ja": "AA",
@@ -1567,7 +2317,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_142_vto7fx",
+      "id": "tpl_217_lep5j6",
+      "time": 494,
+      "name": {
+        "ja": "Brutal Rain",
+        "en": "Brutal Rain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_218_flp8bn",
       "time": 500,
       "name": {
         "ja": "Brutal Rain",
@@ -1578,7 +2338,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_143_0wwi54",
+      "id": "tpl_219_3merlz",
       "time": 501,
       "name": {
         "ja": "Brutal Rain",
@@ -1589,7 +2349,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_144_jy1hv4",
+      "id": "tpl_220_hluuqg",
       "time": 502,
       "name": {
         "ja": "Brutal Rain",
@@ -1600,7 +2360,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_145_ufnim2",
+      "id": "tpl_221_riw3jm",
       "time": 502,
       "name": {
         "ja": "AA",
@@ -1611,7 +2371,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_146_nrmr3k",
+      "id": "tpl_222_xeiqf8",
       "time": 503,
       "name": {
         "ja": "Brutal Rain",

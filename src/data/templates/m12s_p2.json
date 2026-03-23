@@ -1,1044 +1,2231 @@
 {
   "contentId": "m12s_p2",
-  "generatedAt": "2026-03-22T11:54:37.501Z",
+  "generatedAt": "2026-03-23T05:14:37.486Z",
   "sourceLogsCount": 1,
-  "sourceLog": "RwqGnWYMJ6dgQNf2#10",
+  "sourceLog": "nR3HhTzQKC71gbcf#17",
   "timelineEvents": [
     {
-      "id": "tpl_0_7ulu4t",
+      "id": "tpl_0_dlxbtx",
       "time": 4,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_1_omvo34",
-      "time": 4,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_2_ze0dj9",
+      "id": "tpl_1_itfbcc",
       "time": 7,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_3_vnpeok",
-      "time": 7,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_4_o4ob3s",
+      "id": "tpl_2_9qc581",
       "time": 9,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_5_2oaqty",
-      "time": 10,
+      "id": "tpl_3_ix7meg",
+      "time": 15,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "Arcadia Aflame",
+        "en": "Arcadia Aflame"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
+      "damageAmount": 364000,
       "target": "MT"
     },
     {
-      "id": "tpl_6_4gmiir",
-      "time": 16,
-      "name": {
-        "ja": "フィクサー・オブ・アルカディア",
-        "en": "The Fixer"
-      },
-      "damageType": "magical",
-      "damageAmount": 407000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_7_4x8ppt",
+      "id": "tpl_4_svquu5",
       "time": 17,
       "name": {
-        "ja": "フィクサー・オブ・アルカディア",
-        "en": "The Fixer"
+        "ja": "Arcadia Aflame",
+        "en": "Arcadia Aflame"
       },
       "damageType": "magical",
-      "damageAmount": 407000,
+      "damageAmount": 364000,
       "target": "AoE"
     },
     {
-      "id": "tpl_8_lg8ixf",
-      "time": 18,
+      "id": "tpl_5_a2rj2m",
+      "time": 17,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_9_rwj1g3",
-      "time": 18,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_10_n5efln",
-      "time": 21,
+      "id": "tpl_6_iqs3yi",
+      "time": 20,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_11_faf4di",
-      "time": 21,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_12_z4h7k8",
-      "time": 24,
+      "id": "tpl_7_imyb07",
+      "time": 23,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_13_tzieeh",
-      "time": 24,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_14_5d6160",
+      "id": "tpl_8_wxtbbm",
+      "time": 25,
+      "name": {
+        "ja": "Replication",
+        "en": "Replication"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_4c58j2",
+      "time": 29,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_10_hicmb2",
+      "time": 32,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_11_yd6ojo",
+      "time": 35,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_12_x4dlqz",
+      "time": 36,
+      "name": {
+        "ja": "Top-tier Slam",
+        "en": "Top-Tier Slam"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_orjcgm",
+      "time": 36,
+      "name": {
+        "ja": "Winged Scourge",
+        "en": "Winged Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_14_tipmpc",
+      "time": 36,
+      "name": {
+        "ja": "Winged Scourge",
+        "en": "Winged Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_yahhzw",
+      "time": 36,
+      "name": {
+        "ja": "Mighty Magic",
+        "en": "Mighty Magic"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_wd58a1",
+      "time": 39,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_17_1y7juh",
+      "time": 40,
+      "name": {
+        "ja": "Top-tier Slam",
+        "en": "Top-Tier Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 195000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_iysoqy",
+      "time": 40,
+      "name": {
+        "ja": "Snaking Kick",
+        "en": "Snaking Kick"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_k81w7v",
       "time": 41,
       "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
+        "ja": "Mighty Magic",
+        "en": "Mighty Magic"
       },
       "damageType": "magical",
-      "damageAmount": 199000,
+      "damageAmount": 195000,
       "target": "AoE"
     },
     {
-      "id": "tpl_15_igt8nu",
-      "time": 44,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_16_msz9gd",
+      "id": "tpl_20_ngp8ns",
       "time": 47,
       "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_17_xuxgwo",
-      "time": 47,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 596000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_18_e1m5b6",
-      "time": 50,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_19_v5i9lm",
-      "time": 50,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 596000,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_20_hdu15j",
+      "id": "tpl_21_k8694e",
+      "time": 50,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_22_8bz6ar",
+      "time": 52,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_23_ujo0as",
       "time": 56,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_21_ah20t2",
-      "time": 56,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_22_cdxmn8",
+      "id": "tpl_24_hyhkpo",
+      "time": 58,
+      "name": {
+        "ja": "Winged Scourge",
+        "en": "Winged Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_29j8x9",
+      "time": 58,
+      "name": {
+        "ja": "Winged Scourge",
+        "en": "Winged Scourge"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_f5r6ck",
+      "time": 58,
+      "name": {
+        "ja": "Top-tier Slam",
+        "en": "Top-Tier Slam"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_gr477a",
+      "time": 58,
+      "name": {
+        "ja": "Mighty Magic",
+        "en": "Mighty Magic"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_9jhdjw",
       "time": 59,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
     },
     {
-      "id": "tpl_23_zjbqtb",
-      "time": 59,
+      "id": "tpl_29_112yn7",
+      "time": 62,
+      "name": {
+        "ja": "Top-tier Slam",
+        "en": "Top-Tier Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 195000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_9wxzcu",
+      "time": 62,
+      "name": {
+        "ja": "Mighty Magic",
+        "en": "Mighty Magic"
+      },
+      "damageType": "magical",
+      "damageAmount": 195000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_w6273l",
+      "time": 62,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_24_jmhyqv",
-      "time": 89,
+      "id": "tpl_32_nu9gct",
+      "time": 64,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
       },
       "damageType": "magical",
-      "damageAmount": 272000,
       "target": "AoE"
     },
     {
-      "id": "tpl_25_xdiotc",
-      "time": 89,
+      "id": "tpl_33_plfkoh",
+      "time": 70,
       "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
       },
       "damageType": "magical",
-      "damageAmount": 317000,
       "target": "AoE"
     },
     {
-      "id": "tpl_26_f4ub7y",
+      "id": "tpl_34_i332mt",
+      "time": 70,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "physical",
+      "target": "ST"
+    },
+    {
+      "id": "tpl_35_rgzdez",
+      "time": 77,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_36_w1fwqs",
+      "time": 77,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_37_t847hv",
+      "time": 80,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_38_anabji",
+      "time": 83,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_39_kjd460",
+      "time": 87,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_40_j9mtrm",
+      "time": 88,
+      "name": {
+        "ja": "Staging",
+        "en": "Staging"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_p4pf60",
+      "time": 92,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_42_kamqio",
+      "time": 96,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_43_elkqpb",
       "time": 98,
       "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_44_jbo2ks",
+      "time": 101,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_45_y3xzqq",
+      "time": 102,
+      "name": {
+        "ja": "Replication",
+        "en": "Replication"
       },
       "damageType": "magical",
-      "damageAmount": 176000,
       "target": "AoE"
     },
     {
-      "id": "tpl_27_gmgszf",
-      "time": 98,
+      "id": "tpl_46_gwt94d",
+      "time": 107,
       "name": {
-        "ja": "ヴィセラルバースト",
-        "en": "Visceral Burst"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 435000,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_28_9s0y8h",
-      "time": 98,
+      "id": "tpl_47_uqnmoz",
+      "time": 110,
       "name": {
-        "ja": "ヴィセラルバースト",
-        "en": "Visceral Burst"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 435000,
-      "target": "ST"
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
     },
     {
-      "id": "tpl_29_bvcrk2",
-      "time": 109,
+      "id": "tpl_48_42m1ge",
+      "time": 113,
       "name": {
-        "ja": "フィクサー・オブ・アルカディア",
-        "en": "The Fixer"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_49_9ec323",
+      "time": 116,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_50_56elkj",
+      "time": 120,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_51_uwcwii",
+      "time": 122,
+      "name": {
+        "ja": "Firefall Splash",
+        "en": "Firefall Splash"
       },
       "damageType": "magical",
-      "damageAmount": 407000,
       "target": "AoE"
     },
     {
-      "id": "tpl_30_2kz9ww",
-      "time": 111,
+      "id": "tpl_52_cltaok",
+      "time": 128,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "Firefall Splash",
+        "en": "Firefall Splash"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
+      "damageAmount": 38100,
+      "target": "AoE"
     },
     {
-      "id": "tpl_31_zem6ag",
-      "time": 111,
+      "id": "tpl_53_6kknca",
+      "time": 129,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "Scalding Waves",
+        "en": "Scalding Waves"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
+      "damageAmount": 60400,
+      "target": "AoE"
     },
     {
-      "id": "tpl_32_qp0s0n",
-      "time": 114,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_33_ua580c",
-      "time": 114,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_34_69cmgf",
-      "time": 117,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_35_s9pduj",
-      "time": 117,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_36_kr077m",
-      "time": 123,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_37_zk5oru",
-      "time": 123,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_38_v0yun7",
-      "time": 126,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_39_7h5c8l",
-      "time": 126,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_40_awhjfr",
+      "id": "tpl_54_an387x",
       "time": 129,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_41_gbgwj3",
-      "time": 129,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_42_wybuuu",
-      "time": 132,
+      "id": "tpl_55_z8ns5t",
+      "time": 130,
       "name": {
-        "ja": "AA",
-        "en": "AA"
+        "ja": "Mana Burst (TB)",
+        "en": "Mana Burst (TB)"
       },
       "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_43_vve8a0",
-      "time": 132,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageAmount": 81600,
       "target": "MT"
     },
     {
-      "id": "tpl_44_qmnc84",
-      "time": 150,
+      "id": "tpl_56_mvjtme",
+      "time": 131,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "Mana Burst",
+        "en": "Mana Burst"
       },
       "damageType": "magical",
-      "damageAmount": 135000,
+      "damageAmount": 42300,
       "target": "AoE"
     },
     {
-      "id": "tpl_45_4d8da5",
-      "time": 153,
+      "id": "tpl_57_l8oyc2",
+      "time": 131,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_58_hr4kot",
+      "time": 134,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_59_gg79k7",
+      "time": 135,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
       },
       "damageType": "magical",
-      "damageAmount": 32600,
+      "damageAmount": 223000,
       "target": "AoE"
     },
     {
-      "id": "tpl_46_q8yrav",
+      "id": "tpl_60_rvkdi1",
+      "time": 136,
+      "name": {
+        "ja": "Snaking Kick",
+        "en": "Snaking Kick"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_6zuh17",
+      "time": 142,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_62_ascclj",
+      "time": 145,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_63_o4126v",
+      "time": 148,
+      "name": {
+        "ja": "Reenactment",
+        "en": "Reenactment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_64_6xp4yi",
       "time": 154,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
+        "ja": "Netherwrath Far",
+        "en": "Netherwrath Far"
       },
       "damageType": "magical",
-      "damageAmount": 36000,
       "target": "AoE"
     },
     {
-      "id": "tpl_47_wvbkr5",
-      "time": 155,
+      "id": "tpl_65_fazmsg",
+      "time": 161,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "Timeless Spite",
+        "en": "Timeless Spite"
       },
       "damageType": "magical",
-      "damageAmount": 135000,
+      "damageAmount": 177000,
       "target": "AoE"
     },
     {
-      "id": "tpl_48_qskqqf",
-      "time": 158,
-      "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
-      },
-      "damageType": "magical",
-      "damageAmount": 32600,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_49_n8fhf7",
-      "time": 159,
-      "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
-      },
-      "damageType": "magical",
-      "damageAmount": 36000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_50_wf7jqo",
-      "time": 160,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 135000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_51_u65jku",
+      "id": "tpl_66_ck6yzk",
       "time": 163,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 32600,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_52_s61yv6",
-      "time": 164,
-      "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
-      },
-      "damageType": "magical",
-      "damageAmount": 36000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_53_urwtf3",
+      "id": "tpl_67_dgcc9d",
       "time": 165,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
       },
       "damageType": "magical",
-      "damageAmount": 135000,
+      "damageAmount": 183000,
       "target": "AoE"
     },
     {
-      "id": "tpl_54_ilu61e",
-      "time": 168,
+      "id": "tpl_68_xbvzhu",
+      "time": 165,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
+        "ja": "AA",
+        "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 32600,
-      "target": "ST"
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
     },
     {
-      "id": "tpl_55_eimvlg",
+      "id": "tpl_69_v6ipi7",
       "time": 169,
       "name": {
-        "ja": "細胞変異",
-        "en": "Roiling Mass"
+        "ja": "Scalding Waves",
+        "en": "Scalding Waves"
       },
       "damageType": "magical",
-      "damageAmount": 36000,
+      "damageAmount": 194000,
       "target": "AoE"
     },
     {
-      "id": "tpl_56_8sq4qn",
-      "time": 183,
+      "id": "tpl_70_umu412",
+      "time": 169,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_57_3ll9vk",
-      "time": 183,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_58_fwhtp6",
-      "time": 188,
+      "id": "tpl_71_3jhwl7",
+      "time": 171,
       "name": {
-        "ja": "スプラッターシェッド",
-        "en": "Splattershed"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_72_3gdkz3",
+      "time": 173,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_73_pg5o45",
+      "time": 175,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_74_608vlk",
+      "time": 177,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_75_pu4vmz",
+      "time": 180,
+      "name": {
+        "ja": "Mutating Cells",
+        "en": "Mutating Cells"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_h2s79o",
+      "time": 180,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_77_nrds79",
+      "time": 187,
+      "name": {
+        "ja": "Blood Mana",
+        "en": "Blood Mana"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_78_jug0lh",
+      "time": 193,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_79_05mp9c",
+      "time": 196,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_80_bxt0mn",
+      "time": 199,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_81_19dy7t",
+      "time": 201,
+      "name": {
+        "ja": "Bloody Burst (TB)",
+        "en": "Bloody Burst (TB)"
+      },
+      "damageType": "magical",
+      "damageAmount": 331000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_82_wtrsyz",
+      "time": 202,
+      "name": {
+        "ja": "Bloody Burst",
+        "en": "Bloody Burst"
+      },
+      "damageType": "magical",
+      "damageAmount": 200000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_83_qnpyq1",
+      "time": 202,
+      "name": {
+        "ja": "Dramatic Lysis",
+        "en": "Dramatic Lysis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_hovb5u",
+      "time": 207,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_85_f158qo",
+      "time": 210,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_86_s3eeye",
+      "time": 213,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_87_xo46fp",
+      "time": 214,
+      "name": {
+        "ja": "Blood Wakening",
+        "en": "Blood Wakening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_fpjpxk",
+      "time": 219,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_89_loc49e",
+      "time": 222,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_90_4s4mz2",
+      "time": 223,
+      "name": {
+        "ja": "Netherworld Near",
+        "en": "Netherworld Near"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_sci16m",
+      "time": 229,
+      "name": {
+        "ja": "Wailing Wave",
+        "en": "Wailing Wave"
       },
       "damageType": "magical",
       "damageAmount": 193000,
       "target": "AoE"
     },
     {
-      "id": "tpl_59_c6p6b2",
-      "time": 200,
+      "id": "tpl_92_3q85la",
+      "time": 230,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_60_ek4q6r",
-      "time": 200,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_61_xv5ef1",
-      "time": 202,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_62_8mtj2f",
-      "time": 202,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_63_zagkpl",
-      "time": 219,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 36900,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_64_o7jvuu",
-      "time": 219,
-      "name": {
-        "ja": "細胞飛散",
-        "en": "Metamitosis"
-      },
-      "damageType": "magical",
-      "damageAmount": 50100,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_65_4x4ill",
-      "time": 229,
-      "name": {
-        "ja": "スプリットスカージ",
-        "en": "Split Scourge"
-      },
-      "damageType": "magical",
-      "damageAmount": 412000,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_66_ueidce",
-      "time": 229,
-      "name": {
-        "ja": "スプリットスカージ",
-        "en": "Split Scourge"
-      },
-      "damageType": "magical",
-      "damageAmount": 412000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_67_vyyf06",
+      "id": "tpl_93_uv0k0c",
       "time": 232,
       "name": {
-        "ja": "ドロップスカージ",
-        "en": "Venomous Scourge"
-      },
-      "damageType": "magical",
-      "damageAmount": 182000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_68_cqz76d",
-      "time": 242,
-      "name": {
-        "ja": "フィクサー・オブ・アルカディア",
-        "en": "The Fixer"
-      },
-      "damageType": "magical",
-      "damageAmount": 407000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_69_nzppqb",
-      "time": 244,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_70_b59vax",
-      "time": 244,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_71_19k5dp",
-      "time": 247,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_72_pvnx8n",
-      "time": 247,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "MT"
-    },
-    {
-      "id": "tpl_73_ya5u28",
-      "time": 268,
-      "name": {
-        "ja": "ラヴェナスリーチ",
-        "en": "Ravenous Reach"
-      },
-      "damageType": "magical",
-      "damageAmount": 233000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_74_d6qc59",
-      "time": 268,
-      "name": {
-        "ja": "細胞消失",
-        "en": "Cell Shedding"
-      },
-      "damageType": "magical",
-      "damageAmount": 82400,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_75_wek9us",
-      "time": 269,
-      "name": {
-        "ja": "細胞爆発",
+        "ja": "Dramatic Lysis",
         "en": "Dramatic Lysis"
       },
       "damageType": "magical",
-      "damageAmount": 272000,
       "target": "AoE"
     },
     {
-      "id": "tpl_76_jpn2y2",
+      "id": "tpl_94_ulgcg1",
+      "time": 236,
+      "name": {
+        "ja": "Arcadia Aflame",
+        "en": "Arcadia Aflame"
+      },
+      "damageType": "magical",
+      "damageAmount": 364000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_95_b7j4ba",
+      "time": 238,
+      "name": {
+        "ja": "Arcadia Aflame",
+        "en": "Arcadia Aflame"
+      },
+      "damageType": "magical",
+      "damageAmount": 364000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_zrhcmp",
+      "time": 238,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_97_f8nf5f",
+      "time": 240,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_6s3ujl",
+      "time": 246,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_p0z7yy",
+      "time": 246,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "physical",
+      "damageAmount": 600000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_100_gott1g",
+      "time": 247,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "physical",
+      "damageAmount": 600000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_101_io8l2z",
+      "time": 253,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_102_ydjsyt",
+      "time": 253,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_103_mlgx18",
+      "time": 256,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_104_fr4f0a",
+      "time": 260,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_105_2hnp08",
+      "time": 263,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_106_trmqkn",
+      "time": 270,
+      "name": {
+        "ja": "Idyllic Dream",
+        "en": "Idyllic Dream"
+      },
+      "damageType": "magical",
+      "damageAmount": 311000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_gu9a4j",
+      "time": 270,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_108_lnb8zo",
+      "time": 272,
+      "name": {
+        "ja": "Staging",
+        "en": "Staging"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_e16cjh",
       "time": 276,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_110_pctwdd",
+      "time": 279,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_111_xlg7j6",
+      "time": 283,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_112_3brnq8",
+      "time": 285,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_113_w4fcej",
+      "time": 287,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
       },
       "damageType": "magical",
-      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_77_7wwcia",
-      "time": 277,
+      "id": "tpl_114_g37kqz",
+      "time": 293,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_115_2kbdfz",
+      "time": 294,
+      "name": {
+        "ja": "Replication",
+        "en": "Replication"
       },
       "damageType": "magical",
-      "damageAmount": 135000,
       "target": "AoE"
     },
     {
-      "id": "tpl_78_er0yl7",
-      "time": 290,
+      "id": "tpl_116_x0udoa",
+      "time": 298,
       "name": {
-        "ja": "スプラッターシェッド",
-        "en": "Splattershed"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_117_rwcjqe",
+      "time": 301,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_118_qhddol",
+      "time": 304,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_119_8lbqlt",
+      "time": 305,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_120_a6epjo",
+      "time": 305,
+      "name": {
+        "ja": "Power Gusher",
+        "en": "Power Gusher"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_121_zeoljv",
+      "time": 305,
+      "name": {
+        "ja": "Power Gusher",
+        "en": "Power Gusher"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_122_h2vpch",
+      "time": 305,
+      "name": {
+        "ja": "Snaking Kick",
+        "en": "Snaking Kick"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_yuvxlg",
+      "time": 305,
+      "name": {
+        "ja": "Power Gusher",
+        "en": "Power Gusher"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_gjcq8o",
+      "time": 311,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_125_8llwig",
+      "time": 312,
+      "name": {
+        "ja": "Replication",
+        "en": "Replication"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_fgdgwa",
+      "time": 317,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_127_v9deas",
+      "time": 320,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_128_1nb4u5",
+      "time": 324,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_129_7m300h",
+      "time": 327,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_130_dezm9y",
+      "time": 330,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_131_m4ishm",
+      "time": 331,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_xnketf",
+      "time": 337,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_133_8ojjij",
+      "time": 345,
+      "name": {
+        "ja": "Lindwurm's Meteor",
+        "en": "Lindwurm's Meteor"
+      },
+      "damageType": "magical",
+      "damageAmount": 291000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_q7f23p",
+      "time": 345,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_135_eyudff",
+      "time": 347,
+      "name": {
+        "ja": "Downfall",
+        "en": "Downfall"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_136_es0azv",
+      "time": 351,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_137_9b044u",
+      "time": 353,
+      "name": {
+        "ja": "Arcadian Arcanum",
+        "en": "Arcadian Arcanum"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_138_roffhu",
+      "time": 357,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_139_89l5qm",
+      "time": 358,
+      "name": {
+        "ja": "Arcadian Arcanum",
+        "en": "Arcadian Arcanum"
       },
       "damageType": "magical",
       "damageAmount": 193000,
       "target": "AoE"
     },
     {
-      "id": "tpl_79_ahrqm9",
-      "time": 316,
+      "id": "tpl_140_ak251s",
+      "time": 360,
       "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
       },
       "damageType": "magical",
-      "damageAmount": 596000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_js65hr",
+      "time": 360,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_80_51rti4",
-      "time": 316,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 596000,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_81_bieie0",
-      "time": 319,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_82_16o0go",
-      "time": 322,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_83_2u3734",
-      "time": 325,
-      "name": {
-        "ja": "リーサルスカージ",
-        "en": "Mortal Slayer"
-      },
-      "damageType": "magical",
-      "damageAmount": 199000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_84_3myou5",
-      "time": 331,
+      "id": "tpl_142_8oi0sb",
+      "time": 367,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_85_ciiofa",
-      "time": 331,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_86_ipr8yy",
-      "time": 334,
+      "id": "tpl_143_pvoqvp",
+      "time": 370,
       "name": {
         "ja": "AA",
         "en": "AA"
       },
-      "damageType": "magical",
-      "damageAmount": 64700,
-      "target": "ST"
-    },
-    {
-      "id": "tpl_87_dmscjn",
-      "time": 334,
-      "name": {
-        "ja": "AA",
-        "en": "AA"
-      },
-      "damageType": "magical",
-      "damageAmount": 64700,
+      "damageType": "physical",
+      "damageAmount": 211000,
       "target": "MT"
     },
     {
-      "id": "tpl_88_oc9xxn",
-      "time": 343,
-      "name": {
-        "ja": "スローターシェッド",
-        "en": "Slaughtershed"
-      },
-      "damageType": "magical",
-      "damageAmount": 267000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_89_3iw0fz",
-      "time": 352,
-      "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
-      },
-      "damageType": "magical",
-      "damageAmount": 173000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_90_l2gah7",
-      "time": 352,
-      "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
-      },
-      "damageType": "magical",
-      "damageAmount": 185000,
-      "target": "AoE"
-    },
-    {
-      "id": "tpl_91_y2046l",
+      "id": "tpl_144_o88uf3",
       "time": 372,
       "name": {
-        "ja": "スローターシェッド",
-        "en": "Slaughtershed"
+        "ja": "Mana Burst",
+        "en": "Mana Burst"
       },
       "damageType": "magical",
-      "damageAmount": 267000,
+      "damageAmount": 173000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_145_0q6coc",
+      "time": 373,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_146_cc2rio",
+      "time": 375,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
       "target": "AoE"
     },
     {
-      "id": "tpl_92_t748za",
-      "time": 381,
+      "id": "tpl_147_okt95i",
+      "time": 376,
       "name": {
-        "ja": "細胞爆発",
-        "en": "Dramatic Lysis"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_148_fh7p7o",
+      "time": 379,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_149_3gd3ye",
+      "time": 382,
+      "name": {
+        "ja": "Mana Burst",
+        "en": "Mana Burst"
       },
       "damageType": "magical",
       "damageAmount": 173000,
       "target": "AoE"
     },
     {
-      "id": "tpl_93_dl643t",
-      "time": 381,
+      "id": "tpl_150_j1dnfd",
+      "time": 383,
       "name": {
-        "ja": "細胞重爆",
-        "en": "Fourth-Wall Fusion"
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_151_andorh",
+      "time": 386,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
       },
       "damageType": "magical",
-      "damageAmount": 185000,
+      "damageAmount": 183000,
       "target": "AoE"
+    },
+    {
+      "id": "tpl_152_uh6lst",
+      "time": 386,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_153_2hhfwj",
+      "time": 388,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_154_g812mz",
+      "time": 390,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_155_6prpv1",
+      "time": 395,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_156_i07uho",
+      "time": 399,
+      "name": {
+        "ja": "Cosmic Kiss",
+        "en": "Cosmic Kiss"
+      },
+      "damageType": "magical",
+      "damageAmount": 36500,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_157_jeewpz",
+      "time": 399,
+      "name": {
+        "ja": "Lindwurm's Dark II",
+        "en": "Lindwurm's Dark II"
+      },
+      "damageType": "magical",
+      "damageAmount": 76800,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_nc9pzb",
+      "time": 399,
+      "name": {
+        "ja": "Lindwurm's Stone III",
+        "en": "Lindwurm's Stone III"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_159_lca25u",
+      "time": 399,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_160_2kopb2",
+      "time": 401,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_161_e9ckr3",
+      "time": 404,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_162_p6928w",
+      "time": 407,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_163_oqrpcw",
+      "time": 409,
+      "name": {
+        "ja": "Lindwurm's Glare",
+        "en": "Lindwurm's Glare"
+      },
+      "damageType": "magical",
+      "damageAmount": 80100,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_164_fz3kxa",
+      "time": 410,
+      "name": {
+        "ja": "Lindwurm's Thunder II",
+        "en": "Lindwurm's Thunder II"
+      },
+      "damageType": "magical",
+      "damageAmount": 89300,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_165_6yxkdr",
+      "time": 411,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_166_24ilwp",
+      "time": 413,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_167_txaxwp",
+      "time": 415,
+      "name": {
+        "ja": "Temporal Curtain",
+        "en": "Temporal Curtain"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_168_mtdi4e",
+      "time": 420,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_169_8nz12u",
+      "time": 423,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_170_fm7c6d",
+      "time": 425,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_171_rfrtda",
+      "time": 426,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_172_c79x3i",
+      "time": 426,
+      "name": {
+        "ja": "Power Gusher",
+        "en": "Power Gusher"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_173_pqhfhu",
+      "time": 426,
+      "name": {
+        "ja": "Snaking Kick",
+        "en": "Snaking Kick"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_174_vvezta",
+      "time": 432,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_175_kqrh4b",
+      "time": 434,
+      "name": {
+        "ja": "Reenactment",
+        "en": "Reenactment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_176_pajtxh",
+      "time": 439,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_177_y5mm5a",
+      "time": 440,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_178_inbdfo",
+      "time": 441,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_179_b0w8sp",
+      "time": 442,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_180_jht2wh",
+      "time": 448,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_181_6tval2",
+      "time": 449,
+      "name": {
+        "ja": "Twisted Vision",
+        "en": "Twisted Vision"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_r445pm",
+      "time": 456,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_183_xf3s1a",
+      "time": 458,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_184_zogs3q",
+      "time": 461,
+      "name": {
+        "ja": "Heavy Slam",
+        "en": "Heavy Slam"
+      },
+      "damageType": "magical",
+      "damageAmount": 183000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_zv9o2j",
+      "time": 461,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_186_3cmd4r",
+      "time": 462,
+      "name": {
+        "ja": "Power Gusher",
+        "en": "Power Gusher"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_kf2hrl",
+      "time": 464,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_188_ckohvc",
+      "time": 472,
+      "name": {
+        "ja": "Idyllic Dream",
+        "en": "Idyllic Dream"
+      },
+      "damageType": "magical",
+      "damageAmount": 311000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_189_js8t5u",
+      "time": 473,
+      "name": {
+        "ja": "Idyllic Dream",
+        "en": "Idyllic Dream"
+      },
+      "damageType": "magical",
+      "damageAmount": 311000,
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_190_9ula14",
+      "time": 473,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_191_n6qc1b",
+      "time": 475,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_192_wug586",
+      "time": 480,
+      "name": {
+        "ja": "Double Sobat",
+        "en": "Double Sobat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_193_4gqrtt",
+      "time": 480,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_194_28bot2",
+      "time": 483,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_195_17c2d3",
+      "time": 487,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_196_h3n8t0",
+      "time": 487,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_197_8uyzpm",
+      "time": 487,
+      "name": {
+        "ja": "Esoteric Finisher",
+        "en": "Esoteric Finisher"
+      },
+      "damageType": "magical",
+      "damageAmount": 498000,
+      "target": "ST"
+    },
+    {
+      "id": "tpl_198_hskdrz",
+      "time": 490,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_199_3wles5",
+      "time": 493,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_200_efvfil",
+      "time": 496,
+      "name": {
+        "ja": "Replication",
+        "en": "Replication"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_a5vqns",
+      "time": 496,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_202_wbrnve",
+      "time": 504,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_203_i2c2ul",
+      "time": 507,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
+    },
+    {
+      "id": "tpl_204_6iv7wj",
+      "time": 510,
+      "name": {
+        "ja": "Arcadian Hell",
+        "en": "Arcadian Hell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_205_5xzmho",
+      "time": 510,
+      "name": {
+        "ja": "Arcadian Hell",
+        "en": "Arcadian Hell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_206_2wcejb",
+      "time": 510,
+      "name": {
+        "ja": "AA",
+        "en": "AA"
+      },
+      "damageType": "physical",
+      "damageAmount": 211000,
+      "target": "MT"
     }
   ],
-  "phases": [],
-  "_warning": "Phase split data not available; full timeline included"
+  "phases": []
 }

@@ -1,11 +1,11 @@
 {
   "contentId": "p11s",
-  "generatedAt": "2026-03-22T12:06:15.755Z",
+  "generatedAt": "2026-03-23T03:43:14.516Z",
   "sourceLogsCount": 1,
   "sourceLog": "kc9tMX8rWv4nbj3H#44",
   "timelineEvents": [
     {
-      "id": "tpl_0_0x56bq",
+      "id": "tpl_0_2qhc84",
       "time": 4,
       "name": {
         "ja": "attack",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_8at3zx",
+      "id": "tpl_1_bjcttm",
       "time": 8,
       "name": {
         "ja": "attack",
@@ -27,7 +27,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_w4e9wo",
+      "id": "tpl_2_qmx8a5",
       "time": 10,
       "name": {
         "ja": "attack",
@@ -38,7 +38,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_cboe8r",
+      "id": "tpl_3_0ib45b",
       "time": 16,
       "name": {
         "ja": "エウノミアー",
@@ -49,7 +49,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_rg8609",
+      "id": "tpl_4_6wl0vh",
       "time": 19,
       "name": {
         "ja": "attack",
@@ -60,7 +60,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_k0marq",
+      "id": "tpl_5_mzl2f2",
+      "time": 19,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_5qnvmq",
       "time": 26,
       "name": {
         "ja": "ディケー",
@@ -71,7 +81,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_8wsf72",
+      "id": "tpl_7_fqrhtz",
       "time": 26,
       "name": {
         "ja": "ディケー",
@@ -82,7 +92,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_w9seaa",
+      "id": "tpl_8_niqjob",
       "time": 32,
       "name": {
         "ja": "attack",
@@ -93,7 +103,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_hgo49v",
+      "id": "tpl_9_h6evah",
       "time": 35,
       "name": {
         "ja": "attack",
@@ -104,7 +114,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_acj6i6",
+      "id": "tpl_10_pn2bcp",
+      "time": 36,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_rqexf2",
       "time": 45,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -115,7 +135,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_148mnp",
+      "id": "tpl_12_8va15p",
+      "time": 45,
+      "name": {
+        "ja": "イルーサリーダーク",
+        "en": "Illusory Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_13_tgjsvb",
       "time": 48,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -126,7 +156,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_uknm6e",
+      "id": "tpl_14_6bvmg5",
       "time": 49,
       "name": {
         "ja": "attack",
@@ -137,7 +167,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_yuf697",
+      "id": "tpl_15_3fxyy7",
       "time": 52,
       "name": {
         "ja": "attack",
@@ -148,7 +178,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_qkbizt",
+      "id": "tpl_16_ycv1ph",
+      "time": 54,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_nhibyo",
       "time": 62,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -159,7 +199,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_y8y0dh",
+      "id": "tpl_18_a9rxby",
       "time": 63,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -170,7 +210,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_tq9vrt",
+      "id": "tpl_19_3ggdpm",
+      "time": 63,
+      "name": {
+        "ja": "ライトバースト",
+        "en": "Lightburst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_goi8t3",
       "time": 66,
       "name": {
         "ja": "アディショナルロウ",
@@ -181,7 +231,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_ipw8ky",
+      "id": "tpl_21_7qmvcw",
       "time": 67,
       "name": {
         "ja": "attack",
@@ -192,7 +242,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_m43oue",
+      "id": "tpl_22_ihjee0",
+      "time": 74,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_4ji953",
+      "time": 74,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_3ln380",
+      "time": 74,
+      "name": {
+        "ja": "光爆",
+        "en": "Divine Ruination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_62r4km",
       "time": 85,
       "name": {
         "ja": "アディショナルロウ",
@@ -203,7 +283,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_jnigwn",
+      "id": "tpl_26_7zmtg8",
       "time": 87,
       "name": {
         "ja": "attack",
@@ -214,7 +294,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_8daqg8",
+      "id": "tpl_27_ldywzv",
       "time": 95,
       "name": {
         "ja": "ステュクス",
@@ -225,7 +305,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_a90oll",
+      "id": "tpl_28_pxcm4g",
       "time": 95,
       "name": {
         "ja": "ステュクス",
@@ -236,7 +316,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_z3n5et",
+      "id": "tpl_29_zy4mft",
       "time": 96,
       "name": {
         "ja": "ステュクス",
@@ -247,7 +327,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_j0z7oz",
+      "id": "tpl_30_ry4y78",
       "time": 97,
       "name": {
         "ja": "ステュクス",
@@ -258,7 +338,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_0blnut",
+      "id": "tpl_31_j80wah",
       "time": 98,
       "name": {
         "ja": "ステュクス",
@@ -269,7 +349,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_wv25zw",
+      "id": "tpl_32_pvdglz",
       "time": 99,
       "name": {
         "ja": "ステュクス",
@@ -280,7 +360,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_2bdfny",
+      "id": "tpl_33_phejwj",
       "time": 99,
       "name": {
         "ja": "attack",
@@ -291,7 +371,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_o02lax",
+      "id": "tpl_34_h2zr1s",
       "time": 103,
       "name": {
         "ja": "attack",
@@ -302,7 +382,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_wucf4r",
+      "id": "tpl_35_em6593",
+      "time": 109,
+      "name": {
+        "ja": "魔法陣展開",
+        "en": "Arcane Revelation"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_gwt0e0",
+      "time": 116,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_37_nu7dlr",
+      "time": 116,
+      "name": {
+        "ja": "アウターダーク",
+        "en": "Outer Dark"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_4ex7nv",
       "time": 121,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -313,7 +423,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_d3jcvt",
+      "id": "tpl_39_aequ69",
       "time": 122,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -324,7 +434,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_oy91sy",
+      "id": "tpl_40_wqxh81",
       "time": 126,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -335,7 +445,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_jt7bzh",
+      "id": "tpl_41_x3mevw",
       "time": 126,
       "name": {
         "ja": "attack",
@@ -346,7 +456,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_l1giqa",
+      "id": "tpl_42_l4bfal",
       "time": 130,
       "name": {
         "ja": "attack",
@@ -357,7 +467,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_jaodqp",
+      "id": "tpl_43_zn0ipv",
       "time": 133,
       "name": {
         "ja": "attack",
@@ -368,7 +478,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_f72qkb",
+      "id": "tpl_44_55f0ow",
       "time": 135,
       "name": {
         "ja": "attack",
@@ -379,7 +489,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_6sk2ud",
+      "id": "tpl_45_9nighp",
       "time": 138,
       "name": {
         "ja": "attack",
@@ -390,7 +500,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_oqq6si",
+      "id": "tpl_46_2f84se",
       "time": 141,
       "name": {
         "ja": "attack",
@@ -401,7 +511,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_22s70y",
+      "id": "tpl_47_do7eb8",
       "time": 144,
       "name": {
         "ja": "attack",
@@ -412,7 +522,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_5oq5rf",
+      "id": "tpl_48_pgpuqw",
+      "time": 149,
+      "name": {
+        "ja": "戒律の幻奏",
+        "en": "Shadowed Messengers"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_5hhb1w",
       "time": 156,
       "name": {
         "ja": "attack",
@@ -423,7 +543,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_gbo0vy",
+      "id": "tpl_50_kb3va6",
       "time": 158,
       "name": {
         "ja": "attack",
@@ -434,7 +554,127 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_ctqyak",
+      "id": "tpl_51_d6pqhj",
+      "time": 158,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_dcfg66",
+      "time": 158,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_hhqs0h",
+      "time": 158,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_ce325f",
+      "time": 158,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_n3dr5k",
+      "time": 158,
+      "name": {
+        "ja": "光爆",
+        "en": "Divine Ruination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_lky6ro",
+      "time": 158,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_fvrgtm",
+      "time": 162,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_baqow2",
+      "time": 162,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_59_0j4kdw",
+      "time": 162,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_4iasxf",
+      "time": 162,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_1yv3mb",
+      "time": 169,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_62_jtdwpb",
+      "time": 169,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_63_mdzkk4",
       "time": 175,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -445,7 +685,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_u5mvhy",
+      "id": "tpl_64_svhyu7",
       "time": 178,
       "name": {
         "ja": "attack",
@@ -456,7 +696,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_2o0395",
+      "id": "tpl_65_jt63fm",
       "time": 180,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -467,7 +707,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_r62yp0",
+      "id": "tpl_66_h556jh",
       "time": 181,
       "name": {
         "ja": "attack",
@@ -478,7 +718,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_iyhyp0",
+      "id": "tpl_67_ot8awx",
       "time": 181,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -489,7 +729,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_4939na",
+      "id": "tpl_68_416vzv",
+      "time": 181,
+      "name": {
+        "ja": "ダークサークル",
+        "en": "Dark Perimeter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_hecepp",
+      "time": 181,
+      "name": {
+        "ja": "ライトバースト",
+        "en": "Lightburst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_unyh17",
       "time": 183,
       "name": {
         "ja": "attack",
@@ -500,7 +760,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_ufusoy",
+      "id": "tpl_71_ec7gb3",
+      "time": 184,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_72_j72t7m",
       "time": 192,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -511,7 +781,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_84p9g7",
+      "id": "tpl_73_047aj1",
+      "time": 193,
+      "name": {
+        "ja": "イルーサリーグレア",
+        "en": "Illusory Glare"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_aub3vn",
       "time": 196,
       "name": {
         "ja": "アディショナルロウ",
@@ -522,7 +802,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_py4pij",
+      "id": "tpl_75_ldcdxx",
       "time": 197,
       "name": {
         "ja": "attack",
@@ -533,7 +813,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_4yvy0e",
+      "id": "tpl_76_96girg",
       "time": 205,
       "name": {
         "ja": "ステュクス",
@@ -544,7 +824,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_tse301",
+      "id": "tpl_77_rsyoju",
       "time": 205,
       "name": {
         "ja": "ステュクス",
@@ -555,7 +835,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_0bxfmj",
+      "id": "tpl_78_yag6x8",
       "time": 206,
       "name": {
         "ja": "ステュクス",
@@ -566,7 +846,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_fjq8bj",
+      "id": "tpl_79_2f7upx",
       "time": 207,
       "name": {
         "ja": "ステュクス",
@@ -577,7 +857,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_8hziby",
+      "id": "tpl_80_ddwtz0",
       "time": 208,
       "name": {
         "ja": "ステュクス",
@@ -588,7 +868,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_6xoq1v",
+      "id": "tpl_81_bnfcic",
       "time": 209,
       "name": {
         "ja": "ステュクス",
@@ -599,7 +879,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_7qd2xs",
+      "id": "tpl_82_zpg1cy",
       "time": 211,
       "name": {
         "ja": "ステュクス",
@@ -610,7 +890,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_jji7n7",
+      "id": "tpl_83_4wbnnc",
       "time": 211,
       "name": {
         "ja": "attack",
@@ -621,7 +901,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_67whea",
+      "id": "tpl_84_9jxdum",
       "time": 214,
       "name": {
         "ja": "attack",
@@ -632,7 +912,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_na923k",
+      "id": "tpl_85_p9rmli",
       "time": 217,
       "name": {
         "ja": "attack",
@@ -643,7 +923,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_w6uttg",
+      "id": "tpl_86_sptn7s",
+      "time": 218,
+      "name": {
+        "ja": "ライトストリーム",
+        "en": "Lightstream"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_87_frj516",
+      "time": 218,
+      "name": {
+        "ja": "unknown_8205",
+        "en": "unknown_8205"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_u729eg",
       "time": 225,
       "name": {
         "ja": "attack",
@@ -654,7 +954,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_t342b1",
+      "id": "tpl_89_cchrbe",
       "time": 228,
       "name": {
         "ja": "attack",
@@ -665,7 +965,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_jhidjk",
+      "id": "tpl_90_d79evi",
       "time": 230,
       "name": {
         "ja": "attack",
@@ -676,7 +976,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_e3zika",
+      "id": "tpl_91_1vz562",
+      "time": 235,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_kn56fc",
+      "time": 235,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_4808hr",
+      "time": 235,
+      "name": {
+        "ja": "光爆",
+        "en": "Divine Ruination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_vgjj4u",
       "time": 246,
       "name": {
         "ja": "アディショナルロウ",
@@ -687,7 +1017,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_e9fvmc",
+      "id": "tpl_95_g2odt5",
       "time": 248,
       "name": {
         "ja": "attack",
@@ -698,7 +1028,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_dwo9iz",
+      "id": "tpl_96_s99kuf",
       "time": 251,
       "name": {
         "ja": "attack",
@@ -709,7 +1039,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_dobg45",
+      "id": "tpl_97_452i8a",
       "time": 258,
       "name": {
         "ja": "エウノミアー",
@@ -720,7 +1050,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_4bht43",
+      "id": "tpl_98_41ttio",
       "time": 259,
       "name": {
         "ja": "attack",
@@ -731,7 +1061,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_9iqku5",
+      "id": "tpl_99_klmi64",
       "time": 262,
       "name": {
         "ja": "attack",
@@ -742,7 +1072,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_kvzhk1",
+      "id": "tpl_100_fr78oy",
       "time": 265,
       "name": {
         "ja": "attack",
@@ -753,7 +1083,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_tniff0",
+      "id": "tpl_101_phrkzr",
+      "time": 265,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_9m3r0e",
       "time": 273,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -764,7 +1104,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_4a9qdb",
+      "id": "tpl_103_gdyb97",
+      "time": 273,
+      "name": {
+        "ja": "ダークサークル",
+        "en": "Dark Perimeter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_qnrf7y",
       "time": 278,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -775,7 +1125,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_b77ia7",
+      "id": "tpl_105_16k1cv",
       "time": 278,
       "name": {
         "ja": "attack",
@@ -786,7 +1136,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_zc5cva",
+      "id": "tpl_106_75mjvv",
       "time": 281,
       "name": {
         "ja": "attack",
@@ -797,7 +1147,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_e8aczm",
+      "id": "tpl_107_od64pb",
       "time": 285,
       "name": {
         "ja": "attack",
@@ -808,7 +1158,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_sj7eyn",
+      "id": "tpl_108_1nfeze",
       "time": 288,
       "name": {
         "ja": "attack",
@@ -819,7 +1169,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_mixmdl",
+      "id": "tpl_109_otpnkz",
+      "time": 291,
+      "name": {
+        "ja": "光と闇の調停",
+        "en": "Dark and Light"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_nw6u6f",
       "time": 298,
       "name": {
         "ja": "attack",
@@ -830,7 +1190,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_qvr9rk",
+      "id": "tpl_111_wa0vrf",
       "time": 301,
       "name": {
         "ja": "attack",
@@ -841,7 +1201,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_8h8vm5",
+      "id": "tpl_112_yp2hqu",
+      "time": 303,
+      "name": {
+        "ja": "魔法陣展開",
+        "en": "Arcane Revelation"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_kk2hoi",
       "time": 310,
       "name": {
         "ja": "attack",
@@ -852,7 +1222,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_5vr7gn",
+      "id": "tpl_114_wvegis",
       "time": 313,
       "name": {
         "ja": "attack",
@@ -863,7 +1233,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_78_6e440b",
+      "id": "tpl_115_p1m8oe",
       "time": 316,
       "name": {
         "ja": "attack",
@@ -874,7 +1244,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_79_c5z1nu",
+      "id": "tpl_116_y569nf",
+      "time": 318,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_vctq5r",
       "time": 326,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -885,7 +1265,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_s31xms",
+      "id": "tpl_118_39sm13",
+      "time": 327,
+      "name": {
+        "ja": "イルーサリーダーク",
+        "en": "Illusory Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_xezk2i",
       "time": 331,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -896,7 +1286,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_81_skpo63",
+      "id": "tpl_120_977roz",
       "time": 331,
       "name": {
         "ja": "attack",
@@ -907,7 +1297,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_82_9937jn",
+      "id": "tpl_121_zz95dh",
       "time": 335,
       "name": {
         "ja": "attack",
@@ -918,7 +1308,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_83_xb9q34",
+      "id": "tpl_122_6ps9jd",
+      "time": 337,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_123_bj8za7",
+      "time": 337,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_124_5t0263",
+      "time": 337,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_125_f1zqnq",
+      "time": 337,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_nfzxoa",
       "time": 348,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -929,7 +1359,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_xkna5z",
+      "id": "tpl_127_j67ukd",
       "time": 350,
       "name": {
         "ja": "attack",
@@ -940,7 +1370,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_85_aa7n7i",
+      "id": "tpl_128_r0x9jc",
       "time": 355,
       "name": {
         "ja": "調停",
@@ -950,7 +1380,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_86_rfht4l",
+      "id": "tpl_129_3v6gph",
       "time": 357,
       "name": {
         "ja": "attack",
@@ -961,7 +1391,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_szwhr6",
+      "id": "tpl_130_a25dvx",
       "time": 364,
       "name": {
         "ja": "ステュクス",
@@ -972,7 +1402,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_zgmyvw",
+      "id": "tpl_131_9xl2wv",
       "time": 364,
       "name": {
         "ja": "ステュクス",
@@ -983,7 +1413,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_89_arvgv5",
+      "id": "tpl_132_bibthy",
       "time": 365,
       "name": {
         "ja": "ステュクス",
@@ -994,7 +1424,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_yjeul2",
+      "id": "tpl_133_xli3k5",
       "time": 366,
       "name": {
         "ja": "ステュクス",
@@ -1005,7 +1435,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_3j95jb",
+      "id": "tpl_134_zadp7e",
       "time": 367,
       "name": {
         "ja": "ステュクス",
@@ -1016,7 +1446,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_u0j3vy",
+      "id": "tpl_135_5jfq5u",
       "time": 369,
       "name": {
         "ja": "ステュクス",
@@ -1027,7 +1457,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_93_blj6n5",
+      "id": "tpl_136_0hinzb",
       "time": 370,
       "name": {
         "ja": "ステュクス",
@@ -1038,7 +1468,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_94_to232s",
+      "id": "tpl_137_3e9us0",
       "time": 371,
       "name": {
         "ja": "ステュクス",
@@ -1049,7 +1479,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_0vwpch",
+      "id": "tpl_138_fiu9yr",
       "time": 372,
       "name": {
         "ja": "attack",
@@ -1060,7 +1490,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_e11qdw",
+      "id": "tpl_139_xbvzmr",
       "time": 374,
       "name": {
         "ja": "attack",
@@ -1071,7 +1501,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_1m0tp7",
+      "id": "tpl_140_t6zoq2",
+      "time": 375,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_141_mzh9uo",
       "time": 382,
       "name": {
         "ja": "ディケー",
@@ -1082,7 +1522,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_044viy",
+      "id": "tpl_142_gjptlh",
       "time": 382,
       "name": {
         "ja": "ディケー",
@@ -1093,7 +1533,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_99_gh2o7n",
+      "id": "tpl_143_cwrcgn",
       "time": 388,
       "name": {
         "ja": "attack",
@@ -1104,7 +1544,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_84psj4",
+      "id": "tpl_144_3h2n9l",
       "time": 392,
       "name": {
         "ja": "attack",
@@ -1115,7 +1555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_7zptgd",
+      "id": "tpl_145_d6m9sc",
       "time": 395,
       "name": {
         "ja": "attack",
@@ -1126,7 +1566,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_djwa6y",
+      "id": "tpl_146_aen0tz",
+      "time": 400,
+      "name": {
+        "ja": "ダークストリーム",
+        "en": "Dark Current"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_3gdqmg",
+      "time": 400,
+      "name": {
+        "ja": "unknown_8206",
+        "en": "unknown_8206"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_8ms15t",
+      "time": 406,
+      "name": {
+        "ja": "ダークストリーム",
+        "en": "Dark Current"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_787ern",
       "time": 407,
       "name": {
         "ja": "attack",
@@ -1137,7 +1607,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_103_9j3na2",
+      "id": "tpl_150_msec4t",
       "time": 410,
       "name": {
         "ja": "attack",
@@ -1148,7 +1618,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_nll3rm",
+      "id": "tpl_151_rz329f",
+      "time": 410,
+      "name": {
+        "ja": "光弾",
+        "en": "Blinding Light"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_vxu7m6",
       "time": 415,
       "name": {
         "ja": "光弾",
@@ -1159,7 +1639,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_klbvik",
+      "id": "tpl_153_oz92dl",
       "time": 418,
       "name": {
         "ja": "attack",
@@ -1170,7 +1650,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_106_75yp2t",
+      "id": "tpl_154_s4rqps",
       "time": 421,
       "name": {
         "ja": "attack",
@@ -1181,7 +1661,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_107_7a0wq3",
+      "id": "tpl_155_dtjbvv",
+      "time": 423,
+      "name": {
+        "ja": "ジューリー＆オーバールール",
+        "en": "Jury Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_156_qfq9l0",
       "time": 431,
       "name": {
         "ja": "ジューリー＆オーバールール",
@@ -1192,7 +1682,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_gmkamp",
+      "id": "tpl_157_l8f81g",
+      "time": 432,
+      "name": {
+        "ja": "イルーサリーグレア",
+        "en": "Illusory Glare"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_61ubtx",
       "time": 435,
       "name": {
         "ja": "アディショナルロウ",
@@ -1203,7 +1703,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_109_7a3y0w",
+      "id": "tpl_159_d74wht",
       "time": 437,
       "name": {
         "ja": "attack",
@@ -1214,7 +1714,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_110_aurbe1",
+      "id": "tpl_160_hcl0ky",
       "time": 439,
       "name": {
         "ja": "attack",
@@ -1225,7 +1725,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_se0d1l",
+      "id": "tpl_161_9vzwna",
+      "time": 441,
+      "name": {
+        "ja": "アップヘルド＆オーバールール",
+        "en": "Upheld Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_162_hb7blx",
       "time": 449,
       "name": {
         "ja": "アップヘルド＆オーバールール",
@@ -1236,7 +1746,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_112_521e0s",
+      "id": "tpl_163_iqokcg",
+      "time": 449,
+      "name": {
+        "ja": "ダークサークル",
+        "en": "Dark Perimeter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_164_6cruki",
       "time": 453,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -1247,7 +1767,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_113_jav4s4",
+      "id": "tpl_165_r8jlde",
       "time": 454,
       "name": {
         "ja": "attack",
@@ -1258,7 +1778,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_114_myrnpv",
+      "id": "tpl_166_hdnenc",
       "time": 457,
       "name": {
         "ja": "attack",
@@ -1269,7 +1789,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_115_13o4f7",
+      "id": "tpl_167_xjybrk",
+      "time": 462,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_168_iycgtj",
+      "time": 462,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_169_gugdao",
+      "time": 462,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_170_p8p5x8",
+      "time": 462,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_b9lolh",
       "time": 474,
       "name": {
         "ja": "アディショナルセンテンス",
@@ -1280,7 +1840,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_116_6ip4df",
+      "id": "tpl_172_duf89c",
       "time": 476,
       "name": {
         "ja": "attack",
@@ -1291,7 +1851,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_117_gqbrb8",
+      "id": "tpl_173_b657iv",
       "time": 478,
       "name": {
         "ja": "attack",
@@ -1302,7 +1862,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_118_af87w9",
+      "id": "tpl_174_xlvpgx",
       "time": 482,
       "name": {
         "ja": "attack",
@@ -1313,7 +1873,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_119_fx0vo0",
+      "id": "tpl_175_2ek09b",
       "time": 486,
       "name": {
         "ja": "エウノミアー",
@@ -1324,7 +1884,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_120_jbi9ky",
+      "id": "tpl_176_fn6xjp",
       "time": 487,
       "name": {
         "ja": "エウノミアー",
@@ -1335,7 +1895,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_121_1e2ldp",
+      "id": "tpl_177_ti0zqe",
       "time": 490,
       "name": {
         "ja": "attack",
@@ -1346,7 +1906,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_122_k0fevq",
+      "id": "tpl_178_3is51u",
       "time": 492,
       "name": {
         "ja": "attack",
@@ -1357,7 +1917,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_123_9sppbn",
+      "id": "tpl_179_dmfi09",
       "time": 495,
       "name": {
         "ja": "attack",
@@ -1368,7 +1928,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_124_gg67jl",
+      "id": "tpl_180_cxdjha",
       "time": 498,
       "name": {
         "ja": "attack",
@@ -1379,7 +1939,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_125_aendbx",
+      "id": "tpl_181_p7kmbx",
       "time": 501,
       "name": {
         "ja": "attack",
@@ -1390,7 +1950,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_126_rju4sl",
+      "id": "tpl_182_i78sgz",
       "time": 505,
       "name": {
         "ja": "attack",
@@ -1401,7 +1961,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_127_ae8dry",
+      "id": "tpl_183_qmm1cc",
+      "time": 509,
+      "name": {
+        "ja": "理法の幻奏",
+        "en": "Letter of the Law"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_184_sefo44",
+      "time": 515,
+      "name": {
+        "ja": "二種魔法陣展開",
+        "en": "Twofold Revelation"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_185_je0ux3",
       "time": 520,
       "name": {
         "ja": "展開戦術",
@@ -1411,7 +1991,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_128_bag4hj",
+      "id": "tpl_186_flr0rh",
+      "time": 521,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_187_bxqqb2",
+      "time": 521,
+      "name": {
+        "ja": "アップヘルド＆ルーリング",
+        "en": "Upheld Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_188_v7gxl8",
       "time": 523,
       "name": {
         "ja": "attack",
@@ -1422,7 +2022,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_129_2hlozb",
+      "id": "tpl_189_5hddfv",
       "time": 526,
       "name": {
         "ja": "attack",
@@ -1433,7 +2033,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_130_1eoyk4",
+      "id": "tpl_190_xrp1tq",
+      "time": 526,
+      "name": {
+        "ja": "刑律の波動",
+        "en": "Heart of Judgment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_191_pg99lg",
       "time": 532,
       "name": {
         "ja": "attack",
@@ -1444,7 +2054,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_131_rmer4r",
+      "id": "tpl_192_jxjb78",
       "time": 533,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -1455,7 +2065,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_132_zuj98z",
+      "id": "tpl_193_fmvw95",
       "time": 533,
       "name": {
         "ja": "アップヘルド＆ルーリング",
@@ -1466,7 +2076,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_133_7651c4",
+      "id": "tpl_194_0pymj3",
+      "time": 533,
+      "name": {
+        "ja": "ダークサークル",
+        "en": "Dark Perimeter"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_195_rvauw0",
+      "time": 533,
+      "name": {
+        "ja": "ライトバースト",
+        "en": "Lightburst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_196_loyofc",
       "time": 534,
       "name": {
         "ja": "attack",
@@ -1477,7 +2107,67 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_134_rqfkfz",
+      "id": "tpl_197_dqg8su",
+      "time": 535,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_198_02kb57",
+      "time": 535,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_199_ugmdb2",
+      "time": 535,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_200_4hhzfa",
+      "time": 535,
+      "name": {
+        "ja": "ディバイド＆ルーリング",
+        "en": "Divisive Ruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_201_1r10hl",
+      "time": 535,
+      "name": {
+        "ja": "闇の衝撃",
+        "en": "Ripples of Gloom"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_202_7bwcku",
+      "time": 535,
+      "name": {
+        "ja": "光爆",
+        "en": "Divine Ruination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_203_32h2pv",
       "time": 538,
       "name": {
         "ja": "attack",
@@ -1488,7 +2178,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_135_ho3ai1",
+      "id": "tpl_204_0sk7rz",
       "time": 540,
       "name": {
         "ja": "attack",
@@ -1499,7 +2189,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_136_ddgk57",
+      "id": "tpl_205_gzvih6",
       "time": 541,
       "name": {
         "ja": "爆発",
@@ -1510,7 +2200,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_137_0g0o8o",
+      "id": "tpl_206_63ilqo",
       "time": 543,
       "name": {
         "ja": "attack",
@@ -1521,7 +2211,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_138_6mh6vn",
+      "id": "tpl_207_bniltj",
+      "time": 545,
+      "name": {
+        "ja": "ディスミサル＆オーバールール",
+        "en": "Dismissal Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_208_ubsrg6",
+      "time": 545,
+      "name": {
+        "ja": "インナーグレア",
+        "en": "Inner Light"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_209_jkcg68",
       "time": 550,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -1532,7 +2242,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_139_1eyjio",
+      "id": "tpl_210_tvkuwt",
       "time": 551,
       "name": {
         "ja": "attack",
@@ -1543,7 +2253,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_140_z70xtl",
+      "id": "tpl_211_3iwcy2",
       "time": 551,
       "name": {
         "ja": "ディスミサル＆オーバールール",
@@ -1554,7 +2264,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_141_r7dj7x",
+      "id": "tpl_212_adpkd6",
       "time": 555,
       "name": {
         "ja": "attack",
@@ -1565,7 +2275,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_142_hx82lg",
+      "id": "tpl_213_mdsn0l",
       "time": 556,
       "name": {
         "ja": "アディショナルロウ",
@@ -1576,7 +2286,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_143_0d06r9",
+      "id": "tpl_214_npz5kw",
       "time": 557,
       "name": {
         "ja": "attack",
@@ -1587,7 +2297,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_144_kj1z2y",
+      "id": "tpl_215_pgju4x",
       "time": 565,
       "name": {
         "ja": "ステュクス",
@@ -1598,7 +2308,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_145_equ8c8",
+      "id": "tpl_216_p9zuec",
       "time": 566,
       "name": {
         "ja": "ステュクス",
@@ -1609,7 +2319,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_146_92c9kd",
+      "id": "tpl_217_78j79r",
       "time": 568,
       "name": {
         "ja": "ステュクス",
@@ -1620,7 +2330,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_147_hxwxf4",
+      "id": "tpl_218_x54eay",
       "time": 569,
       "name": {
         "ja": "ステュクス",
@@ -1631,7 +2341,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_148_cso1um",
+      "id": "tpl_219_36iqk4",
       "time": 570,
       "name": {
         "ja": "ステュクス",
@@ -1642,7 +2352,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_149_j301qi",
+      "id": "tpl_220_rwr3bk",
       "time": 571,
       "name": {
         "ja": "ステュクス",
@@ -1653,7 +2363,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_150_wtrg21",
+      "id": "tpl_221_suao4p",
       "time": 572,
       "name": {
         "ja": "ステュクス",
@@ -1664,7 +2374,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_151_iin08b",
+      "id": "tpl_222_pt9pvy",
       "time": 573,
       "name": {
         "ja": "ステュクス",
@@ -1675,7 +2385,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_152_qta457",
+      "id": "tpl_223_rds1vv",
       "time": 574,
       "name": {
         "ja": "attack",
@@ -1686,7 +2396,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_153_1tu0gv",
+      "id": "tpl_224_3wtbpw",
       "time": 576,
       "name": {
         "ja": "attack",
@@ -1697,7 +2407,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_154_stq3kk",
+      "id": "tpl_225_0gx93w",
+      "time": 579,
+      "name": {
+        "ja": "ライトストリーム",
+        "en": "Lightstream"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_226_11cjf1",
+      "time": 579,
+      "name": {
+        "ja": "unknown_8205",
+        "en": "unknown_8205"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_227_65ea24",
       "time": 580,
       "name": {
         "ja": "attack",
@@ -1708,7 +2438,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_155_yhubh6",
+      "id": "tpl_228_p32yl2",
       "time": 587,
       "name": {
         "ja": "attack",
@@ -1719,7 +2449,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_156_yjmhef",
+      "id": "tpl_229_xcuy7z",
       "time": 590,
       "name": {
         "ja": "attack",
@@ -1730,7 +2460,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_157_o46rzm",
+      "id": "tpl_230_l0uh28",
+      "time": 596,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_231_vp74ub",
+      "time": 596,
+      "name": {
+        "ja": "ディバイド＆オーバールール",
+        "en": "Divisive Overruling"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_232_gk128f",
+      "time": 596,
+      "name": {
+        "ja": "光爆",
+        "en": "Divine Ruination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_233_orjv8h",
       "time": 607,
       "name": {
         "ja": "アディショナルロウ",
@@ -1741,7 +2501,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_158_e4r7ib",
+      "id": "tpl_234_1aeqzx",
       "time": 609,
       "name": {
         "ja": "attack",
@@ -1752,7 +2512,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_159_3l6o01",
+      "id": "tpl_235_8cacu9",
       "time": 612,
       "name": {
         "ja": "attack",
@@ -1763,7 +2523,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_160_0uspwx",
+      "id": "tpl_236_5jvml1",
       "time": 615,
       "name": {
         "ja": "attack",
@@ -1774,7 +2534,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_161_augcsw",
+      "id": "tpl_237_7vplc4",
+      "time": 616,
+      "name": {
+        "ja": "ディケー",
+        "en": "Dike"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_238_qfgxx4",
       "time": 623,
       "name": {
         "ja": "ディケー",
@@ -1785,7 +2555,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_162_ft3zbx",
+      "id": "tpl_239_ntmbua",
       "time": 623,
       "name": {
         "ja": "ディケー",
@@ -1796,7 +2566,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_163_7raro1",
+      "id": "tpl_240_l2oqi0",
       "time": 626,
       "name": {
         "ja": "ディケー",
@@ -1807,7 +2577,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_164_jzdhhj",
+      "id": "tpl_241_ojy3sz",
       "time": 626,
       "name": {
         "ja": "ディケー",

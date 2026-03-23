@@ -1,11 +1,11 @@
 {
   "contentId": "m1s",
-  "generatedAt": "2026-03-22T11:58:49.937Z",
+  "generatedAt": "2026-03-23T05:08:05.440Z",
   "sourceLogsCount": 1,
   "sourceLog": "jYPMdDn3Gr8NQy7T#11",
   "timelineEvents": [
     {
-      "id": "tpl_0_i5wr9f",
+      "id": "tpl_0_6wevbp",
       "time": 3,
       "name": {
         "ja": "AA",
@@ -16,7 +16,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_k41vpy",
+      "id": "tpl_1_mne9fq",
+      "time": 8,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_2_up4ono",
       "time": 14,
       "name": {
         "ja": "クアドラプルネイル",
@@ -27,7 +37,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_efa84t",
+      "id": "tpl_3_ahczmy",
+      "time": 15,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_hs370s",
       "time": 17,
       "name": {
         "ja": "クアドラプルネイル",
@@ -38,7 +58,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_wpu9vu",
+      "id": "tpl_5_2jgvj6",
+      "time": 18,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_kkik14",
+      "time": 18,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_7_kqywok",
+      "time": 21,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_8_4w8gu2",
+      "time": 21,
+      "name": {
+        "ja": "Quadruple Crossing",
+        "en": "Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_4n84r2",
       "time": 25,
       "name": {
         "ja": "AA",
@@ -49,7 +109,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_4_5i6otq",
+      "id": "tpl_10_k49rzx",
       "time": 33,
       "name": {
         "ja": "ビスケットメーカー",
@@ -60,7 +120,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_5_j44zbt",
+      "id": "tpl_11_lnuys8",
       "time": 36,
       "name": {
         "ja": "AA",
@@ -71,7 +131,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_6_ql1jyk",
+      "id": "tpl_12_lofzib",
       "time": 39,
       "name": {
         "ja": "AA",
@@ -82,7 +142,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_7_cxpi7q",
+      "id": "tpl_13_zopvia",
       "time": 42,
       "name": {
         "ja": "AA",
@@ -93,7 +153,57 @@
       "target": "MT"
     },
     {
-      "id": "tpl_8_jzj8ug",
+      "id": "tpl_14_5ls87c",
+      "time": 46,
+      "name": {
+        "ja": "Nine Lives",
+        "en": "Nine Lives"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_15_25dm9t",
+      "time": 51,
+      "name": {
+        "ja": "One-two Paw",
+        "en": "One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_1ybc7l",
+      "time": 51,
+      "name": {
+        "ja": "One-two Paw",
+        "en": "One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_2knb1d",
+      "time": 51,
+      "name": {
+        "ja": "One-two Paw",
+        "en": "One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_18_v4je2p",
+      "time": 61,
+      "name": {
+        "ja": "Soulshade",
+        "en": "Soulshade"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_v3mclg",
       "time": 67,
       "name": {
         "ja": "AA",
@@ -104,7 +214,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_9_vmbecn",
+      "id": "tpl_20_yc3f0x",
       "time": 70,
       "name": {
         "ja": "AA",
@@ -115,7 +225,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_10_6o58of",
+      "id": "tpl_21_6ih9ju",
       "time": 73,
       "name": {
         "ja": "AA",
@@ -126,7 +236,47 @@
       "target": "MT"
     },
     {
-      "id": "tpl_11_7zan52",
+      "id": "tpl_22_doin9u",
+      "time": 76,
+      "name": {
+        "ja": "Nine Lives",
+        "en": "Nine Lives"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_23_clgy9o",
+      "time": 76,
+      "name": {
+        "ja": "One-two Paw",
+        "en": "One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_72ppj4",
+      "time": 76,
+      "name": {
+        "ja": "One-two Paw",
+        "en": "One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_25_4dr4vu",
+      "time": 83,
+      "name": {
+        "ja": "Double Swipe",
+        "en": "Double Swipe"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_kzs4ag",
       "time": 88,
       "name": {
         "ja": "ダブルクロウ",
@@ -137,7 +287,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_4g8fmi",
+      "id": "tpl_27_c4tpw4",
+      "time": 90,
+      "name": {
+        "ja": "Soulshade",
+        "en": "Soulshade"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_gd3m1q",
+      "time": 95,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_eah9oo",
       "time": 102,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -148,7 +318,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_x9co5u",
+      "id": "tpl_30_ep3e34",
+      "time": 103,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_31_0dhuqm",
       "time": 105,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -159,7 +339,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_42fump",
+      "id": "tpl_32_a24w6h",
+      "time": 106,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_33_bpy2dz",
+      "time": 106,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_tjytzj",
+      "time": 109,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_jm1z2g",
+      "time": 109,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_clrka6",
       "time": 111,
       "name": {
         "ja": "ダブルクロウ",
@@ -170,7 +390,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_ujahzn",
+      "id": "tpl_37_r9p4e2",
       "time": 116,
       "name": {
         "ja": "AA",
@@ -181,7 +401,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_16_dadvsh",
+      "id": "tpl_38_jp12tp",
       "time": 122,
       "name": {
         "ja": "ブラッディースクラッチ",
@@ -192,7 +412,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_17_pr67pn",
+      "id": "tpl_39_y1xfbo",
       "time": 123,
       "name": {
         "ja": "ブラッディースクラッチ",
@@ -203,7 +423,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_figj7y",
+      "id": "tpl_40_kcjajz",
       "time": 124,
       "name": {
         "ja": "AA",
@@ -214,7 +434,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_kfe704",
+      "id": "tpl_41_6hr0jf",
       "time": 127,
       "name": {
         "ja": "AA",
@@ -225,7 +445,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_20_untjwy",
+      "id": "tpl_42_lfalgb",
       "time": 129,
       "name": {
         "ja": "AA",
@@ -236,7 +456,127 @@
       "target": "MT"
     },
     {
-      "id": "tpl_21_seywlr",
+      "id": "tpl_43_6gmxdf",
+      "time": 135,
+      "name": {
+        "ja": "Mouser",
+        "en": "Mouser"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_rgnrn8",
+      "time": 135,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_8hynsr",
+      "time": 136,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_bkp089",
+      "time": 137,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_47_d75hzg",
+      "time": 138,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_ui4l4r",
+      "time": 139,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_49_xikvdw",
+      "time": 140,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_50_eir2yv",
+      "time": 140,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_51_869ooj",
+      "time": 141,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_52_d285ce",
+      "time": 142,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_53_n8a9z4",
+      "time": 143,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_54_zkjfls",
+      "time": 144,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_55_lxzf3g",
       "time": 158,
       "name": {
         "ja": "AA",
@@ -247,7 +587,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_22_nyd1a9",
+      "id": "tpl_56_82adsj",
       "time": 161,
       "name": {
         "ja": "AA",
@@ -258,7 +598,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_23_y7exb4",
+      "id": "tpl_57_rst66s",
+      "time": 163,
+      "name": {
+        "ja": "Copycat",
+        "en": "Copycat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_58_xtakk9",
       "time": 163,
       "name": {
         "ja": "AA",
@@ -269,7 +619,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_24_03dglo",
+      "id": "tpl_59_vxst2a",
       "time": 170,
       "name": {
         "ja": "AA",
@@ -280,7 +630,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_ez0gt6",
+      "id": "tpl_60_6i65cb",
+      "time": 171,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_lhjeyy",
       "time": 172,
       "name": {
         "ja": "AA",
@@ -291,7 +651,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_zg9jvc",
+      "id": "tpl_62_pz72ew",
       "time": 175,
       "name": {
         "ja": "AA",
@@ -302,7 +662,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_27_pd9arf",
+      "id": "tpl_63_odqkq3",
       "time": 179,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -313,7 +673,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_8q022s",
+      "id": "tpl_64_ykjk5q",
       "time": 179,
       "name": {
         "ja": "AA",
@@ -324,7 +684,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_29_luz0cp",
+      "id": "tpl_65_e972lo",
       "time": 180,
       "name": {
         "ja": "衝撃",
@@ -335,7 +695,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_0tb1yq",
+      "id": "tpl_66_qdbw3h",
+      "time": 182,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_67_cs6lkd",
       "time": 182,
       "name": {
         "ja": "AA",
@@ -346,7 +716,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_31_r108y1",
+      "id": "tpl_68_s4xlv6",
       "time": 184,
       "name": {
         "ja": "AA",
@@ -357,7 +727,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_32_0t5ikb",
+      "id": "tpl_69_lmuoa1",
       "time": 187,
       "name": {
         "ja": "AA",
@@ -368,7 +738,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_33_t71lqz",
+      "id": "tpl_70_xotm5z",
       "time": 190,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -379,7 +749,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_remekw",
+      "id": "tpl_71_c6dxmm",
       "time": 190,
       "name": {
         "ja": "AA",
@@ -390,7 +760,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_35_evjopa",
+      "id": "tpl_72_0mej3g",
       "time": 193,
       "name": {
         "ja": "衝撃",
@@ -401,7 +771,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_5vgdsi",
+      "id": "tpl_73_g8v6xw",
+      "time": 193,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_tmhrni",
       "time": 194,
       "name": {
         "ja": "AA",
@@ -412,7 +792,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_37_ue8v7j",
+      "id": "tpl_75_ib5dbo",
       "time": 197,
       "name": {
         "ja": "AA",
@@ -423,7 +803,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_38_f55olc",
+      "id": "tpl_76_dumypn",
       "time": 200,
       "name": {
         "ja": "AA",
@@ -434,7 +814,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_39_hf87zs",
+      "id": "tpl_77_3u1ls2",
       "time": 201,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -445,7 +825,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_40_lkpwuz",
+      "id": "tpl_78_fp94nx",
       "time": 202,
       "name": {
         "ja": "衝撃",
@@ -456,7 +836,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_41_l43wrh",
+      "id": "tpl_79_vl4a9w",
       "time": 203,
       "name": {
         "ja": "AA",
@@ -467,7 +847,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_42_oen62c",
+      "id": "tpl_80_jleobf",
+      "time": 204,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_5rqoih",
       "time": 206,
       "name": {
         "ja": "AA",
@@ -478,7 +868,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_43_sdr2ww",
+      "id": "tpl_82_idh9q9",
       "time": 209,
       "name": {
         "ja": "AA",
@@ -489,7 +879,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_44_1v6qho",
+      "id": "tpl_83_5loyxi",
       "time": 212,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -500,7 +890,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_f4vnlo",
+      "id": "tpl_84_trtm7f",
       "time": 212,
       "name": {
         "ja": "AA",
@@ -511,7 +901,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_46_v4gf5d",
+      "id": "tpl_85_k0yzrd",
       "time": 215,
       "name": {
         "ja": "AA",
@@ -522,7 +912,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_47_vxwxxi",
+      "id": "tpl_86_13mv7f",
       "time": 216,
       "name": {
         "ja": "衝撃",
@@ -533,7 +923,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_5tvk78",
+      "id": "tpl_87_vrd4ki",
       "time": 224,
       "name": {
         "ja": "ビスケットメーカー",
@@ -544,7 +934,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_49_084m1g",
+      "id": "tpl_88_vg9gpe",
       "time": 226,
       "name": {
         "ja": "ビスケットメーカー",
@@ -555,7 +945,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_5wiv94",
+      "id": "tpl_89_aj2i6r",
+      "time": 229,
+      "name": {
+        "ja": "Shockwave",
+        "en": "Shockwave"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_65uuud",
       "time": 236,
       "name": {
         "ja": "衝撃波",
@@ -565,7 +965,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_iyleay",
+      "id": "tpl_91_i95856",
       "time": 241,
       "name": {
         "ja": "キャッタクリスム・ゲイル",
@@ -576,7 +976,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_oxhsil",
+      "id": "tpl_92_sshiqp",
       "time": 241,
       "name": {
         "ja": "AA",
@@ -587,7 +987,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_53_f0314n",
+      "id": "tpl_93_u7zya3",
       "time": 244,
       "name": {
         "ja": "AA",
@@ -598,7 +998,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_54_8xrubn",
+      "id": "tpl_94_rvvnrr",
       "time": 247,
       "name": {
         "ja": "AA",
@@ -609,7 +1009,77 @@
       "target": "MT"
     },
     {
-      "id": "tpl_55_4lzm4f",
+      "id": "tpl_95_56ywc7",
+      "time": 253,
+      "name": {
+        "ja": "Nine Lives",
+        "en": "Nine Lives"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_77c58s",
+      "time": 258,
+      "name": {
+        "ja": "Leaping One-two Paw",
+        "en": "Leaping One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_5t96bm",
+      "time": 264,
+      "name": {
+        "ja": "Leaping One-two Paw",
+        "en": "Leaping One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_wf7oy3",
+      "time": 264,
+      "name": {
+        "ja": "Leaping One-two Paw",
+        "en": "Leaping One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_yq4v7a",
+      "time": 269,
+      "name": {
+        "ja": "Soulshade",
+        "en": "Soulshade"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_3mupog",
+      "time": 274,
+      "name": {
+        "ja": "Nine Lives",
+        "en": "Nine Lives"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_5b8tb1",
+      "time": 279,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_102_in3zix",
       "time": 286,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -620,7 +1090,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_6hsi6f",
+      "id": "tpl_103_ktczei",
+      "time": 287,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_tj8r4h",
       "time": 289,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -631,7 +1111,57 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_wt57oz",
+      "id": "tpl_105_ofg13e",
+      "time": 290,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_fnaese",
+      "time": 290,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_zt4esl",
+      "time": 293,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_7bt6ck",
+      "time": 293,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_109_d2x82v",
+      "time": 296,
+      "name": {
+        "ja": "Soulshade",
+        "en": "Soulshade"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_110_x3jk7q",
       "time": 302,
       "name": {
         "ja": "AA",
@@ -642,7 +1172,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_ltfcco",
+      "id": "tpl_111_9vio24",
       "time": 305,
       "name": {
         "ja": "AA",
@@ -653,7 +1183,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_59_t43uzv",
+      "id": "tpl_112_vbqkxr",
       "time": 309,
       "name": {
         "ja": "AA",
@@ -664,7 +1194,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_vd7z4g",
+      "id": "tpl_113_i55xya",
       "time": 312,
       "name": {
         "ja": "AA",
@@ -675,7 +1205,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_4bjlrw",
+      "id": "tpl_114_9k5g5s",
       "time": 315,
       "name": {
         "ja": "AA",
@@ -686,7 +1216,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_62_lmhklv",
+      "id": "tpl_115_stxssp",
       "time": 317,
       "name": {
         "ja": "AA",
@@ -697,7 +1227,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_6oobc0",
+      "id": "tpl_116_jk80sc",
+      "time": 319,
+      "name": {
+        "ja": "Tempestuous Tear",
+        "en": "Tempestuous Tear"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_117_wjmepx",
+      "time": 324,
+      "name": {
+        "ja": "Leaping One-two Paw",
+        "en": "Leaping One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_118_95gkm7",
+      "time": 324,
+      "name": {
+        "ja": "Leaping One-two Paw",
+        "en": "Leaping One-Two Paw"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_119_9gkt7m",
       "time": 326,
       "name": {
         "ja": "テンペストテアー",
@@ -708,7 +1268,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_yb30t8",
+      "id": "tpl_120_2tigeg",
       "time": 326,
       "name": {
         "ja": "AA",
@@ -719,7 +1279,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_65_m7i0pc",
+      "id": "tpl_121_i1a1my",
       "time": 329,
       "name": {
         "ja": "AA",
@@ -730,7 +1290,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_66_7shqvh",
+      "id": "tpl_122_ptizqt",
       "time": 332,
       "name": {
         "ja": "AA",
@@ -741,7 +1301,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_67_br2wtn",
+      "id": "tpl_123_c4wib5",
       "time": 335,
       "name": {
         "ja": "AA",
@@ -752,7 +1312,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_68_d0a3qr",
+      "id": "tpl_124_6xlv0r",
       "time": 339,
       "name": {
         "ja": "AA",
@@ -763,7 +1323,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_69_2724d2",
+      "id": "tpl_125_odb0xw",
+      "time": 342,
+      "name": {
+        "ja": "Nailchipper",
+        "en": "Nailchipper"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_126_ugrqu1",
       "time": 342,
       "name": {
         "ja": "AA",
@@ -774,7 +1344,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_70_xiyned",
+      "id": "tpl_127_pnl3s9",
       "time": 351,
       "name": {
         "ja": "ネイルチッパー",
@@ -785,7 +1355,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_sd6rqb",
+      "id": "tpl_128_vq9t05",
       "time": 351,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -796,7 +1366,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_e19it9",
+      "id": "tpl_129_jcw4ua",
       "time": 352,
       "name": {
         "ja": "AA",
@@ -807,7 +1377,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_73_oke1qp",
+      "id": "tpl_130_21hlwg",
       "time": 354,
       "name": {
         "ja": "リーピング・クアドラプルネイル",
@@ -818,7 +1388,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_llgchr",
+      "id": "tpl_131_6oxuir",
+      "time": 354,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_132_x2x8d3",
       "time": 354,
       "name": {
         "ja": "AA",
@@ -829,7 +1409,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_75_esh67k",
+      "id": "tpl_133_uarv13",
+      "time": 357,
+      "name": {
+        "ja": "Leaping Quadruple Crossing",
+        "en": "Leaping Quadruple Crossing"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_t5zadj",
       "time": 358,
       "name": {
         "ja": "AA",
@@ -840,7 +1430,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_76_k2wke0",
+      "id": "tpl_135_fij0b4",
       "time": 359,
       "name": {
         "ja": "ネイルチッパー",
@@ -851,7 +1441,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_77_tt5r3x",
+      "id": "tpl_136_rc57mo",
       "time": 361,
       "name": {
         "ja": "AA",
@@ -862,7 +1452,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_78_dyfvi4",
+      "id": "tpl_137_n5nssj",
       "time": 363,
       "name": {
         "ja": "AA",
@@ -873,7 +1463,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_79_hwnay6",
+      "id": "tpl_138_kyz2k2",
       "time": 371,
       "name": {
         "ja": "ブラッディースクラッチ",
@@ -884,7 +1474,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_80_77l9ac",
+      "id": "tpl_139_gsjqqo",
       "time": 372,
       "name": {
         "ja": "AA",
@@ -895,7 +1485,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_81_273thf",
+      "id": "tpl_140_kjq965",
       "time": 374,
       "name": {
         "ja": "AA",
@@ -906,7 +1496,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_82_yzpbap",
+      "id": "tpl_141_mh078q",
       "time": 378,
       "name": {
         "ja": "AA",
@@ -917,7 +1507,127 @@
       "target": "MT"
     },
     {
-      "id": "tpl_83_mngu25",
+      "id": "tpl_142_51vah9",
+      "time": 384,
+      "name": {
+        "ja": "Mouser",
+        "en": "Mouser"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_143_eynd4j",
+      "time": 384,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_144_er4364",
+      "time": 385,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_145_ufqbfk",
+      "time": 386,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_146_vi9rgj",
+      "time": 387,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_147_ifsa7y",
+      "time": 388,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_148_th6spj",
+      "time": 389,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_149_vhoquq",
+      "time": 389,
+      "name": {
+        "ja": "unknown_9443",
+        "en": "unknown_9443"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_150_y0i0ab",
+      "time": 390,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_151_y6oew1",
+      "time": 391,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_152_qo8kk1",
+      "time": 392,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_153_6kh9cd",
+      "time": 393,
+      "name": {
+        "ja": "unknown_996c",
+        "en": "unknown_996c"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_154_bz0bkm",
       "time": 395,
       "name": {
         "ja": "マウサーラッシュ",
@@ -928,7 +1638,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_84_guggif",
+      "id": "tpl_155_cum8g3",
       "time": 406,
       "name": {
         "ja": "AA",
@@ -939,7 +1649,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_85_s6v7om",
+      "id": "tpl_156_5f6dbs",
       "time": 409,
       "name": {
         "ja": "AA",
@@ -950,7 +1660,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_zjdtkb",
+      "id": "tpl_157_s5lkqy",
+      "time": 412,
+      "name": {
+        "ja": "Copycat",
+        "en": "Copycat"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_158_iov6mp",
       "time": 412,
       "name": {
         "ja": "AA",
@@ -961,7 +1681,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_87_qvjqeg",
+      "id": "tpl_159_y7p6cy",
       "time": 418,
       "name": {
         "ja": "AA",
@@ -972,7 +1692,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_88_9wlc1n",
+      "id": "tpl_160_v3rjix",
+      "time": 419,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_161_nswkv8",
       "time": 421,
       "name": {
         "ja": "AA",
@@ -983,7 +1713,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_89_ybtzv2",
+      "id": "tpl_162_vpm2ug",
+      "time": 423,
+      "name": {
+        "ja": "Splintering Nails",
+        "en": "Splintering Nails"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_163_k7vhpl",
       "time": 428,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -994,7 +1734,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_90_e4j2we",
+      "id": "tpl_164_tk1r3i",
       "time": 428,
       "name": {
         "ja": "衝撃",
@@ -1005,7 +1745,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_91_g41585",
+      "id": "tpl_165_bw325g",
       "time": 429,
       "name": {
         "ja": "スプレッドネイル",
@@ -1016,7 +1756,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_jglgei",
+      "id": "tpl_166_tivdwc",
+      "time": 431,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_167_5e1nrq",
       "time": 431,
       "name": {
         "ja": "AA",
@@ -1027,7 +1777,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_93_ypm47h",
+      "id": "tpl_168_bmelbn",
       "time": 433,
       "name": {
         "ja": "AA",
@@ -1038,7 +1788,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_94_vgrapn",
+      "id": "tpl_169_d8zvvf",
+      "time": 435,
+      "name": {
+        "ja": "Overshadow",
+        "en": "Overshadow"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_170_ha0f3r",
       "time": 440,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -1049,7 +1809,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_28c121",
+      "id": "tpl_171_1q2y6f",
       "time": 441,
       "name": {
         "ja": "オーバーシャドウ",
@@ -1060,7 +1820,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_96_4pxjkz",
+      "id": "tpl_172_jtmvjb",
       "time": 443,
       "name": {
         "ja": "衝撃",
@@ -1071,7 +1831,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_97_mex78m",
+      "id": "tpl_173_0mfkoz",
       "time": 443,
       "name": {
         "ja": "AA",
@@ -1082,7 +1842,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_98_iwf011",
+      "id": "tpl_174_c7nt8m",
+      "time": 444,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_175_4zkxl6",
       "time": 446,
       "name": {
         "ja": "AA",
@@ -1093,7 +1863,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_99_f2bwmn",
+      "id": "tpl_176_pgrpf2",
+      "time": 448,
+      "name": {
+        "ja": "Splintering Nails",
+        "en": "Splintering Nails"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_177_o61qo9",
       "time": 453,
       "name": {
         "ja": "エレベート・エビセレート",
@@ -1104,7 +1884,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_100_dq8kr2",
+      "id": "tpl_178_anvzhj",
       "time": 454,
       "name": {
         "ja": "スプレッドネイル",
@@ -1115,7 +1895,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_nb96p7",
+      "id": "tpl_179_q2k56s",
       "time": 455,
       "name": {
         "ja": "衝撃",
@@ -1126,7 +1906,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_102_rn79ik",
+      "id": "tpl_180_g2enz3",
       "time": 455,
       "name": {
         "ja": "AA",
@@ -1137,7 +1917,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_103_z6if7u",
+      "id": "tpl_181_qc34bz",
+      "time": 456,
+      "name": {
+        "ja": "Elevate and Eviscerate",
+        "en": "Elevate and Eviscerate"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_182_b6fgqx",
       "time": 458,
       "name": {
         "ja": "AA",

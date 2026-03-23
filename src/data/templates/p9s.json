@@ -1,11 +1,11 @@
 {
   "contentId": "p9s",
-  "generatedAt": "2026-03-22T12:02:49.313Z",
+  "generatedAt": "2026-03-23T03:39:02.685Z",
   "sourceLogsCount": 1,
   "sourceLog": "mxcz4YCWBaJ2ptvF#51",
   "timelineEvents": [
     {
-      "id": "tpl_0_itdku4",
+      "id": "tpl_0_wup9nl",
       "time": 3,
       "name": {
         "ja": "attack",
@@ -16,7 +16,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_1_dobe95",
+      "id": "tpl_1_xzx0pw",
       "time": 5,
       "name": {
         "ja": "attack",
@@ -27,7 +27,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_2_qbx1o8",
+      "id": "tpl_2_vtqh04",
+      "time": 7,
+      "name": {
+        "ja": "グラトニーズアーガー",
+        "en": "Gluttony's Augur"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_3_b9cc2k",
       "time": 13,
       "name": {
         "ja": "グラトニーズアーガー",
@@ -38,7 +48,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_xb9in3",
+      "id": "tpl_4_z7pnwp",
       "time": 16,
       "name": {
         "ja": "attack",
@@ -49,7 +59,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_4_76wf4d",
+      "id": "tpl_5_099cvb",
+      "time": 21,
+      "name": {
+        "ja": "魂喰らい",
+        "en": "Ravening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_6_cgmupj",
       "time": 32,
       "name": {
         "ja": "ソウルサージ",
@@ -60,7 +80,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_5_j9pavf",
+      "id": "tpl_7_06tk8m",
       "time": 34,
       "name": {
         "ja": "attack",
@@ -71,7 +91,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_6_hnkgdt",
+      "id": "tpl_8_8hzy5z",
       "time": 38,
       "name": {
         "ja": "attack",
@@ -82,7 +102,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_7_8cjfvb",
+      "id": "tpl_9_z27vdh",
       "time": 40,
       "name": {
         "ja": "attack",
@@ -93,7 +113,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_8_kjhnp7",
+      "id": "tpl_10_27d1d3",
+      "time": 42,
+      "name": {
+        "ja": "デストゥワイス",
+        "en": "Duality of Death"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_11_82xg0r",
       "time": 47,
       "name": {
         "ja": "ファイジャ",
@@ -104,7 +134,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_z0c4xn",
+      "id": "tpl_12_cvip83",
       "time": 48,
       "name": {
         "ja": "エアロジャ",
@@ -115,7 +145,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_10_g88j0k",
+      "id": "tpl_13_hy0x4x",
       "time": 50,
       "name": {
         "ja": "ファイジャ",
@@ -126,7 +156,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_11_liln9r",
+      "id": "tpl_14_t7stmp",
       "time": 50,
       "name": {
         "ja": "エアロジャ",
@@ -137,7 +167,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_12_xcgu5v",
+      "id": "tpl_15_fhj4j6",
       "time": 53,
       "name": {
         "ja": "attack",
@@ -148,7 +178,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_13_fvpz3s",
+      "id": "tpl_16_ktmb6k",
+      "time": 55,
+      "name": {
+        "ja": "ダブルスペル",
+        "en": "Dualspell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_j2uzwh",
       "time": 68,
       "name": {
         "ja": "パイリングフレイム",
@@ -159,7 +199,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_14_vah823",
+      "id": "tpl_18_wzup42",
+      "time": 68,
+      "name": {
+        "ja": "ダブルスペル",
+        "en": "Dualspell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_19_3nnq55",
+      "time": 81,
+      "name": {
+        "ja": "ダブルスペル",
+        "en": "Dualspell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_9g0ejl",
       "time": 82,
       "name": {
         "ja": "サンダガ",
@@ -170,7 +230,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_15_zuyti9",
+      "id": "tpl_21_nvo46w",
       "time": 95,
       "name": {
         "ja": "パイリングフレイム",
@@ -181,7 +241,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_16_qujwd1",
+      "id": "tpl_22_nmr17v",
       "time": 96,
       "name": {
         "ja": "attack",
@@ -192,7 +252,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_kh27jo",
+      "id": "tpl_23_ynoe5q",
       "time": 100,
       "name": {
         "ja": "attack",
@@ -203,7 +263,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_18_jqzmef",
+      "id": "tpl_24_g9ta4w",
       "time": 106,
       "name": {
         "ja": "attack",
@@ -214,7 +274,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_19_gmil5h",
+      "id": "tpl_25_j610n7",
       "time": 110,
       "name": {
         "ja": "attack",
@@ -225,7 +285,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_lh26hc",
+      "id": "tpl_26_xsnrmw",
+      "time": 110,
+      "name": {
+        "ja": "魂喰らい",
+        "en": "Ravening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_nq2k6l",
+      "time": 110,
+      "name": {
+        "ja": "隆起",
+        "en": "Uplift"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_28oq7k",
       "time": 121,
       "name": {
         "ja": "ソウルサージ",
@@ -236,7 +316,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_jq2jt3",
+      "id": "tpl_29_x2y3at",
       "time": 122,
       "name": {
         "ja": "ソウルサージ",
@@ -247,7 +327,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_hetvxx",
+      "id": "tpl_30_4ddy1y",
       "time": 123,
       "name": {
         "ja": "attack",
@@ -258,7 +338,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_v1qwvk",
+      "id": "tpl_31_whj3r1",
       "time": 127,
       "name": {
         "ja": "attack",
@@ -269,7 +349,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_ly73as",
+      "id": "tpl_32_65cbi9",
       "time": 134,
       "name": {
         "ja": "穿昇拳",
@@ -280,7 +360,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_25_i0yaqr",
+      "id": "tpl_33_xpw5t5",
       "time": 136,
       "name": {
         "ja": "attack",
@@ -291,7 +371,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_26_vshg4h",
+      "id": "tpl_34_7w8u34",
       "time": 139,
       "name": {
         "ja": "attack",
@@ -302,7 +382,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_covd2c",
+      "id": "tpl_35_zdd055",
+      "time": 141,
+      "name": {
+        "ja": "古式地烈斬",
+        "en": "Archaic Rockbreaker"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_36_d8zn5i",
       "time": 148,
       "name": {
         "ja": "衝撃波",
@@ -313,7 +403,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_28_8dafb1",
+      "id": "tpl_37_jkklxh",
+      "time": 148,
+      "name": {
+        "ja": "古式地烈斬",
+        "en": "Archaic Rockbreaker"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_mo8cee",
       "time": 149,
       "name": {
         "ja": "古式地烈斬",
@@ -324,7 +424,77 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_29_t5cym6",
+      "id": "tpl_39_da0a0a",
+      "time": 149,
+      "name": {
+        "ja": "前方連転脚",
+        "en": "Front Combination"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_40_fg82k9",
+      "time": 149,
+      "name": {
+        "ja": "unknown_820b",
+        "en": "unknown_820b"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_41_60irwy",
+      "time": 154,
+      "name": {
+        "ja": "古式地烈斬",
+        "en": "Archaic Rockbreaker"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_42_ydjk3b",
+      "time": 156,
+      "name": {
+        "ja": "内転脚",
+        "en": "Inside Roundhouse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_43_3j4byy",
+      "time": 159,
+      "name": {
+        "ja": "旋身撃",
+        "en": "Swinging Kick"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_44_qvw4nr",
+      "time": 162,
+      "name": {
+        "ja": "外転脚",
+        "en": "Outside Roundhouse"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_w0dci9",
+      "time": 165,
+      "name": {
+        "ja": "古式破砕拳",
+        "en": "Archaic Demolish"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_46_5trg3v",
       "time": 170,
       "name": {
         "ja": "古式破砕拳",
@@ -335,7 +505,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_30_bqp7sy",
+      "id": "tpl_47_3m8g4s",
+      "time": 171,
+      "name": {
+        "ja": "グラトニーズアーガー",
+        "en": "Gluttony's Augur"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_48_paad3g",
       "time": 176,
       "name": {
         "ja": "グラトニーズアーガー",
@@ -346,7 +526,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_31_860y46",
+      "id": "tpl_49_aaol0j",
       "time": 179,
       "name": {
         "ja": "attack",
@@ -357,7 +537,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_32_jk7j50",
+      "id": "tpl_50_d7kxp9",
       "time": 188,
       "name": {
         "ja": "穿昇拳",
@@ -368,7 +548,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_33_0vln4v",
+      "id": "tpl_51_tp95bc",
       "time": 189,
       "name": {
         "ja": "attack",
@@ -379,7 +559,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_34_qctp60",
+      "id": "tpl_52_lv53ej",
       "time": 192,
       "name": {
         "ja": "attack",
@@ -390,7 +570,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_35_79du6n",
+      "id": "tpl_53_nxf0c1",
       "time": 200,
       "name": {
         "ja": "attack",
@@ -401,7 +581,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_36_m9mxe5",
+      "id": "tpl_54_71nerq",
       "time": 202,
       "name": {
         "ja": "attack",
@@ -412,7 +592,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_37_epiqkh",
+      "id": "tpl_55_00fg59",
+      "time": 204,
+      "name": {
+        "ja": "魂喰らい",
+        "en": "Ravening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_yv815e",
+      "time": 204,
+      "name": {
+        "ja": "隆起",
+        "en": "Uplift"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_kffc9u",
       "time": 215,
       "name": {
         "ja": "ソウルサージ",
@@ -423,7 +623,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_b4sx0d",
+      "id": "tpl_58_83zwam",
       "time": 216,
       "name": {
         "ja": "ソウルサージ",
@@ -434,7 +634,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_9jspm7",
+      "id": "tpl_59_x6k6kq",
+      "time": 218,
+      "name": {
+        "ja": "サモンライトニング",
+        "en": "Levinstrike Summoning"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_60_ff3hy8",
+      "time": 224,
+      "name": {
+        "ja": "ジャンブルコンボ",
+        "en": "Scrambled Succession"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_61_ax1cvg",
       "time": 239,
       "name": {
         "ja": "炎魔衝",
@@ -445,7 +665,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_fw9a6m",
+      "id": "tpl_62_ly4kp4",
       "time": 239,
       "name": {
         "ja": "氷魔衝",
@@ -456,7 +676,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_32v6hi",
+      "id": "tpl_63_qw72bq",
       "time": 240,
       "name": {
         "ja": "放電",
@@ -467,7 +687,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_42_pogvoq",
+      "id": "tpl_64_g82sfb",
       "time": 245,
       "name": {
         "ja": "炎魔衝",
@@ -478,7 +698,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_43_tmqqkr",
+      "id": "tpl_65_u7qhzu",
       "time": 245,
       "name": {
         "ja": "氷魔衝",
@@ -489,7 +709,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_44_yhk44u",
+      "id": "tpl_66_pjio3e",
       "time": 245,
       "name": {
         "ja": "放電",
@@ -500,7 +720,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_45_0yqlek",
+      "id": "tpl_67_52nd2v",
       "time": 250,
       "name": {
         "ja": "炎魔衝",
@@ -511,7 +731,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_3t5kgq",
+      "id": "tpl_68_tyz40t",
       "time": 251,
       "name": {
         "ja": "氷魔衝",
@@ -522,7 +742,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_47_rw5z6t",
+      "id": "tpl_69_dnqyik",
       "time": 251,
       "name": {
         "ja": "放電",
@@ -533,7 +753,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_925d9i",
+      "id": "tpl_70_iub5jk",
       "time": 256,
       "name": {
         "ja": "炎魔衝",
@@ -544,7 +764,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_49_ug0pr9",
+      "id": "tpl_71_j1eud4",
       "time": 256,
       "name": {
         "ja": "放電",
@@ -555,7 +775,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_50_u88hyt",
+      "id": "tpl_72_h7y0oo",
       "time": 257,
       "name": {
         "ja": "氷魔衝",
@@ -566,7 +786,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_l9v9et",
+      "id": "tpl_73_p1tivl",
+      "time": 258,
+      "name": {
+        "ja": "憑魔双撃",
+        "en": "Two Minds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_2g2c3h",
       "time": 266,
       "name": {
         "ja": "サンダガ",
@@ -577,7 +807,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_52_blrk9w",
+      "id": "tpl_75_ekghd9",
+      "time": 267,
+      "name": {
+        "ja": "グラトニーズアーガー",
+        "en": "Gluttony's Augur"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_76_lddzt9",
       "time": 273,
       "name": {
         "ja": "グラトニーズアーガー",
@@ -588,7 +828,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_53_svytyg",
+      "id": "tpl_77_1wcyq0",
       "time": 274,
       "name": {
         "ja": "グラトニーズアーガー",
@@ -599,7 +839,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_54_lqpvxd",
+      "id": "tpl_78_9bma5h",
       "time": 281,
       "name": {
         "ja": "attack",
@@ -610,7 +850,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_55_gvmc7o",
+      "id": "tpl_79_g7yqug",
       "time": 283,
       "name": {
         "ja": "attack",
@@ -621,7 +861,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_56_h3fjhv",
+      "id": "tpl_80_yjboct",
+      "time": 286,
+      "name": {
+        "ja": "魂喰らい",
+        "en": "Ravening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_81_7kamym",
       "time": 297,
       "name": {
         "ja": "ソウルサージ",
@@ -632,7 +882,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_57_7ayg2z",
+      "id": "tpl_82_wh8jqk",
       "time": 298,
       "name": {
         "ja": "ソウルサージ",
@@ -643,7 +893,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_58_0rhbty",
+      "id": "tpl_83_iqhhzd",
+      "time": 300,
+      "name": {
+        "ja": "ミールストーム",
+        "en": "Charybdis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_84_r2mnkj",
+      "time": 300,
+      "name": {
+        "ja": "ミールストーム",
+        "en": "Charybdis"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_3zym3p",
+      "time": 305,
+      "name": {
+        "ja": "コメット",
+        "en": "Comet"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_86_b1wdqh",
       "time": 309,
       "name": {
         "ja": "ボーライド",
@@ -654,7 +934,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_59_0mds5o",
+      "id": "tpl_87_cj90ex",
       "time": 311,
       "name": {
         "ja": "コメットインパクト",
@@ -665,7 +945,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_60_5t4rbq",
+      "id": "tpl_88_ssenpt",
+      "time": 314,
+      "name": {
+        "ja": "ビーストバイル",
+        "en": "Beastly Bile"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_89_w5ewih",
+      "time": 321,
+      "name": {
+        "ja": "サンダーボルト",
+        "en": "Thunderbolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_u3a8nz",
       "time": 325,
       "name": {
         "ja": "サンダーボルト",
@@ -676,7 +976,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_61_kiz5j3",
+      "id": "tpl_91_1s8my6",
       "time": 326,
       "name": {
         "ja": "ビーストバイル",
@@ -687,7 +987,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_62_w38uq7",
+      "id": "tpl_92_jy8a4f",
+      "time": 326,
+      "name": {
+        "ja": "飛散",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_93_gpii8r",
+      "time": 327,
+      "name": {
+        "ja": "サンダーボルト",
+        "en": "Thunderbolt"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_ra3mlz",
       "time": 331,
       "name": {
         "ja": "サンダーボルト",
@@ -698,7 +1018,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_63_qeq226",
+      "id": "tpl_95_xp7y2g",
       "time": 332,
       "name": {
         "ja": "ビーストバイル",
@@ -709,7 +1029,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_64_paf4rs",
+      "id": "tpl_96_tbb164",
+      "time": 333,
+      "name": {
+        "ja": "飛散",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_7zl4dn",
+      "time": 334,
+      "name": {
+        "ja": "エクリプスメテオ",
+        "en": "Ecliptic Meteor"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_sy0tds",
+      "time": 342,
+      "name": {
+        "ja": "エクリプスメテオ",
+        "en": "Ecliptic Meteor"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_11uib8",
+      "time": 343,
+      "name": {
+        "ja": "飛散",
+        "en": "Burst"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_8z7a84",
       "time": 346,
       "name": {
         "ja": "attack",
@@ -720,7 +1080,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_w8f2lo",
+      "id": "tpl_101_c313s5",
       "time": 349,
       "name": {
         "ja": "attack",
@@ -731,7 +1091,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_76gioc",
+      "id": "tpl_102_wc76ge",
+      "time": 350,
+      "name": {
+        "ja": "ビーストフューリー",
+        "en": "Beastly Fury"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_103_hnkb6k",
       "time": 356,
       "name": {
         "ja": "ビーストフューリー",
@@ -742,7 +1112,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_b268c8",
+      "id": "tpl_104_je60qt",
       "time": 365,
       "name": {
         "ja": "attack",
@@ -753,7 +1123,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_bzog12",
+      "id": "tpl_105_iiqhha",
       "time": 367,
       "name": {
         "ja": "attack",
@@ -764,7 +1134,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_cksu4g",
+      "id": "tpl_106_y4fifd",
+      "time": 370,
+      "name": {
+        "ja": "魂喰らい",
+        "en": "Ravening"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_q3myg9",
+      "time": 370,
+      "name": {
+        "ja": "隆起",
+        "en": "Uplift"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_108_neufso",
       "time": 380,
       "name": {
         "ja": "ソウルサージ",
@@ -775,7 +1165,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_wo5gsj",
+      "id": "tpl_109_59bpdy",
       "time": 381,
       "name": {
         "ja": "ソウルサージ",
@@ -786,7 +1176,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_71_ejto20",
+      "id": "tpl_110_aktlex",
       "time": 383,
       "name": {
         "ja": "attack",
@@ -797,7 +1187,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_72_6jksod",
+      "id": "tpl_111_xodl9m",
       "time": 386,
       "name": {
         "ja": "attack",
@@ -808,7 +1198,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_73_1m06u8",
+      "id": "tpl_112_zfumm6",
+      "time": 388,
+      "name": {
+        "ja": "デストゥワイス",
+        "en": "Duality of Death"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_6q3pqi",
       "time": 394,
       "name": {
         "ja": "エアロジャ",
@@ -819,7 +1219,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_mylmdc",
+      "id": "tpl_114_4jj487",
       "time": 395,
       "name": {
         "ja": "ファイジャ",
@@ -830,7 +1230,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_a2gasl",
+      "id": "tpl_115_xb3ij6",
       "time": 396,
       "name": {
         "ja": "エアロジャ",
@@ -841,7 +1241,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_76_j9bkj5",
+      "id": "tpl_116_xaqbuf",
       "time": 397,
       "name": {
         "ja": "ファイジャ",

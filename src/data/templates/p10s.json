@@ -1,11 +1,11 @@
 {
   "contentId": "p10s",
-  "generatedAt": "2026-03-22T12:05:52.891Z",
+  "generatedAt": "2026-03-23T03:42:20.143Z",
   "sourceLogsCount": 1,
   "sourceLog": "YdJByt1ZrAhRqFWD#2",
   "timelineEvents": [
     {
-      "id": "tpl_0_gzhus8",
+      "id": "tpl_0_znhbl1",
       "time": 3,
       "name": {
         "ja": "AA",
@@ -16,7 +16,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_1_9xfalm",
+      "id": "tpl_1_o7hs0p",
       "time": 6,
       "name": {
         "ja": "AA",
@@ -27,7 +27,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_2_tj364s",
+      "id": "tpl_2_we5uct",
       "time": 15,
       "name": {
         "ja": "アルテマ",
@@ -38,7 +38,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_3_j0mc54",
+      "id": "tpl_3_0sjvli",
+      "time": 18,
+      "name": {
+        "ja": "Soul Grasp",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_4_oiz7c1",
       "time": 24,
       "name": {
         "ja": "ソウルグラスプ",
@@ -49,7 +59,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_4_ahl059",
+      "id": "tpl_5_rfqnou",
       "time": 26,
       "name": {
         "ja": "ソウルグラスプ",
@@ -60,7 +70,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_5_hl0u8v",
+      "id": "tpl_6_yon33g",
       "time": 27,
       "name": {
         "ja": "ソウルグラスプ",
@@ -71,7 +81,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_6_dbk62h",
+      "id": "tpl_7_x6f8hu",
       "time": 28,
       "name": {
         "ja": "ソウルグラスプ",
@@ -82,7 +92,27 @@
       "target": "ST"
     },
     {
-      "id": "tpl_7_uh6s6r",
+      "id": "tpl_8_ozmpy9",
+      "time": 31,
+      "name": {
+        "ja": "Dividing Wings",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_9_kqd2c4",
+      "time": 37,
+      "name": {
+        "ja": "Steel Web",
+        "en": "Steel Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_10_5qv0ds",
       "time": 46,
       "name": {
         "ja": "AA",
@@ -93,7 +123,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_8_4d9ee4",
+      "id": "tpl_11_102m2q",
       "time": 48,
       "name": {
         "ja": "ヘビーウェブ",
@@ -104,7 +134,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_9_4ei1us",
+      "id": "tpl_12_pxk8by",
       "time": 49,
       "name": {
         "ja": "ディバイドウィング",
@@ -115,7 +145,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_10_qswdki",
+      "id": "tpl_13_sdilvf",
       "time": 49,
       "name": {
         "ja": "AA",
@@ -126,7 +156,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_11_x88wul",
+      "id": "tpl_14_89dzcy",
       "time": 53,
       "name": {
         "ja": "AA",
@@ -137,7 +167,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_12_i30skx",
+      "id": "tpl_15_kbxkyq",
+      "time": 54,
+      "name": {
+        "ja": "Circles of Pandæmonium",
+        "en": "Circles of Pandæmonium"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_16_przhvw",
+      "time": 61,
+      "name": {
+        "ja": "Wicked Step",
+        "en": "Wicked Step"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_17_sekdas",
       "time": 68,
       "name": {
         "ja": "尖脚",
@@ -148,7 +198,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_13_s8417h",
+      "id": "tpl_18_b9tpfx",
       "time": 71,
       "name": {
         "ja": "尖脚",
@@ -159,7 +209,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_14_w3987e",
+      "id": "tpl_19_h6purx",
+      "time": 75,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_20_9yn5x9",
       "time": 84,
       "name": {
         "ja": "AA",
@@ -170,7 +230,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_15_i91sd3",
+      "id": "tpl_21_k6ogci",
+      "time": 86,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_22_egivsw",
       "time": 87,
       "name": {
         "ja": "AA",
@@ -181,7 +251,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_16_953naa",
+      "id": "tpl_23_hv4u7e",
+      "time": 91,
+      "name": {
+        "ja": "Pandæmoniac Pillars",
+        "en": "Pandæmoniac Pillars"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_24_vii0q5",
       "time": 97,
       "name": {
         "ja": "衝撃",
@@ -192,7 +272,57 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_17_4ozx06",
+      "id": "tpl_25_c1mdlf",
+      "time": 98,
+      "name": {
+        "ja": "Pandæmon's Holy",
+        "en": "Pandæmon's Holy"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_26_x0u58c",
+      "time": 99,
+      "name": {
+        "ja": "Peal of Damnation",
+        "en": "Peal of Damnation"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_27_r77nat",
+      "time": 99,
+      "name": {
+        "ja": "Cannonspawn",
+        "en": "Cannonspawn"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_28_hsj9su",
+      "time": 99,
+      "name": {
+        "ja": "Imprisonment",
+        "en": "Imprisonment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_29_o4icxw",
+      "time": 105,
+      "name": {
+        "ja": "Silkspit",
+        "en": "Silkspit"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_30_qcyy82",
       "time": 114,
       "name": {
         "ja": "AA",
@@ -203,7 +333,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_18_9c0r74",
+      "id": "tpl_31_nvoayf",
       "time": 117,
       "name": {
         "ja": "AA",
@@ -214,7 +344,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_19_v5je4t",
+      "id": "tpl_32_1fb40o",
       "time": 118,
       "name": {
         "ja": "スピットウェブ",
@@ -225,7 +355,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_20_p14r1n",
+      "id": "tpl_33_obi4rd",
+      "time": 119,
+      "name": {
+        "ja": "Dæmoniac Bonds",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_34_qnsjs0",
+      "time": 126,
+      "name": {
+        "ja": "Pandæmoniac Meltdown",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_35_ngl8pd",
       "time": 133,
       "name": {
         "ja": "パンデモニックメルトン",
@@ -236,7 +386,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_21_lxiruu",
+      "id": "tpl_36_c9ojof",
       "time": 133,
       "name": {
         "ja": "パンデモニックメルトン",
@@ -247,7 +397,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_22_q75ok0",
+      "id": "tpl_37_jnfed2",
+      "time": 136,
+      "name": {
+        "ja": "Touchdown",
+        "en": "Touchdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_38_sq6q42",
+      "time": 136,
+      "name": {
+        "ja": "Touchdown",
+        "en": "Touchdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_39_7566em",
       "time": 145,
       "name": {
         "ja": "パンデモニックボンド",
@@ -258,7 +428,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_23_10jq1w",
+      "id": "tpl_40_g75ab9",
       "time": 148,
       "name": {
         "ja": "パンデモニックボンド・クアドラ",
@@ -269,7 +439,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_24_0rkdfr",
+      "id": "tpl_41_7rcz1i",
       "time": 149,
       "name": {
         "ja": "AA",
@@ -280,7 +450,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_25_9wtifd",
+      "id": "tpl_42_4l8e7d",
       "time": 152,
       "name": {
         "ja": "AA",
@@ -291,7 +461,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_26_zh3oix",
+      "id": "tpl_43_69bflk",
       "time": 160,
       "name": {
         "ja": "アルテマ",
@@ -302,7 +472,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_27_rhi1vk",
+      "id": "tpl_44_snrl49",
+      "time": 163,
+      "name": {
+        "ja": "Soul Grasp",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_45_1iafjj",
       "time": 170,
       "name": {
         "ja": "ソウルグラスプ",
@@ -313,7 +493,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_28_2tp9hs",
+      "id": "tpl_46_94yhy5",
       "time": 170,
       "name": {
         "ja": "ソウルグラスプ",
@@ -324,7 +504,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_29_xzcnu6",
+      "id": "tpl_47_12icr2",
       "time": 171,
       "name": {
         "ja": "ソウルグラスプ",
@@ -335,7 +515,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_30_p6o7z6",
+      "id": "tpl_48_vpx43u",
       "time": 171,
       "name": {
         "ja": "ソウルグラスプ",
@@ -346,7 +526,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_31_seps1f",
+      "id": "tpl_49_8xvoo6",
       "time": 173,
       "name": {
         "ja": "ソウルグラスプ",
@@ -357,7 +537,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_32_7nfo2n",
+      "id": "tpl_50_j5ndch",
       "time": 173,
       "name": {
         "ja": "ソウルグラスプ",
@@ -368,7 +548,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_33_syoxdd",
+      "id": "tpl_51_ah6gxk",
       "time": 174,
       "name": {
         "ja": "ソウルグラスプ",
@@ -379,7 +559,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_34_55bpo3",
+      "id": "tpl_52_77jkyz",
       "time": 174,
       "name": {
         "ja": "ソウルグラスプ",
@@ -390,7 +570,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_35_j34cgx",
+      "id": "tpl_53_zva27d",
       "time": 177,
       "name": {
         "ja": "AA",
@@ -401,7 +581,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_36_3c5frp",
+      "id": "tpl_54_epu8t7",
       "time": 180,
       "name": {
         "ja": "AA",
@@ -412,7 +592,27 @@
       "target": "MT"
     },
     {
-      "id": "tpl_37_xjyjt3",
+      "id": "tpl_55_camz61",
+      "time": 181,
+      "name": {
+        "ja": "Dæmoniac Bonds",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_56_600ikk",
+      "time": 188,
+      "name": {
+        "ja": "Pandæmoniac Turrets",
+        "en": "Pandæmoniac Turrets"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_57_fp8imx",
       "time": 195,
       "name": {
         "ja": "衝撃",
@@ -423,7 +623,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_38_4wsllh",
+      "id": "tpl_58_2br4ow",
       "time": 206,
       "name": {
         "ja": "コンデムブラスター",
@@ -434,7 +634,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_39_bol4pi",
+      "id": "tpl_59_2wdqv1",
       "time": 210,
       "name": {
         "ja": "コンデムブラスター",
@@ -445,7 +645,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_40_5iurqm",
+      "id": "tpl_60_c47mor",
       "time": 214,
       "name": {
         "ja": "コンデムブラスター",
@@ -456,7 +656,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_41_7jj95t",
+      "id": "tpl_61_wr68ri",
       "time": 215,
       "name": {
         "ja": "コンデムブラスター",
@@ -467,7 +667,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_42_a2ev0k",
+      "id": "tpl_62_qf4con",
       "time": 219,
       "name": {
         "ja": "コンデムブラスター",
@@ -478,7 +678,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_43_y9a9hs",
+      "id": "tpl_63_jaw1ie",
       "time": 219,
       "name": {
         "ja": "コンデムブラスター",
@@ -489,7 +689,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_44_ugbnbv",
+      "id": "tpl_64_4drjn8",
       "time": 222,
       "name": {
         "ja": "AA",
@@ -500,7 +700,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_45_1svr9r",
+      "id": "tpl_65_2u4ikx",
       "time": 223,
       "name": {
         "ja": "パンデモニックボンド・ダブル",
@@ -511,7 +711,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_46_m5cx6h",
+      "id": "tpl_66_luqmb8",
       "time": 225,
       "name": {
         "ja": "AA",
@@ -522,7 +722,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_47_s5c7an",
+      "id": "tpl_67_kbdf3c",
       "time": 226,
       "name": {
         "ja": "パンデモニックボンド",
@@ -533,7 +733,27 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_48_7nc4y2",
+      "id": "tpl_68_yq29g8",
+      "time": 228,
+      "name": {
+        "ja": "Pandæmoniac Ray",
+        "en": "Pandæmoniac Ray"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_69_4lh4qh",
+      "time": 228,
+      "name": {
+        "ja": "Pandæmoniac Ray",
+        "en": "Pandæmoniac Ray"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_70_twcrc8",
       "time": 238,
       "name": {
         "ja": "AA",
@@ -544,7 +764,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_49_4odkam",
+      "id": "tpl_71_zpffcs",
       "time": 240,
       "name": {
         "ja": "AA",
@@ -555,7 +775,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_50_dyms04",
+      "id": "tpl_72_moofva",
       "time": 249,
       "name": {
         "ja": "アルテマ",
@@ -566,7 +786,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_51_5xuzhk",
+      "id": "tpl_73_c453bt",
+      "time": 252,
+      "name": {
+        "ja": "Soul Grasp",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_74_m2haec",
       "time": 258,
       "name": {
         "ja": "ソウルグラスプ",
@@ -577,7 +807,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_52_qf7n7b",
+      "id": "tpl_75_lc0upq",
       "time": 258,
       "name": {
         "ja": "ソウルグラスプ",
@@ -588,7 +818,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_53_pnkyuv",
+      "id": "tpl_76_g9qk30",
       "time": 260,
       "name": {
         "ja": "ソウルグラスプ",
@@ -599,7 +829,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_54_k1vrp5",
+      "id": "tpl_77_55g3mg",
       "time": 260,
       "name": {
         "ja": "ソウルグラスプ",
@@ -610,7 +840,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_55_817xyo",
+      "id": "tpl_78_i76p2k",
       "time": 261,
       "name": {
         "ja": "ソウルグラスプ",
@@ -621,7 +851,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_56_4ed10i",
+      "id": "tpl_79_lr435c",
       "time": 261,
       "name": {
         "ja": "ソウルグラスプ",
@@ -632,7 +862,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_57_26mo61",
+      "id": "tpl_80_bbqb90",
       "time": 263,
       "name": {
         "ja": "ソウルグラスプ",
@@ -643,7 +873,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_58_0tkj1g",
+      "id": "tpl_81_kdr1td",
       "time": 263,
       "name": {
         "ja": "ソウルグラスプ",
@@ -654,7 +884,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_59_3ody4l",
+      "id": "tpl_82_80srqo",
       "time": 266,
       "name": {
         "ja": "AA",
@@ -665,7 +895,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_60_k8cskj",
+      "id": "tpl_83_uq1u8i",
       "time": 269,
       "name": {
         "ja": "AA",
@@ -676,7 +906,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_61_5q366x",
+      "id": "tpl_84_frccm7",
+      "time": 270,
+      "name": {
+        "ja": "Wicked Step",
+        "en": "Wicked Step"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_85_83fv4f",
       "time": 278,
       "name": {
         "ja": "尖脚",
@@ -687,7 +927,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_62_ripxuc",
+      "id": "tpl_86_92e33p",
       "time": 280,
       "name": {
         "ja": "尖脚",
@@ -698,7 +938,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_63_mphh77",
+      "id": "tpl_87_t8idtr",
+      "time": 285,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_88_kvv8ui",
       "time": 294,
       "name": {
         "ja": "AA",
@@ -709,7 +959,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_64_hg7eou",
+      "id": "tpl_89_sga1j4",
+      "time": 295,
+      "name": {
+        "ja": "Silkspit",
+        "en": "Silkspit"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_90_91e4ux",
+      "time": 296,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_91_s2e2bm",
+      "time": 304,
+      "name": {
+        "ja": "Dæmoniac Bonds",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_92_cwm5z1",
       "time": 308,
       "name": {
         "ja": "スピットウェブ",
@@ -720,7 +1000,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_65_tx1ocu",
+      "id": "tpl_93_iqzyhf",
+      "time": 310,
+      "name": {
+        "ja": "Pandæmoniac Pillars",
+        "en": "Pandæmoniac Pillars"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_94_nvwdfk",
       "time": 316,
       "name": {
         "ja": "衝撃",
@@ -731,7 +1021,67 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_66_8ku5cq",
+      "id": "tpl_95_d7kdu5",
+      "time": 318,
+      "name": {
+        "ja": "Circles of Pandæmonium",
+        "en": "Circles of Pandæmonium"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_96_tf7n3y",
+      "time": 319,
+      "name": {
+        "ja": "Peal of Damnation",
+        "en": "Peal of Damnation"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_97_jwaqmu",
+      "time": 319,
+      "name": {
+        "ja": "Cannonspawn",
+        "en": "Cannonspawn"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_98_d8fvfg",
+      "time": 319,
+      "name": {
+        "ja": "Imprisonment",
+        "en": "Imprisonment"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_99_njkrf1",
+      "time": 324,
+      "name": {
+        "ja": "Pandæmoniac Ray",
+        "en": "Pandæmoniac Ray"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_100_5usda0",
+      "time": 324,
+      "name": {
+        "ja": "Pandæmoniac Ray",
+        "en": "Pandæmoniac Ray"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_101_vpkkr6",
       "time": 329,
       "name": {
         "ja": "パンデモニックボンド・クアドラ",
@@ -742,7 +1092,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_67_k2is0e",
+      "id": "tpl_102_s5yjc0",
       "time": 333,
       "name": {
         "ja": "パンデモニックボンド",
@@ -753,7 +1103,47 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_68_q9yr5g",
+      "id": "tpl_103_rglx26",
+      "time": 335,
+      "name": {
+        "ja": "Dividing Wings",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_104_r0be7y",
+      "time": 341,
+      "name": {
+        "ja": "Steel Web",
+        "en": "Steel Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_105_zfcasp",
+      "time": 348,
+      "name": {
+        "ja": "Touchdown",
+        "en": "Touchdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_106_3v1cns",
+      "time": 348,
+      "name": {
+        "ja": "Touchdown",
+        "en": "Touchdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_107_l3gqto",
       "time": 357,
       "name": {
         "ja": "ディバイドウィング",
@@ -764,7 +1154,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_69_hhsafj",
+      "id": "tpl_108_39j6bk",
       "time": 357,
       "name": {
         "ja": "ヘビーウェブ",
@@ -775,7 +1165,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_70_a22qyh",
+      "id": "tpl_109_jq71q2",
       "time": 361,
       "name": {
         "ja": "AA",
@@ -786,7 +1176,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_71_2ewv9y",
+      "id": "tpl_110_dmk29a",
       "time": 364,
       "name": {
         "ja": "AA",
@@ -797,7 +1187,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_72_kjvw2d",
+      "id": "tpl_111_99zdq6",
       "time": 368,
       "name": {
         "ja": "AA",
@@ -808,7 +1198,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_73_4yj83d",
+      "id": "tpl_112_9t60po",
+      "time": 369,
+      "name": {
+        "ja": "Pandæmoniac Meltdown",
+        "en": "Pandæmoniac Meltdown"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_113_wn00ik",
       "time": 375,
       "name": {
         "ja": "パンデモニックメルトン",
@@ -819,7 +1219,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_74_oeem0h",
+      "id": "tpl_114_1v05gu",
       "time": 376,
       "name": {
         "ja": "パンデモニックメルトン",
@@ -830,7 +1230,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_75_dd73qr",
+      "id": "tpl_115_q7u6pk",
+      "time": 379,
+      "name": {
+        "ja": "Soul Grasp",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_116_hwyib6",
       "time": 385,
       "name": {
         "ja": "ソウルグラスプ",
@@ -841,7 +1251,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_76_30s0dv",
+      "id": "tpl_117_7ow8c3",
       "time": 385,
       "name": {
         "ja": "ソウルグラスプ",
@@ -852,7 +1262,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_77_ai0wdc",
+      "id": "tpl_118_ykjsxv",
       "time": 386,
       "name": {
         "ja": "ソウルグラスプ",
@@ -863,7 +1273,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_78_ej31ng",
+      "id": "tpl_119_0hzv20",
       "time": 386,
       "name": {
         "ja": "ソウルグラスプ",
@@ -874,7 +1284,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_79_xdo92k",
+      "id": "tpl_120_hmmvru",
       "time": 387,
       "name": {
         "ja": "ソウルグラスプ",
@@ -885,7 +1295,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_80_6khjlx",
+      "id": "tpl_121_j49d8s",
       "time": 387,
       "name": {
         "ja": "ソウルグラスプ",
@@ -896,7 +1306,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_81_cu5ogv",
+      "id": "tpl_122_x21446",
       "time": 389,
       "name": {
         "ja": "ソウルグラスプ",
@@ -907,7 +1317,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_82_hvdgg2",
+      "id": "tpl_123_ryn0d6",
       "time": 389,
       "name": {
         "ja": "ソウルグラスプ",
@@ -918,7 +1328,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_83_96whkg",
+      "id": "tpl_124_xntc3g",
       "time": 394,
       "name": {
         "ja": "AA",
@@ -929,7 +1339,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_84_ji0hal",
+      "id": "tpl_125_gkd9su",
       "time": 397,
       "name": {
         "ja": "AA",
@@ -940,7 +1350,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_85_dkvmjh",
+      "id": "tpl_126_3yjo9p",
       "time": 399,
       "name": {
         "ja": "AA",
@@ -951,7 +1361,37 @@
       "target": "MT"
     },
     {
-      "id": "tpl_86_3pw63q",
+      "id": "tpl_127_a5fhdw",
+      "time": 401,
+      "name": {
+        "ja": "Dividing Wings",
+        "en": "Dividing Wings"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_128_nhia3c",
+      "time": 407,
+      "name": {
+        "ja": "Pandæmoniac Web",
+        "en": "Pandæmoniac Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_129_n9wd1e",
+      "time": 414,
+      "name": {
+        "ja": "Pandæmon's Holy",
+        "en": "Pandæmon's Holy"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_130_xnea49",
       "time": 418,
       "name": {
         "ja": "ディバイドウィング",
@@ -962,7 +1402,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_87_7rrhlk",
+      "id": "tpl_131_eua2zz",
       "time": 418,
       "name": {
         "ja": "ヘビーウェブ",
@@ -973,7 +1413,37 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_88_5tzqk0",
+      "id": "tpl_132_3ores7",
+      "time": 418,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_133_nv47rk",
+      "time": 422,
+      "name": {
+        "ja": "Dæmoniac Bonds",
+        "en": "Dæmoniac Bonds"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_134_rv4ozu",
+      "time": 424,
+      "name": {
+        "ja": "Entangling Web",
+        "en": "Entangling Web"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_135_uz2a9d",
       "time": 429,
       "name": {
         "ja": "AA",
@@ -984,7 +1454,17 @@
       "target": "MT"
     },
     {
-      "id": "tpl_89_fe30er",
+      "id": "tpl_136_ydcb8s",
+      "time": 431,
+      "name": {
+        "ja": "Harrowing Hell",
+        "en": "Harrowing Hell"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_137_umy1sn",
       "time": 438,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -995,7 +1475,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_90_uq1e92",
+      "id": "tpl_138_df65yd",
       "time": 438,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1006,7 +1486,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_91_75mmhj",
+      "id": "tpl_139_ohi3y6",
       "time": 439,
       "name": {
         "ja": "魔殿の震撃",
@@ -1017,7 +1497,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_92_ulv69m",
+      "id": "tpl_140_sctmt6",
       "time": 439,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1028,7 +1508,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_93_d2gjml",
+      "id": "tpl_141_dwq7by",
       "time": 439,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1039,7 +1519,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_94_8fqxy2",
+      "id": "tpl_142_2fkmjw",
       "time": 440,
       "name": {
         "ja": "魔殿の震撃",
@@ -1050,7 +1530,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_95_7i3uvy",
+      "id": "tpl_143_m5e4yh",
       "time": 441,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1061,7 +1541,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_96_h1khrj",
+      "id": "tpl_144_j41pch",
       "time": 441,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1072,7 +1552,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_97_dmrpen",
+      "id": "tpl_145_pzrurv",
       "time": 442,
       "name": {
         "ja": "魔殿の震撃",
@@ -1083,7 +1563,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_98_wxifoq",
+      "id": "tpl_146_ljt5jw",
       "time": 443,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1094,7 +1574,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_99_vfx2f9",
+      "id": "tpl_147_yiaenl",
       "time": 443,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1105,7 +1585,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_100_1hdwa9",
+      "id": "tpl_148_izm4n5",
       "time": 444,
       "name": {
         "ja": "魔殿の震撃",
@@ -1116,7 +1596,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_101_spmric",
+      "id": "tpl_149_t8g1c5",
       "time": 444,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1127,7 +1607,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_102_zlwmg1",
+      "id": "tpl_150_j93whi",
       "time": 444,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1138,7 +1618,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_103_s64hda",
+      "id": "tpl_151_9nstsj",
       "time": 445,
       "name": {
         "ja": "魔殿の震撃",
@@ -1149,7 +1629,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_104_e3l0ta",
+      "id": "tpl_152_jrnavv",
       "time": 446,
       "name": {
         "ja": "魔殿の震撃",
@@ -1160,7 +1640,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_105_8q92ny",
+      "id": "tpl_153_52p4n0",
       "time": 447,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1171,7 +1651,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_106_rpaxwt",
+      "id": "tpl_154_6qzbof",
       "time": 447,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1182,7 +1662,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_107_l8hylu",
+      "id": "tpl_155_o4ldh1",
       "time": 448,
       "name": {
         "ja": "魔殿の震撃",
@@ -1192,7 +1672,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_108_v6iyx2",
+      "id": "tpl_156_p03ftc",
       "time": 449,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1203,7 +1683,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_109_papr0h",
+      "id": "tpl_157_9bldtd",
       "time": 449,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1214,7 +1694,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_110_9w46dj",
+      "id": "tpl_158_5chjbw",
       "time": 450,
       "name": {
         "ja": "魔殿の震撃",
@@ -1225,7 +1705,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_111_r25hzl",
+      "id": "tpl_159_b1esxv",
       "time": 453,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1236,7 +1716,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_112_c5rv2h",
+      "id": "tpl_160_1y5j83",
       "time": 453,
       "name": {
         "ja": "魔殿の震撃 (TB)",
@@ -1247,7 +1727,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_113_bxafgg",
+      "id": "tpl_161_i5p9hi",
       "time": 454,
       "name": {
         "ja": "魔殿の震撃",
@@ -1258,7 +1738,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_114_f6yx0a",
+      "id": "tpl_162_o6tmj5",
       "time": 458,
       "name": {
         "ja": "パンデモニックボンド・ダブル",
@@ -1269,7 +1749,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_115_8ejuum",
+      "id": "tpl_163_lrwazl",
       "time": 459,
       "name": {
         "ja": "AA",
@@ -1280,7 +1760,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_116_tjmhu2",
+      "id": "tpl_164_qyoeko",
       "time": 461,
       "name": {
         "ja": "パンデモニックボンド",
@@ -1291,7 +1771,7 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_117_hnm5t9",
+      "id": "tpl_165_qtt2gw",
       "time": 462,
       "name": {
         "ja": "AA",
@@ -1302,7 +1782,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_118_0cldy0",
+      "id": "tpl_166_966rp1",
       "time": 465,
       "name": {
         "ja": "AA",
@@ -1313,7 +1793,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_119_b3onva",
+      "id": "tpl_167_may6db",
       "time": 468,
       "name": {
         "ja": "AA",
@@ -1324,7 +1804,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_120_6mw1vc",
+      "id": "tpl_168_qnahwf",
       "time": 471,
       "name": {
         "ja": "AA",
@@ -1335,7 +1815,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_121_fn6rn0",
+      "id": "tpl_169_kgcsho",
       "time": 480,
       "name": {
         "ja": "アルテマ",
@@ -1346,7 +1826,17 @@
       "target": "AoE"
     },
     {
-      "id": "tpl_122_rmvqr0",
+      "id": "tpl_170_fkdid9",
+      "time": 484,
+      "name": {
+        "ja": "Soul Grasp",
+        "en": "Soul Grasp"
+      },
+      "damageType": "magical",
+      "target": "AoE"
+    },
+    {
+      "id": "tpl_171_fxeqa2",
       "time": 491,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1357,7 +1847,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_123_cc1kgu",
+      "id": "tpl_172_e6dpxn",
       "time": 491,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1368,7 +1858,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_124_h5c8d6",
+      "id": "tpl_173_4jm0sq",
       "time": 492,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1379,7 +1869,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_125_b3m2ln",
+      "id": "tpl_174_f5usq9",
       "time": 492,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1390,7 +1880,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_126_b4nfjb",
+      "id": "tpl_175_uesfef",
       "time": 493,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1401,7 +1891,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_127_hk8s2e",
+      "id": "tpl_176_hwkgxz",
       "time": 493,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1412,7 +1902,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_128_u0twv0",
+      "id": "tpl_177_eyjzs5",
       "time": 495,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1423,7 +1913,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_129_d1v1lp",
+      "id": "tpl_178_cuqqgq",
       "time": 495,
       "name": {
         "ja": "ソウルグラスプ",
@@ -1434,7 +1924,7 @@
       "target": "ST"
     },
     {
-      "id": "tpl_130_vggufe",
+      "id": "tpl_179_2jku39",
       "time": 498,
       "name": {
         "ja": "AA",
@@ -1445,7 +1935,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_131_9tem4z",
+      "id": "tpl_180_erhibc",
       "time": 501,
       "name": {
         "ja": "AA",
@@ -1456,7 +1946,7 @@
       "target": "MT"
     },
     {
-      "id": "tpl_132_5lwuot",
+      "id": "tpl_181_47k8tn",
       "time": 504,
       "name": {
         "ja": "AA",
@@ -1465,6 +1955,16 @@
       "damageType": "physical",
       "damageAmount": 33800,
       "target": "MT"
+    },
+    {
+      "id": "tpl_182_7ti1j3",
+      "time": 505,
+      "name": {
+        "ja": "Wicked Step",
+        "en": "Wicked Step"
+      },
+      "damageType": "magical",
+      "target": "AoE"
     }
   ],
   "phases": []
