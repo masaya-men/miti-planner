@@ -17,8 +17,6 @@ import {
     type User
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { showToast } from '../components/Toast';
-import i18n from '../i18n';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
 
@@ -27,27 +25,40 @@ function saveReturnUrl() {
     localStorage.setItem('lopo_auth_return_url', window.location.href);
 }
 
+/** ログイン成功時のユーザー情報（オーバーレイ表示用） */
+interface JustLoggedInUser {
+    displayName: string | null;
+    photoURL: string | null;
+}
+
 interface AuthState {
     user: User | null;
     loading: boolean;
+    justLoggedInUser: JustLoggedInUser | null;
     signInWith: (provider: AuthProvider) => void;
     signOut: () => Promise<void>;
+    clearJustLoggedIn: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
     loading: true,
+    justLoggedInUser: null,
 
     signInWith: (provider: AuthProvider) => {
         switch (provider) {
             case 'google': {
                 const googleProvider = new GoogleAuthProvider();
                 signInWithPopup(auth, googleProvider)
-                    .then(() => {
-                        showToast(i18n.t('login.success_toast'));
+                    .then((result) => {
+                        set({
+                            justLoggedInUser: {
+                                displayName: result.user.displayName,
+                                photoURL: result.user.photoURL,
+                            }
+                        });
                     })
                     .catch((err) => {
-                        // ユーザーがポップアップを閉じた場合は無視
                         if (err.code !== 'auth/popup-closed-by-user') {
                             console.error('Google login error:', err);
                         }
@@ -69,6 +80,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         await firebaseSignOut(auth);
         set({ user: null });
     },
+
+    clearJustLoggedIn: () => set({ justLoggedInUser: null }),
 }));
 
 /**
@@ -88,7 +101,13 @@ async function processPendingAuth() {
                 photoURL: pending.photoURL || cred.user.photoURL,
             });
         }
-        showToast(i18n.t('login.success_toast'));
+        // オーバーレイ表示用にフラグを立てる
+        useAuthStore.setState({
+            justLoggedInUser: {
+                displayName: pending.displayName || cred.user.displayName,
+                photoURL: pending.photoURL || cred.user.photoURL,
+            }
+        });
     } catch (err) {
         console.error('Auth restore error:', err);
     }
