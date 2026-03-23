@@ -246,6 +246,9 @@ export function generateAutoPlan(
         const m = getMiti(mitiId);
         if (!m) return false;
 
+        // targetCannotBeSelf: 自分自身を対象にできないスキル（インターベンション等）
+        if (m.targetCannotBeSelf && targetId === ownerId) return false;
+
         // scope に基づくターゲット管理
         const tgt = (m.scope === 'self' || m.scope === 'party') ? undefined : targetId;
         state.push({
@@ -369,9 +372,13 @@ export function generateAutoPlan(
         if (!tank || block.maxDamageRatio < 1.0) return;
 
         // 利用可能なバフを検索
+        // 相方タンク（インターベンション等の対象）
+        const partner = tgt === 'MT' ? tanks.st : tanks.mt;
+
         const t40 = findFamily(tank.id, 'tank_40', t, uMap, state);
         const tShort = findFamily(tank.id, 'tank_short', t, uMap, state);
-        const tSub = findFamily(tank.id, 'tank_sub_targeted', t, uMap, state);
+        // tank_sub_targeted は相方タンクから検索（相方が対象タンクにかけるスキル）
+        const tSub = findFamily(partner?.id, 'tank_sub_targeted', t, uMap, state);
         const tRampart = findRole(tank.id, 'rampart', t, uMap, state);
         const tSubSelf = findFamily(tank.id, 'tank_sub_self', t, uMap, state);
         const tInvuln = findFamily(tank.id, 'tank_invuln', t, uMap, state);
@@ -397,12 +404,18 @@ export function generateAutoPlan(
                 const test = [...state];
                 for (const id of ids) {
                     const m = getMiti(id);
-                    if (m) test.push({ id: 'test', mitigationId: m.id, time: t, duration: m.duration, ownerId: tank.id, targetId: tgt });
+                    // tSub は相方タンクが使用者
+                    const owner = (id === tSub && partner) ? partner.id : tank.id;
+                    if (m) test.push({ id: 'test', mitigationId: m.id, time: t, duration: m.duration, ownerId: owner, targetId: tgt });
                 }
                 if (isLethal(block, test)) return false;
             }
 
-            for (const id of ids) place(state, uMap, tank.id, id, t, tgt);
+            for (const id of ids) {
+                // tSub は相方タンクが使用者、ターゲットは対象タンク
+                const owner = (id === tSub && partner) ? partner.id : tank.id;
+                place(state, uMap, owner, id, t, tgt);
+            }
             return true;
         };
 
