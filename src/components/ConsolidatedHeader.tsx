@@ -277,7 +277,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         )}
                     >
                         <motion.div
-                            className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent"
+                            className="absolute inset-0 bg-transparent"
                             animate={{ opacity: isNear ? 0.5 : 0.1 }}
                             transition={{ duration: 0.15 }}
                         />
