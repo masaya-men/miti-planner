@@ -707,15 +707,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 onMouseLeave={() => setIsNear(false)}
             >
                 {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
-                {/* ── 修正: ヘッダー領域(h-14)に干渉しないよう、上端をずらす ── */}
+                {/* ── 修正: ヘッダー全体（上段48px+下段48px+ハンドル24px=120px）に干渉しないよう上端をずらす ── */}
                 <div
-                    className="absolute top-14 bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer"
+                    className="absolute top-[120px] bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer"
                     onMouseEnter={() => setIsNear(true)}
                 />
 
                 <motion.div
                     className={clsx(
-                        "absolute left-0 h-full bg-glass-header z-50",
+                        "absolute left-0 top-[120px] bottom-0 bg-glass-header z-50",
                         tutorialActive && currentStepIndex <= 2 ? "opacity-0 pointer-events-none" : "opacity-100"
                     )}
                     initial={false}
