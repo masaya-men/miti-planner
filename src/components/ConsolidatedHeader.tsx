@@ -474,6 +474,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         onMouseEnter={openLoginMenu}
                         onMouseLeave={closeLoginMenuDelayed}
                     >
+                        {/* ボタン↔メニュー間の透明ブリッジ（ホバー途切れ防止） */}
+                        <div
+                            className="absolute -top-3 right-0 w-12 h-3"
+                            onMouseEnter={openLoginMenu}
+                        />
                         {/* ログイン中: アカウント情報 + ログアウト */}
                         {user && (
                             <>
@@ -486,10 +491,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             {user.displayName || 'User'}
                                         </div>
                                         <div className="text-[10px] text-app-text-muted truncate flex items-center gap-1">
-                                            {user.providerData[0]?.providerId === 'google.com' && 'Google'}
-                                            {user.providerData[0]?.providerId === 'twitter.com' && 'X (Twitter)'}
-                                            {user.providerData[0]?.providerId === 'discord' && 'Discord'}
-                                            {!['google.com', 'twitter.com', 'discord'].includes(user.providerData[0]?.providerId || '') && (user.providerData[0]?.providerId || '')}
+                                            {user.providerData[0]?.providerId === 'google.com' ? 'Google'
+                                                : user.providerData[0]?.providerId === 'twitter.com' ? 'X (Twitter)'
+                                                : user.uid.startsWith('discord:') ? 'Discord'
+                                                : user.uid.startsWith('twitter:') ? 'X (Twitter)'
+                                                : (user.providerData[0]?.providerId || '')}
                                             {t('app.sign_in_via') || 'でログイン中'}
                                         </div>
                                     </div>

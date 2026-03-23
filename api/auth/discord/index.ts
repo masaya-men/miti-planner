@@ -23,16 +23,13 @@ function initAdmin() {
         let pk = process.env.FIREBASE_PRIVATE_KEY || '';
         // リテラル \n → 実際の改行に変換
         pk = pk.replace(/\\n/g, '\n');
-        // firebase-admin の cert() は snake_case も camelCase も受け付けるが、
-        // 念のため両方のプロパティ名を渡す
-        const serviceAccount = {
-            type: 'service_account' as const,
-            project_id: process.env.FIREBASE_PROJECT_ID!,
-            private_key: pk,
-            client_email: process.env.FIREBASE_CLIENT_EMAIL!,
-        };
+        // firebase-admin v13 の cert() は camelCase プロパティを期待する
         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID!,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+                privateKey: pk,
+            }),
         });
     }
 }
@@ -125,17 +122,9 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err) {
         console.error('Discord auth error:', err);
-        const pk = process.env.FIREBASE_PRIVATE_KEY || '';
         return res.status(500).json({
             error: 'Internal server error',
             details: String(err),
-            debug: {
-                pk_length: pk.length,
-                pk_starts_with: pk.substring(0, 30),
-                pk_has_literal_backslash_n: pk.includes('\\n'),
-                pk_has_real_newline: pk.includes('\n'),
-                pk_after_replace: pk.replace(/\\n/g, '\n').substring(0, 50),
-            }
         });
     }
 }
