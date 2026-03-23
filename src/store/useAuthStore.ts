@@ -32,50 +32,65 @@ export const useAuthStore = create<AuthState>((set) => ({
     loading: true,
 
     signInWithGoogle: async () => {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+        } catch (err: any) {
+            console.error('Google login error:', err);
+            alert(`Googleログインエラー: ${err.code || err.message}`);
+        }
     },
 
     signInWithDiscord: async () => {
-        // Discord OAuth はVercel API経由でポップアップフロー
-        const width = 500, height = 700;
-        const left = window.screenX + (window.innerWidth - width) / 2;
-        const top = window.screenY + (window.innerHeight - height) / 2;
-        const popup = window.open(
-            '/api/auth/discord',
-            'discord-auth',
-            `width=${width},height=${height},left=${left},top=${top}`
-        );
+        try {
+            // Discord OAuth はVercel API経由でポップアップフロー
+            const width = 500, height = 700;
+            const left = window.screenX + (window.innerWidth - width) / 2;
+            const top = window.screenY + (window.innerHeight - height) / 2;
+            const popup = window.open(
+                '/api/auth/discord',
+                'discord-auth',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
 
-        // ポップアップからのpostMessageを待つ
-        return new Promise<void>((resolve, reject) => {
-            const handler = async (event: MessageEvent) => {
-                if (event.origin !== window.location.origin) return;
-                if (event.data?.type !== 'discord-auth') return;
-                window.removeEventListener('message', handler);
-                try {
-                    await signInWithCustomToken(auth, event.data.token);
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                }
-            };
-            window.addEventListener('message', handler);
-
-            // ポップアップが閉じられた場合のタイムアウト
-            const check = setInterval(() => {
-                if (popup?.closed) {
-                    clearInterval(check);
+            // ポップアップからのpostMessageを待つ
+            return new Promise<void>((resolve, reject) => {
+                const handler = async (event: MessageEvent) => {
+                    if (event.origin !== window.location.origin) return;
+                    if (event.data?.type !== 'discord-auth') return;
                     window.removeEventListener('message', handler);
-                    resolve(); // ユーザーがキャンセルした場合は静かに終了
-                }
-            }, 500);
-        });
+                    try {
+                        await signInWithCustomToken(auth, event.data.token);
+                        resolve();
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                window.addEventListener('message', handler);
+
+                // ポップアップが閉じられた場合のタイムアウト
+                const check = setInterval(() => {
+                    if (popup?.closed) {
+                        clearInterval(check);
+                        window.removeEventListener('message', handler);
+                        resolve();
+                    }
+                }, 500);
+            });
+        } catch (err: any) {
+            console.error('Discord login error:', err);
+            alert(`Discordログインエラー: ${err.code || err.message}`);
+        }
     },
 
     signInWithTwitter: async () => {
-        const provider = new TwitterAuthProvider();
-        await signInWithPopup(auth, provider);
+        try {
+            const provider = new TwitterAuthProvider();
+            await signInWithPopup(auth, provider);
+        } catch (err: any) {
+            console.error('Twitter login error:', err);
+            alert(`Twitterログインエラー: ${err.code || err.message}`);
+        }
     },
 
     signInWith: async (provider: AuthProvider): Promise<void> => {
