@@ -3,13 +3,13 @@
  * Firebase Authのログイン状態をZustandで管理
  * 対応プロバイダー: Google, Discord, Twitter(X)
  *
- * 全プロバイダーでリダイレクト方式を採用（ポップアップブロック回避）
+ * Google: signInWithPopup（標準的なポップアップで問題が少ない）
+ * Discord/Twitter: ページ遷移（リダイレクト）方式（ポップアップブロック回避）
  */
 import { create } from 'zustand';
 import {
     GoogleAuthProvider,
-    signInWithRedirect,
-    getRedirectResult,
+    signInWithPopup,
     signInWithCustomToken,
     updateProfile,
     signOut as firebaseSignOut,
@@ -22,7 +22,7 @@ import i18n from '../i18n';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
 
-/** リダイレクト前に現在のURLを保存 */
+/** リダイレクト前に現在のURLを保存（Discord/Twitter用） */
 function saveReturnUrl() {
     localStorage.setItem('lopo_auth_return_url', window.location.href);
 }
@@ -39,17 +39,27 @@ export const useAuthStore = create<AuthState>((set) => ({
     loading: true,
 
     signInWith: (provider: AuthProvider) => {
-        saveReturnUrl();
         switch (provider) {
             case 'google': {
                 const googleProvider = new GoogleAuthProvider();
-                signInWithRedirect(auth, googleProvider);
+                signInWithPopup(auth, googleProvider)
+                    .then(() => {
+                        showToast(i18n.t('login.success_toast'));
+                    })
+                    .catch((err) => {
+                        // ユーザーがポップアップを閉じた場合は無視
+                        if (err.code !== 'auth/popup-closed-by-user') {
+                            console.error('Google login error:', err);
+                        }
+                    });
                 break;
             }
             case 'discord':
+                saveReturnUrl();
                 window.location.href = '/api/auth/discord';
                 break;
             case 'twitter':
+                saveReturnUrl();
                 window.location.href = '/api/auth/twitter';
                 break;
         }
@@ -62,45 +72,25 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 /**
- * アプリ起動時の認証復元処理
- * 1. Discord/Twitter: localStorage の pending トークンをチェック
- * 2. Google: getRedirectResult でリダイレクト結果をチェック
- * 3. Firebase Auth の状態監視
+ * アプリ起動時: Discord/Twitter のリダイレクト結果をlocalStorageからチェック
  */
 async function processPendingAuth() {
-    // Discord / Twitter のリダイレクト結果を処理
     const pendingRaw = localStorage.getItem('lopo_auth_pending');
-    if (pendingRaw) {
-        localStorage.removeItem('lopo_auth_pending');
-        try {
-            const pending = JSON.parse(pendingRaw);
-            const cred = await signInWithCustomToken(auth, pending.token);
-            if (cred.user && (pending.displayName || pending.photoURL)) {
-                await updateProfile(cred.user, {
-                    displayName: pending.displayName || cred.user.displayName,
-                    photoURL: pending.photoURL || cred.user.photoURL,
-                });
-            }
-            // onAuthStateChanged が user を反映した後にトースト表示
-            setTimeout(() => {
-                showToast(i18n.t('login.success_toast'));
-            }, 500);
-        } catch (err) {
-            console.error(`${pendingRaw} auth error:`, err);
-        }
-        return;
-    }
+    if (!pendingRaw) return;
 
-    // Google のリダイレクト結果を処理
+    localStorage.removeItem('lopo_auth_pending');
     try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-            setTimeout(() => {
-                showToast(i18n.t('login.success_toast'));
-            }, 500);
+        const pending = JSON.parse(pendingRaw);
+        const cred = await signInWithCustomToken(auth, pending.token);
+        if (cred.user && (pending.displayName || pending.photoURL)) {
+            await updateProfile(cred.user, {
+                displayName: pending.displayName || cred.user.displayName,
+                photoURL: pending.photoURL || cred.user.photoURL,
+            });
         }
+        showToast(i18n.t('login.success_toast'));
     } catch (err) {
-        console.error('Google redirect result error:', err);
+        console.error('Auth restore error:', err);
     }
 }
 

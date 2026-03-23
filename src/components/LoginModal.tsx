@@ -131,6 +131,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 {/* 未ログイン: プロバイダー選択 */}
                 {!user && (
                     <div className="px-6 pb-6 pt-1">
+                        {/* 説明文 */}
+                        <p className="text-[11px] text-app-text-muted leading-relaxed mb-4">
+                            {t('login.benefit_message')}
+                        </p>
+
                         {/* プロバイダーボタン群 */}
                         <div className="flex flex-col gap-2 mb-5">
                             {providers.map(({ id, label, icon, bgHover }) => (

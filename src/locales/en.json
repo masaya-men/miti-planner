@@ -28,7 +28,8 @@
     },
     "login": {
         "title": "Sign In",
-        "privacy_message": "We only use your display name and avatar. No personal information such as email addresses is collected.",
+        "benefit_message": "You can create, edit, and share mitigation sheets without logging in. Log in to save your sheets and set a team logo.",
+        "privacy_message": "No personal information such as email addresses is collected. We only use your display name and avatar.",
         "success_toast": "Signed in successfully"
     },
     "aa_settings": {
