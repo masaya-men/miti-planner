@@ -110,7 +110,8 @@ export function getAddersgallStacks(
 
     for (const consumption of consumptions) {
         // Calculate regen between lastTime and consumption time
-        const elapsed = consumption.time - lastTime;
+        // 戦闘前（負の時刻）ではリチャージは発生しない
+        const elapsed = Math.max(0, consumption.time - Math.max(0, lastTime));
         const totalRegenTime = regenAccumulator + elapsed;
         const regenGains = Math.floor(totalRegenTime / 20);
         stacks = Math.min(3, stacks + regenGains);
@@ -132,7 +133,8 @@ export function getAddersgallStacks(
     }
 
     // Regen from last consumption to target time
-    const finalElapsed = time - lastTime;
+    // 戦闘前の時間帯はリチャージなし
+    const finalElapsed = Math.max(0, time - Math.max(0, lastTime));
     const finalRegenTime = regenAccumulator + finalElapsed;
     const finalRegenGains = Math.floor(finalRegenTime / 20);
     stacks = Math.min(3, stacks + finalRegenGains);
