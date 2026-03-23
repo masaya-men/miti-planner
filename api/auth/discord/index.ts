@@ -20,13 +20,22 @@ const DISCORD_API = 'https://discord.com/api/v10';
 
 function initAdmin() {
     if (!admin.apps.length) {
-        let pk = process.env.FIREBASE_PRIVATE_KEY || '';
+        let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
         if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
         pk = pk.replace(/\\n/g, '\n');
+
+        const projectId = process.env.FIREBASE_PROJECT_ID;
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+        // 環境変数が未設定なら早期エラー
+        if (!projectId || !clientEmail || !pk) {
+            throw new Error(`Missing env: projectId=${!!projectId}, clientEmail=${!!clientEmail}, pk_len=${pk.length}`);
+        }
+
         admin.initializeApp({
             credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+                projectId,
+                clientEmail,
                 privateKey: pk,
             }),
         });
@@ -119,11 +128,12 @@ export default async function handler(req: any, res: any) {
             </body>
             </html>
         `);
-    } catch (err) {
+    } catch (err: any) {
         console.error('Discord auth error:', err);
         return res.status(500).json({
             error: 'Internal server error',
             details: String(err),
+            stack: err?.stack?.split('\n').slice(0, 5),
         });
     }
 }

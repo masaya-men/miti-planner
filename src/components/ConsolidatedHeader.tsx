@@ -480,7 +480,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 : user.uid.startsWith('discord:') ? 'Discord'
                                                 : user.uid.startsWith('twitter:') ? 'X (Twitter)'
                                                 : (user.providerData[0]?.providerId || '')}
-                                            {t('app.sign_in_via') || 'でログイン中'}
+                                            {t('app.sign_in_via')}
                                         </div>
                                     </div>
                                 </div>
@@ -488,11 +488,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     onClick={() => { signOut(); setShowLoginMenu(false); }}
                                     className={clsx(
                                         "w-full text-left px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded transition-all duration-300 flex items-center gap-2 cursor-pointer",
-                                        "text-app-text-muted hover:text-app-text hover:bg-app-surface2"
+                                        "text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                     )}
                                 >
                                     <LogOut size={13} />
-                                    {t('app.sign_out') || 'Sign Out'}
+                                    {t('app.sign_out')}
                                 </button>
                             </>
                         )}
