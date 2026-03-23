@@ -706,18 +706,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 onMouseEnter={() => setIsNear(true)}
                 onMouseLeave={() => setIsNear(false)}
             >
-                {/* ヘッダー横: 固定幅ハンドル（広がらない） */}
+                {/* ヘッダー横: 固定幅ハンドル（広がらない、見た目は下部と同じ） */}
                 <div
                     className={clsx(
-                        "absolute left-0 top-0 h-[120px] w-6 z-50",
+                        "absolute left-0 top-0 h-[120px] w-6 z-50 bg-glass-header",
                         tutorialActive && currentStepIndex <= 2 ? "opacity-0 pointer-events-none" : "opacity-100"
                     )}
                 >
                     <button
                         onClick={() => onToggle?.()}
-                        className="relative w-full h-full cursor-pointer hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
+                        className="relative w-full h-full cursor-pointer overflow-hidden group/btn-top hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                     >
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border" />
+                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn-top:bg-app-text-muted transition-colors duration-200" />
                     </button>
                 </div>
 
