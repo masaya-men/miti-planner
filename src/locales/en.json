@@ -22,7 +22,9 @@
         "sign_out": "Sign Out",
         "sign_in_via": " via ",
         "share": "Share",
+        "share_x": "Share on X",
         "copy_link": "Copy Link",
+        "link_copied": "Link copied",
         "toggle_theme_light": "Switch to Light Theme",
         "toggle_theme_dark": "Switch to Dark Theme"
     },

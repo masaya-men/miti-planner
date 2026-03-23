@@ -24,7 +24,9 @@
         "sign_out": "ログアウト",
         "sign_in_via": "でログイン中",
         "share": "共有",
-        "copy_link": "リンクをコピー"
+        "share_x": "Xで共有",
+        "copy_link": "リンクをコピー",
+        "link_copied": "リンクをコピーしました"
     },
     "login": {
         "title": "ログイン",

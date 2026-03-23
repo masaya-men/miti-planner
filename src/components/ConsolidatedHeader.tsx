@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, Share2, LogIn, LogOut
+    Users, Activity, Wand2, Star, Link2, LogIn, LogOut
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -19,6 +19,7 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PartyStatusPopover } from './PartyStatusPopover';
 import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
+import { showToast } from './Toast';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -64,7 +65,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     // 認証状態
     const { user, justLoggedInUser } = useAuthStore();
-    const [showShareMenu, setShowShareMenu] = React.useState(false);
     const [showLoginModal, setShowLoginModal] = React.useState(false);
 
     // ログイン成功時にモーダルを自動表示
@@ -151,29 +151,63 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* 現在のコンテンツ名 — ヒーロー表示 */}
+                            {/* 現在のコンテンツ名 — ヒーロー表示 + 共有ボタン */}
                             {currentPlan && (
-                                <div
-                                    className="flex items-baseline gap-2 min-w-0 origin-left"
-                                    style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
-                                >
-                                    {contentLabel && (
-                                        <span
-                                            className="text-[26px] text-app-text leading-tight whitespace-nowrap"
-                                            style={{
-                                                fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
-                                                fontWeight: 700,
-                                                letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
-                                            }}
-                                        >
-                                            {contentLabel}
-                                        </span>
-                                    )}
-                                    {currentPlan.title && currentPlan.title !== contentLabel && (
-                                        <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap">
-                                            {currentPlan.title}
-                                        </span>
-                                    )}
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div
+                                        className="flex items-baseline gap-2 min-w-0 origin-left"
+                                        style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
+                                    >
+                                        {contentLabel && (
+                                            <span
+                                                className="text-[26px] text-app-text leading-tight whitespace-nowrap"
+                                                style={{
+                                                    fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
+                                                    fontWeight: 700,
+                                                    letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
+                                                }}
+                                            >
+                                                {contentLabel}
+                                            </span>
+                                        )}
+                                        {currentPlan.title && currentPlan.title !== contentLabel && (
+                                            <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap">
+                                                {currentPlan.title}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* 共有ボタン群 */}
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        {/* X (Twitter) 共有 */}
+                                        <Tooltip content={t('app.share_x')}>
+                                            <button
+                                                onClick={() => {
+                                                    const url = window.location.href;
+                                                    const text = `${contentLabel || 'LoPo'} - FF14 軽減プランナー`;
+                                                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                                                }}
+                                                className={clsx(iconBtnBase, iconBtnDefault, "w-8 h-8")}
+                                            >
+                                                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor">
+                                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                                </svg>
+                                            </button>
+                                        </Tooltip>
+
+                                        {/* リンクコピー */}
+                                        <Tooltip content={t('app.copy_link')}>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(window.location.href);
+                                                    showToast(t('app.link_copied'));
+                                                }}
+                                                className={clsx(iconBtnBase, iconBtnDefault, "w-8 h-8")}
+                                            >
+                                                <Link2 size={14} />
+                                            </button>
+                                        </Tooltip>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -213,46 +247,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <LanguageSwitcher />
 
                             <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
-
-                            {/* 共有ボタン */}
-                            {currentPlan && (
-                                <div className="relative">
-                                    <Tooltip content={t('app.share') || 'Share'}>
-                                        <button
-                                            onClick={() => setShowShareMenu(!showShareMenu)}
-                                            className={clsx(iconBtnBase, iconBtnDefault)}
-                                        >
-                                            <Share2 size={16} />
-                                        </button>
-                                    </Tooltip>
-                                    {showShareMenu && (
-                                        <>
-                                            <div className="fixed inset-0 z-[200]" onClick={() => setShowShareMenu(false)} />
-                                            <div className="absolute right-0 top-11 z-[201] bg-app-bg border border-app-border rounded-lg shadow-lg p-2 min-w-[160px]">
-                                                <button
-                                                    onClick={() => {
-                                                        const url = window.location.href;
-                                                        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('LoPo - FF14 軽減プランナー')}`, '_blank');
-                                                        setShowShareMenu(false);
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 text-[12px] text-app-text hover:bg-app-surface2 rounded transition-colors"
-                                                >
-                                                    X (Twitter)
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        navigator.clipboard.writeText(window.location.href);
-                                                        setShowShareMenu(false);
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 text-[12px] text-app-text hover:bg-app-surface2 rounded transition-colors"
-                                                >
-                                                    {t('app.copy_link') || 'Copy Link'}
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            )}
 
                             {/* ログイン / アカウントメニュー */}
                             <Tooltip content={user ? (user.displayName || 'Account') : t('app.sign_in') || 'Sign In'}>
