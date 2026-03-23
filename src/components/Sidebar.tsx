@@ -732,12 +732,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
-                        {/* 迫り出し感のある背景 */}
+                        {/* 迫り出し感のある背景 — 透明化 */}
                         <motion.div
-                            className={clsx(
-                                "absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent",
-                                isOpen ? "opacity-0" : "opacity-10"
-                            )}
+                            className="absolute inset-0 bg-transparent"
                             animate={{ opacity: isNear ? 0.5 : 0.1 }}
                             transition={{ duration: 0.15 }}
                         />

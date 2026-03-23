@@ -273,7 +273,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         onMouseLeave={(e) => handleLeave(e)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
+                            "hover:bg-transparent active:bg-transparent transition-colors duration-200"
                         )}
                     >
                         <motion.div
