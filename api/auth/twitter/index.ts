@@ -76,7 +76,7 @@ export default async function handler(req: any, res: any) {
                 response_type: 'code',
                 client_id: clientId,
                 redirect_uri: redirectUri,
-                scope: 'users.read',
+                scope: 'tweet.read users.read',
                 state: stateParam,
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
