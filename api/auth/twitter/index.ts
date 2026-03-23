@@ -152,6 +152,9 @@ export default async function handler(req: any, res: any) {
         });
 
         // ステップ6: クライアントにトークンを返す（ポップアップ → 親ウィンドウに postMessage）
+        const displayName = twitterUser.name || twitterUser.username;
+        const photoURL = twitterUser.profile_image_url || null;
+
         res.setHeader('Content-Type', 'text/html');
         return res.send(`
             <!DOCTYPE html>
@@ -160,7 +163,12 @@ export default async function handler(req: any, res: any) {
             <body>
                 <script>
                     window.opener.postMessage(
-                        { type: 'twitter-auth', token: '${customToken}' },
+                        {
+                            type: 'twitter-auth',
+                            token: '${customToken}',
+                            displayName: ${JSON.stringify(displayName)},
+                            photoURL: ${JSON.stringify(photoURL)}
+                        },
                         window.location.origin
                     );
                     window.close();
