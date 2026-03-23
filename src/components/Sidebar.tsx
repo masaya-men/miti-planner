@@ -706,13 +706,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 onMouseEnter={() => setIsNear(true)}
                 onMouseLeave={() => setIsNear(false)}
             >
-                {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
-                {/* ── 修正: ヘッダー全体（上段48px+下段48px+ハンドル24px=120px）に干渉しないよう上端をずらす ── */}
+                {/* ヘッダー横: 固定幅ハンドル（広がらない） */}
+                <div
+                    className={clsx(
+                        "absolute left-0 top-0 h-[120px] w-6 z-50",
+                        tutorialActive && currentStepIndex <= 2 ? "opacity-0 pointer-events-none" : "opacity-100"
+                    )}
+                >
+                    <button
+                        onClick={() => onToggle?.()}
+                        className="relative w-full h-full cursor-pointer hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
+                    >
+                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border" />
+                    </button>
+                </div>
+
+                {/* 近接センサー領域 (透明) — ヘッダー下のみ反応 */}
                 <div
                     className="absolute top-[120px] bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer"
                     onMouseEnter={() => setIsNear(true)}
                 />
 
+                {/* ヘッダー下: 広がるハンドル */}
                 <motion.div
                     className={clsx(
                         "absolute left-0 top-[120px] bottom-0 bg-glass-header z-50",
