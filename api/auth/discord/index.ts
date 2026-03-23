@@ -15,9 +15,23 @@
  */
 
 import * as admin from 'firebase-admin';
-import { initAdmin } from '../_initAdmin';
 
 const DISCORD_API = 'https://discord.com/api/v10';
+
+function initAdmin() {
+    if (!admin.apps.length) {
+        let pk = process.env.FIREBASE_PRIVATE_KEY || '';
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        pk = pk.replace(/\\n/g, '\n');
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID!,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+                privateKey: pk,
+            }),
+        });
+    }
+}
 
 export default async function handler(req: any, res: any) {
     try {
