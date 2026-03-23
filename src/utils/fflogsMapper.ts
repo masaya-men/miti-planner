@@ -82,7 +82,8 @@ export interface MapperResult {
 
 export function mapFFLogsToTimeline(
     rawEn: FFLogsRawEvent[], rawJp: FFLogsRawEvent[], fight: FFLogsFight,
-    deaths: DeathEvent[] = []
+    deaths: DeathEvent[] = [],
+    castEn: FFLogsRawEvent[] = [], castJp: FFLogsRawEvent[] = []
 ): MapperResult {
     // ── DEBUG: Raw event analysis ──
     const DEBUG_NAMES = ['Fixer', 'フィクサー', 'Cellular', '細胞重爆', 'Visceral', 'ヴィセラル'];
@@ -526,6 +527,60 @@ export function mapFFLogsToTimeline(
             for (let k = 2; k < s.length; k++) { tl[s[k]].time += 1; ch = true; }
         }
         if (ch) doSort();
+    }
+
+    // ── ダメージなし詠唱イベントの追加 ──
+    // ダメージイベントに存在しないGUIDのキャストのみ追加（フェーズ移行・ギミック前兆など）
+    if (castEn.length > 0) {
+        // ダメージイベントで使われたGUID一覧
+        const damageGuids = new Set(norm.map(n => n.guid));
+        // AA名はキャストに含めない
+        const castJpMap = new Map<number, string>();
+        for (const ev of castJp) {
+            const g = ev.ability?.guid ?? ev.abilityGameID;
+            const n = ev.ability?.name?.trim();
+            if (g !== undefined && n && !castJpMap.has(g)) castJpMap.set(g, n);
+        }
+
+        // キャストを時系列順にし、GUIDで重複除去（同じ技は最初の1回だけ、同秒内）
+        const castSorted = castEn
+            .filter(ev => {
+                const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
+                const name = ev.ability?.name?.trim() ?? '';
+                // ダメージGUIDに存在する技はスキップ（既にダメージ行で表示される）
+                if (damageGuids.has(g)) return false;
+                // AA・空名はスキップ
+                if (AA_NAMES.has(name) || !name) return false;
+                // type=begincast のみ（完了cast は重複になる）
+                if (ev.type !== 'begincast') return false;
+                return true;
+            })
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // 同じGUID + 同じ秒の重複キャストを除去
+        const seenCasts = new Set<string>();
+        for (const ev of castSorted) {
+            const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
+            const timeSec = Math.floor((ev.timestamp - fight.startTime) / 1000);
+            const key = `${g}:${timeSec}`;
+            if (seenCasts.has(key)) continue;
+            seenCasts.add(key);
+
+            const enName = ev.ability?.name?.trim() ?? 'Unknown';
+            const jpName = castJpMap.get(g) ?? enName;
+
+            tl.push({
+                id: genId(),
+                time: timeSec,
+                name: { ja: jpName, en: enName },
+                damageType: 'magical', // ダメージなしなので型は便宜上magical
+                // damageAmount は意図的に未設定（ダメージなし表示）
+                target: 'AoE',
+            });
+        }
+
+        // 再ソート
+        doSort();
     }
 
     // Apply adaptive ceiling rounding to all damage values (3 significant digits, always rounds up)

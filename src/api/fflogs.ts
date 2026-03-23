@@ -305,6 +305,76 @@ export async function fetchFightEvents(
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cast events query (敵の詠唱イベント取得)
+// ─────────────────────────────────────────────────────────────
+
+function buildCastEventsQuery(translate: boolean): string {
+    return /* graphql */`
+      query GetEnemyCasts(
+        $reportCode: String!
+        $fightIds: [Int]!
+        $startTime: Float!
+        $endTime: Float!
+      ) {
+        reportData {
+          report(code: $reportCode) {
+            events(
+              dataType: Casts
+              fightIDs: $fightIds
+              hostilityType: Enemies
+              startTime: $startTime
+              endTime: $endTime
+              limit: 10000
+              useAbilityIDs: false
+              includeResources: false
+              translate: ${translate}
+            ) {
+              data
+              nextPageTimestamp
+            }
+          }
+        }
+      }
+    `;
+}
+
+/**
+ * 敵のキャスト（詠唱）イベントを取得する。
+ * ダメージが発生しないギミック（フェーズ移行など）をタイムラインに含めるために使用。
+ */
+export async function fetchCastEvents(
+    reportCode: string,
+    fight: FFLogsFight,
+    translate: boolean = false
+): Promise<FFLogsRawEvent[]> {
+    const token = await getAccessToken();
+    const allEvents: FFLogsRawEvent[] = [];
+    const query = buildCastEventsQuery(translate);
+
+    let pageStart = fight.startTime;
+    const fightEnd = fight.endTime;
+
+    while (true) {
+        const data = await gql<EventsQueryResult>(token, query, {
+            reportCode,
+            fightIds: [fight.id],
+            startTime: pageStart,
+            endTime: fightEnd,
+        });
+
+        const page = data.reportData.report.events;
+        allEvents.push(...page.data);
+
+        if (page.nextPageTimestamp === null || page.nextPageTimestamp === undefined) {
+            break;
+        }
+        pageStart = page.nextPageTimestamp;
+    }
+
+    return allEvents;
+}
+
+// ─────────────────────────────────────────────────────────────
 // Death events query
 // ─────────────────────────────────────────────────────────────
 
