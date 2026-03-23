@@ -78,12 +78,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         await signInWithPopup(auth, provider);
     },
 
-    signInWith: async (provider: AuthProvider) => {
-        const state = useAuthStore.getState();
+    signInWith: async (provider: AuthProvider): Promise<void> => {
+        const store = useAuthStore.getState();
         switch (provider) {
-            case 'google': return state.signInWithGoogle();
-            case 'discord': return state.signInWithDiscord();
-            case 'twitter': return state.signInWithTwitter();
+            case 'google': return store.signInWithGoogle();
+            case 'discord': return store.signInWithDiscord();
+            case 'twitter': return store.signInWithTwitter();
         }
     },
 
