@@ -34,6 +34,11 @@ function oauthPopupFlow(apiPath: string, messageType: string): Promise<void> {
             if (event.data?.type !== messageType) return;
             window.removeEventListener('message', handler);
             try {
+                // サーバー側でエラーが発生した場合
+                if (event.data.error) {
+                    reject(new Error(event.data.error));
+                    return;
+                }
                 const cred = await signInWithCustomToken(auth, event.data.token);
                 // サーバーから渡されたプロフィール情報を Firebase ユーザーに反映
                 if (cred.user && (event.data.displayName || event.data.photoURL)) {

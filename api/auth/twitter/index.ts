@@ -76,7 +76,7 @@ export default async function handler(req: any, res: any) {
                 response_type: 'code',
                 client_id: clientId,
                 redirect_uri: redirectUri,
-                scope: 'users.read',
+                scope: 'tweet.read users.read',
                 state: stateParam,
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
@@ -126,11 +126,8 @@ export default async function handler(req: any, res: any) {
 
         if (!tokenRes.ok) {
             const err = await tokenRes.text();
-            return res.status(400).json({
-                error: 'Twitter token exchange failed',
-                details: err,
-                debug: { id_len: clientId.length, secret_len: clientSecret.length }
-            });
+            console.error('Twitter token exchange failed:', err);
+            return sendErrorPopup(res, 'Twitterログインに失敗しました。もう一度お試しください。');
         }
 
         const { access_token } = await tokenRes.json();
@@ -141,7 +138,8 @@ export default async function handler(req: any, res: any) {
         });
 
         if (!userRes.ok) {
-            return res.status(400).json({ error: 'Failed to fetch Twitter user' });
+            console.error('Failed to fetch Twitter user:', await userRes.text());
+            return sendErrorPopup(res, 'Twitterのユーザー情報取得に失敗しました。');
         }
 
         const { data: twitterUser } = await userRes.json();
@@ -159,6 +157,14 @@ export default async function handler(req: any, res: any) {
         const displayName = twitterUser.name || twitterUser.username;
         const photoURL = twitterUser.profile_image_url || null;
 
+        // トークンデータをJSON文字列として安全にエスケープ
+        const payload = JSON.stringify({
+            type: 'twitter-auth',
+            token: customToken,
+            displayName,
+            photoURL,
+        });
+
         res.setHeader('Content-Type', 'text/html');
         return res.send(`
             <!DOCTYPE html>
@@ -166,16 +172,13 @@ export default async function handler(req: any, res: any) {
             <head><title>LoPo - Twitter Login</title></head>
             <body>
                 <script>
-                    window.opener.postMessage(
-                        {
-                            type: 'twitter-auth',
-                            token: '${customToken}',
-                            displayName: ${JSON.stringify(displayName)},
-                            photoURL: ${JSON.stringify(photoURL)}
-                        },
-                        window.location.origin
-                    );
-                    window.close();
+                    var payload = ${payload};
+                    if (window.opener) {
+                        window.opener.postMessage(payload, window.location.origin);
+                        window.close();
+                    } else {
+                        document.body.textContent = 'ポップアップの親ウィンドウが見つかりません。ウィンドウを閉じてもう一度お試しください。';
+                    }
                 </script>
                 <p>ログイン中...</p>
             </body>
@@ -183,11 +186,29 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err) {
         console.error('Twitter auth error:', err);
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: String(err),
-        });
+        return sendErrorPopup(res, 'ログイン処理中にエラーが発生しました。');
     }
+}
+
+/** エラー時にポップアップ経由で親ウィンドウにエラーを通知 */
+function sendErrorPopup(res: any, message: string) {
+    const payload = JSON.stringify({ type: 'twitter-auth', error: message });
+    res.setHeader('Content-Type', 'text/html');
+    return res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>LoPo - Twitter Login</title></head>
+        <body>
+            <script>
+                if (window.opener) {
+                    window.opener.postMessage(${payload}, window.location.origin);
+                    window.close();
+                }
+            </script>
+            <p>${message}</p>
+        </body>
+        </html>
+    `);
 }
 
 /** Cookie ヘッダーをパースしてオブジェクトに変換 */
