@@ -135,7 +135,6 @@ export default async function handler(req: any, res: any) {
         return res.status(500).json({
             error: 'Internal server error',
             details: String(err),
-            stack: err?.stack?.split('\n').slice(0, 5),
         });
     }
 }
