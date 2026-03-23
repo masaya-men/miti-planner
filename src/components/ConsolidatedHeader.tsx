@@ -67,6 +67,15 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const [showShareMenu, setShowShareMenu] = React.useState(false);
     const [showLoginMenu, setShowLoginMenu] = React.useState(false);
     const loginBtnRef = useRef<HTMLDivElement>(null);
+    const loginMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const openLoginMenu = () => {
+        if (loginMenuTimerRef.current) { clearTimeout(loginMenuTimerRef.current); loginMenuTimerRef.current = null; }
+        setShowLoginMenu(true);
+    };
+    const closeLoginMenuDelayed = () => {
+        loginMenuTimerRef.current = setTimeout(() => setShowLoginMenu(false), 150);
+    };
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
@@ -254,8 +263,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <div
                                 className="relative"
                                 ref={loginBtnRef}
-                                onMouseEnter={() => setShowLoginMenu(true)}
-                                onMouseLeave={() => setShowLoginMenu(false)}
+                                onMouseEnter={openLoginMenu}
+                                onMouseLeave={closeLoginMenuDelayed}
                             >
                                 <button
                                     onClick={() => setShowLoginMenu(!showLoginMenu)}
@@ -459,11 +468,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     <div
                         className="fixed z-[201] bg-app-bg border border-app-border rounded-lg shadow-lg p-1.5 min-w-[180px]"
                         style={{
-                            top: (loginBtnRef.current?.getBoundingClientRect().bottom ?? 0) + 8,
+                            top: (loginBtnRef.current?.getBoundingClientRect().bottom ?? 0) + 4,
                             right: window.innerWidth - (loginBtnRef.current?.getBoundingClientRect().right ?? 0),
                         }}
-                        onMouseEnter={() => setShowLoginMenu(true)}
-                        onMouseLeave={() => setShowLoginMenu(false)}
+                        onMouseEnter={openLoginMenu}
+                        onMouseLeave={closeLoginMenuDelayed}
                     >
                         {/* ログイン中: アカウント情報 + ログアウト */}
                         {user && (
