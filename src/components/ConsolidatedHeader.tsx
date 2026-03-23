@@ -131,16 +131,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* 現在のコンテンツ名・プランタイトル */}
+                            {/* 現在のコンテンツ名 — ヒーロー表示 */}
                             {currentPlan && (
-                                <div className="flex items-baseline gap-2 min-w-0">
+                                <div className="flex items-baseline gap-3 min-w-0">
                                     {contentLabel && (
-                                        <span className="text-[15px] font-bold text-app-text tracking-wide truncate">
+                                        <span className="text-[22px] font-bold text-app-text tracking-[0.08em] uppercase truncate leading-none" style={{ fontFamily: "'Rajdhani', sans-serif" }}>
                                             {contentLabel}
                                         </span>
                                     )}
                                     {currentPlan.title && currentPlan.title !== contentLabel && (
-                                        <span className="text-[11px] text-app-text-muted truncate">
+                                        <span className="text-[11px] text-app-text-muted tracking-wider uppercase truncate">
                                             {currentPlan.title}
                                         </span>
                                     )}
