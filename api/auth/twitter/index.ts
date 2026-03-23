@@ -17,9 +17,23 @@
 
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
-import { initAdmin } from '../_initAdmin';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
+
+function initAdmin() {
+    if (!admin.apps.length) {
+        let pk = process.env.FIREBASE_PRIVATE_KEY || '';
+        if (pk.startsWith('"')) { try { pk = JSON.parse(pk); } catch {} }
+        pk = pk.replace(/\\n/g, '\n');
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID!,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
+                privateKey: pk,
+            }),
+        });
+    }
+}
 const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
 const TWITTER_USER_URL = 'https://api.twitter.com/2/users/me';
 
