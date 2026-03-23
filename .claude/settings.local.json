@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(gh auth:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(node scripts/generate-templates.mjs --content m12s_p2)",
+      "Bash(npm install:*)"
     ]
   }
 }
