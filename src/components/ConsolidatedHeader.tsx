@@ -202,7 +202,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     className={clsx(
                                         iconBtnBase,
                                         needsImport
-                                            ? "bg-app-text text-app-bg border-app-text"
+                                            ? "bg-app-text text-app-bg border-app-text animate-pulse"
                                             : iconBtnDefault
                                     )}
                                 >
