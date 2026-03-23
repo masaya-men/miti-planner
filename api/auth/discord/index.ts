@@ -102,7 +102,7 @@ export default async function handler(req: any, res: any) {
                 : null,
         });
 
-        // ステップ5: クライアントにトークンを返す（ポップアップ → 親ウィンドウにpostMessage）
+        // ステップ5: トークンをlocalStorageに保存してアプリにリダイレクト
         const displayName = discordUser.global_name || discordUser.username;
         const avatarUrl = discordUser.avatar
             ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
@@ -115,16 +115,15 @@ export default async function handler(req: any, res: any) {
             <head><title>LoPo - Discord Login</title></head>
             <body>
                 <script>
-                    window.opener.postMessage(
-                        {
-                            type: 'discord-auth',
-                            token: '${customToken}',
-                            displayName: ${JSON.stringify(displayName)},
-                            photoURL: ${JSON.stringify(avatarUrl)}
-                        },
-                        window.location.origin
-                    );
-                    window.close();
+                    localStorage.setItem('lopo_auth_pending', JSON.stringify({
+                        provider: 'discord',
+                        token: '${customToken}',
+                        displayName: ${JSON.stringify(displayName)},
+                        photoURL: ${JSON.stringify(avatarUrl)}
+                    }));
+                    var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
+                    localStorage.removeItem('lopo_auth_return_url');
+                    window.location.href = returnUrl;
                 </script>
                 <p>ログイン中...</p>
             </body>

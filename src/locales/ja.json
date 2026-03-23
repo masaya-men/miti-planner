@@ -26,6 +26,11 @@
         "share": "共有",
         "copy_link": "リンクをコピー"
     },
+    "login": {
+        "title": "ログイン",
+        "privacy_message": "表示名とアイコンのみ使用します。メールアドレスなどの個人情報は収集しません。",
+        "success_toast": "ログインしました"
+    },
     "aa_settings": {
         "title": "AA追加モード",
         "popover_header": "オートアタック設定",

@@ -26,6 +26,11 @@
         "toggle_theme_light": "Switch to Light Theme",
         "toggle_theme_dark": "Switch to Dark Theme"
     },
+    "login": {
+        "title": "Sign In",
+        "privacy_message": "We only use your display name and avatar. No personal information such as email addresses is collected.",
+        "success_toast": "Signed in successfully"
+    },
     "aa_settings": {
         "title": "Add AA Mode",
         "popover_header": "Auto-Attack Settings",
