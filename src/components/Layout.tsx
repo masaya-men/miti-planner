@@ -13,7 +13,7 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Sun, Moon, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import { ParticleBackground } from './ParticleBackground';
+// import { ParticleBackground } from './ParticleBackground';
 import { GridOverlay } from './GridOverlay';
 
 interface LayoutProps {
@@ -54,8 +54,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
-            {/* 背景粒子 (Three.js) + グリッドエフェクト */}
-            <ParticleBackground />
+            {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}
+            {/* <ParticleBackground /> */}
             <GridOverlay />
 
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
