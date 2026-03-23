@@ -16,36 +16,47 @@
 
 import * as admin from 'firebase-admin';
 
-// Firebase Admin初期化（コールドスタート時に1回だけ）
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        }),
-    });
-}
-
 const DISCORD_API = 'https://discord.com/api/v10';
 
-export default async function handler(req: any, res: any) {
-    const { code } = req.query;
-
-    if (!code) {
-        // ステップ1: Discord認証ページにリダイレクト
-        const clientId = process.env.DISCORD_CLIENT_ID;
-        const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
-        const params = new URLSearchParams({
-            client_id: clientId!,
-            redirect_uri: redirectUri,
-            response_type: 'code',
-            scope: 'identify',
+function initAdmin() {
+    if (!admin.apps.length) {
+        const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                // Vercelの環境変数は改行がそのまま入る場合と \\n リテラルの場合がある
+                privateKey: privateKey?.includes('\\n')
+                    ? privateKey.replace(/\\n/g, '\n')
+                    : privateKey,
+            }),
         });
-        return res.redirect(`https://discord.com/oauth2/authorize?${params}`);
     }
+}
 
+export default async function handler(req: any, res: any) {
     try {
+        const { code } = req.query;
+
+        if (!code) {
+            // ステップ1: Discord認証ページにリダイレクト
+            const clientId = process.env.DISCORD_CLIENT_ID;
+            if (!clientId) {
+                return res.status(500).json({ error: 'DISCORD_CLIENT_ID not configured' });
+            }
+            const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
+            const params = new URLSearchParams({
+                client_id: clientId,
+                redirect_uri: redirectUri,
+                response_type: 'code',
+                scope: 'identify',
+            });
+            return res.redirect(`https://discord.com/oauth2/authorize?${params}`);
+        }
+
+        // Firebase Admin 初期化
+        initAdmin();
+
         const clientId = process.env.DISCORD_CLIENT_ID!;
         const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
         const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
@@ -82,7 +93,6 @@ export default async function handler(req: any, res: any) {
         const discordUser = await userRes.json();
 
         // ステップ4: Firebase カスタムトークン生成
-        // UIDは "discord:{discordUserId}" でFirebase内で一意にする
         const firebaseUid = `discord:${discordUser.id}`;
         const customToken = await admin.auth().createCustomToken(firebaseUid, {
             provider: 'discord',
@@ -112,6 +122,16 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err) {
         console.error('Discord auth error:', err);
-        return res.status(500).json({ error: 'Internal server error', details: String(err) });
+        return res.status(500).json({
+            error: 'Internal server error',
+            details: String(err),
+            env_check: {
+                has_client_id: !!process.env.DISCORD_CLIENT_ID,
+                has_client_secret: !!process.env.DISCORD_CLIENT_SECRET,
+                has_project_id: !!process.env.FIREBASE_PROJECT_ID,
+                has_client_email: !!process.env.FIREBASE_CLIENT_EMAIL,
+                has_private_key: !!process.env.FIREBASE_PRIVATE_KEY,
+            }
+        });
     }
 }
