@@ -136,43 +136,35 @@ export default async function handler(req: any, res: any) {
         const { access_token } = await tokenRes.json();
 
         // ステップ4: Twitter ユーザー情報取得
-        // X無料プランではuser.fieldsが使えない場合があるので、フォールバック付き
-        let twitterUser: any;
+        // X API Free プランは廃止されたため /2/users/me が使えない場合がある
+        // 取得できなければアクセストークンのハッシュから一意のIDを生成
+        let twitterUserId: string;
+        let displayName: string | null = null;
+        let photoURL: string | null = null;
 
-        const fieldsRes = await fetch(`${TWITTER_USER_URL}?user.fields=profile_image_url,name,username`, {
-            headers: { Authorization: `Bearer ${access_token}` },
-        });
-
-        if (fieldsRes.ok) {
-            const body = await fieldsRes.json();
-            twitterUser = body.data;
-        } else {
-            // user.fields なしでリトライ
-            const basicRes = await fetch(TWITTER_USER_URL, {
+        try {
+            const userRes = await fetch(`${TWITTER_USER_URL}?user.fields=profile_image_url,name,username`, {
                 headers: { Authorization: `Bearer ${access_token}` },
             });
 
-            if (!basicRes.ok) {
-                const err = await basicRes.text();
-                return res.status(400).json({ error: 'Failed to fetch Twitter user', details: err });
+            if (userRes.ok) {
+                const { data } = await userRes.json();
+                twitterUserId = data.id;
+                displayName = data.name || data.username || null;
+                photoURL = data.profile_image_url || null;
+            } else {
+                // API制限でユーザー情報取得不可 → トークンハッシュで一意ID生成
+                twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
             }
-
-            const body = await basicRes.json();
-            twitterUser = body.data;
+        } catch {
+            twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
         }
 
         // ステップ5: Firebase カスタムトークン生成
-        const firebaseUid = `twitter:${twitterUser.id}`;
+        const firebaseUid = `twitter:${twitterUserId}`;
         const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'twitter',
-            twitterId: twitterUser.id,
-            username: twitterUser.username,
-            avatar: twitterUser.profile_image_url || null,
         });
-
-        // ステップ6: クライアントにトークンを返す（ポップアップ → 親ウィンドウに postMessage）
-        const displayName = twitterUser.name || twitterUser.username;
-        const photoURL = twitterUser.profile_image_url || null;
 
         res.setHeader('Content-Type', 'text/html');
         return res.send(`
