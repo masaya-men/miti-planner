@@ -10,7 +10,9 @@ import {
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { getContentById } from '../data/contentRegistry';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PartyStatusPopover } from './PartyStatusPopover';
@@ -57,6 +59,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     const timelineEvents = useMitigationStore(state => state.timelineEvents);
     const needsImport = timelineEvents?.length === 0;
+
+    // 現在開いているプラン・コンテンツ名
+    const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
+    const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
+    const { i18n } = useTranslation();
+    const contentLabel = contentDef
+        ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
+        : null;
 
     // ── Sidebar.tsx パターンの近接・ホバーState ──
     const [isNear, setIsNear] = React.useState(false);
@@ -110,8 +120,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
-                    <div className="h-12 flex items-center justify-between pl-12 pr-6 border-b border-app-border shrink-0">
-                        <div className="flex items-center gap-2">
+                    <div className="h-12 flex items-center justify-between px-6 border-b border-app-border shrink-0">
+                        <div className="flex items-center gap-3">
                             <Tooltip content={t('app.return_home')}>
                                 <button
                                     onClick={() => navigate('/')}
@@ -120,6 +130,22 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     <Home size={16} className="group-hover:-translate-y-0.5 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
+
+                            {/* 現在のコンテンツ名・プランタイトル */}
+                            {currentPlan && (
+                                <div className="flex items-baseline gap-2 min-w-0">
+                                    {contentLabel && (
+                                        <span className="text-[15px] font-bold text-app-text tracking-wide truncate">
+                                            {contentLabel}
+                                        </span>
+                                    )}
+                                    {currentPlan.title && currentPlan.title !== contentLabel && (
+                                        <span className="text-[11px] text-app-text-muted truncate">
+                                            {currentPlan.title}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-1.5">
