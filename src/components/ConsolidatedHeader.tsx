@@ -64,9 +64,17 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
     const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
     const { i18n } = useTranslation();
-    const contentLabel = contentDef
+    // 和欧間スペース: 漢字/かな↔半角英数字の間にスペースを挿入
+    const addWaEiSpace = (text: string): string =>
+        text.replace(/([\u3000-\u9FFF\uF900-\uFAFF])([A-Za-z0-9])/g, '$1 $2')
+            .replace(/([A-Za-z0-9])([\u3000-\u9FFF\uF900-\uFAFF])/g, '$1 $2');
+
+    const rawContentLabel = contentDef
         ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
         : null;
+    const contentLabel = rawContentLabel && i18n.language.startsWith('ja')
+        ? addWaEiSpace(rawContentLabel)
+        : rawContentLabel;
 
     // ── Sidebar.tsx パターンの近接・ホバーState ──
     const [isNear, setIsNear] = React.useState(false);

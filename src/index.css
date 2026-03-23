@@ -122,8 +122,10 @@
 
   body {
     @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] min-h-screen text-[13px] overflow-hidden;
-    font-feature-settings: 'kern' 1;
+    font-feature-settings: 'kern' 1, 'palt' 1;
     -webkit-font-smoothing: antialiased;
+    /* 和欧間スペース: 漢字↔英数字の間に自動スペース（Chrome 120+） */
+    text-autospace: ideograph-alpha ideograph-numeric;
   }
 }
 
