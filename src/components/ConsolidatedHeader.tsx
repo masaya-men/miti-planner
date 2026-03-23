@@ -274,7 +274,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     </Tooltip>
                                     {showLoginMenu && (
                                         <>
-                                            <div className="fixed inset-0 z-[200]" onClick={() => setShowLoginMenu(false)} />
+                                            <div className="fixed inset-0 z-[200]" onMouseDown={() => setShowLoginMenu(false)} />
                                             <div className="absolute right-0 top-11 z-[201] bg-app-bg border border-app-border rounded-lg shadow-lg p-2 min-w-[160px]">
                                                 <button
                                                     onClick={() => { signInWith('google'); setShowLoginMenu(false); }}
