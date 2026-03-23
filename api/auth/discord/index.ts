@@ -103,6 +103,11 @@ export default async function handler(req: any, res: any) {
         });
 
         // ステップ5: クライアントにトークンを返す（ポップアップ → 親ウィンドウにpostMessage）
+        const displayName = discordUser.global_name || discordUser.username;
+        const avatarUrl = discordUser.avatar
+            ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+            : null;
+
         res.setHeader('Content-Type', 'text/html');
         return res.send(`
             <!DOCTYPE html>
@@ -111,7 +116,12 @@ export default async function handler(req: any, res: any) {
             <body>
                 <script>
                     window.opener.postMessage(
-                        { type: 'discord-auth', token: '${customToken}' },
+                        {
+                            type: 'discord-auth',
+                            token: '${customToken}',
+                            displayName: ${JSON.stringify(displayName)},
+                            photoURL: ${JSON.stringify(avatarUrl)}
+                        },
                         window.location.origin
                     );
                     window.close();

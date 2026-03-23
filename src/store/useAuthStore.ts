@@ -8,6 +8,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     signInWithCustomToken,
+    updateProfile,
     signOut as firebaseSignOut,
     onAuthStateChanged,
     type User
@@ -33,7 +34,14 @@ function oauthPopupFlow(apiPath: string, messageType: string): Promise<void> {
             if (event.data?.type !== messageType) return;
             window.removeEventListener('message', handler);
             try {
-                await signInWithCustomToken(auth, event.data.token);
+                const cred = await signInWithCustomToken(auth, event.data.token);
+                // サーバーから渡されたプロフィール情報を Firebase ユーザーに反映
+                if (cred.user && (event.data.displayName || event.data.photoURL)) {
+                    await updateProfile(cred.user, {
+                        displayName: event.data.displayName || cred.user.displayName,
+                        photoURL: event.data.photoURL || cred.user.photoURL,
+                    });
+                }
                 resolve();
             } catch (err) {
                 reject(err);
