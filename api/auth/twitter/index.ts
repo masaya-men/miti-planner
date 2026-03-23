@@ -172,16 +172,15 @@ export default async function handler(req: any, res: any) {
             <head><title>LoPo - Twitter Login</title></head>
             <body>
                 <script>
-                    window.opener.postMessage(
-                        {
-                            type: 'twitter-auth',
-                            token: '${customToken}',
-                            displayName: ${JSON.stringify(displayName)},
-                            photoURL: ${JSON.stringify(photoURL)}
-                        },
-                        window.location.origin
-                    );
-                    window.close();
+                    localStorage.setItem('lopo_auth_pending', JSON.stringify({
+                        provider: 'twitter',
+                        token: '${customToken}',
+                        displayName: ${JSON.stringify(displayName)},
+                        photoURL: ${JSON.stringify(photoURL)}
+                    }));
+                    var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
+                    localStorage.removeItem('lopo_auth_return_url');
+                    window.location.href = returnUrl;
                 </script>
                 <p>ログイン中...</p>
             </body>
