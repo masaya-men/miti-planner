@@ -125,15 +125,16 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err) {
         console.error('Discord auth error:', err);
+        const pk = process.env.FIREBASE_PRIVATE_KEY || '';
         return res.status(500).json({
             error: 'Internal server error',
             details: String(err),
-            env_check: {
-                has_client_id: !!process.env.DISCORD_CLIENT_ID,
-                has_client_secret: !!process.env.DISCORD_CLIENT_SECRET,
-                has_project_id: !!process.env.FIREBASE_PROJECT_ID,
-                has_client_email: !!process.env.FIREBASE_CLIENT_EMAIL,
-                has_private_key: !!process.env.FIREBASE_PRIVATE_KEY,
+            debug: {
+                pk_length: pk.length,
+                pk_starts_with: pk.substring(0, 30),
+                pk_has_literal_backslash_n: pk.includes('\\n'),
+                pk_has_real_newline: pk.includes('\n'),
+                pk_after_replace: pk.replace(/\\n/g, '\n').substring(0, 50),
             }
         });
     }
