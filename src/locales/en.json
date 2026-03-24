@@ -226,7 +226,7 @@
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
         "import_fflogs": "Create Timeline",
-        "import_fflogs_desc": "Generate timeline from FFLogs",
+        "import_fflogs_desc": "Generate timeline from FF Logs",
         "end_phase": "Add phase name up to here",
         "add_event": "Add Mechanic"
     },
