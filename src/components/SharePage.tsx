@@ -129,7 +129,7 @@ export const SharePage: React.FC = () => {
             for (const plan of sharedData.plans) {
                 const contentName = getContentName(plan.contentId, plan.title || 'Shared Plan');
                 const newPlan = {
-                    id: crypto.randomUUID(),
+                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
                     ownerId: '',
                     ownerDisplayName: '',
                     title: plan.title || contentName,
@@ -162,7 +162,7 @@ export const SharePage: React.FC = () => {
             const contentName = contentDef ? (contentDef.name[lang] || contentDef.name.ja) : '';
 
             const newPlan = {
-                id: crypto.randomUUID(),
+                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
                 ownerId: '',
                 ownerDisplayName: '',
                 title: sharedData.title || contentName || 'Shared Plan',

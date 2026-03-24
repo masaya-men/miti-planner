@@ -55,7 +55,7 @@ export const parseCSVToEvents = (csvString: string): TimelineEvent[] => {
         }
 
         events.push({
-            id: crypto.randomUUID(),
+            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
             time,
             name: { ja: name, en: name },
             damageAmount: isNaN(damageAmount as number) ? undefined : damageAmount,

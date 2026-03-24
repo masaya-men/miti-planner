@@ -85,57 +85,7 @@ export function mapFFLogsToTimeline(
     deaths: DeathEvent[] = [],
     castEn: FFLogsRawEvent[] = [], castJp: FFLogsRawEvent[] = []
 ): MapperResult {
-    // ── DEBUG: Raw event analysis ──
-    const DEBUG_NAMES = ['Fixer', 'フィクサー', 'Cellular', '細胞重爆', 'Visceral', 'ヴィセラル'];
-    const isDebugAbility = (ev: FFLogsRawEvent) =>
-        DEBUG_NAMES.some(n => (ev.ability?.name ?? '').includes(n));
-
-    console.group('🔍 [Mapper Debug] Raw EN events analysis');
-    console.log(`Total raw EN events: ${rawEn.length}`);
-    const debugRawGroups = new Map<string, FFLogsRawEvent[]>();
-    for (const ev of rawEn) {
-        if (!isDebugAbility(ev)) continue;
-        const key = ev.ability?.name ?? 'unknown';
-        if (!debugRawGroups.has(key)) debugRawGroups.set(key, []);
-        debugRawGroups.get(key)!.push(ev);
-    }
-    for (const [name, evts] of debugRawGroups) {
-        const pids = new Set(evts.map(e => e.packetID));
-        const tids = new Set(evts.map(e => e.targetID));
-        const types = evts.map(e => e.type);
-        const typeCounts: Record<string, number> = {};
-        types.forEach(t => { typeCounts[t] = (typeCounts[t] || 0) + 1; });
-        console.log(`  [${name}]`, {
-            totalEvents: evts.length,
-            uniquePacketIDs: pids.size,
-            uniqueTargetIDs: tids.size,
-            targetIDs: [...tids],
-            typeCounts,
-            abilityType: evts[0]?.ability?.type,
-            abilityGuid: evts[0]?.ability?.guid,
-            sampleEvent: evts[0] ? {
-                amount: evts[0].amount,
-                absorbed: evts[0].absorbed,
-                mitigated: evts[0].mitigated,
-                unmitigatedAmount: evts[0].unmitigatedAmount,
-                multiplier: evts[0].multiplier,
-                packetID: evts[0].packetID,
-                tick: evts[0].tick,
-            } : null
-        });
-    }
-    console.groupEnd();
-
     const dd = dedupe(rawEn);
-
-    console.group('🔍 [Mapper Debug] After dedupe');
-    console.log(`Dedupe result: ${rawEn.length} → ${dd.length}`);
-    for (const [name] of debugRawGroups) {
-        const evts = dd.filter(e => (e.ability?.name ?? '').includes(name.slice(0, 4)));
-        const tids = new Set(evts.map(e => e.targetID));
-        console.log(`  [${name}] after dedupe: ${evts.length} events, ${tids.size} unique targets`, [...tids]);
-    }
-    console.groupEnd();
 
     // Keep ALL events with any damage field — even 0-damage (barrier absorbed).
     // Critical for correct target counting (AoE detection).
@@ -145,19 +95,6 @@ export function mapFFLogsToTimeline(
             ev.absorbed !== undefined || ev.mitigated !== undefined) &&
         getRawDamage(ev) < 999999 // Exclude unsurvivable wipe mechanics (e.g. 7M+ damage)
     );
-
-    console.group('🔍 [Mapper Debug] After filter');
-    console.log(`Filter result: ${dd.length} → ${filtered.length}`);
-    for (const [name] of debugRawGroups) {
-        const evts = filtered.filter(e => (e.ability?.name ?? '').includes(name.slice(0, 4)));
-        const tids = new Set(evts.map(e => e.targetID));
-        const rawDmgs = evts.map(e => getRawDamage(e));
-        console.log(`  [${name}] after filter: ${evts.length} events, ${tids.size} unique targets`, {
-            targetIDs: [...tids],
-            rawDamages: rawDmgs.slice(0, 10),
-        });
-    }
-    console.groupEnd();
 
     // Dead player filtering: remove events on players who were dead at the time.
     const deathMap = new Map<number, number[]>();
@@ -178,13 +115,6 @@ export function mapFFLogsToTimeline(
     const alive = filtered.filter(ev =>
         !isTargetDead(ev.targetID ?? -1, ev.timestamp)
     );
-
-    if (deaths.length > 0) {
-        console.group('🔍 [Mapper Debug] Death filtering');
-        console.log(`Deaths found: ${deaths.length}`, deaths);
-        console.log(`Events before: ${filtered.length}, after: ${alive.length}, removed: ${filtered.length - alive.length}`);
-        console.groupEnd();
-    }
 
     if (!alive.length) {
         return {
@@ -352,22 +282,6 @@ export function mapFFLogsToTimeline(
     }
 
     // DEBUG: grouping results
-    console.group('🔍 [Mapper Debug] 800ms Grouping Results');
-    for (const gr of groups) {
-        const n0 = gr[0];
-        if (!DEBUG_NAMES.some(d => n0.jpName.includes(d) || n0.enName.includes(d))) continue;
-        const uTgts = new Set(gr.map(n => n.tgtID));
-        console.log(`  [${n0.jpName} / ${n0.enName}] guid=${n0.guid} timeSec=${n0.timeSec}`, {
-            eventsInGroup: gr.length,
-            uniqueTargets: uTgts.size,
-            targetIDs: [...uTgts],
-            isTB: tbSet.has(n0.guid),
-            abilityType: n0.aType,
-            timeMs: gr.map(n => n.timeMs),
-        });
-    }
-    console.groupEnd();
-
     // Process groups
     for (const gr of groups) {
         const f = gr[0], g = f.guid, tb = tbSet.has(g);

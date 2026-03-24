@@ -28,7 +28,16 @@ function initAdmin() {
 
 export default async function handler(req: any, res: any) {
     // CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORSを自サイトのみに制限（Vercelプレビュー・本番の両方に対応）
+    const origin = req.headers?.origin || '';
+    const allowedOrigins = [
+        'https://lopo-miti.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:4173',
+    ];
+    // Vercelのプレビューデプロイ（*.vercel.app）も許可
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     if (req.method === 'OPTIONS') return res.status(200).end();

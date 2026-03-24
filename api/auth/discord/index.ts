@@ -123,6 +123,10 @@ export default async function handler(req: any, res: any) {
                     }));
                     var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
                     localStorage.removeItem('lopo_auth_return_url');
+                    try {
+                        var u = new URL(returnUrl, window.location.origin);
+                        if (u.origin !== window.location.origin) returnUrl = '/';
+                    } catch(e) { returnUrl = '/'; }
                     window.location.href = returnUrl;
                 </script>
                 <p>ログイン中...</p>
