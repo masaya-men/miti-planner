@@ -83,7 +83,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         const text = `${contentLabel || 'LoPo'} - ${t('app.title')}`;
         window.open(
             `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
-            '_blank'
+            '_blank',
+            'noopener,noreferrer'
         );
     };
 
