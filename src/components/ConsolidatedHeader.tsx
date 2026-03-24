@@ -231,12 +231,14 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 style={{ fontFamily: 'inherit', fontWeight: 'inherit' }}
                                             />
                                         ) : (
-                                            <span
-                                                className="text-[13px] text-app-text tracking-wider uppercase truncate min-w-0 cursor-pointer hover:border-b hover:border-app-text/20"
-                                                onDoubleClick={startHeaderEdit}
-                                            >
-                                                {currentPlan.title}
-                                            </span>
+                                            <Tooltip content={t('app.double_click_rename')}>
+                                                <span
+                                                    className="text-[13px] text-app-text tracking-wider uppercase truncate min-w-0 cursor-pointer hover:border-b hover:border-app-text/20"
+                                                    onDoubleClick={startHeaderEdit}
+                                                >
+                                                    {currentPlan.title}
+                                                </span>
+                                            </Tooltip>
                                         )
                                     )}
                                     {/* 保存インジケータ — プラン名の直後に配置 */}

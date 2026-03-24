@@ -29,7 +29,8 @@ import {
     Square,
     Share2,
     Trash2,
-    X
+    X,
+    Pencil
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -98,7 +99,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     };
 
     return (
-        <div className="w-full flex flex-col">
+        <div className="w-full flex flex-col" data-content-id={content.id}>
             {/* コンテンツ名行 */}
             <div className="w-full flex items-center group/content">
                 <Tooltip content={floorName} position="right" wrapperClassName="flex-1 min-w-0">
@@ -195,7 +196,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         const isPlanDisabled = multiSelect.isEnabled && multiSelect.mode === 'share' && !isPlanSelected && multiSelect.selectedIds.length >= 10;
 
                         return (
-                            <div key={plan.id} className="flex items-center gap-1">
+                            <div key={plan.id} className="flex items-center gap-1 w-full">
                                 {multiSelect.isEnabled ? (
                                     // 複数選択モード: チェックボックス付きプラン行
                                     <button
@@ -227,6 +228,12 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                     />
                                 ) : (
                                     <button
+                                        className={clsx(
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                            currentPlanId === plan.id
+                                                ? "bg-app-text/10 text-app-text font-bold"
+                                                : "text-app-text hover:bg-glass-hover"
+                                        )}
                                         onClick={() => {
                                             const store = usePlanStore.getState();
                                             const snap = useMitigationStore.getState().getSnapshot();
@@ -236,16 +243,19 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                             useMitigationStore.getState().loadSnapshot(plan.data);
                                             store.setCurrentPlanId(plan.id);
                                         }}
-                                        onDoubleClick={(e) => startEditing(plan.id, plan.title, e)}
-                                        className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
-                                            currentPlanId === plan.id
-                                                ? "bg-app-text/10 text-app-text font-bold"
-                                                : "text-app-text hover:bg-glass-hover"
-                                        )}
                                     >
                                         <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
                                         {plan.title}
+                                        {currentPlanId === plan.id && (
+                                            <Tooltip content={t('app.rename')}>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); startEditing(plan.id, plan.title, e); }}
+                                                    className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    <Pencil size={9} />
+                                                </button>
+                                            </Tooltip>
+                                        )}
                                     </button>
                                 )}
                             </div>
@@ -803,6 +813,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                 />
                             ))}
 
+                        {/* コンテンツ未紐付きプラン（自由作成したもの） */}
+                        {(() => {
+                            const unlinkedPlans = plans.filter(p => p.contentId === null && p.data.currentLevel === activeLevel);
+                            if (unlinkedPlans.length === 0) return null;
+                            return (
+                                <div className="mb-2 mt-2">
+                                    <div className="px-2 py-1.5">
+                                        <span className="font-bold text-[10px] tracking-widest uppercase text-app-text-muted">
+                                            {t('sidebar.custom_plans')}
+                                        </span>
+                                    </div>
+                                    <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2">
+                                        {unlinkedPlans.map(plan => (
+                                            <button
+                                                key={plan.id}
+                                                onClick={() => handleLoadPlan(plan.id)}
+                                                className={clsx(
+                                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                                    currentPlanId === plan.id
+                                                        ? "bg-app-text/10 text-app-text font-bold"
+                                                        : "text-app-text hover:bg-glass-hover"
+                                                )}
+                                            >
+                                                <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
+                                                {plan.title}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     {/* 下部アクションバー — 選択モード時に表示 */}
@@ -944,7 +985,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     </Tooltip>
                 </motion.div>
             </div>
-            <NewPlanModal isOpen={isNewPlanModalOpen} onClose={() => setIsNewPlanModalOpen(false)} />
+            <NewPlanModal isOpen={isNewPlanModalOpen} onClose={(created) => {
+                setIsNewPlanModalOpen(false);
+                if (created) {
+                    setSelectedContentId(created.contentId);
+                    setActiveLevel(created.level);
+                    // 作成されたコンテンツが見える位置までスクロール
+                    setTimeout(() => {
+                        const el = document.querySelector(`[data-content-id="${created.contentId}"]`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 200);
+                }
+            }} />
             <ShareModal
                 isOpen={bundleModalOpen}
                 onClose={() => {

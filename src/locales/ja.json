@@ -45,6 +45,8 @@
         "auto_saved": "自動保存しました",
         "saving": "保存中...",
         "saved": "保存済み ✓",
+        "double_click_rename": "ダブルクリックで名前を変更",
+        "rename": "名前を変更",
         "empty_state_title": "軽減表を作りましょう",
         "empty_state_desc": "サイドバーからコンテンツを選んで、軽減プランを始めましょう。"
     },
@@ -311,7 +313,8 @@
         "name_dialog_title": "軽減表の名前を決めてください",
         "name_dialog_desc": "デフォルト名のままでもOKです。",
         "create_plan_button": "作成",
-        "add_plan": "追加"
+        "add_plan": "追加",
+        "custom_plans": "カスタム"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -555,6 +558,8 @@
         "create_button": "作成する",
         "cancel_button": "キャンセル",
         "template_guidance": "既成のテンプレート（Phase 4）から作成しますか？",
-        "browse_templates": "テンプレートを探す"
+        "browse_templates": "テンプレートを探す",
+        "no_matches": "該当するコンテンツがありません",
+        "optional": "任意"
     }
 }

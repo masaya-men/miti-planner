@@ -10,23 +10,25 @@ import {
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useTutorialStore } from '../store/useTutorialStore';
+import { getTemplate } from '../data/templateLoader';
 import { X, ChevronDown, Check } from 'lucide-react';
 import clsx from 'clsx';
 
 interface NewPlanModalProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (created?: { contentId: string | null; level: ContentLevel }) => void;
 }
 
 const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
-const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'raid', 'dungeon'];
+const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
 
     const { addPlan, setCurrentPlanId, updatePlan, currentPlanId: activePlanId } = usePlanStore();
-    const { getSnapshot, loadSnapshot } = useMitigationStore();
+    const { getSnapshot } = useMitigationStore();
 
     // Selection State
     const [level, setLevel] = useState<ContentLevel>(100);
@@ -59,11 +61,11 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     // Auto-fill title and focus
     const handleBossSelect = (selectedBoss: ContentDefinition) => {
         setBoss(selectedBoss);
-        const bossName = selectedBoss.name[lang] || selectedBoss.name.ja;
-        setTitle(bossName);
+        // デフォルト名は英語略称（サイドバーからの作成と同じ）
+        const defaultName = selectedBoss.shortName.en || selectedBoss.shortName.ja;
+        setTitle(defaultName);
         setIsDropdownOpen(false);
-        
-        // Short delay to ensure title is set before focus
+
         setTimeout(() => {
             if (titleInputRef.current) {
                 titleInputRef.current.focus();
@@ -72,41 +74,83 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         }, 50);
     };
 
-    const handleCreate = () => {
-        if (!boss || !title.trim()) return;
+    const handleCreate = async () => {
+        if (!title.trim()) return;
 
-        // 1. Save current plan before switching
-        const currentData = getSnapshot();
+        // 1. 現在のプランを保存
         if (activePlanId) {
-            updatePlan(activePlanId, { data: currentData });
+            updatePlan(activePlanId, { data: getSnapshot() });
         }
 
-        // 2. Create New Plan
+        const store = useMitigationStore.getState();
+        const useLevel = boss ? boss.level : level;
+
+        // 2. レベル・ステータス設定 + 軽減クリア
+        store.setCurrentLevel(useLevel);
+        store.applyDefaultStats(useLevel, boss?.patch);
+        store.clearAllMitigations();
+
+        // 3. テンプレート読み込み（コンテンツ選択時のみ）
+        if (boss) {
+            const tpl = await getTemplate(boss.id);
+            if (tpl) {
+                const snap = store.getSnapshot();
+                store.loadSnapshot({
+                    ...snap,
+                    timelineMitigations: [],
+                    timelineEvents: tpl.timelineEvents,
+                    phases: tpl.phases ? tpl.phases
+                        .filter(p => p.startTimeSec >= 0)
+                        .map((p, i, arr) => {
+                            const nextStart = arr[i + 1]?.startTimeSec;
+                            const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
+                            return {
+                                id: `phase_${p.id}`,
+                                name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                                endTime: nextStart !== undefined ? nextStart : maxTime + 10
+                            };
+                        }) : []
+                });
+            } else {
+                store.loadSnapshot({
+                    ...store.getSnapshot(),
+                    timelineEvents: [],
+                    timelineMitigations: [],
+                    phases: []
+                });
+            }
+        } else {
+            // コンテンツなし → 完全に空のプラン
+            store.loadSnapshot({
+                ...store.getSnapshot(),
+                timelineEvents: [],
+                timelineMitigations: [],
+                phases: []
+            });
+        }
+
+        // 4. プラン保存
         const newPlanId = `plan_${Date.now()}`;
-        const newPlan = {
+        addPlan({
             id: newPlanId,
             ownerId: 'local',
             ownerDisplayName: 'Guest',
-            contentId: boss.id,
+            contentId: boss?.id || null,
             title: title.trim(),
             isPublic: false,
             copyCount: 0,
             useCount: 0,
-            data: {
-                ...currentData, // Use current settings as base
-                timelineEvents: [], // Start with empty timeline
-                currentLevel: level,
-                timelineMitigations: []
-            },
+            data: store.getSnapshot(),
             createdAt: Date.now(),
             updatedAt: Date.now()
-        };
-
-        addPlan(newPlan);
+        });
         setCurrentPlanId(newPlanId);
-        loadSnapshot(newPlan.data);
-        
-        onClose();
+
+        // チュートリアル通知
+        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+
+        // サイドバーに作成結果を伝える
+        onClose({ contentId: boss?.id || null, level: useLevel as ContentLevel });
     };
 
     if (!isOpen) return null;
@@ -120,7 +164,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
+                    onClick={() => onClose()}
                     className="absolute inset-0 bg-black/40 cursor-pointer"
                 />
 
@@ -137,8 +181,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                             <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('new_plan.modal_title')}
                         </h2>
-                        <button 
-                            onClick={onClose} 
+                        <button
+                            onClick={() => onClose()}
                             className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
                         >
                             <X size={18} />
@@ -152,7 +196,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em]">
                                     {t('new_plan.level_label')}
                                 </label>
-                                <span className="text-[9px] font-bold text-app-accent/60 bg-app-accent/5 px-2 py-0.5 rounded-full border border-app-accent/10">REQUIRED</span>
+                                <span className="text-[9px] font-bold text-app-text-muted bg-app-text/5 px-2 py-0.5 rounded-full border border-app-text/10">{t('new_plan.optional')}</span>
                             </div>
                             <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
                                 {LEVEL_OPTIONS.map(l => (
@@ -240,7 +284,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             ))
                                         ) : (
                                             <div className="py-10 text-center text-app-text-muted italic text-[11px] opacity-60">
-                                                No matches for current filters
+                                                {t('new_plan.no_matches')}
                                             </div>
                                         )}
                                     </motion.div>
@@ -269,18 +313,18 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     {/* Footer */}
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                         <button
-                            onClick={onClose}
+                            onClick={() => onClose()}
                             className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                         >
                             {t('new_plan.cancel_button')}
                         </button>
                         <button
                             onClick={handleCreate}
-                            disabled={!boss || !title.trim()}
+                            disabled={!title.trim()}
                             className={clsx(
                                 "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
-                                boss && title.trim()
-                                    ? "bg-app-accent text-app-text-on-accent shadow-[0_12px_24px_-4px_rgba(var(--app-accent-rgb),0.4)] hover:brightness-110"
+                                title.trim()
+                                    ? "bg-app-text text-app-bg hover:opacity-80"
                                     : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
                             )}
                         >
