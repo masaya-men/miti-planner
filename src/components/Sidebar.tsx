@@ -26,7 +26,8 @@ import {
     ChevronRight,
     CheckSquare,
     Square,
-    Share2
+    Share2,
+    Trash2
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -667,7 +668,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         </div>
                     )}
 
-                    <div className="px-3 flex items-center justify-between mb-2 shrink-0">
+                    <div className="px-3 flex items-center gap-1.5 mb-2 shrink-0 flex-wrap">
                         <button
                             onClick={() => {
                                 setIsNewPlanModalOpen(true);
@@ -691,6 +692,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
                             {t('sidebar.multi_select_mode').toUpperCase()}
                         </button>
+                        {/* 削除ボタン — 選択中のプランがある場合のみ表示 */}
+                        {multiSelect.isEnabled && multiSelect.selectedIds.length > 0 && (
+                            <button
+                                onClick={() => {
+                                    if (!confirm(t('sidebar.delete_confirm', { defaultValue: `${multiSelect.selectedIds.length}件の軽減表を削除しますか？` }))) return;
+                                    const planStore = usePlanStore.getState();
+                                    multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
+                                    setMultiSelect({ isEnabled: false, selectedIds: [] });
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer bg-glass-card text-red-500 border-red-500/30 hover:bg-red-500/10 shadow-sm"
+                            >
+                                <Trash2 size={10} />
+                                {t('sidebar.delete', { defaultValue: '削除' }).toUpperCase()}
+                            </button>
+                        )}
                     </div>
 
                     <div className="px-3 space-y-2 shrink-0 mb-3">

@@ -25,10 +25,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
     const navigate = useNavigate();
-    // Default sidebar closed on mobile (< 768px)
-    const [isSidebarOpen, setIsSidebarOpen] = React.useState(() =>
-        typeof window !== 'undefined' ? window.innerWidth >= 768 : true
-    );
+    const plans = usePlanStore(s => s.plans);
+    // サイドバー開閉: プラン0件なら強制オープン、それ以外はlocalStorage記憶
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(() => {
+        if (typeof window === 'undefined') return true;
+        if (window.innerWidth < 768) return false;
+        const stored = localStorage.getItem('lopo_sidebar_open');
+        return stored !== null ? stored === 'true' : true;
+    });
+    // 開閉を記憶
+    const handleToggleSidebar = () => {
+        const next = !isSidebarOpen;
+        setIsSidebarOpen(next);
+        localStorage.setItem('lopo_sidebar_open', String(next));
+    };
+    // プラン0件なら強制的に開く
+    React.useEffect(() => {
+        if (plans.length === 0) setIsSidebarOpen(true);
+    }, [plans.length]);
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
 
     // Mobile modal triggers — these are read by Timeline.tsx via the store
@@ -85,8 +99,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="hidden md:block">
                 <Sidebar
                     isOpen={isSidebarOpen}
-                    onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                    onClose={() => setIsSidebarOpen(false)}
+                    onToggle={handleToggleSidebar}
+                    onClose={() => { setIsSidebarOpen(false); localStorage.setItem('lopo_sidebar_open', 'false'); }}
                 />
             </div>
 
@@ -163,6 +177,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {children}
+
+                    {/* プラン0件時のオーバーレイ — コンテンツ選択を促す */}
+                    {plans.length === 0 && (
+                        <div className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-none">
+                            <div className="absolute inset-0 bg-app-bg/80 backdrop-blur-sm" />
+                            <div className="relative text-center px-8 py-10 rounded-2xl border border-app-border bg-app-bg/90 shadow-lg max-w-md pointer-events-auto">
+                                <p className="text-lg font-bold text-app-text mb-2">
+                                    {t('app.empty_state_title', { defaultValue: '軽減表を作りましょう' })}
+                                </p>
+                                <p className="text-sm text-app-text-muted">
+                                    {t('app.empty_state_desc', { defaultValue: 'サイドバーからコンテンツを選んで、軽減プランを始めましょう。' })}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </motion.main>
 
                 {/* Footer — hidden on mobile, shown on PC */}
