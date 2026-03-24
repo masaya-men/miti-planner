@@ -116,8 +116,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 <div className="px-5 py-4">
                     <div className="relative w-full aspect-[1200/630] bg-app-surface2 rounded-lg overflow-hidden border border-app-border">
                         {loading ? (
-                            <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                                 <Loader2 size={24} className="animate-spin text-app-text-muted" />
+                                <span className="text-[11px] text-app-text-muted font-medium">
+                                    {t('app.generating_preview', { defaultValue: 'プレビューを生成中...' })}
+                                </span>
                             </div>
                         ) : ogImageUrl ? (
                             <img

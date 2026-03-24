@@ -230,7 +230,7 @@
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
         "import_fflogs": "タイムラインを作成",
-        "import_fflogs_desc": "FFLogsからタイムラインを生成",
+        "import_fflogs_desc": "FF Logs からタイムラインを生成",
         "end_phase": "ここまでのフェーズ名を追加",
         "add_event": "敵の攻撃を追加"
     },

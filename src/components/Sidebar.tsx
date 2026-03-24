@@ -692,21 +692,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                             {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
                             {t('sidebar.multi_select_mode').toUpperCase()}
                         </button>
-                        {/* 削除ボタン — 選択中のプランがある場合のみ表示 */}
-                        {multiSelect.isEnabled && multiSelect.selectedIds.length > 0 && (
-                            <button
-                                onClick={() => {
-                                    if (!confirm(t('sidebar.delete_confirm', { defaultValue: `${multiSelect.selectedIds.length}件の軽減表を削除しますか？` }))) return;
-                                    const planStore = usePlanStore.getState();
-                                    multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
-                                    setMultiSelect({ isEnabled: false, selectedIds: [] });
-                                }}
-                                className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer bg-glass-card text-red-500 border-red-500/30 hover:bg-red-500/10 shadow-sm"
-                            >
-                                <Trash2 size={10} />
-                                {t('sidebar.delete', { defaultValue: '削除' }).toUpperCase()}
-                            </button>
-                        )}
+                        {/* 選択削除ボタン — 常時表示、選択中のみアクティブ */}
+                        <button
+                            onClick={() => {
+                                if (!multiSelect.isEnabled) {
+                                    // 複数選択モードでなければ、まず複数選択モードをオンにする
+                                    toggleMultiSelectMode();
+                                    return;
+                                }
+                                if (multiSelect.selectedIds.length === 0) return;
+                                if (!confirm(t('sidebar.delete_confirm', { count: multiSelect.selectedIds.length, defaultValue: `${multiSelect.selectedIds.length}件の軽減表を削除しますか？` }))) return;
+                                const planStore = usePlanStore.getState();
+                                multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
+                                setMultiSelect({ isEnabled: false, selectedIds: [] });
+                            }}
+                            className={clsx(
+                                "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer shadow-sm",
+                                multiSelect.isEnabled && multiSelect.selectedIds.length > 0
+                                    ? "bg-glass-card text-red-500 border-red-500/30 hover:bg-red-500/10"
+                                    : "bg-glass-card text-app-text-muted border-glass-border hover:bg-glass-hover"
+                            )}
+                        >
+                            <Trash2 size={10} />
+                            {t('sidebar.select_delete', { defaultValue: '選択削除' }).toUpperCase()}
+                        </button>
                     </div>
 
                     <div className="px-3 space-y-2 shrink-0 mb-3">

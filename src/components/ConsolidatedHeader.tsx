@@ -309,7 +309,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </button>
 
                             {/* Import（アイコンのみ） */}
-                            <Tooltip content={t('timeline.import_fflogs_desc', { defaultValue: 'FFLogsからタイムラインを生成' })}>
+                            <Tooltip content={<span><span className="font-black" style={{ fontFamily: "'Rajdhani', sans-serif" }}>FF Logs</span> {i18n.language.startsWith('ja') ? 'からタイムラインを生成' : '— Generate timeline'}</span>}>
                                 <button
                                     onClick={onImportLogs}
                                     className={clsx(
