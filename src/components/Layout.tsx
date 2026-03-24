@@ -12,7 +12,8 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
-import { Sun, Moon, Home } from 'lucide-react';
+import { JOBS } from '../data/mockData';
+import { Sun, Moon, Home, X, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
@@ -33,15 +34,15 @@ const MobileHeader: React.FC<{
 
     return (
         <header className={clsx(
-            "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
-            "bg-app-bg border-app-border"
+            "h-9 shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
+            "bg-app-bg/95 backdrop-blur-md border-app-border"
         )}>
             {/* 左: Homeボタン */}
             <button
                 onClick={onHome}
-                className="p-1.5 text-app-text flex items-center shrink-0"
+                className="p-1 text-app-text flex items-center shrink-0"
             >
-                <Home size={18} />
+                <Home size={16} />
             </button>
 
             {/* 中央: コンテンツ名 / プラン名 */}
@@ -68,13 +69,173 @@ const MobileHeader: React.FC<{
                 <button
                     data-tutorial-always
                     onClick={onToggleTheme}
-                    className="p-1.5 w-8 h-8 rounded-lg text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
+                    className="p-1 w-7 h-7 rounded-md text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
                 >
-                    {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                    {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
                 </button>
                 <LanguageSwitcher />
             </div>
         </header>
+    );
+};
+
+// ── モバイル用パーティ編成UI ──
+const MobilePartySettings: React.FC = () => {
+    const { t } = useTranslation();
+    const partyMembers = useMitigationStore(s => s.partyMembers);
+    const setMemberJob = useMitigationStore(s => s.setMemberJob);
+    const myMemberId = useMitigationStore(s => s.myMemberId);
+    const setMyMemberId = useMitigationStore(s => s.setMyMemberId);
+    const [focusedSlot, setFocusedSlot] = React.useState<string | null>(null);
+    const [myJobMode, setMyJobMode] = React.useState(false);
+
+    const memberOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
+    const sortedMembers = memberOrder.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
+
+    return (
+        <div className="flex flex-col gap-3">
+            {/* MY JOBモード切替 */}
+            <button
+                onClick={() => { setMyJobMode(!myJobMode); setFocusedSlot(null); }}
+                className={clsx(
+                    "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer",
+                    myJobMode
+                        ? "bg-app-text text-app-bg border-app-text"
+                        : "bg-app-surface2 border-app-border text-app-text"
+                )}
+            >
+                <Star size={14} />
+                {t('party.set_my_job', '自分のジョブを設定')}
+                {myMemberId && !myJobMode && (
+                    <span className="ml-auto text-[10px] text-app-text-muted">
+                        {myMemberId}
+                    </span>
+                )}
+            </button>
+
+            {myJobMode && (
+                <p className="text-[11px] text-app-text-muted px-1">
+                    {t('party.my_job_tap_slot', '自分のスロットをタップしてください')}
+                </p>
+            )}
+
+            {/* スロット一覧 */}
+            <div className="grid grid-cols-4 gap-2">
+                {sortedMembers.map(member => {
+                    const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+                    const isMyJob = myMemberId === member.id;
+                    const isFocused = focusedSlot === member.id;
+
+                    return (
+                        <button
+                            key={member.id}
+                            onClick={() => {
+                                if (myJobMode) {
+                                    setMyMemberId(isMyJob ? null : member.id);
+                                    setMyJobMode(false);
+                                } else {
+                                    setFocusedSlot(isFocused ? null : member.id);
+                                }
+                            }}
+                            className={clsx(
+                                "flex flex-col items-center gap-1 p-2 rounded-xl border transition-all active:scale-95 relative cursor-pointer",
+                                myJobMode
+                                    ? "border-app-text/50 bg-app-text/5"
+                                    : isFocused
+                                        ? "border-app-text bg-app-text/10"
+                                        : "border-app-border bg-app-surface2"
+                            )}
+                        >
+                            {job ? (
+                                <img src={job.icon} className="w-8 h-8 object-contain" />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full border border-dashed border-app-border flex items-center justify-center">
+                                    <span className="text-[10px] text-app-text-muted">+</span>
+                                </div>
+                            )}
+                            <span className="text-[10px] font-black text-app-text">{member.id}</span>
+                            {isMyJob && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-app-text rounded-full flex items-center justify-center">
+                                    <Star size={8} className="text-app-bg fill-app-bg" />
+                                </div>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* ジョブ選択グリッド（スロット選択時） */}
+            {focusedSlot && !myJobMode && (
+                <div className="bg-app-surface2/50 rounded-xl p-3 border border-app-border">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black text-app-text-muted uppercase tracking-wider">
+                            {focusedSlot} — {t('party.select_job')}
+                        </span>
+                        <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
+                            <X size={14} />
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-6 gap-1.5">
+                        {JOBS.map(job => {
+                            const isCurrentJob = partyMembers.find(m => m.id === focusedSlot)?.jobId === job.id;
+                            return (
+                                <button
+                                    key={job.id}
+                                    onClick={() => {
+                                        setMemberJob(focusedSlot, job.id);
+                                        setFocusedSlot(null);
+                                    }}
+                                    className={clsx(
+                                        "w-10 h-10 rounded-lg border flex items-center justify-center cursor-pointer active:scale-90 transition-all",
+                                        isCurrentJob
+                                            ? "bg-app-text/20 border-app-text"
+                                            : "bg-app-surface2 border-app-border"
+                                    )}
+                                >
+                                    <img src={job.icon} alt={job.name?.ja} className="w-7 h-7 object-contain" />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ── モバイル用ステータス表示 ──
+const MobileStatusView: React.FC = () => {
+    const { t } = useTranslation();
+    const partyMembers = useMitigationStore(s => s.partyMembers);
+    const myMemberId = useMitigationStore(s => s.myMemberId);
+
+    const memberOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
+    const sortedMembers = memberOrder.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
+
+    return (
+        <div className="flex flex-col gap-2">
+            {sortedMembers.map(member => {
+                const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
+                const isMyJob = myMemberId === member.id;
+                return (
+                    <div key={member.id} className={clsx(
+                        "flex items-center gap-3 px-3 py-2 rounded-xl border",
+                        isMyJob ? "border-app-text/50 bg-app-text/5" : "border-app-border bg-app-surface2"
+                    )}>
+                        {job ? (
+                            <img src={job.icon} className="w-6 h-6 object-contain shrink-0" />
+                        ) : (
+                            <div className="w-6 h-6 rounded-full border border-dashed border-app-border shrink-0" />
+                        )}
+                        <span className="text-[11px] font-black text-app-text w-6">{member.id}</span>
+                        <div className="flex-1 flex items-center gap-3 text-[10px] text-app-text-muted font-mono">
+                            <span>{t('party.hp_label', 'HP')} {member.stats?.hp?.toLocaleString() || '—'}</span>
+                        </div>
+                        {isMyJob && <Star size={12} className="text-app-text fill-app-text shrink-0" />}
+                    </div>
+                );
+            })}
+        </div>
     );
 };
 
@@ -221,6 +382,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <style>{`.mobile-sidebar-override aside, .mobile-sidebar-override aside > div, .mobile-sidebar-override .w-\\[276px\\] { width: 100% !important; min-width: 100% !important; }`}</style>
                     <Sidebar isOpen={true} />
                 </div>
+            </MobileBottomSheet>
+
+            {/* Mobile: パーティ編成 */}
+            <MobileBottomSheet
+                isOpen={mobilePartyOpen}
+                onClose={() => setMobilePartyOpen(false)}
+                title={t('nav.party')}
+                height="70vh"
+            >
+                <MobilePartySettings />
+            </MobileBottomSheet>
+
+            {/* Mobile: ステータス（パーティHP等の確認） */}
+            <MobileBottomSheet
+                isOpen={mobileStatusOpen}
+                onClose={() => setMobileStatusOpen(false)}
+                title={t('nav.status')}
+                height="50vh"
+            >
+                <MobileStatusView />
             </MobileBottomSheet>
 
             <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden relative z-10">

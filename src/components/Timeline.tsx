@@ -1509,13 +1509,20 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            <div className="w-[30px] min-w-[30px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-accent font-black bg-transparent text-[8px] md:text-[11px]">
-                                {t('timeline.header_phase')}
+                            <div className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[7px] md:text-[11px]">
+                                <span className="md:hidden">{t('timeline.header_phase_short')}</span>
+                                <span className="hidden md:inline">{t('timeline.header_phase')}</span>
                             </div>
-                            <div className="w-[40px] min-w-[40px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text text-[8px] md:text-[10px] font-black">{t('timeline.header_raw')}</div>
-                            <div className="w-[45px] min-w-[45px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text text-[8px] md:text-[10px] font-black">{t('timeline.header_taken')}</div>
+                            <div className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[7px] md:text-[10px]">{t('timeline.header_time')}</div>
+                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
+                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
+                                <span className="md:hidden">{t('timeline.header_raw_short')}</span>
+                                <span className="hidden md:inline">{t('timeline.header_raw')}</span>
+                            </div>
+                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
+                                <span className="md:hidden">{t('timeline.header_taken_short')}</span>
+                                <span className="hidden md:inline">{t('timeline.header_taken')}</span>
+                            </div>
 
                             {sortedPartyMembers.map((member, index) => (
                                 <div
@@ -2078,10 +2085,13 @@ const Timeline: React.FC = () => {
                 currentJobId={jobPickerMemberId ? partyMembers.find(m => m.id === jobPickerMemberId)?.jobId || null : null}
             />
 
-            <PartySettingsModal
-                isOpen={partySettingsOpen}
-                onClose={() => setPartySettingsOpen(false)}
-            />
+            {/* PC版のみ: PartySettingsModal（モバイルはLayout.tsxのMobileBottomSheetで表示） */}
+            {!isMobileView && (
+                <PartySettingsModal
+                    isOpen={partySettingsOpen}
+                    onClose={() => setPartySettingsOpen(false)}
+                />
+            )}
 
             <FFLogsImportModal
                 isOpen={importModalOpen}
@@ -2220,7 +2230,7 @@ const Timeline: React.FC = () => {
                                 "text-app-text hover:bg-app-surface2"
                             )}
                         >
-                            <Pencil size={15} className="text-blue-500 dark:text-blue-400 shrink-0" />
+                            <Pencil size={15} className="text-app-text shrink-0" />
                             <span>{t('timeline.event_edit')}</span>
                         </button>
                         <button
@@ -2230,7 +2240,7 @@ const Timeline: React.FC = () => {
                                 "text-app-text hover:bg-app-surface2"
                             )}
                         >
-                            <Plus size={15} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
+                            <Plus size={15} className="text-app-text shrink-0" />
                             <span>{t('timeline.event_add_here')}</span>
                         </button>
                         {/* モバイルのみ: 軽減追加ショートカット */}
@@ -2255,7 +2265,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverDelete}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-red-500 hover:bg-red-50/80 dark:text-red-400 dark:hover:bg-red-500/10"
+                                "text-app-text-muted hover:bg-app-surface2"
                             )}
                         >
                             <Trash2 size={15} className="shrink-0" />

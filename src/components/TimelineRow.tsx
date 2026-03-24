@@ -60,6 +60,15 @@ export const TimelineRow = memo(({
     const getEventName = (ev: TimelineEvent) =>
         contentLanguage === 'en' && ev.name?.en ? ev.name?.en : ev.name?.ja;
 
+    // モバイル用: ダメージ数値を短縮表示（211,000 → 211k）
+    const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
+    const formatDmg = (val: number) => {
+        if (!isMobileRow) return val.toLocaleString();
+        if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (val >= 1000) return (val / 1000).toFixed(0) + 'k';
+        return String(val);
+    };
+
     const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
     const formattedTime = time < 0 && time > -60 ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}` :
         time < 0 ? `-${displayTimeStr}` :
@@ -78,7 +87,7 @@ export const TimelineRow = memo(({
             <div
                 className={
                     clsx(
-                        "w-[30px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center  group-hover:text-app-text hover:bg-app-surface2",
+                        "w-[24px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center group-hover:text-app-text hover:bg-app-surface2",
                         "border-app-border"
                     )}
                 onClick={(e) => onPhaseAdd(time, e)}
@@ -92,7 +101,7 @@ export const TimelineRow = memo(({
 
             {/* Time Column */}
             <div className={clsx(
-                "w-[40px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[10px] md:text-sm  group-hover:text-app-text group-hover:font-black",
+                "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[9px] md:text-sm group-hover:text-app-text group-hover:font-black",
                 "border-app-border text-app-text-secondary hover:bg-app-surface2"
             )}>
                 {formattedTime}
@@ -321,7 +330,7 @@ export const TimelineRow = memo(({
             {/* U.Dmg Column (Vertical Stack) */}
             <div
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-secondary"
                 )}
                 // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
@@ -335,15 +344,15 @@ export const TimelineRow = memo(({
             >
                 {events.length === 1 ? (
                     <div className="w-full h-full flex items-center justify-center">
-                        {damages[0] && damages[0].unmitigated > 0 ? damages[0].unmitigated.toLocaleString() : ''}
+                        {damages[0] && damages[0].unmitigated > 0 ? formatDmg(damages[0].unmitigated) : ''}
                     </div>
                 ) : (
                     <>
                         <div className="flex-1 w-full flex items-center justify-center border-b border-app-border">
-                            {damages[0] && damages[0].unmitigated > 0 ? damages[0].unmitigated.toLocaleString() : ''}
+                            {damages[0] && damages[0].unmitigated > 0 ? formatDmg(damages[0].unmitigated) : ''}
                         </div>
                         <div className="flex-1 w-full flex items-center justify-center">
-                            {damages[1] && damages[1].unmitigated > 0 ? damages[1].unmitigated.toLocaleString() : ''}
+                            {damages[1] && damages[1].unmitigated > 0 ? formatDmg(damages[1].unmitigated) : ''}
                         </div>
                     </>
                 )}
@@ -357,7 +366,7 @@ export const TimelineRow = memo(({
                             undefined
                 }
                 className={clsx(
-                    "w-[45px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-primary"
                 )}
                 // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
@@ -396,7 +405,7 @@ export const TimelineRow = memo(({
                                         return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                     })()
                                 )}>
-                                    {damages[0].mitigated.toLocaleString()}
+                                    {formatDmg(damages[0].mitigated)}
                                 </span>
                                 {damages[0].isInvincible ? (
                                     <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
@@ -446,7 +455,7 @@ export const TimelineRow = memo(({
                                             return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                         })()
                                     )}>
-                                        {damages[0].mitigated.toLocaleString()}
+                                        {formatDmg(damages[0].mitigated)}
                                     </span>
                                     {damages[0].isInvincible ? (
                                         <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
@@ -494,7 +503,7 @@ export const TimelineRow = memo(({
                                             return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
                                         })()
                                     )}>
-                                        {damages[1].mitigated.toLocaleString()}
+                                        {formatDmg(damages[1].mitigated)}
                                     </span>
                                     {damages[1].isInvincible ? (
                                         <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">

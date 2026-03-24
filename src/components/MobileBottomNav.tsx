@@ -61,31 +61,33 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <nav className={clsx(
             "md:hidden fixed bottom-0 left-0 right-0 z-[400]",
             "flex items-stretch justify-around",
-            "bg-app-bg",
+            "bg-app-bg/95 backdrop-blur-md",
             "border-t border-app-border",
-            "shadow-[0_-4px_30px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_30px_rgba(0,0,0,0.6)]",
         )}
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '4rem' }}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '3.5rem' }}
         >
             {items.map(item => (
                 <button
                     key={item.id}
                     onClick={(e) => { e.stopPropagation(); item.onClick(); }}
                     className={clsx(
-                        "flex flex-col items-center justify-center gap-0.5 flex-1",
-                        "transition-all duration-200 cursor-pointer active:scale-90",
+                        "flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5",
+                        "transition-all duration-150 cursor-pointer active:scale-90",
                         "relative",
                         item.active
-                            ? "text-blue-500 dark:text-blue-400"
-                            : "text-app-text"
+                            ? "text-app-text"
+                            : "text-app-text/40"
                     )}
                 >
-                    {/* Active indicator dot */}
+                    {/* アクティブインジケーター */}
                     {item.active && (
-                        <div className="absolute top-1 w-1 h-1 rounded-full bg-app-primary dark:bg-app-primary-dark" />
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full bg-app-text" />
                     )}
-                    <div className="mt-1">{item.icon}</div>
-                    <span className="text-[9px] font-black tracking-tight leading-none">{item.label}</span>
+                    <div>{item.icon}</div>
+                    <span className={clsx(
+                        "text-[9px] tracking-tight leading-none",
+                        item.active ? "font-black" : "font-bold"
+                    )}>{item.label}</span>
                 </button>
             ))}
         </nav>
