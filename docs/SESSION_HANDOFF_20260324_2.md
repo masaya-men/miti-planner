@@ -130,7 +130,8 @@
 | `src/components/PortalPage.tsx` | チュートリアル自動起動削除 |
 | `src/components/SharePage.tsx` | hasVisitedShareフラグセット |
 | `src/components/BubblePreview.tsx` | 吹き出しプレビューページ（開発用） |
-| `src/store/useTutorialStore.ts` | hasVisitedShare追加、Step構成変更、TUTORIAL_EVENTS使用 |
+| `src/store/useTutorialStore.ts` | hasVisitedShare追加、startTutorialOnMiti追加、専用プラン自動作成、confirmRestartにも対応、Step構成変更、TUTORIAL_EVENTS使用 |
+| `src/components/MitiPlannerPage.tsx` | startTutorialOnMitiを呼ぶように変更 |
 | `src/store/useMitigationStore.ts` | loadSnapshotでtimeline:events-loaded発火 |
 | `src/data/tutorialTemplate.ts` | チュートリアル専用イベントデータ |
 | `src/types/sidebarTypes.ts` | MultiSelectState.mode追加 |
