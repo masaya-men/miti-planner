@@ -43,6 +43,8 @@
         "auto_saved": "Auto-saved",
         "saving": "Saving...",
         "saved": "Saved ✓",
+        "double_click_rename": "Double-click to rename",
+        "rename": "Rename",
         "empty_state_title": "Create a mitigation plan",
         "empty_state_desc": "Select content from the sidebar to start building your mitigation plan.",
         "toggle_theme_light": "Switch to Light Theme",
@@ -307,7 +309,8 @@
         "name_dialog_title": "Name your mitigation plan",
         "name_dialog_desc": "You can keep the default name if you like.",
         "create_plan_button": "Create",
-        "add_plan": "Add"
+        "add_plan": "Add",
+        "custom_plans": "Custom"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -551,6 +554,8 @@
         "create_button": "Create Plan",
         "cancel_button": "Cancel",
         "template_guidance": "Want to start from a pre-filled template?",
-        "browse_templates": "Browse Templates"
+        "browse_templates": "Browse Templates",
+        "no_matches": "No content matches current filters",
+        "optional": "Optional"
     }
 }
