@@ -229,6 +229,7 @@
         "event_edit": "Edit Event",
         "event_add_here": "Add Event Here",
         "event_delete": "Delete Event",
+        "add_mitigation_here": "Add Mitigation",
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
@@ -553,5 +554,31 @@
         "browse_templates": "Browse Templates",
         "no_matches": "No content matches current filters",
         "optional": "Optional"
+    },
+    "mobile": {
+        "tools_title": "Tools",
+        "fflogs_desc": "Import timeline from FFLogs",
+        "autoplan_desc": "Auto-place mitigations"
+    },
+    "mobile_guide": {
+        "title": "Getting Started",
+        "step1_title": "Choose Content",
+        "step1_desc": "Tap \"Menu\" at the bottom to pick a raid and create a mitigation plan",
+        "step2_title": "Set Up Party",
+        "step2_desc": "Tap \"Party\" to assign jobs to each slot",
+        "step3_title": "Place Mitigations",
+        "step3_desc": "Tap a damage number to select a member and place mitigation skills",
+        "step4_title": "Useful Tools",
+        "step4_desc": "Use \"Tools\" for Auto Plan and FFLogs Import",
+        "skip": "Close",
+        "next": "Next",
+        "prev": "Back",
+        "done": "Let's Go"
+    },
+    "nav": {
+        "menu": "Menu",
+        "party": "Party",
+        "status": "Status",
+        "tools": "Tools"
     }
 }

@@ -23,28 +23,28 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         {
             id: 'menu',
             icon: <Menu size={20} />,
-            label: t('nav.menu', 'メニュー'),
+            label: t('nav.menu'),
             onClick: onMenuToggle,
             active: activeTab === 'menu',
         },
         {
             id: 'party',
             icon: <Users size={20} />,
-            label: t('nav.party', 'パーティ'),
+            label: t('nav.party'),
             onClick: onPartyOpen,
-            active: false,
+            active: activeTab === 'party',
         },
         {
             id: 'status',
             icon: <Shield size={20} />,
-            label: t('nav.status', 'ステータス'),
+            label: t('nav.status'),
             onClick: onStatusOpen,
-            active: false,
+            active: activeTab === 'status',
         },
         {
             id: 'tools',
             icon: <Wrench size={20} />,
-            label: t('nav.tools', 'ツール'),
+            label: t('nav.tools'),
             onClick: onToolsOpen,
             active: activeTab === 'tools',
         },
@@ -59,7 +59,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
     return (
         <nav className={clsx(
-            "md:hidden fixed bottom-0 left-0 right-0 z-[200]",
+            "md:hidden fixed bottom-0 left-0 right-0 z-[400]",
             "flex items-stretch justify-around",
             "bg-app-bg",
             "border-t border-app-border",

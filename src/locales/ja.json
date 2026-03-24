@@ -233,6 +233,7 @@
         "event_edit": "イベントを編集",
         "event_add_here": "この時間にイベントを追加",
         "event_delete": "イベントを削除",
+        "add_mitigation_here": "軽減を追加",
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
@@ -557,5 +558,31 @@
         "browse_templates": "テンプレートを探す",
         "no_matches": "該当するコンテンツがありません",
         "optional": "任意"
+    },
+    "mobile": {
+        "tools_title": "ツール",
+        "fflogs_desc": "FFLogsからタイムラインをインポート",
+        "autoplan_desc": "軽減を自動配置"
+    },
+    "mobile_guide": {
+        "title": "はじめかた",
+        "step1_title": "コンテンツを選ぶ",
+        "step1_desc": "下の「メニュー」からコンテンツを選んで軽減表を作りましょう",
+        "step2_title": "パーティを編成",
+        "step2_desc": "下の「パーティ」からジョブを設定できます",
+        "step3_title": "軽減を配置",
+        "step3_desc": "ダメージ数値をタップすると、メンバーを選んで軽減スキルを配置できます",
+        "step4_title": "便利なツール",
+        "step4_desc": "「ツール」からオートプランやFFLogsインポートが使えます",
+        "skip": "閉じる",
+        "next": "次へ",
+        "prev": "戻る",
+        "done": "はじめる"
+    },
+    "nav": {
+        "menu": "メニュー",
+        "party": "パーティ",
+        "status": "ステータス",
+        "tools": "ツール"
     }
 }

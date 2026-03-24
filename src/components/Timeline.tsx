@@ -544,6 +544,7 @@ const Timeline: React.FC = () => {
         setClipboardEvent,
         hideEmptyRows,
         timelineSortOrder: partySortOrder,
+        currentLevel,
     } = useMitigationStore();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -624,7 +625,16 @@ const Timeline: React.FC = () => {
         };
     }, [handleAutoPlan]);
 
-    const [partySettingsOpen, setPartySettingsOpen] = useState(false);
+    // パーティ設定: PC用のローカルstate + モバイル用のContext
+    const [partySettingsOpenLocal, setPartySettingsOpenLocal] = useState(false);
+    // モバイルではContext経由、PCではローカルstate
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768;
+    const partySettingsOpen = isMobileView ? mobilePartyOpen : partySettingsOpenLocal;
+    const setPartySettingsOpen = isMobileView ? setMobilePartyOpen : setPartySettingsOpenLocal;
+
+    // ツール: モバイルではContext経由
+    const mobileToolsSheetOpen = mobileToolsOpen;
+    const setMobileToolsSheetOpen = setMobileToolsOpen;
 
     // Tutorial auto-open logic
     const { isActive: tutorialActive, currentStepIndex: tutorialStepIndex } = useTutorialStore();
@@ -641,17 +651,9 @@ const Timeline: React.FC = () => {
         }
     }, [tutorialActive, tutorialStepIndex, partySettingsOpen]);
 
+    // モバイルでパーティが開かれたらチュートリアルイベントを通知
     useEffect(() => {
         if (mobilePartyOpen) {
-            setPartySettingsOpen(true);
-            setMobilePartyOpen(false);
-            useTutorialStore.getState().completeEvent('party-settings:opened');
-        }
-    }, [mobilePartyOpen]);
-    useEffect(() => {
-        if (mobilePartyOpen) {
-            setPartySettingsOpen(true);
-            setMobilePartyOpen(false);
             useTutorialStore.getState().completeEvent('party-settings:opened');
         }
     }, [mobilePartyOpen]);
@@ -659,12 +661,17 @@ const Timeline: React.FC = () => {
     // チュートリアル戻るボタン用: ストアからモーダル制御するカスタムイベント
     useEffect(() => {
         const handleCloseAll = () => {
-            setPartySettingsOpen(false);
+            setPartySettingsOpenLocal(false);
+            setMobilePartyOpen(false);
             setMitigationSelectorOpen(false);
             setIsModalOpen(false);
         };
         const handleOpenParty = () => {
-            setPartySettingsOpen(true);
+            if (isMobileView) {
+                setMobilePartyOpen(true);
+            } else {
+                setPartySettingsOpenLocal(true);
+            }
         };
         window.addEventListener('tutorial:close-all-modals', handleCloseAll);
         window.addEventListener('tutorial:open-party-modal', handleOpenParty);
@@ -673,14 +680,6 @@ const Timeline: React.FC = () => {
             window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
         };
     }, []);
-
-    const [mobileToolsSheetOpen, setMobileToolsSheetOpen] = useState(false);
-    useEffect(() => {
-        if (mobileToolsOpen) {
-            setMobileToolsSheetOpen(true);
-            setMobileToolsOpen(false);
-        }
-    }, [mobileToolsOpen]);
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
@@ -1288,19 +1287,20 @@ const Timeline: React.FC = () => {
     return (
         <>
             {/* ── Main Content Column ── */}
-            <div className="flex flex-col h-full w-full bg-transparent pb-16 md:pb-0 overflow-hidden relative z-[1]">
+            <div className="flex flex-col h-full w-full bg-transparent overflow-hidden relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-sm border transition-all duration-300 ease-out",
                     "border-app-border h-full z-[1]",
-                    "mx-2 md:mx-6 mt-2 md:mt-4 mb-2 rounded-xl"
+                    "mx-0 md:mx-6 mt-0 md:mt-4 mb-0 md:mb-2 rounded-none md:rounded-xl"
                 )}>
                     <div
                         ref={controlBarRef}
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative border-b select-none overflow-hidden",
-                            "bg-app-surface2 border-app-border"
+                            "bg-app-surface2 border-app-border",
+                            "hidden md:block"
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
@@ -1931,137 +1931,131 @@ const Timeline: React.FC = () => {
                 position={phaseModalPosition}
             />
 
-            {
-                mobileMitiFlow.isOpen && (
-                    <div className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
-                        <div className={clsx(
-                            "rounded-2xl w-full max-w-sm shadow-sm overflow-hidden flex flex-col transition-all duration-200",
-                            "bg-app-surface border border-app-border"
-                        )} onClick={e => e.stopPropagation()}>
-                            <div className={clsx(
-                                "p-4 border-b flex justify-between items-center ",
-                                "border-app-border bg-app-surface2"
-                            )}>
-                                <h3 className={clsx(
-                                    "font-bold text-sm tracking-wider ",
-                                    "text-slate-800 dark:text-white"
-                                )}>
-                                    {mobileMitiFlow.step === 'job' ? t('timeline.select_member') : t('timeline.select_mitigation')}
-                                </h3>
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="text-app-text p-1.5 bg-app-surface2 hover:bg-app-surface2 rounded-lg ">
-                                    <X size={16} />
-                                </button>
-                            </div>
-                            <div className="p-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                                {mobileMitiFlow.step === 'job' && (
-                                    <div className="grid grid-cols-4 gap-3">
-                                        {partyMembers.map(m => {
-                                            const job = JOBS.find(j => j.id === m.jobId);
-                                            if (!job) return null;
-                                            return (
-                                                <button key={m.id} onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'skill', selectedMemberId: m.id }))} className={clsx(
-                                                    "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
-                                                    "bg-app-surface2 border-app-border active:bg-app-text/10"
-                                                )}>
-                                                    <img src={job.icon} className="w-8 h-8 object-contain drop-shadow-md" />
-                                                    <span className={clsx(
-                                                        "text-[10px] font-bold ",
-                                                        "text-app-text"
-                                                    )}>{m.id}</span>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-                                {mobileMitiFlow.step === 'skill' && (
-                                    <div className="grid grid-cols-4 gap-3">
-                                        {(() => {
-                                            const member = partyMembers.find(m => m.id === mobileMitiFlow.selectedMemberId);
-                                            const job = JOBS.find(j => j.id === member?.jobId);
-                                            if (!member || !job) return null;
-
-                                            const availableMitis = MITIGATIONS.filter(m => {
-                                                if (m.jobId === job.id) return true;
-                                                return false;
-                                            });
-
-                                            return availableMitis.map(mit => {
-                                                const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
-                                                const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                                const status = validateMitigationPlacement(
-                                                    mit,
-                                                    mobileMitiFlow.time,
-                                                    memberMitis,
-                                                    schAetherflowPatterns[member.id] ?? 1,
-                                                    t
-                                                );
-                                                const isClickable = status.available || isAlreadyPlaced;
-
-                                                return (
-                                                    <button
-                                                        key={mit.id}
-                                                        disabled={!isClickable}
-                                                        onClick={() => {
-                                                            if (isAlreadyPlaced) {
-                                                                const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                                                if (amToRemove) removeMitigation(amToRemove.id);
-                                                                setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
-                                                                return;
-                                                            }
-
-                                                            if (!status.available) {
-                                                                alert(status.message || 'このタイミングには配置できません（リキャスト等）');
-                                                                return;
-                                                            }
-
-                                                            addMitigation({
-                                                                id: genId(),
-                                                                mitigationId: mit.id,
-                                                                time: mobileMitiFlow.time,
-                                                                duration: mit.duration,
-                                                                ownerId: member.id,
-                                                            });
-                                                            setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
-                                                        }}
-                                                        className={clsx(
-                                                            "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all relative overflow-hidden",
-                                                            isAlreadyPlaced
-                                                                ? "bg-red-500/20 border-red-500/50 active:bg-red-500/40"
-                                                                : status.available
-                                                                    ? "bg-app-surface2 border-app-border active:bg-app-text/10"
-                                                                    : "bg-black/40 border-transparent opacity-40"
-                                                        )}
-                                                    >
-                                                        <div className="relative">
-                                                            <img src={mit.icon} className={clsx("w-8 h-8 object-contain rounded drop-shadow-md", isAlreadyPlaced ? "ring-2 ring-red-500 ring-offset-1 ring-offset-transparent" : "opacity-90")} />
-                                                            {isAlreadyPlaced && (
-                                                                <div className="absolute -top-1 -right-1 bg-red-600 rounded-full p-0.5">
-                                                                    <X size={10} className="text-white" />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <span className="text-[9px] font-bold text-app-text truncate w-full text-center leading-tight">{contentLanguage === 'en' ? mit.name.en : mit.name.ja}</span>
-                                                    </button>
-                                                );
-                                            });
-                                        })()}
-                                    </div>
-                                )}
-                            </div>
-                            {mobileMitiFlow.step === 'skill' && (
-                                <div className={clsx(
-                                    "p-3 border-t ",
-                                    "border-app-border bg-app-surface2"
-                                )}>
-                                    <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, step: 'job' }))} className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-bold px-3 py-1.5 flex items-center gap-1 ">
-                                        ← メンバー選択に戻る
-                                    </button>
+            {/* ── モバイル軽減一覧シート: 全メンバーの軽減を一画面で表示 ── */}
+            {mobileMitiFlow.isOpen && (
+                <div className="fixed inset-0 z-[11000]" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
+                    {/* 半透明背景 */}
+                    <div className="absolute inset-0 bg-black/40" />
+                    {/* ボトムシート */}
+                    <div
+                        className={clsx(
+                            "absolute bottom-16 left-0 right-0 max-h-[50vh] rounded-t-2xl flex flex-col overflow-hidden",
+                            "bg-app-bg border-t border-app-border shadow-lg"
+                        )}
+                        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* ドラッグハンドル */}
+                        <div className="flex justify-center pt-2 pb-1">
+                            <div className="w-10 h-1 rounded-full bg-app-border" />
+                        </div>
+                        {/* ヘッダー: 時間 + イベント名 */}
+                        <div className="px-4 pb-2 flex items-center justify-between">
+                            <div>
+                                <span className="text-[10px] font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
+                                <div className="text-[11px] text-app-text font-mono">
+                                    {(() => {
+                                        const flowTime = mobileMitiFlow.time;
+                                        const eventsAtTime = timelineEvents.filter(e => e.time === flowTime);
+                                        const timeStr = Math.floor(Math.abs(flowTime) / 60) + ':' + (Math.abs(flowTime) % 60).toString().padStart(2, '0');
+                                        const eventName = eventsAtTime.length > 0
+                                            ? (contentLanguage === 'en' && eventsAtTime[0].name?.en ? eventsAtTime[0].name.en : eventsAtTime[0].name?.ja)
+                                            : null;
+                                        return <>{timeStr}{eventName ? ` — ${eventName}` : ''}</>;
+                                    })()}
                                 </div>
-                            )}
+                            </div>
+                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer">
+                                <X size={16} />
+                            </button>
+                        </div>
+                        {/* 全メンバーの軽減を5列でフラット表示（MT→D4の順） */}
+                        <div className="flex-1 overflow-y-auto px-2 pb-4">
+                            <div className="grid grid-cols-5 gap-1.5">
+                                {(() => {
+                                    // 全メンバー順に軽減スキルをフラットに並べる
+                                    const allItems: { member: typeof partyMembers[0]; job: typeof JOBS[0]; mit: typeof MITIGATIONS[0] }[] = [];
+                                    for (const member of sortedPartyMembers) {
+                                        const job = JOBS.find(j => j.id === member.jobId);
+                                        if (!job) continue;
+                                        const mitis = MITIGATIONS.filter(m =>
+                                            m.jobId === job.id
+                                            && (!m.minLevel || m.minLevel <= currentLevel)
+                                            && (!m.maxLevel || m.maxLevel >= currentLevel)
+                                        );
+                                        for (const mit of mitis) {
+                                            allItems.push({ member, job, mit });
+                                        }
+                                    }
+
+                                    // 同名スキルが複数メンバーに存在するか事前計算
+                                    const skillNameCount = new Map<string, number>();
+                                    for (const item of allItems) {
+                                        const name = item.mit.name?.ja || '';
+                                        skillNameCount.set(name, (skillNameCount.get(name) || 0) + 1);
+                                    }
+
+                                    return allItems.map(({ member, job, mit }) => {
+                                        const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
+                                        const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                        const status = validateMitigationPlacement(
+                                            mit, mobileMitiFlow.time, memberMitis,
+                                            schAetherflowPatterns[member.id] ?? 1, t
+                                        );
+                                        const isClickable = status.available || isAlreadyPlaced;
+                                        // 同名スキルが複数メンバーにある場合のみジョブバッジ表示
+                                        const isDuplicate = (skillNameCount.get(mit.name?.ja || '') || 0) > 1;
+
+                                        return (
+                                            <button
+                                                key={`${member.id}-${mit.id}`}
+                                                disabled={!isClickable}
+                                                onClick={() => {
+                                                    if (isAlreadyPlaced) {
+                                                        const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                        if (amToRemove) removeMitigation(amToRemove.id);
+                                                        return;
+                                                    }
+                                                    if (!status.available) return;
+                                                    addMitigation({
+                                                        id: genId(),
+                                                        mitigationId: mit.id,
+                                                        time: mobileMitiFlow.time,
+                                                        duration: mit.duration,
+                                                        ownerId: member.id,
+                                                    });
+                                                }}
+                                                className={clsx(
+                                                    "aspect-square rounded-xl border flex items-center justify-center relative transition-all active:scale-90",
+                                                    isAlreadyPlaced
+                                                        ? "bg-app-text/20 border-app-text"
+                                                        : status.available
+                                                            ? "bg-app-surface2 border-app-border"
+                                                            : "bg-black/20 border-transparent opacity-30"
+                                                )}
+                                            >
+                                                <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
+                                                {/* 同名スキルが複数メンバーにある場合のみジョブバッジ */}
+                                                {isDuplicate && (
+                                                    <img
+                                                        src={job.icon}
+                                                        className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-app-bg object-contain"
+                                                    />
+                                                )}
+                                                {isAlreadyPlaced && (
+                                                    <div className="absolute -top-1 -left-1 w-4 h-4 bg-app-text rounded-full flex items-center justify-center">
+                                                        <X size={10} className="text-app-bg" />
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    });
+                                })()}
+                            </div>
                         </div>
                     </div>
-                )
-            }
+                </div>
+            )}
 
             <MitigationSelector
                 isOpen={mitigationSelectorOpen}
@@ -2120,7 +2114,7 @@ const Timeline: React.FC = () => {
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
                 onClose={() => setMobileToolsSheetOpen(false)}
-                title="ツール"
+                title={t('mobile.tools_title')}
                 height="55vh"
             >
                 <div className="flex flex-col gap-3">
@@ -2177,7 +2171,7 @@ const Timeline: React.FC = () => {
                         <CloudDownload size={20} />
                         <div className="text-left">
                             <div className="text-sm font-bold">FFLogs Import</div>
-                            <div className="text-[10px] text-app-text-muted">FFLogsからタイムラインをインポート</div>
+                            <div className="text-[10px] text-app-text-muted">{t('mobile.fflogs_desc')}</div>
                         </div>
                     </button>
                     <button
@@ -2190,24 +2184,32 @@ const Timeline: React.FC = () => {
                         <Sparkles size={20} />
                         <div className="text-left">
                             <div className="text-sm font-bold">Auto Plan</div>
-                            <div className="text-[10px] text-app-text-muted">軽減を自動配置</div>
+                            <div className="text-[10px] text-app-text-muted">{t('mobile.autoplan_desc')}</div>
                         </div>
                     </button>
                 </div>
             </MobileBottomSheet>
             {eventPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998]"
+                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/30"
                     onClick={() => setEventPopover(null)}
                 >
                     <div
                         className={clsx(
-                            "absolute min-w-[200px] rounded-xl py-1.5 glass-panel",
-                            "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
+                            "min-w-[200px] rounded-xl py-1.5 glass-panel",
+                            "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
+                            // モバイル: 画面中央、PC: クリック位置
+                            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
+                            "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
                         )}
                         style={{
-                            left: Math.min(eventPopover.position.x, window.innerWidth - 220),
-                            top: Math.min(eventPopover.position.y, window.innerHeight - 160),
+                            // PCのみ位置を適用
+                            ...(window.innerWidth >= 768 ? {
+                                left: Math.min(eventPopover.position.x, window.innerWidth - 220),
+                                top: Math.min(eventPopover.position.y, window.innerHeight - 160),
+                                transform: 'none',
+                                position: 'absolute',
+                            } : {})
                         }}
                         onClick={e => e.stopPropagation()}
                     >
@@ -2231,6 +2233,23 @@ const Timeline: React.FC = () => {
                             <Plus size={15} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
                             <span>{t('timeline.event_add_here')}</span>
                         </button>
+                        {/* モバイルのみ: 軽減追加ショートカット */}
+                        {typeof window !== 'undefined' && window.innerWidth < 768 && (
+                            <button
+                                onClick={() => {
+                                    const time = eventPopover.event.time;
+                                    setEventPopover(null);
+                                    setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
+                                }}
+                                className={clsx(
+                                    "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                    "text-app-text hover:bg-app-surface2"
+                                )}
+                            >
+                                <Plus size={15} className="text-app-text shrink-0" />
+                                <span>{t('timeline.add_mitigation_here')}</span>
+                            </button>
+                        )}
                         <div className={clsx("h-px mx-3 my-1", "bg-app-border")} />
                         <button
                             onClick={handlePopoverDelete}

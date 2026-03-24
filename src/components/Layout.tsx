@@ -11,11 +11,72 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
+import { getContentById } from '../data/contentRegistry';
 import { Sun, Moon, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
 import { GridOverlay } from './GridOverlay';
+
+// ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
+const MobileHeader: React.FC<{
+    onHome: () => void;
+    theme: string;
+    onToggleTheme: () => void;
+}> = ({ onHome, theme, onToggleTheme }) => {
+    const { i18n } = useTranslation();
+    const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
+    const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
+    const contentLabel = contentDef
+        ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
+        : null;
+
+    return (
+        <header className={clsx(
+            "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
+            "bg-app-bg border-app-border"
+        )}>
+            {/* 左: Homeボタン */}
+            <button
+                onClick={onHome}
+                className="p-1.5 text-app-text flex items-center shrink-0"
+            >
+                <Home size={18} />
+            </button>
+
+            {/* 中央: コンテンツ名 / プラン名 */}
+            {currentPlan && (
+                <div className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1">
+                    {contentLabel && (
+                        <span className="text-[11px] font-black text-app-text truncate leading-none">
+                            {contentLabel}
+                        </span>
+                    )}
+                    {currentPlan.title && currentPlan.title !== contentLabel && (
+                        <>
+                            {contentLabel && <span className="text-[9px] text-app-text-muted shrink-0">/</span>}
+                            <span className="text-[10px] text-app-text-muted truncate leading-none">
+                                {currentPlan.title}
+                            </span>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* 右: テーマ + 言語 */}
+            <div className="flex items-center gap-1 shrink-0">
+                <button
+                    data-tutorial-always
+                    onClick={onToggleTheme}
+                    className="p-1.5 w-8 h-8 rounded-lg text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
+                >
+                    {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                </button>
+                <LanguageSwitcher />
+            </div>
+        </header>
+    );
+};
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -45,6 +106,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, [plans.length]);
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
 
+    // モバイル判定（md: 768px）
+    const [isMobile, setIsMobile] = React.useState(() =>
+        typeof window !== 'undefined' ? window.innerWidth < 768 : false
+    );
+    React.useEffect(() => {
+        const onResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
     // Mobile modal triggers — these are read by Timeline.tsx via the store
     const [mobilePartyOpen, setMobilePartyOpen] = React.useState(false);
     const [mobileStatusOpen, setMobileStatusOpen] = React.useState(false);
@@ -62,6 +133,41 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             setMobileMenuOpen(false);
         }
     }, [isTutorialActive]);
+
+    // iOS キーボード閉じた後のビューポートずれ修正
+    React.useEffect(() => {
+        if (!isMobile) return;
+        const vv = window.visualViewport;
+        if (!vv) return;
+        let prevHeight = vv.height;
+        const handleResize = () => {
+            const newHeight = vv.height;
+            // キーボードが閉じた（高さが増えた）
+            if (newHeight > prevHeight + 50) {
+                window.scrollTo(0, 0);
+                document.documentElement.style.height = '100%';
+                requestAnimationFrame(() => {
+                    document.documentElement.style.height = '';
+                });
+            }
+            prevHeight = newHeight;
+        };
+        // input/textareaのblur時にもスクロール位置をリセット
+        const handleFocusOut = (e: FocusEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+            }
+        };
+        vv.addEventListener('resize', handleResize);
+        document.addEventListener('focusout', handleFocusOut);
+        return () => {
+            vv.removeEventListener('resize', handleResize);
+            document.removeEventListener('focusout', handleFocusOut);
+        };
+    }, [isMobile]);
 
     // 自動保存（ページ離脱 + タブ切替 + 30秒間隔）
     React.useEffect(() => {
@@ -109,9 +215,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 isOpen={mobileMenuOpen}
                 onClose={() => setMobileMenuOpen(false)}
                 title={t('sidebar.menu')}
-                height="80vh"
+                height="70vh"
             >
-                <div className="-mx-4 -mt-3">
+                <div className="-mx-4 -mt-3 mobile-sidebar-override">
+                    <style>{`.mobile-sidebar-override aside, .mobile-sidebar-override aside > div, .mobile-sidebar-override .w-\\[276px\\] { width: 100% !important; min-width: 100% !important; }`}</style>
                     <Sidebar isOpen={true} />
                 </div>
             </MobileBottomSheet>
@@ -146,35 +253,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 {/* ── Mobile Header ── */}
-                <header className={clsx(
-                    "h-11 shrink-0 border-b flex md:hidden items-center justify-between px-3 z-40 relative",
-                    "bg-app-bg border-app-border"
-                )}>
-                    {/* Home button for mobile */}
-                    <button
-                        onClick={() => navigate('/')}
-                        className="p-1.5 text-app-text flex items-center gap-1"
-                    >
-                        <Home size={18} />
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            data-tutorial-always
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-1.5 w-8 h-8 rounded-lg text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
-                        >
-                            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-                        </button>
-                        <LanguageSwitcher />
-                    </div>
-                </header>
+                <MobileHeader
+                    onHome={() => navigate('/')}
+                    theme={theme}
+                    onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                />
 
                 {/* Main content — add bottom padding on mobile for bottom nav */}
+                {/* モバイルではフローティングヘッダーが非表示なのでpaddingTop不要 */}
                 <motion.main
                     className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0"
                     initial={false}
-                    animate={{ paddingTop: isHeaderCollapsed ? 36 : 124 }}
+                    animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 36 : 124) }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {children}
@@ -212,15 +302,31 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </MobileTriggersContext.Provider>
             </div>
 
-            {/* Mobile Bottom Nav */}
+            {/* Mobile Bottom Nav — 排他制御付きトグル */}
             <MobileBottomNav
-                onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-                onPartyOpen={() => setMobilePartyOpen(!mobilePartyOpen)}
-                onStatusOpen={() => setMobileStatusOpen(!mobileStatusOpen)}
-                onToolsOpen={() => setMobileToolsOpen(!mobileToolsOpen)}
+                onMenuToggle={() => {
+                    const next = !mobileMenuOpen;
+                    setMobileMenuOpen(next);
+                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
+                }}
+                onPartyOpen={() => {
+                    const next = !mobilePartyOpen;
+                    setMobilePartyOpen(next);
+                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
+                }}
+                onStatusOpen={() => {
+                    const next = !mobileStatusOpen;
+                    setMobileStatusOpen(next);
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileToolsOpen(false); }
+                }}
+                onToolsOpen={() => {
+                    const next = !mobileToolsOpen;
+                    setMobileToolsOpen(next);
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); }
+                }}
                 myJobHighlight={myJobHighlight}
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
-                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'tools' : mobilePartyOpen ? 'party' : mobileStatusOpen ? 'status' : undefined}
+                activeTab={mobileMenuOpen ? 'menu' : mobilePartyOpen ? 'party' : mobileToolsOpen ? 'tools' : mobileStatusOpen ? 'status' : undefined}
             />
         </div>
     );
