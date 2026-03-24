@@ -600,7 +600,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         );
     };
 
-    if (!mounted) return null;
+    if (!mounted || !isOpen) return null;
 
     return createPortal(
         <div className={clsx(
@@ -625,8 +625,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     "relative flex flex-col glass-panel shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
-                    // 👇 変更：スマホ時の高さ上限を 85vh に広げる
-                    "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[85vh] max-md:rounded-t-2xl max-md:border-t",
+                    // モバイル: ボトムナビ(4rem)の上に配置
+                    "max-md:fixed max-md:bottom-16 max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
                     isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
             >
@@ -668,6 +668,39 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 <div className="flex-1 flex flex-col md:flex-col-reverse overflow-hidden">
                     <div className="flex-1 overflow-y-auto p-4 pb-20 flex flex-col gap-6 bg-transparent">
 
+
+                        {/* モバイル用インラインジョブ選択 */}
+                        {focusedSlot !== null && typeof window !== 'undefined' && window.innerWidth < 768 && (
+                            <div className="md:hidden bg-app-surface2/50 rounded-xl p-3 border border-app-border animate-in slide-in-from-bottom-2 duration-200">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-black text-app-text-muted uppercase tracking-wider">
+                                        {draftMembers[focusedSlot]?.id} — {t('party.select_job', 'ジョブを選択')}
+                                    </span>
+                                    <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-6 gap-1.5">
+                                    {JOBS.map(job => (
+                                        <button
+                                            key={job.id}
+                                            onClick={() => {
+                                                handleJobSelect(job.id);
+                                                setFocusedSlot(null);
+                                            }}
+                                            className={clsx(
+                                                "w-10 h-10 rounded-lg border flex items-center justify-center cursor-pointer active:scale-90 transition-all",
+                                                draftMembers[focusedSlot]?.jobId === job.id
+                                                    ? "bg-app-text/20 border-app-text"
+                                                    : "bg-app-surface2 border-app-border"
+                                            )}
+                                        >
+                                            <img src={job.icon} alt={job.name?.ja} className="w-7 h-7 object-contain" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* MTグループ */}
                         <div>
@@ -745,8 +778,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
                     {/* ── Tutorial Banner removed to use unified TutorialOverlay ── */}
 
-                    <div data-tutorial="job-palette" className="h-auto bg-transparent border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex flex-col gap-0.5 shrink-0 z-10">
-                        {/* ここにのみ、全ジョブのアイコンをロールごとにまとめて表示する */}
+                    {/* ジョブパレット — PCのみ表示。モバイルではスロット下にインライン表示 */}
+                    <div data-tutorial="job-palette" className="hidden md:flex h-auto bg-transparent border-t border-b-0 md:border-b md:border-t-0 border-glass-border p-3 pb-3 flex-col gap-0.5 shrink-0 z-10">
                         {renderJobPalette()}
                     </div>
                 </div>

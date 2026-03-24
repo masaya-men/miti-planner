@@ -94,14 +94,14 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 className={clsx(
-                    "fixed bottom-0 left-0 right-0 z-[301]",
+                    "fixed left-0 right-0 z-[301]",
                     "bg-app-bg",
                     "rounded-t-2xl shadow-sm border-t border-app-border",
                     "flex flex-col overflow-hidden",
                     "transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
                     visible ? "translate-y-0" : "translate-y-full"
                 )}
-                style={{ maxHeight: height }}
+                style={{ maxHeight: height, bottom: '4rem' }}
             >
                 {/* Drag handle — visual cue for swipe */}
                 <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
