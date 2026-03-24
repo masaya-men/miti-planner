@@ -63,7 +63,7 @@ const SaveIndicator: React.FC = () => {
     if (!currentPlanId) return null;
 
     return (
-        <span className="text-[10px] text-app-text-muted whitespace-nowrap shrink-0 transition-opacity duration-300">
+        <span className="text-[10px] text-app-text whitespace-nowrap shrink-0 transition-opacity duration-300">
             {status === 'saving'
                 ? t('app.saving', { defaultValue: '保存中...' })
                 : t('app.saved', { defaultValue: '保存済み ✓' })
@@ -91,6 +91,25 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     const timelineEvents = useMitigationStore(state => state.timelineEvents);
     const needsImport = timelineEvents?.length === 0;
+
+    // ヘッダーのプラン名インライン編集
+    const [editingHeaderTitle, setEditingHeaderTitle] = React.useState(false);
+    const [headerTitleDraft, setHeaderTitleDraft] = React.useState('');
+    const headerTitleInputRef = React.useRef<HTMLInputElement>(null);
+
+    const startHeaderEdit = () => {
+        if (!currentPlan) return;
+        setHeaderTitleDraft(currentPlan.title);
+        setEditingHeaderTitle(true);
+        setTimeout(() => headerTitleInputRef.current?.select(), 0);
+    };
+
+    const finishHeaderEdit = () => {
+        if (editingHeaderTitle && headerTitleDraft.trim() && currentPlan) {
+            usePlanStore.getState().updatePlan(currentPlan.id, { title: headerTitleDraft.trim() });
+        }
+        setEditingHeaderTitle(false);
+    };
 
     // 認証状態
     const { user, justLoggedInUser } = useAuthStore();
@@ -169,7 +188,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
-                    <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-hidden">
+                    <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
                         {/* ── 左グループ（余ったスペースを使う） ── */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
@@ -182,32 +201,48 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </Tooltip>
 
                             {currentPlan && (
-                                <div
-                                    className="flex items-baseline gap-2 min-w-0 origin-left"
-                                    style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
-                                >
+                                <div className="flex items-baseline gap-2 min-w-0 overflow-hidden">
                                     {contentLabel && (
                                         <span
-                                            className="text-[26px] text-app-text leading-tight whitespace-nowrap shrink-0"
+                                            className={clsx(
+                                                "text-app-text leading-tight whitespace-nowrap shrink-0",
+                                                i18n.language.startsWith('ja') ? "text-[20px]" : "text-[26px]"
+                                            )}
                                             style={{
                                                 fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
                                                 fontWeight: 700,
                                                 letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
+                                                ...(i18n.language.startsWith('ja') ? { transform: 'scaleY(1.18)', transformOrigin: 'center' } : {}),
                                             }}
                                         >
                                             {contentLabel}
                                         </span>
                                     )}
                                     {currentPlan.title && currentPlan.title !== contentLabel && (
-                                        <span className="text-[13px] text-app-text tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-                                            {currentPlan.title}
-                                        </span>
+                                        editingHeaderTitle ? (
+                                            <input
+                                                ref={headerTitleInputRef}
+                                                autoFocus
+                                                value={headerTitleDraft}
+                                                onChange={e => setHeaderTitleDraft(e.target.value)}
+                                                onBlur={finishHeaderEdit}
+                                                onKeyDown={e => { if (e.key === 'Enter') finishHeaderEdit(); if (e.key === 'Escape') setEditingHeaderTitle(false); }}
+                                                className="text-[13px] text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
+                                                style={{ fontFamily: 'inherit', fontWeight: 'inherit' }}
+                                            />
+                                        ) : (
+                                            <span
+                                                className="text-[13px] text-app-text tracking-wider uppercase truncate min-w-0 cursor-pointer hover:border-b hover:border-app-text/20"
+                                                onDoubleClick={startHeaderEdit}
+                                            >
+                                                {currentPlan.title}
+                                            </span>
+                                        )
                                     )}
+                                    {/* 保存インジケータ — プラン名の直後に配置 */}
+                                    <SaveIndicator />
                                 </div>
                             )}
-
-                            {/* 保存インジケータ */}
-                            <SaveIndicator />
                         </div>
 
                         {/* ── 右グループ（固定位置・絶対に動かない） ── */}
@@ -309,7 +344,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </button>
 
                             {/* Import（アイコンのみ） */}
-                            <Tooltip content={<span><span className="font-black" style={{ fontFamily: "'Rajdhani', sans-serif" }}>FF Logs</span> {i18n.language.startsWith('ja') ? 'からタイムラインを生成' : '— Generate timeline'}</span>}>
+                            <Tooltip content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}>
                                 <button
                                     onClick={onImportLogs}
                                     className={clsx(

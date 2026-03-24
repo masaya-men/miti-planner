@@ -28,6 +28,11 @@
         "copy_link": "リンクをコピー",
         "link_copied": "リンクをコピーしました",
         "share_failed": "共有リンクの生成に失敗しました",
+        "share_modal_title": "共有",
+        "share_bundle_title": "まとめて共有",
+        "share_on_x": "Xで共有",
+        "copy_share_url": "URLをコピー",
+        "generating_preview": "プレビューを生成中...",
         "share_loading": "読み込み中...",
         "share_not_found": "この共有リンクは見つかりませんでした",
         "share_error": "データの取得に失敗しました",
@@ -270,7 +275,8 @@
         "warning_overwrite": "現在のタイムラインをクリアして、このログの内容に置き換えます。",
         "fetch_button": "タイムラインを生成",
         "fetching_button": "生成中...",
-        "import_button": "タイムラインに取り込む"
+        "import_button": "タイムラインに取り込む",
+        "tooltip_generate": "からタイムラインを生成"
     },
     "sidebar": {
         "new_plan": "新規作成",
@@ -280,9 +286,12 @@
         "category_select": "カテゴリ選択",
         "multi_select_mode": "複数選択",
         "selected_count": "{{count}}/10 選択中",
+        "selected_count_simple": "{{count}}件 選択中",
         "share_together": "まとめて共有",
         "delete": "削除",
         "delete_confirm": "{{count}}件の軽減表を削除しますか？",
+        "delete_confirm_title": "軽減表を削除",
+        "delete_warning": "この操作は取り消せません。",
         "limit_reached_warning": "最大10件まで選択可能です",
         "select_content": "コンテンツ選択",
         "select_content_desc": "軽減表を作成するコンテンツを選びましょう",
@@ -297,7 +306,12 @@
         "cancel": "キャンセル",
         "menu": "メニュー",
         "close_menu": "メニューを閉じる",
-        "open_menu": "メニューを開く"
+        "open_menu": "メニューを開く",
+        "select_delete": "選択削除",
+        "name_dialog_title": "軽減表の名前を決めてください",
+        "name_dialog_desc": "デフォルト名のままでもOKです。",
+        "create_plan_button": "作成",
+        "add_plan": "追加"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

@@ -26,6 +26,11 @@
         "copy_link": "Copy Link",
         "link_copied": "Link copied",
         "share_failed": "Failed to generate share link",
+        "share_modal_title": "Share",
+        "share_bundle_title": "Share Selected",
+        "share_on_x": "Share on X",
+        "copy_share_url": "Copy URL",
+        "generating_preview": "Generating preview...",
         "share_loading": "Loading...",
         "share_not_found": "This shared plan was not found",
         "share_error": "Failed to fetch data",
@@ -266,7 +271,8 @@
         "warning_overwrite": "Current timeline will be cleared and replaced with this log's content.",
         "fetch_button": "Generate Timeline",
         "fetching_button": "Generating...",
-        "import_button": "Import to Timeline"
+        "import_button": "Import to Timeline",
+        "tooltip_generate": "— Generate timeline"
     },
     "sidebar": {
         "new_plan": "Create New",
@@ -274,11 +280,14 @@
         "recent_activity": "Recent Activity",
         "level_select": "Level",
         "category_select": "Category",
-        "multi_select_mode": "Multi-Select",
+        "multi_select_mode": "Select",
         "selected_count": "{{count}}/10 Selected",
-        "share_together": "Share Together",
+        "selected_count_simple": "{{count}} Selected",
+        "share_together": "Share Selected",
         "delete": "Delete",
         "delete_confirm": "Delete {{count}} plan(s)?",
+        "delete_confirm_title": "Delete Plans",
+        "delete_warning": "This action cannot be undone.",
         "limit_reached_warning": "Up to 10 items can be selected",
         "select_content": "Select Content",
         "select_content_desc": "Choose the content for your mitigation plan",
@@ -293,7 +302,12 @@
         "cancel": "Cancel",
         "menu": "Menu",
         "close_menu": "Close Menu",
-        "open_menu": "Open Menu"
+        "open_menu": "Open Menu",
+        "select_delete": "Delete",
+        "name_dialog_title": "Name your mitigation plan",
+        "name_dialog_desc": "You can keep the default name if you like.",
+        "create_plan_button": "Create",
+        "add_plan": "Add"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

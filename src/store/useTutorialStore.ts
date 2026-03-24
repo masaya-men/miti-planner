@@ -62,16 +62,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'portal:tool-selected',
         route: 'portal',
     },
-    // Step 1: Sidebar — click "New Plan"
-    {
-        id: 'new-plan',
-        targetSelector: '[data-tutorial="new-plan"]',
-        titleKey: 'tutorial.new_plan_title',
-        descriptionKey: 'tutorial.new_plan_desc',
-        completionEvent: 'sidebar:new-plan-clicked',
-        route: 'miti',
-    },
-    // Step 2: Content selection dialog
+    // Step 1: サイドバーからコンテンツを選択 → 名前入力 → テンプレート読み込みまで
     {
         id: 'content-select',
         targetSelector: '[data-tutorial-first-item]',
