@@ -51,6 +51,13 @@ export const SharePage: React.FC = () => {
 
     const lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
 
+    // 共有リンク訪問者にはチュートリアル自動起動しない
+    useEffect(() => {
+        import('../store/useTutorialStore').then(({ useTutorialStore }) => {
+            useTutorialStore.setState({ hasVisitedShare: true });
+        });
+    }, []);
+
     useEffect(() => {
         if (!shareId) { setState('not_found'); return; }
 

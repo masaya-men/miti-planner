@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useMitigationStore } from './useMitigationStore';
 import { MITIGATIONS } from '../data/mockData';
+import { TUTORIAL_EVENTS } from '../data/tutorialTemplate';
 
 // ─────────────────────────────────────────────
 // Tutorial Step Definitions
@@ -323,6 +324,8 @@ interface TutorialState {
     currentStepIndex: number;
     /** Whether the user has ever completed the tutorial */
     hasCompleted: boolean;
+    /** 共有リンクから来たユーザーはチュートリアル自動起動しない */
+    hasVisitedShare: boolean;
     /** Whether a restart confirmation dialog should be shown */
     pendingTutorialRestart: boolean;
     /** Whether an exit confirmation dialog should be shown */
@@ -372,6 +375,7 @@ export const useTutorialStore = create<TutorialState>()(
             isActive: false,
             currentStepIndex: 0,
             hasCompleted: false,
+            hasVisitedShare: false,
             pendingTutorialRestart: false,
             pendingTutorialExit: false,
             _pendingStepIndex: 0,
@@ -492,41 +496,21 @@ export const useTutorialStore = create<TutorialState>()(
                 const currentStep = TUTORIAL_STEPS[currentStepIndex];
                 if (currentStep && currentStep.completionEvent === eventName) {
                     if (eventName === 'party-settings:closed') {
-                        // Pre-populate timeline for the second half of the tutorial
+                        // チュートリアル専用データでタイムラインを構築
                         const mitiState = useMitigationStore.getState();
-                        const party = mitiState.partyMembers;
-                        const h1 = party.find((p) => p.id === 'H1');
-                        const mt = party.find((p) => p.id === 'MT');
+                        const mt = mitiState.partyMembers.find((p) => p.id === 'MT');
 
-                        if (h1 && mt && mt.jobId) {
-                            // 1. AoE Event (108% of H1 HP)
-                            mitiState.addEvent({
-                                id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                name: { ja: '全体攻撃サンプル', en: 'AoE Sample' },
-                                time: 4,
-                                damageAmount: Math.floor(h1.stats.hp * 1.08),
-                                damageType: 'unavoidable',
-                                target: 'AoE',
-                            });
+                        // 専用イベントを追加
+                        for (const evt of TUTORIAL_EVENTS) {
+                            mitiState.addEvent({ ...evt });
+                        }
 
-                            // 2. TB Event (170% of MT HP)
-                            const tbEventId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
-                            mitiState.addEvent({
-                                id: tbEventId,
-                                name: { ja: 'タンクバスター', en: 'Tank Buster' },
-                                time: 10,
-                                // ~195% HP ensures it is still strictly lethal even with ~46% mitigation applied.
-                                damageAmount: Math.floor(mt.stats.hp * 1.95),
-                                damageType: 'physical',
-                                target: 'MT',
-                            });
-
-                            // 3. Pre-place MT's 120s mitigation (family: 'tank_40')
-                            // All tank 120s mitigations share family 'tank_40' (e.g. Shadowed Vigil, Guardian, Great Nebula)
+                        // MTの120s軽減を事前配置
+                        if (mt?.jobId) {
                             const mt120sMiti = MITIGATIONS.find(m => m.jobId === mt.jobId && m.family === 'tank_40');
                             if (mt120sMiti) {
                                 mitiState.addMitigation({
-                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'mit_' + Math.random().toString(36).substring(2, 9),
+                                    id: 'tut_mit_tank40',
                                     mitigationId: mt120sMiti.id,
                                     time: 10,
                                     duration: mt120sMiti.duration,
@@ -535,13 +519,13 @@ export const useTutorialStore = create<TutorialState>()(
                             }
                         }
 
-                        // Auto-scroll to the first tutorial event
+                        // チュートリアルイベントまでスクロール
                         setTimeout(() => {
                             const scrollContainer = document.querySelector('.timeline-scroll-container');
                             const row = document.querySelector('[data-time-row="3"]') as HTMLElement;
                             if (scrollContainer && row) {
                                 scrollContainer.scrollTo({
-                                    top: row.offsetTop, // Snap top edge exactly to the container
+                                    top: row.offsetTop,
                                     behavior: 'smooth'
                                 });
                             }
@@ -555,7 +539,7 @@ export const useTutorialStore = create<TutorialState>()(
         {
             name: 'tutorial-storage',
             // Only persist hasCompleted — runtime state should not be persisted
-            partialize: (state) => ({ hasCompleted: state.hasCompleted }),
+            partialize: (state) => ({ hasCompleted: state.hasCompleted, hasVisitedShare: state.hasVisitedShare }),
         }
     )
 );

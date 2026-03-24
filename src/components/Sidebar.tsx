@@ -477,17 +477,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             return;
         }
 
-        // 新規作成 → 名前入力ダイアログを表示（まだ保存しない）
+        // 新規作成
         const defaultName = content.shortName.en || content.shortName.ja;
+
+        // チュートリアル中はダイアログをスキップしてデフォルト名で自動作成
+        if (useTutorialStore.getState().isActive) {
+            createPlanDirectly(content, defaultName);
+            return;
+        }
+
+        // 通常: 名前入力ダイアログを表示
         setPendingContent(content);
         setPendingPlanName(defaultName);
     };
 
-    // 名前確定 → テンプレート読み込み → プラン保存
-    const handleConfirmNewPlan = async () => {
-        if (!pendingContent || !pendingPlanName.trim()) return;
-        const content = pendingContent;
-        const planTitle = pendingPlanName.trim();
+    // テンプレート読み込み → プラン保存（共通ロジック）
+    const createPlanDirectly = async (content: ContentDefinition, planTitle: string) => {
 
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
@@ -545,12 +550,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         });
         planStore.setCurrentPlanId(newPlanId);
 
-        // ダイアログを閉じる
-        setPendingContent(null);
-        setPendingPlanName('');
-
         // チュートリアル: テンプレートなしでもプラン作成完了を通知
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
+    };
+
+    // ダイアログから呼ばれるラッパー
+    const handleConfirmNewPlan = () => {
+        if (!pendingContent || !pendingPlanName.trim()) return;
+        createPlanDirectly(pendingContent, pendingPlanName.trim());
+        setPendingContent(null);
+        setPendingPlanName('');
     };
 
     const handleCancelNewPlan = () => {
