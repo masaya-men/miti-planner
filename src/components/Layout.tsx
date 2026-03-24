@@ -5,7 +5,6 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
-import { showToast } from './Toast';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -59,18 +58,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 planStore.updatePlan(planStore.currentPlanId, { data: mitiStore.getSnapshot() });
             }
         };
-        const saveWithFeedback = () => {
-            const planStore = usePlanStore.getState();
-            if (planStore.currentPlanId) {
-                saveSilently();
-                showToast(t('app.auto_saved') || '自動保存しました');
-            }
-        };
         window.addEventListener('beforeunload', saveSilently);
         const onVisibilityChange = () => { if (document.hidden) saveSilently(); };
         document.addEventListener('visibilitychange', onVisibilityChange);
-        // 30秒間隔の定期保存（フィードバック付き）
-        const interval = setInterval(saveWithFeedback, 30_000);
+        // 30秒間隔の定期保存（無音）
+        const interval = setInterval(saveSilently, 30_000);
         return () => {
             window.removeEventListener('beforeunload', saveSilently);
             document.removeEventListener('visibilitychange', onVisibilityChange);

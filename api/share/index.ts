@@ -39,7 +39,26 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'POST') {
             // ── 保存 ──
-            const { planData, title, contentId } = req.body;
+            const { planData, title, contentId, plans } = req.body;
+
+            // バンドル共有（複数プランまとめて）
+            if (Array.isArray(plans) && plans.length > 0) {
+                const shareId = nanoid(8);
+                const doc = {
+                    shareId,
+                    type: 'bundle',
+                    plans: plans.map((p: any) => ({
+                        contentId: p.contentId || null,
+                        title: p.title || '',
+                        planData: p.planData,
+                    })),
+                    createdAt: Date.now(),
+                };
+                await db.collection(COLLECTION).doc(shareId).set(doc);
+                return res.status(200).json({ shareId });
+            }
+
+            // 単一プラン共有
             if (!planData) {
                 return res.status(400).json({ error: 'planData is required' });
             }

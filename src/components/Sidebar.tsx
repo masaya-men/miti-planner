@@ -18,6 +18,7 @@ import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { NewPlanModal } from './NewPlanModal';
+import { ShareModal } from './ShareModal';
 import { getTemplate } from '../data/templateLoader';
 import {
     Plus,
@@ -25,10 +26,11 @@ import {
     ChevronRight,
     CheckSquare,
     Square,
-    Link
+    Share2
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
+import { showToast } from './Toast';
 
 // ─────────────────────────────────────────────
 // Props
@@ -59,14 +61,14 @@ interface ContentTreeItemProps {
 const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang
 }) => {
-    const isSelected = multiSelect.selectedIds.includes(content.id);
-    const isDisabled = multiSelect.isEnabled && !isSelected && multiSelect.selectedIds.length >= 10;
+    const { plans, currentPlanId, updatePlan } = usePlanStore();
+    const contentPlans = plans.filter(p => p.contentId === content.id);
+    // 複数選択モード: プラン単位で選択する
+    const hasSelectedPlan = multiSelect.isEnabled && contentPlans.some(p => multiSelect.selectedIds.includes(p.id));
+    const isDisabled = multiSelect.isEnabled && !hasSelectedPlan && multiSelect.selectedIds.length >= 10;
 
     const floorName = content.name[lang as ContentLanguage] || content.name.ja;
     const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
-
-    const { plans, currentPlanId, updatePlan } = usePlanStore();
-    const contentPlans = plans.filter(p => p.contentId === content.id);
 
     // プラン名インライン編集
     const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
@@ -95,7 +97,12 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                 <button
                     onClick={() => {
                         if (multiSelect.isEnabled) {
-                            if (!isDisabled) onToggleSelect(content.id);
+                            // プラン1件のみ → そのプランIDをトグル
+                            if (contentPlans.length === 1 && !isDisabled) {
+                                onToggleSelect(contentPlans[0].id);
+                            }
+                            // プラン2件以上 → クリックで展開（サブアイテムで個別選択）
+                            // 展開はisActiveの切り替えで対応するため何もしない
                         } else {
                             onSelect(content);
                         }
@@ -132,13 +139,21 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         </div>
                     </div>
 
-                    {multiSelect.isEnabled && (
+                    {multiSelect.isEnabled && contentPlans.length <= 1 && (
                         <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
-                            {isSelected ? (
+                            {contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id) ? (
                                 <CheckSquare size={16} className="text-app-text" />
                             ) : (
                                 <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
                             )}
+                        </div>
+                    )}
+                    {multiSelect.isEnabled && contentPlans.length > 1 && (
+                        <div className="flex items-center justify-center shrink-0 text-app-text-muted text-[9px] font-bold">
+                            {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
+                                ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
+                                : `${contentPlans.length}件`
+                            }
                         </div>
                     )}
 
@@ -170,45 +185,70 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
             </div>
 
             {/* サブアイテム: 保存済みプラン一覧（2件以上のとき表示） */}
-            {isActive && !multiSelect.isEnabled && contentPlans.length > 1 && (
+            {/* 通常モード: アクティブ時に展開 / 複数選択モード: プランがあれば常に展開 */}
+            {contentPlans.length > 1 && (isActive || multiSelect.isEnabled) && (
                 <div className="pl-9 pr-2 py-1 flex flex-col gap-0.5 border-l-2 border-app-text/15 ml-3.5 mt-1 mb-2">
-                    {contentPlans.map(plan => (
-                        <div key={plan.id} className="flex items-center gap-1">
-                            {editingPlanId === plan.id ? (
-                                <input
-                                    ref={editInputRef}
-                                    autoFocus
-                                    value={editingTitle}
-                                    onChange={e => setEditingTitle(e.target.value)}
-                                    onBlur={finishEditing}
-                                    onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                    className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
-                                />
-                            ) : (
-                                <button
-                                    onClick={() => {
-                                        const store = usePlanStore.getState();
-                                        const snap = useMitigationStore.getState().getSnapshot();
-                                        if (store.currentPlanId) {
-                                            store.updatePlan(store.currentPlanId, { data: snap });
+                    {contentPlans.map(plan => {
+                        const isPlanSelected = multiSelect.selectedIds.includes(plan.id);
+                        const isPlanDisabled = multiSelect.isEnabled && !isPlanSelected && multiSelect.selectedIds.length >= 10;
+
+                        return (
+                            <div key={plan.id} className="flex items-center gap-1">
+                                {multiSelect.isEnabled ? (
+                                    // 複数選択モード: チェックボックス付きプラン行
+                                    <button
+                                        onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
+                                        disabled={isPlanDisabled}
+                                        className={clsx(
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
+                                            isPlanSelected
+                                                ? "bg-app-text/10 text-app-text font-bold"
+                                                : "text-app-text hover:bg-glass-hover",
+                                            isPlanDisabled && "opacity-40 cursor-not-allowed"
+                                        )}
+                                    >
+                                        {isPlanSelected
+                                            ? <CheckSquare size={12} className="text-app-text shrink-0" />
+                                            : <Square size={12} className="text-app-text-muted/40 shrink-0" />
                                         }
-                                        useMitigationStore.getState().loadSnapshot(plan.data);
-                                        store.setCurrentPlanId(plan.id);
-                                    }}
-                                    onDoubleClick={(e) => startEditing(plan.id, plan.title, e)}
-                                    className={clsx(
-                                        "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
-                                        currentPlanId === plan.id
-                                            ? "bg-app-text/10 text-app-text font-bold"
-                                            : "text-app-text hover:bg-glass-hover"
-                                    )}
-                                >
-                                    <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
-                                    {plan.title}
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                                        {plan.title}
+                                    </button>
+                                ) : editingPlanId === plan.id ? (
+                                    <input
+                                        ref={editInputRef}
+                                        autoFocus
+                                        value={editingTitle}
+                                        onChange={e => setEditingTitle(e.target.value)}
+                                        onBlur={finishEditing}
+                                        onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
+                                        className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
+                                    />
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            const store = usePlanStore.getState();
+                                            const snap = useMitigationStore.getState().getSnapshot();
+                                            if (store.currentPlanId) {
+                                                store.updatePlan(store.currentPlanId, { data: snap });
+                                            }
+                                            useMitigationStore.getState().loadSnapshot(plan.data);
+                                            store.setCurrentPlanId(plan.id);
+                                        }}
+                                        onDoubleClick={(e) => startEditing(plan.id, plan.title, e)}
+                                        className={clsx(
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                            currentPlanId === plan.id
+                                                ? "bg-app-text/10 text-app-text font-bold"
+                                                : "text-app-text hover:bg-glass-hover"
+                                        )}
+                                    >
+                                        <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
+                                        {plan.title}
+                                    </button>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>
@@ -509,6 +549,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         });
     };
 
+    // まとめて共有（バンドル） → モーダル経由
+    const [bundleModalOpen, setBundleModalOpen] = useState(false);
+    const [bundlePlansForModal, setBundlePlansForModal] = useState<{ contentId: string | null; title: string; planData: any }[]>([]);
+
+    const handleShareBundle = () => {
+        if (multiSelect.selectedIds.length === 0) return;
+
+        // 現在のプランを保存
+        const planStore = usePlanStore.getState();
+        const mitiStore = useMitigationStore.getState();
+        if (currentPlanId) {
+            planStore.updatePlan(currentPlanId, { data: mitiStore.getSnapshot() });
+        }
+
+        // 選択されたプランIDからデータを収集
+        const bundlePlans = multiSelect.selectedIds
+            .map(planId => {
+                const plan = planStore.plans.find(p => p.id === planId);
+                if (!plan) return null;
+                return {
+                    contentId: plan.contentId,
+                    title: plan.title,
+                    planData: plan.data,
+                };
+            })
+            .filter(Boolean) as { contentId: string | null; title: string; planData: any }[];
+
+        if (bundlePlans.length === 0) {
+            showToast(t('app.share_no_plans') || 'プランがありません');
+            return;
+        }
+
+        setBundlePlansForModal(bundlePlans);
+        setBundleModalOpen(true);
+    };
+
     const availableCategories = useMemo(() => getCategoriesByLevel(activeLevel), [activeLevel]);
 
     useMemo(() => {
@@ -693,6 +769,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                         {t('sidebar.cancel')}
                                     </button>
                                     <button
+                                        onClick={handleShareBundle}
                                         disabled={multiSelect.selectedIds.length === 0}
                                         className={clsx(
                                             "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all shadow-md cursor-pointer",
@@ -701,7 +778,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                                 : "bg-glass-card text-app-text-muted border border-glass-border grayscale opacity-50 cursor-not-allowed"
                                         )}
                                     >
-                                        <Link size={14} />
+                                        <Share2 size={14} />
                                         <span>{t('sidebar.share_together')}</span>
                                     </button>
                                 </div>
@@ -790,6 +867,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 </motion.div>
             </div>
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={() => setIsNewPlanModalOpen(false)} />
+            <ShareModal
+                isOpen={bundleModalOpen}
+                onClose={() => {
+                    setBundleModalOpen(false);
+                    setMultiSelect({ isEnabled: false, selectedIds: [] });
+                }}
+                contentLabel={null}
+                currentPlan={undefined}
+                bundlePlans={bundlePlansForModal}
+            />
         </motion.aside>
     );
 };
