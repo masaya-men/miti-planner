@@ -656,6 +656,24 @@ const Timeline: React.FC = () => {
         }
     }, [mobilePartyOpen]);
 
+    // チュートリアル戻るボタン用: ストアからモーダル制御するカスタムイベント
+    useEffect(() => {
+        const handleCloseAll = () => {
+            setPartySettingsOpen(false);
+            setMitigationSelectorOpen(false);
+            setIsModalOpen(false);
+        };
+        const handleOpenParty = () => {
+            setPartySettingsOpen(true);
+        };
+        window.addEventListener('tutorial:close-all-modals', handleCloseAll);
+        window.addEventListener('tutorial:open-party-modal', handleOpenParty);
+        return () => {
+            window.removeEventListener('tutorial:close-all-modals', handleCloseAll);
+            window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
+        };
+    }, []);
+
     const [mobileToolsSheetOpen, setMobileToolsSheetOpen] = useState(false);
     useEffect(() => {
         if (mobileToolsOpen) {

@@ -160,6 +160,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                     <div className="flex items-center gap-2">
                         <button
+                            data-tutorial-always
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                             className="p-1.5 w-8 h-8 rounded-lg text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
                         >

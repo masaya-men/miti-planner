@@ -6,7 +6,6 @@ import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
 import { X, AlertTriangle } from 'lucide-react';
-import { Tooltip as UiTooltip } from './ui/Tooltip';
 
 // ─────────────────────────────────────────────
 // Types
@@ -209,67 +208,155 @@ interface TooltipProps {
     onNext?: () => void;
     targetRects?: TargetRect[];
     stepId?: string;
+    tooltipPosition?: string;
+    isModalTarget?: boolean;
 }
 
 const TOOLTIP_W = 340;
 const TOOLTIP_H_EST = 220; // 推定高さ
 const TOOLTIP_MARGIN = 16;
 
-/** ターゲット要素の右か左に配置。パーティ系は固定位置。 */
-function calcTooltipPos(targetRects: TargetRect[], stepId?: string): { top: number; left: number } {
+// 前回位置を記憶（'keep' 用）
+let _lastTooltipPos: { top: number; left: number } | null = null;
+
+/** ターゲット要素に対してカードを配置。
+ * - isModalTarget: モーダルの外側に配置し、縦軸のみ追従
+ * - tooltipPosition: 'right' | 'left' | 'bottom' | 'right-center' | 'keep'
+ * - デフォルト: ターゲットの右、画面端なら左
+ */
+function calcTooltipPos(
+    targetRects: TargetRect[],
+    stepId?: string,
+    tooltipPosition?: string,
+    isModalTarget?: boolean
+): { top: number; left: number } {
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+    const SAFE_MARGIN = 40; // 上下の余裕（見切れ防止を厚めに）
+
+    // 'keep': 前回位置を維持（直前のクリックでターゲットが隠れるケース向け）
+    if (tooltipPosition === 'keep' && _lastTooltipPos) {
+        return _lastTooltipPos;
+    }
 
     if (targetRects.length === 0) {
-        return { top: (vh - TOOLTIP_H_EST) / 2, left: (vw - TOOLTIP_W) / 2 };
+        // ステップ遷移中の1フレーム空振り → 前回位置を維持して中央ジャンプを防ぐ
+        if (_lastTooltipPos) return _lastTooltipPos;
+        const pos = { top: (vh - TOOLTIP_H_EST) / 2, left: (vw - TOOLTIP_W) / 2 };
+        _lastTooltipPos = pos;
+        return pos;
     }
 
     const rect = targetRects[0];
 
-    // パーティ系ステップ: パーティモーダル(幅450px)の右側に固定、上下だけ移動
-    const isPartyStep = stepId?.startsWith('party-') || stepId === 'party-myjob';
-    if (isPartyStep) {
-        // パーティモーダルの右端に固定（上下も動かさない）
-        const partyModal = document.querySelector('[data-tutorial="party-settings"]') as HTMLElement;
-        const modalRight = partyModal ? partyModal.getBoundingClientRect().right : 460;
-        const modalTop = partyModal ? partyModal.getBoundingClientRect().top : 100;
-        // モーダルの上端 + 少し下にカード配置（固定）
-        const topPos = Math.max(TOOLTIP_MARGIN, modalTop + 40);
-        const leftPos = (modalRight + TOOLTIP_MARGIN + TOOLTIP_W <= vw)
-            ? modalRight + TOOLTIP_MARGIN
-            : Math.max(TOOLTIP_MARGIN, modalRight - TOOLTIP_W - TOOLTIP_MARGIN);
-        return { top: topPos, left: leftPos };
-    }
-
-    // 縦位置: ターゲットの上端を基準に、画面内に収める
-    const topPos = Math.max(TOOLTIP_MARGIN, Math.min(
-        rect.top + rect.height / 2 - TOOLTIP_H_EST / 2,
-        vh - TOOLTIP_H_EST - TOOLTIP_MARGIN
+    // 上下の安全位置を計算するヘルパー
+    const safeTop = (centerY: number) => Math.max(SAFE_MARGIN, Math.min(
+        centerY - TOOLTIP_H_EST / 2,
+        vh - TOOLTIP_H_EST - SAFE_MARGIN
     ));
 
-    // 右に置けるか？（優先）
+    // --- モーダル内ターゲット: モーダルの外側に配置、縦軸のみ追従 ---
+    if (isModalTarget) {
+        const selector = TUTORIAL_STEPS.find(s => s.id === stepId)?.targetSelector;
+        const targetEl = selector ? document.querySelector(selector) : null;
+        const modal = targetEl?.closest('[data-tutorial-modal]') as HTMLElement | null;
+
+        if (modal) {
+            const modalRect = modal.getBoundingClientRect();
+            const topPos = safeTop(rect.top + rect.height / 2);
+
+            // モーダルの右 → 左 → フォールバック
+            if (modalRect.right + TOOLTIP_MARGIN + TOOLTIP_W <= vw - TOOLTIP_MARGIN) {
+                const pos = { top: topPos, left: modalRect.right + TOOLTIP_MARGIN };
+                _lastTooltipPos = pos;
+                return pos;
+            }
+            if (modalRect.left - TOOLTIP_MARGIN - TOOLTIP_W >= TOOLTIP_MARGIN) {
+                const pos = { top: topPos, left: modalRect.left - TOOLTIP_MARGIN - TOOLTIP_W };
+                _lastTooltipPos = pos;
+                return pos;
+            }
+            const pos = { top: topPos, left: Math.max(TOOLTIP_MARGIN, vw - TOOLTIP_W - TOOLTIP_MARGIN) };
+            _lastTooltipPos = pos;
+            return pos;
+        }
+    }
+
+    const centerY = rect.top + rect.height / 2;
+
+    // --- 'right': ターゲットの右に強制配置 ---
+    if (tooltipPosition === 'right') {
+        const pos = {
+            top: safeTop(centerY),
+            left: Math.min(rect.left + rect.width + TOOLTIP_MARGIN, vw - TOOLTIP_W - TOOLTIP_MARGIN)
+        };
+        _lastTooltipPos = pos;
+        return pos;
+    }
+
+    // --- 'left': ターゲットの左に強制配置 ---
+    if (tooltipPosition === 'left') {
+        const pos = {
+            top: safeTop(centerY),
+            left: Math.max(TOOLTIP_MARGIN, rect.left - TOOLTIP_W - TOOLTIP_MARGIN)
+        };
+        _lastTooltipPos = pos;
+        return pos;
+    }
+
+    // --- 'bottom': ターゲットの下に横中央揃え ---
+    if (tooltipPosition === 'bottom') {
+        const pos = {
+            top: Math.min(rect.top + rect.height + TOOLTIP_MARGIN, vh - TOOLTIP_H_EST - SAFE_MARGIN),
+            left: Math.max(TOOLTIP_MARGIN, Math.min(
+                rect.left + rect.width / 2 - TOOLTIP_W / 2,
+                vw - TOOLTIP_W - TOOLTIP_MARGIN
+            ))
+        };
+        _lastTooltipPos = pos;
+        return pos;
+    }
+
+    // --- 'right-center': ターゲットの右に垂直中央揃え ---
+    if (tooltipPosition === 'right-center') {
+        const topPos = safeTop(centerY);
+        const leftPos = rect.left + rect.width + TOOLTIP_MARGIN;
+        if (leftPos + TOOLTIP_W <= vw - TOOLTIP_MARGIN) {
+            const pos = { top: topPos, left: leftPos };
+            _lastTooltipPos = pos;
+            return pos;
+        }
+        const pos = { top: topPos, left: Math.max(TOOLTIP_MARGIN, rect.left - TOOLTIP_W - TOOLTIP_MARGIN) };
+        _lastTooltipPos = pos;
+        return pos;
+    }
+
+    // --- デフォルト: ターゲットの右、画面端なら左 ---
+    const topPos = safeTop(centerY);
     const spaceRight = vw - (rect.left + rect.width + TOOLTIP_MARGIN);
     if (spaceRight >= TOOLTIP_W + TOOLTIP_MARGIN) {
-        return { top: topPos, left: rect.left + rect.width + TOOLTIP_MARGIN };
+        const pos = { top: topPos, left: rect.left + rect.width + TOOLTIP_MARGIN };
+        _lastTooltipPos = pos;
+        return pos;
     }
-
-    // 左に置く
     const leftPos = rect.left - TOOLTIP_MARGIN - TOOLTIP_W;
     if (leftPos >= TOOLTIP_MARGIN) {
-        return { top: topPos, left: leftPos };
+        const pos = { top: topPos, left: leftPos };
+        _lastTooltipPos = pos;
+        return pos;
     }
-
-    // フォールバック: 右にはみ出してでも配置
-    return { top: topPos, left: Math.max(TOOLTIP_MARGIN, vw - TOOLTIP_W - TOOLTIP_MARGIN) };
+    const pos = { top: topPos, left: Math.max(TOOLTIP_MARGIN, vw - TOOLTIP_W - TOOLTIP_MARGIN) };
+    _lastTooltipPos = pos;
+    return pos;
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-    title, description, stepIndex, totalSteps, onPrev, onNext, targetRects = [], stepId
+    title, description, stepIndex, totalSteps, onPrev, onNext, targetRects = [], stepId, tooltipPosition, isModalTarget
 }) => {
     const { t } = useTranslation();
     const { requestExit } = useTutorialStore();
 
-    const pos = calcTooltipPos(targetRects, stepId);
+    const pos = calcTooltipPos(targetRects, stepId, tooltipPosition, isModalTarget);
 
     return (
         <motion.div
@@ -283,31 +370,18 @@ const Tooltip: React.FC<TooltipProps> = ({
             )}
             style={{ width: TOOLTIP_W, pointerEvents: 'auto' }}
         >
-            {/* Close button (Top Right) */}
-            <UiTooltip content={t('common.close')}>
-                <button
-                    onClick={requestExit}
-                    className="absolute top-4 right-4 p-1 rounded-lg text-app-text hover:bg-app-accent-dim transition-all cursor-pointer"
-                >
-                    <X size={16} />
-                </button>
-            </UiTooltip>
+            {/* Close button (Top Right) — UiTooltip不使用（absoluteが崩れるため） */}
+            <button
+                onClick={requestExit}
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-all cursor-pointer"
+                aria-label={t('common.close')}
+            >
+                <X size={14} />
+            </button>
 
-            {/* Step indicator */}
-            <div className="flex items-center justify-center gap-2 mb-4 pr-6">
-                {Array.from({ length: totalSteps }, (_, i) => (
-                    <div
-                        key={i}
-                        className={clsx(
-                            "h-2 rounded-full transition-all duration-300",
-                            i === stepIndex ? "w-8 bg-app-text" : "w-2 bg-app-text-muted/30"
-                        )}
-                    />
-                ))}
-            </div>
-
+            {/* Step indicator — コンパクトな数字表示 */}
             <div className="mb-4 text-xs font-bold text-app-text-muted uppercase tracking-widest">
-                STEP {stepIndex + 1}
+                {t('tutorial.step_of', { current: stepIndex + 1, total: totalSteps })}
             </div>
 
             {/* Title */}
@@ -523,6 +597,9 @@ export const TutorialOverlay: React.FC = () => {
             if (target.closest('[data-tutorial-exit-dialog]')) return;
             if (target.closest('[data-tutorial-restart-dialog]')) return;
 
+            // テーマ切替・言語切替は常に操作可能
+            if (target.closest('[data-tutorial-always]')) return;
+
             // Allow clicks on the highlighted target elements
             const targetEls = Array.from(document.querySelectorAll(currentStep.targetSelector));
             const isClickInsideTarget = targetEls.some(el => el === target || el.contains(target));
@@ -643,6 +720,8 @@ export const TutorialOverlay: React.FC = () => {
                                     onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
                                     targetRects={targetRects}
                                     stepId={currentStep.id}
+                                    tooltipPosition={currentStep.tooltipPosition}
+                                    isModalTarget={currentStep.isModalTarget}
                                 />
                             </div>
                         </div>

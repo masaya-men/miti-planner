@@ -21,6 +21,8 @@ import { usePlanStore } from '../store/usePlanStore';
 import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
 import { getTemplate } from '../data/templateLoader';
+import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
+import i18n from '../i18n';
 import {
     Plus,
     ChevronLeft,
@@ -442,6 +444,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
     const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
+    // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
+    React.useEffect(() => {
+        const handleClose = () => setIsNewPlanModalOpen(false);
+        window.addEventListener('tutorial:close-new-plan-modal', handleClose);
+        return () => window.removeEventListener('tutorial:close-new-plan-modal', handleClose);
+    }, []);
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
         selectedIds: [],
@@ -480,9 +488,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         // 新規作成
         const defaultName = content.shortName.en || content.shortName.ja;
 
-        // チュートリアル中はダイアログをスキップしてデフォルト名で自動作成
+        // チュートリアル中はダイアログをスキップ、専用プラン名で自動作成
         if (useTutorialStore.getState().isActive) {
-            createPlanDirectly(content, defaultName);
+            const lang = i18n.language?.startsWith('ja') ? 'ja' : 'en';
+            const tutorialName = `${defaultName}_${TUTORIAL_PLAN_TITLE[lang]}`;
+            createPlanDirectly(content, tutorialName, true);
             return;
         }
 
@@ -492,7 +502,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     };
 
     // テンプレート読み込み → プラン保存（共通ロジック）
-    const createPlanDirectly = async (content: ContentDefinition, planTitle: string) => {
+    // isTutorial: trueの場合、テンプレートの代わりにTUTORIAL_EVENTSをロード
+    const createPlanDirectly = async (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
 
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
@@ -503,35 +514,49 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         store.clearAllMitigations();
         setActiveLevel(content.level);
 
-        // テンプレートを裏で読み込み → 自動でプランとして保存
-        const tpl = await getTemplate(content.id);
-        if (tpl) {
-            // リセットされた初期状態にテンプレートのイベントを合成
+        if (isTutorial) {
+            // チュートリアル: 実際のステータスからダメージを動的計算
+            const members = store.partyMembers;
+            const tankHp = members.find(m => m.role === 'tank')?.stats.hp ?? 100000;
+            const otherHp = members.find(m => m.role === 'healer')?.stats.hp ?? 80000;
             const snap = store.getSnapshot();
             store.loadSnapshot({
                 ...snap,
                 timelineMitigations: [],
-                timelineEvents: tpl.timelineEvents,
-                phases: tpl.phases ? tpl.phases
-                    .filter(p => p.startTimeSec >= 0)
-                    .map((p, i, arr) => {
-                        const nextStart = arr[i + 1]?.startTimeSec;
-                        const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
-                        return {
-                            id: `phase_${p.id}`,
-                            name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
-                            endTime: nextStart !== undefined ? nextStart : maxTime + 10
-                        };
-                    }) : []
+                timelineEvents: createTutorialEvents(otherHp, tankHp),
+                phases: [],
             });
         } else {
-            // テンプレートなし → 空のプランで即開始
-            store.loadSnapshot({
-                ...store.getSnapshot(),
-                timelineEvents: [],
-                timelineMitigations: [],
-                phases: []
-            });
+            // 通常: テンプレートを裏で読み込み → 自動でプランとして保存
+            const tpl = await getTemplate(content.id);
+            if (tpl) {
+                // リセットされた初期状態にテンプレートのイベントを合成
+                const snap = store.getSnapshot();
+                store.loadSnapshot({
+                    ...snap,
+                    timelineMitigations: [],
+                    timelineEvents: tpl.timelineEvents,
+                    phases: tpl.phases ? tpl.phases
+                        .filter(p => p.startTimeSec >= 0)
+                        .map((p, i, arr) => {
+                            const nextStart = arr[i + 1]?.startTimeSec;
+                            const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
+                            return {
+                                id: `phase_${p.id}`,
+                                name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                                endTime: nextStart !== undefined ? nextStart : maxTime + 10
+                            };
+                        }) : []
+                });
+            } else {
+                // テンプレートなし → 空のプランで即開始
+                store.loadSnapshot({
+                    ...store.getSnapshot(),
+                    timelineEvents: [],
+                    timelineMitigations: [],
+                    phases: []
+                });
+            }
         }
 
         const newPlanId = `plan_${Date.now()}`;
@@ -996,6 +1021,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </div>
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={(created) => {
                 setIsNewPlanModalOpen(false);
+                // チュートリアル: モーダルを閉じたことを通知
+                useTutorialStore.getState().completeEvent('tutorial:new-plan-modal-closed');
                 if (created) {
                     setSelectedContentId(created.contentId);
                     setActiveLevel(created.level);

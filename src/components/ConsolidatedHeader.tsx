@@ -274,9 +274,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
 
-                            {/* テーマ切替 */}
+                            {/* テーマ切替（チュートリアル中も常に操作可能） */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
                                 <button
+                                    data-tutorial-always
                                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                                     className={clsx(iconBtnBase, iconBtnDefault)}
                                 >

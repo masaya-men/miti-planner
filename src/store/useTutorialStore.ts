@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useMitigationStore } from './useMitigationStore';
+import { usePlanStore } from './usePlanStore';
 import { MITIGATIONS } from '../data/mockData';
-import { TUTORIAL_EVENTS } from '../data/tutorialTemplate';
 
 // ─────────────────────────────────────────────
 // Tutorial Step Definitions
@@ -50,7 +50,7 @@ export interface TutorialStep {
     /** If true, uses a lighter overlay to keep the timeline table visible. */
     isTimelineStep?: boolean;
     /** Forced tooltip position */
-    tooltipPosition?: 'top' | 'bottom' | 'left' | 'right' | 'right-center'; // Tooltip placement preference
+    tooltipPosition?: 'top' | 'bottom' | 'left' | 'right' | 'right-center' | 'keep';
 }
 
 export const TUTORIAL_STEPS: TutorialStep[] = [
@@ -63,7 +63,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'portal:tool-selected',
         route: 'portal',
     },
-    // Step 1: サイドバーからコンテンツを選択 → 名前入力 → テンプレート読み込みまで
+    // Step 1: サイドバーからコンテンツを選択 → 名前入力スキップ → チュートリアル専用プラン作成
     {
         id: 'content-select',
         targetSelector: '[data-tutorial-first-item]',
@@ -72,7 +72,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'timeline:events-loaded',
         route: 'miti',
     },
-    // Step 2.5: Open Party Settings
+    // Step 2: Open Party Settings
     {
         id: 'open-party-settings',
         targetSelector: '[data-tutorial="party-comp"]',
@@ -135,7 +135,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isAcknowledgeStep: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'right',   // 7/23: 要素の右
     },
     {
         id: 'tutorial-7b-aoe-cell',
@@ -145,7 +145,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:opened-miti-selector',
         route: 'miti',
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'left',    // 8/23: 要素の左
     },
     {
         id: 'tutorial-7c-aoe-skill',
@@ -156,7 +156,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isModalTarget: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
     },
     {
         id: 'tutorial-7d-aoe-success',
@@ -167,7 +166,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isAcknowledgeStep: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'right',   // 10/23: 要素の右
     },
 
     // Step 8: Targeted Mitigation (TB)
@@ -180,7 +179,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isAcknowledgeStep: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'right',   // 11/23: 要素の右
     },
     {
         id: 'tutorial-8b-tb-cell',
@@ -190,7 +189,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:opened-miti-selector',
         route: 'miti',
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'left',    // 12/23: 要素の左
     },
     {
         id: 'tutorial-8c-tb-skill',
@@ -201,7 +200,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isModalTarget: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
     },
     {
         id: 'tutorial-8d-tb-target',
@@ -212,7 +210,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isModalTarget: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
     },
     {
         id: 'tutorial-8e-tb-success',
@@ -223,7 +220,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isAcknowledgeStep: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'right',   // 15/23: 要素の右
     },
 
     // Step 9: Add Mechanic
@@ -235,7 +232,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:opened-add-event-modal',
         route: 'miti',
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'right',   // 16/23: 要素の右
     },
     {
         id: 'tutorial-9b-name-input',
@@ -245,7 +242,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:entered-event-name',
         route: 'miti',
         isModalTarget: true,
-        tooltipPosition: 'right-center',
     },
     {
         id: 'tutorial-9c-damage-input',
@@ -255,7 +251,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:entered-event-damage',
         route: 'miti',
         isModalTarget: true,
-        tooltipPosition: 'right-center',
     },
     {
         id: 'tutorial-9d-miti-select',
@@ -265,7 +260,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:selected-event-mitis',
         route: 'miti',
         isModalTarget: true,
-        tooltipPosition: 'right-center',
+        // 19/24: モーダル外の右に配置（isModalTargetのロジックに委任）
     },
     {
         id: 'tutorial-9e-save-btn',
@@ -275,7 +270,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'event:created',
         route: 'miti',
         isModalTarget: true,
-        tooltipPosition: 'right-center',
     },
 
     // Step 10: My Job Highlight
@@ -287,7 +281,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         completionEvent: 'tutorial:my-job-highlight-toggled',
         route: 'miti',
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+        tooltipPosition: 'left',    // 21/23: 要素の左
     },
     {
         id: 'tutorial-10b-highlight-result',
@@ -298,7 +292,26 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
         route: 'miti',
         isAcknowledgeStep: true,
         isTimelineStep: true,
-        tooltipPosition: 'bottom',
+    },
+
+    // Step 11: 新規作成ボタンを押させる → モーダルを見せる → 閉じさせる
+    {
+        id: 'tutorial-11a-new-plan-click',
+        targetSelector: '[data-tutorial="new-plan"]',
+        titleKey: 'tutorial.step11a_title',
+        descriptionKey: 'tutorial.step11a_desc',
+        completionEvent: 'sidebar:new-plan-clicked',
+        route: 'miti',
+        isTimelineStep: true,       // 23/24: 暗くせずクリックブロックのみ
+    },
+    {
+        id: 'tutorial-11b-new-plan-close',
+        targetSelector: '[data-tutorial="new-plan-close"]',
+        titleKey: 'tutorial.step11b_title',
+        descriptionKey: 'tutorial.step11b_desc',
+        completionEvent: 'tutorial:new-plan-modal-closed',
+        route: 'miti',
+        isModalTarget: true,
     },
 
     // Final Completion Dialog
@@ -431,45 +444,161 @@ export const useTutorialStore = create<TutorialState>()(
 
             prevStep: () => {
                 const { currentStepIndex } = get();
-                const currentStep = TUTORIAL_STEPS[currentStepIndex];
+                if (currentStepIndex <= 0) return;
 
-                // --- Undo Logic for Tutorial Backwards Navigation ---
-                if (currentStep) {
-                    const mitiState = useMitigationStore.getState();
+                const mitiState = useMitigationStore.getState();
+                const targetStep = TUTORIAL_STEPS[currentStepIndex - 1];
 
-                    if (currentStep.id === 'tutorial-7d-aoe-success') {
-                        // Undo AoE Mitigation added at 4s
-                        const placed = mitiState.timelineMitigations.find(m => m.time === 4 && m.duration >= 10);
-                        if (placed) mitiState.removeMitigation(placed.id);
-                    } else if (currentStep.id === 'tutorial-8e-tb-success' || currentStep.id === 'tutorial-8d-tb-target') {
-                        // Undo targeted buff added at 10s (Not MT's own buff)
-                        const placedBuff = mitiState.timelineMitigations.find(m => m.time === 10 && m.ownerId !== 'MT');
-                        if (placedBuff && currentStep.id === 'tutorial-8e-tb-success') {
-                            mitiState.removeMitigation(placedBuff.id);
-                        }
-                    } else if (currentStep.id === 'tutorial-10-my-job-highlight') {
-                        // Undo manually created event
-                        const createdEvent = mitiState.timelineEvents.find(e => e.time !== 4 && e.time !== 10);
-                        if (createdEvent) mitiState.removeEvent(createdEvent.id);
-                    } else if (currentStep.id === 'tutorial-9a-add-mechanic-btn') {
-                        // Ensure modal is closed if we're backing out of step 9
-                        // The app might not have a direct close from here but it's handled by typical user interactions.
+                // まずすべてのモーダル/セレクターを閉じる
+                window.dispatchEvent(new CustomEvent('tutorial:close-all-modals'));
+
+                // --- 戻り先のステップに応じたundo ---
+                switch (targetStep.id) {
+                    // コンテンツ選択に戻す: プラン削除・リセット
+                    case 'content-select': {
+                        const planStore = usePlanStore.getState();
+                        const tutPlan = planStore.plans.find(p =>
+                            p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial')
+                        );
+                        if (tutPlan) planStore.deletePlan(tutPlan.id);
+                        mitiState.resetForTutorial();
+                        break;
                     }
+
+                    // パーティモーダルを開く前に戻す: パーティ全クリア
+                    case 'open-party-settings': {
+                        const allClear = mitiState.partyMembers.map(m => ({ memberId: m.id, jobId: null as string | null }));
+                        mitiState.updatePartyBulk(allClear);
+                        mitiState.setMyMemberId(null);
+                        // party-settings:closedで追加されたMT軽減も削除
+                        const mtMiti = mitiState.timelineMitigations.find(m => m.id === 'tut_mit_tank40');
+                        if (mtMiti) mitiState.removeMitigation(mtMiti.id);
+                        break;
+                    }
+
+                    // パーティスロット（最初の4人）に戻す: 全メンバークリア、モーダル再開
+                    case 'party-slots': {
+                        const allClear2 = mitiState.partyMembers.map(m => ({ memberId: m.id, jobId: null as string | null }));
+                        mitiState.updatePartyBulk(allClear2);
+                        mitiState.setMyMemberId(null);
+                        const mtMiti2 = mitiState.timelineMitigations.find(m => m.id === 'tut_mit_tank40');
+                        if (mtMiti2) mitiState.removeMitigation(mtMiti2.id);
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('tutorial:open-party-modal')), 50);
+                        break;
+                    }
+
+                    // パーティパレット（残り4人）に戻す: 後半メンバーをクリア
+                    case 'party-palette': {
+                        // 先着4人を残し、それ以降をクリア
+                        const partyOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
+                        const keep = new Set<string>();
+                        for (const id of partyOrder) {
+                            const m = mitiState.partyMembers.find(pm => pm.id === id);
+                            if (m?.jobId && keep.size < 4) keep.add(id);
+                        }
+                        const toClear = mitiState.partyMembers
+                            .filter(m => m.jobId !== null && !keep.has(m.id))
+                            .map(m => ({ memberId: m.id, jobId: null as string | null }));
+                        if (toClear.length > 0) mitiState.updatePartyBulk(toClear);
+                        mitiState.setMyMemberId(null);
+                        const mtMiti3 = mitiState.timelineMitigations.find(m => m.id === 'tut_mit_tank40');
+                        if (mtMiti3) mitiState.removeMitigation(mtMiti3.id);
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('tutorial:open-party-modal')), 50);
+                        break;
+                    }
+
+                    // マイジョブ設定に戻す: myMemberIdクリア
+                    case 'party-myjob': {
+                        mitiState.setMyMemberId(null);
+                        const mtMiti4 = mitiState.timelineMitigations.find(m => m.id === 'tut_mit_tank40');
+                        if (mtMiti4) mitiState.removeMitigation(mtMiti4.id);
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('tutorial:open-party-modal')), 50);
+                        break;
+                    }
+
+                    // モーダルを閉じるステップに戻す: モーダル再開、MT軽減削除
+                    case 'party-close': {
+                        const mtMiti5 = mitiState.timelineMitigations.find(m => m.id === 'tut_mit_tank40');
+                        if (mtMiti5) mitiState.removeMitigation(mtMiti5.id);
+                        setTimeout(() => window.dispatchEvent(new CustomEvent('tutorial:open-party-modal')), 50);
+                        break;
+                    }
+
+                    // AoE軽減追加系ステップに戻す: 追加された軽減を削除
+                    case 'tutorial-7b-aoe-cell':
+                    case 'tutorial-7c-aoe-skill': {
+                        const aoeM = mitiState.timelineMitigations.find(m => m.time === 4 && m.id !== 'tut_mit_tank40');
+                        if (aoeM) mitiState.removeMitigation(aoeM.id);
+                        break;
+                    }
+
+                    // TB軽減追加系ステップに戻す: ST由来の軽減を削除
+                    case 'tutorial-8b-tb-cell':
+                    case 'tutorial-8c-tb-skill':
+                    case 'tutorial-8d-tb-target': {
+                        const tbM = mitiState.timelineMitigations.find(m => m.time === 10 && m.ownerId !== 'MT');
+                        if (tbM) mitiState.removeMitigation(tbM.id);
+                        break;
+                    }
+
+                    // イベント追加系ステップに戻す: 追加されたイベントを削除
+                    case 'tutorial-9a-add-mechanic-btn':
+                    case 'tutorial-9b-name-input':
+                    case 'tutorial-9c-damage-input':
+                    case 'tutorial-9d-miti-select':
+                    case 'tutorial-9e-save-btn': {
+                        const created = mitiState.timelineEvents.find(e => e.id !== 'tut_evt_aoe' && e.id !== 'tut_evt_tb');
+                        if (created) mitiState.removeEvent(created.id);
+                        break;
+                    }
+
+                    // マイジョブハイライトに戻す: ハイライトOFF、追加イベント削除
+                    case 'tutorial-10-my-job-highlight': {
+                        mitiState.setMyJobHighlight(false);
+                        const created2 = mitiState.timelineEvents.find(e => e.id !== 'tut_evt_aoe' && e.id !== 'tut_evt_tb');
+                        if (created2) mitiState.removeEvent(created2.id);
+                        break;
+                    }
+
+                    // ハイライト結果確認に戻す: ハイライトOFF
+                    case 'tutorial-10b-highlight-result': {
+                        mitiState.setMyJobHighlight(false);
+                        break;
+                    }
+
+                    // 新規作成ボタンに戻す: NewPlanModalを閉じる
+                    case 'tutorial-11a-new-plan-click': {
+                        window.dispatchEvent(new CustomEvent('tutorial:close-new-plan-modal'));
+                        break;
+                    }
+
+                    // その他（acknowledge系）: 特別なundoなし
+                    default:
+                        break;
                 }
 
-                const prevIndex = currentStepIndex - 1;
-                if (prevIndex >= 0) {
-                    set({ currentStepIndex: prevIndex });
-                }
+                set({ currentStepIndex: currentStepIndex - 1 });
             },
 
             completeTutorial: () => {
                 useMitigationStore.getState().resetForTutorial();
+                // チュートリアル専用プランを削除
+                const planStore = usePlanStore.getState();
+                const tutorialPlan = planStore.plans.find(p => p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial'));
+                if (tutorialPlan) {
+                    planStore.deletePlan(tutorialPlan.id);
+                }
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0 });
             },
 
             skipTutorial: () => {
                 useMitigationStore.getState().resetForTutorial();
+                // チュートリアル専用プランを削除
+                const planStore = usePlanStore.getState();
+                const tutorialPlan = planStore.plans.find(p => p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial'));
+                if (tutorialPlan) {
+                    planStore.deletePlan(tutorialPlan.id);
+                }
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0, pendingTutorialExit: false });
             },
 
@@ -496,14 +625,9 @@ export const useTutorialStore = create<TutorialState>()(
                 const currentStep = TUTORIAL_STEPS[currentStepIndex];
                 if (currentStep && currentStep.completionEvent === eventName) {
                     if (eventName === 'party-settings:closed') {
-                        // チュートリアル専用データでタイムラインを構築
+                        // イベントは専用プランに事前ロード済み → 軽減配置のみ
                         const mitiState = useMitigationStore.getState();
                         const mt = mitiState.partyMembers.find((p) => p.id === 'MT');
-
-                        // 専用イベントを追加
-                        for (const evt of TUTORIAL_EVENTS) {
-                            mitiState.addEvent({ ...evt });
-                        }
 
                         // MTの120s軽減を事前配置
                         if (mt?.jobId) {
