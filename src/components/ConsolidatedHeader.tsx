@@ -43,6 +43,35 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
+// 保存状態インジケータ（Figma/Notion方式）
+const SaveIndicator: React.FC = () => {
+    const { t } = useTranslation();
+    const currentPlanId = usePlanStore(s => s.currentPlanId);
+    const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
+    const [status, setStatus] = React.useState<'saved' | 'saving'>('saved');
+    const prevMitiRef = React.useRef(timelineMitigations);
+
+    React.useEffect(() => {
+        if (prevMitiRef.current !== timelineMitigations && currentPlanId) {
+            prevMitiRef.current = timelineMitigations;
+            setStatus('saving');
+            const timer = setTimeout(() => setStatus('saved'), 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [timelineMitigations, currentPlanId]);
+
+    if (!currentPlanId) return null;
+
+    return (
+        <span className="text-[10px] text-app-text-muted whitespace-nowrap shrink-0 transition-opacity duration-300">
+            {status === 'saving'
+                ? t('app.saving', { defaultValue: '保存中...' })
+                : t('app.saved', { defaultValue: '保存済み ✓' })
+            }
+        </span>
+    );
+};
+
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
     onImportLogs,
@@ -139,9 +168,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     animate={{ y: (isNear || isHovered) ? -5 : 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
-                    {/* Layer A（上段・表から遠い）: ナビ + ユーティリティ */}
-                    <div className="h-12 flex items-center justify-between px-6 border-b border-app-border shrink-0 overflow-hidden">
-                        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                    {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
+                    <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-hidden">
+                        {/* ── 左グループ（余ったスペースを使う） ── */}
+                        <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
                                 <button
                                     onClick={() => navigate('/')}
@@ -151,42 +181,45 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* 現在のコンテンツ名 — ヒーロー表示 + 共有ボタン */}
                             {currentPlan && (
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <div
-                                        className="flex items-baseline gap-2 min-w-0 origin-left"
-                                        style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
-                                    >
-                                        {contentLabel && (
-                                            <span
-                                                className="text-[26px] text-app-text leading-tight whitespace-nowrap shrink-0"
-                                                style={{
-                                                    fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
-                                                    fontWeight: 700,
-                                                    letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
-                                                }}
-                                            >
-                                                {contentLabel}
-                                            </span>
-                                        )}
-                                        {currentPlan.title && currentPlan.title !== contentLabel && (
-                                            <span className="text-[13px] text-app-text tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-                                                {currentPlan.title}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* 共有ボタン */}
-                                    <div className="shrink-0 mr-2">
-                                        <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
-                                    </div>
+                                <div
+                                    className="flex items-baseline gap-2 min-w-0 origin-left"
+                                    style={i18n.language.startsWith('ja') ? { transform: 'scaleX(0.85)' } : undefined}
+                                >
+                                    {contentLabel && (
+                                        <span
+                                            className="text-[26px] text-app-text leading-tight whitespace-nowrap shrink-0"
+                                            style={{
+                                                fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
+                                                fontWeight: 700,
+                                                letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
+                                            }}
+                                        >
+                                            {contentLabel}
+                                        </span>
+                                    )}
+                                    {currentPlan.title && currentPlan.title !== contentLabel && (
+                                        <span className="text-[13px] text-app-text tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+                                            {currentPlan.title}
+                                        </span>
+                                    )}
                                 </div>
                             )}
+
+                            {/* 保存インジケータ */}
+                            <SaveIndicator />
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0">
-                            {/* Tutorial */}
+                        {/* ── 右グループ（固定位置・絶対に動かない） ── */}
+                        <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                            {/* 共有ボタン */}
+                            {currentPlan && (
+                                <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
+                            )}
+
+                            <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
+
+                            {/* チュートリアル */}
                             <button
                                 onClick={() => {
                                     const path = window.location.pathname;
@@ -204,7 +237,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
 
-                            {/* Theme toggle */}
+                            {/* テーマ切替 */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
                                 <button
                                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -217,11 +250,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
+                            {/* 言語切替 */}
                             <LanguageSwitcher />
 
-                            <div className="h-5 w-[1px] bg-app-border mx-0.5 rounded-full" />
-
-                            {/* ログイン / アカウントメニュー */}
+                            {/* ログイン */}
                             <Tooltip content={user ? (user.displayName || 'Account') : t('app.sign_in') || 'Sign In'}>
                                 <button
                                     onClick={() => setShowLoginModal(true)}
@@ -277,7 +309,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </button>
 
                             {/* Import（アイコンのみ） */}
-                            <Tooltip content={t('timeline.import_fflogs')}>
+                            <Tooltip content={t('timeline.import_fflogs_desc', { defaultValue: 'FFLogsからタイムラインを生成' })}>
                                 <button
                                     onClick={onImportLogs}
                                     className={clsx(

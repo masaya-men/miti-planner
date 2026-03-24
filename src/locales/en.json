@@ -36,6 +36,10 @@
         "share_no_plans": "No plans found",
         "shared_plan": "Shared Mitigation Plan",
         "auto_saved": "Auto-saved",
+        "saving": "Saving...",
+        "saved": "Saved ✓",
+        "empty_state_title": "Create a mitigation plan",
+        "empty_state_desc": "Select content from the sidebar to start building your mitigation plan.",
         "toggle_theme_light": "Switch to Light Theme",
         "toggle_theme_dark": "Switch to Dark Theme"
     },
@@ -222,6 +226,7 @@
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",
         "import_fflogs": "Create Timeline",
+        "import_fflogs_desc": "Generate timeline from FFLogs",
         "end_phase": "Add phase name up to here",
         "add_event": "Add Mechanic"
     },
@@ -272,6 +277,8 @@
         "multi_select_mode": "Multi-Select",
         "selected_count": "{{count}}/10 Selected",
         "share_together": "Share Together",
+        "delete": "Delete",
+        "delete_confirm": "Delete {{count}} plan(s)?",
         "limit_reached_warning": "Up to 10 items can be selected",
         "select_content": "Select Content",
         "select_content_desc": "Choose the content for your mitigation plan",

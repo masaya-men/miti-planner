@@ -37,7 +37,11 @@
         "share_copied_toast": "軽減表をコピーしました",
         "share_no_plans": "プランがありません",
         "shared_plan": "共有された軽減プラン",
-        "auto_saved": "自動保存しました"
+        "auto_saved": "自動保存しました",
+        "saving": "保存中...",
+        "saved": "保存済み ✓",
+        "empty_state_title": "軽減表を作りましょう",
+        "empty_state_desc": "サイドバーからコンテンツを選んで、軽減プランを始めましょう。"
     },
     "login": {
         "title": "ログイン",
@@ -226,6 +230,7 @@
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
         "import_fflogs": "タイムラインを作成",
+        "import_fflogs_desc": "FFLogsからタイムラインを生成",
         "end_phase": "ここまでのフェーズ名を追加",
         "add_event": "敵の攻撃を追加"
     },
@@ -276,6 +281,8 @@
         "multi_select_mode": "複数選択",
         "selected_count": "{{count}}/10 選択中",
         "share_together": "まとめて共有",
+        "delete": "削除",
+        "delete_confirm": "{{count}}件の軽減表を削除しますか？",
         "limit_reached_warning": "最大10件まで選択可能です",
         "select_content": "コンテンツ選択",
         "select_content_desc": "軽減表を作成するコンテンツを選びましょう",
