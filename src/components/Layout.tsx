@@ -178,18 +178,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                     {children}
 
-                    {/* プラン0件時のオーバーレイ — コンテンツ選択を促す */}
+                    {/* プラン0件時のオーバーレイ — タグ型吹き出し */}
                     {plans.length === 0 && (
-                        <div className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-none">
-                            <div className="absolute inset-0 bg-app-bg/80 backdrop-blur-sm" />
-                            <div className="relative text-center px-8 py-10 rounded-2xl border border-app-border bg-app-bg/90 shadow-lg max-w-md pointer-events-auto">
-                                <p className="text-lg font-bold text-app-text mb-2">
-                                    {t('app.empty_state_title', { defaultValue: '軽減表を作りましょう' })}
+                        <div className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-auto">
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: [0, -4, 0] }}
+                                transition={{ opacity: { duration: 0.4 }, x: { repeat: Infinity, duration: 2, ease: 'easeInOut', delay: 0.5 } }}
+                                className="relative px-8 py-6 rounded-r-2xl rounded-l-none border border-l-4 border-app-text/40 bg-app-bg/95 backdrop-blur-sm shadow-lg max-w-sm text-center"
+                            >
+                                <p className="text-base font-bold text-app-text mb-1">
+                                    {t('app.empty_state_title')}
                                 </p>
-                                <p className="text-sm text-app-text-muted">
-                                    {t('app.empty_state_desc', { defaultValue: 'サイドバーからコンテンツを選んで、軽減プランを始めましょう。' })}
+                                <p className="text-[12px] text-app-text-muted">
+                                    {t('app.empty_state_desc')}
                                 </p>
-                            </div>
+                            </motion.div>
                         </div>
                     )}
                 </motion.main>

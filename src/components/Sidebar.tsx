@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -27,7 +28,8 @@ import {
     CheckSquare,
     Square,
     Share2,
-    Trash2
+    Trash2,
+    X
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -62,14 +64,19 @@ interface ContentTreeItemProps {
 const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang
 }) => {
+    const { t } = useTranslation();
     const { plans, currentPlanId, updatePlan } = usePlanStore();
     const contentPlans = plans.filter(p => p.contentId === content.id);
     // 複数選択モード: プラン単位で選択する
     const hasSelectedPlan = multiSelect.isEnabled && contentPlans.some(p => multiSelect.selectedIds.includes(p.id));
-    const isDisabled = multiSelect.isEnabled && !hasSelectedPlan && multiSelect.selectedIds.length >= 10;
+    // 共有モードのみ10件制限、削除モードは無制限
+    const isDisabled = multiSelect.isEnabled && multiSelect.mode === 'share' && !hasSelectedPlan && multiSelect.selectedIds.length >= 10;
 
     const floorName = content.name[lang as ContentLanguage] || content.name.ja;
     const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
+    // 選択モード中にプラン0件のコンテンツは選択不可
+    const hasNoPlans = contentPlans.length === 0;
+    const isUnavailable = multiSelect.isEnabled && hasNoPlans;
 
     // プラン名インライン編集
     const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
@@ -118,7 +125,8 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         isActive && !multiSelect.isEnabled
                             ? "bg-app-text/10 border border-app-text/20 text-app-text shadow-sm"
                             : "bg-transparent border border-transparent text-app-text hover:bg-glass-hover",
-                        isDisabled && "opacity-40 cursor-not-allowed grayscale"
+                        isDisabled && "opacity-40 cursor-not-allowed grayscale",
+                        isUnavailable && "opacity-20 pointer-events-none"
                     )}
                 >
                     {isActive && !multiSelect.isEnabled && (
@@ -175,29 +183,16 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                 </button>
                 </Tooltip>
 
-                {/* ホバーで表示される「+」ボタン（同コンテンツの新プラン作成） */}
-                {isActive && !multiSelect.isEnabled && (
-                    <Tooltip content={lang === 'en' ? 'New plan' : '新しい軽減表'} position="right">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onSelect(content, true);
-                            }}
-                            className="w-6 h-6 rounded-md flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-all opacity-0 group-hover/content:opacity-100 shrink-0 cursor-pointer mr-1"
-                        >
-                            <Plus size={12} />
-                        </button>
-                    </Tooltip>
-                )}
+                {/* ホバーの+ボタンは廃止 → サブアイテム末尾の+行に移動 */}
             </div>
 
-            {/* サブアイテム: 保存済みプラン一覧（2件以上のとき表示） */}
-            {/* 通常モード: アクティブ時に展開 / 複数選択モード: プランがあれば常に展開 */}
-            {contentPlans.length > 1 && (isActive || multiSelect.isEnabled) && (
+            {/* サブアイテム: 保存済みプラン一覧 */}
+            {/* 通常モード: アクティブかつ1件以上で展開 / 複数選択モード: プランがあれば常に展開 */}
+            {contentPlans.length >= 1 && (isActive || multiSelect.isEnabled) && (
                 <div className="pl-9 pr-2 py-1 flex flex-col gap-0.5 border-l-2 border-app-text/15 ml-3.5 mt-1 mb-2">
                     {contentPlans.map(plan => {
                         const isPlanSelected = multiSelect.selectedIds.includes(plan.id);
-                        const isPlanDisabled = multiSelect.isEnabled && !isPlanSelected && multiSelect.selectedIds.length >= 10;
+                        const isPlanDisabled = multiSelect.isEnabled && multiSelect.mode === 'share' && !isPlanSelected && multiSelect.selectedIds.length >= 10;
 
                         return (
                             <div key={plan.id} className="flex items-center gap-1">
@@ -256,6 +251,16 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                             </div>
                         );
                     })}
+                    {/* 「+」行 — 同コンテンツに新しいプランを追加 */}
+                    {isActive && !multiSelect.isEnabled && (
+                        <button
+                            onClick={() => onSelect(content, true)}
+                            className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer"
+                        >
+                            <Plus size={10} className="shrink-0" />
+                            {t('sidebar.add_plan')}
+                        </button>
+                    )}
                 </div>
             )}
         </div>
@@ -276,13 +281,14 @@ interface SeriesAccordionProps {
     lang: ContentLanguage;
     highlightFirst?: boolean;
     showLabel: boolean;
+    defaultExpanded?: boolean;
 }
 
 const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
-    series, floors, selectedContentId, multiSelect, onToggleSelect, onSelectContent, lang, highlightFirst, showLabel
+    series, floors, selectedContentId, multiSelect, onToggleSelect, onSelectContent, lang, highlightFirst, showLabel, defaultExpanded = true
 }) => {
     const hasActiveFloor = React.useMemo(() => floors.some(f => f.id === selectedContentId), [floors, selectedContentId]);
-    const [isExpanded, setIsExpanded] = React.useState(true);
+    const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
 
     React.useEffect(() => {
         if (hasActiveFloor) {
@@ -357,12 +363,13 @@ interface CategoryAccordionProps {
     onSelectContent: (content: ContentDefinition, forceNew?: boolean) => void;
     highlightFirst?: boolean;
     lang: ContentLanguage;
+    defaultExpanded?: boolean;
 }
 
 const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
-    level, category, selectedContentId, multiSelect, onToggleSelect, onSelectContent, highlightFirst, lang
+    level, category, selectedContentId, multiSelect, onToggleSelect, onSelectContent, highlightFirst, lang, defaultExpanded = false
 }) => {
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
     const projectLabel = getProjectLabel(level, category);
     const categoryLabel = projectLabel
         ? `${CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja}：${projectLabel[lang as ContentLanguage] || projectLabel.ja}`
@@ -390,7 +397,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 
             {isExpanded && (
                 <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2 animate-in fade-in slide-in-from-left-1 duration-200">
-                    {seriesList.map(series => (
+                    {seriesList.map((series, idx) => (
                         <SeriesAccordion
                             key={series.id}
                             series={series}
@@ -402,6 +409,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                             lang={lang}
                             highlightFirst={highlightFirst}
                             showLabel={seriesList.length > 1}
+                            defaultExpanded={idx === 0}
                         />
                     ))}
                 </div>
@@ -426,13 +434,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
-        selectedIds: []
+        selectedIds: [],
+        mode: 'share',
     });
+    // 削除確認モーダル
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // 名前入力ダイアログ用ステート
+    const [pendingContent, setPendingContent] = useState<ContentDefinition | null>(null);
+    const [pendingPlanName, setPendingPlanName] = useState('');
 
     const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
     const { getSnapshot, loadSnapshot } = useMitigationStore();
 
-    const handleSelectContent = async (content: ContentDefinition, forceNew?: boolean) => {
+    // コンテンツクリック → 既存プランがあればそれを開く、なければ名前入力ダイアログを表示
+    const handleSelectContent = (content: ContentDefinition, forceNew?: boolean) => {
         setSelectedContentId(content.id);
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
@@ -451,13 +467,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             return;
         }
 
+        // 新規作成 → 名前入力ダイアログを表示（まだ保存しない）
+        const defaultName = content.shortName.en || content.shortName.ja;
+        setPendingContent(content);
+        setPendingPlanName(defaultName);
+    };
+
+    // 名前確定 → テンプレート読み込み → プラン保存
+    const handleConfirmNewPlan = async () => {
+        if (!pendingContent || !pendingPlanName.trim()) return;
+        const content = pendingContent;
+        const planTitle = pendingPlanName.trim();
+
+        const store = useMitigationStore.getState();
+        const planStore = usePlanStore.getState();
+
         store.setCurrentLevel(content.level);
         store.applyDefaultStats(content.level, content.patch);
         // 新しいコンテンツを開くので軽減・パーティをクリア
         store.clearAllMitigations();
         setActiveLevel(content.level);
-
-        const contentName = content.name[lang as ContentLanguage] || content.name.ja;
 
         // テンプレートを裏で読み込み → 自動でプランとして保存
         const tpl = await getTemplate(content.id);
@@ -480,48 +509,43 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         };
                     }) : []
             });
-
-            // 自動でプランとして保存（テンプレートという概念をユーザーに見せない）
-            const newPlanId = `plan_${Date.now()}`;
-            planStore.addPlan({
-                id: newPlanId,
-                ownerId: 'local',
-                ownerDisplayName: 'Guest',
-                contentId: content.id,
-                title: contentName,
-                isPublic: false,
-                copyCount: 0,
-                useCount: 0,
-                data: store.getSnapshot(),
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            });
-            planStore.setCurrentPlanId(newPlanId);
         } else {
-            // テンプレートなし → 空のプランを作成して即開始
+            // テンプレートなし → 空のプランで即開始
             store.loadSnapshot({
                 ...store.getSnapshot(),
                 timelineEvents: [],
                 timelineMitigations: [],
                 phases: []
             });
-            const newPlanId = `plan_${Date.now()}`;
-            planStore.addPlan({
-                id: newPlanId,
-                ownerId: 'local',
-                ownerDisplayName: 'Guest',
-                contentId: content.id,
-                title: contentName,
-                isPublic: false,
-                copyCount: 0,
-                useCount: 0,
-                data: store.getSnapshot(),
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            });
-            planStore.setCurrentPlanId(newPlanId);
         }
-        useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
+
+        const newPlanId = `plan_${Date.now()}`;
+        planStore.addPlan({
+            id: newPlanId,
+            ownerId: 'local',
+            ownerDisplayName: 'Guest',
+            contentId: content.id,
+            title: planTitle,
+            isPublic: false,
+            copyCount: 0,
+            useCount: 0,
+            data: store.getSnapshot(),
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+        planStore.setCurrentPlanId(newPlanId);
+
+        // ダイアログを閉じる
+        setPendingContent(null);
+        setPendingPlanName('');
+
+        // チュートリアル: テンプレートなしでもプラン作成完了を通知
+        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+    };
+
+    const handleCancelNewPlan = () => {
+        setPendingContent(null);
+        setPendingPlanName('');
     };
 
     const handleLoadPlan = (planId: string) => {
@@ -541,11 +565,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         setActiveLevel(plan.data.currentLevel as ContentLevel);
     };
 
-    const toggleMultiSelectMode = () => {
-        setMultiSelect(prev => ({
-            isEnabled: !prev.isEnabled,
-            selectedIds: []
-        }));
+    const toggleMultiSelectMode = (mode: 'share' | 'delete' = 'share') => {
+        setMultiSelect(prev => {
+            if (prev.isEnabled && prev.mode === mode) {
+                // 同じモードを再度押した → オフにする
+                return { isEnabled: false, selectedIds: [], mode: 'share' };
+            }
+            // オフ→オン or 別モードに切り替え
+            return { isEnabled: true, selectedIds: [], mode };
+        });
     };
 
     const toggleItemId = (id: string) => {
@@ -553,7 +581,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             const isSelected = prev.selectedIds.includes(id);
             if (isSelected) {
                 return { ...prev, selectedIds: prev.selectedIds.filter(i => i !== id) };
-            } else if (prev.selectedIds.length < 10) {
+            } else if (prev.mode === 'delete' || prev.selectedIds.length < 10) {
                 return { ...prev, selectedIds: [...prev.selectedIds, id] };
             }
             return prev;
@@ -628,13 +656,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     <div className="p-2 border-b border-glass-border" />
 
                     {!multiSelect.isEnabled && plans.length > 0 && (
-                        <div className="px-3 pb-2 shrink-0 mt-3">
-                            <div className="flex items-center mb-2 px-1">
+                        <div className="pb-2 shrink-0 mt-3">
+                            <div className="flex items-center mb-2 px-4">
                                 <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
-                            <div className="space-y-1 max-h-[84px] overflow-y-auto">
+                            <div className="space-y-1 max-h-[84px] overflow-y-auto px-3 custom-scrollbar">
                                 {plans.slice(0, 5).map((plan) => (
                                     <button
                                         key={plan.id}
@@ -668,53 +696,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         </div>
                     )}
 
-                    <div className="px-3 flex items-center gap-1.5 mb-2 shrink-0 flex-wrap">
+                    <div className="px-3 flex items-center gap-1 mb-2 shrink-0 flex-wrap">
                         <button
                             onClick={() => {
                                 setIsNewPlanModalOpen(true);
                                 useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
                             }}
                             data-tutorial="new-plan"
-                            className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
+                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
                         >
                             <Plus size={10} />
                             {t('sidebar.new_plan').toUpperCase()}
                         </button>
                         <button
-                            onClick={toggleMultiSelectMode}
+                            onClick={() => toggleMultiSelectMode('share')}
                             className={clsx(
-                                "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
-                                multiSelect.isEnabled
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
+                                multiSelect.isEnabled && multiSelect.mode === 'share'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
                                     : "bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
                             )}
                         >
-                            {multiSelect.isEnabled ? <CheckSquare size={10} /> : <Square size={10} />}
+                            {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={10} /> : <Square size={10} />}
                             {t('sidebar.multi_select_mode').toUpperCase()}
                         </button>
-                        {/* 選択削除ボタン — 常時表示、選択中のみアクティブ */}
+                        {/* 選択削除ボタン — 押すと削除用選択モードに入る */}
                         <button
-                            onClick={() => {
-                                if (!multiSelect.isEnabled) {
-                                    // 複数選択モードでなければ、まず複数選択モードをオンにする
-                                    toggleMultiSelectMode();
-                                    return;
-                                }
-                                if (multiSelect.selectedIds.length === 0) return;
-                                if (!confirm(t('sidebar.delete_confirm', { count: multiSelect.selectedIds.length, defaultValue: `${multiSelect.selectedIds.length}件の軽減表を削除しますか？` }))) return;
-                                const planStore = usePlanStore.getState();
-                                multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
-                                setMultiSelect({ isEnabled: false, selectedIds: [] });
-                            }}
+                            onClick={() => toggleMultiSelectMode('delete')}
                             className={clsx(
-                                "flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer shadow-sm",
-                                multiSelect.isEnabled && multiSelect.selectedIds.length > 0
-                                    ? "bg-glass-card text-red-500 border-red-500/30 hover:bg-red-500/10"
-                                    : "bg-glass-card text-app-text-muted border-glass-border hover:bg-glass-hover"
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer shadow-sm",
+                                multiSelect.isEnabled && multiSelect.mode === 'delete'
+                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-glass-hover"
                             )}
                         >
                             <Trash2 size={10} />
-                            {t('sidebar.select_delete', { defaultValue: '選択削除' }).toUpperCase()}
+                            {t('sidebar.select_delete').toUpperCase()}
                         </button>
                     </div>
 
@@ -782,40 +799,66 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                                     onSelectContent={handleSelectContent}
                                     lang={lang}
                                     highlightFirst={isTutorialContentSelect && category === availableCategories[0]}
+                                    defaultExpanded={category === 'savage' || category === 'ultimate'}
                                 />
                             ))}
 
                     </div>
 
+                    {/* 下部アクションバー — 選択モード時に表示 */}
                     {multiSelect.isEnabled && (
                         <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="bg-app-bg border border-app-text/20 rounded-2xl shadow-sm p-3 flex items-center justify-between gap-3 overflow-hidden group">
+                            <div className="relative bg-app-bg border border-app-text/20 rounded-2xl shadow-sm p-3 overflow-hidden">
                                 <div className="absolute inset-0 bg-app-text/5 animate-pulse" />
-                                <div className="relative flex flex-col">
+                                {/* 上段: 選択件数 */}
+                                <div className="relative text-center mb-2">
                                     <span className="text-[10px] font-bold text-app-text">
-                                        {t('sidebar.selected_count', { count: multiSelect.selectedIds.length })}
+                                        {multiSelect.mode === 'delete'
+                                            ? t('sidebar.selected_count_simple', { count: multiSelect.selectedIds.length })
+                                            : t('sidebar.selected_count', { count: multiSelect.selectedIds.length })
+                                        }
                                     </span>
                                 </div>
+                                {/* 下段: キャンセル + アクション */}
                                 <div className="relative flex items-center gap-2">
                                     <button
-                                        onClick={toggleMultiSelectMode}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-app-text cursor-pointer"
+                                        onClick={() => setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' })}
+                                        className="flex-1 py-1.5 rounded-lg text-xs font-bold text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
                                     >
                                         {t('sidebar.cancel')}
                                     </button>
-                                    <button
-                                        onClick={handleShareBundle}
-                                        disabled={multiSelect.selectedIds.length === 0}
-                                        className={clsx(
-                                            "flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-black transition-all shadow-md cursor-pointer",
-                                            multiSelect.selectedIds.length > 0
-                                                ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
-                                                : "bg-glass-card text-app-text-muted border border-glass-border grayscale opacity-50 cursor-not-allowed"
-                                        )}
-                                    >
-                                        <Share2 size={14} />
-                                        <span>{t('sidebar.share_together')}</span>
-                                    </button>
+                                    {multiSelect.mode === 'share' ? (
+                                        <button
+                                            onClick={handleShareBundle}
+                                            disabled={multiSelect.selectedIds.length === 0}
+                                            className={clsx(
+                                                "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
+                                                multiSelect.selectedIds.length > 0
+                                                    ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
+                                                    : "bg-glass-card text-app-text-muted border border-glass-border opacity-50 cursor-not-allowed"
+                                            )}
+                                        >
+                                            <Share2 size={14} />
+                                            <span>{t('sidebar.share_together')}</span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => {
+                                                if (multiSelect.selectedIds.length === 0) return;
+                                                setShowDeleteConfirm(true);
+                                            }}
+                                            disabled={multiSelect.selectedIds.length === 0}
+                                            className={clsx(
+                                                "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
+                                                multiSelect.selectedIds.length > 0
+                                                    ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
+                                                    : "bg-glass-card text-app-text-muted border border-glass-border opacity-50 cursor-not-allowed"
+                                            )}
+                                        >
+                                            <Trash2 size={14} />
+                                            <span>{t('sidebar.delete')}</span>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -912,6 +955,121 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                 currentPlan={undefined}
                 bundlePlans={bundlePlansForModal}
             />
+
+            {/* 名前入力ダイアログ — createPortalでbodyに配置（motion.aside内のtransformでfixedが効かない問題を回避） */}
+            {pendingContent && createPortal(
+                <div
+                    className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                    onClick={handleCancelNewPlan}
+                >
+                    <div
+                        className="relative bg-app-bg border border-app-border rounded-2xl shadow-2xl w-[360px] max-w-[90vw] overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="px-5 py-4 border-b border-app-border">
+                            <h3 className="text-sm font-bold text-app-text">
+                                {t('sidebar.name_dialog_title')}
+                            </h3>
+                            <p className="text-[11px] text-app-text-muted mt-1">
+                                {t('sidebar.name_dialog_desc')}
+                            </p>
+                        </div>
+                        <div className="px-5 py-4">
+                            <input
+                                autoFocus
+                                type="text"
+                                value={pendingPlanName}
+                                onChange={e => setPendingPlanName(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter' && pendingPlanName.trim()) handleConfirmNewPlan();
+                                    if (e.key === 'Escape') handleCancelNewPlan();
+                                }}
+                                onFocus={e => e.target.select()}
+                                className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-sm text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
+                            />
+                        </div>
+                        <div className="px-5 pb-4 flex gap-2">
+                            <button
+                                onClick={handleCancelNewPlan}
+                                className="flex-1 py-2.5 rounded-xl border border-app-border text-xs font-bold text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                            <button
+                                onClick={handleConfirmNewPlan}
+                                disabled={!pendingPlanName.trim()}
+                                className={clsx(
+                                    "flex-[2] py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                    pendingPlanName.trim()
+                                        ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
+                                        : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
+                                )}
+                            >
+                                {t('sidebar.create_plan_button')}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+            {/* 削除確認モーダル — NewPlanModalと同じ温度感 */}
+            {showDeleteConfirm && createPortal(
+                <div
+                    className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                    onClick={() => setShowDeleteConfirm(false)}
+                >
+                    <div
+                        className="relative w-full max-w-[400px] bg-glass-panel border border-glass-border/50 rounded-2xl shadow-sm overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* ヘッダー */}
+                        <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
+                            <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
+                                <span className="w-1.5 h-4 bg-app-text rounded-full" />
+                                {t('sidebar.delete_confirm_title')}
+                            </h2>
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* 本文 */}
+                        <div className="p-6 space-y-3">
+                            <p className="text-[13px] font-bold text-app-text text-center">
+                                {t('sidebar.delete_confirm', { count: multiSelect.selectedIds.length })}
+                            </p>
+                            <p className="text-[11px] text-app-text-muted text-center">
+                                {t('sidebar.delete_warning')}
+                            </p>
+                        </div>
+
+                        {/* フッター */}
+                        <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const planStore = usePlanStore.getState();
+                                    multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
+                                    setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
+                                    setShowDeleteConfirm(false);
+                                }}
+                                className="flex-[2] py-3.5 rounded-2xl text-[11px] font-black bg-app-text text-app-bg hover:opacity-80 transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
+                            >
+                                {t('sidebar.delete')}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </motion.aside>
     );
 };

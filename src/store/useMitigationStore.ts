@@ -191,6 +191,11 @@ export const useMitigationStore = create<MitigationState>()(
                         _history: [],
                         _future: [],
                     });
+
+                    // チュートリアル: スナップショット読み込みでイベントが存在すれば通知
+                    if (snapshot.timelineEvents.length > 0) {
+                        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+                    }
                 },
 
                 // Undo: restore the last snapshot from history

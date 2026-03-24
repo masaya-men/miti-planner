@@ -21,7 +21,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const { t } = useTranslation();
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
     const [copied, setCopied] = useState(false);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
@@ -31,6 +32,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         if (!isOpen) return;
         setShareUrl(null);
         setOgImageUrl(null);
+        setImageLoaded(false);
         setCopied(false);
         generateShareUrl();
     }, [isOpen]);
@@ -78,7 +80,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
     const handleShareX = () => {
         if (!shareUrl) return;
-        const text = `${contentLabel || 'LoPo'} - FF14 軽減プランナー`;
+        const text = `${contentLabel || 'LoPo'} - ${t('app.title')}`;
         window.open(
             `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
             '_blank'
@@ -100,8 +102,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 <div className="flex items-center justify-between px-5 py-3 border-b border-app-border">
                     <h3 className="text-sm font-bold text-app-text">
                         {isBundle
-                            ? t('app.share_bundle_title', { defaultValue: 'まとめて共有' })
-                            : t('app.share_modal_title', { defaultValue: '共有' })
+                            ? t('app.share_bundle_title')
+                            : t('app.share_modal_title')
                         }
                     </h3>
                     <button
@@ -115,23 +117,22 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 {/* OGPプレビュー */}
                 <div className="px-5 py-4">
                     <div className="relative w-full aspect-[1200/630] bg-app-surface2 rounded-lg overflow-hidden border border-app-border">
-                        {loading ? (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                        {/* 生成中インジケータ: API通信中 or 画像ロード完了前まで表示 */}
+                        {(!imageLoaded) && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                                 <Loader2 size={24} className="animate-spin text-app-text-muted" />
                                 <span className="text-[11px] text-app-text-muted font-medium">
-                                    {t('app.generating_preview', { defaultValue: 'プレビューを生成中...' })}
+                                    {t('app.generating_preview')}
                                 </span>
                             </div>
-                        ) : ogImageUrl ? (
+                        )}
+                        {ogImageUrl && (
                             <img
                                 src={ogImageUrl}
                                 alt="OGP Preview"
-                                className="w-full h-full object-cover"
+                                className={clsx("w-full h-full object-cover transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
+                                onLoad={() => setImageLoaded(true)}
                             />
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-app-text-muted text-xs">
-                                プレビュー生成中...
-                            </div>
                         )}
                     </div>
                 </div>
@@ -151,8 +152,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     >
                         {copied ? <Check size={16} /> : <Copy size={16} />}
                         {copied
-                            ? t('app.link_copied', { defaultValue: 'コピーしました' })
-                            : t('app.copy_share_url', { defaultValue: 'URLをコピー' })
+                            ? t('app.link_copied')
+                            : t('app.copy_share_url')
                         }
                     </button>
 
@@ -170,7 +171,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
                             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                         </svg>
-                        {t('app.share_on_x', { defaultValue: 'Xで共有' })}
+                        {t('app.share_on_x')}
                         <ExternalLink size={12} className="text-app-text-muted" />
                     </button>
                 </div>
