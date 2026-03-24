@@ -24,5 +24,5 @@ export interface SidebarFilterState {
  */
 export interface MultiSelectState {
     isEnabled: boolean;
-    selectedIds: string[]; // 選択されたコンテンツID（またはプランID）
+    selectedIds: string[]; // 選択されたプランID
 }

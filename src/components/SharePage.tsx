@@ -9,9 +9,10 @@ import Timeline from './Timeline';
 import { ErrorBoundary } from './ErrorBoundary';
 import { showToast } from './Toast';
 import { Copy } from 'lucide-react';
+import clsx from 'clsx';
 import type { PlanData } from '../types';
 
-interface SharedData {
+interface SharedSingle {
     shareId: string;
     title: string;
     contentId: string | null;
@@ -19,7 +20,25 @@ interface SharedData {
     createdAt: number;
 }
 
+interface BundlePlan {
+    contentId: string | null;
+    title: string;
+    planData: PlanData;
+}
+
+interface SharedBundle {
+    shareId: string;
+    type: 'bundle';
+    plans: BundlePlan[];
+    createdAt: number;
+}
+
+type SharedData = SharedSingle | SharedBundle;
 type LoadState = 'loading' | 'loaded' | 'not_found' | 'error';
+
+function isBundle(data: SharedData): data is SharedBundle {
+    return 'type' in data && data.type === 'bundle';
+}
 
 export const SharePage: React.FC = () => {
     const { shareId } = useParams<{ shareId: string }>();
@@ -27,6 +46,10 @@ export const SharePage: React.FC = () => {
     const navigate = useNavigate();
     const [state, setState] = useState<LoadState>('loading');
     const [sharedData, setSharedData] = useState<SharedData | null>(null);
+    // バンドル時の選択タブ
+    const [activeTab, setActiveTab] = useState(0);
+
+    const lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
 
     useEffect(() => {
         if (!shareId) { setState('not_found'); return; }
@@ -40,50 +63,115 @@ export const SharePage: React.FC = () => {
             .then(data => {
                 if (!data) return;
                 setSharedData(data as SharedData);
-                // スナップショットをストアに読み込み
-                useMitigationStore.getState().loadSnapshot(data.planData);
+
+                // 最初のプランデータをストアに読み込み
+                if (isBundle(data)) {
+                    if (data.plans.length > 0) {
+                        useMitigationStore.getState().loadSnapshot(data.plans[0].planData);
+                    }
+                } else {
+                    useMitigationStore.getState().loadSnapshot(data.planData);
+                }
                 setState('loaded');
             })
             .catch(() => setState('error'));
     }, [shareId]);
 
+    // タブ切り替え時にストアを入れ替え
+    useEffect(() => {
+        if (!sharedData || !isBundle(sharedData)) return;
+        const plan = sharedData.plans[activeTab];
+        if (plan) {
+            useMitigationStore.getState().loadSnapshot(plan.planData);
+        }
+    }, [activeTab, sharedData]);
+
     // ページタイトル設定
     useEffect(() => {
-        if (sharedData) {
+        if (!sharedData) return;
+        if (isBundle(sharedData)) {
+            const names = sharedData.plans
+                .map(p => {
+                    const def = p.contentId ? getContentById(p.contentId) : null;
+                    return def ? def.name[lang] || def.name.ja : p.title;
+                })
+                .filter(Boolean);
+            document.title = `${names.join(' / ') || 'LoPo'} - ${t('app.shared_plan')}`;
+        } else {
             const contentDef = sharedData.contentId ? getContentById(sharedData.contentId) : null;
-            const contentName = contentDef
-                ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
-                : '';
+            const contentName = contentDef ? (contentDef.name[lang] || contentDef.name.ja) : '';
             document.title = `${contentName || sharedData.title || 'LoPo'} - ${t('app.shared_plan')}`;
         }
-    }, [sharedData, i18n.language, t]);
+    }, [sharedData, lang, t]);
 
-    // 「自分のプランにコピー」
+    // コンテンツ名を取得するヘルパー
+    const getContentName = (contentId: string | null, fallback: string) => {
+        if (!contentId) return fallback;
+        const def = getContentById(contentId);
+        if (!def) return fallback;
+        return def.shortName[lang] || def.shortName.ja || def.name[lang] || def.name.ja;
+    };
+
+    // 「自分のプランにコピー」（単一）
     const handleCopyToMine = () => {
         if (!sharedData) return;
-        const snapshot = useMitigationStore.getState().getSnapshot();
-        const contentDef = sharedData.contentId ? getContentById(sharedData.contentId) : null;
-        const contentName = contentDef
-            ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
-            : '';
 
-        const newPlan = {
-            id: crypto.randomUUID(),
-            ownerId: '',
-            ownerDisplayName: '',
-            title: sharedData.title || contentName || 'Shared Plan',
-            contentId: sharedData.contentId,
-            isPublic: false,
-            copyCount: 0,
-            useCount: 0,
-            data: snapshot,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-        };
-        usePlanStore.getState().addPlan(newPlan);
-        usePlanStore.getState().setCurrentPlanId(newPlan.id);
-        showToast(t('app.share_copied_toast'));
-        navigate('/miti');
+        if (isBundle(sharedData)) {
+            // バンドル: 全プランをコピー
+            const planStore = usePlanStore.getState();
+            for (const plan of sharedData.plans) {
+                const contentName = getContentName(plan.contentId, plan.title || 'Shared Plan');
+                const newPlan = {
+                    id: crypto.randomUUID(),
+                    ownerId: '',
+                    ownerDisplayName: '',
+                    title: plan.title || contentName,
+                    contentId: plan.contentId,
+                    isPublic: false,
+                    copyCount: 0,
+                    useCount: 0,
+                    data: plan.planData,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                };
+                planStore.addPlan(newPlan);
+            }
+            // 最初のプランを開く
+            if (sharedData.plans.length > 0) {
+                const firstPlan = usePlanStore.getState().plans.find(
+                    p => p.contentId === sharedData.plans[0].contentId
+                );
+                if (firstPlan) {
+                    usePlanStore.getState().setCurrentPlanId(firstPlan.id);
+                    useMitigationStore.getState().loadSnapshot(firstPlan.data);
+                }
+            }
+            showToast(t('app.share_copied_toast'));
+            navigate('/miti');
+        } else {
+            // 単一プラン
+            const snapshot = useMitigationStore.getState().getSnapshot();
+            const contentDef = sharedData.contentId ? getContentById(sharedData.contentId) : null;
+            const contentName = contentDef ? (contentDef.name[lang] || contentDef.name.ja) : '';
+
+            const newPlan = {
+                id: crypto.randomUUID(),
+                ownerId: '',
+                ownerDisplayName: '',
+                title: sharedData.title || contentName || 'Shared Plan',
+                contentId: sharedData.contentId,
+                isPublic: false,
+                copyCount: 0,
+                useCount: 0,
+                data: snapshot,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            };
+            usePlanStore.getState().addPlan(newPlan);
+            usePlanStore.getState().setCurrentPlanId(newPlan.id);
+            showToast(t('app.share_copied_toast'));
+            navigate('/miti');
+        }
     };
 
     if (state === 'loading') {
@@ -115,6 +203,8 @@ export const SharePage: React.FC = () => {
         );
     }
 
+    const isBundleView = sharedData && isBundle(sharedData);
+
     return (
         <Layout>
             <div className="flex flex-col h-full relative z-10">
@@ -128,9 +218,35 @@ export const SharePage: React.FC = () => {
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
                     >
                         <Copy size={12} />
-                        {t('app.share_copy_to_mine')}
+                        {isBundleView
+                            ? t('app.share_copy_all_to_mine', { defaultValue: 'すべてコピー' })
+                            : t('app.share_copy_to_mine')
+                        }
                     </button>
                 </div>
+
+                {/* バンドル時のタブ */}
+                {isBundleView && (
+                    <div className="shrink-0 flex items-center gap-1 px-4 py-1.5 bg-app-surface2/50 border-b border-app-border overflow-x-auto">
+                        {(sharedData as SharedBundle).plans.map((plan, idx) => {
+                            const label = getContentName(plan.contentId, plan.title || `${idx + 1}`);
+                            return (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveTab(idx)}
+                                    className={clsx(
+                                        "px-3 py-1 rounded-md text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
+                                        idx === activeTab
+                                            ? "bg-app-text text-app-bg"
+                                            : "text-app-text-muted hover:text-app-text hover:bg-app-text/10"
+                                    )}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* タイムライン表示 */}
                 <div className="flex-1 overflow-auto relative flex">

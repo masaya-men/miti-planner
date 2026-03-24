@@ -33,7 +33,9 @@
         "share_error": "データの取得に失敗しました",
         "share_open_editor": "エディタで開く",
         "share_copy_to_mine": "自分の軽減表にコピー",
+        "share_copy_all_to_mine": "すべてコピー",
         "share_copied_toast": "軽減表をコピーしました",
+        "share_no_plans": "プランがありません",
         "shared_plan": "共有された軽減プラン",
         "auto_saved": "自動保存しました"
     },
