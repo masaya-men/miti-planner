@@ -18,6 +18,7 @@ import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { PLAN_LIMITS } from '../types/firebase';
 import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
 import { getTemplate } from '../data/templateLoader';
@@ -46,6 +47,8 @@ interface SidebarProps {
     isOpen: boolean;
     onToggle?: () => void;
     onClose?: () => void;
+    /** モバイルのボトムシート内で使う場合trueにすると、幅100%・ハンドル非表示になる */
+    fullWidth?: boolean;
 }
 
 const LEVEL_TIERS: ContentLevel[] = [100, 90, 80, 70];
@@ -434,7 +437,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -483,6 +486,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             planStore.setCurrentPlanId(existingPlan.id);
             setActiveLevel(existingPlan.data.currentLevel as ContentLevel);
             return;
+        }
+
+        // 件数制限チェック（チュートリアル中はスキップ）
+        if (!useTutorialStore.getState().isActive) {
+            const totalCount = planStore.plans.length;
+            const contentCount = planStore.plans.filter(p => p.contentId === content.id).length;
+            if (totalCount >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
+                alert(t('new_plan.plan_limit_total', { max: PLAN_LIMITS.MAX_TOTAL_PLANS }));
+                return;
+            }
+            if (contentCount >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) {
+                alert(t('new_plan.plan_limit_per_content', { max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT }));
+                return;
+            }
         }
 
         // 新規作成
@@ -685,17 +702,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     return (
         <motion.aside
             initial={false}
-            animate={{ width: isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="h-full bg-transparent flex z-40 relative group/sidebar shadow-sm"
+            animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
+            transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
+            className={clsx("h-full bg-transparent flex z-40 relative group/sidebar", !fullWidth && "shadow-sm")}
+            style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
             <motion.div
-                animate={{ width: isOpen ? 276 : 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                animate={{ width: fullWidth ? '100%' : isOpen ? 276 : 0 }}
+                transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
                 className="h-full flex flex-col overflow-hidden"
+                style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
             >
-                <div className="w-[276px] flex flex-col h-full overflow-hidden">
+                <div className={clsx(fullWidth ? "w-full" : "w-[276px]", "flex flex-col h-full overflow-hidden")}>
                     {/* Header Controls area with save button instead of big new plan */}
                     <div className="p-2 border-b border-glass-border" />
 
@@ -942,7 +961,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </motion.div>
 
             {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
-            <div
+            {fullWidth ? null : <div
                 className="h-full w-6 z-50 flex items-center justify-center shrink-0 shadow-[inset_1px_0_0_0_rgba(255,255,255,0.05)] relative"
                 onMouseEnter={() => setIsNear(true)}
                 onMouseLeave={() => setIsNear(false)}
@@ -1018,7 +1037,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     </button>
                     </Tooltip>
                 </motion.div>
-            </div>
+            </div>}
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={(created) => {
                 setIsNewPlanModalOpen(false);
                 // チュートリアル: モーダルを閉じたことを通知

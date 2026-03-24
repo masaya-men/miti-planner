@@ -154,6 +154,8 @@ export const PLAN_LIMITS = {
   MAX_TOTAL_PLANS: 50,
   /** 1コンテンツあたりの最大プラン数 */
   MAX_PLANS_PER_CONTENT: 5,
+  /** アーカイブ警告を表示する閾値 */
+  ARCHIVE_WARNING_THRESHOLD: 30,
   /** プランタイトルの最大文字数 */
   MAX_TITLE_LENGTH: 100,
   /** 表示名の最大文字数 */

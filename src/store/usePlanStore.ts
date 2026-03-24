@@ -3,11 +3,18 @@ import { persist } from 'zustand/middleware';
 import type { SavedPlan } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 import type { PlanData } from '../types';
+import { planService } from '../lib/planService';
 
 interface PlanState {
     plans: SavedPlan[];
     currentPlanId: string | null;
     lastActivePlanId: string | null;
+
+    // Firestore同期用の状態（localStorageには保存しない）
+    _dirtyPlanIds: Set<string>;
+    _deletedPlanIds: Set<string>;
+    _isSyncing: boolean;
+    _lastSyncAt: number;
 
     // Actions
     addPlan: (plan: SavedPlan) => void;
@@ -16,6 +23,14 @@ interface PlanState {
     setCurrentPlanId: (id: string | null) => void;
     getPlan: (id: string) => SavedPlan | undefined;
     createPlanFromTemplate: (contentId: string, templateData: TemplateData, title: string, initialData: PlanData) => SavedPlan;
+
+    // Firestore同期アクション
+    markDirty: (planId: string) => void;
+    syncToFirestore: (uid: string, displayName: string) => Promise<void>;
+    migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
+    deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
+    hasDirtyPlans: () => boolean;
+    setPlans: (plans: SavedPlan[]) => void;
 }
 
 export const usePlanStore = create<PlanState>()(
@@ -25,21 +40,44 @@ export const usePlanStore = create<PlanState>()(
             currentPlanId: null,
             lastActivePlanId: null,
 
-            addPlan: (plan) => set((state) => ({
-                plans: [plan, ...state.plans]
-            })),
+            // Firestore同期用（persistしない — partialize で除外）
+            _dirtyPlanIds: new Set<string>(),
+            _deletedPlanIds: new Set<string>(),
+            _isSyncing: false,
+            _lastSyncAt: 0,
 
-            updatePlan: (id, data) => set((state) => ({
-                plans: state.plans.map((p) => (p.id === id ? { ...p, ...data, updatedAt: Date.now() } : p))
-            })),
+            addPlan: (plan) => {
+                set((state) => ({
+                    plans: [plan, ...state.plans],
+                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, plan.id]),
+                }));
+            },
 
-            deletePlan: (id) => set((state) => ({
-                plans: state.plans.filter((p) => p.id !== id),
-                currentPlanId: state.currentPlanId === id ? null : state.currentPlanId,
-                lastActivePlanId: state.lastActivePlanId === id ? null : state.lastActivePlanId
-            })),
+            updatePlan: (id, data) => {
+                set((state) => ({
+                    plans: state.plans.map((p) => (p.id === id ? { ...p, ...data, updatedAt: Date.now() } : p)),
+                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, id]),
+                }));
+            },
 
-            setCurrentPlanId: (id) => set({ 
+            deletePlan: (id) => {
+                const plan = get().plans.find((p) => p.id === id);
+                set((state) => {
+                    const newDirty = new Set(state._dirtyPlanIds);
+                    newDirty.delete(id);
+                    return {
+                        plans: state.plans.filter((p) => p.id !== id),
+                        currentPlanId: state.currentPlanId === id ? null : state.currentPlanId,
+                        lastActivePlanId: state.lastActivePlanId === id ? null : state.lastActivePlanId,
+                        _dirtyPlanIds: newDirty,
+                        _deletedPlanIds: plan
+                            ? new Set([...state._deletedPlanIds, id])
+                            : state._deletedPlanIds,
+                    };
+                });
+            },
+
+            setCurrentPlanId: (id) => set({
                 currentPlanId: id,
                 ...(id ? { lastActivePlanId: id } : {})
             }),
@@ -80,10 +118,116 @@ export const usePlanStore = create<PlanState>()(
                 get().setCurrentPlanId(newPlanId);
                 return newPlan;
             },
+
+            // Firestore同期メソッド
+
+            markDirty: (planId) => set((state) => ({
+                _dirtyPlanIds: new Set([...state._dirtyPlanIds, planId]),
+            })),
+
+            hasDirtyPlans: () => {
+                const state = get();
+                return state._dirtyPlanIds.size > 0 || state._deletedPlanIds.size > 0;
+            },
+
+            setPlans: (plans) => set({ plans }),
+
+            /**
+             * dirtyなプランをFirestoreに同期する
+             * 3分以上のインターバルを強制（コスト抑制）
+             */
+            syncToFirestore: async (uid, displayName) => {
+                const state = get();
+                if (state._isSyncing) return;
+                if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
+
+                // 最低3分間隔のチェック（ただしページ離脱時は強制実行するため呼び出し側で制御）
+                set({ _isSyncing: true });
+
+                try {
+                    // 削除されたプランの処理
+                    const deletedIds = new Set(state._deletedPlanIds);
+                    for (const planId of deletedIds) {
+                        try {
+                            // 削除済みプランのcontentIdは不明なので null で処理
+                            await planService.deletePlan(planId, uid, null);
+                        } catch (err) {
+                            console.error('Firestore削除エラー:', planId, err);
+                        }
+                    }
+
+                    // dirtyプランの同期
+                    await planService.syncDirtyPlans(
+                        state._dirtyPlanIds,
+                        state.plans,
+                        uid,
+                        displayName,
+                    );
+
+                    // 同期完了 → dirty/deletedをクリア
+                    set({
+                        _dirtyPlanIds: new Set<string>(),
+                        _deletedPlanIds: new Set<string>(),
+                        _lastSyncAt: Date.now(),
+                    });
+                } catch (err) {
+                    console.error('Firestore同期エラー:', err);
+                } finally {
+                    set({ _isSyncing: false });
+                }
+            },
+
+            /**
+             * ログイン時: localStorageプランをFirestoreにマイグレーション＋マージ
+             */
+            migrateOnLogin: async (uid, displayName) => {
+                try {
+                    const merged = await planService.migrateLocalPlansToFirestore(
+                        get().plans,
+                        uid,
+                        displayName,
+                    );
+                    set({
+                        plans: merged,
+                        _dirtyPlanIds: new Set<string>(),
+                        _deletedPlanIds: new Set<string>(),
+                        _lastSyncAt: Date.now(),
+                    });
+                } catch (err) {
+                    console.error('マイグレーションエラー:', err);
+                }
+            },
+
+            /**
+             * プラン削除 + Firestore即時反映
+             */
+            deleteFromFirestore: async (planId, uid, contentId) => {
+                // localStorageから即時削除
+                get().deletePlan(planId);
+                // Firestoreからも削除（バックグラウンド）
+                try {
+                    await planService.deletePlan(planId, uid, contentId);
+                    // 削除成功 → _deletedPlanIdsからも除去
+                    set((state) => {
+                        const newDeleted = new Set(state._deletedPlanIds);
+                        newDeleted.delete(planId);
+                        return { _deletedPlanIds: newDeleted };
+                    });
+                } catch (err) {
+                    console.error('Firestore削除エラー:', planId, err);
+                    // 失敗しても _deletedPlanIds に残っているので次回の同期で再試行
+                }
+            },
         }),
         {
             name: 'plan-storage',
             version: 1,
+            // Firestore同期用の内部状態はlocalStorageに保存しない
+            partialize: (state) => ({
+                plans: state.plans,
+                currentPlanId: state.currentPlanId,
+                lastActivePlanId: state.lastActivePlanId,
+            }),
         }
     )
 );
