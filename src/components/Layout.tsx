@@ -5,6 +5,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -18,6 +19,10 @@ import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
 import { GridOverlay } from './GridOverlay';
+import { JobMigrationModal } from './JobMigrationModal';
+import { migrateMitigations } from '../utils/jobMigration';
+import type { MigrationMode } from '../utils/jobMigration';
+import type { Job } from '../types';
 
 // ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
 const MobileHeader: React.FC<{
@@ -84,13 +89,54 @@ const MobilePartySettings: React.FC = () => {
     const { t } = useTranslation();
     const partyMembers = useMitigationStore(s => s.partyMembers);
     const setMemberJob = useMitigationStore(s => s.setMemberJob);
+    const updatePartyBulk = useMitigationStore(s => s.updatePartyBulk);
+    const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
     const myMemberId = useMitigationStore(s => s.myMemberId);
     const setMyMemberId = useMitigationStore(s => s.setMyMemberId);
     const [focusedSlot, setFocusedSlot] = React.useState<string | null>(null);
     const [myJobMode, setMyJobMode] = React.useState(false);
 
+    // ジョブ変更マイグレーション用state
+    const [migrationPending, setMigrationPending] = React.useState<{
+        memberId: string;
+        oldJob: Job | null;
+        newJob: Job;
+    } | null>(null);
+
     const memberOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
     const sortedMembers = memberOrder.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
+
+    // ジョブ変更ハンドラ — 軽減がある場合はマイグレーション確認を表示
+    const handleJobChange = (memberId: string, jobId: string) => {
+        const member = partyMembers.find(m => m.id === memberId);
+        if (!member) return;
+
+        const newJob = JOBS.find(j => j.id === jobId);
+        if (!newJob) return;
+
+        // 既存ジョブがあり、かつ軽減が配置されている場合 → マイグレーション確認
+        const hasMitigations = timelineMitigations.some(m => m.ownerId === memberId);
+        if (hasMitigations && member.jobId && member.jobId !== jobId) {
+            const oldJob = JOBS.find(j => j.id === member.jobId) || null;
+            setMigrationPending({ memberId, oldJob, newJob });
+            return;
+        }
+
+        // 軽減なし or 新規設定 → 直接変更
+        setMemberJob(memberId, jobId);
+        setFocusedSlot(null);
+    };
+
+    // マイグレーション確定
+    const handleMigrationConfirm = (mode: MigrationMode) => {
+        if (!migrationPending) return;
+        const { memberId, oldJob, newJob } = migrationPending;
+        const memberMitis = useMitigationStore.getState().timelineMitigations.filter(m => m.ownerId === memberId);
+        const newMitis = migrateMitigations(oldJob?.id || '', newJob.id, memberId, memberMitis, mode);
+        updatePartyBulk([{ memberId, jobId: newJob.id, mitigations: newMitis }]);
+        setMigrationPending(null);
+        setFocusedSlot(null);
+    };
 
     return (
         <div className="flex flex-col gap-3">
@@ -181,10 +227,7 @@ const MobilePartySettings: React.FC = () => {
                             return (
                                 <button
                                     key={job.id}
-                                    onClick={() => {
-                                        setMemberJob(focusedSlot, job.id);
-                                        setFocusedSlot(null);
-                                    }}
+                                    onClick={() => handleJobChange(focusedSlot, job.id)}
                                     className={clsx(
                                         "w-10 h-10 rounded-lg border flex items-center justify-center cursor-pointer active:scale-90 transition-all",
                                         isCurrentJob
@@ -198,6 +241,18 @@ const MobilePartySettings: React.FC = () => {
                         })}
                     </div>
                 </div>
+            )}
+
+            {/* ジョブ変更マイグレーション確認モーダル */}
+            {migrationPending && (
+                <JobMigrationModal
+                    isOpen={true}
+                    oldJob={migrationPending.oldJob}
+                    newJob={migrationPending.newJob}
+                    memberName={migrationPending.memberId}
+                    onConfirm={handleMigrationConfirm}
+                    onCancel={() => setMigrationPending(null)}
+                />
             )}
         </div>
     );
@@ -331,7 +386,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, [isMobile]);
 
     // 自動保存（ページ離脱 + タブ切替 + 30秒間隔）
+    // Firestore同期: タブ切替 / ページ離脱 / プラン切替 / 3分間隔
     React.useEffect(() => {
+        /** localStorage への即時保存 */
         const saveSilently = () => {
             const planStore = usePlanStore.getState();
             const mitiStore = useMitigationStore.getState();
@@ -339,17 +396,62 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 planStore.updatePlan(planStore.currentPlanId, { data: mitiStore.getSnapshot() });
             }
         };
-        window.addEventListener('beforeunload', saveSilently);
-        const onVisibilityChange = () => { if (document.hidden) saveSilently(); };
+
+        /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ） */
+        const syncToCloud = () => {
+            const authState = useAuthStore.getState();
+            const planStore = usePlanStore.getState();
+            if (authState.user && planStore.hasDirtyPlans()) {
+                planStore.syncToFirestore(
+                    authState.user.uid,
+                    authState.user.displayName || 'Guest',
+                );
+            }
+        };
+
+        /** ページ離脱時: localStorage保存 + Firestore強制同期 */
+        const onBeforeUnload = () => {
+            saveSilently();
+            syncToCloud();
+        };
+
+        /** タブ切替時: 非表示になったら保存+同期 */
+        const onVisibilityChange = () => {
+            if (document.hidden) {
+                saveSilently();
+                syncToCloud();
+            }
+        };
+
+        window.addEventListener('beforeunload', onBeforeUnload);
         document.addEventListener('visibilitychange', onVisibilityChange);
-        // 30秒間隔の定期保存（無音）
-        const interval = setInterval(saveSilently, 30_000);
+
+        // localStorage: 30秒間隔の定期保存（無音）
+        const localInterval = setInterval(saveSilently, 30_000);
+        // Firestore: 3分間隔の定期同期
+        const cloudInterval = setInterval(syncToCloud, 180_000);
+
         return () => {
-            window.removeEventListener('beforeunload', saveSilently);
+            window.removeEventListener('beforeunload', onBeforeUnload);
             document.removeEventListener('visibilitychange', onVisibilityChange);
-            clearInterval(interval);
+            clearInterval(localInterval);
+            clearInterval(cloudInterval);
         };
     }, [t]);
+
+    // ログイン時のデータマイグレーション（localStorageのプランをFirestoreにアップロード）
+    const authUser = useAuthStore((s) => s.user);
+    const authLoading = useAuthStore((s) => s.loading);
+    const [hasMigrated, setHasMigrated] = React.useState(false);
+    React.useEffect(() => {
+        if (authLoading || !authUser || hasMigrated) return;
+        setHasMigrated(true);
+        const planStore = usePlanStore.getState();
+        planStore.migrateOnLogin(
+            authUser.uid,
+            authUser.displayName || 'Guest',
+        );
+    }, [authUser, authLoading, hasMigrated]);
 
     // ベースの背景色（テーマ変数を参照するように変更）
     const bgClass = "bg-app-bg";
@@ -378,9 +480,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title={t('sidebar.menu')}
                 height="70vh"
             >
-                <div className="-mx-4 -mt-3 mobile-sidebar-override">
-                    <style>{`.mobile-sidebar-override aside, .mobile-sidebar-override aside > div, .mobile-sidebar-override .w-\\[276px\\] { width: 100% !important; min-width: 100% !important; }`}</style>
-                    <Sidebar isOpen={true} />
+                <div className="-mx-4 -mt-3">
+                    <Sidebar isOpen={true} fullWidth />
                 </div>
             </MobileBottomSheet>
 
@@ -476,8 +577,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "border-app-border",
                     "bg-transparent"
                 )}>
-                    <p className="text-[8px] text-app-text-muted tracking-wide">
+                    <p className="text-[8px] text-app-text-muted tracking-wide pointer-events-auto">
                         {t('footer.copyright')} · {t('footer.disclaimer')}
+                        {' · '}
+                        <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
+                        {' · '}
+                        <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
                     </p>
                 </footer>
                 </MobileTriggersContext.Provider>

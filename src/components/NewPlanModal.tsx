@@ -12,7 +12,8 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { getTemplate } from '../data/templateLoader';
-import { X, ChevronDown, Check } from 'lucide-react';
+import { PLAN_LIMITS } from '../types/firebase';
+import { X, ChevronDown, Check, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface NewPlanModalProps {
@@ -27,8 +28,13 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
 
-    const { addPlan, setCurrentPlanId, updatePlan, currentPlanId: activePlanId } = usePlanStore();
+    const { plans, addPlan, setCurrentPlanId, updatePlan, currentPlanId: activePlanId } = usePlanStore();
     const { getSnapshot } = useMitigationStore();
+
+    // 件数制限チェック
+    const totalPlanCount = plans.length;
+    const isTotalLimitReached = totalPlanCount >= PLAN_LIMITS.MAX_TOTAL_PLANS;
+    const isArchiveWarning = totalPlanCount >= PLAN_LIMITS.ARCHIVE_WARNING_THRESHOLD;
 
     // Selection State
     const [level, setLevel] = useState<ContentLevel>(100);
@@ -74,8 +80,13 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         }, 50);
     };
 
+    // 選択中コンテンツの件数チェック
+    const contentPlanCount = boss ? plans.filter(p => p.contentId === boss.id).length : 0;
+    const isContentLimitReached = boss ? contentPlanCount >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT : false;
+    const isBlocked = isTotalLimitReached || isContentLimitReached;
+
     const handleCreate = async () => {
-        if (!title.trim()) return;
+        if (!title.trim() || isBlocked) return;
 
         // 1. 現在のプランを保存
         if (activePlanId) {
@@ -312,6 +323,31 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                     </div>
 
+                    {/* 件数制限の警告 */}
+                    {(isBlocked || isArchiveWarning) && (
+                        <div className="px-6 pb-2">
+                            <div className={clsx(
+                                "flex items-start gap-2 p-3 rounded-xl text-[11px] border",
+                                isBlocked
+                                    ? "bg-app-text/5 border-app-text/20 text-app-text"
+                                    : "bg-app-text/3 border-app-text/10 text-app-text-muted"
+                            )}>
+                                <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+                                <div>
+                                    {isTotalLimitReached && (
+                                        <p>{t('new_plan.plan_limit_total', { max: PLAN_LIMITS.MAX_TOTAL_PLANS })}</p>
+                                    )}
+                                    {isContentLimitReached && !isTotalLimitReached && (
+                                        <p>{t('new_plan.plan_limit_per_content', { max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT })}</p>
+                                    )}
+                                    {isArchiveWarning && !isBlocked && (
+                                        <p>{t('new_plan.plan_archive_warning', { threshold: PLAN_LIMITS.ARCHIVE_WARNING_THRESHOLD })}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Footer */}
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                         <button
@@ -322,10 +358,10 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         </button>
                         <button
                             onClick={handleCreate}
-                            disabled={!title.trim()}
+                            disabled={!title.trim() || isBlocked}
                             className={clsx(
                                 "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
-                                title.trim()
+                                title.trim() && !isBlocked
                                     ? "bg-app-text text-app-bg hover:opacity-80"
                                     : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
                             )}

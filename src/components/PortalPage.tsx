@@ -246,6 +246,10 @@ export const PortalPage: React.FC = () => {
             <footer className="absolute bottom-0 left-0 right-0 py-3 text-center z-10">
                 <p className="text-[9px] text-app-text-muted tracking-wide">
                     {t('footer.copyright')} · {t('footer.disclaimer')}
+                    {' · '}
+                    <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
+                    {' · '}
+                    <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
                 </p>
             </footer>
         </div>
