@@ -97,12 +97,7 @@ export const PortalPage: React.FC = () => {
 
     const bgClass = "bg-app-bg";
 
-    React.useEffect(() => {
-        const { hasCompleted, isActive, startTutorial } = useTutorialStore.getState();
-        if (!hasCompleted && !isActive) {
-            startTutorial();
-        }
-    }, []);
+    // チュートリアル自動起動はトップページでは行わない（/miti でのみ自動起動）
 
     return (
         <div className={clsx('relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden font-sans text-app-text', bgClass)}>

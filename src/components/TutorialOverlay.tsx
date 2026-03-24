@@ -207,37 +207,81 @@ interface TooltipProps {
     totalSteps: number;
     onPrev: () => void;
     onNext?: () => void;
-    position?: 'top' | 'right' | 'bottom' | 'left' | 'center' | 'right-center';
+    targetRects?: TargetRect[];
+    stepId?: string;
+}
+
+const TOOLTIP_W = 340;
+const TOOLTIP_H_EST = 220; // 推定高さ
+const TOOLTIP_MARGIN = 16;
+
+/** ターゲット要素の右か左に配置。パーティ系は固定位置。 */
+function calcTooltipPos(targetRects: TargetRect[], stepId?: string): { top: number; left: number } {
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+    if (targetRects.length === 0) {
+        return { top: (vh - TOOLTIP_H_EST) / 2, left: (vw - TOOLTIP_W) / 2 };
+    }
+
+    const rect = targetRects[0];
+
+    // パーティ系ステップ: パーティモーダル(幅450px)の右側に固定、上下だけ移動
+    const isPartyStep = stepId?.startsWith('party-') || stepId === 'party-myjob';
+    if (isPartyStep) {
+        // パーティモーダルの右端に固定（上下も動かさない）
+        const partyModal = document.querySelector('[data-tutorial="party-settings"]') as HTMLElement;
+        const modalRight = partyModal ? partyModal.getBoundingClientRect().right : 460;
+        const modalTop = partyModal ? partyModal.getBoundingClientRect().top : 100;
+        // モーダルの上端 + 少し下にカード配置（固定）
+        const topPos = Math.max(TOOLTIP_MARGIN, modalTop + 40);
+        const leftPos = (modalRight + TOOLTIP_MARGIN + TOOLTIP_W <= vw)
+            ? modalRight + TOOLTIP_MARGIN
+            : Math.max(TOOLTIP_MARGIN, modalRight - TOOLTIP_W - TOOLTIP_MARGIN);
+        return { top: topPos, left: leftPos };
+    }
+
+    // 縦位置: ターゲットの上端を基準に、画面内に収める
+    const topPos = Math.max(TOOLTIP_MARGIN, Math.min(
+        rect.top + rect.height / 2 - TOOLTIP_H_EST / 2,
+        vh - TOOLTIP_H_EST - TOOLTIP_MARGIN
+    ));
+
+    // 右に置けるか？（優先）
+    const spaceRight = vw - (rect.left + rect.width + TOOLTIP_MARGIN);
+    if (spaceRight >= TOOLTIP_W + TOOLTIP_MARGIN) {
+        return { top: topPos, left: rect.left + rect.width + TOOLTIP_MARGIN };
+    }
+
+    // 左に置く
+    const leftPos = rect.left - TOOLTIP_MARGIN - TOOLTIP_W;
+    if (leftPos >= TOOLTIP_MARGIN) {
+        return { top: topPos, left: leftPos };
+    }
+
+    // フォールバック: 右にはみ出してでも配置
+    return { top: topPos, left: Math.max(TOOLTIP_MARGIN, vw - TOOLTIP_W - TOOLTIP_MARGIN) };
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
-    title, description, stepIndex, totalSteps, onPrev, onNext, position = 'center'
+    title, description, stepIndex, totalSteps, onPrev, onNext, targetRects = [], stepId
 }) => {
     const { t } = useTranslation();
     const { requestExit } = useTutorialStore();
 
-    const getPosition = (): React.CSSProperties => {
-        if (position === 'bottom') {
-            return { bottom: '24px', left: '50%' };
-        }
-        if (position === 'right-center') {
-            return { top: '50%', right: '80px' };
-        }
-        return { top: '50%', left: '50%' };
-    };
+    const pos = calcTooltipPos(targetRects, stepId);
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.96, x: position === 'right-center' ? 16 : '-50%', y: position === 'bottom' ? 8 : '-45%' }}
-            animate={{ opacity: 1, scale: 1, x: position === 'right-center' ? 0 : '-50%', y: position === 'bottom' ? 0 : '-50%' }}
-            exit={{ opacity: 0, scale: 0.96, x: position === 'right-center' ? 16 : '-50%', y: position === 'bottom' ? 8 : '-45%' }}
-            transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
+            initial={false}
+            animate={{ top: pos.top, left: pos.left, opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
             className={clsx(
-                "fixed z-[10002] w-[360px] max-w-[90vw] rounded-2xl border p-6 text-center",
-                "shadow-sm",
+                "fixed z-[100002] rounded-2xl border p-6 text-center",
+                "shadow-lg",
                 "bg-app-surface border-app-border"
             )}
-            style={{ ...getPosition(), pointerEvents: 'auto' }}
+            style={{ width: TOOLTIP_W, pointerEvents: 'auto' }}
         >
             {/* Close button (Top Right) */}
             <UiTooltip content={t('common.close')}>
@@ -262,7 +306,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                 ))}
             </div>
 
-            <div className="mb-4 text-xs font-bold text-app-accent uppercase tracking-widest">
+            <div className="mb-4 text-xs font-bold text-app-text-muted uppercase tracking-widest">
                 STEP {stepIndex + 1}
             </div>
 
@@ -277,7 +321,7 @@ const Tooltip: React.FC<TooltipProps> = ({
                     {stepIndex > 0 && (
                         <button
                             onClick={onPrev}
-                            className="text-xs text-app-accent hover:text-app-text transition-colors cursor-pointer font-bold"
+                            className="text-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer font-bold"
                         >
                             &larr; {t('tutorial.prev')}
                         </button>
@@ -287,9 +331,9 @@ const Tooltip: React.FC<TooltipProps> = ({
                     <div className="ml-auto">
                         <button
                             onClick={onNext}
-                            className="text-xs font-black text-app-text-on-accent bg-app-accent hover:brightness-110 px-4 py-1.5 rounded-lg transition-colors cursor-pointer shadow-sm"
+                            className="text-xs font-black text-app-bg bg-app-text hover:opacity-80 px-5 py-2 rounded-xl transition-all cursor-pointer shadow-md animate-pulse"
                         >
-                            {t('tutorial.next')} &rarr;
+                            {t('tutorial.next')} →
                         </button>
                     </div>
                 )}
@@ -597,7 +641,8 @@ export const TutorialOverlay: React.FC = () => {
                                     totalSteps={currentRouteSteps.length}
                                     onPrev={useTutorialStore.getState().prevStep}
                                     onNext={currentStep.isAcknowledgeStep ? () => completeEvent(currentStep.completionEvent) : undefined}
-                                    position={currentStep.tooltipPosition}
+                                    targetRects={targetRects}
+                                    stepId={currentStep.id}
                                 />
                             </div>
                         </div>
