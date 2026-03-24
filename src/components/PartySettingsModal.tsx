@@ -603,7 +603,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     if (!mounted) return null;
 
     return createPortal(
-        <div data-tutorial-modal className={clsx(
+        <div className={clsx(
             "fixed inset-0 z-[10000] flex",
             isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
@@ -619,6 +619,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
             <div
                 ref={popoverRef}
+                data-tutorial-modal
                 data-tutorial="party-settings"
                 className={clsx(
                     "relative flex flex-col glass-panel shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",

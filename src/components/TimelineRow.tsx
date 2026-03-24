@@ -110,8 +110,8 @@ export const TimelineRow = memo(({
                             "w-full h-full flex items-center justify-center cursor-pointer transition-all",
                             // ▼ 通常時の挙動（ホバーで表示）
                             "opacity-0 group-hover:opacity-100 hover:bg-app-surface2",
-                            // ▼ チュートリアルでターゲットに指定された瞬間だけ強制表示＆ハイライト！
-                            "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-sky-500/20"
+                            // ▼ チュートリアルでターゲットに指定された瞬間だけ強制表示（白グロー統一）
+                            "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-white/10"
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
@@ -119,8 +119,7 @@ export const TimelineRow = memo(({
                             <Plus size={16} className={clsx(
                                 "",
                                 "text-app-text-muted",
-                                // チュートリアル中はアイコン自体も水色に光らせて分かりやすくする
-                                "[.tutorial-target-highlight_&]:text-sky-400"
+                                "[.tutorial-target-highlight_&]:text-app-text"
                             )} />
                         </Tooltip>
                     </div>

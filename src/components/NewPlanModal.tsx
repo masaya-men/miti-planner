@@ -169,6 +169,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                 />
 
                 <motion.div
+                    data-tutorial-modal
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -182,6 +183,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                             {t('new_plan.modal_title')}
                         </h2>
                         <button
+                            data-tutorial="new-plan-close"
                             onClick={() => onClose()}
                             className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
                         >

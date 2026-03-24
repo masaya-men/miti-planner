@@ -13,6 +13,12 @@ import { clsx } from 'clsx';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 
+/** 全角数字→半角変換し、数字と小数点以外を除去 */
+function toHalfWidthNumber(str: string): string {
+    return str.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+              .replace(/[^0-9.]/g, '');
+}
+
 interface EventModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -435,6 +441,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
             <div
+                data-tutorial-modal
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
                     "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto glass-panel",
@@ -499,10 +506,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <div>
                             <label className="block text-xs font-medium text-app-text mb-1.5">{t('modal.time')}</label>
                             <input
-                                type="number"
+                                type="text"
                                 inputMode="decimal"
                                 value={time}
-                                onChange={(e) => setTime(Number(e.target.value))}
+                                onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
                                     "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
@@ -600,10 +607,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                                 <label className="block text-xs font-medium text-app-text mb-1.5">{t('modal.damage_amount')}</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     inputMode="numeric"
                                     value={damageAmount}
-                                    onChange={(e) => setDamageAmount(Number(e.target.value))}
+                                    onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setDamageAmount(v === '' ? 0 : Number(v)); }}
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
                                         "w-full rounded-lg p-2.5 text-lg font-mono transition-all font-bold border focus:outline-none focus:ring-1",
@@ -623,9 +630,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             <div className="flex gap-2">
                                                 <input
                                                     data-tutorial="event-actual-damage-input"
-                                                    type="number"
+                                                    type="text"
+                                                    inputMode="numeric"
                                                     value={calcActualDamage}
-                                                    onChange={(e) => setCalcActualDamage(Number(e.target.value))}
+                                                    onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setCalcActualDamage(v === '' ? 0 : Number(v)); }}
                                                     onFocus={(e) => e.target.select()}
                                                     className={clsx(
                                                         "flex-1 border rounded-lg px-4 py-2.5 text-lg font-mono outline-none transition-all",
