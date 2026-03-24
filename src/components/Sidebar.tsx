@@ -97,12 +97,15 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                 <button
                     onClick={() => {
                         if (multiSelect.isEnabled) {
-                            // プラン1件のみ → そのプランIDをトグル
                             if (contentPlans.length === 1 && !isDisabled) {
+                                // プラン1件 → そのプランIDをトグル
                                 onToggleSelect(contentPlans[0].id);
+                            } else if (contentPlans.length === 0) {
+                                // プラン0件 → 選択不可（まだ開いてないコンテンツ）
+                            } else {
+                                // プラン2件以上 → コンテンツを開いてサブアイテム表示
+                                onSelect(content);
                             }
-                            // プラン2件以上 → クリックで展開（サブアイテムで個別選択）
-                            // 展開はisActiveの切り替えで対応するため何もしない
                         } else {
                             onSelect(content);
                         }
@@ -139,21 +142,24 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                         </div>
                     </div>
 
-                    {multiSelect.isEnabled && contentPlans.length <= 1 && (
+                    {multiSelect.isEnabled && (
                         <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
-                            {contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id) ? (
-                                <CheckSquare size={16} className="text-app-text" />
+                            {contentPlans.length <= 1 ? (
+                                // 0〜1件: コンテンツ行にチェックボックス
+                                contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id)
+                                    ? <CheckSquare size={16} className="text-app-text" />
+                                    : contentPlans.length === 0
+                                        ? <Square size={16} className="text-app-text-muted/20" />
+                                        : <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
                             ) : (
-                                <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                                // 2件以上: 選択数表示
+                                <span className="text-[9px] font-bold text-app-text-muted">
+                                    {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
+                                        ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
+                                        : `${contentPlans.length}件`
+                                    }
+                                </span>
                             )}
-                        </div>
-                    )}
-                    {multiSelect.isEnabled && contentPlans.length > 1 && (
-                        <div className="flex items-center justify-center shrink-0 text-app-text-muted text-[9px] font-bold">
-                            {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
-                                ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
-                                : `${contentPlans.length}件`
-                            }
                         </div>
                     )}
 
@@ -446,6 +452,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
         store.setCurrentLevel(content.level);
         store.applyDefaultStats(content.level, content.patch);
+        // 新しいコンテンツを開くので軽減・パーティをクリア
+        store.clearAllMitigations();
         setActiveLevel(content.level);
 
         const contentName = content.name[lang as ContentLanguage] || content.name.ja;
@@ -453,9 +461,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         // テンプレートを裏で読み込み → 自動でプランとして保存
         const tpl = await getTemplate(content.id);
         if (tpl) {
+            // リセットされた初期状態にテンプレートのイベントを合成
             const snap = store.getSnapshot();
             store.loadSnapshot({
                 ...snap,
+                timelineMitigations: [],
                 timelineEvents: tpl.timelineEvents,
                 phases: tpl.phases ? tpl.phases
                     .filter(p => p.startTimeSec >= 0)
@@ -616,14 +626,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     {/* Header Controls area with save button instead of big new plan */}
                     <div className="p-2 border-b border-glass-border" />
 
-                    {!multiSelect.isEnabled && (
-                        <div className="px-3 pb-3 shrink-0 mt-3">
+                    {!multiSelect.isEnabled && plans.length > 0 && (
+                        <div className="px-3 pb-2 shrink-0 mt-3">
                             <div className="flex items-center mb-2 px-1">
                                 <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1 max-h-[84px] overflow-y-auto">
                                 {plans.slice(0, 5).map((plan) => (
                                     <button
                                         key={plan.id}

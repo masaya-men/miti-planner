@@ -171,14 +171,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             </span>
                                         )}
                                         {currentPlan.title && currentPlan.title !== contentLabel && (
-                                            <span className="text-[13px] text-app-text-muted tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+                                            <span className="text-[13px] text-app-text tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
                                                 {currentPlan.title}
                                             </span>
                                         )}
                                     </div>
 
-                                    {/* 共有ボタン群 */}
-                                    <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
+                                    {/* 共有ボタン */}
+                                    <div className="shrink-0 mr-2">
+                                        <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
+                                    </div>
                                 </div>
                             )}
                         </div>
