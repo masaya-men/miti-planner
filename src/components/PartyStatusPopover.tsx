@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
@@ -23,11 +23,21 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const { t } = useTranslation();
     const popoverRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
+    const [visible, setVisible] = useState(false);
 
+    // 2段階制御: mount → 次フレームで visible（transitionを効かせる）
     useEffect(() => {
-        setMounted(true);
-        return () => setMounted(false);
-    }, []);
+        if (isOpen) {
+            setMounted(true);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setVisible(true));
+            });
+        } else {
+            setVisible(false);
+            const timer = setTimeout(() => setMounted(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     // Close on click outside
     useEffect(() => {
@@ -76,7 +86,69 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
         }
     };
 
-    //if (!isOpen || !mounted) return null;
+    // Representative members for input values
+    const tankRep = partyMembers.find(m => m.role === 'tank');
+    const healerRep = partyMembers.find(m => m.role === 'healer');
+
+    // スキル計算はステータスが変わった時だけ実行（パネル開閉では再計算しない）
+    const skillPreviews = useMemo(() => {
+        const compute = (skillNames: { ja: string; en: string }) => {
+            const skillName = skillNames.ja;
+            const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as any;
+            if (!skill) return null;
+            if (skill.minLevel && currentLevel < skill.minLevel) return null;
+            if (skill.maxLevel && currentLevel > skill.maxLevel) return null;
+
+            const isTankSkill = ['pld', 'war', 'drk', 'gnb'].some(job => skill.jobs?.includes(job));
+            const stats = isTankSkill ? tankRep?.stats : healerRep?.stats;
+            if (!stats) return null;
+
+            let value = 0;
+            if (skill.type === 'hp' && 'percent' in skill) {
+                value = calculateHpValue(stats.hp, skill.percent || 0);
+            } else if (skill.type === 'potency' && 'potency' in skill) {
+                let base = calculatePotencyValue(stats, skill.potency || 0, isTankSkill ? 'tank' : 'healer', LEVEL_MODIFIERS[currentLevel]);
+                const multiplier = 'multiplier' in skill ? skill.multiplier : undefined;
+                if (multiplier) base = Math.floor(base * multiplier);
+                if ((skill as any).isCrit) base = calculateCriticalValue(base);
+                value = base;
+            }
+
+            const iconUrl = (skill as any).icon ? `/icons/${(skill as any).icon}` : null;
+            return { key: skillName, value, iconUrl, nameJa: skillNames.ja, nameEn: skillNames.en };
+        };
+
+        return {
+            tank: [
+                { ja: "ディヴァインヴェール", en: "Divine Veil" },
+                { ja: "シェイクオフ", en: "Shake It Off" },
+                { ja: "原初の血気", en: "Bloodwhetting" },
+                { ja: "ブラックナイト", en: "The Blackest Night" },
+            ].map(compute).filter(Boolean),
+            dps: [
+                { ja: "インプロビゼーション", en: "Improvisation" },
+                { ja: "テンペラグラッサ", en: "Tempera Grassa" },
+            ].map(compute).filter(Boolean),
+            healerTop: [
+                { ja: "ディヴァインカレス", en: "Divine Caress" },
+                { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" },
+                { ja: "コンソレイション", en: "Consolation" },
+                { ja: "アクセッション", en: "Accession" },
+                { ja: "ホーリズム", en: "Holos" },
+                { ja: "パンハイマ", en: "Panhaima" },
+            ].map(compute).filter(Boolean),
+            healerBottom: [
+                { ja: "鼓舞激励の策", en: "Adloquium" },
+                { ja: "意気軒高の策", en: "Concitation" },
+                { ja: "士気高揚の策", en: "Succor" },
+                { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II" },
+                { ja: "エウクラシア・プログノシス", en: "Eukrasian Prognosis" },
+                { ja: "アスペクト・ヘリオス (Nセクト)", en: "Aspected Helios (Neutral)" },
+                { ja: "コンジャンクション・ヘリオス (Nセクト)", en: "Helios Conjunction (Neutral)" },
+            ].map(compute).filter(Boolean),
+        };
+    }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel]);
+
     if (!mounted) return null;
 
     // Helper for batch updates
@@ -98,20 +170,16 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
         });
     };
 
-    // Representative members for input values
-    const tankRep = partyMembers.find(m => m.role === 'tank');
-    const healerRep = partyMembers.find(m => m.role === 'healer');
-
     return createPortal(
         <div className={clsx(
             "fixed inset-0 z-[9999]",
-            isOpen ? "pointer-events-auto" : "pointer-events-none"
+            visible ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
             <div
                 className={clsx(
                     "absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
-                    isOpen ? "opacity-100" : "opacity-0"
+                    visible ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}
             />
@@ -122,11 +190,11 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 className={clsx(
                     "glass-panel flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
                     // PC: left slide-over
-                    "md:absolute md:top-0 md:left-0 md:h-full md:w-[340px] md:max-w-full md:border-r",
-                    isOpen ? "md:translate-x-0" : "md:-translate-x-full",
+                    "md:absolute md:top-0 md:left-0 md:h-full md:w-[450px] md:max-w-full md:border-r",
+                    visible ? "md:translate-x-0" : "md:-translate-x-full",
                     // Mobile: bottom sheet
                     "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t max-md:pb-20",
-                    isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
+                    visible ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
             >
                 {/* Mobile drag handle */}
@@ -223,33 +291,27 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         </div>
                     </div>
 
-                    {/* Skill Value Preview List */}
+                    {/* Skill Value Preview List（useMemoでステータス変更時のみ再計算） */}
                     <div className="pt-2">
                         <h4 className="text-[10px] uppercase tracking-widest text-white font-bold mb-2">{t('settings.shield_preview', 'シールド・ヒール量 プレビュー')}</h4>
 
                         <div className="space-y-3">
                             {/* Top Row: Tank (4 cols) and DPS (2 cols) */}
                             <div className="flex gap-2">
-                                {/* Tank Group */}
                                 <div className="flex-[4]">
                                     <h5 className="text-[9px] font-extrabold text-blue-300 mb-1">TANK</h5>
                                     <div className="grid grid-cols-4 gap-1.5">
-                                        {[
-                                            { ja: "ディヴァインヴェール", en: "Divine Veil" },
-                                            { ja: "シェイクオフ", en: "Shake It Off" },
-                                            { ja: "原初の血気", en: "Bloodwhetting" },
-                                            { ja: "ブラックナイト", en: "The Blackest Night" },
-                                        ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
+                                        {skillPreviews.tank.map((s: any) => (
+                                            <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
+                                        ))}
                                     </div>
                                 </div>
-                                {/* DPS Group */}
                                 <div className="flex-[2]">
                                     <h5 className="text-[9px] font-extrabold text-red-300 mb-1">DPS</h5>
                                     <div className="grid grid-cols-2 gap-1.5">
-                                        {[
-                                            { ja: "インプロビゼーション", en: "Improvisation" },
-                                            { ja: "テンペラグラッサ", en: "Tempera Grassa" },
-                                        ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
+                                        {skillPreviews.dps.map((s: any) => (
+                                            <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -258,25 +320,14 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <div>
                                 <h5 className="text-[9px] font-extrabold text-green-300 mb-1">HEALER</h5>
                                 <div className="grid grid-cols-6 gap-1.5 mb-1.5">
-                                    {[
-                                        { ja: "ディヴァインカレス", en: "Divine Caress" },
-                                        { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" },
-                                        { ja: "コンソレイション", en: "Consolation" },
-                                        { ja: "アクセッション", en: "Accession" },
-                                        { ja: "ホーリズム", en: "Holos" },
-                                        { ja: "パンハイマ", en: "Panhaima" },
-                                    ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
+                                    {skillPreviews.healerTop.map((s: any) => (
+                                        <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
+                                    ))}
                                 </div>
                                 <div className="grid grid-cols-6 gap-1.5">
-                                    {[
-                                        { ja: "鼓舞激励の策", en: "Adloquium" },
-                                        { ja: "意気軒高の策", en: "Concitation" },
-                                        { ja: "士気高揚の策", en: "Succor" },
-                                        { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II" },
-                                        { ja: "エウクラシア・プログノシス", en: "Eukrasian Prognosis" },
-                                        { ja: "アスペクト・ヘリオス (Nセクト)", en: "Aspected Helios (Neutral)" },
-                                        { ja: "コンジャンクション・ヘリオス (Nセクト)", en: "Helios Conjunction (Neutral)" },
-                                    ].map(skill => renderSkillItem(skill, tankRep, healerRep, contentLanguage, currentLevel))}
+                                    {skillPreviews.healerBottom.map((s: any) => (
+                                        <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -288,48 +339,19 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     );
 };
 
-const renderSkillItem = (skillNames: { ja: string; en: string }, tankRep: any, healerRep: any, contentLanguage: 'ja' | 'en' = 'ja', currentLevel: number = 100) => {
-    const skillName = skillNames.ja;
-    const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as any;
-    if (!skill) return null;
-
-    // Level check
-    if (skill.minLevel && currentLevel < skill.minLevel) return null;
-    if (skill.maxLevel && currentLevel > skill.maxLevel) return null;
-
-    const isTankSkill = ['pld', 'war', 'drk', 'gnb'].some(job => skill.jobs?.includes(job));
-    const stats = isTankSkill ? tankRep?.stats : healerRep?.stats;
-
-    if (!stats) return null;
-
-    let value = 0;
-    if (skill.type === 'hp' && 'percent' in skill) {
-        value = calculateHpValue(stats.hp, skill.percent || 0);
-    } else if (skill.type === 'potency' && 'potency' in skill) {
-        let base = calculatePotencyValue(stats, skill.potency || 0, isTankSkill ? 'tank' : 'healer', LEVEL_MODIFIERS[currentLevel]);
-        const multiplier = 'multiplier' in skill ? skill.multiplier : undefined;
-        if (multiplier) base = Math.floor(base * multiplier);
-        if ((skill as any).isCrit) base = calculateCriticalValue(base);
-        value = base;
-    }
-
-    const iconUrl = (skill as any).icon ? `/icons/${(skill as any).icon}` : null;
-    const displayName = contentLanguage === 'en' ? skillNames.en : skillNames.ja;
-
+const SkillPreviewItem: React.FC<{ item: { key: string; value: number; iconUrl: string | null; nameJa: string; nameEn: string }; contentLanguage: 'ja' | 'en' }> = ({ item, contentLanguage }) => {
+    const displayName = contentLanguage === 'en' ? item.nameEn : item.nameJa;
     return (
-        <div
-            key={skillName}
-            className="flex flex-col items-center justify-center bg-glass-card hover:bg-glass-hover border border-glass-border rounded-lg p-1.5 transition-colors gap-1 min-w-0"
-        >
+        <div className="flex flex-col items-center justify-center bg-glass-card hover:bg-glass-hover border border-glass-border rounded-lg p-1.5 transition-colors gap-1 min-w-0">
             <Tooltip content={displayName}>
                 <div className="flex flex-col items-center gap-1">
-                    {iconUrl ? (
-                        <img src={iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
+                    {item.iconUrl ? (
+                        <img src={item.iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
                     ) : (
                         <div className="w-6 h-6 bg-app-surface2 rounded-md flex items-center justify-center text-[10px] text-white/50">?</div>
                     )}
                     <span className="font-mono text-white font-bold text-[10px] tracking-tight leading-none">
-                        {value.toLocaleString()}
+                        {item.value.toLocaleString()}
                     </span>
                 </div>
             </Tooltip>

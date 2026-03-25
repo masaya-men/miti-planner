@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { useMitigationStore } from './useMitigationStore';
+import { useMitigationStore, type TutorialSnapshot } from './useMitigationStore';
 import { usePlanStore } from './usePlanStore';
 import { MITIGATIONS } from '../data/mockData';
 
@@ -339,20 +339,24 @@ interface TutorialState {
     hasCompleted: boolean;
     /** 共有リンクから来たユーザーはチュートリアル自動起動しない */
     hasVisitedShare: boolean;
-    /** Whether a restart confirmation dialog should be shown */
-    pendingTutorialRestart: boolean;
     /** Whether an exit confirmation dialog should be shown */
     pendingTutorialExit: boolean;
-    /** Step index to start from after restart confirmation */
+    /** チュートリアル開始確認ダイアログ表示中 */
+    pendingTutorialStart: boolean;
+    /** 確認ダイアログ経由で開始するステップ番号 */
     _pendingStepIndex: number;
+    /** チュートリアル開始前の状態を退避するスナップショット（メモリ上のみ） */
+    _savedSnapshot: TutorialSnapshot | null;
+    /** 退避したプランID */
+    _savedPlanId: string | null;
 
     // ── Actions ──
-    /** Start the tutorial from step 0 */
+    /** Start the tutorial from step 0 (shows confirmation first) */
     startTutorial: () => void;
-    /** Confirm the restart after user approval */
-    confirmRestart: () => void;
-    /** Cancel the restart dialog */
-    cancelRestart: () => void;
+    /** Confirm tutorial start after dialog */
+    confirmStart: () => void;
+    /** Cancel tutorial start dialog */
+    cancelStart: () => void;
     /** Start the tutorial from a specific step index */
     startFromStep: (stepIndex: number) => void;
     /** Advance to the next step */
@@ -379,6 +383,49 @@ interface TutorialState {
 }
 
 // ─────────────────────────────────────────────
+// Helper: チュートリアル終了時にユーザーの元の状態を復元
+// ─────────────────────────────────────────────
+function _restoreUserState(get: () => TutorialState) {
+    const mitiState = useMitigationStore.getState();
+    const planStore = usePlanStore.getState();
+
+    // チュートリアル専用プランを削除
+    const tutorialPlan = planStore.plans.find(p =>
+        p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial')
+    );
+    if (tutorialPlan) {
+        planStore.deletePlan(tutorialPlan.id);
+    }
+
+    // 元のプランに復元
+    const savedPlanId = get()._savedPlanId;
+    if (savedPlanId) {
+        const savedPlan = planStore.getPlan(savedPlanId);
+        if (savedPlan) {
+            // usePlanStoreに保存されたプランデータからloadSnapshotで確実に復元
+            mitiState.loadSnapshot(savedPlan.data);
+            planStore.setCurrentPlanId(savedPlanId);
+        } else {
+            // プランが見つからない場合はスナップショットから復元
+            const snapshot = get()._savedSnapshot;
+            if (snapshot) {
+                mitiState.restoreFromSnapshot(snapshot);
+            } else {
+                mitiState.resetForTutorial();
+            }
+        }
+    } else {
+        // 元のプランがない場合はクリーン状態に
+        const snapshot = get()._savedSnapshot;
+        if (snapshot) {
+            mitiState.restoreFromSnapshot(snapshot);
+        } else {
+            mitiState.resetForTutorial();
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
 // Store Implementation
 // ─────────────────────────────────────────────
 
@@ -389,46 +436,65 @@ export const useTutorialStore = create<TutorialState>()(
             currentStepIndex: 0,
             hasCompleted: false,
             hasVisitedShare: false,
-            pendingTutorialRestart: false,
             pendingTutorialExit: false,
+            pendingTutorialStart: false,
             _pendingStepIndex: 0,
+            _savedSnapshot: null,
+            _savedPlanId: null,
 
             startTutorial: () => {
-                // Check if there is existing data that would be lost
+                // 確認ダイアログを表示（step 0から）
+                set({ pendingTutorialStart: true, _pendingStepIndex: 0 });
+            },
+
+            confirmStart: () => {
                 const mitiState = useMitigationStore.getState();
-                const hasData = mitiState.timelineEvents.length > 0
-                    || mitiState.timelineMitigations.length > 0
-                    || mitiState.partyMembers.some((m: any) => m.jobId !== null);
-
-                if (hasData) {
-                    set({ pendingTutorialRestart: true, _pendingStepIndex: 0 });
-                } else {
-                    set({ isActive: true, currentStepIndex: 0 });
-                }
-            },
-
-            confirmRestart: () => {
-                useMitigationStore.getState().resetForTutorial();
+                const planStore = usePlanStore.getState();
+                const savedPlanId = planStore.currentPlanId;
                 const stepIndex = get()._pendingStepIndex;
-                set({ isActive: true, currentStepIndex: stepIndex, pendingTutorialRestart: false, _pendingStepIndex: 0 });
+
+                // ① 現在のプランのデータをusePlanStoreに保存（後で復元できるように）
+                if (savedPlanId) {
+                    planStore.updatePlan(savedPlanId, { data: mitiState.getSnapshot() });
+                }
+
+                // ② 現在のuseMitigationStoreの状態もメモリに退避（フォールバック用）
+                const snapshot: TutorialSnapshot = {
+                    timelineEvents: JSON.parse(JSON.stringify(mitiState.timelineEvents)),
+                    timelineMitigations: JSON.parse(JSON.stringify(mitiState.timelineMitigations)),
+                    phases: JSON.parse(JSON.stringify(mitiState.phases)),
+                    partyMembers: JSON.parse(JSON.stringify(mitiState.partyMembers)),
+                    myMemberId: mitiState.myMemberId,
+                    myJobHighlight: mitiState.myJobHighlight,
+                    hideEmptyRows: mitiState.hideEmptyRows,
+                };
+
+                // ③ currentPlanIdをnullに（ヘッダー等がユーザーのプランを参照しなくなる）
+                planStore.setCurrentPlanId(null);
+
+                // ④ useMitigationStoreをクリーンな状態にリセット
+                mitiState.resetForTutorial();
+
+                // ⑤ チュートリアル開始
+                set({
+                    isActive: true,
+                    currentStepIndex: stepIndex,
+                    pendingTutorialStart: false,
+                    _pendingStepIndex: 0,
+                    _savedSnapshot: snapshot,
+                    _savedPlanId: savedPlanId,
+                });
+
             },
 
-            cancelRestart: () => {
-                set({ pendingTutorialRestart: false, _pendingStepIndex: 0 });
+            cancelStart: () => {
+                set({ pendingTutorialStart: false, _pendingStepIndex: 0 });
             },
 
             startFromStep: (stepIndex: number) => {
                 if (stepIndex >= 0 && stepIndex < TUTORIAL_STEPS.length) {
-                    const mitiState = useMitigationStore.getState();
-                    const hasData = mitiState.timelineEvents.length > 0
-                        || mitiState.timelineMitigations.length > 0
-                        || mitiState.partyMembers.some((m: any) => m.jobId !== null);
-
-                    if (hasData) {
-                        set({ pendingTutorialRestart: true, _pendingStepIndex: stepIndex });
-                    } else {
-                        set({ isActive: true, currentStepIndex: stepIndex });
-                    }
+                    // startFromStepも確認ダイアログを経由する
+                    set({ pendingTutorialStart: true, _pendingStepIndex: stepIndex });
                 }
             },
 
@@ -581,25 +647,13 @@ export const useTutorialStore = create<TutorialState>()(
             },
 
             completeTutorial: () => {
-                useMitigationStore.getState().resetForTutorial();
-                // チュートリアル専用プランを削除
-                const planStore = usePlanStore.getState();
-                const tutorialPlan = planStore.plans.find(p => p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial'));
-                if (tutorialPlan) {
-                    planStore.deletePlan(tutorialPlan.id);
-                }
-                set({ isActive: false, hasCompleted: true, currentStepIndex: 0 });
+                _restoreUserState(get);
+                set({ isActive: false, hasCompleted: true, currentStepIndex: 0, _savedSnapshot: null, _savedPlanId: null });
             },
 
             skipTutorial: () => {
-                useMitigationStore.getState().resetForTutorial();
-                // チュートリアル専用プランを削除
-                const planStore = usePlanStore.getState();
-                const tutorialPlan = planStore.plans.find(p => p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial'));
-                if (tutorialPlan) {
-                    planStore.deletePlan(tutorialPlan.id);
-                }
-                set({ isActive: false, hasCompleted: true, currentStepIndex: 0, pendingTutorialExit: false });
+                _restoreUserState(get);
+                set({ isActive: false, hasCompleted: true, currentStepIndex: 0, pendingTutorialExit: false, _savedSnapshot: null, _savedPlanId: null });
             },
 
             requestExit: () => {
@@ -664,6 +718,34 @@ export const useTutorialStore = create<TutorialState>()(
             name: 'tutorial-storage',
             // Only persist hasCompleted — runtime state should not be persisted
             partialize: (state) => ({ hasCompleted: state.hasCompleted, hasVisitedShare: state.hasVisitedShare }),
+            // リロード時にチュートリアル用プランの残骸を自動削除する
+            // isActiveは永続化されないためリロード後は常にfalse → チュートリアル途中の残骸が残る
+            onRehydrateStorage: () => {
+                // rehydrate完了後のコールバック
+                return () => {
+                    // 少し遅延させてusePlanStoreのrehydrateも完了してから実行
+                    setTimeout(() => {
+                        const planStore = usePlanStore.getState();
+                        const tutorialPlans = planStore.plans.filter(p =>
+                            p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial')
+                        );
+                        if (tutorialPlans.length > 0) {
+                            for (const plan of tutorialPlans) {
+                                planStore.deletePlan(plan.id);
+                            }
+                            // チュートリアル途中でリロードされた場合、useMitigationStoreもクリア
+                            useMitigationStore.getState().resetForTutorial();
+                            // 残っているプランがあれば最新のものを自動選択して復帰
+                            const remaining = usePlanStore.getState().plans;
+                            if (remaining.length > 0) {
+                                const latest = remaining.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+                                useMitigationStore.getState().loadSnapshot(latest.data);
+                                usePlanStore.getState().setCurrentPlanId(latest.id);
+                            }
+                        }
+                    }, 0);
+                };
+            },
         }
     )
 );

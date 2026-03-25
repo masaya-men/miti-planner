@@ -593,9 +593,8 @@ export const TutorialOverlay: React.FC = () => {
             // Allow clicks inside tutorial-managed modals (e.g., PartySettingsModal)
             if (target.closest('[data-tutorial-modal]')) return;
 
-            // Allow clicks inside exit/restart confirmation dialogs
+            // Allow clicks inside exit confirmation dialog
             if (target.closest('[data-tutorial-exit-dialog]')) return;
-            if (target.closest('[data-tutorial-restart-dialog]')) return;
 
             // テーマ切替・言語切替は常に操作可能
             if (target.closest('[data-tutorial-always]')) return;
@@ -615,11 +614,11 @@ export const TutorialOverlay: React.FC = () => {
         return () => document.removeEventListener('click', handleClick, true);
     }, [isActive, currentStep, routeMatch]);
 
-    // Restart/Exit confirmation dialogs
-    const pendingRestart = useTutorialStore(s => s.pendingTutorialRestart);
+    // Confirmation dialogs
     const pendingExit = useTutorialStore(s => s.pendingTutorialExit);
+    const pendingStart = useTutorialStore(s => s.pendingTutorialStart);
 
-    if (!routeMatch && !pendingRestart && !pendingExit) return null;
+    if (!routeMatch && !pendingExit && !pendingStart) return null;
 
     // Calculate relative step numbering for the current route
     const currentRouteSteps = TUTORIAL_STEPS.filter(step => step.route === stepRoute && !step.isDialog);
@@ -628,65 +627,6 @@ export const TutorialOverlay: React.FC = () => {
 
     return (
         <>
-            {/* Restart Confirmation Dialog */}
-            <AnimatePresence>
-                {pendingRestart && (
-                    <>
-                        <motion.div
-                            key="restart-backdrop"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
-                            onClick={() => useTutorialStore.getState().cancelRestart()}
-                        />
-                        <motion.div
-                            key="restart-dialog"
-                            data-tutorial-restart-dialog
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-                            className={clsx(
-                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                                "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
-                                "shadow-sm",
-                                "bg-app-surface border-app-border"
-                            )}
-                        >
-                            <div className="text-4xl mb-4">⚠️</div>
-                            <h3 className="text-lg font-bold text-app-text mb-3">
-                                {t('tutorial.restart_title')}
-                            </h3>
-                            <p className="text-sm text-app-text leading-relaxed mb-6">
-                                {t('tutorial.restart_desc')}
-                            </p>
-                            <div className="flex gap-3 justify-center">
-                                <button
-                                    onClick={() => useTutorialStore.getState().cancelRestart()}
-                                    className={clsx(
-                                        "px-5 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border",
-                                        "border-app-border text-app-text hover:bg-app-surface2"
-                                    )}
-                                >
-                                    {t('tutorial.restart_cancel')}
-                                </button>
-                                <button
-                                    onClick={() => useTutorialStore.getState().confirmRestart()}
-                                    className={clsx(
-                                        "px-5 py-2 rounded-xl text-sm font-black transition-all cursor-pointer",
-                                        "bg-app-accent text-app-text-on-accent hover:brightness-110 active:scale-95",
-                                        "shadow-[0_4px_12px_rgba(56,189,248,0.3)]"
-                                    )}
-                                >
-                                    {t('tutorial.restart_confirm')}
-                                </button>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-
             {/* Main Tutorial Overlay */}
             <AnimatePresence>
                 {isActive && currentStep && (
@@ -790,6 +730,68 @@ export const TutorialOverlay: React.FC = () => {
                                     )}
                                 >
                                     {t('tutorial.exit_confirm')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Start Confirmation Dialog — チュートリアル開始確認 */}
+            <AnimatePresence>
+                {pendingStart && (
+                    <>
+                        <motion.div
+                            key="start-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                            onClick={() => useTutorialStore.getState().cancelStart()}
+                        />
+                        <motion.div
+                            key="start-dialog"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
+                            className={clsx(
+                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                                "w-[420px] max-w-[90vw] rounded-2xl border p-8 text-center",
+                                "shadow-sm overflow-hidden",
+                                "bg-app-surface border-app-border"
+                            )}
+                        >
+                            <button
+                                onClick={() => useTutorialStore.getState().cancelStart()}
+                                className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                            >
+                                <X size={18} />
+                            </button>
+
+                            <h3 className="text-lg font-bold text-app-text text-left leading-tight mb-4">
+                                {t('tutorial.start_title')}
+                            </h3>
+
+                            <p className="text-sm text-app-text-secondary leading-relaxed mb-8 text-left px-1">
+                                {t('tutorial.start_desc')}
+                            </p>
+
+                            <div className="flex gap-4 justify-end items-center">
+                                <button
+                                    onClick={() => useTutorialStore.getState().cancelStart()}
+                                    className="px-6 py-2 text-sm font-bold text-app-text transition-colors cursor-pointer"
+                                >
+                                    {t('common.cancel')}
+                                </button>
+                                <button
+                                    onClick={() => useTutorialStore.getState().confirmStart()}
+                                    className={clsx(
+                                        "px-8 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer",
+                                        "bg-app-text text-app-bg hover:brightness-110 active:scale-95"
+                                    )}
+                                >
+                                    {t('tutorial.start_confirm')}
                                 </button>
                             </div>
                         </motion.div>

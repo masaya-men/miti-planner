@@ -28,7 +28,6 @@ interface ConsolidatedHeaderProps {
     setPartySortOrder: (order: 'light_party' | 'role') => void;
     statusOpen: boolean;
     setStatusOpen: (open: boolean) => void;
-    setPartySettingsOpen: (open: boolean) => void;
 }
 
 // ホバー: 白黒反転（ライト→黒塗り白文字 / ダーク→白塗り黒文字）
@@ -79,7 +78,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     setPartySortOrder,
     statusOpen,
     setStatusOpen,
-    setPartySettingsOpen
 }) => {
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
@@ -316,7 +314,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <button
                                 data-tutorial="party-comp"
                                 onClick={() => {
-                                    setPartySettingsOpen(true);
+                                    window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }));
                                     useTutorialStore.getState().completeEvent('party-settings:opened');
                                 }}
                                 className={clsx(pillBtnBase, pillBtnDefault)}

@@ -396,7 +396,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { theme, setTheme } = useThemeStore();
     const navigate = useNavigate();
     const plans = usePlanStore(s => s.plans);
-    // サイドバー開閉: プラン0件なら強制オープン、それ以外はlocalStorage記憶
+    const currentPlanId = usePlanStore(s => s.currentPlanId);
+    // サイドバー開閉: プラン未選択なら強制オープン、それ以外はlocalStorage記憶
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(() => {
         if (typeof window === 'undefined') return true;
         if (window.innerWidth < 768) return false;
@@ -411,8 +412,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
     // プラン0件なら強制的に開く
     React.useEffect(() => {
-        if (plans.length === 0) setIsSidebarOpen(true);
-    }, [plans.length]);
+        if (plans.length === 0 || !currentPlanId) setIsSidebarOpen(true);
+    }, [plans.length, currentPlanId]);
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
 
     // モバイル判定（md: 768px）
@@ -441,7 +442,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         if (isTutorialActive) {
             setIsSidebarOpen(true);
             setIsHeaderCollapsed(false);
+            // チュートリアル中はモバイル用シートをすべて閉じる
             setMobileMenuOpen(false);
+            setMobilePartyOpen(false);
+            setMobileStatusOpen(false);
+            setMobileToolsOpen(false);
+            setMobileAccountOpen(false);
         }
     }, [isTutorialActive]);
 
@@ -623,7 +629,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         setPartySortOrder={setTimelineSortOrder}
                         statusOpen={mobileStatusOpen}
                         setStatusOpen={setMobileStatusOpen}
-                        setPartySettingsOpen={setMobilePartyOpen}
                     />
                 </div>
 
@@ -644,8 +649,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                     {children}
 
-                    {/* プラン0件時のオーバーレイ — タグ型吹き出し */}
-                    {plans.length === 0 && (
+                    {/* プラン未選択時のオーバーレイ — タグ型吹き出し */}
+                    {!currentPlanId && (
                         <div className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-auto">
                             <motion.div
                                 initial={{ opacity: 0, x: 20 }}
@@ -681,8 +686,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </MobileTriggersContext.Provider>
             </div>
 
-            {/* Mobile Bottom Nav — 排他制御付きトグル */}
-            <MobileBottomNav
+            {/* Mobile Bottom Nav — 排他制御付きトグル（チュートリアル中は非表示） */}
+            {!isTutorialActive && <MobileBottomNav
                 onMenuToggle={() => {
                     const next = !mobileMenuOpen;
                     setMobileMenuOpen(next);
@@ -714,7 +719,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 myJobHighlight={myJobHighlight}
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
                 activeTab={mobileMenuOpen ? 'menu' : mobilePartyOpen ? 'party' : mobileToolsOpen ? 'tools' : mobileAccountOpen ? 'login' : undefined}
-            />
+            />}
 
             {/* Mobile: ログインモーダル（未ログイン時） */}
             <LoginModal isOpen={mobileLoginModalOpen} onClose={() => setMobileLoginModalOpen(false)} />
