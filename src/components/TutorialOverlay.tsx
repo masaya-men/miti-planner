@@ -6,6 +6,7 @@ import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import clsx from 'clsx';
 import { X, AlertTriangle } from 'lucide-react';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 // ─────────────────────────────────────────────
 // Types
@@ -762,16 +763,19 @@ export const TutorialOverlay: React.FC = () => {
                                 "bg-app-surface border-app-border"
                             )}
                         >
-                            <button
-                                onClick={() => useTutorialStore.getState().cancelStart()}
-                                className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
-                            >
-                                <X size={18} />
-                            </button>
-
-                            <h3 className="text-lg font-bold text-app-text text-left leading-tight mb-4">
-                                {t('tutorial.start_title')}
-                            </h3>
+                            {/* ヘッダー: タイトル + 言語切り替え + 閉じる */}
+                            <div className="flex items-start gap-3 mb-4">
+                                <h3 className="text-lg font-bold text-app-text text-left leading-tight flex-1">
+                                    {t('tutorial.start_title')}
+                                </h3>
+                                <LanguageSwitcher />
+                                <button
+                                    onClick={() => useTutorialStore.getState().cancelStart()}
+                                    className="p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer shrink-0"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
 
                             <p className="text-sm text-app-text-secondary leading-relaxed mb-8 text-left px-1">
                                 {t('tutorial.start_desc')}

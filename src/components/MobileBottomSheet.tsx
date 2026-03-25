@@ -101,7 +101,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                     "transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
                     visible ? "translate-y-0" : "translate-y-full"
                 )}
-                style={{ maxHeight: height, bottom: '4rem' }}
+                style={{ maxHeight: height, bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
             >
                 {/* Drag handle — visual cue for swipe */}
                 <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
