@@ -37,22 +37,25 @@ function toFirestoreCreate(
   plan: SavedPlan,
   uid: string,
   displayName: string,
-): Omit<FirestorePlan, 'createdAt' | 'updatedAt'> & { createdAt: ReturnType<typeof serverTimestamp>; updatedAt: ReturnType<typeof serverTimestamp> } {
-  return {
+): any {
+  // undefinedを全て除去してからFirestoreに送信（Firestoreはundefinedを拒否する）
+  const cleaned = JSON.parse(JSON.stringify({
     ownerId: uid,
     ownerDisplayName: displayName,
-    title: plan.title,
+    title: plan.title || '',
     contentId: plan.contentId ?? '',
-    isPublic: plan.isPublic,
+    isPublic: plan.isPublic ?? false,
     shareId: null,
-    copyCount: 0,
-    useCount: 0,
+    copyCount: plan.copyCount ?? 0,
+    useCount: plan.useCount ?? 0,
     data: plan.data,
     version: 1,
-    createdAt: serverTimestamp() as any,
-    updatedAt: serverTimestamp() as any,
     archivedAt: null,
-  };
+  }));
+  // serverTimestamp()はJSON.stringifyで消えるので後付け
+  cleaned.createdAt = serverTimestamp();
+  cleaned.updatedAt = serverTimestamp();
+  return cleaned;
 }
 
 /** SavedPlan → Firestore書き込み用オブジェクト（更新） */
@@ -60,14 +63,16 @@ function toFirestoreUpdate(
   plan: SavedPlan,
   currentVersion: number,
 ) {
-  return {
-    title: plan.title,
+  // undefinedを全て除去（Firestoreはundefinedを拒否する）
+  const cleaned = JSON.parse(JSON.stringify({
+    title: plan.title || '',
     contentId: plan.contentId ?? '',
-    isPublic: plan.isPublic,
+    isPublic: plan.isPublic ?? false,
     data: plan.data,
     version: currentVersion + 1,
-    updatedAt: serverTimestamp(),
-  };
+  }));
+  cleaned.updatedAt = serverTimestamp();
+  return cleaned;
 }
 
 /** Firestoreドキュメント → SavedPlan */
@@ -180,18 +185,29 @@ async function createPlan(
   await batch.commit();
 }
 
-/** プランを Firestore で更新 */
+/** プランを Firestore で更新（存在しない場合はエラーをthrow → 呼び出し側でcreateにフォールバック） */
 async function updatePlan(
   plan: SavedPlan,
+  uid: string,
 ): Promise<void> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
-  const snap = await getDoc(planRef);
-  if (!snap.exists()) {
-    // Firestoreに存在しない → まだ同期されていないプラン（createで処理すべき）
-    return;
+  // セキュリティルールの制約で、自分のドキュメントしかreadできないため
+  // try/catchで読み取りエラーも含めてハンドリング
+  try {
+    const snap = await getDoc(planRef);
+    if (!snap.exists()) {
+      throw new Error('NOT_EXISTS');
+    }
+    const current = snap.data() as FirestorePlan;
+    // ownerIdが自分のものか確認
+    if (current.ownerId !== uid) {
+      throw new Error('NOT_OWNER');
+    }
+    await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });
+  } catch (err) {
+    // getDocのpermission errorや存在しないエラー → createにフォールバック
+    throw err;
   }
-  const current = snap.data() as FirestorePlan;
-  await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });
 }
 
 /** プランを Firestore から削除（バッチ: プラン + カウンター） */
@@ -291,15 +307,15 @@ async function syncDirtyPlans(
 
   for (const plan of plansToSync) {
     try {
-      const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
-      const snap = await getDoc(planRef);
-
-      if (snap.exists()) {
-        // 既存プランを更新
-        await updatePlan(plan);
-      } else {
-        // Firestoreに未作成 → 新規作成
-        await createPlan(plan, uid, displayName);
+      if (plan.ownerId === 'local' || plan.ownerId === uid) {
+        // ownerId=localはまだFirestoreに保存されていない新規プラン
+        // ownerId=uidは既存プランだが、更新か新規かをtry/catchで判定
+        try {
+          await updatePlan(plan, uid);
+        } catch {
+          // updateが失敗（ドキュメント未作成など）→ 新規作成
+          await createPlan(plan, uid, displayName);
+        }
       }
     } catch (err) {
       console.error('Firestore同期エラー:', plan.id, err);

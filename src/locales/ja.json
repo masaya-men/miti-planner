@@ -35,7 +35,6 @@
         "generating_preview": "プレビューを生成中...",
         "include_plan_title": "プラン名をOGP画像に表示",
         "loading_plan": "読み込み中...",
-        "authenticating": "ログイン中...",
         "share_loading": "読み込み中...",
         "share_not_found": "この共有リンクは見つかりませんでした",
         "share_error": "データの取得に失敗しました",
@@ -59,7 +58,9 @@
         "privacy_message": "メールアドレスなどの個人情報は収集しません。表示名とアイコンのみ使用します。",
         "success_toast": "ログインしました",
         "success_title": "ログイン成功！",
-        "welcome": "ようこそ、{{name}}さん！"
+        "welcome": "ようこそ、{{name}}さん！",
+        "start_button": "はじめる",
+        "authenticating": "ログイン中..."
     },
     "aa_settings": {
         "title": "AA追加モード",

@@ -17,6 +17,8 @@ import {
     type User
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { usePlanStore } from './usePlanStore';
+import { useMitigationStore } from './useMitigationStore';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
 
@@ -80,16 +82,42 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     signOut: async () => {
+        const currentUser = auth.currentUser;
+        // ① ログアウト前にFirestoreに未同期の変更を全て反映
+        if (currentUser) {
+            try {
+                const planState = usePlanStore.getState();
+                // 現在の表データをプランに保存（最新状態をFirestoreに送るため）
+                if (planState.currentPlanId) {
+                    planState.updatePlan(planState.currentPlanId, {
+                        data: useMitigationStore.getState().getSnapshot(),
+                    });
+                    planState.markDirty(planState.currentPlanId);
+                }
+                // 全プランをFirestoreに強制同期（_isSyncingバイパス）
+                await planState.forceSyncAll(
+                    currentUser.uid,
+                    currentUser.displayName || 'Guest',
+                );
+            } catch (err) {
+                console.error('ログアウト前の同期エラー:', err);
+            }
+        }
+
+        // ② Firebase Auth ログアウト
         await firebaseSignOut(auth);
         set({ user: null });
-        // ログアウト時にlocalStorageのプラン・軽減データをクリア
-        // （Firestoreに保存済みデータは影響なし、次回ログインで復元される）
+
+        // ③ localStorageとZustandストアをクリア
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
-        // Zustandストアもリセット
-        const { usePlanStore } = await import('./usePlanStore');
-        const { useMitigationStore } = await import('./useMitigationStore');
-        usePlanStore.setState({ plans: [], currentPlanId: null, lastActivePlanId: null });
+        usePlanStore.setState({
+            plans: [],
+            currentPlanId: null,
+            lastActivePlanId: null,
+            _dirtyPlanIds: new Set(),
+            _deletedPlanIds: new Set(),
+        });
         useMitigationStore.getState().resetForTutorial();
     },
 

@@ -551,6 +551,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const authUser = useAuthStore((s) => s.user);
     const authLoading = useAuthStore((s) => s.loading);
     const [hasMigrated, setHasMigrated] = React.useState(false);
+    // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
+    React.useEffect(() => {
+        if (!authUser) setHasMigrated(false);
+    }, [authUser]);
     React.useEffect(() => {
         if (authLoading || !authUser || hasMigrated) return;
         setHasMigrated(true);
@@ -602,11 +606,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* ログイン成功オーバーレイ — 表の描画より先にウェルカム画面を全面表示（チラつき防止） */}
             {justLoggedInUser && (
-                <div
-                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg cursor-pointer"
-                    onClick={() => { useAuthStore.getState().clearJustLoggedIn(); }}
-                >
-                    <div className="flex flex-col items-center gap-4 animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)]">
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-5 animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)] bg-app-bg border border-app-border rounded-2xl px-10 py-8 shadow-2xl max-w-[380px]">
                         {justLoggedInUser.photoURL ? (
                             <img src={justLoggedInUser.photoURL} alt="" className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg" referrerPolicy="no-referrer" />
                         ) : (
@@ -622,6 +623,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                 {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
                             </p>
                         </div>
+                        <button
+                            onClick={() => { useAuthStore.getState().clearJustLoggedIn(); }}
+                            className="w-full py-2.5 rounded-xl text-sm font-bold bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                            {t('login.start_button')}
+                        </button>
                     </div>
                 </div>
             )}

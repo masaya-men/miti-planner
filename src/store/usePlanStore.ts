@@ -28,6 +28,8 @@ interface PlanState {
     // Firestore同期アクション
     markDirty: (planId: string) => void;
     syncToFirestore: (uid: string, displayName: string) => Promise<void>;
+    /** ログアウト前に全プランを強制同期（_isSyncingチェックをバイパス） */
+    forceSyncAll: (uid: string, displayName: string) => Promise<void>;
     migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
     hasDirtyPlans: () => boolean;
@@ -194,6 +196,41 @@ export const usePlanStore = create<PlanState>()(
                     console.error('Firestore同期エラー:', err);
                 } finally {
                     set({ _isSyncing: false });
+                }
+            },
+
+            /**
+             * ログアウト前に全プランを強制同期（_isSyncingチェックをバイパス）
+             * 全プランをdirty扱いで確実にFirestoreに保存する
+             */
+            forceSyncAll: async (uid, displayName) => {
+                try {
+                    const state = get();
+                    // 全プランをdirty扱いにする
+                    const allPlanIds = new Set(state.plans.map(p => p.id));
+                    // 削除の処理
+                    for (const planId of state._deletedPlanIds) {
+                        try {
+                            await planService.deletePlan(planId, uid, null);
+                        } catch (err) {
+                            console.error('Firestore強制削除エラー:', planId, err);
+                        }
+                    }
+                    // 全プランを同期
+                    await planService.syncDirtyPlans(
+                        allPlanIds,
+                        state.plans,
+                        uid,
+                        displayName,
+                    );
+                    set({
+                        _dirtyPlanIds: new Set<string>(),
+                        _deletedPlanIds: new Set<string>(),
+                        _lastSyncAt: Date.now(),
+                        _isSyncing: false,
+                    });
+                } catch (err) {
+                    console.error('Firestore強制同期エラー:', err);
                 }
             },
 

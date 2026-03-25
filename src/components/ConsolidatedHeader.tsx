@@ -113,8 +113,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const { user } = useAuthStore();
     const [showLoginModal, setShowLoginModal] = React.useState(false);
 
-    // ログイン成功時のウェルカム表示はLayout.tsxで一括管理（チラつき防止）
-    // ここではLoginModalの手動表示のみ管理
+    // ログイン成功時: LoginModalを自動で閉じる（ウェルカム表示はLayout.tsxで一括管理）
+    const justLoggedIn = useAuthStore((s) => s.justLoggedInUser);
+    React.useEffect(() => {
+        if (justLoggedIn) setShowLoginModal(false);
+    }, [justLoggedIn]);
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
