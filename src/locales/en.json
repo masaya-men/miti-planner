@@ -33,7 +33,6 @@
         "generating_preview": "Generating preview...",
         "include_plan_title": "Show plan name in OGP image",
         "loading_plan": "Loading...",
-        "authenticating": "Signing in...",
         "share_loading": "Loading...",
         "share_not_found": "This shared plan was not found",
         "share_error": "Failed to fetch data",
@@ -59,7 +58,9 @@
         "privacy_message": "No personal information such as email addresses is collected. We only use your display name and avatar.",
         "success_toast": "Signed in successfully",
         "success_title": "Login Successful!",
-        "welcome": "Welcome, {{name}}!"
+        "welcome": "Welcome, {{name}}!",
+        "start_button": "Let's Go",
+        "authenticating": "Signing in..."
     },
     "aa_settings": {
         "title": "Add AA Mode",

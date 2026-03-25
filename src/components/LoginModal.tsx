@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { X, LogOut, Shield, CheckCircle } from 'lucide-react';
+import { X, LogOut, Shield } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 interface LoginModalProps {
@@ -49,23 +49,16 @@ const providers = [
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { user, signInWith, signOut, justLoggedInUser, clearJustLoggedIn } = useAuthStore();
+    const { user, signInWith, signOut } = useAuthStore();
 
-    // 成功画面表示中か
-    const isSuccess = !!justLoggedInUser;
-
-    if (!isOpen && !isSuccess) return null;
+    // ログイン成功時のウェルカム画面はLayout.tsxで一括管理
+    if (!isOpen) return null;
 
     const handleSignIn = (providerId: 'google' | 'discord' | 'twitter') => {
         signInWith(providerId);
     };
 
-    const handleCloseSuccess = () => {
-        clearJustLoggedIn();
-        onClose();
-    };
-
-    const handleClose = isSuccess ? handleCloseSuccess : onClose;
+    const handleClose = onClose;
 
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center">
@@ -81,57 +74,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
             )}>
 
-                {/* ===== ログイン成功画面 ===== */}
-                {isSuccess && (
-                    <>
-                        <div className="flex justify-end px-6 pt-4">
-                            <button
-                                onClick={handleCloseSuccess}
-                                className="p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
-                            >
-                                <X size={16} />
-                            </button>
-                        </div>
-                        <div className="flex flex-col items-center px-6 pb-8 pt-1">
-                            {/* アイコン */}
-                            {justLoggedInUser.photoURL ? (
-                                <img
-                                    src={justLoggedInUser.photoURL}
-                                    alt=""
-                                    className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg mb-4"
-                                    referrerPolicy="no-referrer"
-                                />
-                            ) : (
-                                <div className="w-16 h-16 rounded-full bg-app-surface2 flex items-center justify-center ring-2 ring-app-border mb-4">
-                                    <span className="text-2xl font-bold text-app-text">
-                                        {(justLoggedInUser.displayName || 'U').charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* 成功メッセージ */}
-                            <div className="flex items-center gap-2 mb-2">
-                                <CheckCircle size={18} className="text-emerald-500" />
-                                <h2
-                                    className="text-[18px] text-app-text"
-                                    style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
-                                >
-                                    {t('login.success_title')}
-                                </h2>
-                            </div>
-
-                            <p
-                                className="text-[15px] text-app-text"
-                                style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 600 }}
-                            >
-                                {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
-                            </p>
-                        </div>
-                    </>
-                )}
-
-                {/* ===== 通常画面（未成功時のみ） ===== */}
-                {!isSuccess && (
+                {/* ===== 通常画面 ===== */}
+                {(
                     <>
                         {/* ヘッダー */}
                         <div className="flex items-center justify-between px-6 pt-6 pb-2">

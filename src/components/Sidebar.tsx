@@ -18,6 +18,7 @@ import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
 import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
@@ -1206,7 +1207,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
                             <button
                                 onClick={() => {
                                     const planStore = usePlanStore.getState();
-                                    multiSelect.selectedIds.forEach(id => planStore.deletePlan(id));
+                                    const authUser = useAuthStore.getState().user;
+                                    for (const id of multiSelect.selectedIds) {
+                                        const plan = planStore.plans.find(p => p.id === id);
+                                        if (authUser) {
+                                            // ログイン中: Firestoreから即時削除
+                                            planStore.deleteFromFirestore(id, authUser.uid, plan?.contentId || null);
+                                        } else {
+                                            planStore.deletePlan(id);
+                                        }
+                                    }
                                     setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
                                     setShowDeleteConfirm(false);
                                 }}
