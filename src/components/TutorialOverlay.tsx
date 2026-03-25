@@ -763,40 +763,41 @@ export const TutorialOverlay: React.FC = () => {
                                 "bg-app-surface border-app-border"
                             )}
                         >
-                            {/* ヘッダー: タイトル + 言語切り替え + 閉じる */}
-                            <div className="flex items-start gap-3 mb-4">
-                                <h3 className="text-lg font-bold text-app-text text-left leading-tight flex-1">
-                                    {t('tutorial.start_title')}
-                                </h3>
-                                <LanguageSwitcher />
-                                <button
-                                    onClick={() => useTutorialStore.getState().cancelStart()}
-                                    className="p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer shrink-0"
-                                >
-                                    <X size={18} />
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => useTutorialStore.getState().cancelStart()}
+                                className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                            >
+                                <X size={16} />
+                            </button>
 
-                            <p className="text-sm text-app-text-secondary leading-relaxed mb-8 text-left px-1">
+                            <h3 className="text-lg font-bold text-app-text text-left leading-tight mb-3 pr-8">
+                                {t('tutorial.start_title')}
+                            </h3>
+
+                            <p className="text-sm text-app-text-secondary leading-relaxed mb-8 text-left">
                                 {t('tutorial.start_desc')}
                             </p>
 
-                            <div className="flex gap-4 justify-end items-center">
-                                <button
-                                    onClick={() => useTutorialStore.getState().cancelStart()}
-                                    className="px-6 py-2 text-sm font-bold text-app-text transition-colors cursor-pointer"
-                                >
-                                    {t('common.cancel')}
-                                </button>
-                                <button
-                                    onClick={() => useTutorialStore.getState().confirmStart()}
-                                    className={clsx(
-                                        "px-8 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer",
-                                        "bg-app-text text-app-bg hover:brightness-110 active:scale-95"
-                                    )}
-                                >
-                                    {t('tutorial.start_confirm')}
-                                </button>
+                            <div className="flex items-center">
+                                {/* 言語切り替え — 海外ユーザー向け */}
+                                <LanguageSwitcher />
+                                <div className="flex gap-3 ml-auto items-center">
+                                    <button
+                                        onClick={() => useTutorialStore.getState().cancelStart()}
+                                        className="px-4 py-2 text-sm font-bold text-app-text-muted hover:text-app-text transition-colors cursor-pointer"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                    <button
+                                        onClick={() => useTutorialStore.getState().confirmStart()}
+                                        className={clsx(
+                                            "px-7 py-2.5 rounded-xl text-sm font-black transition-all cursor-pointer",
+                                            "bg-app-text text-app-bg hover:brightness-110 active:scale-95"
+                                        )}
+                                    >
+                                        {t('tutorial.start_confirm')}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </>
