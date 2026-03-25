@@ -2,16 +2,20 @@ import React from 'react';
 import { useThemeStore } from '../store/useThemeStore';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 
 export const LanguageSwitcher: React.FC = () => {
     const { i18n } = useTranslation();
     const { setContentLanguage } = useThemeStore();
+    const { runTransition } = useTransitionOverlay();
     const currentLang = i18n.language;
 
     const handleLanguageChange = (lang: string) => {
         if (currentLang === lang) return;
-        i18n.changeLanguage(lang);
-        setContentLanguage(lang as 'ja' | 'en');
+        runTransition(() => {
+            i18n.changeLanguage(lang);
+            setContentLanguage(lang as 'ja' | 'en');
+        }, 'language');
     };
 
     return (

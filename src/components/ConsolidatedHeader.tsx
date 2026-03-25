@@ -20,6 +20,7 @@ import { PartyStatusPopover } from './PartyStatusPopover';
 import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
 import { ShareButtons } from './ShareButtons';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -42,28 +43,25 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
-// 保存状態インジケータ（Figma/Notion方式）
+// 保存状態インジケータ（実際の保存完了を反映）
 const SaveIndicator: React.FC = () => {
     const { t } = useTranslation();
     const currentPlanId = usePlanStore(s => s.currentPlanId);
-    const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
-    const [status, setStatus] = React.useState<'saved' | 'saving'>('saved');
-    const prevMitiRef = React.useRef(timelineMitigations);
-
-    React.useEffect(() => {
-        if (prevMitiRef.current !== timelineMitigations && currentPlanId) {
-            prevMitiRef.current = timelineMitigations;
-            setStatus('saving');
-            const timer = setTimeout(() => setStatus('saved'), 1500);
-            return () => clearTimeout(timer);
-        }
-    }, [timelineMitigations, currentPlanId]);
+    const saveStatus = usePlanStore(s => s._saveStatus);
 
     if (!currentPlanId) return null;
+    // idle（変更なし）の場合は何も表示しない
+    if (saveStatus === 'idle') return null;
 
     return (
-        <span className="text-[10px] text-app-text whitespace-nowrap shrink-0 transition-opacity duration-300">
-            {status === 'saving'
+        <span
+            className={clsx(
+                "text-[10px] transition-opacity duration-300",
+                saveStatus === 'saving' ? "text-app-text/50 animate-pulse" : "text-app-text"
+            )}
+            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+        >
+            {saveStatus === 'saving'
                 ? t('app.saving', { defaultValue: '保存中...' })
                 : t('app.saved', { defaultValue: '保存済み ✓' })
             }
@@ -82,6 +80,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
+    const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
         isHeaderCollapsed, setIsHeaderCollapsed
@@ -200,7 +199,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </Tooltip>
 
                             {currentPlan && (
-                                <div className="flex items-baseline gap-2 min-w-0 overflow-hidden">
+                                <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
                                             className={clsx(
@@ -227,20 +226,26 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 onBlur={finishHeaderEdit}
                                                 onKeyDown={e => { if (e.key === 'Enter') finishHeaderEdit(); if (e.key === 'Escape') setEditingHeaderTitle(false); }}
                                                 className="text-[13px] text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
-                                                style={{ fontFamily: 'inherit', fontWeight: 'inherit' }}
+                                                style={{ fontFamily: 'inherit', fontWeight: 'inherit', flex: '1 1 0%' }}
                                             />
                                         ) : (
-                                            <Tooltip content={t('app.double_click_rename')}>
-                                                <span
-                                                    className="text-[13px] text-app-text tracking-wider uppercase truncate min-w-0 cursor-pointer hover:border-b hover:border-app-text/20"
-                                                    onDoubleClick={startHeaderEdit}
-                                                >
-                                                    {currentPlan.title}
-                                                </span>
-                                            </Tooltip>
+                                            <div
+                                                className="text-[13px] text-app-text tracking-wider uppercase cursor-pointer hover:border-b hover:border-app-text/20"
+                                                style={{
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    flex: '1 1 0%',
+                                                    minWidth: 0,
+                                                }}
+                                                title={t('app.double_click_rename')}
+                                                onDoubleClick={startHeaderEdit}
+                                            >
+                                                {currentPlan.title}
+                                            </div>
                                         )
                                     )}
-                                    {/* 保存インジケータ — プラン名の直後に配置 */}
+                                    {/* 保存インジケータ — プラン名の直後に常に表示 */}
                                     <SaveIndicator />
                                 </div>
                             )}
@@ -277,7 +282,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
                                 <button
                                     data-tutorial-always
-                                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                    onClick={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                                     className={clsx(iconBtnBase, iconBtnDefault)}
                                 >
                                     {theme === 'dark'

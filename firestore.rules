@@ -49,7 +49,9 @@ service cloud.firestore {
     // 書き込み: 自分のプランのみ
     // ========================================
     match /plans/{planId} {
-      // 読み取り: 認証済みユーザー（自分のプラン確認用） OR 公開プラン
+      // 読み取り: 認証済みユーザー OR 公開プラン
+      // ※ isAuthenticated() が広めだが、syncDirtyPlansのgetDoc（存在確認→update/createフォールバック）に必要
+      // ※ リスト取得クエリは常にownerId==uid条件付きなので、他人のプランは実質取得されない
       allow read: if isAuthenticated()
                   || (resource != null && resource.data.isPublic == true);
 
@@ -66,7 +68,13 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.ownerId)
                     // オーナーIDの変更禁止
                     && request.resource.data.ownerId == resource.data.ownerId
-                    && isValidString(request.resource.data.title, 100);
+                    && isValidString(request.resource.data.title, 100)
+                    // フィールド型の検証
+                    && request.resource.data.data is map
+                    && request.resource.data.isPublic is bool
+                    && request.resource.data.contentId is string
+                    // バージョン: 現在値以上（楽観的ロック方向への拡張余地）
+                    && request.resource.data.version >= resource.data.version;
 
       allow delete: if isOwner(resource.data.ownerId);
     }

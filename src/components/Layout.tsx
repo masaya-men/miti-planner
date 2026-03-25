@@ -13,6 +13,7 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { JOBS } from '../data/mockData';
 import { Sun, Moon, Home, X, Star, LogOut, Loader2 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
@@ -394,6 +395,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
+    const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const plans = usePlanStore(s => s.plans);
     const currentPlanId = usePlanStore(s => s.currentPlanId);
@@ -486,10 +488,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         };
     }, [isMobile]);
 
-    // 自動保存（ページ離脱 + タブ切替 + 30秒間隔）
-    // Firestore同期: タブ切替 / ページ離脱 / プラン切替 / 3分間隔
+    // 自動保存（2層構造）
+    // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
+    // Firestore: イベント駆動のみ（ページ離脱 / タブ非表示 / プラン切替時）→ DAU 3,000でも無料枠内
     React.useEffect(() => {
-        /** localStorage への即時保存 */
+        /** localStorage への保存 */
         const saveSilently = () => {
             const planStore = usePlanStore.getState();
             const mitiStore = useMitigationStore.getState();
@@ -506,12 +509,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 planStore.syncToFirestore(
                     authState.user.uid,
                     authState.user.displayName || 'Guest',
-                );
+                ).catch(() => {});
             }
         };
 
-        /** ページ離脱時: localStorage保存 + Firestore強制同期 */
+        let localDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+        // useMitigationStoreの変更を監視 → localStorageへ500msデバウンス保存
+        const unsubMiti = useMitigationStore.subscribe((state, prevState) => {
+            if (state.timelineMitigations === prevState.timelineMitigations) return;
+            if (!usePlanStore.getState().currentPlanId) return;
+
+            // インジケーター: 「保存中...」
+            usePlanStore.getState().setSaveStatus('saving');
+
+            // localStorage: 500msデバウンス（ブラウザ内保存なのでコストゼロ）
+            if (localDebounceTimer) clearTimeout(localDebounceTimer);
+            localDebounceTimer = setTimeout(() => {
+                saveSilently();
+                // インジケーター: 「保存済み ✓」
+                usePlanStore.getState().setSaveStatus('saved');
+            }, 500);
+        });
+
+        /** ページ離脱時: localStorage即時保存 + Firestore同期 */
         const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
             syncToCloud();
             // 未ログインでプランがある場合、離脱前に警告
@@ -519,31 +542,39 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             const planState = usePlanStore.getState();
             if (!authState.user && planState.plans.length > 0) {
                 e.preventDefault();
-                // ブラウザ標準の確認ダイアログを表示（テキストはブラウザ依存）
             }
         };
 
-        /** タブ切替時: 非表示になったら保存+同期 */
+        /** タブ切替時: 非表示になったらlocalStorage保存 + Firestore同期 */
         const onVisibilityChange = () => {
             if (document.hidden) {
+                if (localDebounceTimer) clearTimeout(localDebounceTimer);
                 saveSilently();
                 syncToCloud();
+                usePlanStore.getState().setSaveStatus('saved');
             }
         };
 
         window.addEventListener('beforeunload', onBeforeUnload);
         document.addEventListener('visibilitychange', onVisibilityChange);
 
-        // localStorage: 30秒間隔の定期保存（無音）
-        const localInterval = setInterval(saveSilently, 30_000);
-        // Firestore: 3分間隔の定期同期
-        const cloudInterval = setInterval(syncToCloud, 180_000);
+        // プラン切替時: 旧プランをlocalStorage保存 + Firestore同期
+        let prevPlanId = usePlanStore.getState().currentPlanId;
+        const unsubPlan = usePlanStore.subscribe((state) => {
+            const newId = state.currentPlanId;
+            if (prevPlanId && prevPlanId !== newId) {
+                saveSilently();
+                syncToCloud();
+            }
+            prevPlanId = newId;
+        });
 
         return () => {
+            unsubMiti();
+            unsubPlan();
+            if (localDebounceTimer) clearTimeout(localDebounceTimer);
             window.removeEventListener('beforeunload', onBeforeUnload);
             document.removeEventListener('visibilitychange', onVisibilityChange);
-            clearInterval(localInterval);
-            clearInterval(cloudInterval);
         };
     }, [t]);
 
@@ -701,7 +732,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <MobileHeader
                     onHome={() => navigate('/')}
                     theme={theme}
-                    onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                 />
 
                 {/* Main content — add bottom padding on mobile for bottom nav */}

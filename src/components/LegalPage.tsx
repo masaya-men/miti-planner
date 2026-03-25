@@ -6,6 +6,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -144,7 +145,8 @@ export const TermsPage: React.FC = () => {
 const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, setTheme } = useThemeStore();
-    const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+    const { runTransition } = useTransitionOverlay();
+    const toggleTheme = () => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme');
 
     // body の overflow-hidden を一時的に解除（index.cssでグローバル設定されている）
     React.useEffect(() => {

@@ -17,6 +17,10 @@ interface PlanState {
     _isSyncing: boolean;
     _lastSyncAt: number;
 
+    // 保存インジケーター用（UIに実際の保存状態を反映）
+    _saveStatus: 'idle' | 'saving' | 'saved';
+    setSaveStatus: (status: 'idle' | 'saving' | 'saved') => void;
+
     // Actions
     addPlan: (plan: SavedPlan) => void;
     updatePlan: (id: string, data: Partial<SavedPlan>) => void;
@@ -48,6 +52,8 @@ export const usePlanStore = create<PlanState>()(
             _deletedPlanIds: new Set<string>(),
             _isSyncing: false,
             _lastSyncAt: 0,
+            _saveStatus: 'idle' as const,
+            setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
                 set((state) => ({

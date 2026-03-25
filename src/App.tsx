@@ -8,6 +8,7 @@ import { BubblePreview } from './components/BubblePreview';
 import { PrivacyPolicyPage, TermsPage } from './components/LegalPage';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
+import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -44,20 +45,22 @@ function App() {
   }, [i18n.language]);
 
   return (
-    <div className="relative w-full h-full">
-      <Routes>
-        <Route path="/" element={<PortalPage />} />
-        <Route path="/miti" element={<MitiPlannerPage />} />
-        <Route path="/share/:shareId" element={<SharePage />} />
-        <Route path="/dev/bubbles" element={<BubblePreview />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        {/* Catch-all: redirect unknown paths to portal */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <TutorialOverlay />
-      <ToastContainer />
-    </div>
+    <TransitionOverlayProvider>
+      <div className="relative w-full h-full">
+        <Routes>
+          <Route path="/" element={<PortalPage />} />
+          <Route path="/miti" element={<MitiPlannerPage />} />
+          <Route path="/share/:shareId" element={<SharePage />} />
+          <Route path="/dev/bubbles" element={<BubblePreview />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          {/* Catch-all: redirect unknown paths to portal */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <TutorialOverlay />
+        <ToastContainer />
+      </div>
+    </TransitionOverlayProvider>
   );
 }
 
