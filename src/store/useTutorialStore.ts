@@ -647,12 +647,12 @@ export const useTutorialStore = create<TutorialState>()(
             },
 
             completeTutorial: () => {
-                _restoreUserState(get);
+                try { _restoreUserState(get); } catch (e) { console.error('Tutorial restore failed:', e); }
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0, _savedSnapshot: null, _savedPlanId: null });
             },
 
             skipTutorial: () => {
-                _restoreUserState(get);
+                try { _restoreUserState(get); } catch (e) { console.error('Tutorial restore failed:', e); }
                 set({ isActive: false, hasCompleted: true, currentStepIndex: 0, pendingTutorialExit: false, _savedSnapshot: null, _savedPlanId: null });
             },
 

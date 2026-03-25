@@ -433,12 +433,12 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Backdrop — z-indexはTooltip(100002)より上に設定 */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
             />
             {/* Dialog */}
             <motion.div
@@ -447,7 +447,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
                 className={clsx(
-                    "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                    "fixed z-[100011] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                     "shadow-sm",
                     "bg-app-surface border-app-border"
@@ -678,7 +678,7 @@ export const TutorialOverlay: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
                             onClick={() => useTutorialStore.getState().cancelExit()}
                         />
                         <motion.div
@@ -689,7 +689,7 @@ export const TutorialOverlay: React.FC = () => {
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
                             className={clsx(
-                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                                "fixed z-[100011] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[400px] max-w-[90vw] rounded-2xl border p-8 text-center",
                                 "shadow-sm overflow-hidden",
                                 "bg-app-surface border-app-border"
@@ -746,7 +746,7 @@ export const TutorialOverlay: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
                             onClick={() => useTutorialStore.getState().cancelStart()}
                         />
                         <motion.div
@@ -756,7 +756,7 @@ export const TutorialOverlay: React.FC = () => {
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
                             className={clsx(
-                                "fixed z-[99999] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                                "fixed z-[100011] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                                 "w-[420px] max-w-[90vw] rounded-2xl border p-8 text-center",
                                 "shadow-sm overflow-hidden",
                                 "bg-app-surface border-app-border"
