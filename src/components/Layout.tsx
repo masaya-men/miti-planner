@@ -551,8 +551,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // ベースの背景色（テーマ変数を参照するように変更）
     const bgClass = "bg-app-bg";
 
+    // ログイン成功時: 表が見える前にオーバーレイを表示（チラつき防止）
+    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
+
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
+
+            {/* ログイン成功オーバーレイ — 表の描画より先に表示 */}
+            {justLoggedInUser && (
+                <div className="fixed inset-0 z-[99998] bg-app-bg pointer-events-none" />
+            )}
 
             {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}
             {/* <ParticleBackground /> */}
