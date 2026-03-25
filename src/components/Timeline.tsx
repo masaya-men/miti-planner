@@ -1958,13 +1958,13 @@ const Timeline: React.FC = () => {
                 <div className="fixed inset-0 z-[11000]" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                     {/* 半透明背景 */}
                     <div className="absolute inset-0 bg-black/40" />
-                    {/* ボトムシート */}
+                    {/* ボトムシート — ボトムナビの上に配置（safe-area含む） */}
                     <div
                         className={clsx(
-                            "absolute bottom-16 left-0 right-0 max-h-[50vh] rounded-t-2xl flex flex-col overflow-hidden",
+                            "absolute left-0 right-0 max-h-[50vh] rounded-t-2xl flex flex-col overflow-hidden",
                             "bg-app-bg border-t border-app-border shadow-lg"
                         )}
-                        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+                        style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
                         onClick={e => e.stopPropagation()}
                     >
                         {/* ドラッグハンドル */}
@@ -2018,12 +2018,19 @@ const Timeline: React.FC = () => {
                                     const roleOrder: Record<string, number> = { tank: 0, healer: 1, dps: 2 };
                                     const memberOrder: Record<string, number> = { MT: 0, ST: 1, H1: 2, H2: 3, D1: 4, D2: 5, D3: 6, D4: 7 };
 
-                                    // カテゴリ分類: 0=全体軽減, 1=ヒーラー単体, 2=タンク個別, 3=その他
+                                    // カテゴリ分類: 0=全体軽減, 1=ヒーラー単体, 2=タンク個別, 3=DPSその他
+                                    // ※ 大半のスキルにscopeが未設定のため、明示的にself/targetのもの以外は全体扱い
                                     const getCategory = (item: typeof allItems[0]) => {
-                                        if (item.mit.scope === 'party') return 0;
-                                        if (item.job.role === 'healer' && (item.mit.scope === 'target')) return 1;
-                                        if (item.job.role === 'tank' && (item.mit.scope === 'self' || item.mit.scope === 'target')) return 2;
-                                        return 3;
+                                        const scope = item.mit.scope;
+                                        const role = item.job.role;
+                                        // ヒーラー単体ケア（scope: target が明示されたヒーラースキル）
+                                        if (role === 'healer' && scope === 'target') return 1;
+                                        // タンク個別軽減（scope: self/target が明示されたタンクスキル）
+                                        if (role === 'tank' && (scope === 'self' || scope === 'target')) return 2;
+                                        // DPS自己防衛（scope: self が明示されたDPSスキル）
+                                        if (role === 'dps' && scope === 'self') return 3;
+                                        // それ以外は全て全体軽減（scope:party、scope未設定の大半のスキル含む）
+                                        return 0;
                                     };
 
                                     // 全体軽減のグループキー（同名スキルをまとめるためスキル名を使用）
