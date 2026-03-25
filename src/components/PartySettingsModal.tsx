@@ -625,10 +625,11 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     "relative flex flex-col glass-panel shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
-                    // モバイル: ボトムナビ(4rem)の上に配置
-                    "max-md:fixed max-md:bottom-16 max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
+                    // モバイル: ボトムナビ(3.5rem+safe-area)の上に配置
+                    "max-md:fixed max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
                     isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
+                style={{ bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined }}
             >
                 {/* Mobile drag handle */}
                 <div
