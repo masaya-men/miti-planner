@@ -253,6 +253,11 @@ export const PortalPage: React.FC = () => {
                     {' · '}
                     <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
                 </p>
+                <p className="text-[9px] text-app-text-muted/60 tracking-wide mt-1">
+                    <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="hover:text-app-text transition-colors">☕ {t('footer.support')}</a>
+                    {' · '}
+                    <a href="https://chromewebstore.google.com/detail/fflogs-to-xivanalysis-aut/hcjdgcggckhhikhedgbeibijkncmikpb" target="_blank" rel="noopener noreferrer" className="hover:text-app-text transition-colors">🔧 {t('footer.chrome_ext')}</a>
+                </p>
             </footer>
         </div>
     );

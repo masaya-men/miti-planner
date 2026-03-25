@@ -13,10 +13,13 @@ import {
     signInWithCustomToken,
     updateProfile,
     signOut as firebaseSignOut,
+    deleteUser,
     onAuthStateChanged,
     type User
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, collection, getDocs, query, where, writeBatch } from 'firebase/firestore';
+import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
 
@@ -39,6 +42,7 @@ interface AuthState {
     justLoggedInUser: JustLoggedInUser | null;
     signInWith: (provider: AuthProvider) => void;
     signOut: () => Promise<void>;
+    deleteAccount: () => Promise<void>;
     clearJustLoggedIn: () => void;
 }
 
@@ -109,6 +113,66 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: null });
 
         // ③ localStorageとZustandストアをクリア
+        localStorage.removeItem('plan-storage');
+        localStorage.removeItem('mitigation-storage');
+        usePlanStore.setState({
+            plans: [],
+            currentPlanId: null,
+            lastActivePlanId: null,
+            _dirtyPlanIds: new Set(),
+            _deletedPlanIds: new Set(),
+        });
+        useMitigationStore.getState().resetForTutorial();
+    },
+
+    deleteAccount: async () => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
+
+        const uid = currentUser.uid;
+
+        // ① Firestoreからユーザーデータを全削除（バッチ）
+        try {
+            const batch = writeBatch(db);
+
+            // plans（ownerId === uid のもの全て）
+            const plansQ = query(
+                collection(db, COLLECTIONS.PLANS),
+                where('ownerId', '==', uid),
+            );
+            const plansSnap = await getDocs(plansQ);
+            plansSnap.docs.forEach((d) => batch.delete(d.ref));
+
+            // sharedPlanMeta（ownerId === uid）
+            const sharedQ = query(
+                collection(db, COLLECTIONS.SHARED_PLAN_META),
+                where('ownerId', '==', uid),
+            );
+            const sharedSnap = await getDocs(sharedQ);
+            sharedSnap.docs.forEach((d) => batch.delete(d.ref));
+
+            // userPlanCounts/{uid}
+            batch.delete(doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid));
+
+            // users/{uid}
+            batch.delete(doc(db, COLLECTIONS.USERS, uid));
+
+            await batch.commit();
+        } catch (err) {
+            console.error('Firestoreデータ削除エラー:', err);
+        }
+
+        // ② Firebase Authアカウント削除
+        try {
+            await deleteUser(currentUser);
+        } catch (err) {
+            // セッション切れ等で再認証が必要な場合はログアウトにフォールバック
+            console.error('アカウント削除エラー（ログアウトにフォールバック）:', err);
+            await firebaseSignOut(auth);
+        }
+
+        // ③ ローカルストレージとストアをクリア
+        set({ user: null });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
         usePlanStore.setState({

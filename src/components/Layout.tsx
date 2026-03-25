@@ -22,6 +22,7 @@ import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
 import { GridOverlay } from './GridOverlay';
 import { JobMigrationModal } from './JobMigrationModal';
+import { ConfirmDialog } from './ConfirmDialog';
 import { migrateMitigations } from '../utils/jobMigration';
 import type { MigrationMode } from '../utils/jobMigration';
 import type { Job } from '../types';
@@ -340,10 +341,26 @@ const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
     const signOut = useAuthStore((s) => s.signOut);
+    const deleteAccount = useAuthStore((s) => s.deleteAccount);
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         await signOut();
         onClose();
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            await deleteAccount();
+            onClose();
+            navigate('/');
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteConfirm(false);
+        }
     };
 
     if (!user) return null;
@@ -384,6 +401,24 @@ const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <LogOut size={16} />
                 {t('nav.logout')}
             </button>
+
+            {/* アカウント削除（控えめ配置） */}
+            <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer py-1"
+            >
+                {t('nav.deleteAccount')}
+            </button>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                onConfirm={handleDeleteAccount}
+                onCancel={() => setShowDeleteConfirm(false)}
+                title={t('nav.deleteAccountTitle')}
+                message={isDeleting ? '...' : t('nav.deleteAccountMessage')}
+                confirmLabel={t('nav.deleteAccountConfirm')}
+                variant="danger"
+            />
         </div>
     );
 };

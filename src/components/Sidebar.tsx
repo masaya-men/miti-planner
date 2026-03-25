@@ -1008,6 +1008,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
                             </div>
                         </div>
                     )}
+
+                    {/* Ko-fi 支援リンク — サイドバー最下部に控えめ配置 */}
+                    {!multiSelect.isEnabled && (
+                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                            <a
+                                href="https://ko-fi.com/lopoly"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[9px] text-app-text-muted/40 hover:text-app-text-muted transition-colors"
+                            >
+                                ☕ {t('footer.support')}
+                            </a>
+                        </div>
+                    )}
                 </div>
             </motion.div>
 
