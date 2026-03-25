@@ -285,7 +285,11 @@
         "fetch_button": "タイムラインを生成",
         "fetching_button": "生成中...",
         "import_button": "タイムラインに取り込む",
-        "tooltip_generate": "からタイムラインを生成"
+        "tooltip_generate": "からタイムラインを生成",
+        "login_required_title": "ログインが必要です",
+        "login_required_description": "FFLogsインポートは、API利用回数に制限があるため、ログインユーザー限定の機能です。ログインすると無料で使えます。",
+        "login_button": "ログインしてインポートする",
+        "rate_limit_exceeded": "連続使用の制限に達しました。しばらく待ってから再度お試しください（1時間あたり{{max}}回まで）。"
     },
     "sidebar": {
         "new_plan": "新規作成",
