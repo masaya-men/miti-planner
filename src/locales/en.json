@@ -331,7 +331,9 @@
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
         "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.",
         "privacy_policy": "Privacy Policy",
-        "terms": "Terms of Service"
+        "terms": "Terms of Service",
+        "support": "Support Development",
+        "chrome_ext": "Chrome Ext"
     },
     "legal": {
         "privacy_title": "Privacy Policy",
@@ -650,6 +652,10 @@
         "login": "Login",
         "account": "Account",
         "logout": "Log out",
+        "deleteAccount": "Delete account",
+        "deleteAccountTitle": "Delete Account",
+        "deleteAccountMessage": "This action cannot be undone. All your mitigation plans and settings will be permanently deleted. Are you sure?",
+        "deleteAccountConfirm": "Delete permanently",
         "tab_party": "Party",
         "tab_status": "Status"
     }

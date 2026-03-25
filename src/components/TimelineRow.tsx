@@ -24,7 +24,7 @@ interface TimelineRowProps {
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
     partyMembers: PartyMember[];
-    activeMitigations: AppliedMitigation[]; // 👈 Added
+    activeMitigations: AppliedMitigation[];
     onPhaseAdd: (time: number, e: React.MouseEvent) => void;
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
@@ -33,13 +33,59 @@ interface TimelineRowProps {
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
 }
 
+// スマホ用: 対象バッジ（AoE以外の場合に表示）
+const MobileTargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[] }> = ({ event, partyMembers }) => {
+    if (event.target === 'AoE') return null;
+    const member = partyMembers.find(m => m.id === event.target);
+    const job = member ? JOBS.find(j => j.id === member.jobId) : null;
+    if (job) {
+        return <img src={job.icon} className="w-3 h-3 rounded-sm flex-shrink-0" alt={event.target} />;
+    }
+    return (
+        <span className={clsx(
+            "text-[7px] font-black px-0.5 rounded flex-shrink-0",
+            event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+        )}>
+            {event.target}
+        </span>
+    );
+};
+
+// スマホ用: 軽減アイコンリスト
+const MobileMitiIcons: React.FC<{
+    mitigations: AppliedMitigation[];
+    contentLanguage: string;
+    myJobHighlight: boolean;
+    myMemberId: string | null;
+    size?: string;
+}> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId, size = 'w-3 h-3' }) => (
+    <div className="flex md:hidden items-center gap-px flex-shrink-0">
+        {mitigations.map(mit => {
+            const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+            if (!def) return null;
+            const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
+            return (
+                <img
+                    key={mit.id}
+                    src={def.icon}
+                    alt={contentLanguage === 'en' ? def.name?.en : def.name?.ja}
+                    className={clsx(
+                        size, "object-cover rounded-sm",
+                        isDimmed ? "opacity-40 grayscale" : "opacity-90"
+                    )}
+                />
+            );
+        })}
+    </div>
+);
+
 export const TimelineRow = memo(({
     time,
     top,
     damages,
     events,
     partyMembers,
-    activeMitigations, // 👈 Added
+    activeMitigations,
     onPhaseAdd,
     onAddEventClick,
     onEventClick,
@@ -50,23 +96,25 @@ export const TimelineRow = memo(({
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
-
-    // 🚀 Performance Optimization: timelineMitigations removed from local state.
-    // Instead, we use activeMitigations passed from parent.
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
 
-    // Bilingual event name helper
     const getEventName = (ev: TimelineEvent) =>
         contentLanguage === 'en' && ev.name?.en ? ev.name?.en : ev.name?.ja;
 
-    // モバイル用: ダメージ数値を短縮表示（211,000 → 211k）
     const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
     const formatDmg = (val: number) => {
         if (!isMobileRow) return val.toLocaleString();
         if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
         if (val >= 1000) return (val / 1000).toFixed(0) + 'k';
         return String(val);
+    };
+
+    // スマホ: どこをタップしても軽減追加を開く
+    const handleMobileTap = (e: React.MouseEvent) => {
+        if (window.innerWidth < 768 && onMobileDamageClick && events.length > 0) {
+            onMobileDamageClick(time, e);
+        }
     };
 
     const displayTimeStr = Math.floor(Math.abs(time) / 60) + ':' + (Math.abs(time) % 60).toString().padStart(2, '0');
@@ -83,115 +131,118 @@ export const TimelineRow = memo(({
             )}
             style={{ top: `${top}px` }}
         >
-            {/* Phase Column */}
+            {/* Phase Column — スマホ: 軽減追加 / PC: フェーズ追加 */}
             <div
-                className={
-                    clsx(
-                        "w-[24px] md:w-[100px] border-r h-full relative cursor-pointer flex items-center justify-center group-hover:text-app-text hover:bg-app-surface2",
-                        "border-app-border"
-                    )}
-                onClick={(e) => onPhaseAdd(time, e)}
+                className={clsx(
+                    "w-[24px] md:w-[100px] border-r h-full relative flex items-center justify-center group-hover:text-app-text",
+                    "border-app-border",
+                    "md:cursor-pointer md:hover:bg-app-surface2"
+                )}
+                onClick={(e) => {
+                    if (window.innerWidth < 768) {
+                        handleMobileTap(e);
+                    } else {
+                        onPhaseAdd(time, e);
+                    }
+                }}
             >
+                {/* PC専用: フェーズ追加ボタン */}
                 <Tooltip content={t('timeline.end_phase')} position="right">
-                    <div className="flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
                         <Plus size={16} />
                     </div>
                 </Tooltip>
             </div >
 
-            {/* Time Column */}
-            <div className={clsx(
-                "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[9px] md:text-sm group-hover:text-app-text group-hover:font-black",
-                "border-app-border text-app-text-secondary hover:bg-app-surface2"
-            )}>
+            {/* Time Column — スマホ: 軽減追加 */}
+            <div
+                className={clsx(
+                    "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[9px] md:text-sm group-hover:text-app-text group-hover:font-black",
+                    "border-app-border text-app-text-secondary hover:bg-app-surface2"
+                )}
+                onClick={handleMobileTap}
+            >
                 {formattedTime}
             </div >
 
-            {/* Event Column (Vertical Stack, Max 2) */}
+            {/* Event Column */}
             <div className={clsx(
-                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col ",
+                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col",
                 "border-app-border hover:bg-app-surface2"
             )}>
                 {events.length === 0 ? (
+                    /* 0イベント: PC専用の追加ボタン */
                     <div
                         data-tutorial={time === 11 ? 'add-event-btn-11' : undefined}
                         className={clsx(
-                            "w-full h-full flex items-center justify-center cursor-pointer transition-all",
-                            // ▼ 通常時の挙動（ホバーで表示）
+                            "w-full h-full items-center justify-center cursor-pointer transition-all",
+                            "hidden md:flex",
                             "opacity-0 group-hover:opacity-100 hover:bg-app-surface2",
-                            // ▼ チュートリアルでターゲットに指定された瞬間だけ強制表示（白グロー統一）
                             "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-white/10"
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
                     >
                         <Tooltip content={t('timeline.add_event')} position="top">
                             <Plus size={16} className={clsx(
-                                "",
                                 "text-app-text-muted",
                                 "[.tutorial-target-highlight_&]:text-app-text"
                             )} />
                         </Tooltip>
                     </div>
                 ) : events.length === 1 ? (
+                    /* 1イベント */
                     <div className="w-full h-full relative group/slot">
                         <div
-                            // 👇 スマホ表示用に少し padding や flex-col を調整
-                            className="w-full h-full flex flex-col md:flex-row md:items-center justify-center md:justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-0.5 md:gap-2"
-                            onClick={(e) => onEventClick(events[0], e)}
+                            className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
+                            onClick={(e) => {
+                                if (window.innerWidth < 768) {
+                                    handleMobileTap(e);
+                                } else {
+                                    onEventClick(events[0], e);
+                                }
+                            }}
                         >
-                            {/* Left Side: Icon + Name */}
-                            <div className="flex items-center gap-1.5 md:gap-2 min-w-0 flex-1">
-                                {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
-                                {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
-                                {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
+                            {/* 種別アイコン */}
+                            {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
+                            {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
+                            {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
-                                <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                            {/* 攻撃名（スマホ: truncate + 長押しで全文、PC: 通常表示） */}
+                            <span
+                                className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5 min-w-0"
+                                title={getEventName(events[0])}
+                            >
+                                {getEventName(events[0])}
+                            </span>
 
-                                <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setClipboardEvent(events[0]);
-                                        }}
-                                        className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                    >
-                                        <Copy size={14} />
-                                    </button>
-                                </Tooltip>
+                            {/* PC専用: コピーボタン */}
+                            <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setClipboardEvent(events[0]);
+                                    }}
+                                    className="ml-1 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
+                                >
+                                    <Copy size={14} />
+                                </button>
+                            </Tooltip>
+
+                            {/* スマホ専用: 対象バッジ */}
+                            <div className="md:hidden flex-shrink-0">
+                                <MobileTargetBadge event={events[0]} partyMembers={partyMembers} />
                             </div>
 
-                            {/* 👇 スマホ専用：軽減アイコンのリスト（PCでは md:hidden で隠す） */}
-                            <div className="flex md:hidden items-center gap-0.5 flex-wrap pl-4">
-                                {activeMitigations.map(mit => {
-                                    const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
-                                    if (!def) return null;
-                                    const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
-                                    return (
-                                        <div key={mit.id} className="relative">
-                                            <img
-                                                src={def.icon}
-                                                alt={contentLanguage === 'en' ? def.name?.en : def.name?.ja}
-                                                className={clsx(
-                                                    "w-3.5 h-3.5 object-cover rounded transition-all",
-                                                    isDimmed ? "opacity-40 grayscale" : "opacity-90"
-                                                )}
-                                            />
-                                            {(() => {
-                                                const stacks = damages[0]?.mitigationStates?.[mit.id]?.stacks;
-                                                if (stacks === undefined) return null;
-                                                return (
-                                                    <span className="absolute -top-1 -right-1 text-[6px] font-black bg-cyan-600/90 text-cyan-50 px-0.5 rounded-full ring-1 ring-cyan-400/50 shadow-sm leading-none">
-                                                        {stacks}
-                                                    </span>
-                                                );
-                                            })()}
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {/* スマホ専用: 軽減アイコン */}
+                            <MobileMitiIcons
+                                mitigations={activeMitigations}
+                                contentLanguage={contentLanguage}
+                                myJobHighlight={myJobHighlight}
+                                myMemberId={myMemberId}
+                            />
 
-                            {/* Right Side: Target (PC & Mobile) */}
-                            <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
+                            {/* PC専用: Target */}
+                            <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
                                 {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                     <>
                                         <span className="text-[10px] text-app-text-muted font-mono">on</span>
@@ -214,10 +265,9 @@ export const TimelineRow = memo(({
                             </div>
                         </div>
 
+                        {/* PC専用: イベント追加ボタン */}
                         <div
-                            className={clsx(
-                                "absolute bottom-0 inset-x-0 h-[12px] flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-all opacity-0 group-hover/slot:opacity-100 z-10"
-                            )}
+                            className="absolute bottom-0 inset-x-0 h-[12px] items-center justify-center cursor-pointer hover:bg-app-surface2 transition-all opacity-0 group-hover/slot:opacity-100 z-10 hidden md:flex"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onAddEventClick(time, e);
@@ -227,113 +277,95 @@ export const TimelineRow = memo(({
                         </div>
                     </div>
                 ) : (
+                    /* 2イベント */
                     <>
-                        <div className="flex-1 w-full border-b border-app-border relative group/slot">
-                            <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-2"
-                                onClick={(e) => onEventClick(events[0], e)}
-                            >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
-                                    {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
-                                    {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[0])}</span>
+                        {[0, 1].map((idx) => (
+                            <div key={idx} className={clsx("flex-1 w-full relative group/slot", idx === 0 && "border-b border-app-border")}>
+                                <div
+                                    className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
+                                    onClick={(e) => {
+                                        if (window.innerWidth < 768) {
+                                            handleMobileTap(e);
+                                        } else {
+                                            onEventClick(events[idx], e);
+                                        }
+                                    }}
+                                >
+                                    {/* 種別アイコン */}
+                                    {events[idx].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
+                                    {events[idx].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
+                                    {events[idx].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
 
+                                    {/* 攻撃名 */}
+                                    <span
+                                        className="text-[10px] md:text-xs font-black text-app-text truncate leading-none pt-0.5 min-w-0"
+                                        title={getEventName(events[idx])}
+                                    >
+                                        {getEventName(events[idx])}
+                                    </span>
+
+                                    {/* PC専用: コピーボタン */}
                                     <Tooltip content={t('timeline.copy_event_hint')} position="top">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setClipboardEvent(events[0]);
+                                                setClipboardEvent(events[idx]);
                                             }}
-                                            className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
+                                            className="ml-1 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
                                         >
                                             <Copy size={14} />
                                         </button>
                                     </Tooltip>
-                                </div>
 
-                                <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
-                                    {(events[0].target === 'MT' || events[0].target === 'ST') && (
-                                        <>
-                                            <span className="text-[10px] text-app-text-muted font-mono">on</span>
-                                            {(() => {
-                                                const member = partyMembers.find(m => m.id === events[0].target);
-                                                const job = member ? JOBS.find(j => j.id === member.jobId) : null;
-                                                return job ? (
-                                                    <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[0].target} />
-                                                ) : (
-                                                    <span className={clsx(
-                                                        "text-[9px] font-bold px-1 rounded",
-                                                        events[0].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
-                                                    )}>
-                                                        {events[0].target}
-                                                    </span>
-                                                );
-                                            })()}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                                    {/* スマホ専用: 対象バッジ */}
+                                    <div className="md:hidden flex-shrink-0">
+                                        <MobileTargetBadge event={events[idx]} partyMembers={partyMembers} />
+                                    </div>
 
-                        <div className="flex-1 w-full relative group/slot">
-                            <div
-                                className="w-full h-full flex items-center justify-between px-2 cursor-pointer hover:bg-app-surface2  gap-2"
-                                onClick={(e) => onEventClick(events[1], e)}
-                            >
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    {events[1].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
-                                    {events[1].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
-                                    {events[1].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
-                                    <span className="text-[10px] md:text-xs font-black text-app-text truncate leading-none pt-0.5">{getEventName(events[1])}</span>
+                                    {/* スマホ専用: 軽減アイコン（2イベント時は小さめ） */}
+                                    <MobileMitiIcons
+                                        mitigations={activeMitigations}
+                                        contentLanguage={contentLanguage}
+                                        myJobHighlight={myJobHighlight}
+                                        myMemberId={myMemberId}
+                                        size="w-2.5 h-2.5"
+                                    />
 
-                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setClipboardEvent(events[1]);
-                                            }}
-                                            className="ml-2 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0"
-                                        >
-                                            <Copy size={14} />
-                                        </button>
-                                    </Tooltip>
-                                </div>
-
-                                <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
-                                    {(events[1].target === 'MT' || events[1].target === 'ST') && (
-                                        <>
-                                            <span className="text-[10px] text-app-text-muted font-mono">on</span>
-                                            {(() => {
-                                                const member = partyMembers.find(m => m.id === events[1].target);
-                                                const job = member ? JOBS.find(j => j.id === member.jobId) : null;
-                                                return job ? (
-                                                    <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[1].target} />
-                                                ) : (
-                                                    <span className={clsx(
-                                                        "text-[9px] font-bold px-1 rounded",
-                                                        events[1].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
-                                                    )}>
-                                                        {events[1].target}
-                                                    </span>
-                                                );
-                                            })()}
-                                        </>
-                                    )}
+                                    {/* PC専用: Target */}
+                                    <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                                        {(events[idx].target === 'MT' || events[idx].target === 'ST') && (
+                                            <>
+                                                <span className="text-[10px] text-app-text-muted font-mono">on</span>
+                                                {(() => {
+                                                    const member = partyMembers.find(m => m.id === events[idx].target);
+                                                    const job = member ? JOBS.find(j => j.id === member.jobId) : null;
+                                                    return job ? (
+                                                        <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[idx].target} />
+                                                    ) : (
+                                                        <span className={clsx(
+                                                            "text-[9px] font-bold px-1 rounded",
+                                                            events[idx].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+                                                        )}>
+                                                            {events[idx].target}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ))}
                     </>
                 )}
             </div>
 
-            {/* U.Dmg Column (Vertical Stack) */}
+            {/* U.Dmg Column */}
             <div
                 className={clsx(
                     "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-secondary"
                 )}
-                // 👇 変更：PC版は onDamageClick(nullの場合は何もしない)、スマホ版は onMobileDamageClick を発火させる
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
@@ -358,7 +390,7 @@ export const TimelineRow = memo(({
                 )}
             </div >
 
-            {/* Dmg Column (Vertical Stack) - With Mitigation Details */}
+            {/* Dmg Column - With Mitigation Details */}
             <div
                 data-tutorial={
                     time === 4 && events.length > 0 && events[0].target === 'AoE' ? 'tutorial-damage-cell-4-aoe' :
@@ -369,7 +401,6 @@ export const TimelineRow = memo(({
                     "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-primary"
                 )}
-                // 👇 同上：PC版とスマホ版でクリックの挙動を分ける
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
@@ -427,107 +458,62 @@ export const TimelineRow = memo(({
                     </div>
                 ) : (
                     <>
-                        <div className={clsx("flex-1 w-full flex flex-col items-center justify-center border-b border-app-border gap-0.5 leading-none",
-                            (() => {
-                                const evt = events[0];
-                                const dmg = damages[0];
-                                if (!evt || !dmg) return "";
-                                if (dmg.unmitigated <= 0) return "";
-                                let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                if (evt.target === 'MT' || evt.target === 'ST') {
-                                    maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                }
-                                const isLethal = dmg.mitigated >= maxHp;
-                                return isLethal ? "bg-red-500/10" : "";
-                            })()
-                        )}>
-                            {damages[0] && (damages[0].unmitigated > 0 || damages[0].isInvincible) ? (
-                                <>
-                                    <span className={clsx(
-                                        (() => {
-                                            const evt = events[0];
-                                            const dmg = damages[0];
-                                            let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                            if (evt.target === 'MT' || evt.target === 'ST') {
-                                                maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                            }
-                                            const isLethal = dmg.mitigated >= maxHp;
-                                            return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
-                                        })()
-                                    )}>
-                                        {formatDmg(damages[0].mitigated)}
-                                    </span>
-                                    {damages[0].isInvincible ? (
-                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
-                                            {t('timeline.invuln', 'Invuln')}
-                                        </div>
-                                    ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
-                                            {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
-                                            {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
-                                            {damages[0].shieldTotal > 0 && (
-                                                <span className="flex items-center gap-0.5">
-                                                    🛡️ {damages[0].shieldTotal.toLocaleString()}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : null}
-                                </>
-                            ) : ''}
-                        </div>
-                        <div className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0.5 leading-none",
-                            (() => {
-                                const evt = events[1];
-                                const dmg = damages[1];
-                                if (!evt || !dmg) return "";
-                                if (dmg.unmitigated <= 0) return "";
-                                let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                if (evt.target === 'MT' || evt.target === 'ST') {
-                                    maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                }
-                                const isLethal = dmg.mitigated >= maxHp;
-                                return isLethal ? "bg-red-500/10" : "";
-                            })()
-                        )}>
-                            {damages[1] && (damages[1].unmitigated > 0 || damages[1].isInvincible) ? (
-                                <>
-                                    <span className={clsx(
-                                        (() => {
-                                            const evt = events[1];
-                                            const dmg = damages[1];
-                                            let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                            if (evt.target === 'MT' || evt.target === 'ST') {
-                                                maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                            }
-                                            const isLethal = dmg.mitigated >= maxHp;
-                                            return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
-                                        })()
-                                    )}>
-                                        {formatDmg(damages[1].mitigated)}
-                                    </span>
-                                    {damages[1].isInvincible ? (
-                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
-                                            {t('timeline.invuln', 'Invuln')}
-                                        </div>
-                                    ) : (damages[1].mitigationPercent > 0 || damages[1].shieldTotal > 0) ? (
-                                        <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
-                                            {damages[1].mitigationPercent > 0 && <span>▼ {damages[1].mitigationPercent}%</span>}
-                                            {damages[1].mitigationPercent > 0 && damages[1].shieldTotal > 0 && <span className="opacity-50">|</span>}
-                                            {damages[1].shieldTotal > 0 && (
-                                                <span className="flex items-center gap-0.5">
-                                                    🛡️ {damages[1].shieldTotal.toLocaleString()}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : null}
-                                </>
-                            ) : ''}
-                        </div>
+                        {[0, 1].map((idx) => (
+                            <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0.5 leading-none",
+                                idx === 0 && "border-b border-app-border",
+                                (() => {
+                                    const evt = events[idx];
+                                    const dmg = damages[idx];
+                                    if (!evt || !dmg) return "";
+                                    if (dmg.unmitigated <= 0) return "";
+                                    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+                                    if (evt.target === 'MT' || evt.target === 'ST') {
+                                        maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                    }
+                                    const isLethal = dmg.mitigated >= maxHp;
+                                    return isLethal ? "bg-red-500/10" : "";
+                                })()
+                            )}>
+                                {damages[idx] && (damages[idx].unmitigated > 0 || damages[idx].isInvincible) ? (
+                                    <>
+                                        <span className={clsx(
+                                            (() => {
+                                                const evt = events[idx];
+                                                const dmg = damages[idx];
+                                                let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+                                                if (evt.target === 'MT' || evt.target === 'ST') {
+                                                    maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                                }
+                                                const isLethal = dmg.mitigated >= maxHp;
+                                                return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
+                                            })()
+                                        )}>
+                                            {formatDmg(damages[idx].mitigated)}
+                                        </span>
+                                        {damages[idx].isInvincible ? (
+                                            <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                                {t('timeline.invuln', 'Invuln')}
+                                            </div>
+                                        ) : (damages[idx].mitigationPercent > 0 || damages[idx].shieldTotal > 0) ? (
+                                            <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                                {damages[idx].mitigationPercent > 0 && <span>▼ {damages[idx].mitigationPercent}%</span>}
+                                                {damages[idx].mitigationPercent > 0 && damages[idx].shieldTotal > 0 && <span className="opacity-50">|</span>}
+                                                {damages[idx].shieldTotal > 0 && (
+                                                    <span className="flex items-center gap-0.5">
+                                                        🛡️ {damages[idx].shieldTotal.toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : null}
+                                    </>
+                                ) : ''}
+                            </div>
+                        ))}
                     </>
                 )}
             </div >
 
-            {/* Job Columns Cells */}
+            {/* Job Columns Cells — PC専用 */}
             {
                 partyMembers.map((member) => (
                     <div
@@ -558,7 +544,6 @@ export const TimelineRow = memo(({
     if (prevProps.damages !== nextProps.damages) return false;
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
     if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        // Shallow check for array contents
         if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
         for (let i = 0; i < prevProps.activeMitigations.length; i++) {
             if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;

@@ -335,7 +335,9 @@
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
         "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。",
         "privacy_policy": "プライバシーポリシー",
-        "terms": "利用規約"
+        "terms": "利用規約",
+        "support": "開発を支援する",
+        "chrome_ext": "Chrome拡張"
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",
@@ -654,6 +656,10 @@
         "login": "ログイン",
         "account": "アカウント",
         "logout": "ログアウト",
+        "deleteAccount": "アカウントを削除",
+        "deleteAccountTitle": "アカウント削除",
+        "deleteAccountMessage": "これは取り消せない操作です。作成した軽減表・設定はすべて完全に削除されます。本当に削除しますか？",
+        "deleteAccountConfirm": "完全に削除する",
         "tab_party": "パーティ",
         "tab_status": "ステータス"
     }

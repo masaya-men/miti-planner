@@ -1,9 +1,11 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { X, LogOut, Shield } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -49,7 +51,22 @@ const providers = [
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
-    const { user, signInWith, signOut } = useAuthStore();
+    const { user, signInWith, signOut, deleteAccount } = useAuthStore();
+    const navigate = useNavigate();
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            await deleteAccount();
+            onClose();
+            navigate('/');
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteConfirm(false);
+        }
+    };
 
     // ログイン成功時のウェルカム画面はLayout.tsxで一括管理
     if (!isOpen) return null;
@@ -125,6 +142,24 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     <LogOut size={14} />
                                     {t('app.sign_out')}
                                 </button>
+
+                                {/* アカウント削除（控えめ配置） */}
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="mt-3 text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer w-full text-center py-1"
+                                >
+                                    {t('nav.deleteAccount')}
+                                </button>
+
+                                <ConfirmDialog
+                                    isOpen={showDeleteConfirm}
+                                    onConfirm={handleDeleteAccount}
+                                    onCancel={() => setShowDeleteConfirm(false)}
+                                    title={t('nav.deleteAccountTitle')}
+                                    message={isDeleting ? '...' : t('nav.deleteAccountMessage')}
+                                    confirmLabel={t('nav.deleteAccountConfirm')}
+                                    variant="danger"
+                                />
                             </div>
                         )}
 
