@@ -1693,14 +1693,19 @@ const Timeline: React.FC = () => {
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
-                                                                <span className="whitespace-nowrap text-[10px] md:text-sm font-bold text-app-text leading-none">
+                                                                {/* PC: 2行表示 */}
+                                                                <span className="hidden md:block whitespace-nowrap text-sm font-bold text-app-text leading-none">
                                                                     {phase.name.split('\n')[0]}
                                                                 </span>
                                                                 {phase.name.split('\n')[1] && (
-                                                                    <span className="whitespace-nowrap text-[8px] md:text-[10px] font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
+                                                                    <span className="hidden md:block whitespace-nowrap text-[10px] font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
                                                                         {phase.name.split('\n')[1]}
                                                                     </span>
                                                                 )}
+                                                                {/* スマホ: 1行に結合 */}
+                                                                <span className="md:hidden whitespace-nowrap text-[10px] font-bold text-app-text leading-none">
+                                                                    {phase.name.split('\n').join(' ')}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </Tooltip>

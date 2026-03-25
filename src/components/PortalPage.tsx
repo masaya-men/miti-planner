@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
 import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 
 // ─────────────────────────────────────────────
 // Tool Card Definitions
@@ -81,6 +82,7 @@ const cardVariants: Variants = {
 export const PortalPage: React.FC = () => {
     const { theme, setTheme } = useThemeStore();
     const { t } = useTranslation();
+    const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const { user } = useAuthStore();
     const [showLoginModal, setShowLoginModal] = React.useState(false);
@@ -119,7 +121,7 @@ export const PortalPage: React.FC = () => {
                     </button>
                 </Tooltip>
                 <button
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    onClick={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                     className="p-2.5 rounded-xl bg-glass-panel border border-glass-border text-app-text hover:bg-glass-hover transition-all duration-200 cursor-pointer active:scale-95"
                     aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 >

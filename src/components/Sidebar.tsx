@@ -25,6 +25,7 @@ import { ShareModal } from './ShareModal';
 import { getTemplate } from '../data/templateLoader';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
+import { useTransitionOverlay } from './ui/TransitionOverlay';
 import {
     Plus,
     ChevronLeft,
@@ -74,6 +75,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
 }) => {
     const { t } = useTranslation();
     const { plans, currentPlanId, updatePlan } = usePlanStore();
+    const { runTransition } = useTransitionOverlay();
     const contentPlans = plans.filter(p => p.contentId === content.id);
     // 複数選択モード: プラン単位で選択する
     const hasSelectedPlan = multiSelect.isEnabled && contentPlans.some(p => multiSelect.selectedIds.includes(p.id));
@@ -236,19 +238,22 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                 ) : (
                                     <button
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover"
                                         )}
                                         onClick={() => {
-                                            const store = usePlanStore.getState();
-                                            const snap = useMitigationStore.getState().getSnapshot();
-                                            if (store.currentPlanId) {
-                                                store.updatePlan(store.currentPlanId, { data: snap });
-                                            }
-                                            useMitigationStore.getState().loadSnapshot(plan.data);
-                                            store.setCurrentPlanId(plan.id);
+                                            if (currentPlanId === plan.id) return;
+                                            runTransition(() => {
+                                                const store = usePlanStore.getState();
+                                                const snap = useMitigationStore.getState().getSnapshot();
+                                                if (store.currentPlanId) {
+                                                    store.updatePlan(store.currentPlanId, { data: snap });
+                                                }
+                                                useMitigationStore.getState().loadSnapshot(plan.data);
+                                                store.setCurrentPlanId(plan.id);
+                                            }, 'plan');
                                         }}
                                     >
                                         <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
@@ -443,6 +448,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
+    const { runTransition } = useTransitionOverlay();
     const lang = contentLanguage;
 
     const [activeLevel, setActiveLevel] = useState<ContentLevel>(100);
@@ -644,19 +650,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
 
     const handleLoadPlan = (planId: string) => {
         const plan = usePlanStore.getState().getPlan(planId);
-        if (!plan) return;
+        if (!plan || currentPlanId === planId) return;
 
-        // Save current session before switching
-        if (currentPlanId) {
-            const snapshot = getSnapshot();
-            updatePlan(currentPlanId, { data: snapshot });
-        }
+        runTransition(() => {
+            // Save current session before switching
+            if (currentPlanId) {
+                const snapshot = getSnapshot();
+                updatePlan(currentPlanId, { data: snapshot });
+            }
 
-        // Load new plan
-        loadSnapshot(plan.data);
-        setCurrentPlanId(planId);
-        setSelectedContentId(plan.contentId);
-        setActiveLevel(plan.data.currentLevel as ContentLevel);
+            // Load new plan
+            loadSnapshot(plan.data);
+            setCurrentPlanId(planId);
+            setSelectedContentId(plan.contentId);
+            setActiveLevel(plan.data.currentLevel as ContentLevel);
+        }, 'plan');
     };
 
     const toggleMultiSelectMode = (mode: 'share' | 'delete' = 'share') => {
