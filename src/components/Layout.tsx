@@ -14,7 +14,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
 import { JOBS } from '../data/mockData';
-import { Sun, Moon, Home, X, Star, LogOut } from 'lucide-react';
+import { Sun, Moon, Home, X, Star, LogOut, Loader2 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -511,9 +511,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         };
 
         /** ページ離脱時: localStorage保存 + Firestore強制同期 */
-        const onBeforeUnload = () => {
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
             saveSilently();
             syncToCloud();
+            // 未ログインでプランがある場合、離脱前に警告
+            const authState = useAuthStore.getState();
+            const planState = usePlanStore.getState();
+            if (!authState.user && planState.plans.length > 0) {
+                e.preventDefault();
+                // ブラウザ標準の確認ダイアログを表示（テキストはブラウザ依存）
+            }
         };
 
         /** タブ切替時: 非表示になったら保存+同期 */
@@ -551,7 +558,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         planStore.migrateOnLogin(
             authUser.uid,
             authUser.displayName || 'Guest',
-        );
+        ).then(() => {
+            // マイグレーション後、プランがあれば最新を開く
+            const { plans, currentPlanId } = usePlanStore.getState();
+            if (plans.length > 0 && !currentPlanId) {
+                const latest = plans.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+                usePlanStore.getState().setCurrentPlanId(latest.id);
+                if (latest.data) {
+                    useMitigationStore.getState().loadSnapshot(latest.data);
+                }
+            }
+        });
     }, [authUser, authLoading, hasMigrated]);
 
     // ベースの背景色（テーマ変数を参照するように変更）
@@ -559,13 +576,54 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // ログイン成功時: 表が見える前にオーバーレイを表示（チラつき防止）
     const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
+    // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
+    const [isAuthRedirecting, setIsAuthRedirecting] = React.useState(() =>
+        localStorage.getItem('lopo_auth_redirecting') === 'true'
+    );
+    // justLoggedInUserが設定されたら or processPendingAuth完了後にリダイレクト画面を消す
+    React.useEffect(() => {
+        if (justLoggedInUser || !localStorage.getItem('lopo_auth_redirecting')) {
+            setIsAuthRedirecting(false);
+        }
+    }, [justLoggedInUser]);
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
-            {/* ログイン成功オーバーレイ — 表の描画より先に表示 */}
+            {/* リダイレクト認証中オーバーレイ — Discord/Twitterからの戻り時、processPendingAuth完了前に表示 */}
+            {isAuthRedirecting && !justLoggedInUser && (
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg">
+                    <div className="flex flex-col items-center gap-4">
+                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
+                        <p className="text-sm font-medium text-app-text-muted">{t('login.authenticating')}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* ログイン成功オーバーレイ — 表の描画より先にウェルカム画面を全面表示（チラつき防止） */}
             {justLoggedInUser && (
-                <div className="fixed inset-0 z-[99998] bg-app-bg pointer-events-none" />
+                <div
+                    className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg cursor-pointer"
+                    onClick={() => { useAuthStore.getState().clearJustLoggedIn(); }}
+                >
+                    <div className="flex flex-col items-center gap-4 animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)]">
+                        {justLoggedInUser.photoURL ? (
+                            <img src={justLoggedInUser.photoURL} alt="" className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg" referrerPolicy="no-referrer" />
+                        ) : (
+                            <div className="w-16 h-16 rounded-full bg-app-surface2 flex items-center justify-center ring-2 ring-app-border">
+                                <span className="text-2xl font-bold text-app-text">{(justLoggedInUser.displayName || 'U').charAt(0).toUpperCase()}</span>
+                            </div>
+                        )}
+                        <div className="text-center">
+                            <h2 className="text-lg font-bold text-app-text mb-1" style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif" }}>
+                                {t('login.success_title')}
+                            </h2>
+                            <p className="text-sm text-app-text-muted">
+                                {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}

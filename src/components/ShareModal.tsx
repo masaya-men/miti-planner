@@ -24,6 +24,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const [, setLoading] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [showPlanTitle, setShowPlanTitle] = useState(true);
+    const [shareIdRef, setShareIdRef] = useState<string | null>(null);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
@@ -59,14 +61,25 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const { shareId } = await res.json();
+            setShareIdRef(shareId);
             const url = `${window.location.origin}/share/${shareId}`;
             setShareUrl(url);
-            setOgImageUrl(`${window.location.origin}/api/og?id=${shareId}`);
+            setOgImageUrl(`${window.location.origin}/api/og?id=${shareId}${showPlanTitle ? '' : '&showTitle=false'}`);
         } catch (err) {
             console.error('Share failed:', err);
             showToast(t('app.share_failed') || '共有リンクの生成に失敗しました');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // プラン名表示トグル変更時にOGP画像を再生成
+    const handleTogglePlanTitle = () => {
+        const next = !showPlanTitle;
+        setShowPlanTitle(next);
+        if (shareIdRef) {
+            setImageLoaded(false);
+            setOgImageUrl(`${window.location.origin}/api/og?id=${shareIdRef}${next ? '' : '&showTitle=false'}`);
         }
     };
 
@@ -137,6 +150,29 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         )}
                     </div>
                 </div>
+
+                {/* プラン名表示トグル（バンドルでない場合のみ） */}
+                {!isBundle && (
+                    <div className="px-5 pb-2">
+                        <button
+                            onClick={handleTogglePlanTitle}
+                            className="flex items-center gap-2.5 w-full py-1.5 text-left group cursor-pointer"
+                        >
+                            <div className={clsx(
+                                "w-8 h-[18px] rounded-full transition-colors duration-200 relative shrink-0",
+                                showPlanTitle ? "bg-app-text" : "bg-app-surface2 border border-app-border"
+                            )}>
+                                <div className={clsx(
+                                    "absolute top-[2px] w-[14px] h-[14px] rounded-full transition-all duration-200",
+                                    showPlanTitle ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
+                                )} />
+                            </div>
+                            <span className="text-xs text-app-text-muted group-hover:text-app-text transition-colors">
+                                {t('app.include_plan_title')}
+                            </span>
+                        </button>
+                    </div>
+                )}
 
                 {/* アクションボタン */}
                 <div className="px-5 pb-5 flex flex-col gap-2">

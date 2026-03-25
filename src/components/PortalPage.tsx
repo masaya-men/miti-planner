@@ -82,13 +82,9 @@ export const PortalPage: React.FC = () => {
     const { theme, setTheme } = useThemeStore();
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { user, justLoggedInUser } = useAuthStore();
+    const { user } = useAuthStore();
     const [showLoginModal, setShowLoginModal] = React.useState(false);
-
-    // ログイン成功時にモーダルを自動表示
-    React.useEffect(() => {
-        if (justLoggedInUser) setShowLoginModal(true);
-    }, [justLoggedInUser]);
+    // ログイン成功時のウェルカム表示はLayout.tsxで一括管理（チラつき防止）
 
     // Set page title
     useEffect(() => {

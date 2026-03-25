@@ -68,10 +68,12 @@ export const useAuthStore = create<AuthState>((set) => ({
             }
             case 'discord':
                 saveReturnUrl();
+                localStorage.setItem('lopo_auth_redirecting', 'true');
                 window.location.href = '/api/auth/discord';
                 break;
             case 'twitter':
                 saveReturnUrl();
+                localStorage.setItem('lopo_auth_redirecting', 'true');
                 window.location.href = '/api/auth/twitter';
                 break;
         }
@@ -80,6 +82,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     signOut: async () => {
         await firebaseSignOut(auth);
         set({ user: null });
+        // ログアウト時にlocalStorageのプラン・軽減データをクリア
+        // （Firestoreに保存済みデータは影響なし、次回ログインで復元される）
+        localStorage.removeItem('plan-storage');
+        localStorage.removeItem('mitigation-storage');
+        // Zustandストアもリセット
+        const { usePlanStore } = await import('./usePlanStore');
+        const { useMitigationStore } = await import('./useMitigationStore');
+        usePlanStore.setState({ plans: [], currentPlanId: null, lastActivePlanId: null });
+        useMitigationStore.getState().resetForTutorial();
     },
 
     clearJustLoggedIn: () => set({ justLoggedInUser: null }),
@@ -90,7 +101,11 @@ export const useAuthStore = create<AuthState>((set) => ({
  */
 async function processPendingAuth() {
     const pendingRaw = localStorage.getItem('lopo_auth_pending');
-    if (!pendingRaw) return;
+    if (!pendingRaw) {
+        // リダイレクトフラグがあるが認証データがない → タイムアウトまたは失敗
+        localStorage.removeItem('lopo_auth_redirecting');
+        return;
+    }
 
     localStorage.removeItem('lopo_auth_pending');
     try {
@@ -102,7 +117,8 @@ async function processPendingAuth() {
                 photoURL: pending.photoURL || cred.user.photoURL,
             });
         }
-        // オーバーレイ表示用にフラグを立てる
+        // リダイレクトフラグ削除 + オーバーレイ表示用にフラグを立てる
+        localStorage.removeItem('lopo_auth_redirecting');
         useAuthStore.setState({
             justLoggedInUser: {
                 displayName: pending.displayName || cred.user.displayName,
@@ -111,6 +127,7 @@ async function processPendingAuth() {
         });
     } catch (err) {
         console.error('Auth restore error:', err);
+        localStorage.removeItem('lopo_auth_redirecting');
     }
 }
 

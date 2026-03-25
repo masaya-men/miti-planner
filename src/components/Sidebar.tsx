@@ -33,7 +33,8 @@ import {
     Share2,
     Trash2,
     X,
-    Pencil
+    Pencil,
+    Loader2
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -472,6 +473,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
     // 名前入力ダイアログ用ステート
     const [pendingContent, setPendingContent] = useState<ContentDefinition | null>(null);
     const [pendingPlanName, setPendingPlanName] = useState('');
+    // ローディング状態（テンプレート読み込み・プラン切替中）
+    const [isLoading, setIsLoading] = useState(false);
 
     const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
     const { getSnapshot, loadSnapshot } = useMitigationStore();
@@ -541,7 +544,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
     // テンプレート読み込み → プラン保存（共通ロジック）
     // isTutorial: trueの場合、テンプレートの代わりにTUTORIAL_EVENTSをロード
     const createPlanDirectly = async (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
-
+        setIsLoading(true);
+        try {
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
 
@@ -549,6 +553,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
         store.applyDefaultStats(content.level, content.patch);
         // 新しいコンテンツを開くので軽減・パーティをクリア
         store.clearAllMitigations();
+        // パーティ構成もリセット（前のプランのジョブが引き継がれないように）
+        store.updatePartyBulk(
+            store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
+        );
+        store.setMyMemberId(null);
         setActiveLevel(content.level);
 
         if (isTutorial) {
@@ -614,6 +623,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
 
         // チュートリアル: テンプレートなしでもプラン作成完了を通知
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // ダイアログから呼ばれるラッパー
@@ -719,7 +731,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
     const [isNear, setIsNear] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
-    return (
+    return (<>
+        {/* ローディングオーバーレイ（テンプレート読み込み・プラン作成中） */}
+        {isLoading && createPortal(
+            <div className="fixed inset-0 z-[99990] flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+                <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-app-bg border border-app-border shadow-lg">
+                    <Loader2 size={18} className="animate-spin text-app-text-muted" />
+                    <span className="text-sm font-medium text-app-text">{t('app.loading_plan')}</span>
+                </div>
+            </div>,
+            document.body
+        )}
         <motion.aside
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
@@ -751,7 +773,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
                                         key={plan.id}
                                         onClick={() => handleLoadPlan(plan.id)}
                                         className={clsx(
-                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border",
+                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border cursor-pointer",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 border-app-text/20"
                                                 : "bg-transparent border-transparent hover:bg-glass-active"
@@ -903,7 +925,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
                                                 key={plan.id}
                                                 onClick={() => handleLoadPlan(plan.id)}
                                                 className={clsx(
-                                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2",
+                                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
                                                     currentPlanId === plan.id
                                                         ? "bg-app-text/10 text-app-text font-bold"
                                                         : "text-app-text hover:bg-glass-hover"
@@ -1198,5 +1220,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
                 document.body
             )}
         </motion.aside>
-    );
+    </>);
 };
