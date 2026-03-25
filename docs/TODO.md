@@ -248,6 +248,15 @@
 - 古いプラン（30日以上未編集 + 現行零式・絶以外）はFirestoreに圧縮退避 → 次回オープン時に復元（Cloud Functions必要・将来実装）
 - 将来的に収益化で上限拡張も検討可能
 
+### FFLogs API管理方針（2026-03-25確定）
+- FFLogsインポートはログイン限定（API保護 + ログインメリット強化）
+- クライアント側レート制限: 1ユーザー1時間15回まで
+- FFLogs API制限: 120秒あたり240リクエスト（キーごと）
+- 1回のインポートで約6〜10回のGraphQLリクエスト消費
+- **APIキー5組でラウンドロビン運用中**（api/fflogs/token/index.tsで自動切り替え）
+- 追加キーはVercel環境変数に FFLOGS_CLIENT_ID_2〜5 / FFLOGS_CLIENT_SECRET_2〜5 で登録
+- 悪意あるユーザーはFirebase Auth無効化でBAN（当面は手動、将来自動化）
+
 ## 技術メモ
 - Vercel無料プラン: 月10万関数実行 / Firebase無料: 月5万アクティブユーザーまでOK
 - Twitter OAuth 1.0a（Firebase直接）は X無料プランで非対応 → OAuth 2.0 + Vercel API方式

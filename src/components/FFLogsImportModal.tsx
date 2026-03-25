@@ -11,8 +11,8 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { LoginModal } from './LoginModal';
 
-// クライアント側レート制限: 1時間あたり最大5回
-const IMPORT_RATE_LIMIT = 5;
+// クライアント側レート制限: 1時間あたり最大15回
+const IMPORT_RATE_LIMIT = 15;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1時間
 
 function getImportTimestamps(): number[] {
