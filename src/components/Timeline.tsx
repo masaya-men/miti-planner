@@ -1995,13 +1995,14 @@ const Timeline: React.FC = () => {
                         <div className="flex-1 overflow-y-auto px-2 pb-4">
                             <div className="grid grid-cols-5 gap-1.5">
                                 {(() => {
-                                    // 全メンバー順に軽減スキルをフラットに並べる
+                                    // 全メンバーの軽減スキルを収集
                                     const allItems: { member: typeof partyMembers[0]; job: typeof JOBS[0]; mit: typeof MITIGATIONS[0] }[] = [];
                                     for (const member of sortedPartyMembers) {
                                         const job = JOBS.find(j => j.id === member.jobId);
                                         if (!job) continue;
                                         const mitis = MITIGATIONS.filter(m =>
                                             m.jobId === job.id
+                                            && !m.hidden
                                             && (!m.minLevel || m.minLevel <= currentLevel)
                                             && (!m.maxLevel || m.maxLevel >= currentLevel)
                                         );
@@ -2009,6 +2010,56 @@ const Timeline: React.FC = () => {
                                             allItems.push({ member, job, mit });
                                         }
                                     }
+
+                                    // ── 並び順ルール ──
+                                    // 1. 全体軽減（scope:party）をリキャスト短い順、同名スキルはグループ化
+                                    // 2. ロール順: タンク→ヒーラー→DPS(1234)
+                                    // 3. 最後にヒーラー単体ケア → タンク個別軽減
+                                    const roleOrder: Record<string, number> = { tank: 0, healer: 1, dps: 2 };
+                                    const memberOrder: Record<string, number> = { MT: 0, ST: 1, H1: 2, H2: 3, D1: 4, D2: 5, D3: 6, D4: 7 };
+
+                                    // カテゴリ分類: 0=全体軽減, 1=ヒーラー単体, 2=タンク個別, 3=その他
+                                    const getCategory = (item: typeof allItems[0]) => {
+                                        if (item.mit.scope === 'party') return 0;
+                                        if (item.job.role === 'healer' && (item.mit.scope === 'target')) return 1;
+                                        if (item.job.role === 'tank' && (item.mit.scope === 'self' || item.mit.scope === 'target')) return 2;
+                                        return 3;
+                                    };
+
+                                    // 全体軽減のグループキー（同名スキルをまとめるためスキル名を使用）
+                                    const getGroupKey = (mit: typeof MITIGATIONS[0]) => mit.name?.ja || mit.id;
+
+                                    allItems.sort((a, b) => {
+                                        const catA = getCategory(a);
+                                        const catB = getCategory(b);
+                                        if (catA !== catB) return catA - catB;
+
+                                        if (catA === 0) {
+                                            // 全体軽減: ロール順（タンク→ヒーラー→DPS）が最優先
+                                            const rA = roleOrder[a.job.role] ?? 9;
+                                            const rB = roleOrder[b.job.role] ?? 9;
+                                            if (rA !== rB) return rA - rB;
+                                            // 同ロール内: スキル名でグループ化
+                                            const gA = getGroupKey(a.mit);
+                                            const gB = getGroupKey(b.mit);
+                                            if (gA !== gB) {
+                                                // 異なるスキル: リキャスト短い順
+                                                if (a.mit.recast !== b.mit.recast) return a.mit.recast - b.mit.recast;
+                                                return gA.localeCompare(gB);
+                                            }
+                                            // 同スキル名: メンバー順（MT→ST等）
+                                            return (memberOrder[a.member.id] ?? 9) - (memberOrder[b.member.id] ?? 9);
+                                        }
+
+                                        // ヒーラー単体 / タンク個別 / その他: 同名グループ化 → リキャスト短い順 → メンバー順
+                                        const gA = getGroupKey(a.mit);
+                                        const gB = getGroupKey(b.mit);
+                                        if (gA !== gB) {
+                                            if (a.mit.recast !== b.mit.recast) return a.mit.recast - b.mit.recast;
+                                            return gA.localeCompare(gB);
+                                        }
+                                        return (memberOrder[a.member.id] ?? 9) - (memberOrder[b.member.id] ?? 9);
+                                    });
 
                                     // 同名スキルが複数メンバーに存在するか事前計算
                                     const skillNameCount = new Map<string, number>();
