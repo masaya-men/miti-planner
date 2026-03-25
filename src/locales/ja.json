@@ -647,6 +647,11 @@
         "menu": "メニュー",
         "party": "パーティ",
         "status": "ステータス",
-        "tools": "ツール"
+        "tools": "ツール",
+        "login": "ログイン",
+        "account": "アカウント",
+        "logout": "ログアウト",
+        "tab_party": "パーティ",
+        "tab_status": "ステータス"
     }
 }
