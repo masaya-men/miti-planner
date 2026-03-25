@@ -497,8 +497,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
             planStore.updatePlan(currentPlanId, { data: store.getSnapshot() });
         }
 
-        // 既にこのコンテンツのプランがある場合は最新のものを開く（forceNewでない場合）
-        const existingPlan = !forceNew && planStore.plans.find(p => p.contentId === content.id);
+        // 既にこのコンテンツのプランがある場合は最新のものを開く
+        // （forceNew または チュートリアル中は既存プランを無視し、新規チュートリアルプランを作成する）
+        const isTutorial = useTutorialStore.getState().isActive;
+        const existingPlan = !forceNew && !isTutorial && planStore.plans.find(p => p.contentId === content.id);
         if (existingPlan) {
             store.loadSnapshot(existingPlan.data);
             planStore.setCurrentPlanId(existingPlan.id);

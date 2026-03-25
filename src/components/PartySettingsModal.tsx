@@ -600,7 +600,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         );
     };
 
-    if (!mounted || !isOpen) return null;
+    if (!mounted) return null;
 
     return createPortal(
         <div className={clsx(

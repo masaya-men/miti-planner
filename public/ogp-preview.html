@@ -2,105 +2,197 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>OGP Design — C-3 Final Candidates</title>
+<title>OGP Design — ブドウ＋縦書きLoPoパターン一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=M+PLUS+1:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #111; color: #fff; font-family: 'Noto Sans JP', sans-serif; padding: 40px 40px 80px; }
+  body {
+    background: #111; color: #fff;
+    font-family: 'M PLUS 1', sans-serif;
+    padding: 40px 40px 80px;
+  }
   h1 { font-size: 13px; color: #555; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 6px; }
-  p.desc { color:#444; font-size:11px; margin-bottom:48px; line-height: 1.8; }
+  p.desc { color: #444; font-size: 11px; margin-bottom: 32px; line-height: 1.8; }
+
+  /* トグルスイッチ */
+  .toggle-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 48px; padding: 12px 16px;
+    background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 6px;
+    width: fit-content;
+  }
+  .toggle-bar label {
+    font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+    user-select: none;
+  }
+  .toggle-switch {
+    position: relative; width: 40px; height: 22px; cursor: pointer;
+  }
+  .toggle-switch input { display: none; }
+  .toggle-track {
+    position: absolute; inset: 0; background: #222; border-radius: 11px;
+    border: 1px solid #333; transition: background 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-track { background: #fff; border-color: #fff; }
+  .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #888; transition: all 0.2s;
+  }
+  .toggle-switch input:checked ~ .toggle-thumb {
+    left: 21px; background: #000;
+  }
+
   .label { font-size: 11px; color: #666; letter-spacing: 3px; text-transform: uppercase; margin: 56px 0 8px; }
   .sublabel { font-size: 11px; color: #383838; margin-bottom: 16px; line-height: 1.6; }
   .card { width: 600px; height: 315px; border-radius: 4px; overflow: hidden; position: relative; }
 
-  /* ===== C-3 Base ===== */
-  .c3 { background: #000; display: flex; }
+  /* ===== ベーススタイル ===== */
+  .ogp { background: #000; display: flex; }
 
-  .c3 .left {
+  .ogp .left {
     width: 72px;
     background: #030303;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     border-right: 1px solid #0e0e0e;
     position: relative;
+    gap: 8px;
+    padding: 20px 0;
+    flex-shrink: 0;
   }
 
-  .c3 .right {
+  .ogp .right {
     flex: 1; display: flex; flex-direction: column; justify-content: center;
     padding: 28px 36px;
   }
 
-  .c3 .tag {
+  .ogp .tag {
     font-family: 'Rajdhani', sans-serif;
     font-size: 9px; font-weight: 600; letter-spacing: 5px; color: #2a2a2a;
     text-transform: uppercase; margin-bottom: 16px;
   }
 
-  .c3 .content-name {
+  .ogp .content-name {
+    font-family: 'M PLUS 1', sans-serif;
     font-size: 26px; font-weight: 900; color: #fff;
     line-height: 1.3; margin-bottom: 10px;
     letter-spacing: -0.3px;
+    transform: scaleY(0.85);
+    transform-origin: left center;
   }
 
-  .c3 .plan-name {
+  .ogp .plan-name {
+    font-family: 'Rajdhani', sans-serif;
     font-size: 11px; color: #3a3a3a; letter-spacing: 0.5px;
   }
 
-  .c3 .bottom-accent {
+  .ogp .bottom-accent {
     position: absolute; bottom: 0; left: 72px;
     width: 48px; height: 1px; background: #fff;
   }
 
-  /* --- Variation A: ロゴ縦書き + ブドウなし（原型） --- */
-  .c3a .logo-vertical {
+  .ogp .grape {
+    filter: invert(1);
+    opacity: 0.9;
+  }
+
+  .ogp .logo-vertical {
     font-family: 'Rajdhani', sans-serif;
     writing-mode: vertical-rl;
-    font-size: 22px; font-weight: 700; letter-spacing: 10px; color: #fff;
+    font-weight: 700; letter-spacing: 10px; color: #fff;
   }
 
-  /* --- Variation B: ブドウアイコン + LoPo テキスト下 --- */
-  .c3b .grape {
-    width: 32px; height: 32px;
-    filter: invert(1);
-    opacity: 0.9;
+  /* ===== パターン個別 ===== */
+
+  /* P1: ブドウ上 + LoPo下（縦一列・中央揃え） */
+  .p1 .grape { width: 30px; height: 30px; }
+  .p1 .logo-vertical { font-size: 18px; }
+
+  /* P2: ブドウ下 + LoPo上（逆順） */
+  .p2 .left { flex-direction: column-reverse; }
+  .p2 .grape { width: 30px; height: 30px; }
+  .p2 .logo-vertical { font-size: 18px; }
+
+  /* P3: ブドウ上 + LoPo下 + 上下に装飾ライン */
+  .p3 .grape { width: 28px; height: 28px; }
+  .p3 .logo-vertical { font-size: 16px; }
+  .p3 .top-line {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 36px; background: #1a1a1a;
   }
-  .c3b .logo-text {
+  .p3 .bot-line {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 36px; background: #1a1a1a;
+  }
+
+  /* P4: ブドウ小さめ（テキスト主体） */
+  .p4 .grape { width: 20px; height: 20px; opacity: 0.7; }
+  .p4 .logo-vertical { font-size: 22px; letter-spacing: 12px; }
+
+  /* P5: ブドウ大きめ（アイコン主体） */
+  .p5 .grape { width: 40px; height: 40px; opacity: 0.95; }
+  .p5 .logo-vertical { font-size: 11px; letter-spacing: 6px; color: #444; }
+
+  /* P6: ブドウとLoPo横並び（左パネル内） */
+  .p6 .left {
+    flex-direction: row; gap: 6px; width: 72px;
+    padding: 0 8px;
+  }
+  .p6 .grape { width: 22px; height: 22px; }
+  .p6 .logo-vertical { font-size: 14px; letter-spacing: 8px; }
+
+  /* P7: 左パネル幅広め（80px） */
+  .p7 .left { width: 80px; }
+  .p7 .grape { width: 32px; height: 32px; }
+  .p7 .logo-vertical { font-size: 18px; }
+  .p7 .bottom-accent { left: 80px; }
+
+  /* P8: 左パネル幅狭め（60px） */
+  .p8 .left { width: 60px; }
+  .p8 .grape { width: 24px; height: 24px; }
+  .p8 .logo-vertical { font-size: 14px; letter-spacing: 8px; }
+  .p8 .bottom-accent { left: 60px; }
+
+  /* P9: ブドウ中央 + LoPoが周囲を囲む */
+  .p9 .left {
+    justify-content: center; gap: 0; position: relative;
+  }
+  .p9 .grape { width: 32px; height: 32px; position: relative; z-index: 2; }
+  .p9 .logo-top {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 10px; font-weight: 600; letter-spacing: 4px; color: #333;
-    margin-top: 8px;
+    writing-mode: vertical-rl;
+    font-size: 11px; font-weight: 600; letter-spacing: 6px; color: #333;
+    position: absolute; top: 18px;
   }
-
-  /* --- Variation C: ブドウアイコン大きめ（テキストなし・ミニマル） --- */
-  .c3c .grape {
-    width: 36px; height: 36px;
-    filter: invert(1);
-    opacity: 0.85;
-  }
-  .c3c .left { width: 68px; }
-  .c3c .bottom-accent { left: 68px; }
-
-  /* --- Variation D: ブドウ + 縦ライン装飾 --- */
-  .c3d .left { width: 76px; }
-  .c3d .grape {
-    width: 30px; height: 30px;
-    filter: invert(1);
-    opacity: 0.9;
-  }
-  .c3d .logo-text {
+  .p9 .logo-bottom {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 9px; font-weight: 500; letter-spacing: 5px; color: #282828;
-    margin-top: 10px;
+    writing-mode: vertical-rl;
+    font-size: 11px; font-weight: 600; letter-spacing: 6px; color: #333;
+    position: absolute; bottom: 18px;
   }
-  .c3d .top-line {
-    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-    width: 1px; height: 40px; background: #1a1a1a;
-  }
-  .c3d .bot-line {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    width: 1px; height: 40px; background: #1a1a1a;
-  }
-  .c3d .bottom-accent { left: 76px; }
 
-  /* ===== バンドル共有 ===== */
+  /* P10: ブドウ＋LoPo一体型（ロゴマーク風） */
+  .p10 .left { gap: 2px; }
+  .p10 .grape {
+    width: 28px; height: 28px;
+    opacity: 0.95;
+    margin-bottom: -2px;
+  }
+  .p10 .logo-mark {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 9px; font-weight: 700; letter-spacing: 4px; color: #fff;
+    text-transform: uppercase;
+  }
+  .p10 .logo-ring {
+    width: 52px; height: 52px;
+    border: 1px solid #1a1a1a; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px;
+  }
+
+  /* ===== バンドル ===== */
   .bundle .items { display: flex; flex-direction: column; gap: 2px; }
   .bundle .item {
     display: flex; align-items: baseline; gap: 10px;
@@ -112,8 +204,11 @@
     min-width: 16px; text-align: right;
   }
   .bundle .item-name {
+    font-family: 'M PLUS 1', sans-serif;
     font-size: 15px; font-weight: 700; color: #ccc;
     line-height: 1.3;
+    transform: scaleY(0.85);
+    transform-origin: left center;
   }
   .bundle .item-sub {
     font-family: 'Rajdhani', sans-serif;
@@ -127,18 +222,33 @@
 </head>
 <body>
 
-<h1>C-3 Final Candidates</h1>
+<h1>ブドウ＋縦書きLoPo パターン一覧</h1>
 <p class="desc">
-  C-3（縦書きスリムロゴ）をベースに、ブドウロゴの配置バリエーション。<br>
-  実際のOGPは1200x630px。ここでは半分サイズで表示。
+  C-3a（縦書きLoPo）をベースに、ブドウロゴとの配置バリエーション。<br>
+  全パターンに「ブドウロゴ」+「縦書きLoPo」を必ず配置。白黒ルール準拠。<br>
+  フォント: Rajdhani（英文）+ M PLUS 1（日本語）。日本語テキストは scaleY(0.85) で横つぶし。<br>
+  実際のOGPは1200x630px。ここでは半分サイズ（600x315）で表示。
 </p>
+
+<!-- トグルスイッチ -->
+<div class="toggle-bar">
+  <label for="planToggle">プラン名表示</label>
+  <div class="toggle-switch">
+    <input type="checkbox" id="planToggle" checked>
+    <div class="toggle-track"></div>
+    <div class="toggle-thumb"></div>
+  </div>
+  <span id="toggleStatus" style="font-size:10px; color:#555; letter-spacing:1px;">ON</span>
+</div>
 
 <!-- ========== 単一コンテンツ ========== -->
 
-<div class="label">C-3a: 原型（縦書きテキストのみ）</div>
-<div class="sublabel">ブドウなし。テキストだけの美しさ。</div>
-<div class="card c3 c3a">
+<!-- P1 -->
+<div class="label">P1: ブドウ上 + LoPo下（縦一列・中央揃え）</div>
+<div class="sublabel">もっともシンプルな配置。ブドウが上、縦書きLoPoが下。</div>
+<div class="card ogp p1">
   <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
     <div class="logo-vertical">LoPo</div>
   </div>
   <div class="right">
@@ -149,12 +259,13 @@
   <div class="bottom-accent"></div>
 </div>
 
-<div class="label">C-3b: ブドウ + テキスト（バランス型）</div>
-<div class="sublabel">ブドウアイコンの下に「LoPo」。ブランド認知を確保しつつコンパクト。</div>
-<div class="card c3 c3b">
+<!-- P2 -->
+<div class="label">P2: ブドウ下 + LoPo上（逆順）</div>
+<div class="sublabel">LoPoテキストが先に目に入る。ブドウは支え的な位置。</div>
+<div class="card ogp p2">
   <div class="left">
     <img src="icons/favicon-192x192.png" class="grape" alt="">
-    <div class="logo-text">LoPo</div>
+    <div class="logo-vertical">LoPo</div>
   </div>
   <div class="right">
     <div class="tag">Savage — Lv.100</div>
@@ -164,28 +275,130 @@
   <div class="bottom-accent"></div>
 </div>
 
-<div class="label">C-3c: ブドウのみ（究極ミニマル）</div>
-<div class="sublabel">テキストなし。アイコンだけで語る。Apple的アプローチ。</div>
-<div class="card c3 c3c">
-  <div class="left">
-    <img src="icons/favicon-192x192.png" class="grape" alt="">
-  </div>
-  <div class="right">
-    <div class="tag">Savage — Lv.100</div>
-    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
-    <div class="plan-name">M12S — 固定用</div>
-  </div>
-  <div class="bottom-accent"></div>
-</div>
-
-<div class="label">C-3d: ブドウ + テキスト + 装飾ライン</div>
-<div class="sublabel">細い縦ラインでロゴ領域を引き締める。最も完成度が高い。</div>
-<div class="card c3 c3d">
+<!-- P3 -->
+<div class="label">P3: ブドウ上 + LoPo下 + 上下に装飾ライン</div>
+<div class="sublabel">細い縦ラインでロゴ領域を引き締め。完成度が高い。</div>
+<div class="card ogp p3">
   <div class="left">
     <div class="top-line"></div>
     <img src="icons/favicon-192x192.png" class="grape" alt="">
-    <div class="logo-text">LoPo</div>
+    <div class="logo-vertical">LoPo</div>
     <div class="bot-line"></div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P4 -->
+<div class="label">P4: ブドウ小さめ + LoPo大きめ（テキスト主体）</div>
+<div class="sublabel">ブドウは控えめ。LoPoテキストがメインの印象。</div>
+<div class="card ogp p4">
+  <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-vertical">LoPo</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P5 -->
+<div class="label">P5: ブドウ大きめ + LoPo小さめ（アイコン主体）</div>
+<div class="sublabel">ブドウアイコンが目立つ。テキストは添え物。</div>
+<div class="card ogp p5">
+  <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-vertical">LoPo</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P6 -->
+<div class="label">P6: ブドウとLoPo横並び（左パネル内）</div>
+<div class="sublabel">左パネル内で横に並べる。コンパクトだがやや窮屈。</div>
+<div class="card ogp p6">
+  <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-vertical">LoPo</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P7 -->
+<div class="label">P7: ブドウ上 + LoPo下 + 左パネル幅広め（80px）</div>
+<div class="sublabel">パネルにゆとりがある。ロゴに余白を持たせたい場合。</div>
+<div class="card ogp p7">
+  <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-vertical">LoPo</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P8 -->
+<div class="label">P8: ブドウ上 + LoPo下 + 左パネル幅狭め（60px）</div>
+<div class="sublabel">パネルを狭くして右側のコンテンツ領域を広く確保。</div>
+<div class="card ogp p8">
+  <div class="left">
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-vertical">LoPo</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P9 -->
+<div class="label">P9: ブドウ中央 + LoPoをブドウの上下に分割配置</div>
+<div class="sublabel">「Lo」が上、「Po」が下。ブドウを挟んで縦書きテキストが分かれる。</div>
+<div class="card ogp p9">
+  <div class="left">
+    <div class="logo-top">Lo</div>
+    <img src="icons/favicon-192x192.png" class="grape" alt="">
+    <div class="logo-bottom">Po</div>
+  </div>
+  <div class="right">
+    <div class="tag">Savage — Lv.100</div>
+    <div class="content-name">至天の座アルカディア零式<br>ヘビー級4</div>
+    <div class="plan-name">M12S — 固定用</div>
+  </div>
+  <div class="bottom-accent"></div>
+</div>
+
+<!-- P10 -->
+<div class="label">P10: ブドウ＋LoPo一体型（ロゴマーク風）</div>
+<div class="sublabel">丸い枠の中にブドウ＋テキスト。アイコンとして使える一体感。</div>
+<div class="card ogp p10">
+  <div class="left">
+    <div class="logo-ring">
+      <img src="icons/favicon-192x192.png" class="grape" alt="">
+      <div class="logo-mark">LoPo</div>
+    </div>
   </div>
   <div class="right">
     <div class="tag">Savage — Lv.100</div>
@@ -197,13 +410,13 @@
 
 <!-- ========== バンドル共有 ========== -->
 
-<div class="label" style="margin-top:64px;">バンドル: C-3d ベース（3件共有）</div>
-<div class="sublabel">複数コンテンツをリスト表示。左パネルはそのまま。</div>
-<div class="card c3 c3d bundle">
+<div class="label" style="margin-top:64px;">バンドル: P3ベース（3件共有）</div>
+<div class="sublabel">装飾ライン付きパターンでバンドル表示。複数コンテンツをリスト表示。</div>
+<div class="card ogp p3 bundle">
   <div class="left">
     <div class="top-line"></div>
     <img src="icons/favicon-192x192.png" class="grape" alt="">
-    <div class="logo-text">LoPo</div>
+    <div class="logo-vertical">LoPo</div>
     <div class="bot-line"></div>
   </div>
   <div class="right">
@@ -231,14 +444,12 @@
   <div class="bottom-accent"></div>
 </div>
 
-<div class="label">バンドル: C-3d ベース（4件共有・零式フルセット）</div>
-<div class="sublabel">4層まとめて共有した場合。コンパクトに収まるか確認。</div>
-<div class="card c3 c3d bundle">
+<div class="label">バンドル: P7ベース（4件共有・零式フルセット）</div>
+<div class="sublabel">幅広パネルでバンドル表示。4層まとめて共有。</div>
+<div class="card ogp p7 bundle">
   <div class="left">
-    <div class="top-line"></div>
     <img src="icons/favicon-192x192.png" class="grape" alt="">
-    <div class="logo-text">LoPo</div>
-    <div class="bot-line"></div>
+    <div class="logo-vertical">LoPo</div>
   </div>
   <div class="right">
     <div class="tag">4 plans shared</div>
@@ -272,9 +483,27 @@
 </div>
 
 <p style="color:#333; font-size:10px; margin-top:64px; line-height: 1.8; letter-spacing: 0.5px;">
-  白黒ルール準拠 / Rajdhani + Noto Sans JP / ブドウロゴはBase64埋め込み（追加負荷なし）<br>
-  チームロゴは将来的に右上に小さく配置予定
+  白黒ルール準拠 / Rajdhani + M PLUS 1 / ブドウロゴは filter:invert(1) で白表示<br>
+  日本語テキストは scaleY(0.85) で横方向つぶし適用（アプリヘッダーと同じ手法）
 </p>
+
+<script>
+  // プラン名ON/OFFトグル
+  const toggle = document.getElementById('planToggle');
+  const status = document.getElementById('toggleStatus');
+
+  function updatePlanNames() {
+    const show = toggle.checked;
+    status.textContent = show ? 'ON' : 'OFF';
+    document.querySelectorAll('.plan-name').forEach(el => {
+      el.style.display = show ? '' : 'none';
+    });
+  }
+
+  toggle.addEventListener('change', updatePlanNames);
+  // 初期状態
+  updatePlanNames();
+</script>
 
 </body>
 </html>

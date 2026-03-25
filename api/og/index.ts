@@ -1,52 +1,118 @@
 /**
- * Vercel Edge Function — OGP画像生成
+ * Vercel Edge Function — OGP画像生成（P3デザイン）
  *
- * GET /api/og?id=shareId — 共有プランのOGPカード画像(1200×630)を動的生成
+ * GET /api/og?id=shareId — 共有プランのOGPカード画像(1200x630)を動的生成
  * Edge Runtimeで動作し、共有データはshare APIからHTTPで取得する
+ *
+ * デザイン: P3（ブドウ上 + 縦書きLoPo下 + 上下装飾ライン）
+ * - 左パネル（72px幅）: 装飾ライン + ブドウロゴ + 縦書きLoPo
+ * - 右パネル: カテゴリタグ + コンテンツ名（大・scaleY 0.85）+ プラン名（小）
+ * - 白いアクセントライン（左下）
+ * - バンドル: 同じ左パネル + 番号付きリスト
  */
 
 import { ImageResponse } from '@vercel/og';
 
 export const config = { runtime: 'edge' };
 
-// コンテンツID→日本語名マッピング
-const CONTENT_NAMES: Record<string, string> = {
-    m9s: '至天の座アルカディア零式：ヘビー級1',
-    m10s: '至天の座アルカディア零式：ヘビー級2',
-    m11s: '至天の座アルカディア零式：ヘビー級3',
-    m12s_p1: '至天の座アルカディア零式：ヘビー級4（前半）',
-    m12s_p2: '至天の座アルカディア零式：ヘビー級4（後半）',
-    m5s: '至天の座アルカディア零式：クルーザー級1',
-    m6s: '至天の座アルカディア零式：クルーザー級2',
-    m7s: '至天の座アルカディア零式：クルーザー級3',
-    m8s: '至天の座アルカディア零式：クルーザー級4',
-    m1s: '至天の座アルカディア零式：ライトヘビー級1',
-    m2s: '至天の座アルカディア零式：ライトヘビー級2',
-    m3s: '至天の座アルカディア零式：ライトヘビー級3',
-    m4s: '至天の座アルカディア零式：ライトヘビー級4',
-    fru: '絶エデン',
-    dsr_p1: '絶竜詩戦争 P1',
-    dsr_p2: '絶竜詩戦争 P2',
-    dsr_p3: '絶竜詩戦争 P3',
-    dsr_p4: '絶竜詩戦争 P4',
-    dsr_p5: '絶竜詩戦争 P5',
-    dsr_p6: '絶竜詩戦争 P6',
-    dsr_p7: '絶竜詩戦争 P7',
-    tea: '絶アレキサンダー',
-    ucob: '絶バハムート',
-    uwu: '絶アルテマウェポン',
+// コンテンツID→メタデータマッピング
+const CONTENT_META: Record<string, { ja: string; category: string; level: number }> = {
+    m9s:     { ja: '至天の座アルカディア零式：ヘビー級1', category: 'savage', level: 100 },
+    m10s:    { ja: '至天の座アルカディア零式：ヘビー級2', category: 'savage', level: 100 },
+    m11s:    { ja: '至天の座アルカディア零式：ヘビー級3', category: 'savage', level: 100 },
+    m12s_p1: { ja: '至天の座アルカディア零式：ヘビー級4（前半）', category: 'savage', level: 100 },
+    m12s_p2: { ja: '至天の座アルカディア零式：ヘビー級4（後半）', category: 'savage', level: 100 },
+    m5s:     { ja: '至天の座アルカディア零式：クルーザー級1', category: 'savage', level: 100 },
+    m6s:     { ja: '至天の座アルカディア零式：クルーザー級2', category: 'savage', level: 100 },
+    m7s:     { ja: '至天の座アルカディア零式：クルーザー級3', category: 'savage', level: 100 },
+    m8s:     { ja: '至天の座アルカディア零式：クルーザー級4', category: 'savage', level: 100 },
+    m1s:     { ja: '至天の座アルカディア零式：ライトヘビー級1', category: 'savage', level: 100 },
+    m2s:     { ja: '至天の座アルカディア零式：ライトヘビー級2', category: 'savage', level: 100 },
+    m3s:     { ja: '至天の座アルカディア零式：ライトヘビー級3', category: 'savage', level: 100 },
+    m4s:     { ja: '至天の座アルカディア零式：ライトヘビー級4', category: 'savage', level: 100 },
+    fru:     { ja: '絶もうひとつの未来', category: 'ultimate', level: 100 },
+    dsr_p1:  { ja: '絶竜詩戦争P1', category: 'ultimate', level: 90 },
+    dsr:     { ja: '絶竜詩戦争', category: 'ultimate', level: 90 },
+    top:     { ja: '絶オメガ検証戦', category: 'ultimate', level: 90 },
+    tea:     { ja: '絶アレキサンダー討滅戦', category: 'ultimate', level: 80 },
+    ucob:    { ja: '絶バハムート討滅戦', category: 'ultimate', level: 70 },
+    uwu:     { ja: '絶アルテマウェポン破壊作戦', category: 'ultimate', level: 70 },
+    p9s:     { ja: '万魔殿パンデモニウム零式：天獄編1', category: 'savage', level: 90 },
+    p10s:    { ja: '万魔殿パンデモニウム零式：天獄編2', category: 'savage', level: 90 },
+    p11s:    { ja: '万魔殿パンデモニウム零式：天獄編3', category: 'savage', level: 90 },
+    p12s_p1: { ja: '万魔殿パンデモニウム零式：天獄編4（前半）', category: 'savage', level: 90 },
+    p12s_p2: { ja: '万魔殿パンデモニウム零式：天獄編4（後半）', category: 'savage', level: 90 },
+    p5s:     { ja: '万魔殿パンデモニウム零式：煉獄編1', category: 'savage', level: 90 },
+    p6s:     { ja: '万魔殿パンデモニウム零式：煉獄編2', category: 'savage', level: 90 },
+    p7s:     { ja: '万魔殿パンデモニウム零式：煉獄編3', category: 'savage', level: 90 },
+    p8s_p1:  { ja: '万魔殿パンデモニウム零式：煉獄編4（前半）', category: 'savage', level: 90 },
+    p8s_p2:  { ja: '万魔殿パンデモニウム零式：煉獄編4（後半）', category: 'savage', level: 90 },
+    p1s:     { ja: '万魔殿パンデモニウム零式：辺獄編1', category: 'savage', level: 90 },
+    p2s:     { ja: '万魔殿パンデモニウム零式：辺獄編2', category: 'savage', level: 90 },
+    p3s:     { ja: '万魔殿パンデモニウム零式：辺獄編3', category: 'savage', level: 90 },
+    p4s_p1:  { ja: '万魔殿パンデモニウム零式：辺獄編4（前半）', category: 'savage', level: 90 },
+    p4s_p2:  { ja: '万魔殿パンデモニウム零式：辺獄編4（後半）', category: 'savage', level: 90 },
+    e9s:     { ja: '希望の園エデン零式：再生編1', category: 'savage', level: 80 },
+    e10s:    { ja: '希望の園エデン零式：再生編2', category: 'savage', level: 80 },
+    e11s:    { ja: '希望の園エデン零式：再生編3', category: 'savage', level: 80 },
+    e12s_p1: { ja: '希望の園エデン零式：再生編4（前半）', category: 'savage', level: 80 },
+    e12s_p2: { ja: '希望の園エデン零式：再生編4（後半）', category: 'savage', level: 80 },
+    e5s:     { ja: '希望の園エデン零式：共鳴編1', category: 'savage', level: 80 },
+    e6s:     { ja: '希望の園エデン零式：共鳴編2', category: 'savage', level: 80 },
+    e7s:     { ja: '希望の園エデン零式：共鳴編3', category: 'savage', level: 80 },
+    e8s:     { ja: '希望の園エデン零式：共鳴編4', category: 'savage', level: 80 },
+    e1s:     { ja: '希望の園エデン零式：覚醒編1', category: 'savage', level: 80 },
+    e2s:     { ja: '希望の園エデン零式：覚醒編2', category: 'savage', level: 80 },
+    e3s:     { ja: '希望の園エデン零式：覚醒編3', category: 'savage', level: 80 },
+    e4s:     { ja: '希望の園エデン零式：覚醒編4', category: 'savage', level: 80 },
+    o9s:     { ja: '次元狭間オメガ零式：アルファ編1', category: 'savage', level: 70 },
+    o10s:    { ja: '次元狭間オメガ零式：アルファ編2', category: 'savage', level: 70 },
+    o11s:    { ja: '次元狭間オメガ零式：アルファ編3', category: 'savage', level: 70 },
+    o12s_p1: { ja: '次元狭間オメガ零式：アルファ編4（前半）', category: 'savage', level: 70 },
+    o12s_p2: { ja: '次元狭間オメガ零式：アルファ編4（後半）', category: 'savage', level: 70 },
+    o5s:     { ja: '次元狭間オメガ零式：シグマ編1', category: 'savage', level: 70 },
+    o6s:     { ja: '次元狭間オメガ零式：シグマ編2', category: 'savage', level: 70 },
+    o7s:     { ja: '次元狭間オメガ零式：シグマ編3', category: 'savage', level: 70 },
+    o8s_p1:  { ja: '次元狭間オメガ零式：シグマ編4（前半）', category: 'savage', level: 70 },
+    o8s_p2:  { ja: '次元狭間オメガ零式：シグマ編4（後半）', category: 'savage', level: 70 },
+    o1s:     { ja: '次元狭間オメガ零式：デルタ編1', category: 'savage', level: 70 },
+    o2s:     { ja: '次元狭間オメガ零式：デルタ編2', category: 'savage', level: 70 },
+    o3s:     { ja: '次元狭間オメガ零式：デルタ編3', category: 'savage', level: 70 },
+    o4s_p1:  { ja: '次元狭間オメガ零式：デルタ編4（前半）', category: 'savage', level: 70 },
+    o4s_p2:  { ja: '次元狭間オメガ零式：デルタ編4（後半）', category: 'savage', level: 70 },
 };
+
+const CATEGORY_LABELS: Record<string, string> = {
+    savage: 'Savage',
+    ultimate: 'Ultimate',
+    dungeon: 'Dungeon',
+    raid: 'Raid',
+    custom: 'Misc',
+};
+
+function getCategoryTag(contentId: string | null): string {
+    if (!contentId) return '';
+    const meta = CONTENT_META[contentId];
+    if (!meta) return '';
+    return `${CATEGORY_LABELS[meta.category] || meta.category} — Lv.${meta.level}`;
+}
+
+function getContentName(contentId: string | null): string {
+    if (!contentId) return '';
+    return CONTENT_META[contentId]?.ja || '';
+}
 
 export default async function handler(req: Request) {
     try {
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
 
+        let contentId: string | null = null;
         let contentName = '';
         let planTitle = '';
-
-        // バンドル時は複数コンテンツ名を表示
-        let bundleNames: string[] = [];
+        let categoryTag = '';
+        let bundlePlans: { contentId: string | null; title: string }[] = [];
+        let isBundle = false;
 
         if (shareId) {
             try {
@@ -54,144 +120,59 @@ export default async function handler(req: Request) {
                 if (res.ok) {
                     const data = await res.json();
                     if (data.type === 'bundle' && Array.isArray(data.plans)) {
-                        bundleNames = data.plans
-                            .map((p: any) => CONTENT_NAMES[p.contentId] || p.title || '')
-                            .filter(Boolean);
+                        isBundle = true;
+                        bundlePlans = data.plans.map((p: any) => ({
+                            contentId: p.contentId || null,
+                            title: p.title || '',
+                        }));
                     } else {
+                        contentId = data.contentId || null;
                         planTitle = data.title || '';
-                        contentName = CONTENT_NAMES[data.contentId] || '';
+                        contentName = getContentName(contentId);
+                        categoryTag = getCategoryTag(contentId);
                     }
                 }
-            } catch {
-                // データ取得失敗時はデフォルト表示
-            }
+            } catch { /* デフォルト表示 */ }
         }
 
-        let displayTitle: string;
-        let subtitle = '';
-
-        if (bundleNames.length > 0) {
-            // バンドル: 共通シリーズ名があればまとめて表示
-            displayTitle = bundleNames.join('\n');
-            if (bundleNames.length > 3) {
-                displayTitle = bundleNames.slice(0, 3).join('\n') + `\n+${bundleNames.length - 3}`;
-            }
+        // フォント取得（M PLUS 1 + Rajdhani相当の文字サブセット）
+        let allText = 'LoPo';
+        if (isBundle) {
+            allText += bundlePlans.map(p => getContentName(p.contentId) + (p.title || '')).join('');
+            allText += `${bundlePlans.length} plans shared`;
         } else {
-            displayTitle = contentName || planTitle || 'LoPo';
-            subtitle = contentName && planTitle ? planTitle : '';
+            allText += contentName + planTitle + categoryTag;
         }
-
-        // 表示テキストに必要な文字だけフォントを取得（日本語サブセット）
-        const allText = (bundleNames.length > 0 ? bundleNames.join('') : displayTitle) + subtitle + 'LoPoFF14軽減プランナー';
         const uniqueChars = [...new Set(allText)].join('');
-        const fontCssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&text=${encodeURIComponent(uniqueChars)}`;
+
+        // M PLUS 1 フォント（アプリと統一）
+        const fontCssUrl = `https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@400;700;900&text=${encodeURIComponent(uniqueChars)}`;
         const fontCss = await fetch(fontCssUrl, {
             headers: { 'User-Agent': 'Mozilla/5.0' },
         }).then(r => r.text());
 
-        // CSSからフォントURL抽出
         const fontUrls = [...fontCss.matchAll(/src:\s*url\(([^)]+)\)/g)].map(m => m[1]);
         const fontBuffers = await Promise.all(
             fontUrls.map(url => fetch(url).then(r => r.arrayBuffer()))
         );
 
-        const fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 400 | 700 }[] = [];
-        if (fontBuffers.length >= 2) {
-            fonts.push({ name: 'Noto Sans JP', data: fontBuffers[0], style: 'normal', weight: 400 });
-            fonts.push({ name: 'Noto Sans JP', data: fontBuffers[1], style: 'normal', weight: 700 });
-        } else if (fontBuffers.length === 1) {
-            fonts.push({ name: 'Noto Sans JP', data: fontBuffers[0], style: 'normal', weight: 700 });
+        const fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 400 | 700 | 900 }[] = [];
+        if (fontBuffers.length >= 3) {
+            fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 400 });
+            fonts.push({ name: 'M PLUS 1', data: fontBuffers[1], style: 'normal', weight: 700 });
+            fonts.push({ name: 'M PLUS 1', data: fontBuffers[2], style: 'normal', weight: 900 });
+        } else if (fontBuffers.length >= 1) {
+            fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
-        // Satoriはプレーンオブジェクト { type, props } を受け付ける
-        const children: any[] = [
-            {
-                type: 'div',
-                props: {
-                    style: { fontSize: 28, color: '#555', letterSpacing: 6, fontWeight: 400, marginBottom: 20 },
-                    children: 'LoPo',
-                },
-            },
-            {
-                type: 'div',
-                props: {
-                    style: { width: 100, height: 1, backgroundColor: '#333', marginBottom: 36 },
-                },
-            },
-        ];
+        // ブドウロゴをBase64化
+        const logoUrl = new URL('/icons/favicon-192x192.png', origin).toString();
+        const logoBuffer = await fetch(logoUrl).then(r => r.arrayBuffer());
+        const logoBase64 = `data:image/png;base64,${arrayBufferToBase64(logoBuffer)}`;
 
-        if (bundleNames.length > 0) {
-            // バンドル: 各コンテンツ名を縦並びで表示
-            const fontSize = bundleNames.length > 4 ? 28 : bundleNames.length > 2 ? 34 : 40;
-            const namesToShow = bundleNames.slice(0, 5);
-            children.push({
-                type: 'div',
-                props: {
-                    style: {
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, maxWidth: 1000,
-                    },
-                    children: namesToShow.map((name: string) => ({
-                        type: 'div',
-                        props: {
-                            style: { fontSize, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 },
-                            children: name,
-                        },
-                    })),
-                },
-            });
-            if (bundleNames.length > 5) {
-                children.push({
-                    type: 'div',
-                    props: {
-                        style: { fontSize: 22, color: '#777', marginTop: 8 },
-                        children: `+${bundleNames.length - 5}`,
-                    },
-                });
-            }
-        } else {
-            const titleFontSize = displayTitle.length > 24 ? 38 : displayTitle.length > 16 ? 46 : 54;
-            children.push({
-                type: 'div',
-                props: {
-                    style: {
-                        fontSize: titleFontSize, fontWeight: 700, color: '#fff',
-                        textAlign: 'center', lineHeight: 1.35, maxWidth: 1000,
-                    },
-                    children: displayTitle,
-                },
-            });
-        }
-
-        if (subtitle) {
-            children.push({
-                type: 'div',
-                props: {
-                    style: { fontSize: 22, color: '#777', marginTop: 14, textAlign: 'center', fontWeight: 400 },
-                    children: subtitle,
-                },
-            });
-        }
-
-        children.push({
-            type: 'div',
-            props: {
-                style: { position: 'absolute', bottom: 36, fontSize: 17, color: '#444', fontWeight: 400 },
-                children: 'FF14 軽減プランナー',
-            },
-        });
-
-        const element = {
-            type: 'div',
-            props: {
-                style: {
-                    width: '100%', height: '100%', display: 'flex',
-                    flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: '#0a0a0a', padding: '60px 80px',
-                    fontFamily: '"Noto Sans JP", sans-serif', position: 'relative',
-                },
-                children,
-            },
-        };
+        const element = isBundle
+            ? buildBundleLayout(bundlePlans, logoBase64)
+            : buildSingleLayout(contentName, planTitle, categoryTag, logoBase64);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 
@@ -199,4 +180,370 @@ export default async function handler(req: Request) {
         console.error('OG image error:', err);
         return new Response(`OG image generation failed: ${err.message}`, { status: 500 });
     }
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
+// P3デザイン: 左パネル（72px）+ 上下装飾ライン + ブドウ + 縦書きLoPo
+const LEFT_PANEL_WIDTH = 144; // 1200px版（プレビューの72px × 2倍）
+
+function buildLeftPanel(logoBase64: string) {
+    return {
+        type: 'div',
+        props: {
+            style: {
+                width: LEFT_PANEL_WIDTH,
+                height: '100%',
+                backgroundColor: '#030303',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRight: '1px solid #0e0e0e',
+                position: 'relative',
+                gap: 16,
+                padding: '40px 0',
+            },
+            children: [
+                // 上部の装飾ライン
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            top: 32,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 1,
+                            height: 72,
+                            backgroundColor: '#1a1a1a',
+                        },
+                    },
+                },
+                // ブドウロゴ
+                {
+                    type: 'img',
+                    props: {
+                        src: logoBase64,
+                        width: 56,
+                        height: 56,
+                        style: {
+                            filter: 'invert(1)',
+                            opacity: 0.9,
+                        },
+                    },
+                },
+                // 縦書きLoPo（1文字ずつ縦に並べる — Satoriはwriting-mode未対応）
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 4,
+                        },
+                        children: ['L', 'o', 'P', 'o'].map(ch => ({
+                            type: 'div',
+                            props: {
+                                style: {
+                                    fontSize: 28,
+                                    fontWeight: 700,
+                                    color: '#ffffff',
+                                    lineHeight: 1,
+                                    letterSpacing: 0,
+                                },
+                                children: ch,
+                            },
+                        })),
+                    },
+                },
+                // 下部の装飾ライン
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            bottom: 32,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 1,
+                            height: 72,
+                            backgroundColor: '#1a1a1a',
+                        },
+                    },
+                },
+            ],
+        },
+    };
+}
+
+function buildSingleLayout(
+    contentName: string,
+    planTitle: string,
+    categoryTag: string,
+    logoBase64: string,
+) {
+    const nameLen = contentName.length || planTitle.length || 4;
+    const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
+    const displayName = contentName || planTitle || 'LoPo';
+    const subtitle = contentName && planTitle ? planTitle : '';
+
+    const rightChildren: any[] = [];
+
+    // カテゴリタグ
+    if (categoryTag) {
+        rightChildren.push({
+            type: 'div',
+            props: {
+                style: {
+                    fontSize: 18,
+                    fontWeight: 400,
+                    letterSpacing: 10,
+                    color: '#2a2a2a',
+                    textTransform: 'uppercase',
+                    marginBottom: 32,
+                },
+                children: categoryTag,
+            },
+        });
+    }
+
+    // コンテンツ名（scaleY 0.85 で横つぶし — Satoriではtransform未対応のためlineHeight調整で近似）
+    rightChildren.push({
+        type: 'div',
+        props: {
+            style: {
+                fontSize: nameFontSize,
+                fontWeight: 900,
+                color: '#ffffff',
+                lineHeight: 1.1,
+                marginBottom: 20,
+                letterSpacing: -0.5,
+            },
+            children: displayName,
+        },
+    });
+
+    // プラン名
+    if (subtitle) {
+        rightChildren.push({
+            type: 'div',
+            props: {
+                style: {
+                    fontSize: 22,
+                    color: '#3a3a3a',
+                    letterSpacing: 1,
+                },
+                children: subtitle,
+            },
+        });
+    }
+
+    return {
+        type: 'div',
+        props: {
+            style: {
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                backgroundColor: '#000000',
+                fontFamily: '"M PLUS 1", sans-serif',
+                position: 'relative',
+            },
+            children: [
+                buildLeftPanel(logoBase64),
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            padding: '56px 72px',
+                        },
+                        children: rightChildren,
+                    },
+                },
+                // 白いアクセントライン（左下）
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            bottom: 0,
+                            left: LEFT_PANEL_WIDTH,
+                            width: 96,
+                            height: 2,
+                            backgroundColor: '#ffffff',
+                        },
+                    },
+                },
+            ],
+        },
+    };
+}
+
+function buildBundleLayout(
+    plans: { contentId: string | null; title: string }[],
+    logoBase64: string,
+) {
+    const itemsToShow = plans.slice(0, 5);
+    const itemChildren: any[] = [];
+
+    itemsToShow.forEach((plan, i) => {
+        if (i > 0) {
+            itemChildren.push({
+                type: 'div',
+                props: {
+                    style: { height: 1, backgroundColor: '#0a0a0a', width: '100%' },
+                },
+            });
+        }
+
+        const name = getContentName(plan.contentId) || plan.title || '';
+        const shortName = plan.contentId
+            ? plan.contentId.replace(/_p(\d+)$/, ' P$1').toUpperCase()
+            : '';
+
+        itemChildren.push({
+            type: 'div',
+            props: {
+                style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px 0',
+                    width: '100%',
+                },
+                children: [
+                    {
+                        type: 'div',
+                        props: {
+                            style: {
+                                fontSize: 20,
+                                fontWeight: 400,
+                                color: '#222222',
+                                minWidth: 40,
+                                textAlign: 'right',
+                                marginRight: 20,
+                            },
+                            children: String(i + 1).padStart(2, '0'),
+                        },
+                    },
+                    {
+                        type: 'div',
+                        props: {
+                            style: {
+                                fontSize: 30,
+                                fontWeight: 700,
+                                color: '#cccccc',
+                                lineHeight: 1.1,
+                                flex: 1,
+                            },
+                            children: name,
+                        },
+                    },
+                    ...(shortName ? [{
+                        type: 'div',
+                        props: {
+                            style: {
+                                fontSize: 18,
+                                color: '#2a2a2a',
+                                letterSpacing: 2,
+                                marginLeft: 16,
+                            },
+                            children: shortName,
+                        },
+                    }] : []),
+                ],
+            },
+        });
+    });
+
+    if (plans.length > 5) {
+        itemChildren.push({
+            type: 'div',
+            props: {
+                style: { fontSize: 20, color: '#333333', marginTop: 8 },
+                children: `+${plans.length - 5}`,
+            },
+        });
+    }
+
+    return {
+        type: 'div',
+        props: {
+            style: {
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                backgroundColor: '#000000',
+                fontFamily: '"M PLUS 1", sans-serif',
+                position: 'relative',
+            },
+            children: [
+                buildLeftPanel(logoBase64),
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            padding: '40px 60px',
+                        },
+                        children: [
+                            {
+                                type: 'div',
+                                props: {
+                                    style: {
+                                        fontSize: 18,
+                                        fontWeight: 400,
+                                        letterSpacing: 10,
+                                        color: '#2a2a2a',
+                                        textTransform: 'uppercase',
+                                        marginBottom: 24,
+                                    },
+                                    children: `${plans.length} plans shared`,
+                                },
+                            },
+                            {
+                                type: 'div',
+                                props: {
+                                    style: {
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        width: '100%',
+                                    },
+                                    children: itemChildren,
+                                },
+                            },
+                        ],
+                    },
+                },
+                {
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            bottom: 0,
+                            left: LEFT_PANEL_WIDTH,
+                            width: 96,
+                            height: 2,
+                            backgroundColor: '#ffffff',
+                        },
+                    },
+                },
+            ],
+        },
+    };
 }

@@ -673,11 +673,21 @@ const Timeline: React.FC = () => {
                 setPartySettingsOpenLocal(true);
             }
         };
+        const handlePartySettings = (e: Event) => {
+            const open = (e as CustomEvent).detail?.open ?? true;
+            if (isMobileView) {
+                setMobilePartyOpen(open);
+            } else {
+                setPartySettingsOpenLocal(open);
+            }
+        };
         window.addEventListener('tutorial:close-all-modals', handleCloseAll);
         window.addEventListener('tutorial:open-party-modal', handleOpenParty);
+        window.addEventListener('timeline:party-settings', handlePartySettings);
         return () => {
             window.removeEventListener('tutorial:close-all-modals', handleCloseAll);
             window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
+            window.removeEventListener('timeline:party-settings', handlePartySettings);
         };
     }, []);
 

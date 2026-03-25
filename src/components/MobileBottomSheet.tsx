@@ -79,22 +79,22 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Backdrop — モバイルのみ */}
             <div
                 className={clsx(
-                    "fixed inset-0 bg-black/50 z-[300] transition-opacity duration-300",
+                    "md:hidden fixed inset-0 bg-black/50 z-[300] transition-opacity duration-300",
                     visible ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}
             />
-            {/* Sheet */}
+            {/* Sheet — モバイルのみ */}
             <div
                 ref={sheetRef}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
                 className={clsx(
-                    "fixed left-0 right-0 z-[301]",
+                    "md:hidden fixed left-0 right-0 z-[301]",
                     "bg-app-bg",
                     "rounded-t-2xl shadow-sm border-t border-app-border",
                     "flex flex-col overflow-hidden",

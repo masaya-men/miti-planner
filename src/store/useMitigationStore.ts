@@ -23,6 +23,17 @@ interface HistorySnapshot {
     partyMembers: PartyMember[];
 }
 
+/** チュートリアル用の退避スナップショット型 */
+export interface TutorialSnapshot {
+    timelineEvents: TimelineEvent[];
+    timelineMitigations: AppliedMitigation[];
+    phases: Phase[];
+    partyMembers: PartyMember[];
+    myMemberId: string | null;
+    myJobHighlight: boolean;
+    hideEmptyRows: boolean;
+}
+
 interface MitigationState {
     mitigations: Mitigation[];
     partyMembers: PartyMember[];
@@ -73,6 +84,8 @@ interface MitigationState {
     clearAllMitigations: () => void;
     /** Reset all state for tutorial restart/completion */
     resetForTutorial: () => void;
+    /** チュートリアル終了時に退避した状態を復元する */
+    restoreFromSnapshot: (snapshot: TutorialSnapshot) => void;
     /** 👇追加：既存の軽減をすべて消去し、新しい軽減リストで一括上書きする（Undo1回で戻せる） */
     applyAutoPlan: (result: { mitigations: AppliedMitigation[], warnings: string[] }) => void;
 
@@ -755,6 +768,25 @@ export const useMitigationStore = create<MitigationState>()(
                         _future: [],
                     });
                     window.dispatchEvent(new CustomEvent('tutorial:reset-ui'));
+                },
+
+                restoreFromSnapshot: (snapshot: TutorialSnapshot) => {
+                    const currentLevel = get().currentLevel;
+                    const membersWithComputed = snapshot.partyMembers.map((m: PartyMember) => ({
+                        ...m,
+                        computedValues: calculateMemberValues(m, currentLevel)
+                    }));
+                    set({
+                        timelineEvents: snapshot.timelineEvents,
+                        timelineMitigations: snapshot.timelineMitigations,
+                        phases: snapshot.phases,
+                        partyMembers: membersWithComputed,
+                        myMemberId: snapshot.myMemberId,
+                        myJobHighlight: snapshot.myJobHighlight,
+                        hideEmptyRows: snapshot.hideEmptyRows,
+                        _history: [],
+                        _future: [],
+                    });
                 },
             };
         },

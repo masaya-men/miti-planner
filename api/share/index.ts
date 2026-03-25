@@ -31,6 +31,7 @@ export default async function handler(req: any, res: any) {
     // CORSを自サイトのみに制限（Vercelプレビュー・本番の両方に対応）
     const origin = req.headers?.origin || '';
     const allowedOrigins = [
+        'https://lopoly.app',
         'https://lopo-miti.vercel.app',
         'http://localhost:5173',
         'http://localhost:4173',
