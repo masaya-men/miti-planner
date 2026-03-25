@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { SavedPlan } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 import type { PlanData } from '../types';
+import { useMitigationStore } from './useMitigationStore';
 import { planService } from '../lib/planService';
 
 interface PlanState {
@@ -62,19 +63,38 @@ export const usePlanStore = create<PlanState>()(
 
             deletePlan: (id) => {
                 const plan = get().plans.find((p) => p.id === id);
+                const wasCurrent = get().currentPlanId === id;
                 set((state) => {
                     const newDirty = new Set(state._dirtyPlanIds);
                     newDirty.delete(id);
+                    const remaining = state.plans.filter((p) => p.id !== id);
+                    // 削除したのが現在のプランなら、最新の残りプランに切り替え
+                    const nextPlanId = wasCurrent
+                        ? (remaining.length > 0 ? remaining.sort((a, b) => b.updatedAt - a.updatedAt)[0].id : null)
+                        : state.currentPlanId;
                     return {
-                        plans: state.plans.filter((p) => p.id !== id),
-                        currentPlanId: state.currentPlanId === id ? null : state.currentPlanId,
-                        lastActivePlanId: state.lastActivePlanId === id ? null : state.lastActivePlanId,
+                        plans: remaining,
+                        currentPlanId: nextPlanId,
+                        lastActivePlanId: state.lastActivePlanId === id ? nextPlanId : state.lastActivePlanId,
                         _dirtyPlanIds: newDirty,
                         _deletedPlanIds: plan
                             ? new Set([...state._deletedPlanIds, id])
                             : state._deletedPlanIds,
                     };
                 });
+                // 削除したのが現在のプランなら、useMitigationStoreのデータも切り替え
+                if (wasCurrent) {
+                    const nextId = get().currentPlanId;
+                    if (nextId) {
+                        const nextPlan = get().plans.find((p) => p.id === nextId);
+                        if (nextPlan?.data) {
+                            useMitigationStore.getState().loadSnapshot(nextPlan.data);
+                        }
+                    } else {
+                        // プランが0件 → ストアをクリア
+                        useMitigationStore.getState().resetForTutorial();
+                    }
+                }
             },
 
             setCurrentPlanId: (id) => set({

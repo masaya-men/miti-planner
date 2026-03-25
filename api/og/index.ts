@@ -106,6 +106,7 @@ export default async function handler(req: Request) {
     try {
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
+        const showTitle = searchParams.get('showTitle') !== 'false';
 
         let contentId: string | null = null;
         let contentName = '';
@@ -172,7 +173,7 @@ export default async function handler(req: Request) {
 
         const element = isBundle
             ? buildBundleLayout(bundlePlans, logoBase64)
-            : buildSingleLayout(contentName, planTitle, categoryTag, logoBase64);
+            : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 

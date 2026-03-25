@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn, LogOut
+    Users, Activity, Wand2, Star, LogIn
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -110,13 +110,11 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     };
 
     // 認証状態
-    const { user, justLoggedInUser } = useAuthStore();
+    const { user } = useAuthStore();
     const [showLoginModal, setShowLoginModal] = React.useState(false);
 
-    // ログイン成功時にモーダルを自動表示
-    React.useEffect(() => {
-        if (justLoggedInUser) setShowLoginModal(true);
-    }, [justLoggedInUser]);
+    // ログイン成功時のウェルカム表示はLayout.tsxで一括管理（チラつき防止）
+    // ここではLoginModalの手動表示のみ管理
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
@@ -298,7 +296,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     {user?.photoURL ? (
                                         <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
                                     ) : user ? (
-                                        <LogOut size={16} />
+                                        <div className="w-6 h-6 rounded-full bg-app-text/15 flex items-center justify-center">
+                                            <span className="text-[10px] font-black text-app-text">{(user.displayName || 'U').charAt(0).toUpperCase()}</span>
+                                        </div>
                                     ) : (
                                         <LogIn size={16} />
                                     )}

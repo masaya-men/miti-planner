@@ -667,7 +667,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     >
                                         {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
                                             const isTutorialTarget = ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id);
-                                            const shouldHighlight = isTutorialTarget && visibleMitigations.has(mit.id);
+                                            // チュートリアル中はvisibleMitigationsチェックをスキップ（IntersectionObserverのタイミング問題回避）
+                                            const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
 
                                             return (
                                                 <button
