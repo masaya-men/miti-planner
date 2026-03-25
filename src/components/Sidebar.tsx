@@ -445,7 +445,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
 
     const [activeLevel, setActiveLevel] = useState<ContentLevel>(100);
     const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
-    const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
+    // 現在開いているプランのcontentIdで初期化（タブ復帰時にサイドバーが展開されるように）
+    const [selectedContentId, setSelectedContentId] = useState<string | null>(() => {
+        const planStore = usePlanStore.getState();
+        if (planStore.currentPlanId) {
+            const currentPlan = planStore.plans.find(p => p.id === planStore.currentPlanId);
+            return currentPlan?.contentId ?? null;
+        }
+        return null;
+    });
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
     React.useEffect(() => {
@@ -467,6 +475,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth })
 
     const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
     const { getSnapshot, loadSnapshot } = useMitigationStore();
+
+    // currentPlanIdが変わったらselectedContentIdも追従する（タブ復帰・プラン切替時）
+    React.useEffect(() => {
+        if (currentPlanId) {
+            const plan = plans.find(p => p.id === currentPlanId);
+            if (plan?.contentId) {
+                setSelectedContentId(plan.contentId);
+            }
+        }
+    }, [currentPlanId, plans]);
 
     // コンテンツクリック → 既存プランがあればそれを開く、なければ名前入力ダイアログを表示
     const handleSelectContent = (content: ContentDefinition, forceNew?: boolean) => {
