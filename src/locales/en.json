@@ -643,6 +643,11 @@
         "menu": "Menu",
         "party": "Party",
         "status": "Status",
-        "tools": "Tools"
+        "tools": "Tools",
+        "login": "Login",
+        "account": "Account",
+        "logout": "Log out",
+        "tab_party": "Party",
+        "tab_status": "Status"
     }
 }

@@ -14,7 +14,8 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
 import { JOBS } from '../data/mockData';
-import { Sun, Moon, Home, X, Star } from 'lucide-react';
+import { Sun, Moon, Home, X, Star, LogOut } from 'lucide-react';
+import { LoginModal } from './LoginModal';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
@@ -294,6 +295,98 @@ const MobileStatusView: React.FC = () => {
     );
 };
 
+// ── モバイル用パーティ＋ステータスタブ ──
+const MobilePartyWithTabs: React.FC = () => {
+    const { t } = useTranslation();
+    const [activeTab, setActiveTab] = React.useState<'party' | 'status'>('party');
+
+    return (
+        <div className="flex flex-col gap-3">
+            {/* タブ切り替え */}
+            <div className="flex rounded-xl bg-app-surface2 border border-app-border p-0.5">
+                <button
+                    onClick={() => setActiveTab('party')}
+                    className={clsx(
+                        "flex-1 py-2 text-xs font-black tracking-wide rounded-lg transition-all cursor-pointer",
+                        activeTab === 'party'
+                            ? "bg-app-text text-app-bg"
+                            : "text-app-text-muted"
+                    )}
+                >
+                    {t('nav.tab_party')}
+                </button>
+                <button
+                    onClick={() => setActiveTab('status')}
+                    className={clsx(
+                        "flex-1 py-2 text-xs font-black tracking-wide rounded-lg transition-all cursor-pointer",
+                        activeTab === 'status'
+                            ? "bg-app-text text-app-bg"
+                            : "text-app-text-muted"
+                    )}
+                >
+                    {t('nav.tab_status')}
+                </button>
+            </div>
+
+            {/* タブの中身 */}
+            {activeTab === 'party' ? <MobilePartySettings /> : <MobileStatusView />}
+        </div>
+    );
+};
+
+// ── モバイル用アカウントメニュー（ログイン済み時） ──
+const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+    const { t } = useTranslation();
+    const user = useAuthStore((s) => s.user);
+    const signOut = useAuthStore((s) => s.signOut);
+
+    const handleLogout = async () => {
+        await signOut();
+        onClose();
+    };
+
+    if (!user) return null;
+
+    return (
+        <div className="flex flex-col gap-4">
+            {/* ユーザー情報 */}
+            <div className="flex items-center gap-3 px-1">
+                {user.photoURL ? (
+                    <img
+                        src={user.photoURL}
+                        alt=""
+                        className="w-10 h-10 rounded-full object-cover border border-app-border"
+                        referrerPolicy="no-referrer"
+                    />
+                ) : (
+                    <div className="w-10 h-10 rounded-full bg-app-surface2 border border-app-border flex items-center justify-center">
+                        <span className="text-sm font-bold text-app-text">
+                            {(user.displayName || '?')[0]}
+                        </span>
+                    </div>
+                )}
+                <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-app-text truncate">
+                        {user.displayName || t('nav.account')}
+                    </p>
+                    <p className="text-[10px] text-app-text-muted truncate">
+                        {user.email || ''}
+                    </p>
+                </div>
+            </div>
+
+            {/* ログアウトボタン */}
+            <button
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-app-border text-sm font-bold text-app-text bg-app-surface2 active:bg-app-text/10 transition-colors cursor-pointer"
+            >
+                <LogOut size={16} />
+                {t('nav.logout')}
+            </button>
+        </div>
+    );
+};
+
 interface LayoutProps {
     children: React.ReactNode;
 }
@@ -337,6 +430,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileStatusOpen, setMobileStatusOpen] = React.useState(false);
     const [mobileToolsOpen, setMobileToolsOpen] = React.useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+    const [mobileLoginModalOpen, setMobileLoginModalOpen] = React.useState(false);
+    const [mobileAccountOpen, setMobileAccountOpen] = React.useState(false);
     const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore();
     const [isHeaderCollapsed, setIsHeaderCollapsed] = React.useState(false);
     const [isHeaderNear, setIsHeaderNear] = React.useState(false);
@@ -485,24 +580,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
             </MobileBottomSheet>
 
-            {/* Mobile: パーティ編成 */}
+            {/* Mobile: パーティ編成（タブでステータスも表示） */}
             <MobileBottomSheet
                 isOpen={mobilePartyOpen}
                 onClose={() => setMobilePartyOpen(false)}
                 title={t('nav.party')}
                 height="70vh"
             >
-                <MobilePartySettings />
-            </MobileBottomSheet>
-
-            {/* Mobile: ステータス（パーティHP等の確認） */}
-            <MobileBottomSheet
-                isOpen={mobileStatusOpen}
-                onClose={() => setMobileStatusOpen(false)}
-                title={t('nav.status')}
-                height="50vh"
-            >
-                <MobileStatusView />
+                <MobilePartyWithTabs />
             </MobileBottomSheet>
 
             <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden relative z-10">
@@ -598,22 +683,43 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onPartyOpen={() => {
                     const next = !mobilePartyOpen;
                     setMobilePartyOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
-                }}
-                onStatusOpen={() => {
-                    const next = !mobileStatusOpen;
-                    setMobileStatusOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileToolsOpen(false); }
+                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); }
                 }}
                 onToolsOpen={() => {
                     const next = !mobileToolsOpen;
                     setMobileToolsOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); }
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileAccountOpen(false); }
+                }}
+                onLoginOpen={() => {
+                    const authUser = useAuthStore.getState().user;
+                    if (authUser) {
+                        // ログイン済み → アカウントシート
+                        const next = !mobileAccountOpen;
+                        setMobileAccountOpen(next);
+                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
+                    } else {
+                        // 未ログイン → ログインモーダル
+                        setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false);
+                        setMobileLoginModalOpen(true);
+                    }
                 }}
                 myJobHighlight={myJobHighlight}
                 onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
-                activeTab={mobileMenuOpen ? 'menu' : mobilePartyOpen ? 'party' : mobileToolsOpen ? 'tools' : mobileStatusOpen ? 'status' : undefined}
+                activeTab={mobileMenuOpen ? 'menu' : mobilePartyOpen ? 'party' : mobileToolsOpen ? 'tools' : mobileAccountOpen ? 'login' : undefined}
             />
+
+            {/* Mobile: ログインモーダル（未ログイン時） */}
+            <LoginModal isOpen={mobileLoginModalOpen} onClose={() => setMobileLoginModalOpen(false)} />
+
+            {/* Mobile: アカウントシート（ログイン済み時） */}
+            <MobileBottomSheet
+                isOpen={mobileAccountOpen}
+                onClose={() => setMobileAccountOpen(false)}
+                title={t('nav.account')}
+                height="auto"
+            >
+                <MobileAccountMenu onClose={() => setMobileAccountOpen(false)} />
+            </MobileBottomSheet>
         </div>
     );
 };

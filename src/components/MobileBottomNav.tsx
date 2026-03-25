@@ -1,23 +1,25 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Menu, Users, Shield, Eye, Wrench } from 'lucide-react';
+import { Menu, Users, Eye, Wrench, LogIn } from 'lucide-react';
 import clsx from 'clsx';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface MobileBottomNavProps {
     onMenuToggle: () => void;
     onPartyOpen: () => void;
-    onStatusOpen: () => void;
     onToolsOpen: () => void;
+    onLoginOpen: () => void;
     myJobHighlight: boolean;
     onMyJobHighlightToggle: () => void;
     activeTab?: string;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-    onMenuToggle, onPartyOpen, onStatusOpen, onToolsOpen,
+    onMenuToggle, onPartyOpen, onToolsOpen, onLoginOpen,
     myJobHighlight, onMyJobHighlightToggle, activeTab
 }) => {
     const { t } = useTranslation();
+    const user = useAuthStore((s) => s.user);
 
     const items = [
         {
@@ -35,13 +37,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             active: activeTab === 'party',
         },
         {
-            id: 'status',
-            icon: <Shield size={20} />,
-            label: t('nav.status'),
-            onClick: onStatusOpen,
-            active: activeTab === 'status',
-        },
-        {
             id: 'tools',
             icon: <Wrench size={20} />,
             label: t('nav.tools'),
@@ -54,6 +49,22 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             label: 'MY JOB',
             onClick: onMyJobHighlightToggle,
             active: myJobHighlight,
+        },
+        {
+            id: 'login',
+            icon: user?.photoURL ? (
+                <img
+                    src={user.photoURL}
+                    alt=""
+                    className="w-5 h-5 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                />
+            ) : (
+                <LogIn size={20} />
+            ),
+            label: user ? t('nav.account') : t('nav.login'),
+            onClick: onLoginOpen,
+            active: activeTab === 'login',
         },
     ];
 
