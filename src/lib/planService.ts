@@ -15,7 +15,6 @@ import {
   getDocs,
   getDoc,
   setDoc,
-  deleteDoc,
   writeBatch,
   query,
   where,

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2 } from 'lucide-react';
+import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { resolveFight, fetchFightEvents, fetchDeathEvents, fetchCastEvents } from '../api/fflogs';
@@ -8,6 +8,37 @@ import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
 import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { LoginModal } from './LoginModal';
+
+// クライアント側レート制限: 1時間あたり最大5回
+const IMPORT_RATE_LIMIT = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1時間
+
+function getImportTimestamps(): number[] {
+    try {
+        const raw = localStorage.getItem('fflogs-import-timestamps');
+        if (!raw) return [];
+        return JSON.parse(raw) as number[];
+    } catch {
+        return [];
+    }
+}
+
+function recordImport(): void {
+    const now = Date.now();
+    const cutoff = now - RATE_LIMIT_WINDOW_MS;
+    const timestamps = getImportTimestamps().filter(t => t > cutoff);
+    timestamps.push(now);
+    localStorage.setItem('fflogs-import-timestamps', JSON.stringify(timestamps));
+}
+
+function getRemainingImports(): number {
+    const now = Date.now();
+    const cutoff = now - RATE_LIMIT_WINDOW_MS;
+    const recentCount = getImportTimestamps().filter(t => t > cutoff).length;
+    return Math.max(0, IMPORT_RATE_LIMIT - recentCount);
+}
 
 interface FFLogsImportModalProps {
     isOpen: boolean;
@@ -30,11 +61,14 @@ const slideUp = {
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
+    const authUser = useAuthStore((s) => s.user);
+    const isLoggedIn = !!authUser;
 
     const [url, setUrl] = useState('');
     const [urlError, setUrlError] = useState<string | null>(null);
     const [parsedData, setParsedData] = useState<{ reportId: string; fightId: string | null } | null>(null);
     const [status, setStatus] = useState<ImportStatus>({ phase: 'idle' });
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newUrl = e.target.value;
@@ -59,9 +93,16 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     };
 
     const handleFetch = async () => {
-        if (!parsedData) return;
+        if (!parsedData || !isLoggedIn) return;
+
+        // クライアント側レート制限チェック
+        if (getRemainingImports() <= 0) {
+            setStatus({ phase: 'error', message: t('fflogs.rate_limit_exceeded', { max: IMPORT_RATE_LIMIT }) });
+            return;
+        }
 
         try {
+            recordImport();
             setStatus({ phase: 'loading', message: t('fflogs.resolving') });
             const fight = await resolveFight(
                 parsedData.reportId, 
@@ -136,6 +177,62 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     }, []);
 
     if (!isOpen) return null;
+
+    /* ────── ログイン必須ガード ────── */
+    if (!isLoggedIn) {
+        return (
+            <>
+                <AnimatePresence>
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center" onClick={handleClose}>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            className="relative w-full max-w-md mx-4 bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
+                                <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
+                                    <CloudDownload size={18} />
+                                    {t('fflogs.title')}
+                                </h2>
+                                <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer">
+                                    <X size={18} />
+                                </button>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                <div className="flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-full bg-app-text/10 flex items-center justify-center">
+                                        <LogIn size={24} className="text-app-text" />
+                                    </div>
+                                </div>
+                                <h3 className="text-center text-base font-bold text-app-text">
+                                    {t('fflogs.login_required_title')}
+                                </h3>
+                                <p className="text-center text-sm text-app-text-muted leading-relaxed">
+                                    {t('fflogs.login_required_description')}
+                                </p>
+                                <button
+                                    onClick={() => { handleClose(); setShowLoginModal(true); }}
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
+                                >
+                                    <LogIn size={16} />
+                                    {t('fflogs.login_button')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                </AnimatePresence>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </>
+        );
+    }
 
     /* ────── Preview stats (shared) ────── */
     const renderPreviewStats = () => {

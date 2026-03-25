@@ -281,7 +281,11 @@
         "fetch_button": "Generate Timeline",
         "fetching_button": "Generating...",
         "import_button": "Import to Timeline",
-        "tooltip_generate": "— Generate timeline"
+        "tooltip_generate": "— Generate timeline",
+        "login_required_title": "Login Required",
+        "login_required_description": "FFLogs Import is limited to logged-in users due to API usage limits. Login to use this feature for free.",
+        "login_button": "Login to Import",
+        "rate_limit_exceeded": "You've reached the usage limit. Please wait and try again later (up to {{max}} times per hour)."
     },
     "sidebar": {
         "new_plan": "Create New",
