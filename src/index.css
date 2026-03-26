@@ -103,14 +103,14 @@
     --glass-tier1-blur: 16px;
     --glass-tier1-border: rgba(255, 255, 255, 0.08);
 
-    /* 後方互換エイリアス */
-    --glass-bg-header: var(--glass-tier3-bg);
-    --glass-bg-panel: var(--glass-tier1-bg);
-    --glass-bg-card: var(--glass-tier1-bg);
-    --glass-border: var(--glass-tier1-border);
+    /* 旧glass変数（元の値に復元） */
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(255, 255, 255, 0.12);
     --glass-hover: rgba(255, 255, 255, 0.06);
     --glass-active: rgba(255, 255, 255, 0.1);
-    --glass-shadow: var(--glass-tier3-shadow);
+    --glass-shadow: none;
   }
 
   .theme-light {
@@ -147,14 +147,14 @@
     --glass-tier1-blur: 16px;
     --glass-tier1-border: rgba(0, 0, 0, 0.05);
 
-    /* 後方互換エイリアス */
-    --glass-bg-header: var(--glass-tier3-bg);
-    --glass-bg-panel: var(--glass-tier1-bg);
-    --glass-bg-card: var(--glass-tier1-bg);
-    --glass-border: var(--glass-tier1-border);
+    /* 旧glass変数（元の値に復元） */
+    --glass-bg-header: transparent;
+    --glass-bg-panel: transparent;
+    --glass-bg-card: transparent;
+    --glass-border: rgba(0, 0, 0, 0.12);
     --glass-hover: rgba(0, 0, 0, 0.04);
     --glass-active: rgba(0, 0, 0, 0.08);
-    --glass-shadow: var(--glass-tier3-shadow);
+    --glass-shadow: none;
   }
 
   body {
