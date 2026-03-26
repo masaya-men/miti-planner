@@ -353,7 +353,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </button>
 
                             {/* Import（アイコンのみ） */}
-                            <Tooltip content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}>
+                            <Tooltip content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}>
                                 <button
                                     onClick={onImportLogs}
                                     className={clsx(
