@@ -49,8 +49,8 @@
         "saved": "保存済み ✓",
         "double_click_rename": "ダブルクリックで名前を変更",
         "rename": "名前を変更",
-        "empty_state_title": "軽減表を作りましょう",
-        "empty_state_desc": "サイドバーからコンテンツを選んで、軽減プランを始めましょう。"
+        "empty_state_pc": "サイドバーからコンテンツを選択",
+        "empty_state_mobile": "メニューからコンテンツを選択"
     },
     "login": {
         "title": "ログイン",
