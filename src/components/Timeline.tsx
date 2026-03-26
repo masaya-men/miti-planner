@@ -18,7 +18,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown, Crown
 } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
@@ -2292,6 +2292,20 @@ const Timeline: React.FC = () => {
                         <div className="text-left">
                             <div className="text-sm font-bold">Auto Plan</div>
                             <div className="text-[10px] text-app-text-muted">{t('mobile.autoplan_desc')}</div>
+                        </div>
+                    </button>
+                    {/* Popular Plans */}
+                    <button
+                        onClick={() => {
+                            window.open('/popular', '_blank');
+                            setMobileToolsSheetOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl border border-app-border hover:bg-app-surface2 transition-colors"
+                    >
+                        <Crown size={18} className="text-app-text shrink-0" />
+                        <div>
+                            <p className="text-sm font-bold text-app-text">{t('popular.open_popular')}</p>
+                            <p className="text-xs text-app-text-muted">{t('popular.subtitle')}</p>
                         </div>
                     </button>
                 </div>
