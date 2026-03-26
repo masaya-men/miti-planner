@@ -443,3 +443,10 @@
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── フローティングアクションバー: カウンターバウンス ── */
+@keyframes floatingCountBounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
