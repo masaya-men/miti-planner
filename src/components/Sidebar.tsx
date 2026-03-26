@@ -778,7 +778,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
-            className={clsx("h-full flex z-40 relative group/sidebar glass-tier3", !fullWidth && "shadow-sm")}
+            className={clsx("h-full bg-transparent flex z-40 relative group/sidebar", !fullWidth && "shadow-sm")}
             style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}

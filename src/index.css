@@ -206,12 +206,9 @@
   border: 1px solid var(--glass-tier1-border);
 }
 
-/* 後方互換: 既存の glass-panel は tier1 にマッピング */
+/* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
 .glass-panel {
-  background: var(--glass-tier1-bg);
-  backdrop-filter: blur(var(--glass-tier1-blur));
-  -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
-  border: 1px solid var(--glass-tier1-border);
+  border: 1px solid var(--glass-border);
 }
 
 /* ボタン・インタラクティブ要素 — シンプルなホバー */
