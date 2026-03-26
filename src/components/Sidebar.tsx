@@ -502,10 +502,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
 
-        // プラン切替/作成中はsubscriptionの自動保存をスキップ（stack overflow防止）
-        (window as any).__lopo_creating_plan = true;
-        try {
-
         // 現在のプランを保存してから切り替え
         if (currentPlanId) {
             planStore.updatePlan(currentPlanId, { data: store.getSnapshot() });
@@ -552,17 +548,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         // 通常: 名前入力ダイアログを表示
         setPendingContent(content);
         setPendingPlanName(defaultName);
-
-        } finally {
-            (window as any).__lopo_creating_plan = false;
-        }
     };
 
     // テンプレート読み込み → プラン保存（共通ロジック）
     // isTutorial: trueの場合、テンプレートの代わりにTUTORIAL_EVENTSをロード
     const createPlanDirectly = async (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
         setIsLoading(true);
-        (window as any).__lopo_creating_plan = true;
         try {
         const store = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
@@ -642,7 +633,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         // チュートリアル: テンプレートなしでもプラン作成完了を通知
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
         } finally {
-            (window as any).__lopo_creating_plan = false;
             setIsLoading(false);
         }
     };
