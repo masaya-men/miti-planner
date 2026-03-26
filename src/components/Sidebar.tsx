@@ -35,8 +35,7 @@ import {
     Share2,
     Trash2,
     X,
-    Pencil,
-    Loader2
+    Pencil
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -481,7 +480,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [pendingContent, setPendingContent] = useState<ContentDefinition | null>(null);
     const [pendingPlanName, setPendingPlanName] = useState('');
     // ローディング状態（テンプレート読み込み・プラン切替中）
-    const [isLoading, setIsLoading] = useState(false);
 
     const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
     const { getSnapshot, loadSnapshot } = useMitigationStore();
@@ -499,22 +497,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     // コンテンツクリック → 既存プランがあればそれを開く、なければ名前入力ダイアログを表示
     const handleSelectContent = (content: ContentDefinition, forceNew?: boolean) => {
         setSelectedContentId(content.id);
-        const store = useMitigationStore.getState();
+
+        // 既にこのコンテンツのプランがある場合
+        // （forceNew または チュートリアル中は既存プランを無視し、新規チュートリアルプランを作成する）
+        const isTutorial = useTutorialStore.getState().isActive;
         const planStore = usePlanStore.getState();
+        const existingPlans = !forceNew && !isTutorial
+            ? planStore.plans.filter(p => p.contentId === content.id)
+            : [];
+        if (existingPlans.length >= 2) {
+            // 複数プランあり → サブアイテム展開のみ（ユーザーが選ぶ）
+            return;
+        }
+
+        const store = useMitigationStore.getState();
 
         // 現在のプランを保存してから切り替え
         if (currentPlanId) {
             planStore.updatePlan(currentPlanId, { data: store.getSnapshot() });
         }
 
-        // 既にこのコンテンツのプランがある場合は最新のものを開く
-        // （forceNew または チュートリアル中は既存プランを無視し、新規チュートリアルプランを作成する）
-        const isTutorial = useTutorialStore.getState().isActive;
-        const existingPlan = !forceNew && !isTutorial && planStore.plans.find(p => p.contentId === content.id);
-        if (existingPlan) {
-            store.loadSnapshot(existingPlan.data);
-            planStore.setCurrentPlanId(existingPlan.id);
-            setActiveLevel(existingPlan.data.currentLevel as ContentLevel);
+        if (existingPlans.length === 1) {
+            // 1件だけ → そのまま開く
+            const plan = existingPlans[0];
+            runTransition(() => {
+                store.loadSnapshot(plan.data);
+                planStore.setCurrentPlanId(plan.id);
+                setActiveLevel(plan.data.currentLevel as ContentLevel);
+            }, 'plan');
             // スマホのみメニューを閉じる（PCはユーザーが自分で閉じる体験を残す）
             if (fullWidth) onClose?.();
             return;
@@ -552,89 +562,86 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
     // テンプレート読み込み → プラン保存（共通ロジック）
     // isTutorial: trueの場合、テンプレートの代わりにTUTORIAL_EVENTSをロード
-    const createPlanDirectly = async (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
-        setIsLoading(true);
-        try {
-        const store = useMitigationStore.getState();
-        const planStore = usePlanStore.getState();
+    const createPlanDirectly = (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
+        runTransition(async () => {
+            const store = useMitigationStore.getState();
+            const planStore = usePlanStore.getState();
 
-        store.setCurrentLevel(content.level);
-        store.applyDefaultStats(content.level, content.patch);
-        // 新しいコンテンツを開くので軽減・パーティをクリア
-        store.clearAllMitigations();
-        // パーティ構成もリセット（前のプランのジョブが引き継がれないように）
-        store.updatePartyBulk(
-            store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
-        );
-        store.setMyMemberId(null);
-        setActiveLevel(content.level);
+            store.setCurrentLevel(content.level);
+            store.applyDefaultStats(content.level, content.patch);
+            // 新しいコンテンツを開くので軽減・パーティをクリア
+            store.clearAllMitigations();
+            // パーティ構成もリセット（前のプランのジョブが引き継がれないように）
+            store.updatePartyBulk(
+                store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
+            );
+            store.setMyMemberId(null);
+            setActiveLevel(content.level);
 
-        if (isTutorial) {
-            // チュートリアル: 実際のステータスからダメージを動的計算
-            const members = store.partyMembers;
-            const tankHp = members.find(m => m.role === 'tank')?.stats.hp ?? 100000;
-            const otherHp = members.find(m => m.role === 'healer')?.stats.hp ?? 80000;
-            const snap = store.getSnapshot();
-            store.loadSnapshot({
-                ...snap,
-                timelineMitigations: [],
-                timelineEvents: createTutorialEvents(otherHp, tankHp),
-                phases: [],
-            });
-        } else {
-            // 通常: テンプレートを裏で読み込み → 自動でプランとして保存
-            const tpl = await getTemplate(content.id);
-            if (tpl) {
-                // リセットされた初期状態にテンプレートのイベントを合成
+            if (isTutorial) {
+                // チュートリアル: 実際のステータスからダメージを動的計算
+                const members = store.partyMembers;
+                const tankHp = members.find(m => m.role === 'tank')?.stats.hp ?? 100000;
+                const otherHp = members.find(m => m.role === 'healer')?.stats.hp ?? 80000;
                 const snap = store.getSnapshot();
                 store.loadSnapshot({
                     ...snap,
                     timelineMitigations: [],
-                    timelineEvents: tpl.timelineEvents,
-                    phases: tpl.phases ? tpl.phases
-                        .filter(p => p.startTimeSec >= 0)
-                        .map((p, i, arr) => {
-                            const nextStart = arr[i + 1]?.startTimeSec;
-                            const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
-                            return {
-                                id: `phase_${p.id}`,
-                                name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
-                                endTime: nextStart !== undefined ? nextStart : maxTime + 10
-                            };
-                        }) : []
+                    timelineEvents: createTutorialEvents(otherHp, tankHp),
+                    phases: [],
                 });
             } else {
-                // テンプレートなし → 空のプランで即開始
-                store.loadSnapshot({
-                    ...store.getSnapshot(),
-                    timelineEvents: [],
-                    timelineMitigations: [],
-                    phases: []
-                });
+                // 通常: テンプレートを裏で読み込み → 自動でプランとして保存
+                const tpl = await getTemplate(content.id);
+                if (tpl) {
+                    // リセットされた初期状態にテンプレートのイベントを合成
+                    const snap = store.getSnapshot();
+                    store.loadSnapshot({
+                        ...snap,
+                        timelineMitigations: [],
+                        timelineEvents: tpl.timelineEvents,
+                        phases: tpl.phases ? tpl.phases
+                            .filter(p => p.startTimeSec >= 0)
+                            .map((p, i, arr) => {
+                                const nextStart = arr[i + 1]?.startTimeSec;
+                                const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
+                                return {
+                                    id: `phase_${p.id}`,
+                                    name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                                    endTime: nextStart !== undefined ? nextStart : maxTime + 10
+                                };
+                            }) : []
+                    });
+                } else {
+                    // テンプレートなし → 空のプランで即開始
+                    store.loadSnapshot({
+                        ...store.getSnapshot(),
+                        timelineEvents: [],
+                        timelineMitigations: [],
+                        phases: []
+                    });
+                }
             }
-        }
 
-        const newPlanId = `plan_${Date.now()}`;
-        planStore.addPlan({
-            id: newPlanId,
-            ownerId: 'local',
-            ownerDisplayName: 'Guest',
-            contentId: content.id,
-            title: planTitle,
-            isPublic: false,
-            copyCount: 0,
-            useCount: 0,
-            data: store.getSnapshot(),
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-        });
-        planStore.setCurrentPlanId(newPlanId);
+            const newPlanId = `plan_${Date.now()}`;
+            planStore.addPlan({
+                id: newPlanId,
+                ownerId: 'local',
+                ownerDisplayName: 'Guest',
+                contentId: content.id,
+                title: planTitle,
+                isPublic: false,
+                copyCount: 0,
+                useCount: 0,
+                data: store.getSnapshot(),
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            });
+            planStore.setCurrentPlanId(newPlanId);
 
-        // チュートリアル: テンプレートなしでもプラン作成完了を通知
-        useTutorialStore.getState().completeEvent('timeline:events-loaded');
-        } finally {
-            setIsLoading(false);
-        }
+            // チュートリアル: テンプレートなしでもプラン作成完了を通知
+            useTutorialStore.getState().completeEvent('timeline:events-loaded');
+        }, 'plan');
     };
 
     // ダイアログから呼ばれるラッパー
@@ -745,16 +752,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [isHovered, setIsHovered] = useState(false);
 
     return (<>
-        {/* ローディングオーバーレイ（テンプレート読み込み・プラン作成中） */}
-        {isLoading && createPortal(
-            <div className="fixed inset-0 z-[99990] flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
-                <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-app-bg border border-app-border shadow-lg">
-                    <Loader2 size={18} className="animate-spin text-app-text-muted" />
-                    <span className="text-sm font-medium text-app-text">{t('app.loading_plan')}</span>
-                </div>
-            </div>,
-            document.body
-        )}
         <motion.aside
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
