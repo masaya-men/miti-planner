@@ -341,7 +341,7 @@ export const PopularPage: React.FC = () => {
                         <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
                     </div>
                     <button
-                        onClick={() => window.open('/miti', '_blank')}
+                        onClick={() => { window.close(); window.location.href = '/miti'; }}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
                     >
                         <ArrowLeft size={12} />
