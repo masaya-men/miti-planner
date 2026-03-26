@@ -183,6 +183,7 @@
 .ime-active { ime-mode: active; }
 
 /* ガラスパネル — 3層Tierシステム */
+@layer utilities {
 .glass-tier3 {
   background: var(--glass-tier3-bg);
   backdrop-filter: blur(var(--glass-tier3-blur));
@@ -205,6 +206,7 @@
   -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
   border: 1px solid var(--glass-tier1-border);
 }
+} /* @layer utilities */
 
 /* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
 .glass-panel {
