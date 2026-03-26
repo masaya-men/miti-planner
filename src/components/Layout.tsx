@@ -714,7 +714,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <GridOverlay />
 
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
-            {/* PC sidebar */}
+{/* PC sidebar */}
             <div className="hidden md:block">
                 <Sidebar
                     isOpen={isSidebarOpen}

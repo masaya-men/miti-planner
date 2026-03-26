@@ -88,8 +88,8 @@
     --color-border: rgba(255, 255, 255, 0.12);
     --color-border-accent: rgba(255, 255, 255, 0.3);
 
-    --glass-tier3-bg: rgba(255, 255, 255, 0.14);
-    --glass-tier3-blur: 40px;
+    --glass-tier3-bg: transparent;
+    --glass-tier3-blur: 2px;
     --glass-tier3-border: rgba(255, 255, 255, 0.18);
     --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
     --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -132,8 +132,8 @@
     --color-border: rgba(0, 0, 0, 0.12);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
-    --glass-tier3-bg: rgba(255, 255, 255, 0.70);
-    --glass-tier3-blur: 40px;
+    --glass-tier3-bg: transparent;
+    --glass-tier3-blur: 2px;
     --glass-tier3-border: rgba(0, 0, 0, 0.08);
     --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
     --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);

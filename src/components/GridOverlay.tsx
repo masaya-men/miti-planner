@@ -1,21 +1,146 @@
 import { useRef, useEffect, useCallback } from 'react';
 
 // グリッドセルのサイズ（px）
-const CELL_SIZE = 100;
+const CELL_SIZE = 50;
 // 通常時のグリッド線の透明度
 const BASE_OPACITY = 0.06;
 // カーソル周辺のグロー半径（px）
 const GLOW_RADIUS = 280;
-// セル塗りの最大透明度
-const CELL_FILL_MAX = 0.08;
+
+
+// --- 光パルス設定 ---
+// パルスが走るセル数（6〜12のランダム）
+const PULSE_MIN_LENGTH = 6;
+const PULSE_MAX_LENGTH = 12;
+// パルスの太さ（格子線と同じ細さ）
+const PULSE_LINE_WIDTH = 1;
+// パルスの最大透明度（強い発光感）
+const PULSE_MAX_OPACITY = 1.0;
+// パルス1セグメントの走行時間（ms）— 素早く
+const PULSE_SEGMENT_DURATION = 50;
+// パルスのフェードアウト時間（ms）
+const PULSE_FADE_DURATION = 300;
+// 1回の発火で放たれるパルス本数
+const PULSE_COUNT_MIN = 3;
+const PULSE_COUNT_MAX = 5;
+// パルス発火の最小間隔（ms）
+const PULSE_COOLDOWN = 300;
+
+// 方向ベクトル: 上下左右
+const DIRECTIONS = [
+    { dx: 0, dy: -1 }, // 上
+    { dx: 0, dy: 1 },  // 下
+    { dx: -1, dy: 0 }, // 左
+    { dx: 1, dy: 0 },  // 右
+];
+
+interface PulseSegment {
+    // グリッド交差点の座標（col, row）
+    fromCol: number;
+    fromRow: number;
+    toCol: number;
+    toRow: number;
+}
+
+interface Pulse {
+    segments: PulseSegment[];
+    startTime: number;
+    // セグメントごとにアニメーション進行
+    totalDuration: number;
+}
 
 export const GridOverlay: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mouseRef = useRef({ x: -9999, y: -9999 });
     const rafRef = useRef<number>(0);
     const accentRef = useRef('34, 211, 238');
+    // テーマ色（光パルス用）: ダーク=白、ライト=黒
+    const pulseColorRef = useRef('255, 255, 255');
+    const pulsesRef = useRef<Pulse[]>([]);
+    const lastPulseTimeRef = useRef(0);
+    // 前回のマウス位置（格子線との交差判定用）
+    const prevMouseRef = useRef({ x: -9999, y: -9999 });
+    // アニメーションループ用
+    const isAnimatingRef = useRef(false);
 
-    const redraw = useCallback(() => {
+    // マウスが格子線の近くにいるか判定（距離5px以内）
+    const isNearGridLine = useCallback((x: number, y: number) => {
+        const threshold = 5;
+        const nearVertical = Math.abs(x % CELL_SIZE) < threshold || Math.abs(x % CELL_SIZE - CELL_SIZE) < threshold;
+        const nearHorizontal = Math.abs(y % CELL_SIZE) < threshold || Math.abs(y % CELL_SIZE - CELL_SIZE) < threshold;
+        return nearVertical || nearHorizontal;
+    }, []);
+
+    // 発火点から遠ざかる方向にランダムパスを生成
+    const generatePulse = useCallback((startX: number, startY: number): Pulse | null => {
+        // 最寄りの交差点を求める
+        const startCol = Math.round(startX / CELL_SIZE);
+        const startRow = Math.round(startY / CELL_SIZE);
+
+        const canvas = canvasRef.current;
+        if (!canvas) return null;
+        const dpr = window.devicePixelRatio || 1;
+        const maxCol = Math.ceil((canvas.width / dpr) / CELL_SIZE);
+        const maxRow = Math.ceil((canvas.height / dpr) / CELL_SIZE);
+
+        const length = PULSE_MIN_LENGTH + Math.floor(Math.random() * (PULSE_MAX_LENGTH - PULSE_MIN_LENGTH + 1));
+        const segments: PulseSegment[] = [];
+
+        let col = startCol;
+        let row = startRow;
+
+        for (let i = 0; i < length; i++) {
+            // 発火点から遠ざかる方向を優先的に選ぶ
+            const candidates = DIRECTIONS.filter(d => {
+                const nextCol = col + d.dx;
+                const nextRow = row + d.dy;
+                // 画面外に出ないか
+                if (nextCol < 0 || nextCol > maxCol || nextRow < 0 || nextRow > maxRow) return false;
+                // 直前のセグメントと逆方向（戻り）を除外
+                if (segments.length > 0) {
+                    const last = segments[segments.length - 1];
+                    if (nextCol === last.fromCol && nextRow === last.fromRow) return false;
+                }
+                return true;
+            });
+
+            if (candidates.length === 0) break;
+
+            // 発火点から遠ざかる方向に重み付け
+            const weighted = candidates.map(d => {
+                const nextCol = col + d.dx;
+                const nextRow = row + d.dy;
+                const distFromStart = Math.abs(nextCol - startCol) + Math.abs(nextRow - startRow);
+                // 遠ざかる方向ほど重みが高い
+                return { d, weight: distFromStart + 1 };
+            });
+
+            // 重み付きランダム選択
+            const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
+            let rand = Math.random() * totalWeight;
+            let chosen = weighted[0].d;
+            for (const w of weighted) {
+                rand -= w.weight;
+                if (rand <= 0) { chosen = w.d; break; }
+            }
+
+            const nextCol = col + chosen.dx;
+            const nextRow = row + chosen.dy;
+            segments.push({ fromCol: col, fromRow: row, toCol: nextCol, toRow: nextRow });
+            col = nextCol;
+            row = nextRow;
+        }
+
+        if (segments.length === 0) return null;
+
+        return {
+            segments,
+            startTime: performance.now(),
+            totalDuration: segments.length * PULSE_SEGMENT_DURATION + PULSE_FADE_DURATION,
+        };
+    }, []);
+
+    const redraw = useCallback((now: number) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -33,31 +158,12 @@ export const GridOverlay: React.FC = () => {
         const cols = Math.ceil(w / CELL_SIZE) + 1;
         const rows = Math.ceil(h / CELL_SIZE) + 1;
 
-        // セル単位でグロー計算 → 塗りとボーダーの両方に反映
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const cx = col * CELL_SIZE + CELL_SIZE / 2;
-                const cy = row * CELL_SIZE + CELL_SIZE / 2;
-                const dist = Math.sqrt((cx - mx) ** 2 + (cy - my) ** 2);
-                const glow = Math.max(0, 1 - dist / GLOW_RADIUS);
-
-                // セル塗り（カーソル付近のみ）
-                if (glow > 0) {
-                    const fillAlpha = glow * glow * CELL_FILL_MAX;
-                    ctx.fillStyle = `rgba(${accent}, ${fillAlpha})`;
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                }
-            }
-        }
-
-        // 縦線
+        // 縦線（控えめグロー付き）
         for (let col = 0; col <= cols; col++) {
             const x = col * CELL_SIZE;
-            // 線全体のうち最もカーソルに近い点でグロー計算
             const distX = Math.abs(x - mx);
             const glow = Math.max(0, 1 - distX / GLOW_RADIUS);
             const opacity = BASE_OPACITY + glow * 0.35;
-
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, h);
@@ -66,13 +172,12 @@ export const GridOverlay: React.FC = () => {
             ctx.stroke();
         }
 
-        // 横線
+        // 横線（控えめグロー付き）
         for (let row = 0; row <= rows; row++) {
             const y = row * CELL_SIZE;
             const distY = Math.abs(y - my);
             const glow = Math.max(0, 1 - distY / GLOW_RADIUS);
             const opacity = BASE_OPACITY + glow * 0.35;
-
             ctx.beginPath();
             ctx.moveTo(0, y);
             ctx.lineTo(w, y);
@@ -80,11 +185,94 @@ export const GridOverlay: React.FC = () => {
             ctx.lineWidth = 1;
             ctx.stroke();
         }
+
+        // --- 光パルスの描画 ---
+        const pulseColor = pulseColorRef.current;
+        const activePulses: Pulse[] = [];
+
+        for (const pulse of pulsesRef.current) {
+            const elapsed = now - pulse.startTime;
+            if (elapsed > pulse.totalDuration) continue; // 終了したパルスを除外
+            activePulses.push(pulse);
+
+            for (let i = 0; i < pulse.segments.length; i++) {
+                const seg = pulse.segments[i];
+                const segStart = i * PULSE_SEGMENT_DURATION;
+                const segEnd = segStart + PULSE_SEGMENT_DURATION;
+
+                // セグメントがまだ開始していない
+                if (elapsed < segStart) continue;
+
+                const x1 = seg.fromCol * CELL_SIZE;
+                const y1 = seg.fromRow * CELL_SIZE;
+                const x2 = seg.toCol * CELL_SIZE;
+                const y2 = seg.toRow * CELL_SIZE;
+
+                // セグメントの進行度（0→1）
+                let progress: number;
+                if (elapsed < segEnd) {
+                    // 走行中
+                    progress = (elapsed - segStart) / PULSE_SEGMENT_DURATION;
+                } else {
+                    // 走行完了
+                    progress = 1;
+                }
+
+                // フェードアウト: 全セグメント走行完了後から始まる
+                const fadeStart = pulse.segments.length * PULSE_SEGMENT_DURATION;
+                let fadeAlpha = 1;
+                if (elapsed > fadeStart) {
+                    fadeAlpha = 1 - (elapsed - fadeStart) / PULSE_FADE_DURATION;
+                    fadeAlpha = Math.max(0, fadeAlpha);
+                }
+                // 後ろのセグメントほど先にフェードする
+                const segFadeDelay = (pulse.segments.length - 1 - i) * 30;
+                if (elapsed > fadeStart + segFadeDelay) {
+                    const segFade = 1 - (elapsed - fadeStart - segFadeDelay) / PULSE_FADE_DURATION;
+                    fadeAlpha = Math.min(fadeAlpha, Math.max(0, segFade));
+                }
+
+                const opacity = PULSE_MAX_OPACITY * fadeAlpha;
+                if (opacity <= 0) continue;
+
+                // 進行中の線を描く
+                const currentX = x1 + (x2 - x1) * progress;
+                const currentY = y1 + (y2 - y1) * progress;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(currentX, currentY);
+                ctx.strokeStyle = `rgba(${pulseColor}, ${opacity})`;
+                ctx.lineWidth = PULSE_LINE_WIDTH;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+            }
+        }
+
+        pulsesRef.current = activePulses;
+
+        // アクティブなパルスがあればアニメーションループ継続
+        if (activePulses.length > 0) {
+            rafRef.current = requestAnimationFrame((t) => redraw(t));
+        } else {
+            isAnimatingRef.current = false;
+        }
     }, []);
 
     const scheduleRedraw = useCallback(() => {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = requestAnimationFrame(redraw);
+        if (!isAnimatingRef.current) {
+            rafRef.current = requestAnimationFrame((t) => redraw(t));
+        } else {
+            // アニメーション中はループが回っているのでスキップ
+        }
+    }, [redraw]);
+
+    const startAnimationLoop = useCallback(() => {
+        if (!isAnimatingRef.current) {
+            isAnimatingRef.current = true;
+            rafRef.current = requestAnimationFrame((t) => redraw(t));
+        }
     }, [redraw]);
 
     // Canvas リサイズ
@@ -106,22 +294,59 @@ export const GridOverlay: React.FC = () => {
             if (raw) accentRef.current = raw;
         };
 
+        // パルス色をテーマに応じて設定
+        const updatePulseColor = () => {
+            const isDark = document.documentElement.classList.contains('theme-dark') ||
+                           (!document.documentElement.classList.contains('theme-light'));
+            pulseColorRef.current = isDark ? '255, 255, 255' : '0, 0, 0';
+        };
+
         const handleMouseMove = (e: MouseEvent) => {
+            const prev = prevMouseRef.current;
             mouseRef.current = { x: e.clientX, y: e.clientY };
+            prevMouseRef.current = { x: e.clientX, y: e.clientY };
+
+            // パルス発火判定
+            const now = performance.now();
+            if (now - lastPulseTimeRef.current > PULSE_COOLDOWN) {
+                if (isNearGridLine(e.clientX, e.clientY)) {
+                    // 前回位置が格子線の近くでなかった場合（格子線に「触れた」瞬間）
+                    const wasNear = prev.x > -9000 && isNearGridLine(prev.x, prev.y);
+                    if (!wasNear) {
+                        const count = PULSE_COUNT_MIN + Math.floor(Math.random() * (PULSE_COUNT_MAX - PULSE_COUNT_MIN + 1));
+                        let added = false;
+                        for (let i = 0; i < count; i++) {
+                            const pulse = generatePulse(e.clientX, e.clientY);
+                            if (pulse) {
+                                pulsesRef.current.push(pulse);
+                                added = true;
+                            }
+                        }
+                        if (added) {
+                            lastPulseTimeRef.current = now;
+                            startAnimationLoop();
+                        }
+                    }
+                }
+            }
+
             scheduleRedraw();
         };
 
         const handleMouseLeave = () => {
             mouseRef.current = { x: -9999, y: -9999 };
+            prevMouseRef.current = { x: -9999, y: -9999 };
             scheduleRedraw();
         };
 
         updateAccent();
+        updatePulseColor();
         handleResize();
 
-        // テーマ切り替え時にアクセントカラーを再取得
+        // テーマ切り替え時にアクセントカラーとパルス色を再取得
         const observer = new MutationObserver(() => {
             updateAccent();
+            updatePulseColor();
             scheduleRedraw();
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -137,7 +362,7 @@ export const GridOverlay: React.FC = () => {
             document.removeEventListener('mouseleave', handleMouseLeave);
             cancelAnimationFrame(rafRef.current);
         };
-    }, [handleResize, scheduleRedraw]);
+    }, [handleResize, scheduleRedraw, isNearGridLine, generatePulse, startAnimationLoop]);
 
     return (
         <canvas

@@ -8,7 +8,12 @@ interface PreloaderProps {
 export function Preloader({ onComplete }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const topHalfRef = useRef<HTMLDivElement>(null);
+  const bottomHalfRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLDivElement>(null);
+  const lineLeftRef = useRef<HTMLDivElement>(null);
+  const lineRightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sessionStorage.getItem('lopo-visited')) {
@@ -23,57 +28,106 @@ export function Preloader({ onComplete }: PreloaderProps) {
       },
     });
 
-    // Phase 1: Progress 0→100
+    // Phase 1: カウンター 0→100（加速感あり）
     tl.to({}, {
-      duration: 1.5,
-      onUpdate: function() {
+      duration: 2.0,
+      ease: 'power2.in',
+      onUpdate: function () {
         setProgress(Math.round(this.progress() * 100));
       },
     });
 
-    // Phase 2: Logo appear
+    // Phase 2: ロゴ出現（マスクリビール — 下から上へ）
     tl.fromTo(
       logoRef.current,
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
-      1.2
+      { clipPath: 'inset(100% 0 0 0)', opacity: 1 },
+      { clipPath: 'inset(0% 0 0 0)', duration: 0.8, ease: 'power3.out' },
+      '-=0.3'
     );
 
-    // Phase 3: Clip-path expand
-    tl.to(containerRef.current, {
-      clipPath: 'circle(150% at 50% 50%)',
-      duration: 0.8,
-      ease: 'power2.inOut',
+    // Phase 3: 水平ラインが中央から左右に伸びる
+    tl.fromTo(
+      [lineLeftRef.current, lineRightRef.current],
+      { scaleX: 0 },
+      { scaleX: 1, duration: 0.6, ease: 'power3.inOut' },
+      '-=0.2'
+    );
+
+    // Phase 4: カウンターとラインをフェードアウト
+    tl.to([counterRef.current, lineLeftRef.current, lineRightRef.current], {
+      opacity: 0,
+      duration: 0.3,
     });
+
+    // Phase 5: 上下スプリットオープン（カーテンが開く演出）
+    tl.to(topHalfRef.current, {
+      yPercent: -100,
+      duration: 0.9,
+      ease: 'power4.inOut',
+    });
+    tl.to(bottomHalfRef.current, {
+      yPercent: 100,
+      duration: 0.9,
+      ease: 'power4.inOut',
+    }, '<');
+
+    // ロゴも一緒にフェード
+    tl.to(logoRef.current, {
+      opacity: 0,
+      scale: 1.1,
+      duration: 0.5,
+      ease: 'power2.in',
+    }, '-=0.6');
 
     return () => { tl.kill(); };
   }, [onComplete]);
 
-  const circumference = 2 * Math.PI * 36;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100000] bg-black flex flex-col items-center justify-center"
-      style={{ clipPath: 'circle(100% at 50% 50%)' }}
+      className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none"
     >
-      <svg width="80" height="80" viewBox="0 0 80 80" className="mb-4" style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2" />
-        <circle
-          cx="40" cy="40" r="36"
-          fill="none"
-          stroke="#fff"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-        />
-      </svg>
-      <div className="font-mono text-sm text-white/50 mb-6">{progress}%</div>
-      <div ref={logoRef} className="opacity-0">
-        <div className="text-5xl font-black tracking-tighter text-white">LoPo</div>
-        <div className="text-[11px] text-white/30 tracking-[3px] uppercase text-center mt-1">FF14 Tool Portal</div>
+      {/* 上半分 */}
+      <div
+        ref={topHalfRef}
+        className="absolute top-0 left-0 right-0 h-1/2 bg-black"
+      />
+      {/* 下半分 */}
+      <div
+        ref={bottomHalfRef}
+        className="absolute bottom-0 left-0 right-0 h-1/2 bg-black"
+      />
+
+      {/* 中央コンテンツ */}
+      <div className="relative z-10 flex flex-col items-center">
+        {/* カウンター — 大きなモノスペース数字 */}
+        <div ref={counterRef} className="mb-8">
+          <div className="font-mono text-[clamp(48px,12vw,120px)] font-extralight text-white/80 tabular-nums leading-none">
+            {String(progress).padStart(3, '0')}
+          </div>
+        </div>
+
+        {/* ロゴ — マスクリビール */}
+        <div ref={logoRef} className="opacity-0">
+          <div className="text-[clamp(56px,14vw,140px)] font-black tracking-tighter text-white leading-none">
+            LoPo
+          </div>
+        </div>
+
+        {/* 水平ライン（左右に伸びる） */}
+        <div className="flex items-center gap-0 mt-6 w-[60vw] max-w-[400px]">
+          <div
+            ref={lineLeftRef}
+            className="flex-1 h-px bg-gradient-to-l from-white/40 to-transparent origin-right"
+            style={{ transform: 'scaleX(0)' }}
+          />
+          <div className="w-1 h-1 rounded-full bg-white/60 mx-1" />
+          <div
+            ref={lineRightRef}
+            className="flex-1 h-px bg-gradient-to-r from-white/40 to-transparent origin-left"
+            style={{ transform: 'scaleX(0)' }}
+          />
+        </div>
       </div>
     </div>
   );

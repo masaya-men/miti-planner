@@ -1539,7 +1539,7 @@ const Timeline: React.FC = () => {
                     <div
                         ref={headerRef}
                         className={clsx(
-                            "flex-shrink-0 z-50 bg-glass-header border-b border-glass-border text-[11px] font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden"
+                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-[11px] font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden"
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
@@ -1579,12 +1579,12 @@ const Timeline: React.FC = () => {
                                     <Tooltip content={`${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
                                         <div
                                             className={clsx(
-                                                "flex items-center justify-center w-full h-full rounded cursor-pointer hover:bg-app-surface2 transition-all duration-300 relative"
+                                                "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative"
                                             )}
                                             onClick={(e) => handleJobIconClick(member.id, e)}
                                         >
                                             {member.jobId ? (
-                                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform hover:scale-110" />
+                                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125" />
                                             ) : (
                                                 <div className="w-5 h-5 rounded-full border border-app-border bg-app-surface2 flex items-center justify-center hover:bg-app-surface2">
                                                     <Plus size={10} className="text-app-text-muted" />
