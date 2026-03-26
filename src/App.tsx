@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useThemeStore } from './store/useThemeStore';
-import { PortalPage } from './components/PortalPage';
+import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
 
@@ -16,13 +16,12 @@ import { useTranslation } from 'react-i18next';
  * App — Root component with route definitions.
  *
  * Route map (centralized here for easy extension):
- *   /      → PortalPage (landing / tool selector)
+ *   /      → LandingPage (ランディングページ)
  *   /miti   → MitiPlannerPage (mitigation planner tool)
  *
  * To add a new tool page:
  *   1. Create the page component in src/components/
  *   2. Add a <Route> entry below
- *   3. Add a card entry in PortalPage's TOOL_CARDS array
  */
 function App() {
   const theme = useThemeStore((state) => state.theme);
@@ -87,7 +86,7 @@ function App() {
       <TransitionOverlayProvider>
         <div className="relative w-full h-full">
           <Routes>
-            <Route path="/" element={<PortalPage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/miti" element={<MitiPlannerPage />} />
             <Route path="/share/:shareId" element={<SharePage />} />
 
