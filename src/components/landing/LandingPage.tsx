@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { Preloader } from './Preloader';
+import { CustomCursor } from './CustomCursor';
+import { ScrollProgress } from './ScrollProgress';
 import { HeroSection } from './HeroSection';
 import { MitiSection } from './MitiSection';
 import { FeaturesSection } from './FeaturesSection';
@@ -22,6 +24,8 @@ export function LandingPage() {
 
   return (
     <div className="relative min-h-screen bg-black text-white">
+      <CustomCursor />
+      <ScrollProgress />
       <ParticleBackground />
       {!preloaderDone && <Preloader onComplete={handlePreloaderComplete} />}
       <main className="relative z-10">
