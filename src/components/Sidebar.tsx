@@ -1100,6 +1100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                         {/* 左端の固定ライン */}
                         <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
+                        {/* 右端の固定ライン */}
+                        <div className="absolute inset-y-0 right-0 w-[1px] bg-app-border group-hover/btn:bg-app-text transition-colors duration-200" />
 
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div

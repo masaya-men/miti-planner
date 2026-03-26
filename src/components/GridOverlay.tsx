@@ -6,24 +6,47 @@ const CELL_SIZE = 50;
 const BASE_OPACITY = 0.06;
 // カーソル周辺のグロー半径（px）
 const GLOW_RADIUS = 280;
+// 格子のオフセット（左下方向にずらす）
+const OFFSET_X = -10;
+const OFFSET_Y = 10;
 
+// --- 光パルス設定（外部から変更可能、1-5の5段階） ---
+export const pulseConfig = {
+    enabled: true,
+    distance: 3,  // 1-5、デフォルト3
+    speed: 3,     // 1-5、デフォルト3
+};
 
-// --- 光パルス設定 ---
-// パルスが走るセル数（6〜12のランダム）
-const PULSE_MIN_LENGTH = 6;
-const PULSE_MAX_LENGTH = 12;
-// パルスの太さ（格子線と同じ細さ）
+// 距離: 段階→[min, max]セル数
+const DISTANCE_MAP: [number, number][] = [
+    [2, 4],    // 1
+    [4, 8],    // 2
+    [6, 12],   // 3（デフォルト）
+    [10, 18],  // 4
+    [14, 25],  // 5
+];
+
+// 速度: 段階→セグメント時間(ms)、小さいほど速い
+const SPEED_MAP: number[] = [
+    90,   // 1（遅）
+    65,   // 2
+    50,   // 3（デフォルト）
+    35,   // 4
+    20,   // 5（速）
+];
+
+function getPulseLength(): [number, number] {
+    return DISTANCE_MAP[pulseConfig.distance - 1] ?? DISTANCE_MAP[2];
+}
+function getPulseSegmentDuration(): number {
+    return SPEED_MAP[pulseConfig.speed - 1] ?? SPEED_MAP[2];
+}
+
 const PULSE_LINE_WIDTH = 1;
-// パルスの最大透明度（強い発光感）
 const PULSE_MAX_OPACITY = 1.0;
-// パルス1セグメントの走行時間（ms）— 素早く
-const PULSE_SEGMENT_DURATION = 50;
-// パルスのフェードアウト時間（ms）
 const PULSE_FADE_DURATION = 300;
-// 1回の発火で放たれるパルス本数
 const PULSE_COUNT_MIN = 3;
 const PULSE_COUNT_MAX = 5;
-// パルス発火の最小間隔（ms）
 const PULSE_COOLDOWN = 300;
 
 // 方向ベクトル: 上下左右
@@ -66,16 +89,18 @@ export const GridOverlay: React.FC = () => {
     // マウスが格子線の近くにいるか判定（距離5px以内）
     const isNearGridLine = useCallback((x: number, y: number) => {
         const threshold = 5;
-        const nearVertical = Math.abs(x % CELL_SIZE) < threshold || Math.abs(x % CELL_SIZE - CELL_SIZE) < threshold;
-        const nearHorizontal = Math.abs(y % CELL_SIZE) < threshold || Math.abs(y % CELL_SIZE - CELL_SIZE) < threshold;
+        const ox = ((x - OFFSET_X) % CELL_SIZE + CELL_SIZE) % CELL_SIZE;
+        const oy = ((y - OFFSET_Y) % CELL_SIZE + CELL_SIZE) % CELL_SIZE;
+        const nearVertical = ox < threshold || ox > CELL_SIZE - threshold;
+        const nearHorizontal = oy < threshold || oy > CELL_SIZE - threshold;
         return nearVertical || nearHorizontal;
     }, []);
 
     // 発火点から遠ざかる方向にランダムパスを生成
     const generatePulse = useCallback((startX: number, startY: number): Pulse | null => {
-        // 最寄りの交差点を求める
-        const startCol = Math.round(startX / CELL_SIZE);
-        const startRow = Math.round(startY / CELL_SIZE);
+        // 最寄りの交差点を求める（オフセット考慮）
+        const startCol = Math.round((startX - OFFSET_X) / CELL_SIZE);
+        const startRow = Math.round((startY - OFFSET_Y) / CELL_SIZE);
 
         const canvas = canvasRef.current;
         if (!canvas) return null;
@@ -83,7 +108,8 @@ export const GridOverlay: React.FC = () => {
         const maxCol = Math.ceil((canvas.width / dpr) / CELL_SIZE);
         const maxRow = Math.ceil((canvas.height / dpr) / CELL_SIZE);
 
-        const length = PULSE_MIN_LENGTH + Math.floor(Math.random() * (PULSE_MAX_LENGTH - PULSE_MIN_LENGTH + 1));
+        const [minLen, maxLen] = getPulseLength();
+        const length = minLen + Math.floor(Math.random() * (maxLen - minLen + 1));
         const segments: PulseSegment[] = [];
 
         let col = startCol;
@@ -136,7 +162,7 @@ export const GridOverlay: React.FC = () => {
         return {
             segments,
             startTime: performance.now(),
-            totalDuration: segments.length * PULSE_SEGMENT_DURATION + PULSE_FADE_DURATION,
+            totalDuration: segments.length * getPulseSegmentDuration() + PULSE_FADE_DURATION,
         };
     }, []);
 
@@ -155,12 +181,12 @@ export const GridOverlay: React.FC = () => {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
 
-        const cols = Math.ceil(w / CELL_SIZE) + 1;
-        const rows = Math.ceil(h / CELL_SIZE) + 1;
+        const cols = Math.ceil((w - OFFSET_X) / CELL_SIZE) + 1;
+        const rows = Math.ceil((h - OFFSET_Y) / CELL_SIZE) + 1;
 
         // 縦線（控えめグロー付き）
         for (let col = 0; col <= cols; col++) {
-            const x = col * CELL_SIZE;
+            const x = col * CELL_SIZE + OFFSET_X;
             const distX = Math.abs(x - mx);
             const glow = Math.max(0, 1 - distX / GLOW_RADIUS);
             const opacity = BASE_OPACITY + glow * 0.35;
@@ -174,7 +200,7 @@ export const GridOverlay: React.FC = () => {
 
         // 横線（控えめグロー付き）
         for (let row = 0; row <= rows; row++) {
-            const y = row * CELL_SIZE;
+            const y = row * CELL_SIZE + OFFSET_Y;
             const distY = Math.abs(y - my);
             const glow = Math.max(0, 1 - distY / GLOW_RADIUS);
             const opacity = BASE_OPACITY + glow * 0.35;
@@ -197,29 +223,30 @@ export const GridOverlay: React.FC = () => {
 
             for (let i = 0; i < pulse.segments.length; i++) {
                 const seg = pulse.segments[i];
-                const segStart = i * PULSE_SEGMENT_DURATION;
-                const segEnd = segStart + PULSE_SEGMENT_DURATION;
+                const segDur = getPulseSegmentDuration();
+                const segStart = i * segDur;
+                const segEnd = segStart + segDur;
 
                 // セグメントがまだ開始していない
                 if (elapsed < segStart) continue;
 
-                const x1 = seg.fromCol * CELL_SIZE;
-                const y1 = seg.fromRow * CELL_SIZE;
-                const x2 = seg.toCol * CELL_SIZE;
-                const y2 = seg.toRow * CELL_SIZE;
+                const x1 = seg.fromCol * CELL_SIZE + OFFSET_X;
+                const y1 = seg.fromRow * CELL_SIZE + OFFSET_Y;
+                const x2 = seg.toCol * CELL_SIZE + OFFSET_X;
+                const y2 = seg.toRow * CELL_SIZE + OFFSET_Y;
 
                 // セグメントの進行度（0→1）
                 let progress: number;
                 if (elapsed < segEnd) {
                     // 走行中
-                    progress = (elapsed - segStart) / PULSE_SEGMENT_DURATION;
+                    progress = (elapsed - segStart) / segDur;
                 } else {
                     // 走行完了
                     progress = 1;
                 }
 
                 // フェードアウト: 全セグメント走行完了後から始まる
-                const fadeStart = pulse.segments.length * PULSE_SEGMENT_DURATION;
+                const fadeStart = pulse.segments.length * getPulseSegmentDuration();
                 let fadeAlpha = 1;
                 if (elapsed > fadeStart) {
                     fadeAlpha = 1 - (elapsed - fadeStart) / PULSE_FADE_DURATION;
@@ -312,7 +339,7 @@ export const GridOverlay: React.FC = () => {
                 if (isNearGridLine(e.clientX, e.clientY)) {
                     // 前回位置が格子線の近くでなかった場合（格子線に「触れた」瞬間）
                     const wasNear = prev.x > -9000 && isNearGridLine(prev.x, prev.y);
-                    if (!wasNear) {
+                    if (!wasNear && pulseConfig.enabled) {
                         const count = PULSE_COUNT_MIN + Math.floor(Math.random() * (PULSE_COUNT_MAX - PULSE_COUNT_MIN + 1));
                         let added = false;
                         for (let i = 0; i < count; i++) {

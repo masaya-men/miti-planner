@@ -29,27 +29,38 @@ const vertexShader = /* glsl */ `
     float radius = 1.5;
     float influence = 0.0;
 
-    if (dist < radius) {
+    if (dist < radius && dist > 0.001) {
       float t = 1.0 - dist / radius;
       influence = t * t;
 
-      // Z方向だけ浮き上がる（XY移動なし→黒穴にならない）
+      // 押し退け（控えめ — 穴が空かない程度）
+      vec2 pushDir = normalize(delta);
+      pos.xy += pushDir * influence * 0.12;
+
+      // Z方向: 浮き上がる
       pos.z += influence * 0.4;
     }
 
-    // 微細な呼吸（全体がゆっくりうねる）
-    pos.z += sin(pos.x * 2.0 + uTime * 0.4) * cos(pos.y * 2.0 + uTime * 0.3) * 0.02;
+    // 有機的なアメーバ揺らぎ（複数のsin/cosを重ね合わせ）
+    float t = uTime * 0.3;
+    float px = pos.x * 1.5;
+    float py = pos.y * 1.5;
+    pos.x += sin(py * 2.0 + t * 1.1) * 0.015
+           + cos(px * 3.0 + t * 0.7) * 0.008;
+    pos.y += cos(px * 2.0 + t * 0.9) * 0.015
+           + sin(py * 3.0 + t * 1.3) * 0.008;
+    pos.z += sin(px * 2.0 + t) * cos(py * 2.0 + t * 0.8) * 0.03
+           + sin(px * 4.0 - py * 3.0 + t * 0.6) * 0.015;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    // サイズ: 影響下の粒は少し大きく
-    float size = (0.3 + aRandom * 0.2 + influence * 0.6) * uDpr;
+    // サイズ: 均一（発光なし — ブロブが色反転を担当）
+    float size = (0.3 + aRandom * 0.2) * uDpr;
     gl_PointSize = size * (4.0 / -mvPosition.z);
-    gl_PointSize = clamp(gl_PointSize, 0.5, 4.0);
+    gl_PointSize = clamp(gl_PointSize, 0.5, 3.0);
 
-    // 影響下の粒は明るく
-    vAlpha = 0.25 + influence * 2.5;
+    vAlpha = 0.25;
   }
 `;
 

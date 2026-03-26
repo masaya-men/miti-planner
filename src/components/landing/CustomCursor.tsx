@@ -1,101 +1,108 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 
+// ブドウの粒配置（cx%, cy%, サイズ%, 明度）
+// 上が狭く下が広い逆三角→ブドウは上が広く下が尖る
+const GRAPES: Array<[number, number, number, number]> = [
+  // 茎
+  [50, 2, 4, 0.35],
+  [50, 7, 5, 0.4],
+  // 最上段（2粒）
+  [42, 15, 14, 0.9],
+  [58, 15, 14, 0.8],
+  // 2段目（3粒）
+  [32, 28, 15, 0.75],
+  [50, 26, 15, 0.85],
+  [68, 28, 15, 0.7],
+  // 3段目（4粒 — 一番幅広）
+  [24, 42, 14, 0.65],
+  [40, 40, 15, 0.8],
+  [56, 41, 15, 0.72],
+  [72, 43, 14, 0.6],
+  // 4段目（3粒）
+  [32, 56, 14, 0.7],
+  [50, 55, 15, 0.78],
+  [66, 57, 14, 0.58],
+  // 5段目（2粒）
+  [40, 69, 13, 0.62],
+  [58, 70, 13, 0.55],
+  // 先端（1粒）
+  [50, 82, 12, 0.5],
+];
+
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
+  const grapeRef = useRef<HTMLDivElement>(null);
   const rippleContainerRef = useRef<HTMLDivElement>(null);
+  const isHoveringRef = useRef(false);
 
-  // クリック時のリップルエフェクト
   const createRipple = useCallback((x: number, y: number) => {
     const container = rippleContainerRef.current;
     if (!container) return;
-
     const ripple = document.createElement('div');
     ripple.style.cssText = `
-      position: fixed;
-      left: ${x}px;
-      top: ${y}px;
-      width: 0;
-      height: 0;
+      position: fixed; left: ${x}px; top: ${y}px;
+      width: 0; height: 0;
       border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 100001;
+      border-radius: 50%; pointer-events: none;
+      transform: translate(-50%, -50%); z-index: 100001;
     `;
     container.appendChild(ripple);
-
     gsap.to(ripple, {
-      width: 80,
-      height: 80,
-      opacity: 0,
-      duration: 0.6,
-      ease: 'power2.out',
+      width: 80, height: 80, opacity: 0,
+      duration: 0.6, ease: 'power2.out',
       onComplete: () => ripple.remove(),
     });
   }, []);
 
   useEffect(() => {
-    // タッチデバイスではスキップ
     if ('ontouchstart' in window) return;
-
     document.body.style.cursor = 'none';
 
     const dot = dotRef.current;
-    const ring = ringRef.current;
-    if (!dot || !ring) return;
+    const grape = grapeRef.current;
+    if (!dot || !grape) return;
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let gX = mouseX;
+    let gY = mouseY;
+    let velX = 0;
+    let velY = 0;
+    let rotZ = 20;
 
     const moveCursor = (e: MouseEvent) => {
       gsap.set(dot, { x: e.clientX - 4, y: e.clientY - 4 });
-      gsap.to(ring, { x: e.clientX - 20, y: e.clientY - 20, duration: 0.15, ease: 'power2.out' });
-    };
-
-    const handleHoverIn = (e: Event) => {
-      const el = e.currentTarget as HTMLElement;
-      gsap.to(ring, { scale: 1.8, opacity: 0.4, duration: 0.3 });
-      gsap.to(dot, { scale: 0.5, duration: 0.3 });
-
-      // 磁石効果 — カーソルが要素の中心に軽く引き寄せられる
-      const rect = el.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      gsap.to(ring, {
-        x: centerX - 20,
-        y: centerY - 20,
-        duration: 0.4,
-        ease: 'power3.out',
-      });
-    };
-
-    const handleHoverOut = () => {
-      gsap.to(ring, { scale: 1, opacity: 1, duration: 0.3 });
-      gsap.to(dot, { scale: 1, duration: 0.3 });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
     };
 
     const handleClick = (e: MouseEvent) => {
       createRipple(e.clientX, e.clientY);
-      // ドットの「パルス」
-      gsap.fromTo(dot, { scale: 2 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
     };
 
-    window.addEventListener('mousemove', moveCursor);
-    window.addEventListener('click', handleClick);
+    const handleHoverIn = () => {
+      isHoveringRef.current = true;
+      dot.style.display = 'none';
+      document.body.style.cursor = 'pointer';
+    };
+    const handleHoverOut = () => {
+      isHoveringRef.current = false;
+      dot.style.display = '';
+      document.body.style.cursor = 'none';
+    };
 
-    // MutationObserverでホバー要素を動的に監視
     const addHoverListeners = () => {
-      const hoverables = document.querySelectorAll('a, button, [data-hover]');
-      hoverables.forEach(el => {
+      const els = document.querySelectorAll('a, button, [data-hover], [role="button"]');
+      els.forEach(el => {
         el.addEventListener('mouseenter', handleHoverIn);
         el.addEventListener('mouseleave', handleHoverOut);
       });
-      return hoverables;
+      return els;
     };
-
     let hoverables = addHoverListeners();
 
     const observer = new MutationObserver(() => {
-      // DOM変更時にリスナーを再設定
       hoverables.forEach(el => {
         el.removeEventListener('mouseenter', handleHoverIn);
         el.removeEventListener('mouseleave', handleHoverOut);
@@ -104,10 +111,32 @@ export function CustomCursor() {
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
+    window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('click', handleClick);
+
+    let animId: number;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+
+      const spring = 0.035;
+      const damping = 0.88;
+      velX = (velX + (mouseX - gX) * spring) * damping;
+      velY = (velY + (mouseY - gY) * spring) * damping;
+      gX += velX;
+      gY += velY;
+
+      const targetRot = 20 - velX * 0.8;
+      rotZ += (targetRot - rotZ) * 0.1;
+
+      grape.style.transform = `translate(${gX}px, ${gY}px) translate(-50%, -50%) rotate(${rotZ}deg)`;
+    };
+    animId = requestAnimationFrame(animate);
+
     return () => {
       document.body.style.cursor = '';
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('click', handleClick);
+      cancelAnimationFrame(animId);
       observer.disconnect();
       hoverables.forEach(el => {
         el.removeEventListener('mouseenter', handleHoverIn);
@@ -116,13 +145,47 @@ export function CustomCursor() {
     };
   }, [createRipple]);
 
-  // タッチデバイスではレンダリングしない
   if (typeof window !== 'undefined' && 'ontouchstart' in window) return null;
 
   return (
     <>
-      <div ref={dotRef} className="fixed top-0 left-0 w-2 h-2 bg-white rounded-full pointer-events-none z-[100001] mix-blend-difference" />
-      <div ref={ringRef} className="fixed top-0 left-0 w-10 h-10 border border-white/40 rounded-full pointer-events-none z-[100001] mix-blend-difference" />
+      <div
+        ref={grapeRef}
+        className="fixed pointer-events-none z-[100002]"
+        style={{
+          width: 160,
+          height: 200,
+          left: 0,
+          top: 0,
+          mixBlendMode: 'difference',
+          willChange: 'transform',
+        }}
+      >
+        {GRAPES.map(([cx, cy, size, opacity], i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: `${cx}%`,
+              top: `${cy}%`,
+              width: `${size}%`,
+              height: `${size}%`,
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: `rgba(255, 255, 255, ${opacity})`,
+              // 各粒にハイライト（左上に薄い光沢）
+              backgroundImage: i >= 2
+                ? `radial-gradient(circle at 35% 30%, rgba(255,255,255,${opacity * 0.3}) 0%, transparent 60%)`
+                : undefined,
+            }}
+          />
+        ))}
+      </div>
+
+      <div
+        ref={dotRef}
+        className="fixed top-0 left-0 w-2 h-2 bg-white rounded-full pointer-events-none z-[100003] mix-blend-difference"
+      />
+
       <div ref={rippleContainerRef} className="pointer-events-none" />
     </>
   );

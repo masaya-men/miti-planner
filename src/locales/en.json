@@ -3,7 +3,8 @@
         "cancel": "Cancel",
         "close": "Close",
         "start": "START",
-        "unassigned": "Unassigned"
+        "unassigned": "Unassigned",
+        "reset": "Reset to Default"
     },
     "app": {
         "title": "LoPo Mitigation Planner",
@@ -333,7 +334,17 @@
         "privacy_policy": "Privacy Policy",
         "terms": "Terms of Service",
         "support": "Support Development",
-        "chrome_ext": "Chrome Ext"
+        "chrome_ext": "Chrome Ext",
+        "pulse_settings": "Pulse Settings",
+        "pulse_enabled": "Pulse",
+        "pulse_on": "ON",
+        "pulse_off": "OFF",
+        "pulse_distance": "Distance",
+        "pulse_speed": "Speed",
+        "pulse_short": "Short",
+        "pulse_long": "Long",
+        "pulse_slow": "Slow",
+        "pulse_fast": "Fast"
     },
     "legal": {
         "privacy_title": "Privacy Policy",

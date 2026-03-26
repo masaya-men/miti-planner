@@ -176,7 +176,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full overflow-hidden pointer-events-auto bg-glass-header shadow-sm"
+                className="w-full overflow-hidden pointer-events-auto glass-tier3 border-b-0 shadow-none"
+                style={{ boxShadow: 'none' }}
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div
@@ -418,7 +419,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                 {/* ハンドル本体 */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 bg-transparent pointer-events-auto"
+                    className="absolute bottom-0 left-0 right-0 z-50 pointer-events-auto glass-tier3 border-0"
+                    style={{ boxShadow: 'none' }}
                     initial={false}
                     animate={{ height: (isNear || isHovered) ? 36 : 24 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
@@ -439,19 +441,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             transition={{ duration: 0.15 }}
                         />
 
-                        <div className={clsx(
-                            "absolute inset-x-0 top-0 h-[1px] transition-colors duration-200",
-                            isHeaderCollapsed
-                                ? "bg-app-border"
-                                : "bg-app-border group-hover/btn:bg-app-text-muted"
-                        )} />
-
-                        <div className={clsx(
-                            "absolute inset-x-0 bottom-0 h-[1px] transition-all duration-200",
-                            isHeaderCollapsed
-                                ? "bg-app-border"
-                                : "bg-glass-border"
-                        )} />
+                        {/* 上端の固定ライン */}
+                        <div className="absolute inset-x-0 top-0 h-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
+                        {/* 下端の固定ライン */}
+                        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div
