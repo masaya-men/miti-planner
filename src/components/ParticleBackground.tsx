@@ -17,6 +17,7 @@ const fragmentShader = `
   uniform float uSpeed;
   uniform float uBlobSz;
   uniform float uBr;
+  uniform vec2 uMouse;
 
   varying vec2 vUv;
 
@@ -41,12 +42,15 @@ const fragmentShader = `
     float ar = uRes.x / uRes.y;
     vec2 uv = vUv;
     uv.x *= ar;
-    
+
     float t = uTime * uSpeed;
-    
-    vec2 b1p = organicPos(t, 0.18*ar, 0.78, 0.45*ar, 1.0, 0.7, 0.0);
-    vec2 b2p = organicPos(t, 0.82*ar, 0.22, 0.45*ar, 1.3, 0.5, 2.1);
-    vec2 b3p = organicPos(t, 0.50*ar, 0.50, 0.45*ar*0.7, 0.8, 1.1, 4.2);
+
+    // マウス位置によるブロブへの微細な影響（係数0.08で控えめに）
+    vec2 mouseInfluence = (uMouse - 0.5) * 0.08 * ar;
+
+    vec2 b1p = organicPos(t, 0.18*ar, 0.78, 0.45*ar, 1.0, 0.7, 0.0) + mouseInfluence;
+    vec2 b2p = organicPos(t, 0.82*ar, 0.22, 0.45*ar, 1.3, 0.5, 2.1) + mouseInfluence;
+    vec2 b3p = organicPos(t, 0.50*ar, 0.50, 0.45*ar*0.7, 0.8, 1.1, 4.2) + mouseInfluence;
 
     float b1 = blob(uv, b1p, uBlobSz);
     float b2 = blob(uv, b2p, uBlobSz);
@@ -97,7 +101,8 @@ export const ParticleBackground: React.FC = () => {
       uTheme: { value: isDark ? 0 : 1 },
       uSpeed: { value: isDark ? 0.40 : 0.35 },
       uBlobSz: { value: (isDark ? 0.15 : 0.10) * (window.innerWidth / window.innerHeight) },
-      uBr: { value: isDark ? 0.45 : 0.30 }
+      uBr: { value: isDark ? 0.45 : 0.30 },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -131,9 +136,19 @@ export const ParticleBackground: React.FC = () => {
     };
     window.addEventListener('resize', handleResize);
 
+    // マウス位置をuniformに渡す（Y軸はGLSL座標系に合わせて反転）
+    const handleMouseMove = (e: MouseEvent) => {
+      uniforms.uMouse.value.set(
+        e.clientX / window.innerWidth,
+        1.0 - e.clientY / window.innerHeight,
+      );
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
