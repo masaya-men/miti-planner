@@ -721,7 +721,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 height="70vh"
             >
                 <div className="-mx-4 -mt-3">
-                    <Sidebar isOpen={true} fullWidth />
+                    <Sidebar isOpen={true} fullWidth onClose={() => setMobileMenuOpen(false)} />
                 </div>
             </MobileBottomSheet>
 
@@ -773,7 +773,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Main content — add bottom padding on mobile for bottom nav */}
                 {/* モバイルではフローティングヘッダーが非表示なのでpaddingTop不要 */}
                 <motion.main
-                    className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0"
+                    className={clsx("flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0", !currentPlanId && "no-plan")}
                     initial={false}
                     animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 36 : 124) }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
