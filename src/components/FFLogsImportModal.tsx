@@ -194,7 +194,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="relative w-full max-w-md mx-4 bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden"
+                            className="relative w-full max-w-md mx-4 glass-tier3 shadow-sm rounded-2xl overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
@@ -340,7 +340,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[#0f1115] rounded-t-2xl border-t border-app-border shadow-sm flex flex-col max-h-[65vh]"
+                        className="glass-tier3 rounded-t-2xl shadow-sm flex flex-col max-h-[65vh]"
                     >
                         {/* Drag handle */}
                         <div
@@ -437,7 +437,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="hidden md:flex relative w-full max-w-lg bg-[#0f1115] border border-app-border shadow-sm rounded-2xl overflow-hidden flex-col"
+                    className="hidden md:flex relative w-full max-w-lg glass-tier3 shadow-sm rounded-2xl overflow-hidden flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}

@@ -87,7 +87,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
             {/* Modal */}
             <div className={clsx(
-                "relative w-[380px] max-w-[90vw] rounded-2xl bg-app-bg glass-panel",
+                "relative w-[380px] max-w-[90vw] rounded-2xl glass-tier3",
                 "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
             )}>
 

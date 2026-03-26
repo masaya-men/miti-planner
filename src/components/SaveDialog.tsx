@@ -61,7 +61,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                    className="relative w-full max-w-[400px] bg-glass-panel border border-glass-border/50 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
+                    className="relative w-full max-w-[400px] glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
                 >
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
                         <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">

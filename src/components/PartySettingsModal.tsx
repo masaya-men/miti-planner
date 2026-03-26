@@ -622,7 +622,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 data-tutorial-modal
                 data-tutorial="party-settings"
                 className={clsx(
-                    "relative flex flex-col glass-panel shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                    "relative flex flex-col glass-tier3 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
                     isOpen ? "md:translate-x-0" : "md:-translate-x-full",
                     // モバイル: ボトムナビ(3.5rem+safe-area)の上に配置
