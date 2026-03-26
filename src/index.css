@@ -182,31 +182,29 @@
 
 .ime-active { ime-mode: active; }
 
-/* ガラスパネル — 3層Tierシステム */
-@layer utilities {
+/* ガラスパネル — 3層Tierシステム（@layer外=Tailwindユーティリティより高優先度） */
 .glass-tier3 {
-  background: var(--glass-tier3-bg);
+  background: var(--glass-tier3-bg) !important;
   backdrop-filter: blur(var(--glass-tier3-blur));
   -webkit-backdrop-filter: blur(var(--glass-tier3-blur));
-  border: 1px solid var(--glass-tier3-border);
+  border: 1px solid var(--glass-tier3-border) !important;
   box-shadow: var(--glass-tier3-shadow), var(--glass-tier3-inset);
 }
 
 .glass-tier2 {
-  background: var(--glass-tier2-bg);
+  background: var(--glass-tier2-bg) !important;
   backdrop-filter: blur(var(--glass-tier2-blur));
   -webkit-backdrop-filter: blur(var(--glass-tier2-blur));
-  border: 1px solid var(--glass-tier2-border);
+  border: 1px solid var(--glass-tier2-border) !important;
   box-shadow: var(--glass-tier2-shadow);
 }
 
 .glass-tier1 {
-  background: var(--glass-tier1-bg);
+  background: var(--glass-tier1-bg) !important;
   backdrop-filter: blur(var(--glass-tier1-blur));
   -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
-  border: 1px solid var(--glass-tier1-border);
+  border: 1px solid var(--glass-tier1-border) !important;
 }
-} /* @layer utilities */
 
 /* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
 .glass-panel {
