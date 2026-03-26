@@ -552,7 +552,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         // useMitigationStoreの変更を監視 → localStorageへ500msデバウンス保存
         const unsubMiti = useMitigationStore.subscribe((state, prevState) => {
-            if (state.timelineMitigations === prevState.timelineMitigations) return;
+            // 同じ参照なら何もしない（無限ループ防止の第一防衛線）
+            if (state.timelineMitigations === prevState.timelineMitigations
+                && state.timelineEvents === prevState.timelineEvents
+                && state.phases === prevState.phases
+                && state.partyMembers === prevState.partyMembers) return;
+            // プラン作成中（createPlanDirectlyでclearAll→loadSnapshotが連続する間）はスキップ
+            if ((window as any).__lopo_creating_plan) return;
             if (!usePlanStore.getState().currentPlanId) return;
 
             // インジケーター: 「保存中...」
@@ -561,9 +567,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // localStorage: 500msデバウンス（ブラウザ内保存なのでコストゼロ）
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             localDebounceTimer = setTimeout(() => {
-                saveSilently();
-                // インジケーター: 「保存済み ✓」
-                usePlanStore.getState().setSaveStatus('saved');
+                // 再入防止: saveSilently→updatePlan→zustand.set→subscribe→saveSilentlyの無限ループを防ぐ
+                if ((window as any).__lopo_saving) return;
+                (window as any).__lopo_saving = true;
+                try {
+                    saveSilently();
+                    usePlanStore.getState().setSaveStatus('saved');
+                } finally {
+                    (window as any).__lopo_saving = false;
+                }
             }, 500);
         });
 
