@@ -184,27 +184,38 @@
 
 /* ガラスパネル — 3層Tierシステム（@layer外=Tailwindユーティリティより高優先度） */
 .glass-tier3 {
+  --tw-backdrop-blur: blur(var(--glass-tier3-blur));
   background: var(--glass-tier3-bg) !important;
-  backdrop-filter: blur(var(--glass-tier3-blur));
-  -webkit-backdrop-filter: blur(var(--glass-tier3-blur));
   border: 1px solid var(--glass-tier3-border) !important;
-  box-shadow: var(--glass-tier3-shadow), var(--glass-tier3-inset);
-  outline: 3px dashed rgba(255, 255, 255, 0.5) !important; /* DEBUG: この線が見えればglass-tier3は適用されている */
+  box-shadow: var(--glass-tier3-shadow), var(--glass-tier3-inset) !important;
+}
+/* backdrop-filterはTailwindの変数経由で適用（Lightning CSSがカスタムCSS直書きを削除するため） */
+.glass-tier3,
+.glass-tier3::before,
+.glass-tier3::after {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
 .glass-tier2 {
+  --tw-backdrop-blur: blur(var(--glass-tier2-blur));
   background: var(--glass-tier2-bg) !important;
-  backdrop-filter: blur(var(--glass-tier2-blur));
-  -webkit-backdrop-filter: blur(var(--glass-tier2-blur));
   border: 1px solid var(--glass-tier2-border) !important;
-  box-shadow: var(--glass-tier2-shadow);
+  box-shadow: var(--glass-tier2-shadow) !important;
+}
+.glass-tier2 {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
 .glass-tier1 {
+  --tw-backdrop-blur: blur(var(--glass-tier1-blur));
   background: var(--glass-tier1-bg) !important;
-  backdrop-filter: blur(var(--glass-tier1-blur));
-  -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
   border: 1px solid var(--glass-tier1-border) !important;
+}
+.glass-tier1 {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
 /* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
