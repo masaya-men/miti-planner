@@ -176,7 +176,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full overflow-hidden pointer-events-auto glass-tier3"
+                className="w-full overflow-hidden pointer-events-auto bg-glass-header shadow-sm"
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div

@@ -47,7 +47,7 @@ export const ToastContainer: React.FC = () => {
                 <div
                     key={toast.id}
                     className={clsx(
-                        "flex items-center gap-2 px-4 py-2.5 rounded-xl glass-tier2",
+                        "flex items-center gap-2 px-4 py-2.5 rounded-xl bg-app-bg glass-panel shadow-lg",
                         "animate-[toastIn_300ms_cubic-bezier(0.2,0.8,0.2,1)]",
                         "pointer-events-auto"
                     )}
