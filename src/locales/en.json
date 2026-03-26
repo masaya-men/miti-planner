@@ -403,6 +403,7 @@
             "tagline": "FFXIV Mitigation Planning Tool",
             "tagline_sub": "Housing Tour Planner coming soon",
             "cta_primary": "Open Mitigation Planner",
+            "cta_housing": "Housing Tour",
             "cta_secondary": "Learn more",
             "scroll_hint": "SCROLL"
         },
@@ -450,10 +451,10 @@
             "privacy": "Privacy Policy",
             "terms": "Terms of Service",
             "share_x": "Share on X",
-            "share_discord": "Share on Discord",
+            "share_discord": "Copy for Discord",
             "share_copy": "Copy URL",
             "share_copied": "Copied!",
-            "share_text": "LoPo — FFXIV Mitigation Planning Tool. Manage mitigation on a timeline. Free to use."
+            "share_text": "Made a tool that makes FFXIV mitigation planning a bit easier"
         },
         "tools": {
             "miti_planner": {
@@ -741,6 +742,7 @@
         "copy_count": "{{count}} copies",
         "view_count": "{{count}} views",
         "featured": "Featured",
+        "back_to_miti": "Back to Planner",
         "open_popular": "Popular Plans",
         "rank": "#{{rank}}"
     }

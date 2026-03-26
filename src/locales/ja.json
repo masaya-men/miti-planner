@@ -407,6 +407,7 @@
             "tagline": "FFXIV 軽減計画ツール",
             "tagline_sub": "ハウジングツアープランナーも準備中",
             "cta_primary": "軽減プランナーを開く",
+            "cta_housing": "ハウジングツアー",
             "cta_secondary": "詳しく見る",
             "scroll_hint": "SCROLL"
         },
@@ -454,10 +455,10 @@
             "privacy": "プライバシーポリシー",
             "terms": "利用規約",
             "share_x": "Xで共有",
-            "share_discord": "Discordで共有",
+            "share_discord": "Discordに貼る（コピー）",
             "share_copy": "URLをコピー",
             "share_copied": "コピーしました",
-            "share_text": "FFXIV軽減計画ツール「LoPo」— タイムラインで軽減を管理。無料で使えます。"
+            "share_text": "FFXIVの軽減計画がちょっと楽になるツールを作りました"
         },
         "tools": {
             "miti_planner": {
@@ -745,6 +746,7 @@
         "copy_count": "{{count}}回コピー",
         "view_count": "{{count}}回閲覧",
         "featured": "注目",
+        "back_to_miti": "軽減表に戻る",
         "open_popular": "みんなの軽減表",
         "rank": "{{rank}}位"
     }

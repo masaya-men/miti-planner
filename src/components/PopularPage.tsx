@@ -5,6 +5,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { CONTENT_DEFINITIONS, getContentById } from '../data/contentRegistry';
 import { JOBS } from '../data/mockData';
 import type { PlanData, SavedPlan } from '../types';
+import { ArrowLeft } from 'lucide-react';
 
 // --- 型定義 ---
 
@@ -334,9 +335,18 @@ export const PopularPage: React.FC = () => {
         <div className="min-h-screen bg-app-bg text-app-text">
             <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8">
                 {/* ヘッダー */}
-                <header className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold">{t('popular.title')}</h1>
-                    <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
+                <header className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-2xl font-bold">{t('popular.title')}</h1>
+                        <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
+                    </div>
+                    <button
+                        onClick={() => window.open('/miti', '_blank')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
+                    >
+                        <ArrowLeft size={12} />
+                        {t('popular.back_to_miti')}
+                    </button>
                 </header>
 
                 {/* 零式（最新） */}
