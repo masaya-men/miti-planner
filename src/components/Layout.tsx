@@ -721,7 +721,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 height="70vh"
             >
                 <div className="-mx-4 -mt-3">
-                    <Sidebar isOpen={true} fullWidth onClose={() => setMobileMenuOpen(false)} />
+                    <Sidebar isOpen={true} fullWidth />
                 </div>
             </MobileBottomSheet>
 
@@ -773,31 +773,29 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Main content — add bottom padding on mobile for bottom nav */}
                 {/* モバイルではフローティングヘッダーが非表示なのでpaddingTop不要 */}
                 <motion.main
-                    className={clsx("flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0", !currentPlanId && "no-plan")}
+                    className="flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0"
                     initial={false}
                     animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 36 : 124) }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {children}
 
-                    {/* プラン未選択時 — 抽象イラスト + テキスト（ガラスはTimeline内に配置済み） */}
+                    {/* プラン未選択時のオーバーレイ — タグ型吹き出し */}
                     {!currentPlanId && (
-                        <div className="absolute inset-0 pb-16 md:pb-0 z-[100] flex items-center justify-center pointer-events-none">
-                            <div className="text-center empty-text-in">
-                                {/* ハンバーガーメニューアイコン — PC:左からスライドイン / スマホ:上からスライドイン */}
-                                <svg
-                                    className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} mx-auto mb-4`}
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                >
-                                    <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`text-app-text/50 ${isMobile ? 'empty-burger-top-1' : 'empty-burger-left-1'}`} />
-                                    <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`text-app-text/50 ${isMobile ? 'empty-burger-top-2' : 'empty-burger-left-2'}`} />
-                                    <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`text-app-text/50 ${isMobile ? 'empty-burger-top-3' : 'empty-burger-left-3'}`} />
-                                </svg>
-                                <p className={`${isMobile ? 'text-sm' : 'text-base'} text-app-text font-medium tracking-[0.15em]`}>
-                                    {t(isMobile ? 'app.empty_state_mobile' : 'app.empty_state_pc')}
+                        <div className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-auto">
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: [0, -4, 0] }}
+                                transition={{ opacity: { duration: 0.4 }, x: { repeat: Infinity, duration: 2, ease: 'easeInOut', delay: 0.5 } }}
+                                className="relative px-8 py-6 rounded-r-2xl rounded-l-none border border-l-4 border-app-text/40 bg-app-bg/95 backdrop-blur-sm shadow-lg max-w-sm text-center"
+                            >
+                                <p className="text-base font-bold text-app-text mb-1">
+                                    {t('app.empty_state_title')}
                                 </p>
-                            </div>
+                                <p className="text-[12px] text-app-text-muted">
+                                    {t('app.empty_state_desc')}
+                                </p>
+                            </motion.div>
                         </div>
                     )}
                 </motion.main>
