@@ -450,11 +450,9 @@
             "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.",
             "privacy": "Privacy Policy",
             "terms": "Terms of Service",
-            "share_x": "Share on X",
-            "share_discord": "Copy for Discord",
-            "share_copy": "Copy URL",
+            "share": "Share",
             "share_copied": "Copied!",
-            "share_text": "Made a tool that makes FFXIV mitigation planning a bit easier"
+            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier"
         },
         "tools": {
             "miti_planner": {
