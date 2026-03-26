@@ -444,7 +444,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, fullWidth }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, fullWidth }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -515,8 +515,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             store.loadSnapshot(existingPlan.data);
             planStore.setCurrentPlanId(existingPlan.id);
             setActiveLevel(existingPlan.data.currentLevel as ContentLevel);
-            // スマホのみメニューを閉じる（PCはユーザーが自分で閉じる体験を残す）
-            if (fullWidth) onClose?.();
             return;
         }
 
@@ -643,8 +641,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         createPlanDirectly(pendingContent, pendingPlanName.trim());
         setPendingContent(null);
         setPendingPlanName('');
-        // スマホのみメニューを閉じる
-        if (fullWidth) onClose?.();
     };
 
     const handleCancelNewPlan = () => {
