@@ -62,6 +62,7 @@ export default async function handler(req: any, res: any) {
                         title: p.title || '',
                         planData: p.planData,
                     })),
+                    copyCount: 0,
                     createdAt: Date.now(),
                 };
                 await db.collection(COLLECTION).doc(shareId).set(doc);
@@ -79,6 +80,7 @@ export default async function handler(req: any, res: any) {
                 title: title || '',
                 contentId: contentId || null,
                 planData,
+                copyCount: 0,
                 createdAt: Date.now(),
             };
 
