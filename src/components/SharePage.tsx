@@ -154,6 +154,19 @@ export const SharePage: React.FC = () => {
                 }
             }
             showToast(t('app.share_copied_toast'));
+            // コピーカウント増加（重複防止）
+            const copiedKey = 'lopo_copied_shares';
+            const copiedList: string[] = JSON.parse(localStorage.getItem(copiedKey) || '[]');
+            const targetShareId = sharedData.shareId;
+            if (targetShareId && !copiedList.includes(targetShareId)) {
+                copiedList.push(targetShareId);
+                localStorage.setItem(copiedKey, JSON.stringify(copiedList));
+                fetch('/api/popular', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shareId: targetShareId }),
+                }).catch(() => {});
+            }
             navigate('/miti');
         } else {
             // 単一プラン
@@ -177,6 +190,19 @@ export const SharePage: React.FC = () => {
             usePlanStore.getState().addPlan(newPlan);
             usePlanStore.getState().setCurrentPlanId(newPlan.id);
             showToast(t('app.share_copied_toast'));
+            // コピーカウント増加（重複防止）
+            const copiedKey = 'lopo_copied_shares';
+            const copiedList: string[] = JSON.parse(localStorage.getItem(copiedKey) || '[]');
+            const targetShareId = sharedData.shareId;
+            if (targetShareId && !copiedList.includes(targetShareId)) {
+                copiedList.push(targetShareId);
+                localStorage.setItem(copiedKey, JSON.stringify(copiedList));
+                fetch('/api/popular', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shareId: targetShareId }),
+                }).catch(() => {});
+            }
             navigate('/miti');
         }
     };
