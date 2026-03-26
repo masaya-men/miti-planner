@@ -88,13 +88,29 @@
     --color-border: rgba(255, 255, 255, 0.12);
     --color-border-accent: rgba(255, 255, 255, 0.3);
 
-    --glass-bg-header: transparent;
-    --glass-bg-panel: transparent;
-    --glass-bg-card: transparent;
-    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-tier3-bg: rgba(255, 255, 255, 0.14);
+    --glass-tier3-blur: 40px;
+    --glass-tier3-border: rgba(255, 255, 255, 0.18);
+    --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    --glass-tier2-bg: rgba(255, 255, 255, 0.08);
+    --glass-tier2-blur: 28px;
+    --glass-tier2-border: rgba(255, 255, 255, 0.12);
+    --glass-tier2-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --glass-tier1-bg: rgba(255, 255, 255, 0.04);
+    --glass-tier1-blur: 16px;
+    --glass-tier1-border: rgba(255, 255, 255, 0.08);
+
+    /* 後方互換エイリアス */
+    --glass-bg-header: var(--glass-tier3-bg);
+    --glass-bg-panel: var(--glass-tier1-bg);
+    --glass-bg-card: var(--glass-tier1-bg);
+    --glass-border: var(--glass-tier1-border);
     --glass-hover: rgba(255, 255, 255, 0.06);
     --glass-active: rgba(255, 255, 255, 0.1);
-    --glass-shadow: none;
+    --glass-shadow: var(--glass-tier3-shadow);
   }
 
   .theme-light {
@@ -116,13 +132,29 @@
     --color-border: rgba(0, 0, 0, 0.12);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
-    --glass-bg-header: transparent;
-    --glass-bg-panel: transparent;
-    --glass-bg-card: transparent;
-    --glass-border: rgba(0, 0, 0, 0.12);
+    --glass-tier3-bg: rgba(255, 255, 255, 0.70);
+    --glass-tier3-blur: 40px;
+    --glass-tier3-border: rgba(0, 0, 0, 0.08);
+    --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+    --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+    --glass-tier2-bg: rgba(255, 255, 255, 0.60);
+    --glass-tier2-blur: 28px;
+    --glass-tier2-border: rgba(0, 0, 0, 0.06);
+    --glass-tier2-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+
+    --glass-tier1-bg: rgba(255, 255, 255, 0.45);
+    --glass-tier1-blur: 16px;
+    --glass-tier1-border: rgba(0, 0, 0, 0.05);
+
+    /* 後方互換エイリアス */
+    --glass-bg-header: var(--glass-tier3-bg);
+    --glass-bg-panel: var(--glass-tier1-bg);
+    --glass-bg-card: var(--glass-tier1-bg);
+    --glass-border: var(--glass-tier1-border);
     --glass-hover: rgba(0, 0, 0, 0.04);
     --glass-active: rgba(0, 0, 0, 0.08);
-    --glass-shadow: none;
+    --glass-shadow: var(--glass-tier3-shadow);
   }
 
   body {
@@ -150,9 +182,36 @@
 
 .ime-active { ime-mode: active; }
 
-/* ガラスパネル — 装飾なし、ボーダーのみ */
+/* ガラスパネル — 3層Tierシステム */
+.glass-tier3 {
+  background: var(--glass-tier3-bg);
+  backdrop-filter: blur(var(--glass-tier3-blur));
+  -webkit-backdrop-filter: blur(var(--glass-tier3-blur));
+  border: 1px solid var(--glass-tier3-border);
+  box-shadow: var(--glass-tier3-shadow), var(--glass-tier3-inset);
+}
+
+.glass-tier2 {
+  background: var(--glass-tier2-bg);
+  backdrop-filter: blur(var(--glass-tier2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-tier2-blur));
+  border: 1px solid var(--glass-tier2-border);
+  box-shadow: var(--glass-tier2-shadow);
+}
+
+.glass-tier1 {
+  background: var(--glass-tier1-bg);
+  backdrop-filter: blur(var(--glass-tier1-blur));
+  -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
+  border: 1px solid var(--glass-tier1-border);
+}
+
+/* 後方互換: 既存の glass-panel は tier1 にマッピング */
 .glass-panel {
-  border: 1px solid var(--glass-border);
+  background: var(--glass-tier1-bg);
+  backdrop-filter: blur(var(--glass-tier1-blur));
+  -webkit-backdrop-filter: blur(var(--glass-tier1-blur));
+  border: 1px solid var(--glass-tier1-border);
 }
 
 /* ボタン・インタラクティブ要素 — シンプルなホバー */
