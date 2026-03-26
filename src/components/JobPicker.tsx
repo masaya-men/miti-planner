@@ -47,7 +47,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="pointer-events-auto glass-panel rounded-xl shadow-sm p-2 w-[220px] flex flex-col gap-2 absolute ring-1 ring-white/5 z-[100]"
+                    className="pointer-events-auto glass-tier3 rounded-xl p-2 w-[220px] flex flex-col gap-2 absolute z-[100]"
                     style={{
                         left: Math.min(position.x, window.innerWidth - 240),
                         top: Math.min(position.y + 10, window.innerHeight - 300)
@@ -99,13 +99,10 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
     <button
         onClick={onSelect}
         className={clsx(
-            "flex flex-col items-center justify-center w-9 h-9 rounded border transition-all relative overflow-hidden group cursor-pointer",
+            "flex flex-col items-center justify-center w-9 h-9 rounded border transition-all duration-200 relative overflow-hidden group cursor-pointer",
             currentJobId === job.id
-                ? "bg-app-text/15 border-app-text ring-1 ring-app-text/40"
-                : clsx(
-                    "transition-all duration-200 hover:scale-110",
-                    "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border hover:shadow-md"
-                )
+                ? "bg-white/15 border-white/40 ring-1 ring-white/30 dark:bg-white/15 dark:border-white/40 dark:ring-white/30"
+                : "bg-transparent border-app-border hover:scale-110 hover:border-app-text-muted"
         )}
     >
         <Tooltip content={contentLanguage === 'en' ? job.name.en : job.name.ja}>

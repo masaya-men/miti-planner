@@ -13,6 +13,7 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
+import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { JOBS } from '../data/mockData';
 import { Sun, Moon, Home, X, Star, LogOut, Loader2 } from 'lucide-react';
@@ -824,6 +825,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
                         {' · '}
                         <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
+                        {' · '}
+                        <PulseSettings />
                     </p>
                 </footer>
                 </MobileTriggersContext.Provider>

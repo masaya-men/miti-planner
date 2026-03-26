@@ -3,7 +3,8 @@
         "cancel": "キャンセル",
         "close": "閉じる",
         "start": "スタート",
-        "unassigned": "未設定"
+        "unassigned": "未設定",
+        "reset": "デフォルトに戻す"
     },
     "app": {
         "title": "LoPo 軽減プランナー",
@@ -337,7 +338,17 @@
         "privacy_policy": "プライバシーポリシー",
         "terms": "利用規約",
         "support": "開発を支援する",
-        "chrome_ext": "Chrome拡張"
+        "chrome_ext": "Chrome拡張",
+        "pulse_settings": "パルス設定",
+        "pulse_enabled": "パルス",
+        "pulse_on": "ON",
+        "pulse_off": "OFF",
+        "pulse_distance": "距離",
+        "pulse_speed": "速度",
+        "pulse_short": "短",
+        "pulse_long": "長",
+        "pulse_slow": "遅",
+        "pulse_fast": "速"
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",
