@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Home, HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn
+    Users, Activity, Wand2, Star, LogIn, Crown
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -370,6 +370,17 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         </div>
 
                         <div className="flex items-center gap-1.5">
+                            {/* Popular Plans — 別タブで /popular を開く */}
+                            <Tooltip content={t('popular.open_popular')}>
+                                <button
+                                    onClick={() => window.open('/popular', '_blank')}
+                                    className={clsx(pillBtnBase, pillBtnDefault)}
+                                >
+                                    <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
+                                </button>
+                            </Tooltip>
+
                             {/* My Job Highlight */}
                             <button
                                 data-tutorial="my-job-highlight-btn"
