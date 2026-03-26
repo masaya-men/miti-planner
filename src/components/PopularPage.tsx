@@ -69,8 +69,13 @@ export const PopularPage: React.FC = () => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
             })
-            .then((json: PopularApiResponse) => {
-                setData(json);
+            .then((json: { results: { contentId: string; plans: PopularEntry[] }[] }) => {
+                // APIレスポンス { results: [...] } をフラットマップに変換
+                const map: PopularApiResponse = {};
+                for (const item of json.results) {
+                    map[item.contentId] = item.plans;
+                }
+                setData(map);
                 setLoading(false);
             })
             .catch(() => {
@@ -120,49 +125,58 @@ export const PopularPage: React.FC = () => {
         }
     }, [t]);
 
-    // まとめてコピー（rank指定: 0=1位, 1=2位）
+    // まとめてコピー（rank指定: 0=1位, 1=2位）— 並列取得
     const handleCopyAllRank = useCallback(async (rank: number) => {
-        let copied = 0;
-        for (const contentId of savageIds) {
-            const entries = data[contentId];
-            if (!entries || !entries[rank]) continue;
-            const entry = entries[rank];
-            try {
-                const res = await fetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
-                if (!res.ok) continue;
-                const shared = await res.json();
-                const planData: PlanData = shared.planData ?? shared.data;
-                const newPlan: SavedPlan = {
-                    id: crypto.randomUUID?.() ?? 'evt_' + Math.random().toString(36).substring(2, 9),
-                    ownerId: '',
-                    ownerDisplayName: '',
-                    title: entry.title,
-                    contentId: entry.contentId,
-                    isPublic: false,
-                    copyCount: 0,
-                    useCount: 0,
-                    data: planData,
-                    createdAt: Date.now(),
-                    updatedAt: Date.now(),
-                };
-                usePlanStore.getState().addPlan(newPlan);
+        const targets = savageIds
+            .map(id => data[id]?.[rank])
+            .filter((e): e is PopularEntry => !!e);
 
-                const copiedKey = 'lopo_copied_shares';
-                const copiedList: string[] = JSON.parse(localStorage.getItem(copiedKey) || '[]');
-                if (!copiedList.includes(entry.shareId)) {
-                    copiedList.push(entry.shareId);
-                    localStorage.setItem(copiedKey, JSON.stringify(copiedList));
-                    fetch('/api/popular', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ shareId: entry.shareId }),
-                    }).catch(() => {});
-                }
-                copied++;
-            } catch {
-                // 個別エラーはスキップ
+        if (targets.length === 0) return;
+
+        const results = await Promise.allSettled(
+            targets.map(async (entry) => {
+                const res = await fetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
+                if (!res.ok) throw new Error();
+                const shared = await res.json();
+                return { entry, planData: (shared.planData ?? shared.data) as PlanData };
+            })
+        );
+
+        let copied = 0;
+        const copiedKey = 'lopo_copied_shares';
+        const copiedList: string[] = JSON.parse(localStorage.getItem(copiedKey) || '[]');
+
+        for (const result of results) {
+            if (result.status !== 'fulfilled') continue;
+            const { entry, planData } = result.value;
+
+            const newPlan: SavedPlan = {
+                id: crypto.randomUUID?.() ?? 'evt_' + Math.random().toString(36).substring(2, 9),
+                ownerId: '',
+                ownerDisplayName: '',
+                title: entry.title,
+                contentId: entry.contentId,
+                isPublic: false,
+                copyCount: 0,
+                useCount: 0,
+                data: planData,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+            };
+            usePlanStore.getState().addPlan(newPlan);
+
+            if (!copiedList.includes(entry.shareId)) {
+                copiedList.push(entry.shareId);
+                fetch('/api/popular', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shareId: entry.shareId }),
+                }).catch(() => {});
             }
+            copied++;
         }
+
+        localStorage.setItem(copiedKey, JSON.stringify(copiedList));
         if (copied > 0) {
             showToast(t('popular.copied_all_toast', { count: copied }));
         }
