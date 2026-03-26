@@ -454,11 +454,9 @@
             "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。",
             "privacy": "プライバシーポリシー",
             "terms": "利用規約",
-            "share_x": "Xで共有",
-            "share_discord": "Discordに貼る（コピー）",
-            "share_copy": "URLをコピー",
-            "share_copied": "コピーしました",
-            "share_text": "FFXIVの軽減計画がちょっと楽になるツールを作りました"
+            "share": "共有する",
+            "share_copied": "コピーしました！",
+            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier"
         },
         "tools": {
             "miti_planner": {
