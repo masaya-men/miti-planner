@@ -184,7 +184,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                    className="relative w-full max-w-[440px] bg-glass-panel border border-glass-border/50 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
+                    className="relative w-full max-w-[440px] glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
                     style={{ maxHeight: 'min(720px, calc(100vh - 64px))' }}
                 >
                     {/* Header */}

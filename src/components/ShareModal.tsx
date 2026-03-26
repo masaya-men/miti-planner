@@ -109,7 +109,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             onClick={onClose}
         >
             <div
-                className="relative bg-app-bg border border-app-border rounded-2xl shadow-2xl w-[420px] max-w-[90vw] overflow-hidden"
+                className="relative glass-tier3 rounded-2xl shadow-2xl w-[420px] max-w-[90vw] overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* ヘッダー */}

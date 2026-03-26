@@ -95,8 +95,8 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                 onTouchEnd={handleTouchEnd}
                 className={clsx(
                     "md:hidden fixed left-0 right-0 z-[301]",
-                    "bg-app-bg",
-                    "rounded-t-2xl shadow-sm border-t border-app-border",
+                    "glass-tier3",
+                    "rounded-t-2xl shadow-sm",
                     "flex flex-col overflow-hidden",
                     "transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]",
                     visible ? "translate-y-0" : "translate-y-full"

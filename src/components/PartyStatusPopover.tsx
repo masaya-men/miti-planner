@@ -188,7 +188,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             <div
                 ref={popoverRef}
                 className={clsx(
-                    "glass-panel flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
+                    "glass-tier3 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
                     // PC: left slide-over
                     "md:absolute md:top-0 md:left-0 md:h-full md:w-[450px] md:max-w-full md:border-r",
                     visible ? "md:translate-x-0" : "md:-translate-x-full",
