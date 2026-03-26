@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,99 +6,142 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const FEATURE_KEYS = ['auto_plan', 'fflogs', 'responsive', 'share'] as const;
-const FEATURE_ICONS = ['⚡', '📊', '📱', '🔗'];
+
+// 各フィーチャーの固有配置パターン（非対称・予測不可能）
+const PLACEMENTS = [
+  { align: 'text-left', offset: 'ml-0 md:ml-[5vw]' },
+  { align: 'text-right', offset: 'ml-auto mr-0 md:mr-[8vw]' },
+  { align: 'text-left', offset: 'ml-0 md:ml-[15vw]' },
+  { align: 'text-right', offset: 'ml-auto mr-0 md:mr-[3vw]' },
+];
 
 export function FeaturesSection() {
   const { t } = useTranslation();
-  const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  // カードの3Dチルト効果
-  const handleCardMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    const card = cardsRef.current[index];
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    gsap.to(card, {
-      rotateY: x * 10,
-      rotateX: -y * 10,
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-    // アイコンのスケール+回転
-    const icon = card.querySelector('.feature-icon');
-    if (icon) {
-      gsap.to(icon, { scale: 1.2, rotate: 10, duration: 0.3 });
-    }
-  }, []);
-
-  const handleCardMouseLeave = useCallback((_e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    const card = cardsRef.current[index];
-    if (!card) return;
-    gsap.to(card, {
-      rotateY: 0, rotateX: 0,
-      boxShadow: '0 0 0px rgba(255,255,255,0)',
-      duration: 0.5, ease: 'power3.out',
-    });
-    const icon = card.querySelector('.feature-icon');
-    if (icon) {
-      gsap.to(icon, { scale: 1, rotate: 0, duration: 0.4 });
-    }
-  }, []);
-
-  const handleCardMouseEnter = useCallback((_e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    const card = cardsRef.current[index];
-    if (!card) return;
-    gsap.to(card, {
-      boxShadow: '0 0 30px rgba(255,255,255,0.08)',
-      duration: 0.3,
-    });
-  }, []);
+  const pinRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const rowsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const counterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      cardsRef.current.forEach((card, i) => {
-        if (!card) return;
-        gsap.fromTo(card,
-          { y: 60, opacity: 0, filter: 'blur(4px)' },
-          {
-            y: 0, opacity: 1, filter: 'blur(0px)',
-            duration: 0.8, ease: 'power3.out',
-            delay: i * 0.15,
-            scrollTrigger: { trigger: sectionRef.current, start: 'top 65%', toggleActions: 'play none none reverse' },
-          }
-        );
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pinRef.current,
+          start: 'top top',
+          end: '+=250%',
+          pin: stickyRef.current,
+          scrub: 1,
+        },
       });
-    }, sectionRef);
+
+      // 各フィーチャーが順番に出現→消滅（画面上に同時に1つだけ）
+      rowsRef.current.forEach((row, i) => {
+        if (!row) return;
+        const start = i * 0.22;
+        const titleEl = row.querySelector('.feat-title');
+        const descEl = row.querySelector('.feat-desc');
+        const numEl = row.querySelector('.feat-num');
+
+        // 番号: スケールイン
+        if (numEl) {
+          tl.fromTo(numEl,
+            { scale: 3, opacity: 0, filter: 'blur(8px)' },
+            { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 0.08, ease: 'power3.out' },
+            start
+          );
+        }
+
+        // タイトル: clip-pathワイプ（左or右から）
+        if (titleEl) {
+          const fromRight = i % 2 === 1;
+          tl.fromTo(titleEl,
+            { clipPath: fromRight ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)', opacity: 1 },
+            { clipPath: 'inset(0 0% 0 0%)', duration: 0.1, ease: 'power3.out' },
+            start + 0.02
+          );
+        }
+
+        // 説明: フェードイン
+        if (descEl) {
+          tl.fromTo(descEl,
+            { y: 15, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.06 },
+            start + 0.06
+          );
+        }
+
+        // 消滅
+        if (i < 3) {
+          tl.to(row, {
+            opacity: 0,
+            y: -30,
+            duration: 0.06,
+            ease: 'power2.in',
+          }, start + 0.18);
+        }
+      });
+
+      // カウンター更新
+      if (counterRef.current) {
+        tl.to(counterRef.current, {
+          innerText: '04',
+          snap: { innerText: 1 },
+          duration: 0.88,
+        }, 0);
+      }
+
+      // 最後のフィーチャーもフェードアウト
+      const lastRow = rowsRef.current[3];
+      if (lastRow) {
+        tl.to(lastRow, {
+          opacity: 0, y: -30,
+          duration: 0.08,
+        }, 0.88);
+      }
+    }, pinRef);
+
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative py-20 px-6 md:px-16 overflow-hidden">
-      {/* 背景ウォーターマーク */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-        <span className="text-[120px] md:text-[180px] font-black text-white opacity-[0.02] tracking-wider">
-          FEATURES
-        </span>
-      </div>
-      <div className="relative max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {FEATURE_KEYS.map((key, i) => (
-          <div
-            key={key}
-            ref={el => { cardsRef.current[i] = el; }}
-            className="glass-tier1 rounded-xl p-5 transition-all duration-300 opacity-0"
-            style={{ perspective: '600px', transformStyle: 'preserve-3d' }}
-            onMouseMove={(e) => handleCardMouseMove(e, i)}
-            onMouseLeave={(e) => handleCardMouseLeave(e, i)}
-            onMouseEnter={(e) => handleCardMouseEnter(e, i)}
-          >
-            <div className="feature-icon text-xl mb-2 inline-block">{FEATURE_ICONS[i]}</div>
-            <h3 className="text-sm font-semibold mb-1">{t(`portal.features.${key}.title`)}</h3>
-            <p className="text-[11px] text-white/40 leading-relaxed">{t(`portal.features.${key}.desc`)}</p>
+    <div ref={pinRef} style={{ height: '350vh' }}>
+      <div ref={stickyRef} className="h-screen w-full flex items-center overflow-hidden">
+        <div className="relative w-full px-6 md:px-16" style={{ zIndex: 20 }}>
+
+          {/* 固定カウンター — 右下 */}
+          <div className="absolute bottom-8 right-6 md:right-16 text-[10px] text-white/15 font-mono tracking-widest">
+            <span ref={counterRef} className="tabular-nums">01</span>
+            <span className="text-white/[0.06]"> / 04</span>
           </div>
-        ))}
+
+          {/* 各フィーチャー — スタガードタイポグラフィ */}
+          {FEATURE_KEYS.map((key, i) => (
+            <div
+              key={key}
+              ref={el => { rowsRef.current[i] = el; }}
+              className={`absolute inset-x-6 md:inset-x-16 top-1/2 -translate-y-1/2 opacity-0 ${PLACEMENTS[i].align}`}
+            >
+              <div className={`max-w-2xl ${PLACEMENTS[i].offset}`}>
+                {/* 番号 */}
+                <div className="feat-num text-[clamp(60px,10vw,120px)] font-black text-white/[0.04] leading-none mb-2 select-none opacity-0">
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                {/* タイトル — 巨大 */}
+                <h3
+                  className="feat-title text-[clamp(28px,5vw,56px)] font-black leading-[1.1] mb-3"
+                  style={{ clipPath: 'inset(0 100% 0 0)' }}
+                >
+                  {t(`portal.features.${key}.title`)}
+                </h3>
+                {/* 説明 */}
+                <p className="feat-desc text-sm md:text-base text-white/30 leading-relaxed max-w-sm opacity-0">
+                  {t(`portal.features.${key}.desc`)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
