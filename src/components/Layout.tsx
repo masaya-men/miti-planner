@@ -552,14 +552,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         // useMitigationStoreの変更を監視 → localStorageへ500msデバウンス保存
         const unsubMiti = useMitigationStore.subscribe((state, prevState) => {
-            // 同じ参照なら何もしない（無限ループ防止の第一防衛線）
+            // 同じ参照なら何もしない（不要な保存を防止）
             if (state.timelineMitigations === prevState.timelineMitigations
                 && state.timelineEvents === prevState.timelineEvents
                 && state.phases === prevState.phases
                 && state.partyMembers === prevState.partyMembers) return;
-            // プラン作成中（createPlanDirectlyでclearAll→loadSnapshotが連続する間）はスキップ
-            if ((window as any).__lopo_creating_plan) return;
-            if (!usePlanStore.getState().currentPlanId) return;
+            // プランが選択されていなければスキップ
+            const planIdAtChange = usePlanStore.getState().currentPlanId;
+            if (!planIdAtChange) return;
 
             // インジケーター: 「保存中...」
             usePlanStore.getState().setSaveStatus('saving');
@@ -567,15 +567,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // localStorage: 500msデバウンス（ブラウザ内保存なのでコストゼロ）
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             localDebounceTimer = setTimeout(() => {
-                // 再入防止: saveSilently→updatePlan→zustand.set→subscribe→saveSilentlyの無限ループを防ぐ
-                if ((window as any).__lopo_saving) return;
-                (window as any).__lopo_saving = true;
-                try {
-                    saveSilently();
-                    usePlanStore.getState().setSaveStatus('saved');
-                } finally {
-                    (window as any).__lopo_saving = false;
-                }
+                // 500ms後にplanIdが変わっていたらプラン切替中だったのでスキップ
+                // （旧プランに新データを保存するデータ破損を防止）
+                const currentId = usePlanStore.getState().currentPlanId;
+                if (currentId !== planIdAtChange) return;
+                saveSilently();
+                usePlanStore.getState().setSaveStatus('saved');
             }, 500);
         });
 
@@ -609,11 +606,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         let prevPlanId = usePlanStore.getState().currentPlanId;
         const unsubPlan = usePlanStore.subscribe((state) => {
             const newId = state.currentPlanId;
-            if (prevPlanId && prevPlanId !== newId) {
+            const oldId = prevPlanId;
+            prevPlanId = newId; // 再入防止: saveSilently→updatePlan→subscribe再発火時にスキップさせる
+            if (oldId && oldId !== newId) {
                 saveSilently();
                 syncToCloud();
             }
-            prevPlanId = newId;
         });
 
         return () => {

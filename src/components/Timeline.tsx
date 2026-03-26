@@ -525,27 +525,32 @@ const Timeline: React.FC = () => {
         mobileToolsOpen, setMobileToolsOpen,
     } = useContext(MobileTriggersContext);
 
-    const {
-        addEvent, updateEvent, removeEvent, addMitigation,
-        setMemberJob,
-        aaSettings, setAaSettings,
-        schAetherflowPatterns, setSchAetherflowPattern,
-        partyMembers,
-        timelineMitigations,
-        timelineEvents,
-        removeMitigation,
-        updateMitigationTime,
-        addPhase,
-        updatePhase,
-        removePhase,
-        phases,
-        changeMemberJobWithMitigations,
-        clipboardEvent,
-        setClipboardEvent,
-        hideEmptyRows,
-        timelineSortOrder: partySortOrder,
-        currentLevel,
-    } = useMitigationStore();
+    // データ（変更時のみ再レンダー）
+    const aaSettings = useMitigationStore(s => s.aaSettings);
+    const schAetherflowPatterns = useMitigationStore(s => s.schAetherflowPatterns);
+    const partyMembers = useMitigationStore(s => s.partyMembers);
+    const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
+    const timelineEvents = useMitigationStore(s => s.timelineEvents);
+    const phases = useMitigationStore(s => s.phases);
+    const clipboardEvent = useMitigationStore(s => s.clipboardEvent);
+    const hideEmptyRows = useMitigationStore(s => s.hideEmptyRows);
+    const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
+    const currentLevel = useMitigationStore(s => s.currentLevel);
+    // アクション（参照安定・再レンダー不発火）
+    const addEvent = useMitigationStore(s => s.addEvent);
+    const updateEvent = useMitigationStore(s => s.updateEvent);
+    const removeEvent = useMitigationStore(s => s.removeEvent);
+    const addMitigation = useMitigationStore(s => s.addMitigation);
+    const setMemberJob = useMitigationStore(s => s.setMemberJob);
+    const setAaSettings = useMitigationStore(s => s.setAaSettings);
+    const setSchAetherflowPattern = useMitigationStore(s => s.setSchAetherflowPattern);
+    const removeMitigation = useMitigationStore(s => s.removeMitigation);
+    const updateMitigationTime = useMitigationStore(s => s.updateMitigationTime);
+    const addPhase = useMitigationStore(s => s.addPhase);
+    const updatePhase = useMitigationStore(s => s.updatePhase);
+    const removePhase = useMitigationStore(s => s.removePhase);
+    const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
+    const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
