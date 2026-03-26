@@ -6,7 +6,7 @@
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { nanoid } from 'nanoid';
 
 const COLLECTION = 'shared_plans';
@@ -63,6 +63,7 @@ export default async function handler(req: any, res: any) {
                         planData: p.planData,
                     })),
                     copyCount: 0,
+                    viewCount: 0,
                     createdAt: Date.now(),
                 };
                 await db.collection(COLLECTION).doc(shareId).set(doc);
@@ -81,6 +82,7 @@ export default async function handler(req: any, res: any) {
                 contentId: contentId || null,
                 planData,
                 copyCount: 0,
+                viewCount: 0,
                 createdAt: Date.now(),
             };
 
@@ -95,10 +97,14 @@ export default async function handler(req: any, res: any) {
                 return res.status(400).json({ error: 'id is required' });
             }
 
-            const snap = await db.collection(COLLECTION).doc(id as string).get();
+            const docRef = db.collection(COLLECTION).doc(id as string);
+            const snap = await docRef.get();
             if (!snap.exists) {
                 return res.status(404).json({ error: 'not found' });
             }
+
+            // 閲覧数を+1（fire-and-forget、レスポンスを遅延させない）
+            docRef.update({ viewCount: FieldValue.increment(1) }).catch(() => {});
 
             return res.status(200).json(snap.data());
 

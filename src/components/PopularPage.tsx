@@ -13,6 +13,8 @@ interface PopularEntry {
     contentId: string;
     title: string;
     copyCount: number;
+    viewCount: number;
+    featured: boolean;
     partyMembers: { jobId: string | null }[];
 }
 
@@ -204,17 +206,23 @@ export const PopularPage: React.FC = () => {
                 key={`${entry.contentId}-${rank}`}
                 className="glass-tier3 rounded-xl p-4 flex flex-col gap-3"
             >
-                {/* ランクバッジ + コンテンツ名 */}
+                {/* ランクバッジ + 注目バッジ + コンテンツ名 */}
                 <div className="flex items-center gap-2">
-                    <span
-                        className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${
-                            rank === 0
-                                ? 'bg-app-text text-app-bg'
-                                : 'bg-app-border text-app-text-muted'
-                        }`}
-                    >
-                        {t('popular.rank', { rank: rank + 1 })}
-                    </span>
+                    {entry.featured ? (
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-app-text text-app-bg">
+                            {t('popular.featured')}
+                        </span>
+                    ) : (
+                        <span
+                            className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                                rank === 0
+                                    ? 'bg-app-text text-app-bg'
+                                    : 'bg-app-border text-app-text-muted'
+                            }`}
+                        >
+                            {t('popular.rank', { rank: rank + 1 })}
+                        </span>
+                    )}
                     <span className="text-sm font-bold text-app-text truncate">
                         {contentName}
                     </span>
@@ -223,10 +231,11 @@ export const PopularPage: React.FC = () => {
                 {/* プランタイトル */}
                 <p className="text-xs text-app-text-muted truncate">{entry.title}</p>
 
-                {/* コピー数 */}
-                <p className="text-xs text-app-text-muted">
-                    {t('popular.copy_count', { count: entry.copyCount })}
-                </p>
+                {/* 閲覧数 + コピー数 */}
+                <div className="flex items-center gap-3 text-xs text-app-text-muted">
+                    <span>{t('popular.view_count', { count: entry.viewCount })}</span>
+                    <span>{t('popular.copy_count', { count: entry.copyCount })}</span>
+                </div>
 
                 {/* パーティ構成（ジョブアイコン） */}
                 {entry.partyMembers && entry.partyMembers.length > 0 && (

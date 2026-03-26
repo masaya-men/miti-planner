@@ -448,7 +448,12 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.",
             "privacy": "Privacy Policy",
-            "terms": "Terms of Service"
+            "terms": "Terms of Service",
+            "share_x": "Share on X",
+            "share_discord": "Share on Discord",
+            "share_copy": "Copy URL",
+            "share_copied": "Copied!",
+            "share_text": "LoPo — FFXIV Mitigation Planning Tool. Manage mitigation on a timeline. Free to use."
         },
         "tools": {
             "miti_planner": {
@@ -734,6 +739,8 @@
         "copied_all_toast": "Copied {{count}} plans",
         "no_data": "No data yet",
         "copy_count": "{{count}} copies",
+        "view_count": "{{count}} views",
+        "featured": "Featured",
         "open_popular": "Popular Plans",
         "rank": "#{{rank}}"
     }
