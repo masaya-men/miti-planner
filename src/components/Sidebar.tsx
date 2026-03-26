@@ -1050,7 +1050,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 href="https://ko-fi.com/lopoly"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[9px] text-app-text-muted/40 hover:text-app-text-muted transition-colors"
+                                className="text-[9px] text-app-text-muted hover:text-app-text transition-colors"
                             >
                                 ☕ {t('footer.support')}
                             </a>
