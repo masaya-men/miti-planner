@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -475,6 +475,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     });
     // 削除確認モーダル
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    // フローティングアクションバーの視線誘導アニメーション
+    const floatingBarRef = useRef<HTMLDivElement>(null);
+    const [floatingBarFlash, setFloatingBarFlash] = useState(false);
+    const prevSelectedCount = useRef(multiSelect.selectedIds.length);
+    React.useEffect(() => {
+        const count = multiSelect.selectedIds.length;
+        if (count !== prevSelectedCount.current && count > 0) {
+            // ボーダーフラッシュ
+            setFloatingBarFlash(true);
+            const el = floatingBarRef.current;
+            if (el) {
+                el.style.borderColor = 'var(--color-app-text, #e8e8e8)';
+                el.style.boxShadow = '0 8px 32px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08)';
+                setTimeout(() => {
+                    el.style.borderColor = '';
+                    el.style.boxShadow = '';
+                }, 300);
+            }
+            setTimeout(() => setFloatingBarFlash(false), 350);
+        }
+        prevSelectedCount.current = count;
+    }, [multiSelect.selectedIds.length]);
 
     // 名前入力ダイアログ用ステート
     const [pendingContent, setPendingContent] = useState<ContentDefinition | null>(null);
@@ -951,63 +973,74 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         })()}
                     </div>
 
-                    {/* 下部アクションバー — 選択モード時に表示 */}
-                    {multiSelect.isEnabled && (
-                        <div className="absolute bottom-4 left-3 right-3 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="relative bg-app-bg border border-app-text/20 rounded-2xl shadow-sm p-3 overflow-hidden">
-                                <div className="absolute inset-0 bg-app-text/5 animate-pulse" />
-                                {/* 上段: 選択件数 */}
-                                <div className="relative text-center mb-2">
-                                    <span className="text-[10px] font-bold text-app-text">
-                                        {multiSelect.mode === 'delete'
-                                            ? t('sidebar.selected_count_simple', { count: multiSelect.selectedIds.length })
-                                            : t('sidebar.selected_count', { count: multiSelect.selectedIds.length })
-                                        }
-                                    </span>
-                                </div>
-                                {/* 下段: キャンセル + アクション */}
-                                <div className="relative flex items-center gap-2">
-                                    <button
-                                        onClick={() => setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' })}
-                                        className="flex-1 py-1.5 rounded-lg text-xs font-bold text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
-                                    >
-                                        {t('sidebar.cancel')}
-                                    </button>
-                                    {multiSelect.mode === 'share' ? (
-                                        <button
-                                            onClick={handleShareBundle}
-                                            disabled={multiSelect.selectedIds.length === 0}
-                                            className={clsx(
-                                                "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
-                                                multiSelect.selectedIds.length > 0
-                                                    ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
-                                                    : "bg-glass-card text-app-text-muted border border-glass-border opacity-50 cursor-not-allowed"
-                                            )}
-                                        >
-                                            <Share2 size={14} />
-                                            <span>{t('sidebar.share_together')}</span>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => {
-                                                if (multiSelect.selectedIds.length === 0) return;
-                                                setShowDeleteConfirm(true);
-                                            }}
-                                            disabled={multiSelect.selectedIds.length === 0}
-                                            className={clsx(
-                                                "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer",
-                                                multiSelect.selectedIds.length > 0
-                                                    ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
-                                                    : "bg-glass-card text-app-text-muted border border-glass-border opacity-50 cursor-not-allowed"
-                                            )}
-                                        >
-                                            <Trash2 size={14} />
-                                            <span>{t('sidebar.delete')}</span>
-                                        </button>
+                    {/* フローティングアクションバー — 画面下部中央（createPortalでbody直下） */}
+                    {createPortal(
+                        <div className={clsx(
+                            "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
+                            "bg-app-bg border border-app-text/15 rounded-2xl",
+                            "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
+                            "transition-all duration-300",
+                            multiSelect.isEnabled
+                                ? "opacity-100 translate-x-[-50%] translate-y-0 pointer-events-auto"
+                                : "opacity-0 translate-x-[-50%] translate-y-10 pointer-events-none"
+                        )}
+                            ref={floatingBarRef}
+                        >
+                            {/* 選択件数 */}
+                            <span className={clsx(
+                                "text-[11px] font-black text-app-text whitespace-nowrap min-w-[72px] text-center",
+                                floatingBarFlash && "animate-[floatingCountBounce_.3s_cubic-bezier(.34,1.56,.64,1)]"
+                            )}
+                                key={multiSelect.selectedIds.length}
+                            >
+                                {multiSelect.mode === 'delete'
+                                    ? t('sidebar.selected_count_simple', { count: multiSelect.selectedIds.length })
+                                    : t('sidebar.selected_count', { count: multiSelect.selectedIds.length })
+                                }
+                            </span>
+                            <div className="w-px h-5 bg-app-text/10 shrink-0" />
+                            {/* キャンセル */}
+                            <button
+                                onClick={() => setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' })}
+                                className="py-1.5 px-4 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-colors cursor-pointer whitespace-nowrap"
+                            >
+                                {t('sidebar.cancel')}
+                            </button>
+                            {/* アクションボタン */}
+                            {multiSelect.mode === 'share' ? (
+                                <button
+                                    onClick={handleShareBundle}
+                                    disabled={multiSelect.selectedIds.length === 0}
+                                    className={clsx(
+                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
+                                        multiSelect.selectedIds.length > 0
+                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
+                                            : "bg-app-text/10 text-app-text-muted opacity-50 cursor-not-allowed"
                                     )}
-                                </div>
-                            </div>
-                        </div>
+                                >
+                                    <Share2 size={13} />
+                                    <span>{t('sidebar.share_together')}</span>
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        if (multiSelect.selectedIds.length === 0) return;
+                                        setShowDeleteConfirm(true);
+                                    }}
+                                    disabled={multiSelect.selectedIds.length === 0}
+                                    className={clsx(
+                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
+                                        multiSelect.selectedIds.length > 0
+                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
+                                            : "bg-app-text/10 text-app-text-muted opacity-50 cursor-not-allowed"
+                                    )}
+                                >
+                                    <Trash2 size={13} />
+                                    <span>{t('sidebar.delete')}</span>
+                                </button>
+                            )}
+                        </div>,
+                        document.body
                     )}
 
                     {/* Ko-fi 支援リンク — サイドバー最下部に控えめ配置 */}
