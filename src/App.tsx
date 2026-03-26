@@ -35,13 +35,8 @@ function App() {
     root.classList.add(`theme-${theme}`);
   }, [theme]);
 
-  // Update document title based on language
+  // Sync <html lang> for SEO and accessibility
   useEffect(() => {
-    const title = i18n.language.startsWith('ja')
-      ? 'LoPo │ 軽減プランナー'
-      : 'LoPo │ Mitigation Planner';
-    document.title = title;
-    // Sync <html lang> for SEO and accessibility
     document.documentElement.lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
   }, [i18n.language]);
 
