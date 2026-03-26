@@ -1,7 +1,7 @@
 /**
  * Vercel Serverless Function — 人気プランAPI
  *
- * GET  /api/popular?contentIds=m9s,m10s,...  — コンテンツごとに上位2プランを取得
+ * GET  /api/popular?contentIds=m9s,m10s,...  — コンテンツごとに上位2プランを取得（viewCount降順、featured優先）
  * POST /api/popular  { shareId }             — copyCount を1増加
  */
 
@@ -56,19 +56,27 @@ export default async function handler(req: any, res: any) {
                 return res.status(400).json({ error: 'contentIds is empty' });
             }
 
-            // 各コンテンツIDについて上位2件を並列取得
+            // 各コンテンツIDについて上位2件を並列取得（viewCount降順、featured優先）
             const results = await Promise.all(
                 ids.map(async (id) => {
-                    const snap = await db
+                    // まず featured プランを取得
+                    const featuredSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
-                        .orderBy('copyCount', 'desc')
-                        .limit(2)
+                        .where('featured', '==', true)
+                        .limit(1)
                         .get();
 
-                    const plans = snap.docs.map(doc => {
+                    // viewCount降順で上位3件を取得（featuredと重複する場合があるので多めに）
+                    const popularSnap = await db
+                        .collection(COLLECTION)
+                        .where('contentId', '==', id)
+                        .orderBy('viewCount', 'desc')
+                        .limit(3)
+                        .get();
+
+                    const mapDoc = (doc: any) => {
                         const data = doc.data();
-                        // 必要なフィールドのみ返す
                         const partyMembers = data.planData?.partyMembers?.map((m: any) => ({
                             id: m.id,
                             jobId: m.jobId,
@@ -79,10 +87,31 @@ export default async function handler(req: any, res: any) {
                             title: data.title ?? '',
                             contentId: data.contentId,
                             copyCount: data.copyCount ?? 0,
+                            viewCount: data.viewCount ?? 0,
+                            featured: data.featured === true,
                             createdAt: data.createdAt,
                             partyMembers,
                         };
-                    });
+                    };
+
+                    // featured を先頭に、残りをviewCount順で。重複除去して最大2件
+                    const seen = new Set<string>();
+                    const plans: any[] = [];
+
+                    for (const doc of featuredSnap.docs) {
+                        const mapped = mapDoc(doc);
+                        if (plans.length < 2) {
+                            plans.push(mapped);
+                            seen.add(mapped.shareId);
+                        }
+                    }
+                    for (const doc of popularSnap.docs) {
+                        const mapped = mapDoc(doc);
+                        if (!seen.has(mapped.shareId) && plans.length < 2) {
+                            plans.push(mapped);
+                            seen.add(mapped.shareId);
+                        }
+                    }
 
                     return { contentId: id, plans };
                 })

@@ -452,7 +452,12 @@
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。",
             "privacy": "プライバシーポリシー",
-            "terms": "利用規約"
+            "terms": "利用規約",
+            "share_x": "Xで共有",
+            "share_discord": "Discordで共有",
+            "share_copy": "URLをコピー",
+            "share_copied": "コピーしました",
+            "share_text": "FFXIV軽減計画ツール「LoPo」— タイムラインで軽減を管理。無料で使えます。"
         },
         "tools": {
             "miti_planner": {
@@ -738,6 +743,8 @@
         "copied_all_toast": "{{count}}件の軽減表をコピーしました",
         "no_data": "まだデータがありません",
         "copy_count": "{{count}}回コピー",
+        "view_count": "{{count}}回閲覧",
+        "featured": "注目",
         "open_popular": "みんなの軽減表",
         "rank": "{{rank}}位"
     }
