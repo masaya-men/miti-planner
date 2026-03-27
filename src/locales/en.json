@@ -299,7 +299,7 @@
         "recent_activity": "Recent Activity",
         "level_select": "Level",
         "category_select": "Category",
-        "multi_select_mode": "Select",
+        "multi_select_mode": "Multi Share",
         "selected_count": "{{count}}/10 Selected",
         "selected_count_simple": "{{count}} Selected",
         "share_together": "Share Selected",
