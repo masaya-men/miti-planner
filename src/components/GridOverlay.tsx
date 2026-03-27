@@ -10,6 +10,18 @@ const GLOW_RADIUS = 280;
 const OFFSET_X = -10;
 const OFFSET_Y = 10;
 
+// --- 格子設定（外部から変更可能） ---
+export const gridConfig = {
+    lineWidth: 4,  // 0-7、デフォルト4（1.00px）。0=非表示
+};
+
+// 段階→実際の線幅（px）: 0.25px刻み
+const LINE_WIDTH_MAP: number[] = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75];
+
+export function getGridLineWidth(): number {
+    return LINE_WIDTH_MAP[gridConfig.lineWidth] ?? LINE_WIDTH_MAP[4];
+}
+
 // --- 光パルス設定（外部から変更可能、1-5の5段階） ---
 export const pulseConfig = {
     enabled: true,
@@ -183,33 +195,37 @@ export const GridOverlay: React.FC = () => {
 
         const cols = Math.ceil((w - OFFSET_X) / CELL_SIZE) + 1;
         const rows = Math.ceil((h - OFFSET_Y) / CELL_SIZE) + 1;
+        const gridLw = getGridLineWidth();
 
-        // 縦線（控えめグロー付き）
-        for (let col = 0; col <= cols; col++) {
-            const x = col * CELL_SIZE + OFFSET_X;
-            const distX = Math.abs(x - mx);
-            const glow = Math.max(0, 1 - distX / GLOW_RADIUS);
-            const opacity = BASE_OPACITY + glow * 0.35;
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h);
-            ctx.strokeStyle = `rgba(${accent}, ${opacity})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
+        // 格子線の描画（lineWidth > 0 の場合のみ）
+        if (gridLw > 0) {
+            // 縦線（控えめグロー付き）
+            for (let col = 0; col <= cols; col++) {
+                const x = col * CELL_SIZE + OFFSET_X;
+                const distX = Math.abs(x - mx);
+                const glow = Math.max(0, 1 - distX / GLOW_RADIUS);
+                const opacity = BASE_OPACITY + glow * 0.35;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.strokeStyle = `rgba(${accent}, ${opacity})`;
+                ctx.lineWidth = gridLw;
+                ctx.stroke();
+            }
 
-        // 横線（控えめグロー付き）
-        for (let row = 0; row <= rows; row++) {
-            const y = row * CELL_SIZE + OFFSET_Y;
-            const distY = Math.abs(y - my);
-            const glow = Math.max(0, 1 - distY / GLOW_RADIUS);
-            const opacity = BASE_OPACITY + glow * 0.35;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(w, y);
-            ctx.strokeStyle = `rgba(${accent}, ${opacity})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            // 横線（控えめグロー付き）
+            for (let row = 0; row <= rows; row++) {
+                const y = row * CELL_SIZE + OFFSET_Y;
+                const distY = Math.abs(y - my);
+                const glow = Math.max(0, 1 - distY / GLOW_RADIUS);
+                const opacity = BASE_OPACITY + glow * 0.35;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.strokeStyle = `rgba(${accent}, ${opacity})`;
+                ctx.lineWidth = gridLw;
+                ctx.stroke();
+            }
         }
 
         // --- 光パルスの描画 ---

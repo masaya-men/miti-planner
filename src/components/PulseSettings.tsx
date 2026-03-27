@@ -1,20 +1,25 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { pulseConfig } from './GridOverlay';
+import { pulseConfig, gridConfig } from './GridOverlay';
 
 const DEFAULT_DISTANCE = 3;
 const DEFAULT_SPEED = 3;
-const MIN = 1;
-const MAX = 5;
+const DEFAULT_LINE_WIDTH = 4;
+const PULSE_MIN = 1;
+const PULSE_MAX = 5;
+const GRID_MIN = 0;
+const GRID_MAX = 7;
 
-// 1-5に吸着するスライダー
+// 吸着スライダー（min/maxをpropsで指定可能）
 const SnapSlider: React.FC<{
     value: number;
     onChange: (v: number) => void;
     leftLabel: string;
     rightLabel: string;
     disabled?: boolean;
-}> = ({ value, onChange, leftLabel, rightLabel, disabled }) => {
+    min?: number;
+    max?: number;
+}> = ({ value, onChange, leftLabel, rightLabel, disabled, min = PULSE_MIN, max = PULSE_MAX }) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [dragging, setDragging] = useState(false);
 
@@ -22,8 +27,8 @@ const SnapSlider: React.FC<{
         if (!trackRef.current) return value;
         const rect = trackRef.current.getBoundingClientRect();
         const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-        return Math.round(ratio * (MAX - MIN) + MIN);
-    }, [value]);
+        return Math.round(ratio * (max - min) + min);
+    }, [value, min, max]);
 
     const handlePointerDown = (e: React.PointerEvent) => {
         if (disabled) return;
@@ -43,7 +48,7 @@ const SnapSlider: React.FC<{
     };
 
     // つまみの位置（%）
-    const percent = ((value - MIN) / (MAX - MIN)) * 100;
+    const percent = ((value - min) / (max - min)) * 100;
 
     return (
         <div className="flex items-center gap-2">
@@ -63,13 +68,13 @@ const SnapSlider: React.FC<{
                     style={{ width: `${percent}%` }}
                 />
                 {/* ステップドット */}
-                {[1, 2, 3, 4, 5].map(step => (
+                {Array.from({ length: max - min + 1 }, (_, i) => min + i).map(step => (
                     <div
                         key={step}
                         className={`absolute w-1 h-1 rounded-full -translate-x-1/2 ${
                             step <= value ? 'bg-app-text/60' : 'bg-app-border'
                         }`}
-                        style={{ left: `${((step - MIN) / (MAX - MIN)) * 100}%` }}
+                        style={{ left: `${((step - min) / (max - min)) * 100}%` }}
                     />
                 ))}
                 {/* つまみ */}
@@ -89,6 +94,7 @@ export const PulseSettings: React.FC = () => {
     const [enabled, setEnabled] = useState(pulseConfig.enabled);
     const [distance, setDistance] = useState(pulseConfig.distance);
     const [speed, setSpeed] = useState(pulseConfig.speed);
+    const [lineWidth, setLineWidth] = useState(gridConfig.lineWidth);
     const panelRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -120,13 +126,19 @@ export const PulseSettings: React.FC = () => {
         pulseConfig.speed = v;
     };
 
+    const updateLineWidth = (v: number) => {
+        setLineWidth(v);
+        gridConfig.lineWidth = v;
+    };
+
     const resetToDefault = () => {
         updateEnabled(true);
         updateDistance(DEFAULT_DISTANCE);
         updateSpeed(DEFAULT_SPEED);
+        updateLineWidth(DEFAULT_LINE_WIDTH);
     };
 
-    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED;
+    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED && lineWidth === DEFAULT_LINE_WIDTH;
 
     return (
         <span className="relative inline-block">
@@ -185,6 +197,21 @@ export const PulseSettings: React.FC = () => {
                             leftLabel={t('footer.pulse_slow')}
                             rightLabel={t('footer.pulse_fast')}
                             disabled={!enabled}
+                        />
+                    </div>
+
+                    {/* 格子の太さスライダー */}
+                    <div className="mb-3">
+                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
+                            {t('footer.grid_line_width')}
+                        </div>
+                        <SnapSlider
+                            value={lineWidth}
+                            onChange={updateLineWidth}
+                            leftLabel={t('footer.grid_none')}
+                            rightLabel={t('footer.grid_thick')}
+                            min={GRID_MIN}
+                            max={GRID_MAX}
                         />
                     </div>
 
