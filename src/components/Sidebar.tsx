@@ -778,7 +778,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
-            className={clsx("h-full flex z-40 relative group/sidebar glass-tier3", !fullWidth && "shadow-sm")}
+            className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
             style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
@@ -1065,7 +1065,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
             {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
             {fullWidth ? null : <div
-                className="h-full w-6 z-50 flex items-center justify-center shrink-0 shadow-[inset_1px_0_0_0_rgba(255,255,255,0.05)] relative"
+                className="h-full w-6 z-50 flex items-center justify-center shrink-0 relative"
                 onMouseEnter={() => setIsNear(true)}
                 onMouseLeave={() => setIsNear(false)}
             >
@@ -1102,10 +1102,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             transition={{ duration: 0.15 }}
                         />
 
-                        {/* 左端の固定ライン */}
+                        {/* 左端の固定ライン（右端はサイドバーのglass-tier3 borderが担当） */}
                         <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
-                        {/* 右端の固定ライン */}
-                        <div className="absolute inset-y-0 right-0 w-[1px] bg-app-border group-hover/btn:bg-app-text transition-colors duration-200" />
 
                         <div className="relative flex items-center justify-center h-full">
                             <motion.div

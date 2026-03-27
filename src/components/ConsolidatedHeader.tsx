@@ -167,7 +167,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     return (
 
         <motion.div
-            className="absolute top-0 left-0 w-full z-[100] flex flex-col pointer-events-none"
+            className="absolute top-0 w-full z-[100] flex flex-col pointer-events-none"
+            style={{ left: '-1px', width: 'calc(100% + 1px)' }}
             initial={false}
         >
             {/* [1] ── ヘッダー本体コンテナ ── */}
@@ -177,8 +178,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="w-full overflow-hidden pointer-events-auto glass-tier3 border-b-0 shadow-none"
-                style={{ boxShadow: 'none' }}
+                className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-border-b-0 glass-border-l-0 glass-shadow-none"
                 onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
                 <motion.div
@@ -425,10 +425,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                 {/* ハンドル本体 */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 pointer-events-auto glass-tier3 border-0"
-                    style={{ boxShadow: 'none' }}
+                    className="absolute bottom-0 left-0 right-0 z-50 pointer-events-auto glass-tier3 glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                     initial={false}
-                    animate={{ height: (isNear || isHovered) ? 36 : 24 }}
+                    animate={{ height: (isNear || isHovered) ? 37 : 25 }}
                     transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     <Tooltip content={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="bottom" wrapperClassName="w-full h-full">

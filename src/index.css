@@ -294,6 +294,14 @@
   transition: clip-path 0ms 200ms;
 }
 
+/* glass-tier3 の !important border を個別辺で上書きするユーティリティ
+   glass-tier3 自体は触れないので、接合部の2重線を消すために使う */
+.glass-border-t-0 { border-top-width: 0 !important; }
+.glass-border-b-0 { border-bottom-width: 0 !important; }
+.glass-border-l-0 { border-left-width: 0 !important; }
+.glass-border-r-0 { border-right-width: 0 !important; }
+.glass-shadow-none { box-shadow: none !important; }
+
 /* ガラスパネル — 3層Tierシステム（@layer外=Tailwindユーティリティより高優先度） */
 .glass-tier3 {
   --tw-backdrop-blur: blur(var(--glass-tier3-blur));
