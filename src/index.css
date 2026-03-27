@@ -331,81 +331,163 @@
   letter-spacing: 0.06em;
 }
 
-/* 人気ページ専用 — 豪華ガラス（重い表がないので贅沢に使える） */
+/* ============================
+   人気ページ — ガラスエフェクト
+   empty-liquid-glass ベースの白/黒ライン
+   ============================ */
 
-/* ヘッダー: 強blur + 明るいエッジライン */
+/* --- ヘッダー --- */
 .glass-popular-header {
-  --tw-backdrop-blur: blur(32px);
-  background: rgba(var(--app-accent-rgb), 0.03) !important;
-  border: none !important;
-  border-bottom: 1px solid rgba(var(--app-accent-rgb), 0.4) !important;
+  position: relative;
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  background: rgba(255,255,255,0.03);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.25);
   box-shadow:
-    0 1px 0 rgba(var(--app-accent-rgb), 0.3),
-    0 0 30px rgba(var(--app-accent-rgb), 0.06),
-    0 8px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.5),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.15) !important;
+    inset 0 1px 1px rgba(255,255,255,0.08),
+    inset 0 -1px 1px rgba(255,255,255,0.04),
+    0 1px 3px rgba(0,0,0,0.3);
+  overflow: hidden;
 }
-.glass-popular-header,
-.glass-popular-header::before,
+/* ヘッダー下辺シーンライン */
 .glass-popular-header::after {
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0.25) 50%,
+    rgba(255,255,255,0.15) 80%, transparent
+  );
+  pointer-events: none;
+}
+/* ライトテーマ ヘッダー */
+.theme-light .glass-popular-header {
+  background: rgba(255,255,255,0.55);
+  border-bottom-color: rgba(0,0,0,0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    0 0 0 1px rgba(0,0,0,0.08),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+.theme-light .glass-popular-header::after {
+  background: linear-gradient(to right,
+    transparent, rgba(0,0,0,0.04) 20%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.04) 80%, transparent
+  );
 }
 
-/* カード: 明るいエッジグロー + ホバーで強く光る */
+/* --- カード --- */
 .glass-popular-card {
-  --tw-backdrop-blur: blur(20px);
-  background: rgba(var(--app-accent-rgb), 0.04) !important;
-  border: 1px solid rgba(var(--app-accent-rgb), 0.35) !important;
+  position: relative;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
   box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.15),
-    0 0 16px rgba(var(--app-accent-rgb), 0.08),
-    0 4px 24px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.5),
-    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.2),
-    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.2),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.2) !important;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    inset 0 1px 1px rgba(255,255,255,0.08),
+    inset 0 -1px 1px rgba(255,255,255,0.04);
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  isolation: isolate;
 }
-.glass-popular-card:hover {
-  border-color: rgba(var(--app-accent-rgb), 0.6) !important;
-  box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.3),
-    0 0 40px rgba(var(--app-accent-rgb), 0.15),
-    0 0 80px rgba(var(--app-accent-rgb), 0.06),
-    0 8px 40px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.7),
-    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.3),
-    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.3),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.25) !important;
+/* 縁のグラデーションボーダー（上下） */
+.glass-popular-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 15%,
+    transparent 35%, transparent 65%,
+    rgba(255,255,255,0.06) 85%, rgba(255,255,255,0.15) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
 }
-.glass-popular-card,
-.glass-popular-card::before,
+/* 縁のグラデーションボーダー（左右） */
 .glass-popular-card::after {
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  content: '';
+  position: absolute; inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 10%,
+    transparent 25%, transparent 75%,
+    rgba(255,255,255,0.04) 90%, rgba(255,255,255,0.12) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+/* ホバー時: 縁が明るくなる */
+.glass-popular-card:hover {
+  border-color: rgba(255,255,255,0.25);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.12),
+    inset 0 -1px 1px rgba(255,255,255,0.06),
+    0 0 20px rgba(255,255,255,0.05);
+}
+/* ライトテーマ カード */
+.theme-light .glass-popular-card {
+  background: rgba(255,255,255,0.55);
+  border-color: rgba(0,0,0,0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    0 0 0 1px rgba(0,0,0,0.08),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+.theme-light .glass-popular-card::before {
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.03) 15%,
+    transparent 35%, transparent 65%,
+    rgba(0,0,0,0.02) 85%, rgba(0,0,0,0.05) 100%
+  );
+}
+.theme-light .glass-popular-card::after {
+  background: linear-gradient(90deg,
+    rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.02) 10%,
+    transparent 25%, transparent 75%,
+    rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.04) 100%
+  );
+}
+.theme-light .glass-popular-card:hover {
+  border-color: rgba(0,0,0,0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    0 0 0 1px rgba(0,0,0,0.12),
+    0 2px 12px rgba(0,0,0,0.06);
 }
 
-/* セクション: ガラス + 明るいエッジグロー */
+/* --- セクション --- */
 .glass-popular-section {
-  --tw-backdrop-blur: blur(12px);
-  background: rgba(var(--app-accent-rgb), 0.02) !important;
-  border: 1px solid rgba(var(--app-accent-rgb), 0.3) !important;
+  position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.1),
-    0 0 24px rgba(var(--app-accent-rgb), 0.06),
-    0 2px 20px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.4),
-    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.15),
-    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.15),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.12) !important;
+    inset 0 1px 1px rgba(255,255,255,0.05),
+    inset 0 -1px 1px rgba(255,255,255,0.02);
+  overflow: hidden;
 }
-.glass-popular-section,
-.glass-popular-section::before,
-.glass-popular-section::after {
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+.theme-light .glass-popular-section {
+  background: rgba(255,255,255,0.4);
+  border-color: rgba(0,0,0,0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    0 0 0 1px rgba(0,0,0,0.06);
 }
 
 /* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
