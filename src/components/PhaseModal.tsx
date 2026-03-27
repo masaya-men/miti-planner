@@ -79,7 +79,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
             {isOpen && (
                 <div className="fixed inset-0 z-[9999] text-left pointer-events-none flex flex-col justify-end">
                     {/* Transparent Backdrop to close on click outside */}
-                    <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />
+                    <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
                     <motion.div
                         initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}

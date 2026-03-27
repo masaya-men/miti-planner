@@ -9,7 +9,7 @@ export const LoPoButton: React.FC<{
     size?: 'sm' | 'lg';
     onClick?: () => void;
 }> = ({ size = 'lg', onClick }) => {
-    const fontSize = size === 'lg' ? 'text-4xl' : 'text-lg';
+    const fontSize = size === 'lg' ? 'text-4xl' : 'text-2xl';
     const h = size === 'lg' ? 56 : 40;
     const px = size === 'lg' ? 32 : 16;
     const textClass = `${fontSize} font-black tracking-widest select-none whitespace-nowrap`;

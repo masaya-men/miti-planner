@@ -82,7 +82,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
             {/* Backdrop — モバイルのみ */}
             <div
                 className={clsx(
-                    "md:hidden fixed inset-0 bg-black/50 z-[300] transition-opacity duration-300",
+                    "md:hidden fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[300] transition-opacity duration-300",
                     visible ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}

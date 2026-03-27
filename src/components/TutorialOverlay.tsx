@@ -439,7 +439,7 @@ const CompletionDialog: React.FC<CompletionDialogProps> = ({ title, description,
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-[100010] bg-black/50 backdrop-blur-[2px]"
             />
             {/* Dialog */}
             <motion.div
@@ -679,7 +679,7 @@ export const TutorialOverlay: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[100010] bg-black/50 backdrop-blur-[2px]"
                             onClick={() => useTutorialStore.getState().cancelExit()}
                         />
                         <motion.div
@@ -747,7 +747,7 @@ export const TutorialOverlay: React.FC = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100010] bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[100010] bg-black/50 backdrop-blur-[2px]"
                             onClick={() => useTutorialStore.getState().cancelStart()}
                         />
                         <motion.div

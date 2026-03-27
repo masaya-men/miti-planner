@@ -201,7 +201,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         <div
             className={clsx(
                 "fixed z-[9999] pointer-events-none",
-                isCentered ? "inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-auto" : ""
+                isCentered ? "inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] pointer-events-auto" : ""
             )}
             style={!isCentered ? { top: 0, left: 0 } : {}}
             onClick={isCentered ? onClose : undefined} // 背景クリックで閉じる
