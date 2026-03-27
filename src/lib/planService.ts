@@ -44,6 +44,7 @@ function toFirestoreCreate(
     ownerDisplayName: displayName,
     title: plan.title || '',
     contentId: plan.contentId ?? '',
+    category: plan.category ?? null,
     isPublic: plan.isPublic ?? false,
     shareId: null,
     copyCount: plan.copyCount ?? 0,
@@ -67,6 +68,7 @@ function toFirestoreUpdate(
   const cleaned = JSON.parse(JSON.stringify({
     title: plan.title || '',
     contentId: plan.contentId ?? '',
+    category: plan.category ?? null,
     isPublic: plan.isPublic ?? false,
     data: plan.data,
     version: currentVersion + 1,
@@ -83,6 +85,7 @@ function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
     ownerDisplayName: data.ownerDisplayName,
     title: data.title,
     contentId: data.contentId || null,
+    category: (data as any).category ?? undefined,
     isPublic: data.isPublic,
     copyCount: data.copyCount,
     useCount: data.useCount,

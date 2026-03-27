@@ -130,7 +130,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     disabled={isDisabled}
                     {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
                     className={clsx(
-                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
+                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
                         isActive && !multiSelect.isEnabled
                             ? "text-app-text"
                             : "bg-transparent text-app-text hover:bg-glass-hover",
@@ -208,7 +208,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                         onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
                                         disabled={isPlanDisabled}
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                             isPlanSelected
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -234,7 +234,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                 ) : (
                                     <button
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
+                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -277,7 +277,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     {isActive && !multiSelect.isEnabled && (
                         <button
                             onClick={() => onSelect(content, true)}
-                            className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer"
+                            className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
                         >
                             <Plus size={10} className="shrink-0" />
                             {t('sidebar.add_plan')}
@@ -343,7 +343,7 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
         <div className="mb-1">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer"
+                className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
                 <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
                     <ChevronRight size={10} className="text-app-text-muted" />
@@ -404,7 +404,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
-                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200",
+                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
                     "text-app-text hover:bg-glass-hover",
                     "font-bold text-[10px] tracking-widest uppercase"
                 )}
@@ -435,6 +435,121 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                     ))}
                 </div>
             )}
+        </div>
+    );
+};
+
+// ─────────────────────────────────────────────
+// Sub-component: FreePlanSection
+// ダンジョン・レイド・その他のフリープラン表示
+// ─────────────────────────────────────────────
+
+interface FreePlanSectionProps {
+    label: string;
+    plans: import('../types').SavedPlan[];
+    currentPlanId: string | null;
+    multiSelect: MultiSelectState;
+    onToggleSelect: (id: string) => void;
+    onLoadPlan: (id: string) => void;
+    onUpdatePlan: (id: string, data: Partial<import('../types').SavedPlan>) => void;
+}
+
+const FreePlanSection: React.FC<FreePlanSectionProps> = ({
+    label, plans: catPlans, currentPlanId, multiSelect, onToggleSelect, onLoadPlan, onUpdatePlan
+}) => {
+    const { t } = useTranslation();
+    const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
+    const [editingTitle, setEditingTitle] = React.useState('');
+    const editInputRef = React.useRef<HTMLInputElement>(null);
+
+    const startEditing = (planId: string, title: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingPlanId(planId);
+        setEditingTitle(title);
+        setTimeout(() => editInputRef.current?.select(), 0);
+    };
+    const finishEditing = () => {
+        if (editingPlanId && editingTitle.trim()) {
+            onUpdatePlan(editingPlanId, { title: editingTitle.trim() });
+        }
+        setEditingPlanId(null);
+    };
+
+    return (
+        <div className="mb-2 mt-2">
+            <div className="px-2 py-1.5">
+                <span className="font-bold text-[10px] tracking-widest uppercase text-app-text-muted">
+                    {label}
+                </span>
+            </div>
+            <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2">
+                {catPlans.map(plan => {
+                    const isPlanSelected = multiSelect.isEnabled && multiSelect.selectedIds.includes(plan.id);
+                    const isPlanDisabled = multiSelect.isEnabled && multiSelect.mode === 'share' && !isPlanSelected && multiSelect.selectedIds.length >= 10;
+
+                    if (multiSelect.isEnabled) {
+                        return (
+                            <button
+                                key={plan.id}
+                                onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
+                                disabled={isPlanDisabled}
+                                className={clsx(
+                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                    isPlanSelected ? "bg-app-text/10 text-app-text font-bold" : "text-app-text hover:bg-glass-hover",
+                                    isPlanDisabled && "opacity-40 cursor-not-allowed"
+                                )}
+                            >
+                                {isPlanSelected
+                                    ? <CheckSquare size={12} className="text-app-text shrink-0" />
+                                    : <Square size={12} className="text-app-text-muted/40 shrink-0" />}
+                                {plan.title}
+                            </button>
+                        );
+                    }
+
+                    if (editingPlanId === plan.id) {
+                        return (
+                            <input
+                                key={plan.id}
+                                ref={editInputRef}
+                                autoFocus
+                                value={editingTitle}
+                                onChange={e => setEditingTitle(e.target.value)}
+                                onBlur={finishEditing}
+                                onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
+                                className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
+                            />
+                        );
+                    }
+
+                    return (
+                        <button
+                            key={plan.id}
+                            onClick={() => onLoadPlan(plan.id)}
+                            className={clsx(
+                                "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
+                                currentPlanId === plan.id ? "text-app-text font-bold" : "text-app-text hover:bg-glass-hover"
+                            )}
+                        >
+                            {currentPlanId === plan.id && (
+                                <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
+                            )}
+                            <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
+                            {plan.title}
+                            {currentPlanId === plan.id && (
+                                <Tooltip content={t('app.rename')}>
+                                    <button
+                                        onClick={(e) => startEditing(plan.id, plan.title, e)}
+                                        className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                    >
+                                        <Pencil size={9} />
+                                    </button>
+                                </Tooltip>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
         </div>
     );
 };
@@ -805,7 +920,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         key={plan.id}
                                         onClick={() => handleLoadPlan(plan.id)}
                                         className={clsx(
-                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border cursor-pointer",
+                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border cursor-pointer active:scale-[0.98]",
                                             currentPlanId === plan.id
                                                 ? "bg-transparent border-transparent"
                                                 : "bg-transparent border-transparent hover:bg-glass-active"
@@ -840,7 +955,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
                             }}
                             data-tutorial="new-plan"
-                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
+                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
                         >
                             <Plus size={10} />
                             {t('sidebar.new_plan').toUpperCase()}
@@ -848,10 +963,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => toggleMultiSelectMode('share')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer",
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                 multiSelect.isEnabled && multiSelect.mode === 'share'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-glass-hover shadow-sm"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
                             )}
                         >
                             {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={10} /> : <Square size={10} />}
@@ -861,10 +976,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => toggleMultiSelectMode('delete')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all border cursor-pointer shadow-sm",
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
                                 multiSelect.isEnabled && multiSelect.mode === 'delete'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-glass-hover"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
                             )}
                         >
                             <Trash2 size={10} />
@@ -882,7 +997,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         useMitigationStore.getState().setCurrentLevel(level);
                                     }}
                                     className={clsx(
-                                        "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer",
+                                        "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer active:scale-95",
                                         activeLevel === level
                                             ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
                                             : "text-app-text hover:bg-glass-hover"
@@ -897,10 +1012,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             <button
                                 onClick={() => setActiveCategory('all')}
                                 className={clsx(
-                                    "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
+                                    "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                     activeCategory === 'all'
                                         ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                        : "bg-glass-card text-app-text border-glass-border hover:border-glass-hover"
+                                        : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
                                 )}
                             >
                                 {t('ui.all').toUpperCase()}
@@ -910,10 +1025,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
                                     className={clsx(
-                                        "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all border cursor-pointer",
+                                        "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                         activeCategory === cat
                                             ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                            : "bg-glass-card text-app-text border-glass-border hover:border-glass-hover"
+                                            : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
                                     )}
                                 >
                                     {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
@@ -940,41 +1055,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 />
                             ))}
 
-                        {/* コンテンツ未紐付きプラン（自由作成したもの） */}
-                        {(() => {
-                            const unlinkedPlans = plans.filter(p => p.contentId === null && p.data.currentLevel === activeLevel);
-                            if (unlinkedPlans.length === 0) return null;
+                        {/* カテゴリ付きフリープラン（ダンジョン・レイド・その他） */}
+                        {(['dungeon', 'raid', 'custom'] as const)
+                            .filter(cat => activeCategory === 'all' || activeCategory === cat)
+                            .map(cat => {
+                            // categoryフィールドで振り分け。contentIdがcontents.jsonに存在しないプランも対象
+                            const catPlans = plans.filter(p => {
+                                if (p.data.currentLevel !== activeLevel) return false;
+                                // categoryフィールドがある場合はそれで判定
+                                if (p.category) return p.category === cat;
+                                // 旧プラン互換: contentIdがnullで categoryもない → customに振り分け
+                                if (p.contentId === null && cat === 'custom') return true;
+                                // contentIdがあるがcontents.jsonに未登録 → customに振り分け
+                                if (p.contentId && !getContentById(p.contentId) && cat === 'custom') return true;
+                                return false;
+                            });
+                            if (catPlans.length === 0) return null;
+                            const catLabel = CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja;
                             return (
-                                <div className="mb-2 mt-2">
-                                    <div className="px-2 py-1.5">
-                                        <span className="font-bold text-[10px] tracking-widest uppercase text-app-text-muted">
-                                            {t('sidebar.custom_plans')}
-                                        </span>
-                                    </div>
-                                    <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2">
-                                        {unlinkedPlans.map(plan => (
-                                            <button
-                                                key={plan.id}
-                                                onClick={() => handleLoadPlan(plan.id)}
-                                                className={clsx(
-                                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
-                                                    currentPlanId === plan.id
-                                                        ? "text-app-text font-bold"
-                                                        : "text-app-text hover:bg-glass-hover",
-                                                    "relative"
-                                                )}
-                                            >
-                                                {currentPlanId === plan.id && (
-                                                    <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
-                                                )}
-                                                <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
-                                                {plan.title}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                                <FreePlanSection
+                                    key={cat}
+                                    label={catLabel}
+                                    plans={catPlans}
+                                    currentPlanId={currentPlanId}
+                                    multiSelect={multiSelect}
+                                    onToggleSelect={toggleItemId}
+                                    onLoadPlan={handleLoadPlan}
+                                    onUpdatePlan={updatePlan}
+                                />
                             );
-                        })()}
+                        })}
                     </div>
 
                     {/* フローティングアクションバー — 画面下部中央（createPortalでbody直下） */}
@@ -1006,7 +1116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             {/* キャンセル */}
                             <button
                                 onClick={() => setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' })}
-                                className="py-1.5 px-4 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-colors cursor-pointer whitespace-nowrap"
+                                className="py-1.5 px-4 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
                             >
                                 {t('sidebar.cancel')}
                             </button>

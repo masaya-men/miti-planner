@@ -161,6 +161,8 @@ export interface SavedPlan {
     ownerDisplayName: string;
     title: string;
     contentId: string | null;
+    /** プランのカテゴリ。未設定の既存プランはcontentIdから逆引きする */
+    category?: ContentCategory;
     isPublic: boolean;
     copyCount: number;
     useCount: number;
