@@ -18,7 +18,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown, Crown
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown, Crown, Rows3
 } from 'lucide-react';
 import { JOBS, MITIGATIONS } from '../data/mockData';
 import clsx from 'clsx';
@@ -1306,8 +1306,8 @@ const Timeline: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 <div className={clsx(
-                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden shadow-sm border transition-all duration-300 ease-out",
-                    "border-app-border h-full z-[1]",
+                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden transition-all duration-300 ease-out",
+                    "h-full z-[1]",
                     "mx-0 md:mx-6 mt-0 md:mt-4 mb-0 md:mb-2 rounded-none md:rounded-xl"
                 )}>
                     {/* プラン未選択時 — Liquid Glass オーバーレイ（CSSクラス .no-plan で表示制御） */}
@@ -1415,6 +1415,20 @@ const Timeline: React.FC = () => {
 
                             {/* Area C: Remaining (RAW/TAKEN/Columns) */}
                             <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-app-border pl-2 h-full">
+                                <Tooltip content={t('timeline.row_borders')}>
+                                    <button
+                                        onClick={() => useMitigationStore.getState().setShowRowBorders(!useMitigationStore.getState().showRowBorders)}
+                                        className={clsx(
+                                            "p-1 rounded transition-all duration-150 cursor-pointer",
+                                            useMitigationStore.getState().showRowBorders
+                                                ? "text-app-text hover:bg-app-surface2"
+                                                : "text-app-text-muted hover:bg-app-surface2"
+                                        )}
+                                    >
+                                        <Rows3 size={12} />
+                                    </button>
+                                </Tooltip>
+                                <div className="w-[1px] h-3 bg-app-border mx-0.5" />
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}

@@ -132,15 +132,12 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                     className={clsx(
                         "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px]",
                         isActive && !multiSelect.isEnabled
-                            ? "bg-app-text/10 border border-app-text/20 text-app-text shadow-sm"
-                            : "bg-transparent border border-transparent text-app-text hover:bg-glass-hover",
+                            ? "text-app-text"
+                            : "bg-transparent text-app-text hover:bg-glass-hover",
                         isDisabled && "opacity-40 cursor-not-allowed grayscale",
                         isUnavailable && "opacity-20 pointer-events-none"
                     )}
                 >
-                    {isActive && !multiSelect.isEnabled && (
-                        <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-app-text rounded-full animate-in fade-in zoom-in duration-300" />
-                    )}
 
                     <div className="w-6 shrink-0 flex items-center justify-center">
                         <div className="relative flex flex-col items-center shrink-0 w-6">
@@ -240,7 +237,8 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                             "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
-                                                : "text-app-text hover:bg-glass-hover"
+                                                : "text-app-text hover:bg-glass-hover",
+                                            "relative"
                                         )}
                                         onClick={() => {
                                             if (currentPlanId === plan.id) return;
@@ -255,6 +253,9 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                             }, 'plan');
                                         }}
                                     >
+                                        {currentPlanId === plan.id && (
+                                            <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
+                                        )}
                                         <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
                                         {plan.title}
                                         {currentPlanId === plan.id && (
@@ -396,7 +397,6 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
         ? `${CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja}：${projectLabel[lang as ContentLanguage] || projectLabel.ja}`
         : CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
     const seriesList = getSeriesByLevel(level).filter(s => s.category === category);
-
     if (seriesList.length === 0) return null;
 
     return (
@@ -405,7 +405,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
                     "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200",
-                    isExpanded ? "bg-glass-active text-app-text" : "text-app-text hover:bg-glass-hover",
+                    "text-app-text hover:bg-glass-hover",
                     "font-bold text-[10px] tracking-widest uppercase"
                 )}
                 data-tutorial="sidebar-category"
@@ -807,7 +807,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         className={clsx(
                                             "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border cursor-pointer",
                                             currentPlanId === plan.id
-                                                ? "bg-app-text/10 border-app-text/20"
+                                                ? "bg-transparent border-transparent"
                                                 : "bg-transparent border-transparent hover:bg-glass-active"
                                         )}
                                     >
@@ -959,10 +959,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                                 className={clsx(
                                                     "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer",
                                                     currentPlanId === plan.id
-                                                        ? "bg-app-text/10 text-app-text font-bold"
-                                                        : "text-app-text hover:bg-glass-hover"
+                                                        ? "text-app-text font-bold"
+                                                        : "text-app-text hover:bg-glass-hover",
+                                                    "relative"
                                                 )}
                                             >
+                                                {currentPlanId === plan.id && (
+                                                    <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
+                                                )}
                                                 <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
                                                 {plan.title}
                                             </button>
