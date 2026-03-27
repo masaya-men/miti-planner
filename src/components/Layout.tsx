@@ -826,6 +826,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         {' · '}
                         <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
                         {' · '}
+                        <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
+                        {' · '}
                         <PulseSettings />
                     </p>
                 </footer>
