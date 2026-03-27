@@ -348,7 +348,9 @@
         "pulse_short": "短",
         "pulse_long": "長",
         "pulse_slow": "遅",
-        "pulse_fast": "速"
+        "pulse_fast": "速",
+        "discord": "Discord（質問・要望・バグ報告）",
+        "kofi": "Ko-fiで応援"
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",

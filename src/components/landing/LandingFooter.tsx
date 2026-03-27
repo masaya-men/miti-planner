@@ -62,7 +62,9 @@ export function LandingFooter() {
             <div>{t('portal.footer.copyright')}</div>
             <div className="text-[10px] mt-0.5">{t('portal.footer.disclaimer')}</div>
           </div>
-          <div className="flex gap-4 text-[11px] text-white/40">
+          <div className="flex flex-wrap justify-center md:justify-end gap-4 text-[11px] text-white/40">
+            <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.discord')}</a>
+            <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.kofi')}</a>
             <Link to="/privacy" className="hover:text-white/60 transition-colors">{t('portal.footer.privacy')}</Link>
             <Link to="/terms" className="hover:text-white/60 transition-colors">{t('portal.footer.terms')}</Link>
           </div>

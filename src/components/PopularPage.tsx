@@ -13,6 +13,7 @@ import { ArrowLeft, Sun, Moon, Link2, Download } from 'lucide-react';
 import { GridOverlay } from './GridOverlay';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { LoPoButton } from './LoPoButton';
+import { PulseSettings } from './PulseSettings';
 
 // --- 型定義 ---
 
@@ -572,6 +573,22 @@ export const PopularPage: React.FC = () => {
                 <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
                 {children}
             </main>
+
+            {/* フッター */}
+            <footer className="relative z-10 border-t border-app-border px-3 sm:px-5 py-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-[8px] text-app-text-muted tracking-wide">
+                <span>{t('footer.copyright')} · {t('footer.disclaimer')}</span>
+                <span className="flex flex-wrap items-center justify-center gap-x-2">
+                    <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
+                    <span>·</span>
+                    <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
+                    <span>·</span>
+                    <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
+                    <span>·</span>
+                    <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.kofi')}</a>
+                    <span>·</span>
+                    <PulseSettings />
+                </span>
+            </footer>
         </div>
     );
 

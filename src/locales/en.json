@@ -344,7 +344,9 @@
         "pulse_short": "Short",
         "pulse_long": "Long",
         "pulse_slow": "Slow",
-        "pulse_fast": "Fast"
+        "pulse_fast": "Fast",
+        "discord": "Discord (Questions, Feedback & Bugs)",
+        "kofi": "Support on Ko-fi"
     },
     "legal": {
         "privacy_title": "Privacy Policy",
