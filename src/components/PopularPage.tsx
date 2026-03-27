@@ -455,6 +455,8 @@ export const PopularPage: React.FC = () => {
 
         return (
             <section id="savage" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
+                <div className="glass-card-sweep" />
+                <div className="glass-card-sheen" />
                 <h2 className="text-lg font-bold text-app-text">{sectionTitle}</h2>
 
                 {!savageIds.some(id => data[id]?.plans?.length) && (
@@ -479,6 +481,8 @@ export const PopularPage: React.FC = () => {
     const renderUltimateSection = () => {
         return (
             <section id="ultimate" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
+                <div className="glass-card-sweep" />
+                <div className="glass-card-sheen" />
                 <h2 className="text-lg font-bold text-app-text">{t('popular.ultimate_section')}</h2>
 
                 {!ultimateIds.some(id => data[id]?.plans?.length) && (
@@ -533,11 +537,6 @@ export const PopularPage: React.FC = () => {
     const renderLayout = (children: React.ReactNode) => (
         <div className="min-h-screen bg-app-bg text-app-text relative">
             <GridOverlay />
-            {/* 波ライティング */}
-            <div className="popular-wave-container">
-                <div className="popular-wave" />
-            </div>
-
             {/* 固定ヘッダー（画面幅いっぱい） */}
             <header className="fixed top-0 left-0 right-0 z-50 glass-popular-header">
                 <div className="w-full px-5 h-20 flex items-center justify-between gap-4">
@@ -587,8 +586,7 @@ export const PopularPage: React.FC = () => {
             </header>
 
             {/* メインコンテンツ（フル幅） */}
-            <main className="relative z-10 w-full px-3 sm:px-5 pt-24 pb-8 flex flex-col gap-8 popular-ja-text">
-                <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
+            <main className="relative z-10 w-full px-3 sm:px-5 pt-[108px] pb-8 flex flex-col gap-6 popular-ja-text">
                 {children}
             </main>
 
@@ -599,6 +597,8 @@ export const PopularPage: React.FC = () => {
                     <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
                     <span>·</span>
                     <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
+                    <span>·</span>
+                    <a href="/commercial" className="underline hover:text-app-text transition-colors">{t('footer.commercial')}</a>
                     <span>·</span>
                     <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
                     <span>·</span>

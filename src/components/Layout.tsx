@@ -13,6 +13,7 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { getContentById } from '../data/contentRegistry';
+import { LoPoButton } from './LoPoButton';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { JOBS } from '../data/mockData';
@@ -51,7 +52,7 @@ const MobileHeader: React.FC<{
                 onClick={onHome}
                 className="p-1 text-app-text flex items-center shrink-0 cursor-pointer"
             >
-                <span className="text-sm font-black tracking-widest select-none">LoPo</span>
+                <LoPoButton size="sm" />
             </button>
 
             {/* 中央: コンテンツ名 / プラン名 */}
@@ -825,6 +826,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
                         {' · '}
                         <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
+                        {' · '}
+                        <a href="/commercial" className="underline hover:text-app-text transition-colors">{t('footer.commercial')}</a>
                         {' · '}
                         <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
                         {' · '}
