@@ -188,7 +188,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -329,7 +329,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                 />
 
                 {/* ─── Mobile: Bottom Sheet with inline step-by-step buttons ─── */}

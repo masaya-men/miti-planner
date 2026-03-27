@@ -1981,7 +1981,7 @@ const Timeline: React.FC = () => {
             {mobileMitiFlow.isOpen && (
                 <div className="fixed inset-0 z-[11000]" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                     {/* 半透明背景 */}
-                    <div className="absolute inset-0 bg-black/40" />
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
                     {/* ボトムシート — ボトムナビの上に配置（safe-area含む） */}
                     <div
                         className={clsx(
@@ -2312,7 +2312,7 @@ const Timeline: React.FC = () => {
             </MobileBottomSheet>
             {eventPopover && createPortal(
                 <div
-                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/30"
+                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
                     onClick={() => setEventPopover(null)}
                 >
                     <div

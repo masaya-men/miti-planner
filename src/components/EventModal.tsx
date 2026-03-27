@@ -438,7 +438,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none display-flex flex-col justify-end">
             {/* Transparent Backdrop */}
-            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent'}`} onClick={handleBackdropClick} />
+            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
             <div
                 data-tutorial-modal

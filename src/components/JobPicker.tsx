@@ -39,7 +39,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
             <div className="fixed inset-0 z-[9999] flex items-start justify-start pointer-events-none">
                 {/* Backdrop */}
                 <div
-                    className="absolute inset-0 bg-black/20 pointer-events-auto"
+                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] pointer-events-auto"
                     onClick={onClose}
                 />
 

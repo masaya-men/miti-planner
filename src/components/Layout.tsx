@@ -16,7 +16,7 @@ import { getContentById } from '../data/contentRegistry';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { JOBS } from '../data/mockData';
-import { Sun, Moon, Home, X, Star, LogOut, Loader2 } from 'lucide-react';
+import { Sun, Moon, X, Star, LogOut, Loader2 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -46,12 +46,12 @@ const MobileHeader: React.FC<{
             "h-9 shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
             "bg-app-bg/95 backdrop-blur-md border-app-border"
         )}>
-            {/* 左: Homeボタン */}
+            {/* 左: LoPoロゴ（Homeリンク兼用） */}
             <button
                 onClick={onHome}
-                className="p-1 text-app-text flex items-center shrink-0"
+                className="p-1 text-app-text flex items-center shrink-0 cursor-pointer"
             >
-                <Home size={16} />
+                <span className="text-sm font-black tracking-widest select-none">LoPo</span>
             </button>
 
             {/* 中央: コンテンツ名 / プラン名 */}
@@ -683,7 +683,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* ログイン成功オーバーレイ — 表の描画より先にウェルカム画面を全面表示（チラつき防止） */}
             {justLoggedInUser && (
-                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]">
                     <div className="flex flex-col items-center gap-5 animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)] bg-app-bg border border-app-border rounded-2xl px-10 py-8 shadow-2xl max-w-[380px]">
                         {justLoggedInUser.photoURL ? (
                             <img src={justLoggedInUser.photoURL} alt="" className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg" referrerPolicy="no-referrer" />
