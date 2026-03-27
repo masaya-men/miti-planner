@@ -1,17 +1,52 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, GLOW_LEVELS } from './GridOverlay';
+import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS } from './GridOverlay';
+
+// --- 色変換ユーティリティ ---
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; }
+    else if (h < 120) { r = x; g = c; }
+    else if (h < 180) { g = c; b = x; }
+    else if (h < 240) { g = x; b = c; }
+    else if (h < 300) { r = x; b = c; }
+    else { r = c; b = x; }
+    return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+}
+
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    if (max === min) return [0, 0, l];
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    let h = 0;
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+    else if (max === g) h = ((b - r) / d + 2) * 60;
+    else h = ((r - g) / d + 4) * 60;
+    return [h, s, l];
+}
+
+function rgbStringToHsl(rgb: string): [number, number, number] {
+    const parts = rgb.split(',').map(s => parseInt(s.trim(), 10));
+    return rgbToHsl(parts[0] || 255, parts[1] || 255, parts[2] || 255);
+}
 
 // デフォルト値
 const DEFAULTS = {
     enabled: true,
-    distance: 4,
-    speed: 1,
-    pulseWidth: 2,
-    pulseOpacity: 10,
+    distance: 3,
+    speed: 3,
+    pulseWidth: 3,
+    pulseOpacity: 3,
     colorId: 'auto',
-    glow: 2,
+    glow: 0,
     gridLineWidth: 1,
 };
 
@@ -21,6 +56,65 @@ const GRID_MIN = 0;
 const GRID_MAX = 7;
 const PULSE_WIDTH_MIN = 1;
 const PULSE_WIDTH_MAX = 10;
+const GLOW_MIN = 0;
+const GLOW_MAX = 5;
+
+// 連続値スライダー（色相・明度用）
+const GradientSlider: React.FC<{
+    value: number;
+    onChange: (v: number) => void;
+    min: number;
+    max: number;
+    gradient: string;
+    thumbColor: string;
+    disabled?: boolean;
+}> = ({ value, onChange, min, max, gradient, thumbColor, disabled }) => {
+    const trackRef = useRef<HTMLDivElement>(null);
+    const [dragging, setDragging] = useState(false);
+
+    const getValueFromX = useCallback((clientX: number) => {
+        if (!trackRef.current) return value;
+        const rect = trackRef.current.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        return ratio * (max - min) + min;
+    }, [value, min, max]);
+
+    const handlePointerDown = (e: React.PointerEvent) => {
+        if (disabled) return;
+        e.preventDefault();
+        setDragging(true);
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        onChange(getValueFromX(e.clientX));
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!dragging || disabled) return;
+        onChange(getValueFromX(e.clientX));
+    };
+
+    const handlePointerUp = () => setDragging(false);
+
+    const percent = ((value - min) / (max - min)) * 100;
+
+    return (
+        <div
+            ref={trackRef}
+            className="relative h-5 flex items-center cursor-pointer rounded-full"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+        >
+            <div
+                className="absolute left-0 right-0 h-[6px] rounded-full border border-app-border/50"
+                style={{ background: gradient }}
+            />
+            <div
+                className="absolute w-3.5 h-3.5 rounded-full -translate-x-1/2 border-2 border-app-bg shadow-sm transition-[left] duration-75"
+                style={{ left: `${percent}%`, backgroundColor: thumbColor }}
+            />
+        </div>
+    );
+};
 
 // 吸着スライダー
 const SnapSlider: React.FC<{
@@ -132,6 +226,14 @@ export const PulseSettings: React.FC = () => {
     const [colorId, setColorId] = useState(pulseVisualConfig.colorId);
     const [glow, setGlow] = useState(pulseVisualConfig.glow);
     const [gridLineWidth, setGridLineWidth] = useState(gridConfig.lineWidth);
+    const [customHue, setCustomHue] = useState(() => {
+        const [h] = rgbStringToHsl(pulseVisualConfig.customColor);
+        return h;
+    });
+    const [customLightness, setCustomLightness] = useState(() => {
+        const [,, l] = rgbStringToHsl(pulseVisualConfig.customColor);
+        return l;
+    });
     const panelRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -147,6 +249,18 @@ export const PulseSettings: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClick);
     }, [isOpen]);
 
+    // カスタム色のRGB文字列を計算
+    const customRgb = (() => {
+        const [r, g, b] = hslToRgb(customHue, 1, customLightness);
+        return `${r}, ${g}, ${b}`;
+    })();
+
+    // カスタム色が変わったらpulseVisualConfigに反映
+    const updateCustomColor = useCallback((hue: number, lightness: number) => {
+        const [r, g, b] = hslToRgb(hue, 1, lightness);
+        pulseVisualConfig.customColor = `${r}, ${g}, ${b}`;
+    }, []);
+
     // 更新関数
     const update = {
         enabled: (v: boolean) => { setEnabled(v); pulseConfig.enabled = v; },
@@ -157,6 +271,8 @@ export const PulseSettings: React.FC = () => {
         colorId: (v: string) => { setColorId(v); pulseVisualConfig.colorId = v; },
         glow: (v: number) => { setGlow(v); pulseVisualConfig.glow = v; },
         gridLineWidth: (v: number) => { setGridLineWidth(v); gridConfig.lineWidth = v; },
+        customHue: (v: number) => { setCustomHue(v); updateCustomColor(v, customLightness); },
+        customLightness: (v: number) => { setCustomLightness(v); updateCustomColor(customHue, v); },
     };
 
     const resetToDefault = () => {
@@ -174,22 +290,35 @@ export const PulseSettings: React.FC = () => {
         && pulseWidth === DEFAULTS.pulseWidth && pulseOpacity === DEFAULTS.pulseOpacity
         && colorId === DEFAULTS.colorId && glow === DEFAULTS.glow && gridLineWidth === DEFAULTS.gridLineWidth;
 
-    // 色プリセットのオプション
+    // 色プリセットのオプション（カスタムボタン付き）
     const colorOptions = Object.keys(PULSE_COLOR_PRESETS).map(id => ({
         id,
         label: t(`footer.pulse_color_${id}`),
     }));
 
-    // グローオプション
-    const glowOptions = GLOW_LEVELS.map((_, i) => ({
-        id: String(i),
-        label: t(`footer.glow_${i}`),
-    }));
-
     const pulseDisabledClass = !enabled ? 'opacity-30 pointer-events-none' : '';
 
+    // 色相グラデーション（レインボー）
+    const hueGradient = 'linear-gradient(to right, hsl(0,100%,50%), hsl(60,100%,50%), hsl(120,100%,50%), hsl(180,100%,50%), hsl(240,100%,50%), hsl(300,100%,50%), hsl(360,100%,50%))';
+    // 明度グラデーション（現在の色相で黒→色→白）
+    const lightnessGradient = `linear-gradient(to right, hsl(${customHue},100%,0%), hsl(${customHue},100%,50%), hsl(${customHue},100%,100%))`;
+    // 現在のカスタムカラー（サムネ用）
+    const currentCustomCss = `rgb(${customRgb})`;
+
+    // パネル位置をボタン基準で計算
+    const [panelStyle, setPanelStyle] = useState<React.CSSProperties>({});
+    useEffect(() => {
+        if (!isOpen || !buttonRef.current) return;
+        const rect = buttonRef.current.getBoundingClientRect();
+        setPanelStyle({
+            position: 'fixed',
+            bottom: window.innerHeight - rect.top + 6,
+            left: rect.left + rect.width / 2 - 120, // 240px / 2
+        });
+    }, [isOpen]);
+
     return (
-        <span className="relative inline-block">
+        <>
             <button
                 ref={buttonRef}
                 onClick={() => setIsOpen(!isOpen)}
@@ -198,10 +327,11 @@ export const PulseSettings: React.FC = () => {
                 {t('footer.pulse_settings')}
             </button>
 
-            {isOpen && (
+            {isOpen && createPortal(
                 <div
                     ref={panelRef}
-                    className="absolute bottom-6 left-1/2 -translate-x-1/2 glass-tier3 rounded-xl p-3 w-[240px] z-[99999]"
+                    className="glass-tier3 rounded-xl p-3 w-[240px] z-[99999] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain"
+                    style={panelStyle}
                 >
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between mb-2">
@@ -276,15 +406,58 @@ export const PulseSettings: React.FC = () => {
                         <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
                             {t('footer.pulse_color')}
                         </div>
-                        <PillSelect options={colorOptions} value={colorId} onChange={update.colorId} disabled={!enabled} />
+                        <div className="flex items-center gap-1.5">
+                            <PillSelect options={colorOptions} value={colorId} onChange={update.colorId} disabled={!enabled} />
+                            {/* 虹色カスタムボタン */}
+                            <button
+                                onClick={() => !enabled ? null : update.colorId(colorId === 'custom' ? 'auto' : 'custom')}
+                                className={`w-[26px] h-[26px] rounded-full shrink-0 transition-all cursor-pointer flex items-center justify-center ${
+                                    colorId === 'custom'
+                                        ? 'ring-2 ring-app-text ring-offset-1 ring-offset-app-bg'
+                                        : 'hover:scale-110'
+                                } ${!enabled ? 'opacity-30 pointer-events-none' : ''}`}
+                                style={{
+                                    background: 'conic-gradient(hsl(0,80%,60%), hsl(60,80%,60%), hsl(120,80%,60%), hsl(180,80%,60%), hsl(240,80%,60%), hsl(300,80%,60%), hsl(360,80%,60%))',
+                                }}
+                                title={t('footer.pulse_color_custom')}
+                            />
+                        </div>
+
+                        {/* カスタムカラーピッカー */}
+                        {colorId === 'custom' && enabled && (
+                            <div className="mt-2 space-y-1.5">
+                                <div className="text-[8px] text-app-text-muted uppercase tracking-wider">
+                                    {t('footer.pulse_color_hue')}
+                                </div>
+                                <GradientSlider
+                                    value={customHue}
+                                    onChange={update.customHue}
+                                    min={0} max={360}
+                                    gradient={hueGradient}
+                                    thumbColor={`hsl(${customHue}, 100%, 50%)`}
+                                />
+                                <div className="text-[8px] text-app-text-muted uppercase tracking-wider">
+                                    {t('footer.pulse_color_lightness')}
+                                </div>
+                                <GradientSlider
+                                    value={customLightness}
+                                    onChange={update.customLightness}
+                                    min={0.05} max={0.95}
+                                    gradient={lightnessGradient}
+                                    thumbColor={currentCustomCss}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* グロー */}
                     <div className={`mb-3 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
+                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_glow')}
                         </div>
-                        <PillSelect options={glowOptions} value={String(glow)} onChange={v => update.glow(Number(v))} disabled={!enabled} />
+                        <SnapSlider value={glow} onChange={update.glow}
+                            leftLabel={t('footer.glow_0')} rightLabel={t('footer.glow_max', 'MAX')}
+                            min={GLOW_MIN} max={GLOW_MAX} disabled={!enabled} />
                     </div>
 
                     {/* ━━ 格子 ━━ */}
@@ -311,8 +484,9 @@ export const PulseSettings: React.FC = () => {
                     >
                         {t('common.reset', 'Reset to Default')}
                     </button>
-                </div>
+                </div>,
+                document.body
             )}
-        </span>
+        </>
     );
 };

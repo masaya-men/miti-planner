@@ -25,26 +25,26 @@ export function getGridLineWidth(): number {
 // --- 光パルス設定（外部から変更可能、1-5の5段階） ---
 export const pulseConfig = {
     enabled: true,
-    distance: 4,  // 1-5、デフォルト4
-    speed: 1,     // 1-5、デフォルト1
+    distance: 3,  // 1-5、デフォルト3
+    speed: 3,     // 1-5、デフォルト3
 };
 
 // 距離: 段階→[min, max]セル数
 const DISTANCE_MAP: [number, number][] = [
-    [2, 4],    // 1
-    [4, 8],    // 2
-    [6, 12],   // 3（デフォルト）
-    [10, 18],  // 4
-    [14, 25],  // 5
+    [2, 3],    // 1（短い）
+    [3, 5],    // 2
+    [4, 6],    // 3（デフォルト、約5セル）
+    [7, 12],   // 4
+    [10, 18],  // 5（長い）
 ];
 
 // 速度: 段階→セグメント時間(ms)、小さいほど速い
 const SPEED_MAP: number[] = [
-    90,   // 1（遅）
-    65,   // 2
-    50,   // 3（デフォルト）
-    35,   // 4
-    20,   // 5（速）
+    400,  // 1（遅）
+    300,  // 2
+    200,  // 3（デフォルト）
+    100,  // 4
+    50,   // 5（速）
 ];
 
 function getPulseLength(): [number, number] {
@@ -56,10 +56,11 @@ function getPulseSegmentDuration(): number {
 
 // パルス表示設定
 export const pulseVisualConfig = {
-    width: 2,      // 1-10、デフォルト2（0.2px）
-    opacity: 10,   // 1-10、デフォルト10（1.0）
-    colorId: 'auto' as string,  // 'auto' | 'amber' | 'lavender'（将来拡張可能）
-    glow: 2,       // 0=なし、1=小、2=中（デフォルト）、3=大
+    width: 3,      // 1-10、デフォルト3（0.15px）
+    opacity: 3,    // 1-10、デフォルト3（0.2）
+    colorId: 'auto' as string,  // 'auto' | 'amber' | 'lavender' | 'custom'
+    customColor: '255, 255, 255',  // カスタム色のRGB文字列（ダーク/ライト共通）
+    glow: 0,       // 0-5、デフォルト0（なし）
 };
 
 // カラープリセット: id → { dark, light } のRGB文字列
@@ -70,23 +71,56 @@ export const PULSE_COLOR_PRESETS: Record<string, { dark: string; light: string }
     lavender: { dark: '175, 140, 255', light: '110, 70, 200' },
 };
 
-// グローレベル定義
+// グローレベル定義（0-5の6段階スライダー、微少な段階差）
 export const GLOW_LEVELS = [
-    { blur: 0,  radius: 0, opacity: 0 },      // 0: なし
-    { blur: 6,  radius: 3, opacity: 0.4 },     // 1: 小
-    { blur: 12, radius: 5, opacity: 0.35 },    // 2: 中（デフォルト）
-    { blur: 20, radius: 8, opacity: 0.3 },     // 3: 大
+    { blur: 0,  radius: 0, opacity: 0 },      // 0: なし（デフォルト）
+    { blur: 3,  radius: 2, opacity: 0.2 },    // 1: ほんのり
+    { blur: 6,  radius: 3, opacity: 0.25 },   // 2: 控えめ
+    { blur: 10, radius: 4, opacity: 0.3 },    // 3
+    { blur: 16, radius: 6, opacity: 0.35 },   // 4
+    { blur: 24, radius: 8, opacity: 0.3 },    // 5: 強め
+];
+
+// パルス太さ: 段階→実際の線幅(px)
+const WIDTH_MAP: number[] = [
+    0.10, // 1
+    0.15, // 2
+    0.25, // 3（デフォルト）
+    0.35, // 4
+    0.50, // 5
+    0.65, // 6
+    0.80, // 7
+    1.0,  // 8
+    1.2,  // 9
+    1.5,  // 10
 ];
 
 export function getPulseLineWidth(): number {
-    return pulseVisualConfig.width * 0.1;
+    return WIDTH_MAP[pulseVisualConfig.width - 1] ?? WIDTH_MAP[2];
 }
 
+// 光の強さ: 段階→実際のopacity
+const OPACITY_MAP: number[] = [
+    0.1,  // 1
+    0.3,  // 2
+    0.5,  // 3（デフォルト）
+    0.6,  // 4
+    0.7,  // 5
+    0.8,  // 6
+    0.85, // 7
+    0.9,  // 8
+    0.95, // 9
+    1.0,  // 10
+];
+
 export function getPulseMaxOpacity(): number {
-    return pulseVisualConfig.opacity * 0.1;
+    return OPACITY_MAP[pulseVisualConfig.opacity - 1] ?? OPACITY_MAP[2];
 }
 
 export function getPulseColor(isDark: boolean): string {
+    if (pulseVisualConfig.colorId === 'custom') {
+        return pulseVisualConfig.customColor;
+    }
     const preset = PULSE_COLOR_PRESETS[pulseVisualConfig.colorId] ?? PULSE_COLOR_PRESETS.auto;
     return isDark ? preset.dark : preset.light;
 }
@@ -127,8 +161,6 @@ export const GridOverlay: React.FC = () => {
     const mouseRef = useRef({ x: -9999, y: -9999 });
     const rafRef = useRef<number>(0);
     const accentRef = useRef('34, 211, 238');
-    // テーマ色（光パルス用）: ダーク=白、ライト=黒
-    const pulseColorRef = useRef('255, 255, 255');
     const pulsesRef = useRef<Pulse[]>([]);
     const lastPulseTimeRef = useRef(0);
     // 前回のマウス位置（格子線との交差判定用）
@@ -267,7 +299,10 @@ export const GridOverlay: React.FC = () => {
         }
 
         // --- 光パルスの描画 ---
-        const pulseColor = pulseColorRef.current;
+        // カラー設定変更を即時反映するため、毎フレーム取得
+        const isDark = document.documentElement.classList.contains('theme-dark') ||
+                       (!document.documentElement.classList.contains('theme-light'));
+        const pulseColor = getPulseColor(isDark);
         const glowLevel = getGlowLevel();
         const activePulses: Pulse[] = [];
 
@@ -384,12 +419,6 @@ export const GridOverlay: React.FC = () => {
             if (raw) accentRef.current = raw;
         };
 
-        // パルス色をテーマに応じて設定
-        const updatePulseColor = () => {
-            const isDark = document.documentElement.classList.contains('theme-dark') ||
-                           (!document.documentElement.classList.contains('theme-light'));
-            pulseColorRef.current = getPulseColor(isDark);
-        };
 
         const handleMouseMove = (e: MouseEvent) => {
             const prev = prevMouseRef.current;
@@ -430,13 +459,11 @@ export const GridOverlay: React.FC = () => {
         };
 
         updateAccent();
-        updatePulseColor();
         handleResize();
 
-        // テーマ切り替え時にアクセントカラーとパルス色を再取得
+        // テーマ切り替え時にアクセントカラーを再取得
         const observer = new MutationObserver(() => {
             updateAccent();
-            updatePulseColor();
             scheduleRedraw();
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
