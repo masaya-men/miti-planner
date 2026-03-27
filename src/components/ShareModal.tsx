@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, Loader2, ExternalLink } from 'lucide-react';
 import clsx from 'clsx';
@@ -103,7 +104,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
             onClick={onClose}
@@ -213,6 +214,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
