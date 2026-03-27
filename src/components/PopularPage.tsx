@@ -347,7 +347,12 @@ export const PopularPage: React.FC = () => {
             <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
             <div className="h-3 w-2/3 rounded bg-app-border" />
             {renderDummyJobIcons()}
-            <div className="mt-auto w-full h-8 rounded-full border border-app-border" />
+            {/* ダミーボタン（実カードと同じ構成） */}
+            <div className="mt-auto flex gap-1.5">
+                <div className="flex-1 h-8 rounded-full border border-app-border" />
+                <div className="h-8 w-8 rounded-full border border-app-border shrink-0" />
+                <div className="h-8 w-8 rounded-full border border-app-border shrink-0" />
+            </div>
         </div>
     );
 
