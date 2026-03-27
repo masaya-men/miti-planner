@@ -229,7 +229,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             />
                                         ) : (
                                             <div
-                                                className="relative group/rename text-[13px] text-app-text tracking-wider uppercase cursor-pointer hover:border-b hover:border-app-text/20"
+                                                className="text-[13px] text-app-text tracking-wider uppercase cursor-pointer hover:border-b hover:border-app-text/20"
                                                 style={{
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
@@ -240,10 +240,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 onDoubleClick={startHeaderEdit}
                                             >
                                                 {currentPlan.title}
-                                                {/* カスタムツールチップ */}
-                                                <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold tracking-normal normal-case whitespace-nowrap bg-app-text text-app-bg opacity-0 group-hover/rename:opacity-100 transition-opacity duration-200 z-50">
-                                                    {t('app.double_click_rename')}
-                                                </span>
                                             </div>
                                         )
                                     )}
