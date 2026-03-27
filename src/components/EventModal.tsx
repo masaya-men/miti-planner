@@ -349,47 +349,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
     }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 
-    // Helper to calculate single shield value
-    const getShieldAmount = (def: typeof MITIGATIONS[0]) => {
-        if (!def.isShield) return 0;
-
-        const member = partyMembers.find(m => m.jobId === def.jobId);
-        if (member && member.computedValues) {
-            return member.computedValues[contentLanguage === 'en' ? def.name.en : def.name.ja] || 0;
-        }
-
-        let stats = DEFAULT_HEALER_STATS;
-        let role = 'healer';
-
-        if (def.jobId) {
-            const m2 = partyMembers.find(m => m.jobId === def.jobId);
-            if (m2) {
-                stats = m2.stats;
-                role = m2.role;
-            } else {
-                const job = JOBS.find(j => j.id === def.jobId);
-                if (job?.role === 'tank') stats = DEFAULT_TANK_STATS;
-            }
-        }
-
-        if (def.valueType === 'hp') {
-            return calculateHpValue(stats.hp, def.value || 0);
-        } else if (def.valueType === 'potency') {
-            let val = calculatePotencyValue({ ...stats, wd: stats.wd }, def.value || 0, role, LEVEL_MODIFIERS[currentLevel]);
-            if (def.healingIncrease) val = Math.floor(val * def.healingIncrease);
-            return val;
-        }
-
-        return 0;
-    };
-
     const getTooltipText = (mit: typeof MITIGATIONS[0]) => {
-        const localizedName = contentLanguage === 'en' ? mit.name.en : mit.name.ja;
-        if (mit.isShield) {
-            const val = getShieldAmount(mit);
-            return `${localizedName} (Barrier: ${val})`;
-        }
-        return `${localizedName} (Mitigation: ${mit.value}%)`;
+        return contentLanguage === 'en' ? mit.name.en : mit.name.ja;
     };
 
     if (!isOpen) return null;

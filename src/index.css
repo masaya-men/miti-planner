@@ -85,7 +85,7 @@
     --color-text-muted: #a1a1aa;
     --color-text-on-accent: #000000;
 
-    --color-border: rgba(255, 255, 255, 0.12);
+    --color-border: rgba(255, 255, 255, 0.22);
     --color-border-accent: rgba(255, 255, 255, 0.3);
 
     --glass-tier3-bg: transparent;
@@ -107,10 +107,15 @@
     --glass-bg-header: transparent;
     --glass-bg-panel: transparent;
     --glass-bg-card: transparent;
-    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.22);
     --glass-hover: rgba(255, 255, 255, 0.06);
     --glass-active: rgba(255, 255, 255, 0.1);
     --glass-shadow: none;
+
+    /* glass-panel（タイムライン枠） */
+    --glass-panel-border: rgba(255, 255, 255, 0.25);
+    --glass-panel-inset: none;
+    --glass-panel-shadow: 0 0 15px rgba(255, 255, 255, 0.2), 0 0 4px rgba(255, 255, 255, 0.4);
   }
 
   .theme-light {
@@ -129,7 +134,7 @@
     --color-text-muted: #52525b;
     --color-text-on-accent: #ffffff;
 
-    --color-border: rgba(0, 0, 0, 0.12);
+    --color-border: rgba(0, 0, 0, 1);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
     --glass-tier3-bg: transparent;
@@ -151,10 +156,15 @@
     --glass-bg-header: transparent;
     --glass-bg-panel: transparent;
     --glass-bg-card: transparent;
-    --glass-border: rgba(0, 0, 0, 0.12);
+    --glass-border: rgba(0, 0, 0, 1);
     --glass-hover: rgba(0, 0, 0, 0.04);
     --glass-active: rgba(0, 0, 0, 0.08);
     --glass-shadow: none;
+
+    /* glass-panel（タイムライン枠） */
+    --glass-panel-border: rgba(0, 0, 0, 1);
+    --glass-panel-inset: none;
+    --glass-panel-shadow: 0 0 8px rgba(0, 0, 0, 0.15), 0 0 2px rgba(0, 0, 0, 0.4);
   }
 
   body {
@@ -622,10 +632,15 @@
   );
 }
 
-/* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
+/* glass-panel — タイムライン枠のガラス表現 */
 .glass-panel {
-  border: 1px solid var(--glass-border);
+  position: relative;
+  border: 1px solid var(--glass-panel-border) !important;
+  box-shadow:
+    var(--glass-panel-inset),
+    var(--glass-panel-shadow) !important;
 }
+
 
 /* ボタン・インタラクティブ要素 — シンプルなホバー */
 .glass-interactive {

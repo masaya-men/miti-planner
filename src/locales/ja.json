@@ -245,6 +245,7 @@
         "event_add_here": "この時間にイベントを追加",
         "event_delete": "イベントを削除",
         "add_mitigation_here": "軽減を追加",
+        "row_borders": "罫線の表示/非表示",
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",

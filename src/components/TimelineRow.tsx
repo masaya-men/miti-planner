@@ -126,8 +126,9 @@ export const TimelineRow = memo(({
         <div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full md:w-fit border-b flex h-[50px] group  duration-75",
-                "border-app-border hover:bg-app-surface2"
+                "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
+                "hover:bg-app-surface2",
+                useMitigationStore.getState().showRowBorders && "border-b border-app-border"
             )}
             style={{ top: `${top}px` }}
         >
@@ -280,7 +281,7 @@ export const TimelineRow = memo(({
                     /* 2イベント */
                     <>
                         {[0, 1].map((idx) => (
-                            <div key={idx} className={clsx("flex-1 w-full relative group/slot", idx === 0 && "border-b border-app-border")}>
+                            <div key={idx} className={clsx("flex-1 w-full relative group/slot", idx === 0 && useMitigationStore.getState().showRowBorders && "border-b border-app-border")}>
                                 <div
                                     className="w-full h-full flex items-center px-2 gap-1 md:gap-2 cursor-pointer hover:bg-app-surface2"
                                     onClick={(e) => {
@@ -380,7 +381,7 @@ export const TimelineRow = memo(({
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 w-full flex items-center justify-center border-b border-app-border">
+                        <div className={clsx("flex-1 w-full flex items-center justify-center", useMitigationStore.getState().showRowBorders && "border-b border-app-border")}>
                             {damages[0] && damages[0].unmitigated > 0 ? formatDmg(damages[0].unmitigated) : ''}
                         </div>
                         <div className="flex-1 w-full flex items-center justify-center">
@@ -460,7 +461,7 @@ export const TimelineRow = memo(({
                     <>
                         {[0, 1].map((idx) => (
                             <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0.5 leading-none",
-                                idx === 0 && "border-b border-app-border",
+                                idx === 0 && useMitigationStore.getState().showRowBorders && "border-b border-app-border",
                                 (() => {
                                     const evt = events[idx];
                                     const dmg = damages[idx];

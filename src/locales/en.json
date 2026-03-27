@@ -241,6 +241,7 @@
         "event_add_here": "Add Event Here",
         "event_delete": "Delete Event",
         "add_mitigation_here": "Add Mitigation",
+        "row_borders": "Toggle row borders",
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",

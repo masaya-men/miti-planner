@@ -48,6 +48,7 @@ interface MitigationState {
     myMemberId: string | null;
     myJobHighlight: boolean;
     hideEmptyRows: boolean;
+    showRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
 
@@ -101,6 +102,7 @@ interface MitigationState {
     setMyMemberId: (memberId: string | null) => void;
     setMyJobHighlight: (enabled: boolean) => void;
     setHideEmptyRows: (hide: boolean) => void;
+    setShowRowBorders: (show: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
 }
@@ -168,6 +170,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myMemberId: null,
                 myJobHighlight: false,
                 hideEmptyRows: false,
+                showRowBorders: false,
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
                 _history: [],
@@ -336,6 +339,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
+                setShowRowBorders: (show) => set({ showRowBorders: show }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
 
@@ -804,6 +808,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myMemberId: state.myMemberId,
                 myJobHighlight: state.myJobHighlight,
                 hideEmptyRows: state.hideEmptyRows,
+                showRowBorders: state.showRowBorders,
                 timelineSortOrder: state.timelineSortOrder
             }),
             migrate: (persistedState: any, _version: number) => {
