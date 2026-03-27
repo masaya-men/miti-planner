@@ -10,41 +10,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 10
 
-      - name: Build and send Discord message
+      - name: Send Discord notification
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        shell: bash
         run: |
-          # feat: と fix: のコミットのみ抽出（chore/docs等は除外）
-          COMMITS=$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.sha }} \
-            | grep -iE "^(feat|fix):" \
-            | sed 's/^feat: /✨ /' \
-            | sed 's/^fix: /🔧 /' \
-            | head -10)
+          COMMITS=$(git log --pretty=format:"%s" "${BEFORE_SHA}..${AFTER_SHA}" 2>/dev/null | grep -iE "^(feat|fix):" | head -10 || true)
 
-          # 対象コミットがなければ通知しない
           if [ -z "$COMMITS" ]; then
-            echo "No feat/fix commits, skipping notification."
+            echo "No feat/fix commits, skipping."
             exit 0
           fi
 
-          # 箇条書きに整形
-          BULLET_LIST=$(echo "$COMMITS" | sed 's/^/・/')
+          BULLET_LIST=$(echo "$COMMITS" | sed 's/^feat: /* ✨ /' | sed 's/^fix: /* 🔧 /')
 
-          # Discordメッセージ組み立て
-          MESSAGE="# 🛡️ LoPo アップデート
+          MESSAGE=$(printf "# 🛡️ LoPo アップデート\n\n%s\n\n🔗 <https://lopoly.app/>" "$BULLET_LIST")
 
-${BULLET_LIST}
-
-🔗 <https://lopoly.app/>"
-
-          # JSON payload作成（jqで安全にエスケープ）
           PAYLOAD=$(jq -n --arg content "$MESSAGE" '{"content": $content}')
 
-          # Discord Webhookに送信
-          curl -s -H "Content-Type: application/json" \
-            -d "$PAYLOAD" \
-            "$DISCORD_WEBHOOK_URL"
+          curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL"
 
-          echo "Discord notification sent!"
+          echo "Done"
