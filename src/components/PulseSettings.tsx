@@ -5,11 +5,15 @@ import { pulseConfig, gridConfig, pulseLineConfig } from './GridOverlay';
 
 const DEFAULT_DISTANCE = 3;
 const DEFAULT_SPEED = 3;
-const DEFAULT_LINE_WIDTH = 4;
+const DEFAULT_GRID_LINE_WIDTH = 4;
+const DEFAULT_PULSE_WIDTH = 5;
+const DEFAULT_PULSE_OPACITY = 10;
 const PULSE_MIN = 1;
 const PULSE_MAX = 5;
 const GRID_MIN = 0;
 const GRID_MAX = 7;
+const PULSE_WIDTH_MIN = 1;
+const PULSE_WIDTH_MAX = 10;
 
 // 吸着スライダー（min/maxをpropsで指定可能）
 const SnapSlider: React.FC<{
@@ -97,6 +101,7 @@ export const PulseSettings: React.FC = () => {
     const [speed, setSpeed] = useState(pulseConfig.speed);
     const [lineWidth, setLineWidth] = useState(gridConfig.lineWidth);
     const [pulseWidth, setPulseWidth] = useState(pulseLineConfig.width);
+    const [pulseOpacity, setPulseOpacity] = useState(pulseLineConfig.opacity);
     const panelRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -138,15 +143,21 @@ export const PulseSettings: React.FC = () => {
         pulseLineConfig.width = v;
     };
 
+    const updatePulseOpacity = (v: number) => {
+        setPulseOpacity(v);
+        pulseLineConfig.opacity = v;
+    };
+
     const resetToDefault = () => {
         updateEnabled(true);
         updateDistance(DEFAULT_DISTANCE);
         updateSpeed(DEFAULT_SPEED);
-        updateLineWidth(DEFAULT_LINE_WIDTH);
-        updatePulseWidth(DEFAULT_LINE_WIDTH);
+        updateLineWidth(DEFAULT_GRID_LINE_WIDTH);
+        updatePulseWidth(DEFAULT_PULSE_WIDTH);
+        updatePulseOpacity(DEFAULT_PULSE_OPACITY);
     };
 
-    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED && lineWidth === DEFAULT_LINE_WIDTH && pulseWidth === DEFAULT_LINE_WIDTH;
+    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED && lineWidth === DEFAULT_GRID_LINE_WIDTH && pulseWidth === DEFAULT_PULSE_WIDTH && pulseOpacity === DEFAULT_PULSE_OPACITY;
 
     return (
         <span className="relative inline-block">
@@ -163,13 +174,18 @@ export const PulseSettings: React.FC = () => {
                     ref={panelRef}
                     className="absolute bottom-6 left-1/2 -translate-x-1/2 glass-tier3 rounded-xl p-3 w-[220px] z-[99999]"
                 >
-                    {/* ×ボタン */}
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer"
-                    >
-                        <X size={12} />
-                    </button>
+                    {/* ヘッダー: タイトル + ×ボタン */}
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-bold text-app-text uppercase tracking-wider">
+                            {t('footer.pulse_settings')}
+                        </span>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer"
+                        >
+                            <X size={12} />
+                        </button>
+                    </div>
 
                     {/* ON/OFF トグル */}
                     <div className="flex items-center justify-between mb-3">
@@ -224,10 +240,26 @@ export const PulseSettings: React.FC = () => {
                         <SnapSlider
                             value={pulseWidth}
                             onChange={updatePulseWidth}
-                            leftLabel={t('footer.grid_none')}
+                            leftLabel={t('footer.pulse_thin')}
                             rightLabel={t('footer.grid_thick')}
-                            min={GRID_MIN}
-                            max={GRID_MAX}
+                            min={PULSE_WIDTH_MIN}
+                            max={PULSE_WIDTH_MAX}
+                            disabled={!enabled}
+                        />
+                    </div>
+
+                    {/* パルスの光の強さスライダー */}
+                    <div className={`mb-3 transition-opacity ${!enabled ? 'opacity-30 pointer-events-none' : ''}`}>
+                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
+                            {t('footer.pulse_opacity')}
+                        </div>
+                        <SnapSlider
+                            value={pulseOpacity}
+                            onChange={updatePulseOpacity}
+                            leftLabel={t('footer.pulse_dim')}
+                            rightLabel={t('footer.pulse_bright')}
+                            min={PULSE_WIDTH_MIN}
+                            max={PULSE_WIDTH_MAX}
                             disabled={!enabled}
                         />
                     </div>

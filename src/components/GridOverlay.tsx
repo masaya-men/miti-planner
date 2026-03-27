@@ -54,17 +54,19 @@ function getPulseSegmentDuration(): number {
     return SPEED_MAP[pulseConfig.speed - 1] ?? SPEED_MAP[2];
 }
 
-// パルス太さ設定（外部から変更可能、0-7の8段階）
+// パルス太さ設定（1-10の10段階、0.1px刻み）
 export const pulseLineConfig = {
-    width: 4,  // 0-7、デフォルト4（1.00px）
+    width: 5,     // 1-10、デフォルト5（0.5px）
+    opacity: 10,  // 1-10、デフォルト10（1.0）
 };
 
-const PULSE_LINE_WIDTH_MAP: number[] = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75];
-
 export function getPulseLineWidth(): number {
-    return PULSE_LINE_WIDTH_MAP[pulseLineConfig.width] ?? PULSE_LINE_WIDTH_MAP[4];
+    return pulseLineConfig.width * 0.1;
 }
-const PULSE_MAX_OPACITY = 1.0;
+
+export function getPulseMaxOpacity(): number {
+    return pulseLineConfig.opacity * 0.1;
+}
 const PULSE_FADE_DURATION = 300;
 const PULSE_COUNT_MIN = 3;
 const PULSE_COUNT_MAX = 5;
@@ -284,7 +286,7 @@ export const GridOverlay: React.FC = () => {
                     fadeAlpha = Math.min(fadeAlpha, Math.max(0, segFade));
                 }
 
-                const opacity = PULSE_MAX_OPACITY * fadeAlpha;
+                const opacity = getPulseMaxOpacity() * fadeAlpha;
                 if (opacity <= 0) continue;
 
                 // 進行中の線を描く
