@@ -2,7 +2,7 @@
 
 **サービス名：Grapl（グレイプル）**
 **リポジトリ：https://github.com/masaya-men/miti-planner**
-**ドメイン：未定（grapl.app / .gg / .io 等）**
+**ドメイン：lopoly.app**
 
 ---
 
