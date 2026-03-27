@@ -139,6 +139,51 @@ export const TermsPage: React.FC = () => {
 };
 
 // ========================================
+// 特定商取引法に基づく表記
+// ========================================
+
+/** テーブル行 */
+const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+    <tr className="border-b border-app-border">
+        <th className="text-left text-sm font-semibold py-2.5 pr-4 align-top whitespace-nowrap w-[140px]">{label}</th>
+        <td className="text-sm text-app-text-muted py-2.5">{value}</td>
+    </tr>
+);
+
+export const CommercialDisclosurePage: React.FC = () => {
+    const { t } = useTranslation();
+    const rows: [string, string][] = [
+        [t('legal.commercial_seller'), t('legal.commercial_seller_value')],
+        [t('legal.commercial_address'), t('legal.commercial_address_value')],
+        [t('legal.commercial_phone'), t('legal.commercial_phone_value')],
+        [t('legal.commercial_email'), t('legal.commercial_email_value')],
+        [t('legal.commercial_manager'), t('legal.commercial_manager_value')],
+        [t('legal.commercial_service'), t('legal.commercial_service_value')],
+        [t('legal.commercial_price'), t('legal.commercial_price_value')],
+        [t('legal.commercial_fees'), t('legal.commercial_fees_value')],
+        [t('legal.commercial_payment'), t('legal.commercial_payment_value')],
+        [t('legal.commercial_payment_timing'), t('legal.commercial_payment_timing_value')],
+        [t('legal.commercial_delivery'), t('legal.commercial_delivery_value')],
+        [t('legal.commercial_refund'), t('legal.commercial_refund_value')],
+    ];
+
+    return (
+        <LegalPageLayout>
+            <h1 className="text-xl font-bold mb-1">{t('legal.commercial_title')}</h1>
+            <p className="text-xs text-app-text-muted mb-6">{t('legal.commercial_last_updated')}</p>
+
+            <table className="w-full">
+                <tbody>
+                    {rows.map(([label, value], i) => (
+                        <InfoRow key={i} label={label} value={value} />
+                    ))}
+                </tbody>
+            </table>
+        </LegalPageLayout>
+    );
+};
+
+// ========================================
 // 共通レイアウト
 // ========================================
 
