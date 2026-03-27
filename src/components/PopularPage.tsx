@@ -309,6 +309,12 @@ export const PopularPage: React.FC = () => {
             key={`${entry.shareId}-${label}`}
             className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 transition-all duration-300 hover:scale-[1.02] min-w-0"
         >
+            <div className="glass-card-sweep" />
+            <div className="glass-card-corner glass-card-corner-tl" />
+            <div className="glass-card-corner glass-card-corner-tr" />
+            <div className="glass-card-corner glass-card-corner-bl" />
+            <div className="glass-card-corner glass-card-corner-br" />
+            <div className="glass-card-sheen" />
             <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
             <p className="text-xs text-app-text truncate font-semibold">{entry.title}</p>
             {entry.partyMembers?.length > 0 && renderJobIcons(entry.partyMembers)}
@@ -345,6 +351,12 @@ export const PopularPage: React.FC = () => {
             key={`skel-${keyStr}`}
             className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 opacity-25 pointer-events-none select-none min-w-0"
         >
+            <div className="glass-card-sweep" />
+            <div className="glass-card-corner glass-card-corner-tl" />
+            <div className="glass-card-corner glass-card-corner-tr" />
+            <div className="glass-card-corner glass-card-corner-bl" />
+            <div className="glass-card-corner glass-card-corner-br" />
+            <div className="glass-card-sheen" />
             <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
             <div className="h-3 w-2/3 rounded bg-app-border" />
             {renderDummyJobIcons()}
@@ -521,6 +533,10 @@ export const PopularPage: React.FC = () => {
     const renderLayout = (children: React.ReactNode) => (
         <div className="min-h-screen bg-app-bg text-app-text relative">
             <GridOverlay />
+            {/* 波ライティング */}
+            <div className="popular-wave-container">
+                <div className="popular-wave" />
+            </div>
 
             {/* 固定ヘッダー（画面幅いっぱい） */}
             <header className="fixed top-0 left-0 right-0 z-50 glass-popular-header">
@@ -528,7 +544,9 @@ export const PopularPage: React.FC = () => {
                     {/* 左: ロゴ + ナビ */}
                     <div className="flex items-center gap-4 min-w-0">
                         <a href="/" className="shrink-0">
-                            <LoPoButton size="lg" />
+                            {/* モバイルではsmサイズ、PCではlgサイズ */}
+                            <span className="hidden sm:inline"><LoPoButton size="lg" /></span>
+                            <span className="inline sm:hidden"><LoPoButton size="sm" /></span>
                         </a>
                         {/* アンカーナビ */}
                         <nav className="hidden sm:flex items-center gap-1 ml-1">
@@ -559,10 +577,10 @@ export const PopularPage: React.FC = () => {
                         <div className="w-px h-5 bg-app-border" />
                         <button
                             onClick={() => { window.close(); window.location.href = '/miti'; }}
-                            className="flex items-center gap-1.5 px-3.5 h-9 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 h-9 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
                         >
                             <ArrowLeft size={12} />
-                            {t('popular.back_to_miti')}
+                            <span className="hidden sm:inline">{t('popular.back_to_miti')}</span>
                         </button>
                     </div>
                 </div>
