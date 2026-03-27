@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Layout } from './Layout';
 import Timeline from './Timeline';
-import { MitigationGrid } from './MitigationGrid';
+
 import { CheatSheetView } from './CheatSheetView';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -106,9 +106,6 @@ export const MitiPlannerPage: React.FC = () => {
                         <>
                             <ErrorBoundary>
                                 <Timeline />
-                            </ErrorBoundary>
-                            <ErrorBoundary>
-                                <MitigationGrid />
                             </ErrorBoundary>
                         </>
                     ) : (
