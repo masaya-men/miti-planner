@@ -59,7 +59,7 @@ export default async function handler(req: any, res: any) {
 
     let ogTitle = 'LoPo | FF14 軽減プランナー';
     let ogDescription = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
-    let ogImageUrl = '/icons/logo.png';
+    let ogImageUrl = '/api/og';
 
     try {
         if (shareId) {

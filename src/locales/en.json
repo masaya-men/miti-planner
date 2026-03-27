@@ -729,19 +729,20 @@
     "popular": {
         "title": "Popular Plans",
         "subtitle": "Most used mitigation plans",
-        "savage_section": "Savage (Latest)",
+        "savage_section": "Savage",
         "ultimate_section": "Ultimate",
+        "rank1_label": "Top Pick",
+        "rank2_label": "Runner-Up",
+        "pickup_label": "Featured",
+        "used_by": "Used by {{count}} players",
         "copy_button": "Copy",
-        "copy_all_rank1": "Copy all #1",
-        "copy_all_rank2": "Copy all #2",
+        "copy_all_rank1": "Copy all Top Picks",
+        "copy_all_rank2": "Copy all Runner-Ups",
         "copied_toast": "Copied",
         "copied_all_toast": "Copied {{count}} plans",
         "no_data": "No data yet",
-        "copy_count": "{{count}} copies",
-        "view_count": "{{count}} views",
-        "featured": "Featured",
+        "no_data_desc": "Share your plans to see rankings here",
         "back_to_miti": "Back to Planner",
-        "open_popular": "Popular Plans",
-        "rank": "#{{rank}}"
+        "open_popular": "Popular Plans"
     }
 }

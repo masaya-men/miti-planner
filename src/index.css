@@ -218,6 +218,73 @@
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
+/* 人気ページ専用 — 豪華ガラス（重い表がないので贅沢に使える） */
+
+/* ヘッダー: 強blur + 上下エッジライン */
+.glass-popular-header {
+  --tw-backdrop-blur: blur(32px);
+  background: rgba(var(--app-accent-rgb), 0.03) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(var(--app-accent-rgb), 0.15) !important;
+  box-shadow:
+    0 1px 0 rgba(var(--app-accent-rgb), 0.1),
+    0 8px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.2),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.05) !important;
+}
+.glass-popular-header,
+.glass-popular-header::before,
+.glass-popular-header::after {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}
+
+/* カード: エッジグロー + ホバーで光るボーダー */
+.glass-popular-card {
+  --tw-backdrop-blur: blur(20px);
+  background: rgba(var(--app-accent-rgb), 0.04) !important;
+  border: 1px solid rgba(var(--app-accent-rgb), 0.12) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.15),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.05) !important;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.glass-popular-card:hover {
+  border-color: rgba(var(--app-accent-rgb), 0.3) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.15),
+    0 0 20px rgba(var(--app-accent-rgb), 0.08),
+    0 8px 40px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.25),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.08) !important;
+}
+.glass-popular-card,
+.glass-popular-card::before,
+.glass-popular-card::after {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}
+
+/* セクション: 控えめなガラス + エッジライン */
+.glass-popular-section {
+  --tw-backdrop-blur: blur(12px);
+  background: rgba(var(--app-accent-rgb), 0.02) !important;
+  border: 1px solid rgba(var(--app-accent-rgb), 0.08) !important;
+  box-shadow:
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.04),
+    0 2px 20px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.1),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.03) !important;
+}
+.glass-popular-section,
+.glass-popular-section::before,
+.glass-popular-section::after {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}
+
 /* 後方互換: glass-panel はボーダーのみ（グラスモーフィズム無効化中） */
 .glass-panel {
   border: 1px solid var(--glass-border);
