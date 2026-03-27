@@ -58,7 +58,7 @@ export const LoPoButton: React.FC<{
             </span>
 
             {/* スキャン塗り + スキャンライン + 反転テキスト */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ borderRadius: h / 2 }}>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-20" style={{ borderRadius: h / 2 }}>
                 <div className="lopo-scan-fill absolute inset-x-0 bottom-0" style={{ background: fillColor }} />
                 <div className="lopo-scan-line absolute inset-x-0" />
                 <div className="lopo-scan-clip absolute inset-0 flex items-center justify-center">
