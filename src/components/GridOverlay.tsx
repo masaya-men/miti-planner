@@ -12,7 +12,7 @@ const OFFSET_Y = 10;
 
 // --- 格子設定（外部から変更可能） ---
 export const gridConfig = {
-    lineWidth: 4,  // 0-7、デフォルト4（1.00px）。0=非表示
+    lineWidth: 1,  // 0-7、デフォルト1（0.25px）。0=非表示
 };
 
 // 段階→実際の線幅（px）: 0.25px刻み
@@ -25,8 +25,8 @@ export function getGridLineWidth(): number {
 // --- 光パルス設定（外部から変更可能、1-5の5段階） ---
 export const pulseConfig = {
     enabled: true,
-    distance: 3,  // 1-5、デフォルト3
-    speed: 3,     // 1-5、デフォルト3
+    distance: 4,  // 1-5、デフォルト4
+    speed: 1,     // 1-5、デフォルト1
 };
 
 // 距離: 段階→[min, max]セル数
@@ -54,18 +54,45 @@ function getPulseSegmentDuration(): number {
     return SPEED_MAP[pulseConfig.speed - 1] ?? SPEED_MAP[2];
 }
 
-// パルス太さ設定（1-10の10段階、0.1px刻み）
-export const pulseLineConfig = {
-    width: 5,     // 1-10、デフォルト5（0.5px）
-    opacity: 10,  // 1-10、デフォルト10（1.0）
+// パルス表示設定
+export const pulseVisualConfig = {
+    width: 2,      // 1-10、デフォルト2（0.2px）
+    opacity: 10,   // 1-10、デフォルト10（1.0）
+    colorId: 'auto' as string,  // 'auto' | 'amber' | 'lavender'（将来拡張可能）
+    glow: 2,       // 0=なし、1=小、2=中（デフォルト）、3=大
 };
 
+// カラープリセット: id → { dark, light } のRGB文字列
+// 将来カラーホイールで自由色を追加する場合は 'custom' id + rgb値を直接設定
+export const PULSE_COLOR_PRESETS: Record<string, { dark: string; light: string }> = {
+    auto:     { dark: '255, 255, 255', light: '0, 0, 0' },
+    amber:    { dark: '255, 180, 80',  light: '180, 110, 20' },
+    lavender: { dark: '175, 140, 255', light: '110, 70, 200' },
+};
+
+// グローレベル定義
+export const GLOW_LEVELS = [
+    { blur: 0,  radius: 0, opacity: 0 },      // 0: なし
+    { blur: 6,  radius: 3, opacity: 0.4 },     // 1: 小
+    { blur: 12, radius: 5, opacity: 0.35 },    // 2: 中（デフォルト）
+    { blur: 20, radius: 8, opacity: 0.3 },     // 3: 大
+];
+
 export function getPulseLineWidth(): number {
-    return pulseLineConfig.width * 0.1;
+    return pulseVisualConfig.width * 0.1;
 }
 
 export function getPulseMaxOpacity(): number {
-    return pulseLineConfig.opacity * 0.1;
+    return pulseVisualConfig.opacity * 0.1;
+}
+
+export function getPulseColor(isDark: boolean): string {
+    const preset = PULSE_COLOR_PRESETS[pulseVisualConfig.colorId] ?? PULSE_COLOR_PRESETS.auto;
+    return isDark ? preset.dark : preset.light;
+}
+
+export function getGlowLevel() {
+    return GLOW_LEVELS[pulseVisualConfig.glow] ?? GLOW_LEVELS[2];
 }
 const PULSE_FADE_DURATION = 300;
 const PULSE_COUNT_MIN = 3;
@@ -241,12 +268,15 @@ export const GridOverlay: React.FC = () => {
 
         // --- 光パルスの描画 ---
         const pulseColor = pulseColorRef.current;
+        const glowLevel = getGlowLevel();
         const activePulses: Pulse[] = [];
 
         for (const pulse of pulsesRef.current) {
             const elapsed = now - pulse.startTime;
-            if (elapsed > pulse.totalDuration) continue; // 終了したパルスを除外
+            if (elapsed > pulse.totalDuration) continue;
             activePulses.push(pulse);
+
+            let tipX = -1, tipY = -1, tipFade = 0;
 
             for (let i = 0; i < pulse.segments.length; i++) {
                 const seg = pulse.segments[i];
@@ -254,7 +284,6 @@ export const GridOverlay: React.FC = () => {
                 const segStart = i * segDur;
                 const segEnd = segStart + segDur;
 
-                // セグメントがまだ開始していない
                 if (elapsed < segStart) continue;
 
                 const x1 = seg.fromCol * CELL_SIZE + OFFSET_X;
@@ -262,24 +291,19 @@ export const GridOverlay: React.FC = () => {
                 const x2 = seg.toCol * CELL_SIZE + OFFSET_X;
                 const y2 = seg.toRow * CELL_SIZE + OFFSET_Y;
 
-                // セグメントの進行度（0→1）
                 let progress: number;
                 if (elapsed < segEnd) {
-                    // 走行中
                     progress = (elapsed - segStart) / segDur;
                 } else {
-                    // 走行完了
                     progress = 1;
                 }
 
-                // フェードアウト: 全セグメント走行完了後から始まる
                 const fadeStart = pulse.segments.length * getPulseSegmentDuration();
                 let fadeAlpha = 1;
                 if (elapsed > fadeStart) {
                     fadeAlpha = 1 - (elapsed - fadeStart) / PULSE_FADE_DURATION;
                     fadeAlpha = Math.max(0, fadeAlpha);
                 }
-                // 後ろのセグメントほど先にフェードする
                 const segFadeDelay = (pulse.segments.length - 1 - i) * 30;
                 if (elapsed > fadeStart + segFadeDelay) {
                     const segFade = 1 - (elapsed - fadeStart - segFadeDelay) / PULSE_FADE_DURATION;
@@ -289,7 +313,6 @@ export const GridOverlay: React.FC = () => {
                 const opacity = getPulseMaxOpacity() * fadeAlpha;
                 if (opacity <= 0) continue;
 
-                // 進行中の線を描く
                 const currentX = x1 + (x2 - x1) * progress;
                 const currentY = y1 + (y2 - y1) * progress;
 
@@ -301,6 +324,19 @@ export const GridOverlay: React.FC = () => {
                 ctx.lineCap = 'round';
                 ctx.stroke();
 
+                // 先端を追跡（走行中の最前線のみ）
+                if (progress < 1) { tipX = currentX; tipY = currentY; tipFade = fadeAlpha; }
+            }
+
+            // 先端グロー描画（filter: blurでGPU加速）
+            if (glowLevel.blur > 0 && tipX >= 0 && tipFade > 0.2) {
+                ctx.save();
+                ctx.filter = `blur(${glowLevel.blur}px)`;
+                ctx.beginPath();
+                ctx.arc(tipX, tipY, glowLevel.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${pulseColor}, ${tipFade * glowLevel.opacity})`;
+                ctx.fill();
+                ctx.restore();
             }
         }
 
@@ -352,7 +388,7 @@ export const GridOverlay: React.FC = () => {
         const updatePulseColor = () => {
             const isDark = document.documentElement.classList.contains('theme-dark') ||
                            (!document.documentElement.classList.contains('theme-light'));
-            pulseColorRef.current = isDark ? '255, 255, 255' : '0, 0, 0';
+            pulseColorRef.current = getPulseColor(isDark);
         };
 
         const handleMouseMove = (e: MouseEvent) => {
