@@ -30,7 +30,7 @@ jobs:
 
           MESSAGE=$(printf "# 🛡️ LoPo アップデート\n\n%s\n\n🔗 <https://lopoly.app/>" "$BULLET_LIST")
 
-          PAYLOAD=$(jq -n --arg content "$MESSAGE" '{"content": $content}')
+          PAYLOAD=$(jq -n --arg content "$MESSAGE" '{"content": $content, "flags": 4096}')
 
           curl -s -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK_URL"
 
