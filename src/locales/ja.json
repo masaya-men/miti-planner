@@ -349,6 +349,9 @@
         "pulse_long": "長",
         "pulse_slow": "遅",
         "pulse_fast": "速",
+        "grid_line_width": "格子の太さ",
+        "grid_none": "非表示",
+        "grid_thick": "太",
         "discord": "Discord（質問・要望・バグ報告）",
         "kofi": "Ko-fiで応援",
         "commercial": "特定商取引法に基づく表記"
@@ -487,7 +490,8 @@
             "share": "共有する",
             "share_copied": "コピーしました！",
             "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
-            "commercial": "特定商取引法に基づく表記"
+            "commercial": "特定商取引法に基づく表記",
+            "copy_link_tooltip": "リンクをコピー"
         },
         "tools": {
             "miti_planner": {

@@ -345,6 +345,9 @@
         "pulse_long": "Long",
         "pulse_slow": "Slow",
         "pulse_fast": "Fast",
+        "grid_line_width": "Grid Lines",
+        "grid_none": "Off",
+        "grid_thick": "Thick",
         "discord": "Discord (Questions, Feedback & Bugs)",
         "kofi": "Support on Ko-fi",
         "commercial": "Commercial Disclosure"
@@ -483,7 +486,8 @@
             "share": "Share",
             "share_copied": "Copied!",
             "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
-            "commercial": "Commercial Disclosure"
+            "commercial": "Commercial Disclosure",
+            "copy_link_tooltip": "Copy Link"
         },
         "tools": {
             "miti_planner": {
