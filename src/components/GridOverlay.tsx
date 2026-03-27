@@ -54,7 +54,16 @@ function getPulseSegmentDuration(): number {
     return SPEED_MAP[pulseConfig.speed - 1] ?? SPEED_MAP[2];
 }
 
-const PULSE_LINE_WIDTH = 1;
+// パルス太さ設定（外部から変更可能、0-7の8段階）
+export const pulseLineConfig = {
+    width: 4,  // 0-7、デフォルト4（1.00px）
+};
+
+const PULSE_LINE_WIDTH_MAP: number[] = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75];
+
+export function getPulseLineWidth(): number {
+    return PULSE_LINE_WIDTH_MAP[pulseLineConfig.width] ?? PULSE_LINE_WIDTH_MAP[4];
+}
 const PULSE_MAX_OPACITY = 1.0;
 const PULSE_FADE_DURATION = 300;
 const PULSE_COUNT_MIN = 3;
@@ -286,7 +295,7 @@ export const GridOverlay: React.FC = () => {
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(currentX, currentY);
                 ctx.strokeStyle = `rgba(${pulseColor}, ${opacity})`;
-                ctx.lineWidth = PULSE_LINE_WIDTH;
+                ctx.lineWidth = getPulseLineWidth();
                 ctx.lineCap = 'round';
                 ctx.stroke();
 

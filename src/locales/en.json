@@ -345,6 +345,7 @@
         "pulse_long": "Long",
         "pulse_slow": "Slow",
         "pulse_fast": "Fast",
+        "pulse_line_width": "Pulse Width",
         "grid_line_width": "Grid Lines",
         "grid_none": "Off",
         "grid_thick": "Thick",

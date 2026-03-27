@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { pulseConfig, gridConfig } from './GridOverlay';
+import { X } from 'lucide-react';
+import { pulseConfig, gridConfig, pulseLineConfig } from './GridOverlay';
 
 const DEFAULT_DISTANCE = 3;
 const DEFAULT_SPEED = 3;
@@ -95,6 +96,7 @@ export const PulseSettings: React.FC = () => {
     const [distance, setDistance] = useState(pulseConfig.distance);
     const [speed, setSpeed] = useState(pulseConfig.speed);
     const [lineWidth, setLineWidth] = useState(gridConfig.lineWidth);
+    const [pulseWidth, setPulseWidth] = useState(pulseLineConfig.width);
     const panelRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -131,14 +133,20 @@ export const PulseSettings: React.FC = () => {
         gridConfig.lineWidth = v;
     };
 
+    const updatePulseWidth = (v: number) => {
+        setPulseWidth(v);
+        pulseLineConfig.width = v;
+    };
+
     const resetToDefault = () => {
         updateEnabled(true);
         updateDistance(DEFAULT_DISTANCE);
         updateSpeed(DEFAULT_SPEED);
         updateLineWidth(DEFAULT_LINE_WIDTH);
+        updatePulseWidth(DEFAULT_LINE_WIDTH);
     };
 
-    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED && lineWidth === DEFAULT_LINE_WIDTH;
+    const isDefault = enabled && distance === DEFAULT_DISTANCE && speed === DEFAULT_SPEED && lineWidth === DEFAULT_LINE_WIDTH && pulseWidth === DEFAULT_LINE_WIDTH;
 
     return (
         <span className="relative inline-block">
@@ -155,6 +163,14 @@ export const PulseSettings: React.FC = () => {
                     ref={panelRef}
                     className="absolute bottom-6 left-1/2 -translate-x-1/2 glass-tier3 rounded-xl p-3 w-[220px] z-[99999]"
                 >
+                    {/* ×ボタン */}
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer"
+                    >
+                        <X size={12} />
+                    </button>
+
                     {/* ON/OFF トグル */}
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-[10px] font-bold text-app-text uppercase tracking-wider">
@@ -196,6 +212,22 @@ export const PulseSettings: React.FC = () => {
                             onChange={updateSpeed}
                             leftLabel={t('footer.pulse_slow')}
                             rightLabel={t('footer.pulse_fast')}
+                            disabled={!enabled}
+                        />
+                    </div>
+
+                    {/* パルスの太さスライダー */}
+                    <div className={`mb-3 transition-opacity ${!enabled ? 'opacity-30 pointer-events-none' : ''}`}>
+                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
+                            {t('footer.pulse_line_width')}
+                        </div>
+                        <SnapSlider
+                            value={pulseWidth}
+                            onChange={updatePulseWidth}
+                            leftLabel={t('footer.grid_none')}
+                            rightLabel={t('footer.grid_thick')}
+                            min={GRID_MIN}
+                            max={GRID_MAX}
                             disabled={!enabled}
                         />
                     </div>
