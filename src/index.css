@@ -182,6 +182,108 @@
 
 .ime-active { ime-mode: active; }
 
+/* ── LoPoボタン カプセル描画 + インク塗りつぶしアニメーション ── */
+
+/* カプセルパス: pathLength="1"を使ったストローク描画 */
+.lopo-capsule-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: none;
+}
+
+/* スキャン塗りつぶし: 初期状態 */
+.lopo-scan-fill {
+  height: 0%;
+}
+
+/* 反転テキスト: clip-pathで塗り領域に合わせてクリップ */
+.lopo-scan-clip {
+  clip-path: inset(100% 0 0 0);
+}
+
+/* スキャンライン: グロー付きの光線 */
+.lopo-scan-line {
+  bottom: 0%;
+  opacity: 0;
+  height: 1px;
+  background: rgba(var(--app-accent-rgb), 0.8);
+  box-shadow:
+    0 0 8px 2px rgba(var(--app-accent-rgb), 0.6),
+    0 0 24px 6px rgba(var(--app-accent-rgb), 0.25);
+}
+
+/* スキャン: ゆったり上昇、文字エリアで2回往復 */
+@keyframes lopo-scan-up {
+  0%   { height: 0%; }
+  25%  { height: 60%; }
+  38%  { height: 35%; }
+  58%  { height: 70%; }
+  72%  { height: 42%; }
+  100% { height: 100%; }
+}
+@keyframes lopo-scanline-up {
+  0%   { bottom: 0%; }
+  25%  { bottom: 60%; }
+  38%  { bottom: 35%; }
+  58%  { bottom: 70%; }
+  72%  { bottom: 42%; }
+  100% { bottom: 100%; }
+}
+/* 反転テキストのクリップ: 塗りと同期 */
+@keyframes lopo-clip-up {
+  0%   { clip-path: inset(100% 0 0 0); }
+  25%  { clip-path: inset(40% 0 0 0); }
+  38%  { clip-path: inset(65% 0 0 0); }
+  58%  { clip-path: inset(30% 0 0 0); }
+  72%  { clip-path: inset(58% 0 0 0); }
+  100% { clip-path: inset(0% 0 0 0); }
+}
+
+/* ── ホバー時: カプセル枠描画 ── */
+.group:hover .lopo-capsule-path {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 450ms cubic-bezier(0.4, 0, 0.2, 1), opacity 0ms;
+}
+
+/* ── ホバー時: スキャン上昇（ゆったり3秒） ── */
+.group:hover .lopo-scan-fill {
+  animation: lopo-scan-up 3s ease-in-out 300ms forwards;
+}
+.group:hover .lopo-scan-line {
+  opacity: 1;
+  animation: lopo-scanline-up 3s ease-in-out 300ms forwards;
+  transition: opacity 50ms 300ms;
+}
+.group:hover .lopo-scan-clip {
+  animation: lopo-clip-up 3s ease-in-out 300ms forwards;
+}
+
+/* ── ホバー解除: 即座にフェードアウト ── */
+.group:not(:hover) .lopo-capsule-path {
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: stroke-dashoffset 200ms ease, opacity 0ms 200ms;
+}
+.group:not(:hover) .lopo-scan-fill {
+  height: 0%;
+  animation: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.group:not(:hover) .lopo-scan-line {
+  bottom: 0%;
+  animation: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.group:not(:hover) .lopo-scan-clip {
+  clip-path: inset(100% 0 0 0);
+  animation: none;
+  transition: clip-path 0ms 200ms;
+}
+
 /* ガラスパネル — 3層Tierシステム（@layer外=Tailwindユーティリティより高優先度） */
 .glass-tier3 {
   --tw-backdrop-blur: blur(var(--glass-tier3-blur));
@@ -218,19 +320,31 @@
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
+/* 人気ページ専用 — 日本語テキスト横潰し（レイアウト要素ではなくテキストのみ） */
+:lang(ja) .popular-ja-text h2,
+:lang(ja) .popular-ja-text h3,
+:lang(ja) .popular-ja-text p,
+:lang(ja) .popular-ja-text span,
+:lang(ja) .popular-ja-text button {
+  transform: scaleX(0.93);
+  transform-origin: left;
+  letter-spacing: 0.06em;
+}
+
 /* 人気ページ専用 — 豪華ガラス（重い表がないので贅沢に使える） */
 
-/* ヘッダー: 強blur + 上下エッジライン */
+/* ヘッダー: 強blur + 明るいエッジライン */
 .glass-popular-header {
   --tw-backdrop-blur: blur(32px);
   background: rgba(var(--app-accent-rgb), 0.03) !important;
   border: none !important;
-  border-bottom: 1px solid rgba(var(--app-accent-rgb), 0.15) !important;
+  border-bottom: 1px solid rgba(var(--app-accent-rgb), 0.4) !important;
   box-shadow:
-    0 1px 0 rgba(var(--app-accent-rgb), 0.1),
+    0 1px 0 rgba(var(--app-accent-rgb), 0.3),
+    0 0 30px rgba(var(--app-accent-rgb), 0.06),
     0 8px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.2),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.05) !important;
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.5),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.15) !important;
 }
 .glass-popular-header,
 .glass-popular-header::before,
@@ -239,26 +353,32 @@
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
-/* カード: エッジグロー + ホバーで光るボーダー */
+/* カード: 明るいエッジグロー + ホバーで強く光る */
 .glass-popular-card {
   --tw-backdrop-blur: blur(20px);
   background: rgba(var(--app-accent-rgb), 0.04) !important;
-  border: 1px solid rgba(var(--app-accent-rgb), 0.12) !important;
+  border: 1px solid rgba(var(--app-accent-rgb), 0.35) !important;
   box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.06),
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.15),
+    0 0 16px rgba(var(--app-accent-rgb), 0.08),
     0 4px 24px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.15),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.05) !important;
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.5),
+    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.2),
+    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.2),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.2) !important;
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
 }
 .glass-popular-card:hover {
-  border-color: rgba(var(--app-accent-rgb), 0.3) !important;
+  border-color: rgba(var(--app-accent-rgb), 0.6) !important;
   box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.15),
-    0 0 20px rgba(var(--app-accent-rgb), 0.08),
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.3),
+    0 0 40px rgba(var(--app-accent-rgb), 0.15),
+    0 0 80px rgba(var(--app-accent-rgb), 0.06),
     0 8px 40px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.25),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.08) !important;
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.7),
+    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.3),
+    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.3),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.25) !important;
 }
 .glass-popular-card,
 .glass-popular-card::before,
@@ -267,16 +387,19 @@
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
 }
 
-/* セクション: 控えめなガラス + エッジライン */
+/* セクション: ガラス + 明るいエッジグロー */
 .glass-popular-section {
   --tw-backdrop-blur: blur(12px);
   background: rgba(var(--app-accent-rgb), 0.02) !important;
-  border: 1px solid rgba(var(--app-accent-rgb), 0.08) !important;
+  border: 1px solid rgba(var(--app-accent-rgb), 0.3) !important;
   box-shadow:
-    0 0 0 1px rgba(var(--app-accent-rgb), 0.04),
+    0 0 0 1px rgba(var(--app-accent-rgb), 0.1),
+    0 0 24px rgba(var(--app-accent-rgb), 0.06),
     0 2px 20px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.1),
-    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.03) !important;
+    inset 0 1px 0 rgba(var(--app-accent-rgb), 0.4),
+    inset -1px 0 0 rgba(var(--app-accent-rgb), 0.15),
+    inset 1px 0 0 rgba(var(--app-accent-rgb), 0.15),
+    inset 0 -1px 0 rgba(var(--app-accent-rgb), 0.12) !important;
 }
 .glass-popular-section,
 .glass-popular-section::before,

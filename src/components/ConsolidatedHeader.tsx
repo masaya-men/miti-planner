@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Home, HelpCircle, Sun, Moon, CloudDownload,
+    HelpCircle, Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
     Users, Activity, Wand2, Star, LogIn, Crown
 } from 'lucide-react';
 import clsx from 'clsx';
+import { LoPoButton } from './LoPoButton';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
@@ -191,12 +192,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         {/* ── 左グループ（余ったスペースを使う） ── */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className={clsx(iconBtnBase, iconBtnDefault, "shrink-0")}
-                                >
-                                    <Home size={16} className="group-hover:-translate-y-0.5 transition-transform duration-300" />
-                                </button>
+                                <div className="shrink-0">
+                                    <LoPoButton size="sm" onClick={() => navigate('/')} />
+                                </div>
                             </Tooltip>
 
                             {currentPlan && (

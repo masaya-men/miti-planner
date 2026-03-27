@@ -9,9 +9,10 @@ import {
 } from '../data/contentRegistry';
 import { JOBS } from '../data/mockData';
 import type { PlanData, SavedPlan, ContentLevel } from '../types';
-import { ArrowLeft, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Sun, Moon, Link2, Download } from 'lucide-react';
 import { GridOverlay } from './GridOverlay';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { LoPoButton } from './LoPoButton';
 
 // --- 型定義 ---
 
@@ -64,10 +65,6 @@ const ultimateIds = CONTENT_DEFINITIONS
 
 // --- ダミージョブ構成 ---
 const DUMMY_JOBS = ['PLD', 'WAR', 'WHM', 'SCH', 'DRG', 'NIN', 'BRD', 'BLM'];
-
-// --- P1/P2 グルーピングヘルパー ---
-// m12s_p1 → "m12s", m9s → "m9s"
-const getFloorBase = (id: string) => id.replace(/_p\d+$/, '');
 
 // 層の短い表示名を取得（"1層", "4層前半" など）
 const getFloorLabel = (contentId: string, lang: 'ja' | 'en'): string => {
@@ -280,21 +277,64 @@ export const PopularPage: React.FC = () => {
         </div>
     );
 
+    // --- 共有URL生成 ---
+    const getShareUrl = (shareId: string) =>
+        `${window.location.origin}/share/${shareId}`;
+
+    // --- Xで共有 ---
+    const handleShareX = useCallback((entry: PopularEntry) => {
+        const url = getShareUrl(entry.shareId);
+        const contentName = getContentName(entry.contentId);
+        const text = contentName
+            ? `${contentName} - ${entry.title}`
+            : entry.title;
+        window.open(
+            `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+            '_blank',
+            'noopener'
+        );
+    }, [lang]);
+
+    // --- リンクコピー ---
+    const handleCopyLink = useCallback((entry: PopularEntry) => {
+        navigator.clipboard.writeText(getShareUrl(entry.shareId)).then(() => {
+            showToast(t('popular.link_copied'));
+        }).catch(() => {});
+    }, [t]);
+
     // --- 実データカード ---
     const renderCard = (entry: PopularEntry, label: string) => (
         <div
             key={`${entry.shareId}-${label}`}
-            className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(0,0,0,0.25)] min-w-0"
+            className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 transition-all duration-300 hover:scale-[1.02] min-w-0"
         >
             <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
             <p className="text-xs text-app-text truncate font-semibold">{entry.title}</p>
             {entry.partyMembers?.length > 0 && renderJobIcons(entry.partyMembers)}
-            <button
-                onClick={() => handleCopy(entry)}
-                className="mt-auto w-full h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
-            >
-                {t('popular.copy_button')}
-            </button>
+            {/* アクションボタン: 保存 / X / リンク */}
+            <div className="mt-auto flex gap-1.5">
+                <button
+                    onClick={() => handleCopy(entry)}
+                    className="flex-1 h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                >
+                    <Download size={10} />
+                    {t('popular.save_to_mine')}
+                </button>
+                <button
+                    onClick={() => handleShareX(entry)}
+                    className="h-8 w-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    title={t('popular.share_x')}
+                >
+                    {t('popular.share_x')}
+                </button>
+                <button
+                    onClick={() => handleCopyLink(entry)}
+                    className="h-8 w-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    title={t('popular.share_link')}
+                >
+                    <Link2 size={12} />
+                </button>
+            </div>
         </div>
     );
 
@@ -319,25 +359,7 @@ export const PopularPage: React.FC = () => {
         return lang === 'ja' ? label.ja : label.en;
     }, [lang]);
 
-    // --- P1/P2を考慮した零式カード並べ ---
-    // [[m9s], [m10s], [m11s], [m12s_p1, m12s_p2]] のようにグループ化
-    const savageFloorGroups = useMemo(() => {
-        const groups: string[][] = [];
-        let currentBase = '';
-        let currentGroup: string[] = [];
-        for (const id of savageIds) {
-            const base = getFloorBase(id);
-            if (base !== currentBase) {
-                if (currentGroup.length > 0) groups.push(currentGroup);
-                currentGroup = [id];
-                currentBase = base;
-            } else {
-                currentGroup.push(id);
-            }
-        }
-        if (currentGroup.length > 0) groups.push(currentGroup);
-        return groups;
-    }, []);
+    // (savageFloorGroups削除 — フラットグリッドに変更済み)
 
     // --- 零式ランク行の描画 ---
     const renderSavageRankRow = (rank: number, rankLabel: string) => {
@@ -365,19 +387,15 @@ export const PopularPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 層カード: P1/P2がある場合は段組み */}
-                <div className="flex flex-wrap gap-3">
-                    {savageFloorGroups.map((group) => (
-                        <div key={group[0]} className="flex flex-col gap-2">
-                            {group.map((contentId) => {
-                                const entry = data[contentId]?.plans?.[rank];
-                                const floorLabel = getFloorLabel(contentId, lang);
-                                return entry
-                                    ? renderCard(entry, floorLabel)
-                                    : renderSkeletonCard(floorLabel, `${contentId}-r${rank}`);
-                            })}
-                        </div>
-                    ))}
+                {/* 層カード: フラットグリッドで均等配置 */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {savageIds.map((contentId) => {
+                        const entry = data[contentId]?.plans?.[rank];
+                        const floorLabel = getFloorLabel(contentId, lang);
+                        return entry
+                            ? renderCard(entry, floorLabel)
+                            : renderSkeletonCard(floorLabel, `${contentId}-r${rank}`);
+                    })}
                 </div>
             </div>
         );
@@ -401,7 +419,7 @@ export const PopularPage: React.FC = () => {
         return (
             <div className="flex flex-col gap-3">
                 <h3 className="text-sm font-bold text-app-text">{t('popular.pickup_label')}</h3>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                     {pickups.map(({ contentId, entry }) => {
                         const floorLabel = getFloorLabel(contentId, lang);
                         return renderCard(entry, floorLabel);
@@ -418,7 +436,7 @@ export const PopularPage: React.FC = () => {
             : t('popular.savage_section');
 
         return (
-            <section id="savage" className="glass-popular-section rounded-2xl p-6 flex flex-col gap-6 scroll-mt-16">
+            <section id="savage" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
                 <h2 className="text-lg font-bold text-app-text">{sectionTitle}</h2>
 
                 {!savageIds.some(id => data[id]?.plans?.length) && (
@@ -442,7 +460,7 @@ export const PopularPage: React.FC = () => {
     // --- 絶セクション ---
     const renderUltimateSection = () => {
         return (
-            <section id="ultimate" className="glass-popular-section rounded-2xl p-6 flex flex-col gap-6 scroll-mt-16">
+            <section id="ultimate" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
                 <h2 className="text-lg font-bold text-app-text">{t('popular.ultimate_section')}</h2>
 
                 {!ultimateIds.some(id => data[id]?.plans?.length) && (
@@ -500,14 +518,11 @@ export const PopularPage: React.FC = () => {
 
             {/* 固定ヘッダー（画面幅いっぱい） */}
             <header className="fixed top-0 left-0 right-0 z-50 glass-popular-header">
-                <div className="w-full px-5 h-12 flex items-center justify-between gap-4">
+                <div className="w-full px-5 h-20 flex items-center justify-between gap-4">
                     {/* 左: ロゴ + ナビ */}
                     <div className="flex items-center gap-4 min-w-0">
-                        <a
-                            href="/"
-                            className="shrink-0 hover:opacity-80 transition-opacity"
-                        >
-                            <span className="text-xl font-black tracking-widest text-app-text">LoPo</span>
+                        <a href="/" className="shrink-0">
+                            <LoPoButton size="lg" />
                         </a>
                         {/* アンカーナビ */}
                         <nav className="hidden sm:flex items-center gap-1 ml-1">
@@ -548,7 +563,7 @@ export const PopularPage: React.FC = () => {
             </header>
 
             {/* メインコンテンツ（フル幅） */}
-            <main className="relative z-10 w-full px-5 pt-16 pb-8 flex flex-col gap-8">
+            <main className="relative z-10 w-full px-3 sm:px-5 pt-24 pb-8 flex flex-col gap-8 popular-ja-text">
                 <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
                 {children}
             </main>
