@@ -492,8 +492,11 @@
   content: '';
   position: absolute;
   top: 50%; left: 50%;
-  width: 200%; height: 200%;
-  margin-top: -100%; margin-left: -100%;
+  /* 常に正方形を維持（vmax=ビューポートの大きい辺基準）。
+     親が横長でも縦長でもグラデーションが歪まず、光走りが均一になる。
+     overflow:hiddenで親の外はクリップされる。 */
+  width: 200vmax; height: 200vmax;
+  margin-top: -100vmax; margin-left: -100vmax;
   background: conic-gradient(
     from 0deg,
     transparent 0%,
