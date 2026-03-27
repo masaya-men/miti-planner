@@ -31,8 +31,8 @@
 
 ## PWA / ホーム画面追加
 - [x] **PWA対応状況の確認（2026-03-27）** — 調査完了。vite-plugin-pwa導入済み、manifest・SW・アイコン・theme-colorはOK
-- [ ] **PWA: SW登録コードの確認** — main.tsxに`registerSW`呼び出しがない。vite-plugin-pwaの自動注入で動作するか本番で要確認
-- [ ] **PWA: apple-touch-icon設定** — index.htmlに`<link rel="apple-touch-icon">`がない。iOS Safari対応に必要
+- [x] **PWA: SW登録コードの修正（2026-03-27）** — registerType: 'prompt'→'autoUpdate'に変更。自動注入でSW登録される
+- [x] **PWA: apple-touch-icon設定（2026-03-27）** — index.htmlにapple-touch-icon追加
 
 ## Stripe/Ko-fi設定
 - [x] **特定商取引法に基づく表記ページ作成（2026-03-27）** — /commercial に新設。全フッター（Layout/Popular/Landing）にリンク追加。Stripe再審査に提出する
@@ -56,7 +56,7 @@
 - [x] **お問い合わせ方針の更新** — Discord（メイン）+ GitHub。Xは無し（2026-03-27確定）
 
 ## バグ
-- [ ] **人気ページ: 零式セクションのホバー光走りが見えない** — 絶セクションでは動作する。原因未特定。構造は同一なのでCSS/レンダリングの問題の可能性
+- [x] **人気ページ: 零式セクションのホバー光走りが見えない（2026-03-27）** — glass-popular-sectionにoverflow:hidden追加で修正
 - [ ] FFLogsインポート: 英語主言語のログで言語取得できない問題
 - [ ] FFLogsインポート: 無敵で0にしたダメージ、リビングデッド中のダメージが正しく反映されない
 - [ ] オートプラン: 無敵はなるべく同じ技に対して使うようにしたい（タイミングが違っても）

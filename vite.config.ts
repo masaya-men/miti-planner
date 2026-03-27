@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       includeAssets: ['icons/favicon-192x192.png', 'icons/favicon-512x512.png'],
       manifest: {
         name: 'LoPo — FF14 軽減プランナー',
