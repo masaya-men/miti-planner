@@ -733,19 +733,20 @@
     "popular": {
         "title": "みんなの軽減表",
         "subtitle": "よく使われている軽減表",
-        "savage_section": "零式（最新）",
+        "savage_section": "零式",
         "ultimate_section": "絶",
+        "rank1_label": "みんなのイチオシ",
+        "rank2_label": "こちらも人気",
+        "pickup_label": "ピックアップ",
+        "used_by": "{{count}}人が使用中",
         "copy_button": "コピー",
-        "copy_all_rank1": "1位をまとめてコピー",
-        "copy_all_rank2": "2位をまとめてコピー",
+        "copy_all_rank1": "イチオシをまとめてコピー",
+        "copy_all_rank2": "こちらも人気をまとめてコピー",
         "copied_toast": "コピーしました",
         "copied_all_toast": "{{count}}件の軽減表をコピーしました",
         "no_data": "まだデータがありません",
-        "copy_count": "{{count}}回コピー",
-        "view_count": "{{count}}回閲覧",
-        "featured": "注目",
+        "no_data_desc": "軽減表を共有すると、ここにランキングが表示されます",
         "back_to_miti": "軽減表に戻る",
-        "open_popular": "みんなの軽減表",
-        "rank": "{{rank}}位"
+        "open_popular": "みんなの軽減表"
     }
 }

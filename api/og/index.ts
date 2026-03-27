@@ -166,14 +166,27 @@ export default async function handler(req: Request) {
             fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
-        // ブドウロゴをBase64化
-        const logoUrl = new URL('/icons/favicon-192x192.png', origin).toString();
-        const logoBuffer = await fetch(logoUrl).then(r => r.arrayBuffer());
-        const logoBase64 = `data:image/png;base64,${arrayBufferToBase64(logoBuffer)}`;
+        // ブドウロゴをBase64化（SVG優先、フォールバックでPNG）
+        let logoBase64: string;
+        try {
+            const svgUrl = new URL('/grape.svg', origin).toString();
+            const svgText = await fetch(svgUrl).then(r => r.text());
+            const encoded = new TextEncoder().encode(svgText);
+            let binary = '';
+            for (let i = 0; i < encoded.length; i++) binary += String.fromCharCode(encoded[i]);
+            logoBase64 = `data:image/svg+xml;base64,${btoa(binary)}`;
+        } catch {
+            const logoUrl = new URL('/icons/favicon-512x512.png', origin).toString();
+            const logoBuffer = await fetch(logoUrl).then(r => r.arrayBuffer());
+            logoBase64 = `data:image/png;base64,${arrayBufferToBase64(logoBuffer)}`;
+        }
 
-        const element = isBundle
-            ? buildBundleLayout(bundlePlans, logoBase64)
-            : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64);
+        // shareIdがない場合はGitHub式のシンプルなフォールバック
+        const element = !shareId
+            ? buildFallbackLayout()
+            : isBundle
+                ? buildBundleLayout(bundlePlans, logoBase64)
+                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 
@@ -181,6 +194,37 @@ export default async function handler(req: Request) {
         console.error('OG image error:', err);
         return new Response(`OG image generation failed: ${err.message}`, { status: 500 });
     }
+}
+
+// GitHub式フォールバック: 黒背景 + 中央に「LoPo」だけ
+function buildFallbackLayout() {
+    return {
+        type: 'div',
+        props: {
+            style: {
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#000000',
+                fontFamily: '"M PLUS 1", sans-serif',
+            },
+            children: {
+                type: 'div',
+                props: {
+                    style: {
+                        fontSize: 200,
+                        fontWeight: 900,
+                        color: '#ffffff',
+                        letterSpacing: -4,
+                        lineHeight: 1,
+                    },
+                    children: 'LoPo',
+                },
+            },
+        },
+    };
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -228,16 +272,15 @@ function buildLeftPanel(logoBase64: string) {
                         },
                     },
                 },
-                // ブドウロゴ
+                // ブドウロゴ（SVGなのでinvert不要）
                 {
                     type: 'img',
                     props: {
                         src: logoBase64,
-                        width: 56,
-                        height: 56,
+                        width: 64,
+                        height: 64,
                         style: {
-                            filter: 'invert(1)',
-                            opacity: 0.9,
+                            opacity: 0.95,
                         },
                     },
                 },

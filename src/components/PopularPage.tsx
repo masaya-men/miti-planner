@@ -1,11 +1,17 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
-import { CONTENT_DEFINITIONS, getContentById } from '../data/contentRegistry';
+import {
+    CONTENT_DEFINITIONS,
+    getContentById,
+    getProjectLabel,
+} from '../data/contentRegistry';
 import { JOBS } from '../data/mockData';
-import type { PlanData, SavedPlan } from '../types';
-import { ArrowLeft } from 'lucide-react';
+import type { PlanData, SavedPlan, ContentLevel } from '../types';
+import { ArrowLeft, Sun, Moon } from 'lucide-react';
+import { GridOverlay } from './GridOverlay';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 // --- 型定義 ---
 
@@ -19,11 +25,17 @@ interface PopularEntry {
     partyMembers: { jobId: string | null }[];
 }
 
-interface PopularApiResponse {
-    [contentId: string]: PopularEntry[];
+interface ContentResult {
+    contentId: string;
+    plans: PopularEntry[];       // viewCount順 top2
+    featured: PopularEntry | null; // ピックアップ（なければnull）
 }
 
-// --- トースト（新タブ用の簡易実装） ---
+interface PopularApiResponse {
+    [contentId: string]: { plans: PopularEntry[]; featured: PopularEntry | null };
+}
+
+// --- トースト ---
 
 const showToast = (msg: string) => {
     const el = document.createElement('div');
@@ -35,29 +47,59 @@ const showToast = (msg: string) => {
 };
 
 // --- コンテンツID算出 ---
-
 const savageContents = CONTENT_DEFINITIONS.filter(c => c.category === 'savage');
 const latestPatch = savageContents.reduce((max, c) => c.patch > max ? c.patch : max, '0');
-const savageIds = savageContents.filter(c => c.patch === latestPatch).map(c => c.id);
+const savageIds = savageContents
+    .filter(c => c.patch === latestPatch)
+    .sort((a, b) => a.order - b.order)
+    .map(c => c.id);
 
-const ultimateIds = CONTENT_DEFINITIONS.filter(c => c.category === 'ultimate').map(c => c.id);
+// 零式のレベル（PROJECT_LABELS取得用）
+const savageLevel = savageContents.find(c => c.patch === latestPatch)?.level as ContentLevel | undefined;
+
+// 全絶コンテンツ（dsr_p1はランキングから除外）
+const ultimateIds = CONTENT_DEFINITIONS
+    .filter(c => c.category === 'ultimate' && c.id !== 'dsr_p1')
+    .map(c => c.id);
+
+// --- ダミージョブ構成 ---
+const DUMMY_JOBS = ['PLD', 'WAR', 'WHM', 'SCH', 'DRG', 'NIN', 'BRD', 'BLM'];
+
+// --- P1/P2 グルーピングヘルパー ---
+// m12s_p1 → "m12s", m9s → "m9s"
+const getFloorBase = (id: string) => id.replace(/_p\d+$/, '');
+
+// 層の短い表示名を取得（"1層", "4層前半" など）
+const getFloorLabel = (contentId: string, lang: 'ja' | 'en'): string => {
+    const def = getContentById(contentId);
+    if (!def) return contentId;
+    // shortNameに改行が含まれる場合があるので除去してスペースに
+    const short = (lang === 'ja' ? def.shortName.ja : def.shortName.en).replace(/\n/g, ' ');
+    return short;
+};
 
 // --- コンポーネント ---
 
 export const PopularPage: React.FC = () => {
     const { t, i18n } = useTranslation();
-    const { theme } = useThemeStore();
+    const { theme, setTheme } = useThemeStore();
     const lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
 
     const [data, setData] = useState<PopularApiResponse>({});
     const [loading, setLoading] = useState(true);
 
-    // テーマ同期（新タブなので手動適用）
+    // テーマ同期
     useEffect(() => {
         const root = document.documentElement;
         root.classList.remove('theme-dark', 'theme-light');
         root.classList.add(`theme-${theme}`);
     }, [theme]);
+
+    // bodyのoverflow-hidden解除
+    useEffect(() => {
+        document.body.style.overflow = 'auto';
+        return () => { document.body.style.overflow = ''; };
+    }, []);
 
     // ページタイトル
     useEffect(() => {
@@ -72,11 +114,13 @@ export const PopularPage: React.FC = () => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
             })
-            .then((json: { results: { contentId: string; plans: PopularEntry[] }[] }) => {
-                // APIレスポンス { results: [...] } をフラットマップに変換
+            .then((json: { results: ContentResult[] }) => {
                 const map: PopularApiResponse = {};
                 for (const item of json.results) {
-                    map[item.contentId] = item.plans;
+                    map[item.contentId] = {
+                        plans: item.plans,
+                        featured: item.featured,
+                    };
                 }
                 setData(map);
                 setLoading(false);
@@ -86,7 +130,11 @@ export const PopularPage: React.FC = () => {
             });
     }, []);
 
-    // 単一プランをコピー
+    const toggleTheme = useCallback(() => {
+        setTheme(theme === 'dark' ? 'light' : 'dark');
+    }, [theme, setTheme]);
+
+    // --- コピーロジック ---
     const handleCopy = useCallback(async (entry: PopularEntry) => {
         try {
             const res = await fetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
@@ -109,7 +157,6 @@ export const PopularPage: React.FC = () => {
             };
             usePlanStore.getState().addPlan(newPlan);
 
-            // コピーカウント増加（重複防止）
             const copiedKey = 'lopo_copied_shares';
             const copiedList: string[] = JSON.parse(localStorage.getItem(copiedKey) || '[]');
             if (!copiedList.includes(entry.shareId)) {
@@ -128,10 +175,10 @@ export const PopularPage: React.FC = () => {
         }
     }, [t]);
 
-    // まとめてコピー（rank指定: 0=1位, 1=2位）— 並列取得
+    // まとめてコピー
     const handleCopyAllRank = useCallback(async (rank: number) => {
         const targets = savageIds
-            .map(id => data[id]?.[rank])
+            .map(id => data[id]?.plans?.[rank])
             .filter((e): e is PopularEntry => !!e);
 
         if (targets.length === 0) return;
@@ -185,176 +232,343 @@ export const PopularPage: React.FC = () => {
         }
     }, [data, t]);
 
-    // コンテンツ名取得ヘルパー
+    // --- ヘルパー ---
     const getContentName = (contentId: string): string => {
         const def = getContentById(contentId);
         if (!def) return contentId;
         return def.name[lang] || def.name.ja;
     };
 
-    // ジョブアイコン取得ヘルパー
     const getJobIcon = (jobId: string | null): string | null => {
         if (!jobId) return null;
         const job = JOBS.find(j => j.id === jobId);
         return job?.icon ?? null;
     };
 
-    // プランカードの描画
-    const renderCard = (entry: PopularEntry, rank: number) => {
-        const contentName = getContentName(entry.contentId);
-        return (
-            <div
-                key={`${entry.contentId}-${rank}`}
-                className="glass-tier3 rounded-xl p-4 flex flex-col gap-3"
+    // --- ランクの合計使用数 ---
+    const getRankTotalCount = (contentIds: string[], rank: number): number => {
+        return contentIds.reduce((sum, id) => {
+            const entry = data[id]?.plans?.[rank];
+            return sum + (entry?.copyCount ?? 0);
+        }, 0);
+    };
+
+    // --- カード共通 ---
+    const renderJobIcons = (partyMembers: { jobId: string | null }[]) => (
+        <div className="flex items-center gap-1">
+            {partyMembers.map((member, idx) => {
+                const icon = getJobIcon(member.jobId);
+                return icon ? (
+                    <img key={idx} src={icon} alt="" className="w-5 h-5 rounded-sm" />
+                ) : (
+                    <div key={idx} className="w-5 h-5 rounded-sm bg-app-border" />
+                );
+            })}
+        </div>
+    );
+
+    const renderDummyJobIcons = () => (
+        <div className="flex items-center gap-1">
+            {DUMMY_JOBS.map((jobId, i) => {
+                const icon = getJobIcon(jobId);
+                return icon ? (
+                    <img key={i} src={icon} alt="" className="w-5 h-5 rounded-sm opacity-40 grayscale" />
+                ) : (
+                    <div key={i} className="w-5 h-5 rounded-sm bg-app-border" />
+                );
+            })}
+        </div>
+    );
+
+    // --- 実データカード ---
+    const renderCard = (entry: PopularEntry, label: string) => (
+        <div
+            key={`${entry.shareId}-${label}`}
+            className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(0,0,0,0.25)] min-w-0"
+        >
+            <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
+            <p className="text-xs text-app-text truncate font-semibold">{entry.title}</p>
+            {entry.partyMembers?.length > 0 && renderJobIcons(entry.partyMembers)}
+            <button
+                onClick={() => handleCopy(entry)}
+                className="mt-auto w-full h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
             >
-                {/* ランクバッジ + 注目バッジ + コンテンツ名 */}
-                <div className="flex items-center gap-2">
-                    {entry.featured ? (
-                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-app-text text-app-bg">
-                            {t('popular.featured')}
-                        </span>
-                    ) : (
-                        <span
-                            className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${
-                                rank === 0
-                                    ? 'bg-app-text text-app-bg'
-                                    : 'bg-app-border text-app-text-muted'
-                            }`}
-                        >
-                            {t('popular.rank', { rank: rank + 1 })}
-                        </span>
-                    )}
-                    <span className="text-sm font-bold text-app-text truncate">
-                        {contentName}
-                    </span>
-                </div>
+                {t('popular.copy_button')}
+            </button>
+        </div>
+    );
 
-                {/* プランタイトル */}
-                <p className="text-xs text-app-text-muted truncate">{entry.title}</p>
+    // --- スケルトンカード ---
+    const renderSkeletonCard = (label: string, keyStr: string) => (
+        <div
+            key={`skel-${keyStr}`}
+            className="glass-popular-card rounded-xl p-4 flex flex-col gap-2.5 opacity-25 pointer-events-none select-none min-w-0"
+        >
+            <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
+            <div className="h-3 w-2/3 rounded bg-app-border" />
+            {renderDummyJobIcons()}
+            <div className="mt-auto w-full h-8 rounded-full border border-app-border" />
+        </div>
+    );
 
-                {/* 閲覧数 + コピー数 */}
-                <div className="flex items-center gap-3 text-xs text-app-text-muted">
-                    <span>{t('popular.view_count', { count: entry.viewCount })}</span>
-                    <span>{t('popular.copy_count', { count: entry.copyCount })}</span>
-                </div>
+    // --- 零式のシリーズ名 ---
+    const savageSeriesName = useMemo(() => {
+        if (!savageLevel) return '';
+        const label = getProjectLabel(savageLevel, 'savage');
+        if (!label) return '';
+        return lang === 'ja' ? label.ja : label.en;
+    }, [lang]);
 
-                {/* パーティ構成（ジョブアイコン） */}
-                {entry.partyMembers && entry.partyMembers.length > 0 && (
-                    <div className="flex items-center gap-1">
-                        {entry.partyMembers.map((member, idx) => {
-                            const icon = getJobIcon(member.jobId);
-                            return icon ? (
-                                <img
-                                    key={idx}
-                                    src={icon}
-                                    alt=""
-                                    className="w-5 h-5 rounded-sm"
-                                />
-                            ) : (
-                                <div
-                                    key={idx}
-                                    className="w-5 h-5 rounded-sm bg-app-border"
-                                />
-                            );
-                        })}
+    // --- P1/P2を考慮した零式カード並べ ---
+    // [[m9s], [m10s], [m11s], [m12s_p1, m12s_p2]] のようにグループ化
+    const savageFloorGroups = useMemo(() => {
+        const groups: string[][] = [];
+        let currentBase = '';
+        let currentGroup: string[] = [];
+        for (const id of savageIds) {
+            const base = getFloorBase(id);
+            if (base !== currentBase) {
+                if (currentGroup.length > 0) groups.push(currentGroup);
+                currentGroup = [id];
+                currentBase = base;
+            } else {
+                currentGroup.push(id);
+            }
+        }
+        if (currentGroup.length > 0) groups.push(currentGroup);
+        return groups;
+    }, []);
+
+    // --- 零式ランク行の描画 ---
+    const renderSavageRankRow = (rank: number, rankLabel: string) => {
+        const totalCount = getRankTotalCount(savageIds, rank);
+        const hasAny = savageIds.some(id => data[id]?.plans?.[rank]);
+
+        return (
+            <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <h3 className="text-sm font-bold text-app-text">{rankLabel}</h3>
+                    <div className="flex items-center gap-3">
+                        {totalCount > 0 && (
+                            <span className="text-[11px] text-app-text-muted">
+                                {t('popular.used_by', { count: totalCount })}
+                            </span>
+                        )}
+                        {hasAny && (
+                            <button
+                                onClick={() => handleCopyAllRank(rank)}
+                                className="px-3 h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                            >
+                                {rank === 0 ? t('popular.copy_all_rank1') : t('popular.copy_all_rank2')}
+                            </button>
+                        )}
                     </div>
-                )}
+                </div>
 
-                {/* コピーボタン */}
-                <button
-                    onClick={() => handleCopy(entry)}
-                    className="mt-auto w-full py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
-                >
-                    {t('popular.copy_button')}
-                </button>
+                {/* 層カード: P1/P2がある場合は段組み */}
+                <div className="flex flex-wrap gap-3">
+                    {savageFloorGroups.map((group) => (
+                        <div key={group[0]} className="flex flex-col gap-2">
+                            {group.map((contentId) => {
+                                const entry = data[contentId]?.plans?.[rank];
+                                const floorLabel = getFloorLabel(contentId, lang);
+                                return entry
+                                    ? renderCard(entry, floorLabel)
+                                    : renderSkeletonCard(floorLabel, `${contentId}-r${rank}`);
+                            })}
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     };
 
-    // セクション描画
-    const renderSection = (
-        title: string,
-        contentIds: string[],
-        showBulkCopy: boolean
-    ) => {
-        const hasAny = contentIds.some(id => data[id] && data[id].length > 0);
+    // --- 零式ピックアップ行 ---
+    const renderSavagePickupRow = () => {
+        // 各コンテンツのfeaturedを収集（1位・2位と重複しないもののみ）
+        const pickups: { contentId: string; entry: PopularEntry }[] = [];
+        for (const id of savageIds) {
+            const d = data[id];
+            if (!d?.featured) continue;
+            const rank1Id = d.plans[0]?.shareId;
+            const rank2Id = d.plans[1]?.shareId;
+            if (d.featured.shareId !== rank1Id && d.featured.shareId !== rank2Id) {
+                pickups.push({ contentId: id, entry: d.featured });
+            }
+        }
+        if (pickups.length === 0) return null;
 
         return (
-            <section className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <h2 className="text-lg font-bold text-app-text">{title}</h2>
-                    {showBulkCopy && hasAny && (
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => handleCopyAllRank(0)}
-                                className="px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
-                            >
-                                {t('popular.copy_all_rank1')}
-                            </button>
-                            <button
-                                onClick={() => handleCopyAllRank(1)}
-                                className="px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
-                            >
-                                {t('popular.copy_all_rank2')}
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                {!hasAny && (
-                    <p className="text-sm text-app-text-muted">{t('popular.no_data')}</p>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {contentIds.map(contentId => {
-                        const entries = data[contentId];
-                        if (!entries || entries.length === 0) return null;
-                        return entries.slice(0, 2).map((entry, rank) =>
-                            renderCard(entry, rank)
-                        );
+            <div className="flex flex-col gap-3">
+                <h3 className="text-sm font-bold text-app-text">{t('popular.pickup_label')}</h3>
+                <div className="flex flex-wrap gap-3">
+                    {pickups.map(({ contentId, entry }) => {
+                        const floorLabel = getFloorLabel(contentId, lang);
+                        return renderCard(entry, floorLabel);
                     })}
                 </div>
+            </div>
+        );
+    };
+
+    // --- 零式セクション ---
+    const renderSavageSection = () => {
+        const sectionTitle = savageSeriesName
+            ? `${t('popular.savage_section')} — ${savageSeriesName}`
+            : t('popular.savage_section');
+
+        return (
+            <section id="savage" className="glass-popular-section rounded-2xl p-6 flex flex-col gap-6 scroll-mt-16">
+                <h2 className="text-lg font-bold text-app-text">{sectionTitle}</h2>
+
+                {!savageIds.some(id => data[id]?.plans?.length) && (
+                    <p className="text-sm text-app-text-muted">
+                        {t('popular.no_data')} — {t('popular.no_data_desc')}
+                    </p>
+                )}
+
+                {/* イチオシ */}
+                {renderSavageRankRow(0, t('popular.rank1_label'))}
+
+                {/* こちらも人気 */}
+                {renderSavageRankRow(1, t('popular.rank2_label'))}
+
+                {/* ピックアップ（あれば） */}
+                {renderSavagePickupRow()}
             </section>
         );
     };
 
+    // --- 絶セクション ---
+    const renderUltimateSection = () => {
+        return (
+            <section id="ultimate" className="glass-popular-section rounded-2xl p-6 flex flex-col gap-6 scroll-mt-16">
+                <h2 className="text-lg font-bold text-app-text">{t('popular.ultimate_section')}</h2>
+
+                {!ultimateIds.some(id => data[id]?.plans?.length) && (
+                    <p className="text-sm text-app-text-muted">
+                        {t('popular.no_data')} — {t('popular.no_data_desc')}
+                    </p>
+                )}
+
+                {ultimateIds.map(contentId => {
+                    const d = data[contentId];
+                    const contentName = getContentName(contentId);
+                    const rank1 = d?.plans?.[0];
+                    const rank2 = d?.plans?.[1];
+
+                    // ピックアップ: 1位・2位と重複しなければ表示
+                    const pickup = d?.featured
+                        && d.featured.shareId !== rank1?.shareId
+                        && d.featured.shareId !== rank2?.shareId
+                        ? d.featured
+                        : null;
+
+                    return (
+                        <div key={contentId} className="flex flex-col gap-3">
+                            <h3 className="text-sm font-bold text-app-text">{contentName}</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {/* イチオシ */}
+                                {rank1
+                                    ? renderCard(rank1, t('popular.rank1_label'))
+                                    : renderSkeletonCard(t('popular.rank1_label'), `${contentId}-r0`)
+                                }
+                                {/* こちらも人気 */}
+                                {rank2
+                                    ? renderCard(rank2, t('popular.rank2_label'))
+                                    : renderSkeletonCard(t('popular.rank2_label'), `${contentId}-r1`)
+                                }
+                                {/* ピックアップ（あれば） */}
+                                {pickup && renderCard(pickup, t('popular.pickup_label'))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </section>
+        );
+    };
+
+    // --- スムーススクロール ---
+    const scrollTo = useCallback((id: string) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
+
+    // --- 共通レイアウト ---
+    const renderLayout = (children: React.ReactNode) => (
+        <div className="min-h-screen bg-app-bg text-app-text relative">
+            <GridOverlay />
+
+            {/* 固定ヘッダー（画面幅いっぱい） */}
+            <header className="fixed top-0 left-0 right-0 z-50 glass-popular-header">
+                <div className="w-full px-5 h-12 flex items-center justify-between gap-4">
+                    {/* 左: ロゴ + ナビ */}
+                    <div className="flex items-center gap-4 min-w-0">
+                        <a
+                            href="/"
+                            className="shrink-0 hover:opacity-80 transition-opacity"
+                        >
+                            <span className="text-xl font-black tracking-widest text-app-text">LoPo</span>
+                        </a>
+                        {/* アンカーナビ */}
+                        <nav className="hidden sm:flex items-center gap-1 ml-1">
+                            <button
+                                onClick={() => scrollTo('savage')}
+                                className="px-3 h-7 rounded-full text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
+                            >
+                                {t('popular.savage_section')}
+                            </button>
+                            <button
+                                onClick={() => scrollTo('ultimate')}
+                                className="px-3 h-7 rounded-full text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
+                            >
+                                {t('popular.ultimate_section')}
+                            </button>
+                        </nav>
+                    </div>
+
+                    {/* 右: コントロール群 */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        <LanguageSwitcher />
+                        <button
+                            onClick={toggleTheme}
+                            className="w-9 h-9 rounded-full border border-app-border flex items-center justify-center hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                        >
+                            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                        </button>
+                        <div className="w-px h-5 bg-app-border" />
+                        <button
+                            onClick={() => { window.close(); window.location.href = '/miti'; }}
+                            className="flex items-center gap-1.5 px-3.5 h-9 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                        >
+                            <ArrowLeft size={12} />
+                            {t('popular.back_to_miti')}
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* メインコンテンツ（フル幅） */}
+            <main className="relative z-10 w-full px-5 pt-16 pb-8 flex flex-col gap-8">
+                <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
+                {children}
+            </main>
+        </div>
+    );
+
     // --- ローディング ---
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-app-bg text-app-text">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-2 border-app-text border-t-transparent rounded-full animate-spin" />
-                    <p className="text-sm text-app-text-muted">{t('popular.title')}</p>
-                </div>
+        return renderLayout(
+            <div className="flex items-center justify-center py-32">
+                <div className="w-8 h-8 border-2 border-app-text border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     // --- メインレンダリング ---
-    return (
-        <div className="min-h-screen bg-app-bg text-app-text">
-            <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8">
-                {/* ヘッダー */}
-                <header className="flex items-start justify-between gap-4">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-bold">{t('popular.title')}</h1>
-                        <p className="text-sm text-app-text-muted">{t('popular.subtitle')}</p>
-                    </div>
-                    <button
-                        onClick={() => { window.close(); window.location.href = '/miti'; }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-all duration-200 cursor-pointer active:scale-95 shrink-0"
-                    >
-                        <ArrowLeft size={12} />
-                        {t('popular.back_to_miti')}
-                    </button>
-                </header>
-
-                {/* 零式（最新） */}
-                {renderSection(t('popular.savage_section'), savageIds, true)}
-
-                {/* 絶 */}
-                {renderSection(t('popular.ultimate_section'), ultimateIds, false)}
-            </div>
-        </div>
+    return renderLayout(
+        <>
+            {renderSavageSection()}
+            {renderUltimateSection()}
+        </>
     );
 };
