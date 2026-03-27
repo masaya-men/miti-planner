@@ -303,7 +303,7 @@
         "recent_activity": "最近のアクティビティ",
         "level_select": "レベル選択",
         "category_select": "カテゴリ選択",
-        "multi_select_mode": "複数選択",
+        "multi_select_mode": "まとめて共有",
         "selected_count": "{{count}}/10 選択中",
         "selected_count_simple": "{{count}}件 選択中",
         "share_together": "まとめて共有",

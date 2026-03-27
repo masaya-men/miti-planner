@@ -1338,8 +1338,8 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {/* Area A: PHASE(100) + TIME(70) = 170px */}
-                            <div className="w-[30px] min-w-[30px] md:w-[170px] md:min-w-[170px] flex-none flex items-center px-1 md:px-2">
+                            {/* Area A: PHASE(100) + TIME(70) = 170px — テーブルカラムと幅を揃える */}
+                            <div className="w-[30px] min-w-[30px] md:w-[170px] md:min-w-[170px] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
@@ -1351,26 +1351,19 @@ const Timeline: React.FC = () => {
                                 >
                                     <AlignJustify
                                         size={14}
-                                        className={clsx(
-                                            "transition-all duration-300 group-hover/btn:scale-110 shrink-0",
-                                            hideEmptyRows
-                                                ? ""
-                                                : ""
-                                        )}
+                                        className="transition-all duration-300 group-hover/btn:scale-110 shrink-0"
                                     />
-                                    <span className={clsx(
-                                        "uppercase tracking-wider hidden md:block",
-                                        hideEmptyRows
-                                            ? ""
-                                            : ""
-                                    )}>
+                                    <span className="uppercase tracking-wider hidden md:block">
                                         {t('ui.compact_view')}
                                     </span>
                                 </button>
                             </div>
 
-                            {/* Area B: MECHANIC(200) */}
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] flex items-center px-1 md:px-2">
+                            {/* 短い区切り線 — テーブルの Time|Event 境界と揃う */}
+                            <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
+
+                            {/* Area B: MECHANIC(200) — 敵の攻撃カラムと揃う */}
+                            <div className="flex-1 md:flex-none md:w-[199px] md:min-w-[199px] flex items-center px-1 md:px-2 h-full">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
                                     isAaModeEnabled && "bg-app-text/10"
@@ -1387,10 +1380,6 @@ const Timeline: React.FC = () => {
                                         <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-text" : "")} />
                                         <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
-                                    <div className={clsx(
-                                        "h-3 w-[1px]",
-                                        isAaModeEnabled ? "bg-app-accent/40" : "bg-app-border"
-                                    )} />
                                     <button
                                         ref={aaSettingsButtonRef}
                                         onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
@@ -1413,8 +1402,11 @@ const Timeline: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Area C: Remaining (RAW/TAKEN/Columns) */}
-                            <div className="flex-none md:w-[200px] md:min-w-[200px] flex items-center gap-0.5 border-l border-app-border pl-2 h-full">
+                            {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}
+                            <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
+
+                            {/* Area C: U.Dmg(100) — 罫線トグル */}
+                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().setShowRowBorders(!useMitigationStore.getState().showRowBorders)}
@@ -1428,7 +1420,13 @@ const Timeline: React.FC = () => {
                                         <Rows3 size={12} />
                                     </button>
                                 </Tooltip>
-                                <div className="w-[1px] h-3 bg-app-border mx-0.5" />
+                            </div>
+
+                            {/* 短い区切り線 — テーブルの U.Dmg|Dmg 境界と揃う */}
+                            <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
+
+                            {/* Area D: Dmg(100) — Undo/Redo/ゴミ箱 */}
+                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center gap-0.5 h-full">
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}
@@ -1457,7 +1455,6 @@ const Timeline: React.FC = () => {
                                         <Redo2 size={12} />
                                     </button>
                                 </Tooltip>
-                                <div className="w-[1px] h-3 bg-app-border mx-0.5" />
                                 <div className="relative">
                                     <Tooltip content={t('timeline.clear_mitigations')}>
                                         <button
@@ -1482,6 +1479,9 @@ const Timeline: React.FC = () => {
                                     )}
                                 </div>
                             </div>
+
+                            {/* 短い区切り線 — テーブルの Dmg|Job列 境界と揃う */}
+                            <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
                         </div>
                     </div>
 
