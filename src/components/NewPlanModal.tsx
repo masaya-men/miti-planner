@@ -13,7 +13,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { getTemplate } from '../data/templateLoader';
 import { PLAN_LIMITS } from '../types/firebase';
-import { X, ChevronDown, Check, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface NewPlanModalProps {
@@ -23,6 +23,10 @@ interface NewPlanModalProps {
 
 const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
 const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
+
+// 零式・絶はドロップダウンから選択、それ以外は自由入力
+const hasContentRegistry = (cat: ContentCategory | null): cat is 'savage' | 'ultimate' =>
+    cat === 'savage' || cat === 'ultimate';
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) => {
     const { t, i18n } = useTranslation();
@@ -36,41 +40,58 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const isTotalLimitReached = totalPlanCount >= PLAN_LIMITS.MAX_TOTAL_PLANS;
     const isArchiveWarning = totalPlanCount >= PLAN_LIMITS.ARCHIVE_WARNING_THRESHOLD;
 
-    // Selection State
-    const [level, setLevel] = useState<ContentLevel>(100);
-    const [category, setCategory] = useState<ContentCategory>('savage');
+    // Selection State — レベル・カテゴリは未選択スタート
+    const [level, setLevel] = useState<ContentLevel | null>(null);
+    const [category, setCategory] = useState<ContentCategory | null>(null);
     const [boss, setBoss] = useState<ContentDefinition | null>(null);
     const [title, setTitle] = useState('');
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
-    
+
     useEffect(() => {
         setMounted(true);
         return () => setMounted(false);
     }, []);
 
+    // モーダルが開くたびにリセット
+    useEffect(() => {
+        if (isOpen) {
+            setLevel(null);
+            setCategory(null);
+            setBoss(null);
+            setTitle('');
+            ;
+        }
+    }, [isOpen]);
+
     const titleInputRef = useRef<HTMLInputElement>(null);
 
-    // Filter bosses based on level and category
+    // 零式・絶の場合のみドロップダウン用のコンテンツリストを生成
     const filteredBosses = React.useMemo(() => {
+        if (!level || !hasContentRegistry(category)) return [];
         const series = getSeriesByLevel(level).filter(s => s.category === category);
         return series.flatMap(s => getContentBySeries(s.id));
     }, [level, category]);
 
-    // Reset boss if filter changes and current boss is no longer in the list
+    // フィルタ変更時にbossをリセット
     useEffect(() => {
         if (boss && !filteredBosses.some(b => b.id === boss.id)) {
             setBoss(null);
         }
     }, [filteredBosses, boss]);
 
-    // Auto-fill title and focus
+    // カテゴリ変更時にbossとタイトルをリセット
+    useEffect(() => {
+        setBoss(null);
+        setTitle('');
+        ;
+    }, [category]);
+
+    // ドロップダウンからボスを選択
     const handleBossSelect = (selectedBoss: ContentDefinition) => {
         setBoss(selectedBoss);
-        // デフォルト名は英語略称（サイドバーからの作成と同じ）
         const defaultName = selectedBoss.shortName.en || selectedBoss.shortName.ja;
         setTitle(defaultName);
-        setIsDropdownOpen(false);
+        ;
 
         setTimeout(() => {
             if (titleInputRef.current) {
@@ -80,13 +101,21 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         }, 50);
     };
 
+    // バリデーション
+    const isLevelSelected = level !== null;
+    const isCategorySelected = category !== null;
+    const hasBossOrFreeInput = hasContentRegistry(category)
+        ? boss !== null  // 零式・絶: ドロップダウンから選択必須
+        : title.trim().length > 0;  // その他: 名前入力必須
+    const canCreate = isLevelSelected && isCategorySelected && hasBossOrFreeInput && title.trim().length > 0;
+
     // 選択中コンテンツの件数チェック
     const contentPlanCount = boss ? plans.filter(p => p.contentId === boss.id).length : 0;
     const isContentLimitReached = boss ? contentPlanCount >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT : false;
     const isBlocked = isTotalLimitReached || isContentLimitReached;
 
     const handleCreate = async () => {
-        if (!title.trim() || isBlocked) return;
+        if (!canCreate || isBlocked || !level) return;
 
         // 1. 現在のプランを保存
         if (activePlanId) {
@@ -101,7 +130,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         store.applyDefaultStats(useLevel, boss?.patch);
         store.clearAllMitigations();
 
-        // 3. テンプレート読み込み（コンテンツ選択時のみ）
+        // 3. テンプレート読み込み（零式・絶でコンテンツ選択時のみ）
         if (boss) {
             const tpl = await getTemplate(boss.id);
             if (tpl) {
@@ -140,13 +169,18 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
             });
         }
 
-        // 4. プラン保存
+        // 4. contentId の決定
+        // 零式・絶: 既存のコンテンツID / それ以外: ユーザー入力名をそのまま使う
+        const contentId = boss?.id || (hasContentRegistry(category) ? null : title.trim());
+
+        // 5. プラン保存
         const newPlanId = `plan_${Date.now()}`;
         addPlan({
             id: newPlanId,
             ownerId: 'local',
             ownerDisplayName: 'Guest',
-            contentId: boss?.id || null,
+            contentId,
+            category: category!,
             title: title.trim(),
             isPublic: false,
             copyCount: 0,
@@ -161,16 +195,33 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         useTutorialStore.getState().completeEvent('timeline:events-loaded');
 
         // サイドバーに作成結果を伝える
-        onClose({ contentId: boss?.id || null, level: useLevel as ContentLevel });
+        onClose({ contentId, level: useLevel as ContentLevel });
+    };
+
+    // Enterキーで作成
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && canCreate && !isBlocked) {
+            e.preventDefault();
+            handleCreate();
+        }
     };
 
     if (!isOpen) return null;
-
     if (!mounted || !isOpen) return null;
+
+    // 未入力項目の案内メッセージ
+    const getMissingMessage = (): string | null => {
+        if (!isLevelSelected) return t('new_plan.select_level');
+        if (!isCategorySelected) return t('new_plan.select_category');
+        if (hasContentRegistry(category) && !boss) return t('new_plan.select_content');
+        if (!title.trim()) return t('new_plan.enter_name');
+        return null;
+    };
+    const missingMessage = getMissingMessage();
 
     return createPortal(
         <AnimatePresence mode="wait">
-            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4" onKeyDown={handleKeyDown}>
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -205,12 +256,9 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     <div className="p-6 space-y-7 overflow-y-auto no-scrollbar">
                         {/* Level Tabs */}
                         <div className="space-y-3.5">
-                            <div className="flex items-center justify-between px-1">
-                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em]">
-                                    {t('new_plan.level_label')}
-                                </label>
-                                <span className="text-[9px] font-bold text-app-text-muted bg-app-text/5 px-2 py-0.5 rounded-full border border-app-text/10">{t('new_plan.optional')}</span>
-                            </div>
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                {t('new_plan.level_label')}
+                            </label>
                             <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
                                 {LEVEL_OPTIONS.map(l => (
                                     <button
@@ -218,8 +266,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                         onClick={() => setLevel(l)}
                                         className={clsx(
                                             "flex-1 py-2 rounded-lg text-[11px] font-black transition-all duration-300 cursor-pointer",
-                                            level === l 
-                                                ? "bg-app-accent text-app-text-on-accent shadow-lg shadow-app-accent/30 scale-[1.02]" 
+                                            level === l
+                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02]"
                                                 : "text-app-text hover:bg-glass-hover"
                                         )}
                                     >
@@ -252,75 +300,79 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                             </div>
                         </div>
 
-                        {/* Content Dropdown */}
-                        <div className="space-y-3.5 relative">
-                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                {t('new_plan.content_label')}
-                            </label>
-                            <button
-                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                className={clsx(
-                                    "w-full flex items-center justify-between px-4.5 py-4 bg-glass-card/40 border rounded-2xl text-[13px] transition-all duration-300 cursor-pointer",
-                                    boss ? "text-app-text font-black" : "text-app-text-muted",  // placeholder
-                                    isDropdownOpen ? "border-app-accent ring-4 ring-app-accent/15" : "border-glass-border/40 hover:border-glass-hover"
-                                )}
-                            >
-                                <span className="truncate">
-                                    {boss ? (boss.name[lang] || boss.name.ja) : t('new_plan.content_placeholder')}
-                                </span>
-                                <ChevronDown size={18} className={clsx("transition-transform duration-300", isDropdownOpen && "rotate-180")} />
-                            </button>
-
-                            <AnimatePresence>
-                                {isDropdownOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="absolute top-full left-0 right-0 mt-3 bg-app-bg border border-glass-border shadow-sm rounded-2xl z-[110] max-h-64 overflow-y-auto no-scrollbar p-2"
-                                    >
-                                        {filteredBosses.length > 0 ? (
-                                            filteredBosses.map(b => (
+                        {/* 零式・絶: コンテンツ一覧（フラットリスト） */}
+                        {hasContentRegistry(category) && (
+                            <div className="space-y-3.5">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                    {t('new_plan.content_label')}
+                                </label>
+                                {level ? (
+                                    filteredBosses.length > 0 ? (
+                                        <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto custom-scrollbar">
+                                            {filteredBosses.map(b => (
                                                 <button
                                                     key={b.id}
                                                     onClick={() => handleBossSelect(b)}
                                                     className={clsx(
-                                                        "w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs transition-all cursor-pointer text-left mb-1 last:mb-0",
-                                                        boss?.id === b.id 
-                                                            ? "bg-app-accent/20 text-app-accent font-black shadow-inner" 
-                                                            : "text-app-text hover:bg-app-surface2"
+                                                        "w-full px-4 py-3 rounded-xl text-[12px] font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
+                                                        boss?.id === b.id
+                                                            ? "bg-app-text text-app-bg border-app-text"
+                                                            : "bg-glass-card/30 text-app-text border-glass-border/40 hover:bg-glass-hover"
                                                     )}
                                                 >
-                                                    <span className="truncate">{b.name[lang] || b.name.ja}</span>
-                                                    {boss?.id === b.id && <Check size={14} className="shrink-0 ml-2" />}
+                                                    {b.name[lang] || b.name.ja}
                                                 </button>
-                                            ))
-                                        ) : (
-                                            <div className="py-10 text-center text-app-text-muted italic text-[11px] opacity-60">
-                                                {t('new_plan.no_matches')}
-                                            </div>
-                                        )}
-                                    </motion.div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-[11px] text-app-text-muted text-center py-6 italic opacity-60">
+                                            {t('new_plan.no_matches')}
+                                        </p>
+                                    )
+                                ) : (
+                                    <p className="text-[11px] text-app-text-muted text-center py-6 italic opacity-60">
+                                        {t('new_plan.select_level_first')}
+                                    </p>
                                 )}
-                            </AnimatePresence>
-                        </div>
+                            </div>
+                        )}
 
-                        {/* Plan Name */}
-                        <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
-                                {t('new_plan.plan_name_label')}
-                            </label>
-                            <input
-                                ref={titleInputRef}
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                onFocus={(e) => e.target.select()}
-                                placeholder={t('new_plan.plan_name_placeholder')}
-                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-accent focus:ring-4 ring-app-accent/15 transition-all font-black placeholder:text-app-text-muted/30"
-                            />
-                        </div>
+                        {/* 零式・絶: プラン名入力 */}
+                        {hasContentRegistry(category) && boss && (
+                            <div className="space-y-3.5">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                    {t('new_plan.plan_name_label')}
+                                </label>
+                                <input
+                                    ref={titleInputRef}
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    onFocus={(e) => e.target.select()}
+                                    placeholder={t('new_plan.plan_name_placeholder')}
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                />
+                            </div>
+                        )}
 
+                        {/* ダンジョン・レイド・その他: 名前入力のみ */}
+                        {category !== null && !hasContentRegistry(category) && (
+                            <div className="space-y-3.5">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                    {t('new_plan.plan_name_label')}
+                                </label>
+                                <input
+                                    ref={titleInputRef}
+                                    autoFocus
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    onFocus={(e) => e.target.select()}
+                                    placeholder={t('new_plan.free_name_placeholder')}
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* 件数制限の警告 */}
@@ -349,25 +401,31 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     )}
 
                     {/* Footer */}
-                    <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
-                        <button
-                            onClick={() => onClose()}
-                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
-                        >
-                            {t('new_plan.cancel_button')}
-                        </button>
-                        <button
-                            onClick={handleCreate}
-                            disabled={!title.trim() || isBlocked}
-                            className={clsx(
-                                "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
-                                title.trim() && !isBlocked
-                                    ? "bg-app-text text-app-bg hover:opacity-80"
-                                    : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
-                            )}
-                        >
-                            {t('new_plan.create_button')}
-                        </button>
+                    <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex flex-col gap-3">
+                        {/* 未入力項目の案内 */}
+                        {missingMessage && !isBlocked && (
+                            <p className="text-[10px] text-app-text-muted text-center">{missingMessage}</p>
+                        )}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => onClose()}
+                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                            >
+                                {t('new_plan.cancel_button')}
+                            </button>
+                            <button
+                                onClick={handleCreate}
+                                disabled={!canCreate || isBlocked}
+                                className={clsx(
+                                    "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
+                                    canCreate && !isBlocked
+                                        ? "bg-app-text text-app-bg hover:opacity-80"
+                                        : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
+                                )}
+                            >
+                                {t('new_plan.create_button')}
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             </div>
