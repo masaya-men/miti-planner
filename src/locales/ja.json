@@ -350,7 +350,8 @@
         "pulse_slow": "遅",
         "pulse_fast": "速",
         "discord": "Discord（質問・要望・バグ報告）",
-        "kofi": "Ko-fiで応援"
+        "kofi": "Ko-fiで応援",
+        "commercial": "特定商取引法に基づく表記"
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",
@@ -398,7 +399,34 @@
         "terms_section6_title": "6. サービスの変更・終了",
         "terms_section6_body": "本サービスは予告なく変更・終了する場合があります。",
         "terms_section7_title": "7. 規約の変更",
-        "terms_section7_body": "本規約は予告なく変更される場合があります。変更後もサービスを継続利用した場合、変更後の規約に同意したものとみなします。"
+        "terms_section7_body": "本規約は予告なく変更される場合があります。変更後もサービスを継続利用した場合、変更後の規約に同意したものとみなします。",
+
+        "commercial_title": "特定商取引法に基づく表記",
+        "commercial_last_updated": "最終更新日: 2026年3月27日",
+        "commercial_seller": "販売事業者",
+        "commercial_seller_value": "請求があった場合は遅滞なく開示いたします",
+        "commercial_address": "所在地",
+        "commercial_address_value": "請求があった場合は遅滞なく開示いたします",
+        "commercial_phone": "電話番号",
+        "commercial_phone_value": "請求があった場合は遅滞なく開示いたします",
+        "commercial_email": "メールアドレス",
+        "commercial_email_value": "lopoly.contact@gmail.com",
+        "commercial_manager": "運営責任者",
+        "commercial_manager_value": "請求があった場合は遅滞なく開示いたします",
+        "commercial_service": "サービス内容",
+        "commercial_service_value": "FF14向けファンツール「LoPo」の運営。軽減プランナー等のWebツールを無料で提供",
+        "commercial_price": "販売価格",
+        "commercial_price_value": "任意の金額による自発的な支援（$3〜）",
+        "commercial_fees": "追加手数料",
+        "commercial_fees_value": "なし",
+        "commercial_payment": "決済方法",
+        "commercial_payment_value": "クレジットカード（Ko-fi を通じた決済）",
+        "commercial_payment_timing": "決済時期",
+        "commercial_payment_timing_value": "支援時に即時決済",
+        "commercial_delivery": "サービス提供時期",
+        "commercial_delivery_value": "本サービスは無料で即時利用可能です。支援は対価ではなく任意の寄付です",
+        "commercial_refund": "返品・返金",
+        "commercial_refund_value": "支援金の性質上、返金には対応しておりません"
     },
     "portal": {
         "title": "LoPo",
@@ -458,7 +486,8 @@
             "terms": "利用規約",
             "share": "共有する",
             "share_copied": "コピーしました！",
-            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier"
+            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
+            "commercial": "特定商取引法に基づく表記"
         },
         "tools": {
             "miti_planner": {

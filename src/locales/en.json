@@ -346,7 +346,8 @@
         "pulse_slow": "Slow",
         "pulse_fast": "Fast",
         "discord": "Discord (Questions, Feedback & Bugs)",
-        "kofi": "Support on Ko-fi"
+        "kofi": "Support on Ko-fi",
+        "commercial": "Commercial Disclosure"
     },
     "legal": {
         "privacy_title": "Privacy Policy",
@@ -394,7 +395,34 @@
         "terms_section6_title": "6. Service Changes & Termination",
         "terms_section6_body": "The Service may be changed or terminated without notice.",
         "terms_section7_title": "7. Changes to These Terms",
-        "terms_section7_body": "These terms may be updated without notice. Continued use of the Service after changes constitutes acceptance of the updated terms."
+        "terms_section7_body": "These terms may be updated without notice. Continued use of the Service after changes constitutes acceptance of the updated terms.",
+
+        "commercial_title": "Commercial Disclosure (Specified Commercial Transactions Act)",
+        "commercial_last_updated": "Last updated: March 27, 2026",
+        "commercial_seller": "Seller",
+        "commercial_seller_value": "Disclosed upon request without delay",
+        "commercial_address": "Address",
+        "commercial_address_value": "Disclosed upon request without delay",
+        "commercial_phone": "Phone Number",
+        "commercial_phone_value": "Disclosed upon request without delay",
+        "commercial_email": "Email",
+        "commercial_email_value": "lopoly.contact@gmail.com",
+        "commercial_manager": "Responsible Person",
+        "commercial_manager_value": "Disclosed upon request without delay",
+        "commercial_service": "Service Description",
+        "commercial_service_value": "Operation of \"LoPo\", a fan tool portal for FFXIV. Free web tools including a Mitigation Planner",
+        "commercial_price": "Price",
+        "commercial_price_value": "Voluntary support starting from $3",
+        "commercial_fees": "Additional Fees",
+        "commercial_fees_value": "None",
+        "commercial_payment": "Payment Method",
+        "commercial_payment_value": "Credit card (processed through Ko-fi)",
+        "commercial_payment_timing": "Payment Timing",
+        "commercial_payment_timing_value": "Charged immediately upon support",
+        "commercial_delivery": "Service Availability",
+        "commercial_delivery_value": "The service is available immediately and free of charge. Support is a voluntary donation, not a payment for services",
+        "commercial_refund": "Refund Policy",
+        "commercial_refund_value": "Due to the nature of voluntary support, refunds are not available"
     },
     "portal": {
         "title": "LoPo",
@@ -454,7 +482,8 @@
             "terms": "Terms of Service",
             "share": "Share",
             "share_copied": "Copied!",
-            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier"
+            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
+            "commercial": "Commercial Disclosure"
         },
         "tools": {
             "miti_planner": {

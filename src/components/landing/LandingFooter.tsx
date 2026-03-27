@@ -67,6 +67,7 @@ export function LandingFooter() {
             <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.kofi')}</a>
             <Link to="/privacy" className="hover:text-white/60 transition-colors">{t('portal.footer.privacy')}</Link>
             <Link to="/terms" className="hover:text-white/60 transition-colors">{t('portal.footer.terms')}</Link>
+            <Link to="/commercial" className="hover:text-white/60 transition-colors">{t('portal.footer.commercial')}</Link>
           </div>
         </div>
       </div>

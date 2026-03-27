@@ -7,7 +7,7 @@ import { SharePage } from './components/SharePage';
 import { PopularPage } from './components/PopularPage';
 
 
-import { PrivacyPolicyPage, TermsPage } from './components/LegalPage';
+import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -91,6 +91,7 @@ function App() {
 
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/commercial" element={<CommercialDisclosurePage />} />
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
