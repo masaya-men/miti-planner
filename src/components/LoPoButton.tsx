@@ -12,7 +12,7 @@ export const LoPoButton: React.FC<{
     const fontSize = size === 'lg' ? 'text-4xl' : 'text-2xl';
     const h = size === 'lg' ? 56 : 40;
     const px = size === 'lg' ? 32 : 16;
-    const textClass = `${fontSize} font-black tracking-widest select-none whitespace-nowrap`;
+    const textClass = `${fontSize} font-black tracking-tight select-none whitespace-nowrap`;
     const { theme } = useThemeStore();
     const isDark = theme === 'dark';
 
@@ -53,7 +53,7 @@ export const LoPoButton: React.FC<{
             </svg>
 
             {/* 通常テキスト */}
-            <span className={`${textClass} relative z-10`} style={{ color: textColor }}>
+            <span className={`${textClass} relative z-10`} style={{ color: textColor, fontFamily: "'Rajdhani', sans-serif" }}>
                 LoPo
             </span>
 
@@ -62,7 +62,7 @@ export const LoPoButton: React.FC<{
                 <div className="lopo-scan-fill absolute inset-x-0 bottom-0" style={{ background: fillColor }} />
                 <div className="lopo-scan-line absolute inset-x-0" />
                 <div className="lopo-scan-clip absolute inset-0 flex items-center justify-center">
-                    <span className={textClass} style={{ color: invertedTextColor }}>
+                    <span className={textClass} style={{ color: invertedTextColor, fontFamily: "'Rajdhani', sans-serif" }}>
                         LoPo
                     </span>
                 </div>
