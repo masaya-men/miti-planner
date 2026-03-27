@@ -743,6 +743,10 @@
         "no_data": "No data yet",
         "no_data_desc": "Share your plans to see rankings here",
         "back_to_miti": "Back to Planner",
-        "open_popular": "Popular Plans"
+        "open_popular": "Popular Plans",
+        "save_to_mine": "Save",
+        "share_x": "X",
+        "share_link": "Link",
+        "link_copied": "Link copied"
     }
 }
