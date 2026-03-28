@@ -33,6 +33,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MiB
         globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
         // /api/ へのリクエストはService Workerを通さない
         navigateFallbackDenylist: [/^\/api\//],

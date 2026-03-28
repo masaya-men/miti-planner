@@ -889,6 +889,10 @@
         "promotion_threshold": "Promotion threshold (copy count)",
         "promotion_multiplier": "Promotion multiplier",
         "config_save": "Save",
-        "config_saved": "Settings saved"
+        "config_saved": "Settings saved",
+        "icon_upload": "Change icon",
+        "icon_uploading": "Uploading...",
+        "icon_upload_success": "Icon updated",
+        "icon_upload_error": "Failed to upload icon"
     }
 }
