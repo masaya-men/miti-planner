@@ -2,6 +2,15 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第34セッション 2026-03-28）
+- [x] **管理者向け運営マニュアル作成** — `docs/ADMIN_OPERATIONS_MANUAL.md` に作成済み
+- [x] **バグ修正: AAアイコン** — text-app-text-muted → text-app-text-sec（ライトモード視認性向上）
+- [x] **バグ修正: パルスカラーパレット** — GradientSliderにoverflow-hidden + getValueFromXサム幅考慮
+- [x] **バグ修正: SELECTテキスト** — text-white/40 → text-app-text-muted（ライトモード対応）
+- [x] **Discord通知刷新** — GitHub Commit Webhook廃止 → 管理画面データ更新時にユーザー向け自動通知（DISCORD_UPDATE_WEBHOOK_URL）
+- [x] **CSVエクスポート** — サイドバーのプラン⋮メニューからCSVダウンロード機能を追加
+- [x] **ADMIN_REFERENCE.md更新** — FirebaseプランSpark→Blaze修正
+
 ## 完了（第30セッション 2026-03-28）
 - [x] **Firebase App Check有効化** — reCAPTCHA Enterprise設定・サイトキー作成・Vercel環境変数追加・Firebase Console登録
 - [x] **Firestoreセキュリティルールのデプロイ** — master/templates/backups/admin_logsのルール追加・firebase deploy完了

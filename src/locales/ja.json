@@ -334,7 +334,9 @@
         "add_plan": "追加",
         "custom_plans": "カスタム",
         "duplicate_plan": "すぐ下にコピーを作成",
-        "duplicate_limit_reached": "プラン数の上限に達しています"
+        "duplicate_limit_reached": "プラン数の上限に達しています",
+        "export_csv": "CSV ダウンロード",
+        "csv_exported": "CSV をダウンロードしました"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

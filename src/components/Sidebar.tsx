@@ -13,7 +13,7 @@ import {
     getProjectLabel,
     getContentById,
 } from '../data/contentRegistry';
-import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import type { ContentLevel, ContentCategory, ContentDefinition, SavedPlan } from '../types';
 import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
@@ -37,10 +37,13 @@ import {
     X,
     Pencil,
     Copy,
+    MoreVertical,
+    Download,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
 import { showToast } from './Toast';
+import { exportPlanToCSV } from '../utils/csvExporter';
 
 // ─────────────────────────────────────────────
 // Props
@@ -93,6 +96,10 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     const [editingTitle, setEditingTitle] = React.useState('');
     const editInputRef = React.useRef<HTMLInputElement>(null);
 
+    // ⋮メニュー
+    const [menuPlanId, setMenuPlanId] = React.useState<string | null>(null);
+    const menuRef = React.useRef<HTMLDivElement>(null);
+
     const startEditing = (planId: string, title: string, e: React.MouseEvent) => {
         e.stopPropagation();
         setEditingPlanId(planId);
@@ -105,6 +112,31 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
             updatePlan(editingPlanId, { title: editingTitle.trim() });
         }
         setEditingPlanId(null);
+    };
+
+    // ⋮メニュー外クリックで閉じる
+    React.useEffect(() => {
+        if (!menuPlanId) return;
+        const handler = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setMenuPlanId(null);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [menuPlanId]);
+
+    const handleCSVExport = (plan: SavedPlan) => {
+        const lang = (i18n.language?.startsWith('ja') ? 'ja' : 'en') as 'ja' | 'en';
+        exportPlanToCSV(
+            plan.title,
+            plan.data.timelineEvents || [],
+            plan.data.timelineMitigations || [],
+            plan.data.partyMembers || [],
+            lang,
+        );
+        setMenuPlanId(null);
+        showToast(t('sidebar.csv_exported', 'CSV をダウンロードしました'));
     };
 
     return (
@@ -283,6 +315,26 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                                         <Pencil size={9} />
                                                     </button>
                                                 </Tooltip>
+                                                {/* ⋮ メニュー */}
+                                                <div className="relative" ref={menuPlanId === plan.id ? menuRef : undefined}>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setMenuPlanId(menuPlanId === plan.id ? null : plan.id); }}
+                                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                    >
+                                                        <MoreVertical size={9} />
+                                                    </button>
+                                                    {menuPlanId === plan.id && (
+                                                        <div className="absolute right-0 top-6 z-50 min-w-[140px] py-1 bg-app-bg border border-app-border rounded-lg shadow-lg">
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); handleCSVExport(plan); }}
+                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
+                                                            >
+                                                                <Download size={11} />
+                                                                {t('sidebar.export_csv', 'CSV ダウンロード')}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </>
                                         )}
                                     </button>

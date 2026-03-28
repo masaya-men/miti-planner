@@ -72,10 +72,12 @@ const GradientSlider: React.FC<{
     const trackRef = useRef<HTMLDivElement>(null);
     const [dragging, setDragging] = useState(false);
 
+    const thumbW = 14; // w-3.5 = 14px
     const getValueFromX = useCallback((clientX: number) => {
         if (!trackRef.current) return value;
         const rect = trackRef.current.getBoundingClientRect();
-        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        // サム幅を考慮: 有効トラック範囲は (thumbW/2) 〜 (width - thumbW/2)
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left - thumbW / 2) / (rect.width - thumbW)));
         return ratio * (max - min) + min;
     }, [value, min, max]);
 
@@ -99,7 +101,7 @@ const GradientSlider: React.FC<{
     return (
         <div
             ref={trackRef}
-            className="relative h-5 flex items-center cursor-pointer rounded-full"
+            className="relative h-5 flex items-center cursor-pointer rounded-full overflow-hidden"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}

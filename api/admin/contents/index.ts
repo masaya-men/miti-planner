@@ -9,6 +9,7 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/admi
 import { writeAuditLog } from '../../../src/lib/auditLog.js';
 import { applyRateLimit } from '../../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { sendUpdateNotification } from '../../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */
@@ -119,6 +120,13 @@ export default async function handler(req: any, res: any) {
         target: `contents.${item.id}`,
         adminUid,
         changes: { after: item },
+      });
+
+      // ユーザー向けDiscord通知
+      sendUpdateNotification({
+        title: '🗺️ 新コンテンツ追加',
+        description: `**${item.name?.ja}**（${item.shortName?.ja || item.id}）が追加されました`,
+        color: 0x000000,
       });
 
       return res.status(201).json({ success: true, item });
