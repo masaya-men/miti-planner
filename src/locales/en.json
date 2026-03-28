@@ -327,7 +327,9 @@
         "name_dialog_desc": "You can keep the default name if you like.",
         "create_plan_button": "Create",
         "add_plan": "Add",
-        "custom_plans": "Custom"
+        "custom_plans": "Custom",
+        "duplicate_plan": "Create a copy just below",
+        "duplicate_limit_reached": "Plan limit reached"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -809,5 +811,10 @@
         "share_x": "X",
         "share_link": "Link",
         "link_copied": "Link copied"
+    },
+    "admin": {
+        "dashboard": "Dashboard",
+        "dashboard_placeholder": "Admin features will be added in Phase 1.",
+        "back_to_app": "Back to app"
     }
 }
