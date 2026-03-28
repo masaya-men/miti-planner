@@ -8,6 +8,7 @@
 - 最新の `docs/SESSION_HANDOFF_*.md` — 前回セッションの引き継ぎ書
 
 ### 関連タスクに着手するときに読むファイル（必要時参照）
+- `docs/管理基盤設計書.md` — **管理基盤・マスター���ータFirestore移行の設計書（最重要・実装待ち）**
 - `docs/GRAPL_PROJECT_PLAN.md` — プロジェクト全体ロードマップ
 - `docs/Firebase設計書.md` — Firestore構造・セキュリティ・スケーラビリティ
 - `docs/CORE_UPGRADE_PLAN.md` — SA法オートプランナー + OGP + チームロゴ
