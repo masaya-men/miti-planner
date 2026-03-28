@@ -859,6 +859,23 @@
         "error_load": "データの読み込みに失敗しました",
         "error_save": "保存に失敗しました",
         "stats_contents": "コンテンツ",
-        "stats_templates": "テンプレート"
+        "stats_templates": "テンプレート",
+        "page_title": "管理者│LoPo",
+        "form_example_header": "入力例（既存コンテンツ参考）:",
+        "hint_content_id": "英数字の短いID（例: m9s, ucob, tea）。一度決めたら変更不可",
+        "hint_category": "零式/絶/ダンジョン/レイド/その他から選択",
+        "hint_short_name": "サイドバーやヘッダーに表示される短い名前",
+        "hint_level": "コンテンツの対象レベル（Lv100=黄金, Lv90=暁月...）",
+        "hint_patch": "実装されたパッチ番号（例: 7.40, 7.20）",
+        "hint_series": "同じシリーズのコンテンツをまとめる分類",
+        "hint_series_none": "（シリーズなし）",
+        "hint_order": "同シリーズ内の並び順。1が一番上。M9S=1, M10S=2, M11S=3...",
+        "hint_fflogs_id": "FFLogsのエンカウンターID（FFLogsインポートに使用）。不明なら空欄でOK",
+        "hint_checkpoint": "前半/後半がある（例: M12S前半・後半）",
+        "templates_description": "テンプレート = ボスの攻撃順序（タイムライン）のデータです。ユーザーが新規プランを作成したとき、このデータが自動で読み込まれます。",
+        "templates_upload_guide": "テンプレートのJSONファイルは src/data/templates/ にあるファイルと同じ形式です。通常はシステムが自動生成するため、手動アップロードは不要です。",
+        "templates_upload_title": "テンプレートのアップロード（上級者向け）",
+        "hint_template_content_id": "アップロード先のコンテンツID（例: m9s）",
+        "hint_template_file": "src/data/templates/ にある .json ファイルと同じ形式"
     }
 }

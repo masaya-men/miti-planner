@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface ToastItem {
     id: number;
     message: string;
+    type: 'success' | 'error';
 }
 
 let toastId = 0;
-let addToastFn: ((message: string) => void) | null = null;
-const pendingQueue: string[] = [];
+let addToastFn: ((message: string, type: 'success' | 'error') => void) | null = null;
+const pendingQueue: { message: string; type: 'success' | 'error' }[] = [];
 
 /** グローバルにトーストを表示する（Reactマウント前でもキューに溜まる） */
-export function showToast(message: string) {
+export function showToast(message: string, type: 'success' | 'error' = 'success') {
     if (addToastFn) {
-        addToastFn(message);
+        addToastFn(message, type);
     } else {
-        pendingQueue.push(message);
+        pendingQueue.push({ message, type });
     }
 }
 
@@ -25,16 +26,17 @@ export const ToastContainer: React.FC = () => {
     const [toasts, setToasts] = useState<ToastItem[]>([]);
 
     useEffect(() => {
-        addToastFn = (message: string) => {
+        addToastFn = (message: string, type: 'success' | 'error') => {
             const id = ++toastId;
-            setToasts(prev => [...prev, { id, message }]);
+            setToasts(prev => [...prev, { id, message, type }]);
             setTimeout(() => {
                 setToasts(prev => prev.filter(t => t.id !== id));
             }, 3000);
         };
         // マウント前にキューに溜まったトーストを処理
         while (pendingQueue.length > 0) {
-            addToastFn(pendingQueue.shift()!);
+            const item = pendingQueue.shift()!;
+            addToastFn(item.message, item.type);
         }
         return () => { addToastFn = null; };
     }, []);
@@ -52,7 +54,10 @@ export const ToastContainer: React.FC = () => {
                         "pointer-events-auto"
                     )}
                 >
-                    <CheckCircle size={15} className="text-emerald-500 shrink-0" />
+                    {toast.type === 'error'
+                        ? <XCircle size={15} className="text-red-500 shrink-0" />
+                        : <CheckCircle size={15} className="text-emerald-500 shrink-0" />
+                    }
                     <span className="text-[12px] font-bold text-app-text whitespace-nowrap">{toast.message}</span>
                 </div>
             ))}

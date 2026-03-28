@@ -3,6 +3,7 @@
  * サイドナビゲーション + メインコンテンツエリア
  * Phase 0では骨組みのみ。Phase 1以降でセクションを追加
  */
+import { useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -16,6 +17,13 @@ const NAV_ITEMS = [
 export function AdminLayout() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+
+  // タブタイトルを「管理者│LoPo」に設定
+  useEffect(() => {
+    const prev = document.title;
+    document.title = t('admin.page_title');
+    return () => { document.title = prev; };
+  }, [t]);
 
   return (
     <div className="flex h-screen bg-app-bg text-app-text">
