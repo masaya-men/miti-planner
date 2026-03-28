@@ -7,9 +7,9 @@
  *
  * フロントエンドが管理画面へのアクセス可否を判定するために使用
  */
-import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth';
-import { applyRateLimit } from '../../src/lib/rateLimit';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify';
+import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
 /** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */
 function setCors(req: any, res: any) {

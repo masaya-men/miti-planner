@@ -16,7 +16,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 

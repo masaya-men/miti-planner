@@ -11,7 +11,7 @@
  * リクエストごとに異なるキーを使用し、API枠を分散させる。
  */
 
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 
 // 利用可能なAPIキーペアを環境変数から収集
 function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
