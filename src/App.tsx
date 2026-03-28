@@ -11,6 +11,8 @@ import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './compon
 import { AdminGuard } from './components/admin/AdminGuard';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { AdminContents } from './components/admin/AdminContents';
+import { AdminTemplates } from './components/admin/AdminTemplates';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -100,6 +102,8 @@ function App() {
             {/* 管理画面 */}
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminDashboard />} />
+              <Route path="contents" element={<AdminContents />} />
+              <Route path="templates" element={<AdminTemplates />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
