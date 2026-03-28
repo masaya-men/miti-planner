@@ -10,16 +10,28 @@
  * セキュリティ: ADMIN_SECRET による保護（初回設定用）
  * 2人目以降の管理者追加は、既存管理者のトークン認証でも可能
  */
-import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth';
+import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth';
 import { writeAuditLog } from '../../src/lib/auditLog';
 import { applyRateLimit } from '../../src/lib/rateLimit';
 import { getAuth } from 'firebase-admin/auth';
 
-export default async function handler(req: any, res: any) {
-  // CORSヘッダー
-  res.setHeader('Access-Control-Allow-Origin', req.headers?.origin || '*');
+/** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */
+function setCors(req: any, res: any) {
+  const origin = req.headers?.origin || '';
+  const allowedOrigins = [
+    'https://lopoly.app',
+    'https://lopo-miti.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:4173',
+  ];
+  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+export default async function handler(req: any, res: any) {
+  setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.method !== 'POST') {

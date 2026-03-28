@@ -4,7 +4,8 @@
         "close": "閉じる",
         "start": "スタート",
         "unassigned": "未設定",
-        "reset": "デフォルトに戻す"
+        "reset": "デフォルトに戻す",
+        "loading": "読み込み中..."
     },
     "app": {
         "title": "LoPo 軽減プランナー",

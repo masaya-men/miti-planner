@@ -4,7 +4,8 @@
         "close": "Close",
         "start": "START",
         "unassigned": "Unassigned",
-        "reset": "Reset to Default"
+        "reset": "Reset to Default",
+        "loading": "Loading..."
     },
     "app": {
         "title": "LoPo Mitigation Planner",
