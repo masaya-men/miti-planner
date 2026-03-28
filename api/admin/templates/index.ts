@@ -66,7 +66,7 @@ export default async function handler(req: any, res: any) {
     }
 
     const db = getAdminFirestore();
-    const templatesCol = db.collection('master_templates');
+    const templatesCol = db.collection('templates');
 
     // --- GET ---
     if (req.method === 'GET') {
