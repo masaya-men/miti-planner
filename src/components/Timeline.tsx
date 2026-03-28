@@ -18,7 +18,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings
 } from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
@@ -703,6 +703,7 @@ const Timeline: React.FC = () => {
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
+
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
@@ -747,6 +748,17 @@ const Timeline: React.FC = () => {
         window.addEventListener('resize', syncPadding);
         return () => window.removeEventListener('resize', syncPadding);
     }, []);
+
+    // AA モード中に Escape キーで終了
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isAaModeEnabled) {
+                setIsAaModeEnabled(false);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isAaModeEnabled]);
 
     const [showPreStart] = useState(true);
     const [importModalOpen, setImportModalOpen] = useState(false);
@@ -1372,7 +1384,7 @@ const Timeline: React.FC = () => {
                             <div className="flex-1 md:flex-none md:w-[199px] md:min-w-[199px] flex items-center px-1 md:px-2 h-full">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
-                                    isAaModeEnabled && "bg-app-text/10"
+                                    isAaModeEnabled && "bg-app-text/10 ring-1 ring-app-text/20"
                                 )}>
                                     <button
                                         ref={aaSettingsButtonRef}
@@ -1618,6 +1630,7 @@ const Timeline: React.FC = () => {
                         ref={scrollContainerRef}
                         className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)]  duration-200"
                         onScroll={handleScrollSync}
+
                     >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
@@ -2420,6 +2433,49 @@ const Timeline: React.FC = () => {
                 </div>,
                 document.body
             )}
+
+            {/* AA 配置モード フローティングバー */}
+            {createPortal(
+                <div className={clsx(
+                    "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
+                    "bg-app-bg border border-app-text/15 rounded-2xl",
+                    "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
+                    "transition-all duration-300",
+                    isAaModeEnabled
+                        ? "opacity-100 -translate-x-1/2 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
+                )}>
+                    {/* 現在の設定ラベル */}
+                    <span className="text-[11px] font-black text-app-text whitespace-nowrap">
+                        <Sword size={12} className="inline mr-1.5 -mt-0.5" />
+                        {t('aa_settings.floating_label', {
+                            damage: aaSettings.damage.toLocaleString(),
+                            target: aaSettings.target,
+                            type: t(`aa_settings.${aaSettings.type === 'magical' ? 'magic' : aaSettings.type === 'physical' ? 'phys' : 'dark'}`)
+                        })}
+                    </span>
+                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
+                    {/* 設定変更ボタン */}
+                    <button
+                        onClick={() => setAaSettingsOpen(true)}
+                        className="py-1.5 px-3 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                    >
+                        <Settings size={12} className="inline mr-1 -mt-0.5" />
+                        {t('aa_settings.change_settings')}
+                    </button>
+                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
+                    {/* 終了ボタン */}
+                    <button
+                        onClick={() => setIsAaModeEnabled(false)}
+                        className="py-1.5 px-3 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                    >
+                        <X size={12} className="inline mr-1 -mt-0.5" />
+                        {t('aa_settings.end_mode')}
+                    </button>
+                </div>,
+                document.body
+            )}
+
         </>
     );
 };
