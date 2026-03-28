@@ -4,6 +4,7 @@
  */
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
@@ -29,6 +30,9 @@ export const db = initializeFirestore(app, {
 
 // Analytics（SSR/テスト環境では無効化）
 export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+
+// Storage（アイコン管理用）
+export const storage = getStorage(app);
 
 // App Check（アプリの正当性検証）
 import { initAppCheck } from './appCheck';
