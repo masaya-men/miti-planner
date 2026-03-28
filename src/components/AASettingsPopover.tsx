@@ -11,6 +11,8 @@ interface AASettingsPopoverProps {
     settings: AASettings;
     onSettingsChange: (settings: AASettings) => void;
     triggerRef?: React.RefObject<HTMLElement | null>;
+    onStartAdding: () => void;    // 「追加開始」ボタン押下時のコールバック
+    isAaActive?: boolean;         // AAモード中かどうか（true の場合はボタン非表示）
 }
 
 export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
@@ -18,7 +20,9 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
     onClose,
     settings,
     onSettingsChange,
-    triggerRef
+    triggerRef,
+    onStartAdding,
+    isAaActive
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
@@ -166,6 +170,32 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
 
             </div>
+
+            {/* Footer — 追加開始ボタン（AAモード中は非表示） */}
+            {!isAaActive && (
+                <div className="px-4 pb-4 pt-1">
+                    <button
+                        onClick={() => {
+                            if (settings.damage > 0) {
+                                onStartAdding();
+                                onClose();
+                            }
+                        }}
+                        disabled={settings.damage <= 0}
+                        className={clsx(
+                            "w-full py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                            settings.damage > 0
+                                ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
+                                : "bg-app-text/20 text-app-text/40 cursor-not-allowed"
+                        )}
+                    >
+                        {settings.damage > 0
+                            ? t('aa_settings.start_adding')
+                            : t('aa_settings.damage_required')
+                        }
+                    </button>
+                </div>
+            )}
         </div>,
         document.body
     );
