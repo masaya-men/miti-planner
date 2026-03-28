@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Check, Loader2, ExternalLink } from 'lucide-react';
+import { X, Copy, Check, Loader2, ExternalLink, Upload, ImageIcon, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
 import type { SavedPlan } from '../types';
@@ -29,7 +31,24 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const [showPlanTitle, setShowPlanTitle] = useState(true);
     const [shareIdRef, setShareIdRef] = useState<string | null>(null);
 
+    // チームロゴ関連
+    const { user, teamLogoUrl, setTeamLogoUrl } = useAuthStore();
+    const [showLogo, setShowLogo] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
     const isBundle = bundlePlans && bundlePlans.length > 0;
+
+    /**
+     * OGP画像URLを構築するヘルパー
+     * プラン名・ロゴの表示フラグをクエリパラメータに反映する
+     */
+    const buildOgUrl = (id: string, planTitle: boolean, logo: boolean) => {
+        let url = `${window.location.origin}/api/og?id=${id}`;
+        if (!planTitle) url += '&showTitle=false';
+        if (logo && teamLogoUrl) url += `&logoUrl=${encodeURIComponent(teamLogoUrl)}`;
+        return url;
+    };
 
     // モーダルが開いたら共有URLを生成
     useEffect(() => {
@@ -66,7 +85,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             setShareIdRef(shareId);
             const url = `${window.location.origin}/share/${shareId}`;
             setShareUrl(url);
-            setOgImageUrl(`${window.location.origin}/api/og?id=${shareId}${showPlanTitle ? '' : '&showTitle=false'}`);
+            setOgImageUrl(buildOgUrl(shareId, showPlanTitle, showLogo));
         } catch (err) {
             console.error('Share failed:', err);
             showToast(t('app.share_failed') || '共有リンクの生成に失敗しました');
@@ -81,7 +100,66 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         setShowPlanTitle(next);
         if (shareIdRef) {
             setImageLoaded(false);
-            setOgImageUrl(`${window.location.origin}/api/og?id=${shareIdRef}${next ? '' : '&showTitle=false'}`);
+            setOgImageUrl(buildOgUrl(shareIdRef, next, showLogo));
+        }
+    };
+
+    // ロゴ表示トグル変更時にOGP画像を再生成
+    const handleToggleLogo = () => {
+        const next = !showLogo;
+        setShowLogo(next);
+        if (shareIdRef) {
+            setImageLoaded(false);
+            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, next));
+        }
+    };
+
+    // ロゴアップロード処理
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        const error = validateLogoFile(file);
+        if (error) {
+            showToast(t(`team_logo.${error}`));
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const url = await uploadTeamLogo(user.uid, file);
+            setTeamLogoUrl(url);
+            showToast(t('team_logo.upload_success'));
+            // OGPプレビューをロゴあり状態で更新
+            if (shareIdRef) {
+                setImageLoaded(false);
+                setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, true));
+                setShowLogo(true);
+            }
+        } catch {
+            showToast(t('team_logo.error_upload_failed'));
+        } finally {
+            setUploading(false);
+            // file input をリセット（同じファイルを再選択できるようにする）
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    // ロゴ削除処理
+    const handleLogoDelete = async () => {
+        if (!user) return;
+        try {
+            await deleteTeamLogo(user.uid);
+            setTeamLogoUrl(null);
+            setShowLogo(false);
+            showToast(t('team_logo.remove_success'));
+            // OGPプレビューをロゴなし状態で更新
+            if (shareIdRef) {
+                setImageLoaded(false);
+                setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, false));
+            }
+        } catch {
+            showToast(t('team_logo.error_upload_failed'));
         }
     };
 
@@ -173,6 +251,87 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 {t('app.include_plan_title')}
                             </span>
                         </button>
+                    </div>
+                )}
+
+                {/* チームロゴ設定（ログインユーザーのみ） */}
+                {user && (
+                    <div className="px-5 pb-2 space-y-2">
+                        {/* ロゴ表示トグル（ロゴがある場合のみ） */}
+                        {teamLogoUrl && (
+                            <button
+                                onClick={handleToggleLogo}
+                                className="flex items-center gap-2.5 w-full py-1.5 text-left group cursor-pointer"
+                            >
+                                <div className={clsx(
+                                    "w-8 h-[18px] rounded-full transition-colors duration-200 relative shrink-0",
+                                    showLogo ? "bg-app-text" : "bg-app-surface2 border border-app-border"
+                                )}>
+                                    <div className={clsx(
+                                        "absolute top-[2px] w-[14px] h-[14px] rounded-full transition-all duration-200",
+                                        showLogo ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
+                                    )} />
+                                </div>
+                                <span className="text-xs text-app-text-muted group-hover:text-app-text transition-colors">
+                                    {t('team_logo.show_on_ogp')}
+                                </span>
+                            </button>
+                        )}
+
+                        {/* アップロード/変更/削除ボタン */}
+                        <div className="flex items-center gap-2">
+                            {teamLogoUrl ? (
+                                <>
+                                    {/* ロゴプレビュー */}
+                                    <img
+                                        src={teamLogoUrl}
+                                        alt="Team Logo"
+                                        className="w-8 h-8 rounded object-cover border border-app-border"
+                                    />
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                    >
+                                        <ImageIcon size={12} />
+                                        {t('team_logo.change')}
+                                    </button>
+                                    <button
+                                        onClick={handleLogoDelete}
+                                        disabled={uploading}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                    >
+                                        <Trash2 size={12} />
+                                        {t('team_logo.remove')}
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={uploading}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                >
+                                    {uploading ? (
+                                        <Loader2 size={12} className="animate-spin" />
+                                    ) : (
+                                        <Upload size={12} />
+                                    )}
+                                    {uploading ? t('team_logo.uploading') : t('team_logo.upload')}
+                                </button>
+                            )}
+                            <span className="text-[10px] text-app-text-muted ml-auto">
+                                {t('team_logo.format_hint')}
+                            </span>
+                        </div>
+
+                        {/* 隠しファイルインプット */}
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                        />
                     </div>
                 )}
 
