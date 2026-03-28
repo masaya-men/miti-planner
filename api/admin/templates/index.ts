@@ -1,10 +1,12 @@
 /**
- * テンプレート管理API
- * GET    /api/admin/templates       — 全テンプレート一覧（サマリー）
- * GET    /api/admin/templates?id=xx — 特定テンプレート取得
- * POST   /api/admin/templates       — テンプレート作成/置換
- * PUT    /api/admin/templates       — テンプレート更新
- * DELETE /api/admin/templates       — テンプレート削除
+ * テンプレート管理API + マスターコンフィグ管理API（統合）
+ * GET    /api/admin/templates              — 全テンプレート一覧（サマリー）
+ * GET    /api/admin/templates?id=xx        — 特定テンプレート取得
+ * GET    /api/admin/templates?type=config  — マスターコンフィグ取得
+ * POST   /api/admin/templates              — テンプレート作成/置換
+ * PUT    /api/admin/templates              — テンプレート更新
+ * PUT    /api/admin/templates (type=config)— マスターコンフィグ更新
+ * DELETE /api/admin/templates              — テンプレート削除
  */
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
 import { writeAuditLog } from '../../../src/lib/auditLog.js';
@@ -68,6 +70,13 @@ export default async function handler(req: any, res: any) {
 
     // --- GET ---
     if (req.method === 'GET') {
+      // マスターコンフィグ取得
+      if (req.query?.type === 'config') {
+        const configRef = db.doc('master/config');
+        const snap = await configRef.get();
+        return res.status(200).json(snap.exists ? snap.data() : {});
+      }
+
       const id = req.query?.id;
 
       // 特定テンプレート取得
@@ -137,8 +146,26 @@ export default async function handler(req: any, res: any) {
       return res.status(201).json({ success: true, contentId });
     }
 
-    // --- PUT: テンプレート更新 ---
+    // --- PUT: テンプレート更新 / マスターコンフィグ更新 ---
     if (req.method === 'PUT') {
+      // マスターコンフィグ更新
+      if (req.body?.type === 'config') {
+        const configRef = db.doc('master/config');
+        const updates = req.body;
+        const allowed = ['promotionThreshold', 'promotionMultiplier', 'featureFlags'];
+        const filtered: Record<string, any> = {};
+        for (const key of allowed) {
+          if (updates[key] !== undefined) filtered[key] = updates[key];
+        }
+        if (Object.keys(filtered).length === 0) {
+          return res.status(400).json({ error: 'No valid fields to update' });
+        }
+        const before = (await configRef.get()).data() || {};
+        await configRef.set(filtered, { merge: true });
+        await writeAuditLog({ action: 'update', target: 'config', adminUid, changes: { before, after: filtered } });
+        return res.status(200).json({ success: true });
+      }
+
       const { contentId, ...updates } = req.body || {};
       if (!contentId) return res.status(400).json({ error: 'contentId is required' });
 

@@ -20,7 +20,7 @@ export function AdminConfig() {
     try {
       setLoading(true);
       const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/config', {
+      const res = await apiFetch('/api/admin/templates?type=config', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -43,13 +43,14 @@ export function AdminConfig() {
     try {
       setSaving(true);
       const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/config', {
+      const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'config',
           promotionThreshold: threshold,
           promotionMultiplier: multiplier,
         }),

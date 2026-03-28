@@ -69,7 +69,7 @@ async function checkPromotionCandidate(
 
     // Discord通知
     try {
-        const { sendDiscordNotification } = await import('../webhook/discord/index.js');
+        const { sendDiscordNotification } = await import('../../src/lib/discordWebhook.js');
         await sendDiscordNotification({
             title: '⭐ テンプレート昇格候補',
             description: `共有プランのコピー数が閾値（${threshold}）に達しました`,
