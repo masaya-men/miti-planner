@@ -133,6 +133,42 @@ service cloud.firestore {
     }
 
     // ========================================
+    // master コレクション
+    // マスターデータ: 誰でも読める・直接書き込み不可（API経由のみ）
+    // ========================================
+    match /master/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ========================================
+    // templates コレクション
+    // テンプレート: 誰でも読める・直接書き込み不可
+    // ========================================
+    match /templates/{contentId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ========================================
+    // template_backups コレクション
+    // テンプレートバックアップ: 管理者のみ読める・直接書き込み不可
+    // ========================================
+    match /template_backups/{docId} {
+      allow read: if request.auth != null && request.auth.token.role == 'admin';
+      allow write: if false;
+    }
+
+    // ========================================
+    // master_backups コレクション
+    // マスターバックアップ: 管理者のみ読める・直接書き込み不可
+    // ========================================
+    match /master_backups/{docId} {
+      allow read: if request.auth != null && request.auth.token.role == 'admin';
+      allow write: if false;
+    }
+
+    // ========================================
     // その他すべてのパスへのアクセスを拒否
     // ========================================
     match /{document=**} {
