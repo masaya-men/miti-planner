@@ -18,6 +18,7 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/admi
 import { writeAuditLog } from '../../../src/lib/auditLog.js';
 import { applyRateLimit } from '../../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { sendUpdateNotification } from '../../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */
@@ -209,6 +210,27 @@ export default async function handler(req: any, res: any) {
           });
         }
 
+        // 差分検出（ユーザー向け通知用）
+        const prevData = current.exists ? current.data()! : { jobs: [], mitigations: [] };
+        const prevJobs = prevData.jobs || [];
+        const prevMits = prevData.mitigations || [];
+
+        // 新規ジョブ
+        const prevJobIds = new Set(prevJobs.map((j: any) => j.id));
+        const newJobs = jobs.filter((j: any) => !prevJobIds.has(j.id));
+
+        // 新規スキル
+        const prevMitIds = new Set(prevMits.map((m: any) => m.id));
+        const newMits = mitigations.filter((m: any) => !prevMitIds.has(m.id));
+
+        // 値が変わったスキル
+        const prevMitMap = new Map<string, any>(prevMits.map((m: any) => [m.id, m]));
+        const changedMits = mitigations.filter((m: any) => {
+          const prev = prevMitMap.get(m.id) as any;
+          if (!prev) return false;
+          return m.value !== prev.value || m.duration !== prev.duration || m.recast !== prev.recast;
+        });
+
         await skillsRef.set({ jobs, mitigations, displayOrder });
         await bumpDataVersion(db);
         await writeAuditLog({
@@ -217,6 +239,30 @@ export default async function handler(req: any, res: any) {
           adminUid,
           changes: { after: { jobCount: jobs.length, mitigationCount: mitigations.length } },
         });
+
+        // ユーザー向けDiscord通知（変更があった場合のみ）
+        const lines: string[] = [];
+        for (const j of newJobs) {
+          lines.push(`🆕 ジョブ追加: **${j.name?.ja || j.id}**`);
+        }
+        for (const m of newMits) {
+          lines.push(`🆕 スキル追加: **${m.name?.ja || m.id}**`);
+        }
+        for (const m of changedMits) {
+          const prev = prevMitMap.get(m.id) as any;
+          const diffs: string[] = [];
+          if (m.value !== prev.value) diffs.push(`軽減率 ${prev.value}%→${m.value}%`);
+          if (m.duration !== prev.duration) diffs.push(`効果時間 ${prev.duration}s→${m.duration}s`);
+          if (m.recast !== prev.recast) diffs.push(`リキャスト ${prev.recast}s→${m.recast}s`);
+          lines.push(`📝 **${m.name?.ja || m.id}** — ${diffs.join('、')}`);
+        }
+        if (lines.length > 0) {
+          sendUpdateNotification({
+            title: '⚔️ スキルデータ更新',
+            description: lines.join('\n'),
+            color: 0x000000,
+          });
+        }
 
         return res.status(200).json({ success: true });
       }
@@ -263,6 +309,10 @@ export default async function handler(req: any, res: any) {
           });
         }
 
+        // 新規パッチの検出
+        const prevPatches = current.exists ? Object.keys((current.data() as any)?.patchStats || {}) : [];
+        const newPatches = Object.keys(patchStats).filter((p: string) => !prevPatches.includes(p));
+
         await statsRef.set({ levelModifiers, patchStats, defaultStatsByLevel });
         await bumpDataVersion(db);
         await writeAuditLog({
@@ -271,6 +321,15 @@ export default async function handler(req: any, res: any) {
           adminUid,
           changes: {},
         });
+
+        // ユーザー向けDiscord通知（新パッチ追加時のみ）
+        if (newPatches.length > 0) {
+          sendUpdateNotification({
+            title: '📊 ステータスデータ更新',
+            description: `パッチ ${newPatches.join(', ')} のデフォルトステータスが追加されました`,
+            color: 0x000000,
+          });
+        }
 
         return res.status(200).json({ success: true });
       }

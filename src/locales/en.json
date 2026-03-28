@@ -330,7 +330,9 @@
         "add_plan": "Add",
         "custom_plans": "Custom",
         "duplicate_plan": "Create a copy below",
-        "duplicate_limit_reached": "Plan limit reached"
+        "duplicate_limit_reached": "Plan limit reached",
+        "export_csv": "Download CSV",
+        "csv_exported": "CSV downloaded"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

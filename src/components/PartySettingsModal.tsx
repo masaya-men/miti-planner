@@ -167,7 +167,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
-                            <span className="text-[8px] text-white/40 font-black uppercase tracking-widest">Select</span>
+                            <span className="text-[8px] text-app-text-muted font-black uppercase tracking-widest">Select</span>
                         </div>
                     )}
                 </div>
