@@ -16,6 +16,7 @@ import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useTranslation } from 'react-i18next';
+import { useMasterDataInit } from './hooks/useMasterData';
 
 /**
  * App — Root component with route definitions.
@@ -31,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 function App() {
   const theme = useThemeStore((state) => state.theme);
   const { i18n } = useTranslation();
+  useMasterDataInit();
 
   // Sync theme class on <html> so Tailwind dark: variants work
   useEffect(() => {
