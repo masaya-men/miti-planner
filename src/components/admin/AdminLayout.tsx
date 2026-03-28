@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { path: '/admin/templates', labelKey: 'admin.templates', end: false },
   { path: '/admin/skills', labelKey: 'admin.skills', end: false },
   { path: '/admin/stats', labelKey: 'admin.stats', end: false },
+  { path: '/admin/servers', labelKey: 'admin.servers', end: false },
   { path: '/admin/config', labelKey: 'admin.config', end: false },
 ] as const;
 
