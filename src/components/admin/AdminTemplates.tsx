@@ -1,6 +1,6 @@
 /**
  * テンプレート管理画面
- * テンプレートの一覧表示・JSONアップロード・削除
+ * テンプレートの一覧表示・JSONアップロード・削除・ロック/アンロック
  * テンプレート = コンテンツのタイムライン（ボスの攻撃順序）データ
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -14,7 +14,7 @@ interface TemplateItem {
   source: string;
   eventCount: number;
   phaseCount: number;
-  locked: boolean;
+  lockedAt: string | null;
   updatedAt: string;
 }
 
@@ -24,12 +24,20 @@ interface ContentItem {
   name?: { ja?: string; en?: string };
 }
 
+interface PromotionCandidate {
+  shareId: string;
+  contentId: string;
+  title: string;
+  copyCount: number;
+}
+
 export function AdminTemplates() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
 
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
   const [contents, setContents] = useState<ContentItem[]>([]);
+  const [candidates, setCandidates] = useState<PromotionCandidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -63,7 +71,13 @@ export function AdminTemplates() {
       });
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
-      setTemplates(data.templates ?? []);
+      setTemplates(
+        (data.templates ?? []).map((item: any) => ({
+          ...item,
+          lockedAt: item.lockedAt ?? null,
+          updatedAt: item.lastUpdatedAt ?? null,
+        })),
+      );
     } catch {
       setError(t('admin.error_load'));
     } finally {
@@ -71,10 +85,25 @@ export function AdminTemplates() {
     }
   }, [user, t]);
 
+  /** 昇格候補を取得 */
+  const fetchCandidates = useCallback(async () => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await apiFetch('/api/template/promote?candidates=true', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCandidates(data.candidates ?? []);
+      }
+    } catch { /* 昇格候補取得失敗は致命的でない */ }
+  }, [user]);
+
   useEffect(() => {
     fetchTemplates();
     fetchContents();
-  }, [fetchTemplates, fetchContents]);
+    fetchCandidates();
+  }, [fetchTemplates, fetchContents, fetchCandidates]);
 
   /** JSONファイルをアップロード */
   const handleUpload = async () => {
@@ -126,6 +155,50 @@ export function AdminTemplates() {
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.templates_deleted'));
+      await fetchTemplates();
+    } catch {
+      showToast(t('admin.error_save'), 'error');
+    }
+  };
+
+  /** テンプレートのロック/アンロック */
+  const handleToggleLock = async (item: TemplateItem) => {
+    const newLock = !item.lockedAt;
+    try {
+      const token = await user?.getIdToken();
+      const res = await apiFetch('/api/admin/templates', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contentId: item.contentId, lock: newLock }),
+      });
+      if (!res.ok) throw new Error(res.statusText);
+      await fetchTemplates();
+    } catch {
+      showToast(t('admin.error_save'), 'error');
+    }
+  };
+
+  /** 昇格候補の承認/却下 */
+  const handlePromotion = async (candidate: PromotionCandidate, action: 'approve' | 'reject') => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await apiFetch('/api/template/promote', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shareId: candidate.shareId,
+          contentId: candidate.contentId,
+          action,
+        }),
+      });
+      if (!res.ok) throw new Error(res.statusText);
+      await fetchCandidates();
       await fetchTemplates();
     } catch {
       showToast(t('admin.error_save'), 'error');
@@ -233,12 +306,22 @@ export function AdminTemplates() {
                   <td className="py-2 pr-4">{item.eventCount}</td>
                   <td className="py-2 pr-4">{item.phaseCount}</td>
                   <td className="py-2 pr-4">
-                    {item.locked ? t('admin.templates_locked') : t('admin.templates_unlocked')}
+                    <span className="text-app-text-muted">
+                      {item.lockedAt
+                        ? t('admin.template_locked')
+                        : t('admin.template_discovery')}
+                    </span>
                   </td>
                   <td className="py-2 pr-4 text-app-text-muted">
                     {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : '-'}
                   </td>
-                  <td className="py-2 text-right">
+                  <td className="py-2 text-right flex items-center gap-2 justify-end">
+                    <button
+                      onClick={() => handleToggleLock(item)}
+                      className="text-app-text-muted hover:text-app-text transition-colors"
+                    >
+                      {item.lockedAt ? t('admin.template_unlock') : t('admin.template_lock')}
+                    </button>
                     <button
                       onClick={() => handleDelete(item)}
                       className="text-app-text-muted hover:text-app-text transition-colors"
@@ -252,6 +335,41 @@ export function AdminTemplates() {
           </table>
         </div>
       )}
+
+      {/* 昇格候補セクション */}
+      <div className="mt-8">
+        <h2 className="text-sm font-bold mb-3">{t('admin.promotion_candidates')}</h2>
+        {candidates.length === 0 ? (
+          <p className="text-xs text-app-text-muted">{t('admin.promotion_empty')}</p>
+        ) : (
+          <div className="space-y-2">
+            {candidates.map((c) => (
+              <div
+                key={c.shareId}
+                className="flex items-center gap-3 p-3 border border-app-text/10 rounded text-xs"
+              >
+                <span className="font-mono">{c.contentId}</span>
+                <span className="flex-1 truncate">{c.title}</span>
+                <span className="text-app-text-muted">
+                  {t('admin.promotion_copy_count')}: {c.copyCount}
+                </span>
+                <button
+                  onClick={() => handlePromotion(c, 'approve')}
+                  className="px-2 py-1 border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
+                >
+                  {t('admin.promotion_approve')}
+                </button>
+                <button
+                  onClick={() => handlePromotion(c, 'reject')}
+                  className="px-2 py-1 border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
+                >
+                  {t('admin.promotion_reject')}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

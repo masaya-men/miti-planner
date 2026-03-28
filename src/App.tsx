@@ -13,6 +13,7 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminContents } from './components/admin/AdminContents';
 import { AdminTemplates } from './components/admin/AdminTemplates';
+import { AdminConfig } from './components/admin/AdminConfig';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -104,6 +105,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="contents" element={<AdminContents />} />
               <Route path="templates" element={<AdminTemplates />} />
+              <Route path="config" element={<AdminConfig />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -164,7 +164,7 @@ export const PROJECT_LABELS = STATIC_PROJECT_LABELS;
 // Firestore対応アクセサ（ストアにデータがあればそちらを優先）
 // ==========================================
 
-function getContentDefinitions(): ContentDefinition[] {
+export function getContentDefinitions(): ContentDefinition[] {
     const store = useMasterDataStore.getState();
     return store.contents?.items ?? STATIC_CONTENT_DEFINITIONS;
 }
