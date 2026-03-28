@@ -6,6 +6,10 @@
  * POST   /api/admin/templates              — テンプレート作成/置換
  * PUT    /api/admin/templates              — テンプレート更新
  * PUT    /api/admin/templates (type=config)— マスターコンフィグ更新
+ * GET    /api/admin/templates?type=skills — スキルデータ取得
+ * GET    /api/admin/templates?type=stats  — ステータスデータ取得
+ * PUT    /api/admin/templates (type=skills)— スキルデータ更新
+ * PUT    /api/admin/templates (type=stats) — ステータスデータ更新
  * DELETE /api/admin/templates              — テンプレート削除
  */
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
@@ -75,6 +79,20 @@ export default async function handler(req: any, res: any) {
         const configRef = db.doc('master/config');
         const snap = await configRef.get();
         return res.status(200).json(snap.exists ? snap.data() : {});
+      }
+
+      // スキルデータ取得
+      if (req.query?.type === 'skills') {
+        const snap = await db.doc('master/skills').get();
+        if (!snap.exists) return res.status(404).json({ error: 'Skills data not found' });
+        return res.status(200).json(snap.data());
+      }
+
+      // ステータスデータ取得
+      if (req.query?.type === 'stats') {
+        const snap = await db.doc('master/stats').get();
+        if (!snap.exists) return res.status(404).json({ error: 'Stats data not found' });
+        return res.status(200).json(snap.data());
       }
 
       const id = req.query?.id;
@@ -163,6 +181,64 @@ export default async function handler(req: any, res: any) {
         const before = (await configRef.get()).data() || {};
         await configRef.set(filtered, { merge: true });
         await writeAuditLog({ action: 'update', target: 'config', adminUid, changes: { before, after: filtered } });
+        return res.status(200).json({ success: true });
+      }
+
+      // スキルデータ更新
+      if (req.body?.type === 'skills') {
+        const { jobs, mitigations, displayOrder } = req.body;
+        if (!Array.isArray(jobs) || !Array.isArray(mitigations) || !Array.isArray(displayOrder)) {
+          return res.status(400).json({ error: 'jobs, mitigations, displayOrder arrays are required' });
+        }
+
+        const skillsRef = db.doc('master/skills');
+        const current = await skillsRef.get();
+        if (current.exists) {
+          await db.collection('master_backups').doc(`skills_${Date.now()}`).set({
+            type: 'skills',
+            data: current.data(),
+            createdAt: FieldValue.serverTimestamp(),
+          });
+        }
+
+        await skillsRef.set({ jobs, mitigations, displayOrder });
+        await bumpDataVersion(db);
+        await writeAuditLog({
+          action: 'update',
+          target: 'skills',
+          adminUid,
+          changes: { after: { jobCount: jobs.length, mitigationCount: mitigations.length } },
+        });
+
+        return res.status(200).json({ success: true });
+      }
+
+      // ステータスデータ更新
+      if (req.body?.type === 'stats') {
+        const { levelModifiers, patchStats, defaultStatsByLevel } = req.body;
+        if (!levelModifiers || !patchStats || !defaultStatsByLevel) {
+          return res.status(400).json({ error: 'levelModifiers, patchStats, defaultStatsByLevel are required' });
+        }
+
+        const statsRef = db.doc('master/stats');
+        const current = await statsRef.get();
+        if (current.exists) {
+          await db.collection('master_backups').doc(`stats_${Date.now()}`).set({
+            type: 'stats',
+            data: current.data(),
+            createdAt: FieldValue.serverTimestamp(),
+          });
+        }
+
+        await statsRef.set({ levelModifiers, patchStats, defaultStatsByLevel });
+        await bumpDataVersion(db);
+        await writeAuditLog({
+          action: 'update',
+          target: 'stats',
+          adminUid,
+          changes: {},
+        });
+
         return res.status(200).json({ success: true });
       }
 
