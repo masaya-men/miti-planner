@@ -1384,7 +1384,7 @@ const Timeline: React.FC = () => {
                             <div className="flex-1 md:flex-none md:w-[199px] md:min-w-[199px] flex items-center px-1 md:px-2 h-full">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
-                                    isAaModeEnabled && "bg-app-text/10 ring-1 ring-app-text/20"
+                                    isAaModeEnabled && "bg-app-text text-app-bg"
                                 )}>
                                     <button
                                         ref={aaSettingsButtonRef}
@@ -1398,11 +1398,11 @@ const Timeline: React.FC = () => {
                                         className={clsx(
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
-                                                ? "text-app-accent"
+                                                ? "text-app-bg"
                                                 : "text-app-text"
                                         )}
                                     >
-                                        <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-text" : "")} />
+                                        <Sword size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
                                         <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
                                 </div>

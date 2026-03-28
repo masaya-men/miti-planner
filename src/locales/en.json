@@ -68,7 +68,7 @@
         "title": "Add AA Mode",
         "popover_header": "Auto-Attack Settings",
         "target": "Target Tank",
-        "damage": "Raw Damage",
+        "damage": "Damage",
         "type": "Damage Type",
         "phys": "Physical",
         "magic": "Magical",
