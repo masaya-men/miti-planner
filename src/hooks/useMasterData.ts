@@ -12,7 +12,7 @@ import {
   saveTemplateCache,
   loadTemplateCache,
 } from '../store/useMasterDataStore';
-import type { MasterConfig, MasterContents } from '../store/useMasterDataStore';
+import type { MasterConfig, MasterContents, MasterSkills, MasterStats } from '../store/useMasterDataStore';
 import type { TemplateData } from '../data/templateLoader';
 
 // 静的フォールバック用のインポート
@@ -22,6 +22,9 @@ import {
   CONTENT_DEFINITIONS,
   CONTENT_SERIES,
 } from '../data/contentRegistry';
+import { JOBS, MITIGATIONS, MITIGATION_DISPLAY_ORDER } from '../data/mockData';
+import { ALL_PATCH_STATS } from '../data/defaultStats';
+import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 
 // ─────────────────────────────────────────────
 // 静的データからフォールバック用MasterConfigを生成
@@ -39,6 +42,22 @@ function buildStaticContents(): MasterContents {
   return {
     items: CONTENT_DEFINITIONS,
     series: CONTENT_SERIES,
+  };
+}
+
+function buildStaticSkills(): MasterSkills {
+  return {
+    jobs: JOBS,
+    mitigations: MITIGATIONS,
+    displayOrder: MITIGATION_DISPLAY_ORDER,
+  };
+}
+
+function buildStaticStats(): MasterStats {
+  return {
+    levelModifiers: LEVEL_MODIFIERS,
+    patchStats: ALL_PATCH_STATS,
+    defaultStatsByLevel: { 100: '7.40', 90: '6.40', 80: '5.40', 70: '4.40' },
   };
 }
 
@@ -69,30 +88,36 @@ export function useMasterDataInit(): void {
 
           // バージョンが一致 → キャッシュをそのまま使用（0 additional reads）
           if (cached && cached.version === remoteConfig.dataVersion) {
-            setData(cached.config, cached.contents);
+            setData(cached.config, cached.contents, cached.skills ?? buildStaticSkills(), cached.stats ?? buildStaticStats());
             return;
           }
 
-          // バージョン不一致 → contentsも取得（1 more read）
-          const contentsSnap = await getDoc(doc(db, 'master', 'contents'));
-          if (contentsSnap.exists()) {
-            const remoteContents = contentsSnap.data() as MasterContents;
-            saveMasterCache(remoteConfig.dataVersion, remoteConfig, remoteContents);
-            setData(remoteConfig, remoteContents);
-            return;
-          }
+          // バージョン不一致 → contents/skills/statsも並列取得（3 more reads）
+          const [contentsSnap, skillsSnap, statsSnap] = await Promise.all([
+            getDoc(doc(db, 'master', 'contents')),
+            getDoc(doc(db, 'master', 'skills')),
+            getDoc(doc(db, 'master', 'stats')),
+          ]);
+
+          const remoteContents = contentsSnap.exists() ? contentsSnap.data() as MasterContents : buildStaticContents();
+          const remoteSkills = skillsSnap.exists() ? skillsSnap.data() as MasterSkills : buildStaticSkills();
+          const remoteStats = statsSnap.exists() ? statsSnap.data() as MasterStats : buildStaticStats();
+
+          saveMasterCache(remoteConfig.dataVersion, remoteConfig, remoteContents, remoteSkills, remoteStats);
+          setData(remoteConfig, remoteContents, remoteSkills, remoteStats);
+          return;
         }
 
         // Firestoreにデータがない場合 → キャッシュフォールバック
         if (cached) {
           console.warn('[MasterData] Firestoreにデータなし、キャッシュを使用');
-          setData(cached.config, cached.contents);
+          setData(cached.config, cached.contents, cached.skills ?? buildStaticSkills(), cached.stats ?? buildStaticStats());
           return;
         }
 
         // キャッシュもない → 静的ファイルフォールバック
         console.warn('[MasterData] Firestoreもキャッシュもなし、静的データを使用');
-        setData(buildStaticConfig(), buildStaticContents());
+        setData(buildStaticConfig(), buildStaticContents(), buildStaticSkills(), buildStaticStats());
       } catch (err) {
         console.error('[MasterData] 初期化エラー:', err);
         const message = err instanceof Error ? err.message : String(err);
@@ -102,10 +127,10 @@ export function useMasterDataInit(): void {
         const cached = loadMasterCache();
         if (cached) {
           console.warn('[MasterData] エラー発生、キャッシュにフォールバック');
-          setData(cached.config, cached.contents);
+          setData(cached.config, cached.contents, cached.skills ?? buildStaticSkills(), cached.stats ?? buildStaticStats());
         } else {
           console.warn('[MasterData] エラー発生、静的データにフォールバック');
-          setData(buildStaticConfig(), buildStaticContents());
+          setData(buildStaticConfig(), buildStaticContents(), buildStaticSkills(), buildStaticStats());
         }
       }
     })();
@@ -118,8 +143,10 @@ export function useMasterDataInit(): void {
 export function useMasterData() {
   const config = useMasterDataStore((s) => s.config);
   const contents = useMasterDataStore((s) => s.contents);
+  const skills = useMasterDataStore((s) => s.skills);
+  const stats = useMasterDataStore((s) => s.stats);
   const ready = useMasterDataStore((s) => s.ready);
-  return { config, contents, ready };
+  return { config, contents, skills, stats, ready };
 }
 
 // ─────────────────────────────────────────────
