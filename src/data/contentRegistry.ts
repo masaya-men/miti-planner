@@ -6,8 +6,13 @@ import type {
     ContentSeries,
     LocalizedString,
 } from '../types';
+import { useMasterDataStore } from '../store/useMasterDataStore';
 
-export const CATEGORY_LABELS: Record<ContentCategory, LocalizedString> = {
+// ==========================================
+// 静的データ（モジュール読み込み時に計算）
+// ==========================================
+
+const STATIC_CATEGORY_LABELS: Record<ContentCategory, LocalizedString> = {
     savage: { ja: '零式', en: 'Savage' },
     ultimate: { ja: '絶', en: 'Ultimate' },
     dungeon: { ja: 'ダンジョン', en: 'Dungeon' },
@@ -15,14 +20,14 @@ export const CATEGORY_LABELS: Record<ContentCategory, LocalizedString> = {
     custom: { ja: 'その他', en: 'Misc' },
 };
 
-export const LEVEL_LABELS: Record<ContentLevel, LocalizedString> = {
+const STATIC_LEVEL_LABELS: Record<ContentLevel, LocalizedString> = {
     70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)' },
     80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)' },
     90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)' },
     100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)' },
 };
 
-export const PROJECT_LABELS: Record<string, LocalizedString> = {
+const STATIC_PROJECT_LABELS: Record<string, LocalizedString> = {
     'aac': { ja: '至天の座アルカディア零式', en: 'AAC' },
     'pandaemonium': { ja: '万魔殿パンデモニウム零式', en: 'Pandaemonium' },
     'eden': { ja: '希望の園エデン零式', en: 'Eden' },
@@ -50,14 +55,14 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
     const floorMatch = id.match(/(\d+)s(?:_p(\d+))?$/);
     let absoluteOrder = 1;
     let phaseOffset = 0;
-    
+
     if (floorMatch) {
         absoluteOrder = parseInt(floorMatch[1], 10);
         if (floorMatch[2]) {
             phaseOffset = parseInt(floorMatch[2], 10) * 0.1; // e.g. .1 or .2 to maintain sorting
         }
     }
-    
+
     let relativeOrder = absoluteOrder;
     let seriesInfo = { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc' };
 
@@ -115,7 +120,7 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
 }
 
 // Map flat RawContentData into strictly-typed ContentDefinitions
-export const CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => {
+const STATIC_CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => {
     const { seriesId, order, shortJa, shortEn } = getSeriesMetadata(rc.id, rc.category);
     return {
         id: rc.id,
@@ -144,30 +149,53 @@ RAID_CONTENTS.forEach(rc => {
         });
     }
 });
-export const CONTENT_SERIES: ContentSeries[] = Array.from(seriesMap.values());
+const STATIC_CONTENT_SERIES: ContentSeries[] = Array.from(seriesMap.values());
+
+// ==========================================
+// 既存コードの互換性のため静的データもexport（直接参照している箇所がある）
+// ==========================================
+export const CONTENT_DEFINITIONS = STATIC_CONTENT_DEFINITIONS;
+export const CONTENT_SERIES = STATIC_CONTENT_SERIES;
+export const CATEGORY_LABELS = STATIC_CATEGORY_LABELS;
+export const LEVEL_LABELS = STATIC_LEVEL_LABELS;
+export const PROJECT_LABELS = STATIC_PROJECT_LABELS;
+
+// ==========================================
+// Firestore対応アクセサ（ストアにデータがあればそちらを優先）
+// ==========================================
+
+function getContentDefinitions(): ContentDefinition[] {
+    const store = useMasterDataStore.getState();
+    return store.contents?.items ?? STATIC_CONTENT_DEFINITIONS;
+}
+
+function getContentSeriesList(): ContentSeries[] {
+    const store = useMasterDataStore.getState();
+    return store.contents?.series ?? STATIC_CONTENT_SERIES;
+}
 
 // ==========================================
 // Registry Helper Functions
 // ==========================================
 
 export function getContentByLevel(level: ContentLevel): ContentDefinition[] {
-    return CONTENT_DEFINITIONS.filter(c => c.level === level);
+    return getContentDefinitions().filter(c => c.level === level);
 }
 
 export function getSeriesByLevel(level: ContentLevel): ContentSeries[] {
-    return CONTENT_SERIES.filter(s => s.level === level);
+    return getContentSeriesList().filter(s => s.level === level);
 }
 
 export function getContentBySeries(seriesId: string): ContentDefinition[] {
-    return CONTENT_DEFINITIONS.filter(c => c.seriesId === seriesId).sort((a, b) => a.order - b.order);
+    return getContentDefinitions().filter(c => c.seriesId === seriesId).sort((a, b) => a.order - b.order);
 }
 
 export function getSeriesById(seriesId: string): ContentSeries | undefined {
-    return CONTENT_SERIES.find(s => s.id === seriesId);
+    return getContentSeriesList().find(s => s.id === seriesId);
 }
 
 export function getContentById(contentId: string): ContentDefinition | undefined {
-    return CONTENT_DEFINITIONS.find(c => c.id === contentId);
+    return getContentDefinitions().find(c => c.id === contentId);
 }
 
 export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
@@ -180,7 +208,7 @@ export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
  */
 export function getProjectLabel(level: ContentLevel, category: ContentCategory): LocalizedString | null {
     if (category !== 'savage') return null;
-    
+
     // Savage projects map strictly to levels
     const levelToProjectKey: Record<number, string> = {
         100: 'aac',
@@ -188,7 +216,21 @@ export function getProjectLabel(level: ContentLevel, category: ContentCategory):
         80: 'eden',
         70: 'omega'
     };
-    
+
     const key = levelToProjectKey[level];
     return key ? PROJECT_LABELS[key] : null;
+}
+
+// ==========================================
+// Firestore対応ラベルアクセサ（新規export）
+// ==========================================
+
+export function getCategoryLabel(category: ContentCategory): LocalizedString {
+    const store = useMasterDataStore.getState();
+    return store.config?.categoryLabels?.[category] ?? STATIC_CATEGORY_LABELS[category];
+}
+
+export function getLevelLabel(level: ContentLevel): LocalizedString {
+    const store = useMasterDataStore.getState();
+    return store.config?.levelLabels?.[level] ?? STATIC_LEVEL_LABELS[level];
 }

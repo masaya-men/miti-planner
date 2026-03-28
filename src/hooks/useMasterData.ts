@@ -155,8 +155,8 @@ export async function fetchTemplate(contentId: string): Promise<TemplateData | n
 
   // 4. 静的ファイルフォールバック
   try {
-    const { getTemplate } = await import('../data/templateLoader');
-    const staticData = await getTemplate(contentId);
+    const { getStaticTemplate } = await import('../data/templateLoader');
+    const staticData = await getStaticTemplate(contentId);
     if (staticData) {
       saveTemplateCache(contentId, staticData);
       store.setTemplate(contentId, staticData);
