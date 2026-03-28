@@ -28,11 +28,11 @@ export function AdminDashboard() {
         if (cancelled) return;
         if (cRes.ok) {
           const cData = await cRes.json();
-          setContentCount(Array.isArray(cData) ? cData.length : 0);
+          setContentCount(cData.items?.length ?? 0);
         }
         if (tRes.ok) {
           const tData = await tRes.json();
-          setTemplateCount(Array.isArray(tData) ? tData.length : 0);
+          setTemplateCount(tData.templates?.length ?? 0);
         }
       } catch {
         if (!cancelled) setError(true);

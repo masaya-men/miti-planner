@@ -29,7 +29,7 @@ function setCors(req: any, res: any) {
 
 /** テンプレートのバックアップを作成 */
 async function createBackup(db: FirebaseFirestore.Firestore, contentId: string, data: any) {
-  const backupRef = db.collection('master_backups').doc(`template_${contentId}_${Date.now()}`);
+  const backupRef = db.collection('template_backups').doc(`template_${contentId}_${Date.now()}`);
   await backupRef.set({
     type: 'template',
     contentId,
@@ -41,9 +41,7 @@ async function createBackup(db: FirebaseFirestore.Firestore, contentId: string, 
 /** /master/config の dataVersion を+1する */
 async function bumpDataVersion(db: FirebaseFirestore.Firestore) {
   const configRef = db.doc('master/config');
-  const configSnap = await configRef.get();
-  const current = configSnap.exists ? (configSnap.data()?.dataVersion ?? 0) : 0;
-  await configRef.set({ dataVersion: current + 1 }, { merge: true });
+  await configRef.set({ dataVersion: FieldValue.increment(1) }, { merge: true });
 }
 
 export default async function handler(req: any, res: any) {
