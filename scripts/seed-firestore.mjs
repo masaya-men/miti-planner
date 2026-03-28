@@ -1,0 +1,240 @@
+/**
+ * seed-firestore.mjs
+ * 静的データをFirestoreに書き込むシードスクリプト
+ *
+ * 使い方: node scripts/seed-firestore.mjs
+ *
+ * .env.local から FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY を読み取り、
+ * contents.json + templates/*.json を Firestore の /master/*, /templates/* に投入する。
+ */
+
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve, basename } from 'node:path';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+
+// ==========================================
+// .env.local を手動パース（dotenv 不使用）
+// ==========================================
+function loadEnv(filePath) {
+  const text = readFileSync(filePath, 'utf-8');
+  const env = {};
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    let value = trimmed.slice(eqIdx + 1).trim();
+    // クォート除去
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    env[key] = value;
+  }
+  return env;
+}
+
+const ROOT = resolve(new URL('.', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'), '..');
+const envPath = resolve(ROOT, '.env.local');
+const env = loadEnv(envPath);
+
+const projectId = env.FIREBASE_PROJECT_ID;
+const clientEmail = env.FIREBASE_CLIENT_EMAIL;
+// .env.local 内の \\n を実際の改行に変換
+const privateKey = (env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+
+if (!projectId || !clientEmail || !privateKey) {
+  console.error('❌ .env.local に FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY が必要です');
+  process.exit(1);
+}
+
+// ==========================================
+// Firebase Admin 初期化
+// ==========================================
+initializeApp({
+  credential: cert({ projectId, clientEmail, privateKey }),
+});
+const db = getFirestore();
+
+console.log('✅ Firebase Admin 初期化完了');
+
+// ==========================================
+// contents.json 読み込み
+// ==========================================
+const contentsPath = resolve(ROOT, 'src/data/contents.json');
+const rawContents = JSON.parse(readFileSync(contentsPath, 'utf-8'));
+console.log(`✅ contents.json 読み込み完了 (${rawContents.length} 件)`);
+
+// ==========================================
+// getSeriesMetadata — contentRegistry.ts のロジックを JS で再実装
+// ==========================================
+function getSeriesMetadata(id, category) {
+  if (category === 'ultimate') {
+    const baseId = id.replace(/_p\d+$/, '');
+    const pMatch = id.match(/_p(\d+)$/);
+    const uppercase = baseId.toUpperCase();
+    if (pMatch) {
+      const pNum = parseInt(pMatch[1], 10);
+      return { seriesId: baseId, seriesJa: '', seriesEn: '', order: pNum * 0.1, shortJa: `${uppercase}\nP${pNum}`, shortEn: `${uppercase}\nP${pNum}` };
+    }
+    return { seriesId: baseId, seriesJa: '', seriesEn: '', order: 1, shortJa: uppercase, shortEn: uppercase };
+  }
+
+  const floorMatch = id.match(/(\d+)s(?:_p(\d+))?$/);
+  let absoluteOrder = 1;
+  let phaseOffset = 0;
+
+  if (floorMatch) {
+    absoluteOrder = parseInt(floorMatch[1], 10);
+    if (floorMatch[2]) {
+      phaseOffset = parseInt(floorMatch[2], 10) * 0.1;
+    }
+  }
+
+  let relativeOrder = absoluteOrder;
+  let seriesInfo = { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc' };
+
+  if (id.startsWith('m')) {
+    if (absoluteOrder < 5) {
+      seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'ライトヘビー級', seriesEn: 'Light-heavyweight' };
+      relativeOrder = absoluteOrder;
+    } else if (absoluteOrder < 9) {
+      seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'クルーザー級', seriesEn: 'Cruiserweight' };
+      relativeOrder = absoluteOrder - 4;
+    } else {
+      seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'ヘビー級', seriesEn: 'Heavyweight' };
+      relativeOrder = absoluteOrder - 8;
+    }
+  } else if (id.startsWith('p')) {
+    if (absoluteOrder <= 4) {
+      seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '辺獄編', seriesEn: 'Asphodelos' };
+      relativeOrder = absoluteOrder;
+    } else if (absoluteOrder <= 8) {
+      seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '煉獄編', seriesEn: 'Abyssos' };
+      relativeOrder = absoluteOrder - 4;
+    } else {
+      seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '天獄編', seriesEn: 'Anabaseios' };
+      relativeOrder = absoluteOrder - 8;
+    }
+  } else if (id.startsWith('e')) {
+    if (absoluteOrder <= 4) {
+      seriesInfo = { seriesId: 'eden_gate', seriesJa: '覚醒編', seriesEn: 'Gate' };
+      relativeOrder = absoluteOrder;
+    } else if (absoluteOrder <= 8) {
+      seriesInfo = { seriesId: 'eden_verse', seriesJa: '共鳴編', seriesEn: 'Verse' };
+      relativeOrder = absoluteOrder - 4;
+    } else {
+      seriesInfo = { seriesId: 'eden_promise', seriesJa: '再生編', seriesEn: 'Promise' };
+      relativeOrder = absoluteOrder - 8;
+    }
+  } else if (id.startsWith('o')) {
+    if (absoluteOrder <= 4) {
+      seriesInfo = { seriesId: 'omega_deltascape', seriesJa: 'デルタ編', seriesEn: 'Deltascape' };
+      relativeOrder = absoluteOrder;
+    } else if (absoluteOrder <= 8) {
+      seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: 'シグマ編', seriesEn: 'Sigmascape' };
+      relativeOrder = absoluteOrder - 4;
+    } else {
+      seriesInfo = { seriesId: 'omega_alphascape', seriesJa: 'アルファ編', seriesEn: 'Alphascape' };
+      relativeOrder = absoluteOrder - 8;
+    }
+  }
+
+  const phaseLabel = phaseOffset === 0.1 ? '\n前半' : phaseOffset === 0.2 ? '\n後半' : '';
+  const shortJa = Math.floor(relativeOrder) + '層' + phaseLabel;
+  const shortEn = id.toUpperCase().replace('_', '\n').replace(' ', '\n');
+  const orderForSorting = relativeOrder + phaseOffset;
+
+  return { ...seriesInfo, order: orderForSorting, shortJa, shortEn };
+}
+
+// ==========================================
+// items と series を生成
+// ==========================================
+const items = rawContents.map((rc) => {
+  const { seriesId, order, shortJa, shortEn } = getSeriesMetadata(rc.id, rc.category);
+  return {
+    id: rc.id,
+    name: { ja: rc.ja, en: rc.en },
+    shortName: { ja: rc.shortNameJa || shortJa, en: shortEn },
+    seriesId,
+    category: rc.category,
+    level: rc.level,
+    patch: rc.patch,
+    order,
+    ...(rc.hasCheckpoint ? { hasCheckpoint: true } : {}),
+    ...(rc.fflogsEncounterId ? { fflogsEncounterId: rc.fflogsEncounterId } : {}),
+  };
+});
+
+// シリーズ生成（_p1 等のサフィックスがないコンテンツの名前を優先）
+const seriesMap = new Map();
+rawContents.forEach((rc) => {
+  const { seriesId, seriesJa, seriesEn } = getSeriesMetadata(rc.id, rc.category);
+  const hasPhaseSuffix = /_p\d+$/.test(rc.id);
+  if (!seriesMap.has(seriesId) || !hasPhaseSuffix) {
+    seriesMap.set(seriesId, {
+      id: seriesId,
+      name: rc.category === 'ultimate' ? { ja: rc.ja, en: rc.en } : { ja: seriesJa, en: seriesEn },
+      category: rc.category,
+      level: rc.level,
+    });
+  }
+});
+const series = Array.from(seriesMap.values());
+
+// ==========================================
+// Firestore 書き込み
+// ==========================================
+
+// 1. /master/config
+const configData = {
+  dataVersion: 1,
+  featureFlags: { useFirestore: true },
+  categoryLabels: {
+    savage: { ja: '零式', en: 'Savage' },
+    ultimate: { ja: '絶', en: 'Ultimate' },
+    dungeon: { ja: 'ダンジョン', en: 'Dungeon' },
+    raid: { ja: 'レイド', en: 'Raid' },
+    custom: { ja: 'その他', en: 'Misc' },
+  },
+  levelLabels: {
+    70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)' },
+    80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)' },
+    90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)' },
+    100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)' },
+  },
+};
+
+await db.doc('master/config').set(configData);
+console.log('✅ /master/config 書き込み完了');
+
+// 2. /master/contents
+const contentsDoc = { items, series };
+await db.doc('master/contents').set(contentsDoc);
+console.log(`✅ /master/contents 書き込み完了 (items: ${items.length}, series: ${series.length})`);
+
+// 3. /templates/{contentId}
+const templatesDir = resolve(ROOT, 'src/data/templates');
+const templateFiles = readdirSync(templatesDir).filter((f) => f.endsWith('.json'));
+
+for (const file of templateFiles) {
+  const contentId = basename(file, '.json');
+  const json = JSON.parse(readFileSync(resolve(templatesDir, file), 'utf-8'));
+  const templateDoc = {
+    contentId,
+    source: 'admin_manual',
+    timelineEvents: json.timelineEvents || [],
+    phases: json.phases || [],
+    generatedAt: json.generatedAt || null,
+    sourceLogsCount: json.sourceLogsCount || 0,
+    lockedAt: null,
+    lastUpdatedAt: new Date(),
+    lastUpdatedBy: 'seed-script',
+  };
+  await db.doc(`templates/${contentId}`).set(templateDoc);
+  console.log(`✅ /templates/${contentId} 書き込み完了`);
+}
+
+console.log('\n🎉 シード完了！全データを Firestore に書き込みました。');
