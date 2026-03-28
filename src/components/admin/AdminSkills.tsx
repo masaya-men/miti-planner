@@ -16,20 +16,6 @@ interface SkillsData {
   mitigations: Mitigation[];
   displayOrder: string[];
 }
-
-const EMPTY_SKILL: Partial<Mitigation> = {
-  id: '',
-  jobId: '',
-  name: { ja: '', en: '' },
-  icon: '',
-  duration: 0,
-  recast: 0,
-  value: 0,
-  type: 'all',
-  scope: 'party',
-  minLevel: undefined,
-};
-
 export function AdminSkills() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
