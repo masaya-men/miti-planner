@@ -897,6 +897,13 @@
         "icon_upload": "アイコンを変更",
         "icon_uploading": "アップロード中...",
         "icon_upload_success": "アイコンを更新しました",
-        "icon_upload_error": "アイコンのアップロードに失敗しました"
+        "icon_upload_error": "アイコンのアップロードに失敗しました",
+        "servers": "サーバー管理",
+        "servers_dc": "データセンター",
+        "servers_housing": "ハウジングエリア",
+        "servers_sizes": "ハウジングサイズ",
+        "servers_tags": "タグ",
+        "servers_aliases": "表記揺れ",
+        "servers_server_count": "サーバー数"
     }
 }

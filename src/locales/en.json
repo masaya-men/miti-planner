@@ -893,6 +893,13 @@
         "icon_upload": "Change icon",
         "icon_uploading": "Uploading...",
         "icon_upload_success": "Icon updated",
-        "icon_upload_error": "Failed to upload icon"
+        "icon_upload_error": "Failed to upload icon",
+        "servers": "Server Management",
+        "servers_dc": "Data Centers",
+        "servers_housing": "Housing Areas",
+        "servers_sizes": "Housing Sizes",
+        "servers_tags": "Tags",
+        "servers_aliases": "Aliases",
+        "servers_server_count": "Servers"
     }
 }
