@@ -124,6 +124,15 @@ service cloud.firestore {
     }
 
     // ========================================
+    // admin_logs コレクション
+    // 監査ログ: 管理者のみ読める・直接書き込み不可（API経由のみ）
+    // ========================================
+    match /admin_logs/{logId} {
+      allow read: if request.auth != null && request.auth.token.role == 'admin';
+      allow write: if false;
+    }
+
+    // ========================================
     // その他すべてのパスへのアクセスを拒否
     // ========================================
     match /{document=**} {
