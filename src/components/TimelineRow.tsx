@@ -159,7 +159,7 @@ export const TimelineRow = memo(({
             <div
                 className={clsx(
                     "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[9px] md:text-sm group-hover:text-app-text group-hover:font-black",
-                    "border-app-border text-app-text-secondary hover:bg-app-surface2"
+                    "border-app-border text-app-text-sec hover:bg-app-surface2"
                 )}
                 onClick={handleMobileTap}
             >
@@ -223,7 +223,7 @@ export const TimelineRow = memo(({
                                         e.stopPropagation();
                                         setClipboardEvent(events[0]);
                                     }}
-                                    className="ml-1 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
+                                    className="ml-1 text-app-text-sec hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
                                 >
                                     <Copy size={14} />
                                 </button>
@@ -312,7 +312,7 @@ export const TimelineRow = memo(({
                                                 e.stopPropagation();
                                                 setClipboardEvent(events[idx]);
                                             }}
-                                            className="ml-1 text-app-text-secondary hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
+                                            className="ml-1 text-app-text-sec hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
                                         >
                                             <Copy size={14} />
                                         </button>
@@ -365,7 +365,7 @@ export const TimelineRow = memo(({
             <div
                 className={clsx(
                     "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
-                    "border-app-border text-app-text-secondary"
+                    "border-app-border text-app-text-sec"
                 )}
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
@@ -440,11 +440,11 @@ export const TimelineRow = memo(({
                                     {formatDmg(damages[0].mitigated)}
                                 </span>
                                 {damages[0].isInvincible ? (
-                                    <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap">
+                                    <div className="text-[9px] text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap">
                                         {t('timeline.invuln', 'Invuln')}
                                     </div>
                                 ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                    <div className="text-[9px] text-app-text-secondary font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                    <div className="text-[9px] text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                         {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
                                         {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                         {damages[0].shieldTotal > 0 && (

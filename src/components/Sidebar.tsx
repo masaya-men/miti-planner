@@ -950,7 +950,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                             )}>
                                                 {plan.title}
                                             </p>
-                                            <p className="text-[8px] text-app-text-secondary font-medium truncate leading-tight mt-0.5">
+                                            <p className="text-[8px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
                                                 {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
                                             </p>
                                         </div>

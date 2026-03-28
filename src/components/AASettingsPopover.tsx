@@ -83,7 +83,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-glass-header border-b border-glass-border">
                 <div className="flex items-center gap-2">
-                    <Settings size={14} className="text-app-text-secondary" />
+                    <Settings size={14} className="text-app-text-sec" />
                     <span className="text-xs font-black text-app-text uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
                 </div>
                 <button
@@ -123,8 +123,8 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                     <div className="flex items-center justify-between">
                         <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
                         <div className="group relative">
-                            <Info size={12} className="text-app-text-secondary cursor-help" />
-                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-app-border rounded text-[10px] text-app-text-secondary leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            <Info size={12} className="text-app-text-muted cursor-help" />
+                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-app-border rounded text-[10px] text-gray-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {t('aa_settings.help_text')}
                             </div>
                         </div>

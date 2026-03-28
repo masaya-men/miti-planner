@@ -189,7 +189,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                 className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
                                         ? "bg-app-text/10 border-app-text text-app-text scale-110"
-                                        : "bg-app-surface2 text-white/30 border-app-border hover:bg-app-surface2 hover:text-white/80"
+                                        : "bg-app-surface2 text-app-text/30 border-app-border hover:bg-app-surface2 hover:text-app-text/80"
                                 )}
                             >
                                 <Tooltip content={t('party.my_job')}>
