@@ -107,6 +107,7 @@ export default async function handler(req: Request) {
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
         const showTitle = searchParams.get('showTitle') !== 'false';
+        const logoUrl = searchParams.get('logoUrl');
 
         let contentId: string | null = null;
         let contentName = '';
@@ -166,6 +167,21 @@ export default async function handler(req: Request) {
             fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
+        // チームロゴをBase64化（指定がある場合のみ）
+        let teamLogoBase64: string | null = null;
+        if (logoUrl) {
+            try {
+                const logoRes = await fetch(decodeURIComponent(logoUrl));
+                if (logoRes.ok) {
+                    const buf = await logoRes.arrayBuffer();
+                    const contentType = logoRes.headers.get('content-type') || 'image/webp';
+                    teamLogoBase64 = `data:${contentType};base64,${arrayBufferToBase64(buf)}`;
+                }
+            } catch {
+                // ロゴ取得失敗はスキップ（ロゴなしで生成）
+            }
+        }
+
         // ブドウロゴをBase64化（SVG優先、フォールバックでPNG）
         let logoBase64: string;
         try {
@@ -185,8 +201,8 @@ export default async function handler(req: Request) {
         const element = !shareId
             ? buildFallbackLayout()
             : isBundle
-                ? buildBundleLayout(bundlePlans, logoBase64)
-                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64);
+                ? buildBundleLayout(bundlePlans, logoBase64, teamLogoBase64)
+                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64, teamLogoBase64);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 
@@ -334,6 +350,7 @@ function buildSingleLayout(
     planTitle: string,
     categoryTag: string,
     logoBase64: string,
+    teamLogoBase64: string | null,
 ) {
     const nameLen = contentName.length || planTitle.length || 4;
     const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
@@ -431,6 +448,33 @@ function buildSingleLayout(
                         },
                     },
                 },
+                // チームロゴ（右上）
+                ...(teamLogoBase64 ? [{
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            top: 24,
+                            right: 24,
+                            width: 80,
+                            height: 80,
+                            borderRadius: 12,
+                            overflow: 'hidden',
+                            border: '2px solid rgba(255,255,255,0.15)',
+                        },
+                        children: {
+                            type: 'img',
+                            props: {
+                                src: teamLogoBase64,
+                                width: 80,
+                                height: 80,
+                                style: {
+                                    objectFit: 'cover',
+                                },
+                            },
+                        },
+                    },
+                }] : []),
             ],
         },
     };
@@ -439,6 +483,7 @@ function buildSingleLayout(
 function buildBundleLayout(
     plans: { contentId: string | null; title: string }[],
     logoBase64: string,
+    teamLogoBase64: string | null,
 ) {
     const itemsToShow = plans.slice(0, 5);
     const itemChildren: any[] = [];
@@ -587,6 +632,33 @@ function buildBundleLayout(
                         },
                     },
                 },
+                // チームロゴ（右上）
+                ...(teamLogoBase64 ? [{
+                    type: 'div',
+                    props: {
+                        style: {
+                            position: 'absolute',
+                            top: 24,
+                            right: 24,
+                            width: 80,
+                            height: 80,
+                            borderRadius: 12,
+                            overflow: 'hidden',
+                            border: '2px solid rgba(255,255,255,0.15)',
+                        },
+                        children: {
+                            type: 'img',
+                            props: {
+                                src: teamLogoBase64,
+                                width: 80,
+                                height: 80,
+                                style: {
+                                    objectFit: 'cover',
+                                },
+                            },
+                        },
+                    },
+                }] : []),
             ],
         },
     };
