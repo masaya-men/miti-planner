@@ -116,7 +116,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                             onClick={onClose}
                             className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer"
                         >
-                            <X size={16} className="text-app-text-secondary" />
+                            <X size={16} className="text-app-text-sec" />
                         </button>
                     </div>
                 )}

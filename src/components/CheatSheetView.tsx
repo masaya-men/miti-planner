@@ -304,7 +304,7 @@ export const CheatSheetView: React.FC = () => {
 
                         {/* 軽減率・バリア量（超省略表記） */}
                         {dmgInfo && !dmgInfo.isInvincible && (dmgInfo.mitigationPercent > 0 || dmgInfo.shieldTotal > 0) && (
-                            <span className="text-[8px] text-app-text-secondary font-black whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
+                            <span className="text-[8px] text-app-text-sec font-black whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
                                 {[
                                     dmgInfo.mitigationPercent > 0 ? `▼-${dmgInfo.mitigationPercent}%` : null,
                                     dmgInfo.shieldTotal > 0 ? `🛡️${Math.floor(dmgInfo.shieldTotal / 1000)}k` : null
@@ -446,7 +446,7 @@ export const CheatSheetView: React.FC = () => {
                                             className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-app-border bg-app-surface2 hover:bg-app-surface2 shadow-sm cursor-pointer"
                                         >
                                             <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
-                                            <span className="text-[9px] font-black text-app-text-secondary mt-1">{m.id}</span>
+                                            <span className="text-[9px] font-black text-app-text-sec mt-1">{m.id}</span>
                                         </button>
                                     );
                                 })}

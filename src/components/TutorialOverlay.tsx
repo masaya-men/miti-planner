@@ -774,7 +774,7 @@ export const TutorialOverlay: React.FC = () => {
                                 {t('tutorial.start_title')}
                             </h3>
 
-                            <p className="text-sm text-app-text-secondary leading-relaxed mb-8 text-left">
+                            <p className="text-sm text-app-text-sec leading-relaxed mb-8 text-left">
                                 {t('tutorial.start_desc')}
                             </p>
 

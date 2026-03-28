@@ -62,13 +62,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 </div>
                 {/* Body */}
                 <div className="px-5 py-3">
-                    <p className="text-[12px] text-app-text-secondary leading-relaxed font-medium">{message}</p>
+                    <p className="text-[12px] text-app-text-sec leading-relaxed font-medium">{message}</p>
                 </div>
                 {/* Footer */}
                 <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-app-border">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-xl text-[11px] font-black text-app-text-secondary hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                        className="px-4 py-2 rounded-xl text-[11px] font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
                     >
                         {finalCancelLabel}
                     </button>

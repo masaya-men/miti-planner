@@ -108,9 +108,10 @@ const GradientSlider: React.FC<{
                 className="absolute left-0 right-0 h-[6px] rounded-full border border-app-border/50"
                 style={{ background: gradient }}
             />
+            {/* サムの幅(14px)を考慮し、端でもはみ出さないようにclamp */}
             <div
-                className="absolute w-3.5 h-3.5 rounded-full -translate-x-1/2 border-2 border-app-bg shadow-sm transition-[left] duration-75"
-                style={{ left: `${percent}%`, backgroundColor: thumbColor }}
+                className="absolute w-3.5 h-3.5 rounded-full border-2 border-app-bg shadow-sm transition-[left] duration-75"
+                style={{ left: `calc(${percent / 100} * (100% - 14px))`, backgroundColor: thumbColor }}
             />
         </div>
     );

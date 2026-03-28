@@ -227,7 +227,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                             {selectedSingleTargetMit ? (
                                 <button
                                     onClick={() => setSelectedSingleTargetMit(null)}
-                                    className="group flex items-center gap-1 text-[10px] font-black text-app-text-secondary uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
+                                    className="group flex items-center gap-1 text-[10px] font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
                                 >
                                     <ChevronLeft 
                                         size={12} 
@@ -236,7 +236,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     <span>{t('mitigation.select_target', '対象を選択')}</span>
                                 </button>
                             ) : (
-                                <span className="text-[10px] font-black text-app-text-secondary uppercase tracking-tighter leading-none">
+                                <span className="text-[10px] font-black text-app-text-sec uppercase tracking-tighter leading-none">
                                     {t('mitigation.select')}
                                 </span>
                             )}
@@ -257,7 +257,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         ref={scrollContainerRef}
                     >
                         {availableMitigations.length === 0 ? (
-                            <div className="text-xs text-app-text-secondary p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                            <div className="text-xs text-app-text-sec p-4 text-center">{t('mitigation.no_mitigations')}</div>
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
@@ -346,7 +346,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
                                                 {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
                                                 {mitigation.scope === 'target' && !isAlreadyPlaced && (
-                                                    <span className="ml-2 text-[10px] text-app-text-secondary transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
+                                                    <span className="ml-2 text-[10px] text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
                                                         {isSelectedTargetMit ? '▼' : '▶'}
                                                     </span>
                                                 )}
