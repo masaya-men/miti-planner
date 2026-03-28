@@ -73,7 +73,13 @@
         "phys": "Physical",
         "magic": "Magical",
         "dark": "Unique",
-        "help_text": "Enter the raw damage value received without any buffs or debuffs applied."
+        "help_text": "Enter the raw damage value received without any buffs or debuffs applied.",
+        "start_adding": "Start Adding",
+        "floating_label": "AA: {{damage}} ({{target}}/{{type}})",
+        "cursor_tooltip": "AA: {{damage}} — click to add",
+        "change_settings": "Settings",
+        "end_mode": "End",
+        "damage_required": "Please enter damage amount"
     },
     "party": {
         "title": "Party Composition",
