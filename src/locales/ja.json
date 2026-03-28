@@ -76,7 +76,6 @@
         "help_text": "バフやデバフの影響を受けていない状態で実際に受けた数値を入力してください。",
         "start_adding": "追加開始",
         "floating_label": "AA: {{damage}} ({{target}}/{{type}})",
-        "cursor_tooltip": "AA: {{damage}} をクリックで追加",
         "change_settings": "設定変更",
         "end_mode": "終了",
         "damage_required": "ダメージ量を入力してください"
