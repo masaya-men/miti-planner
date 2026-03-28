@@ -893,6 +893,10 @@
         "promotion_threshold": "昇格閾値（コピー数）",
         "promotion_multiplier": "昇格倍率",
         "config_save": "保存",
-        "config_saved": "設定を保存しました"
+        "config_saved": "設定を保存しました",
+        "icon_upload": "アイコンを変更",
+        "icon_uploading": "アップロード中...",
+        "icon_upload_success": "アイコンを更新しました",
+        "icon_upload_error": "アイコンのアップロードに失敗しました"
     }
 }

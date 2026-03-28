@@ -6,7 +6,9 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ref, uploadBytes } from 'firebase/storage';
 import { apiFetch } from '../../lib/apiClient';
+import { storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
 import type { Job, Mitigation } from '../../types';
@@ -30,6 +32,8 @@ export function AdminSkills() {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   // 展開中のスキルID（インライン編集）
   const [expandedSkillId, setExpandedSkillId] = useState<string | null>(null);
+  // アイコンアップロード中のスキルID
+  const [uploadingIconFor, setUploadingIconFor] = useState<string | null>(null);
 
   /** データ取得 */
   const fetchData = useCallback(async () => {
@@ -86,6 +90,28 @@ export function AdminSkills() {
       showToast(t('admin.error_save'), 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  /** アイコンアップロード */
+  const handleIconUpload = async (skillId: string, file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    try {
+      setUploadingIconFor(skillId);
+      const ext = file.name.split('.').pop() || 'png';
+      const filename = `${skillId}.${ext}`;
+      const storageRef = ref(storage, `icons/${filename}`);
+      await uploadBytes(storageRef, file, {
+        contentType: file.type,
+        cacheControl: 'public, max-age=31536000, immutable',
+      });
+      const iconPath = `/icons/${filename}`;
+      updateSkill(skillId, 'icon', iconPath);
+      showToast(t('admin.icon_upload_success'));
+    } catch {
+      showToast(t('admin.icon_upload_error'), 'error');
+    } finally {
+      setUploadingIconFor(null);
     }
   };
 
@@ -200,6 +226,28 @@ export function AdminSkills() {
                   {/* インライン編集フォーム */}
                   {expandedSkillId === skill.id && (
                     <div className="px-3 pb-3 pt-1 bg-app-text/5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img
+                          src={skill.icon}
+                          alt={skill.name.ja}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                        <label className="px-3 py-1 text-xs border border-app-text/20 rounded cursor-pointer hover:bg-app-text/10 transition-colors">
+                          {uploadingIconFor === skill.id ? t('admin.icon_uploading') : t('admin.icon_upload')}
+                          <input
+                            type="file"
+                            accept="image/png,image/webp"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleIconUpload(skill.id, file);
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                        <span className="text-[10px] text-app-text-muted font-mono">{skill.icon}</span>
+                      </div>
                       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                         <div>
                           <label className={labelClass}>名前（日本語）</label>
