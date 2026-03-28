@@ -10,6 +10,7 @@ import type {
   Job,
   LevelModifier,
   LocalizedString,
+  MasterServers,
   Mitigation,
   TemplateStats,
 } from '../types';
@@ -48,6 +49,7 @@ interface MasterDataState {
   contents: MasterContents | null;
   skills: MasterSkills | null;
   stats: MasterStats | null;
+  servers: MasterServers | null;
   ready: boolean;
   error: string | null;
   templateCache: Record<string, TemplateData>;
@@ -58,6 +60,7 @@ interface MasterDataState {
     contents: MasterContents,
     skills?: MasterSkills | null,
     stats?: MasterStats | null,
+    servers?: MasterServers | null,
   ) => void;
   setError: (error: string) => void;
   setTemplate: (contentId: string, data: TemplateData) => void;
@@ -72,12 +75,13 @@ export const useMasterDataStore = create<MasterDataState>()((set) => ({
   contents: null,
   skills: null,
   stats: null,
+  servers: null,
   ready: false,
   error: null,
   templateCache: {},
 
-  setData: (config, contents, skills = null, stats = null) =>
-    set({ config, contents, skills, stats, ready: true, error: null }),
+  setData: (config, contents, skills = null, stats = null, servers = null) =>
+    set({ config, contents, skills, stats, servers, ready: true, error: null }),
 
   setError: (error) =>
     set({ error }),
@@ -101,6 +105,7 @@ interface MasterCachePayload {
   contents: MasterContents;
   skills: MasterSkills | null;
   stats: MasterStats | null;
+  servers: MasterServers | null;
 }
 
 /** マスターデータをlocalStorageに保存 */
@@ -110,9 +115,10 @@ export function saveMasterCache(
   contents: MasterContents,
   skills: MasterSkills | null = null,
   stats: MasterStats | null = null,
+  servers: MasterServers | null = null,
 ): void {
   try {
-    const payload: MasterCachePayload = { version, config, contents, skills, stats };
+    const payload: MasterCachePayload = { version, config, contents, skills, stats, servers };
     localStorage.setItem(MASTER_CACHE_KEY, JSON.stringify(payload));
   } catch (e) {
     console.warn('[MasterData] localStorageへの保存に失敗:', e);
