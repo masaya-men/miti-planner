@@ -5,6 +5,7 @@ import { X, Copy, Check, Loader2, ExternalLink } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { showToast } from './Toast';
+import { apiFetch } from '../lib/apiClient';
 import type { SavedPlan } from '../types';
 
 interface ShareModalProps {
@@ -55,7 +56,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 };
             }
 
-            const res = await fetch('/api/share', {
+            const res = await apiFetch('/api/share', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),

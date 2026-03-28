@@ -14,6 +14,7 @@ import { GridOverlay } from './GridOverlay';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { LoPoButton } from './LoPoButton';
 import { PulseSettings } from './PulseSettings';
+import { apiFetch } from '../lib/apiClient';
 
 // --- 型定義 ---
 
@@ -107,7 +108,7 @@ export const PopularPage: React.FC = () => {
     // データ取得
     useEffect(() => {
         const allIds = [...savageIds, ...ultimateIds];
-        fetch(`/api/popular?contentIds=${allIds.join(',')}`)
+        apiFetch(`/api/popular?contentIds=${allIds.join(',')}`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
@@ -135,7 +136,7 @@ export const PopularPage: React.FC = () => {
     // --- コピーロジック ---
     const handleCopy = useCallback(async (entry: PopularEntry) => {
         try {
-            const res = await fetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
+            const res = await apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
             if (!res.ok) throw new Error();
             const shared = await res.json();
 
@@ -160,7 +161,7 @@ export const PopularPage: React.FC = () => {
             if (!copiedList.includes(entry.shareId)) {
                 copiedList.push(entry.shareId);
                 localStorage.setItem(copiedKey, JSON.stringify(copiedList));
-                fetch('/api/popular', {
+                apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ shareId: entry.shareId }),
@@ -183,7 +184,7 @@ export const PopularPage: React.FC = () => {
 
         const results = await Promise.allSettled(
             targets.map(async (entry) => {
-                const res = await fetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
+                const res = await apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
                 if (!res.ok) throw new Error();
                 const shared = await res.json();
                 return { entry, planData: (shared.planData ?? shared.data) as PlanData };
@@ -215,7 +216,7 @@ export const PopularPage: React.FC = () => {
 
             if (!copiedList.includes(entry.shareId)) {
                 copiedList.push(entry.shareId);
-                fetch('/api/popular', {
+                apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ shareId: entry.shareId }),

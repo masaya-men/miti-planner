@@ -8,6 +8,7 @@ import { Layout } from './Layout';
 import Timeline from './Timeline';
 import { ErrorBoundary } from './ErrorBoundary';
 import { showToast } from './Toast';
+import { apiFetch } from '../lib/apiClient';
 import { Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PlanData } from '../types';
@@ -61,7 +62,7 @@ export const SharePage: React.FC = () => {
     useEffect(() => {
         if (!shareId) { setState('not_found'); return; }
 
-        fetch(`/api/share?id=${encodeURIComponent(shareId)}`)
+        apiFetch(`/api/share?id=${encodeURIComponent(shareId)}`)
             .then(res => {
                 if (res.status === 404) { setState('not_found'); return null; }
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -161,7 +162,7 @@ export const SharePage: React.FC = () => {
             if (targetShareId && !copiedList.includes(targetShareId)) {
                 copiedList.push(targetShareId);
                 localStorage.setItem(copiedKey, JSON.stringify(copiedList));
-                fetch('/api/popular', {
+                apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ shareId: targetShareId }),
@@ -197,7 +198,7 @@ export const SharePage: React.FC = () => {
             if (targetShareId && !copiedList.includes(targetShareId)) {
                 copiedList.push(targetShareId);
                 localStorage.setItem(copiedKey, JSON.stringify(copiedList));
-                fetch('/api/popular', {
+                apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ shareId: targetShareId }),

@@ -7,6 +7,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify';
 
 const COLLECTION = 'shared_plans';
 
@@ -37,8 +38,11 @@ export default async function handler(req: any, res: any) {
     const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
+
+    // App Check検証
+    if (!(await verifyAppCheck(req, res))) return;
 
     try {
         initAdmin();

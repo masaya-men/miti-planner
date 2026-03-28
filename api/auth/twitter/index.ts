@@ -18,6 +18,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
 const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
@@ -49,6 +50,13 @@ function generateCodeChallenge(verifier: string): string {
 }
 
 export default async function handler(req: any, res: any) {
+    // CORS
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    // App Check検証
+    if (!(await verifyAppCheck(req, res))) return;
+
     try {
         const { code, state } = req.query;
         const clientId = process.env.TWITTER_CLIENT_ID;
