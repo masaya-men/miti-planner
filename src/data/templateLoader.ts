@@ -1,11 +1,13 @@
 /**
  * src/data/templateLoader.ts
  *
- * Dynamically loads pre-generated template JSON files for mitigation plans.
- * If a template doesn't exist for the contentId, returns null.
+ * テンプレートデータの読み込み。
+ * Firestore → localStorage → 静的ファイルの順で取得する。
+ * 静的ファイル（Vite glob import）はフォールバック用に維持。
  */
 
 import type { TimelineEvent } from '../types';
+import { fetchTemplate as fetchFromFirestore } from '../hooks/useMasterData';
 
 export interface TemplateData {
   contentId: string;
@@ -16,24 +18,23 @@ export interface TemplateData {
   _warning?: string;
 }
 
-// Statically check if a template exists based on whether the file is present in the build
-// Vite handles this using glob import
+// 静的ファイル（Vite glob import）— フォールバック用に維持
 const templateModules = import.meta.glob('./templates/*.json');
 
 /**
- * Checks synchronously if a template is available for the given contentId.
+ * Checks synchronously if a static template is available for the given contentId.
  */
 export function hasTemplate(contentId: string): boolean {
   return `./templates/${contentId}.json` in templateModules;
 }
 
 /**
- * Asynchronously loads the template data for the given contentId.
- * Returns null if no template exists.
+ * 静的テンプレートのみを読み込む（useMasterDataのフォールバック用）。
+ * 循環参照を避けるため、fetchTemplateからはこちらを呼ぶ。
  */
-export async function getTemplate(contentId: string): Promise<TemplateData | null> {
+export async function getStaticTemplate(contentId: string): Promise<TemplateData | null> {
   const modulePath = `./templates/${contentId}.json`;
-  
+
   if (!(modulePath in templateModules)) {
     return null;
   }
@@ -45,4 +46,12 @@ export async function getTemplate(contentId: string): Promise<TemplateData | nul
     console.error(`Failed to load template for ${contentId}:`, error);
     return null;
   }
+}
+
+/**
+ * テンプレートデータを取得する。
+ * Firestore → localStorage → 静的ファイルの順でフォールバック。
+ */
+export async function getTemplate(contentId: string): Promise<TemplateData | null> {
+  return fetchFromFirestore(contentId);
 }
