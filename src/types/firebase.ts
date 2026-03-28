@@ -26,6 +26,8 @@ export interface FirestoreUser {
   updatedAt: Timestamp;
   /** アプリ設定 */
   settings: UserSettings;
+  /** チームロゴのダウンロードURL（Firebase Storage） */
+  teamLogoUrl?: string | null;
 }
 
 /** ユーザー設定 */

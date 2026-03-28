@@ -80,6 +80,20 @@
         "end_mode": "終了",
         "damage_required": "ダメージ量を入力してください"
     },
+    "team_logo": {
+        "title": "チームロゴ",
+        "upload": "ロゴをアップロード",
+        "change": "ロゴを変更",
+        "remove": "ロゴを削除",
+        "show_on_ogp": "共有画像にロゴを表示",
+        "uploading": "アップロード中...",
+        "format_hint": "PNG / JPG / WebP（最大2MB）",
+        "upload_success": "ロゴをアップロードしました",
+        "remove_success": "ロゴを削除しました",
+        "error_too_large": "ファイルサイズが大きすぎます（最大2MB）",
+        "error_invalid_type": "対応していないファイル形式です",
+        "error_upload_failed": "アップロードに失敗しました"
+    },
     "party": {
         "title": "パーティ構成",
         "settings_title": "パラメータ設定",
