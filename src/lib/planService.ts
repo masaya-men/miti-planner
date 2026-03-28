@@ -308,8 +308,9 @@ async function syncDirtyPlans(
 
   const plansToSync = plans.filter((p) => dirtyPlanIds.has(p.id));
 
-  for (const plan of plansToSync) {
-    try {
+  // 全プランを並列に同期（ログアウト時の速度改善）
+  const results = await Promise.allSettled(
+    plansToSync.map(async (plan) => {
       if (plan.ownerId === 'local' || plan.ownerId === uid) {
         // ownerId=localはまだFirestoreに保存されていない新規プラン
         // ownerId=uidは既存プランだが、更新か新規かをtry/catchで判定
@@ -320,8 +321,13 @@ async function syncDirtyPlans(
           await createPlan(plan, uid, displayName);
         }
       }
-    } catch (err) {
-      console.error('Firestore同期エラー:', plan.id, err);
+    }),
+  );
+
+  // 失敗したプランのエラーをログ出力（1つの失敗が他に影響しない）
+  for (const [i, result] of results.entries()) {
+    if (result.status === 'rejected') {
+      console.error('Firestore同期エラー:', plansToSync[i].id, result.reason);
     }
   }
 }

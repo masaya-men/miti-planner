@@ -855,6 +855,23 @@
         "error_load": "Failed to load data",
         "error_save": "Failed to save",
         "stats_contents": "Contents",
-        "stats_templates": "Templates"
+        "stats_templates": "Templates",
+        "page_title": "Admin│LoPo",
+        "form_example_header": "Example (from existing content):",
+        "hint_content_id": "Short alphanumeric ID (e.g. m9s, ucob, tea). Cannot be changed later",
+        "hint_category": "Choose: Savage / Ultimate / Dungeon / Raid / Misc",
+        "hint_short_name": "Short name shown in sidebar and header",
+        "hint_level": "Content level (Lv100=Dawntrail, Lv90=Endwalker...)",
+        "hint_patch": "Patch number when released (e.g. 7.40, 7.20)",
+        "hint_series": "Groups related content in the same series",
+        "hint_series_none": "(No series)",
+        "hint_order": "Sort order within series. 1=top. M9S=1, M10S=2, M11S=3...",
+        "hint_fflogs_id": "FFLogs encounter ID (used for FFLogs import). Leave empty if unknown",
+        "hint_checkpoint": "Has phases (e.g. M12S Phase 1 / Phase 2)",
+        "templates_description": "Templates = boss attack timeline data. This data is auto-loaded when users create a new plan.",
+        "templates_upload_guide": "Template JSON files use the same format as src/data/templates/. Usually auto-generated — manual upload is rarely needed.",
+        "templates_upload_title": "Upload Template (Advanced)",
+        "hint_template_content_id": "Target content ID (e.g. m9s)",
+        "hint_template_file": "Same format as .json files in src/data/templates/"
     }
 }

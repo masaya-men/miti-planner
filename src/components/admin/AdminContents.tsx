@@ -78,7 +78,7 @@ export function AdminContents() {
       setEditing(null);
       await fetchContents();
     } catch {
-      showToast(t('admin.error_save'));
+      showToast(t('admin.error_save'), 'error');
     } finally {
       setSaving(false);
     }
@@ -98,7 +98,7 @@ export function AdminContents() {
       showToast(t('admin.contents_deleted'));
       await fetchContents();
     } catch {
-      showToast(t('admin.error_save'));
+      showToast(t('admin.error_save'), 'error');
     }
   };
 

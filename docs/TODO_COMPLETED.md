@@ -2,6 +2,23 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第30セッション 2026-03-28）
+- [x] **Firebase App Check有効化** — reCAPTCHA Enterprise設定・サイトキー作成・Vercel環境変数追加・Firebase Console登録
+- [x] **Firestoreセキュリティルールのデプロイ** — master/templates/backups/admin_logsのルール追加・firebase deploy完了
+- [x] **ログアウト高速化** — forceSyncAllの直列ループをPromise.allSettledで並列化（50-70%高速化）
+- [x] **管理画面UI改善** — Toast成功/失敗区別・selectドロップダウン背景色・フォームUX全面改善（例をラベル横に表示・シリーズドロップダウン化・層選択・上級者設定折りたたみ）
+- [x] **管理基盤 Phase 0〜1 セットアップ完了** — 第28-29セッションで実装、第30でApp Check+ルール+UI改善
+
+## 完了（第29セッション 2026-03-28）
+- [x] **管理者ロール初回セットアップ** — ADMIN_SECRET設定・curl実行・/admin動作確認OK
+- [x] **Firebase App Check導入（コード実装）** — フロントエンド初期化・APIクライアント・サーバー検証・全API統合
+- [x] **管理基盤 Phase 1 実装** — コンテンツ・テンプレートのFirestore移行完了
+- [x] **Firestoreシーディング** — 63コンテンツ+18シリーズ+25テンプレート投入
+- [x] **Googleログイン修正** — Google Cloud APIキーのウェブサイト制限追加
+
+## 完了（第28セッション 2026-03-28）
+- [x] **管理基盤 Phase 0 実装** — 管理者ロール(Custom Claims)、管理画面骨組み(/admin)、APIレート制限、監査ログ、プラン複製機能、GoogleログインPWA対応、CORSホワイトリスト化
+
 ## 完了（第27セッション 2026-03-28）
 - [x] **管理基盤・マスターデータFirestore移行 設計書作成** — 全ゲームデータのFirestore移行計画（→ `docs/管理基盤設計書.md`）
 

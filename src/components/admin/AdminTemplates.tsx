@@ -1,6 +1,7 @@
 /**
  * テンプレート管理画面
  * テンプレートの一覧表示・JSONアップロード・削除
+ * テンプレート = コンテンツのタイムライン（ボスの攻撃順序）データ
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,11 +18,18 @@ interface TemplateItem {
   updatedAt: string;
 }
 
+interface ContentItem {
+  id: string;
+  nameJa?: string;
+  name?: { ja?: string; en?: string };
+}
+
 export function AdminTemplates() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
 
   const [templates, setTemplates] = useState<TemplateItem[]>([]);
+  const [contents, setContents] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -29,6 +37,20 @@ export function AdminTemplates() {
   const [uploadContentId, setUploadContentId] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /** コンテンツ一覧を取得（ドロップダウン用） */
+  const fetchContents = useCallback(async () => {
+    try {
+      const token = await user?.getIdToken();
+      const res = await apiFetch('/api/admin/contents', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setContents(data.items ?? []);
+      }
+    } catch { /* コンテンツ取得失敗はテンプレート画面としては致命的でない */ }
+  }, [user]);
 
   /** テンプレート一覧を取得 */
   const fetchTemplates = useCallback(async () => {
@@ -51,7 +73,8 @@ export function AdminTemplates() {
 
   useEffect(() => {
     fetchTemplates();
-  }, [fetchTemplates]);
+    fetchContents();
+  }, [fetchTemplates, fetchContents]);
 
   /** JSONファイルをアップロード */
   const handleUpload = async () => {
@@ -83,7 +106,7 @@ export function AdminTemplates() {
       if (fileInputRef.current) fileInputRef.current.value = '';
       await fetchTemplates();
     } catch {
-      showToast(t('admin.error_save'));
+      showToast(t('admin.error_save'), 'error');
     } finally {
       setUploading(false);
     }
@@ -105,7 +128,7 @@ export function AdminTemplates() {
       showToast(t('admin.templates_deleted'));
       await fetchTemplates();
     } catch {
-      showToast(t('admin.error_save'));
+      showToast(t('admin.error_save'), 'error');
     }
   };
 
@@ -116,37 +139,58 @@ export function AdminTemplates() {
     <div>
       <h1 className="text-lg font-bold mb-4">{t('admin.templates_title')}</h1>
 
+      {/* テンプレートとは何かの説明 */}
+      <div className="mb-4 p-3 border border-app-text/10 rounded text-[10px] text-app-text-muted/80 space-y-1">
+        <p>{t('admin.templates_description')}</p>
+        <p>{t('admin.templates_upload_guide')}</p>
+      </div>
+
       {/* アップロードフォーム */}
-      <div className="mb-6 p-4 border border-app-text/10 rounded flex flex-wrap items-end gap-3">
-        <div>
-          <label className="block text-[10px] text-app-text-muted mb-1">
-            {t('admin.contents_id')}
-          </label>
-          <input
-            className={inputClass}
-            value={uploadContentId}
-            onChange={(e) => setUploadContentId(e.target.value)}
-            placeholder="e.g. m5s"
-          />
+      <div className="mb-6 p-4 border border-app-text/10 rounded space-y-3">
+        <div className="text-xs font-bold">{t('admin.templates_upload_title')}</div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-[10px] text-app-text-muted mb-1">
+              対象コンテンツ
+            </label>
+            <select
+              className={`${inputClass} bg-app-bg [&>option]:bg-app-bg [&>option]:text-app-text`}
+              value={uploadContentId}
+              onChange={(e) => setUploadContentId(e.target.value)}
+            >
+              <option value="">（選択してください）</option>
+              {contents.map((c) => {
+                const name = c.nameJa || c.name?.ja || c.id;
+                return (
+                  <option key={c.id} value={c.id}>
+                    {c.id.toUpperCase()} — {name}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[10px] text-app-text-muted mb-1">
+              {t('admin.templates_upload')}
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              className="text-xs text-app-text-muted file:mr-2 file:px-2 file:py-1 file:text-xs file:border file:border-app-text/20 file:rounded file:bg-transparent file:text-app-text file:cursor-pointer"
+            />
+            <p className="text-[9px] text-app-text-muted/60 mt-0.5">
+              {t('admin.hint_template_file')}
+            </p>
+          </div>
+          <button
+            onClick={handleUpload}
+            disabled={uploading || !uploadContentId}
+            className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          >
+            {uploading ? '...' : t('admin.upload')}
+          </button>
         </div>
-        <div>
-          <label className="block text-[10px] text-app-text-muted mb-1">
-            {t('admin.templates_upload')}
-          </label>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            className="text-xs text-app-text-muted file:mr-2 file:px-2 file:py-1 file:text-xs file:border file:border-app-text/20 file:rounded file:bg-transparent file:text-app-text file:cursor-pointer"
-          />
-        </div>
-        <button
-          onClick={handleUpload}
-          disabled={uploading || !uploadContentId}
-          className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
-        >
-          {uploading ? '...' : t('admin.upload')}
-        </button>
       </div>
 
       {/* エラー */}
