@@ -1,5 +1,5 @@
 import type { TimelineEvent, PartyMember, AppliedMitigation, Mitigation } from '../types';
-import { MITIGATIONS } from '../data/mockData';
+import { getMitigationsFromStore } from '../hooks/useSkillsData';
 
 export interface AutoPlannerResult {
     mitigations: AppliedMitigation[];
@@ -53,8 +53,9 @@ export function generateAutoPlan(
     };
 
     // スキルキャッシュ（高速ルックアップ用）
+    const mitigations = getMitigationsFromStore();
     const mitiCache = new Map<string, Mitigation>();
-    for (const m of MITIGATIONS) mitiCache.set(m.id, m);
+    for (const m of mitigations) mitiCache.set(m.id, m);
     const getMiti = (id: string) => mitiCache.get(id);
 
     // パッセージ・オブ・アームズはオート配置から除外
@@ -63,7 +64,7 @@ export function generateAutoPlan(
     // メンバーごとの所持スキル（レベル・ジョブでフィルタ）
     const memberSkills = new Map<string, Mitigation[]>();
     for (const member of party) {
-        const skills = MITIGATIONS.filter(m => {
+        const skills = mitigations.filter(m => {
             if (m.minLevel !== undefined && level < m.minLevel) return false;
             if (m.maxLevel !== undefined && level > m.maxLevel) return false;
             return m.jobId === member.jobId || m.jobId === member.role || m.jobId === 'role_action';

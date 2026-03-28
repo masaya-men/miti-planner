@@ -1,5 +1,6 @@
 import type { PartyMember } from '../types';
-import { LEVEL_MODIFIERS, type LevelModifier } from '../data/levelModifiers';
+import { getLevelModifiersFromStore } from '../hooks/useSkillsData';
+import type { LevelModifier } from '../data/levelModifiers';
 
 const TRAIT_MOD = 1.3; // Maim and Mend II etc.
 
@@ -190,7 +191,8 @@ export const CONSTANTS = {
 
 export const calculateMemberValues = (member: PartyMember, currentLevel: number = 100): Record<string, number> => {
     const results: Record<string, number> = {};
-    const modifiers = LEVEL_MODIFIERS[currentLevel] || LEVEL_MODIFIERS[100];
+    const levelMods = getLevelModifiersFromStore();
+    const modifiers = levelMods[currentLevel] || levelMods[100];
 
     Object.entries(SKILL_DATA).forEach(([name, data]: [string, any]) => {
         if (data.type === 'hp') {
