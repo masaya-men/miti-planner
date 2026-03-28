@@ -10,6 +10,8 @@ import { create } from 'zustand';
 import {
     GoogleAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signInWithCustomToken,
     updateProfile,
     signOut as firebaseSignOut,
@@ -58,20 +60,29 @@ export const useAuthStore = create<AuthState>((set) => ({
             case 'google': {
                 const googleProvider = new GoogleAuthProvider();
                 googleProvider.setCustomParameters({ prompt: 'select_account' });
-                signInWithPopup(auth, googleProvider)
-                    .then((result) => {
-                        set({
-                            justLoggedInUser: {
-                                displayName: result.user.displayName,
-                                photoURL: result.user.photoURL,
+
+                // PWA（ホーム画面から起動）時はリダイレクト方式に切り替え
+                const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+                if (isPWA) {
+                    saveReturnUrl();
+                    localStorage.setItem('lopo_auth_redirecting', 'true');
+                    signInWithRedirect(auth, googleProvider);
+                } else {
+                    signInWithPopup(auth, googleProvider)
+                        .then((result) => {
+                            set({
+                                justLoggedInUser: {
+                                    displayName: result.user.displayName,
+                                    photoURL: result.user.photoURL,
+                                }
+                            });
+                        })
+                        .catch((err) => {
+                            if (err.code !== 'auth/popup-closed-by-user') {
+                                console.error('Google login error:', err);
                             }
                         });
-                    })
-                    .catch((err) => {
-                        if (err.code !== 'auth/popup-closed-by-user') {
-                            console.error('Google login error:', err);
-                        }
-                    });
+                }
                 break;
             }
             case 'discord':
@@ -239,3 +250,17 @@ onAuthStateChanged(auth, async (user) => {
 
 // リダイレクト認証の結果を処理
 processPendingAuth();
+
+// PWA Google リダイレクト結果を処理
+getRedirectResult(auth).then((result) => {
+    if (result?.user) {
+        useAuthStore.setState({
+            justLoggedInUser: {
+                displayName: result.user.displayName,
+                photoURL: result.user.photoURL,
+            }
+        });
+    }
+}).catch((err) => {
+    console.error('Google redirect result error:', err);
+});
