@@ -18,7 +18,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown, Crown, Rows3
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3
 } from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
@@ -1375,7 +1375,14 @@ const Timeline: React.FC = () => {
                                     isAaModeEnabled && "bg-app-text/10"
                                 )}>
                                     <button
-                                        onClick={() => setIsAaModeEnabled(!isAaModeEnabled)}
+                                        ref={aaSettingsButtonRef}
+                                        onClick={() => {
+                                            if (isAaModeEnabled) {
+                                                setIsAaModeEnabled(false);
+                                            } else {
+                                                setAaSettingsOpen(!aaSettingsOpen);
+                                            }
+                                        }}
                                         className={clsx(
                                             "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
                                             isAaModeEnabled
@@ -1386,18 +1393,6 @@ const Timeline: React.FC = () => {
                                         <Sword size={14} className={clsx("transition-transform duration-300 group-hover/btn:scale-110 shrink-0", isAaModeEnabled ? "text-app-text" : "")} />
                                         <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
-                                    <button
-                                        ref={aaSettingsButtonRef}
-                                        onClick={() => setAaSettingsOpen(!aaSettingsOpen)}
-                                        className={clsx(
-                                            "px-2 h-full transition-all duration-300 cursor-pointer flex items-center justify-center group/opt",
-                                            isAaModeEnabled
-                                                ? "text-app-accent hover:text-app-accent/70"
-                                                : "text-app-text"
-                                        )}
-                                    >
-                                        <Settings size={12} className="transition-transform duration-300 group-hover/opt:rotate-45" />
-                                    </button>
                                 </div>
                                 <AASettingsPopover
                                     isOpen={aaSettingsOpen}
@@ -1405,6 +1400,8 @@ const Timeline: React.FC = () => {
                                     settings={aaSettings}
                                     onSettingsChange={setAaSettings}
                                     triggerRef={aaSettingsButtonRef}
+                                    onStartAdding={() => setIsAaModeEnabled(true)}
+                                    isAaActive={isAaModeEnabled}
                                 />
                             </div>
 
