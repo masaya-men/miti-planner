@@ -5,6 +5,7 @@ import type { TemplateData } from '../data/templateLoader';
 import type { PlanData } from '../types';
 import { useMitigationStore } from './useMitigationStore';
 import { planService } from '../lib/planService';
+import { PLAN_LIMITS } from '../types/firebase';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -38,6 +39,8 @@ interface PlanState {
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
     hasDirtyPlans: () => boolean;
     setPlans: (plans: SavedPlan[]) => void;
+    /** プランを複製して直下に挿入。件数制限超過時はnullを返す */
+    duplicatePlan: (planId: string) => SavedPlan | null;
 }
 
 export const usePlanStore = create<PlanState>()(
@@ -159,6 +162,54 @@ export const usePlanStore = create<PlanState>()(
             },
 
             setPlans: (plans) => set({ plans }),
+
+            duplicatePlan: (planId) => {
+                const state = get();
+                const source = state.plans.find(p => p.id === planId);
+                if (!source) return null;
+
+                // 件数制限チェック
+                const totalPlans = state.plans.length;
+                if (totalPlans >= PLAN_LIMITS.MAX_TOTAL_PLANS) return null;
+
+                if (source.contentId) {
+                    const contentPlans = state.plans.filter(p => p.contentId === source.contentId);
+                    if (contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) return null;
+                }
+
+                // 連番サフィックス生成: "M1S" → "M1S (2)", "M1S (2)" → "M1S (3)"
+                const baseTitle = source.title.replace(/\s*\(\d+\)$/, '');
+                const existingNumbers = state.plans
+                    .filter(p => p.title.startsWith(baseTitle))
+                    .map(p => {
+                        const match = p.title.match(/\((\d+)\)$/);
+                        return match ? parseInt(match[1], 10) : 1;
+                    });
+                const nextNumber = Math.max(...existingNumbers, 1) + 1;
+                const newTitle = `${baseTitle} (${nextNumber})`;
+
+                const newPlan: SavedPlan = {
+                    ...structuredClone(source),
+                    id: `plan_${Date.now()}`,
+                    title: newTitle,
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                    isPublic: false,
+                    copyCount: 0,
+                    useCount: 0,
+                };
+
+                // ソースプランの直後に挿入
+                const sourceIndex = state.plans.findIndex(p => p.id === planId);
+                const newPlans = [...state.plans];
+                newPlans.splice(sourceIndex + 1, 0, newPlan);
+
+                set({
+                    plans: newPlans,
+                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, newPlan.id]),
+                });
+                return newPlan;
+            },
 
             /**
              * dirtyなプランをFirestoreに同期する
