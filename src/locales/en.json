@@ -882,6 +882,8 @@
         "promotion_reject": "Reject",
         "promotion_copy_count": "Copy count",
         "promotion_empty": "No promotion candidates",
+        "skills": "Skills",
+        "stats": "Stats",
         "config": "Settings",
         "config_title": "Settings",
         "promotion_threshold": "Promotion threshold (copy count)",
