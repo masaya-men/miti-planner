@@ -20,7 +20,7 @@ import {
     type User
 } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
-import { doc, collection, getDocs, query, where, writeBatch } from 'firebase/firestore';
+import { doc, collection, getDocs, getDoc, query, where, writeBatch } from 'firebase/firestore';
 import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
@@ -43,10 +43,12 @@ interface AuthState {
     loading: boolean;
     isAdmin: boolean;
     justLoggedInUser: JustLoggedInUser | null;
+    teamLogoUrl: string | null;      // チームロゴの Firebase Storage ダウンロード URL
     signInWith: (provider: AuthProvider) => void;
     signOut: () => Promise<void>;
     deleteAccount: () => Promise<void>;
     clearJustLoggedIn: () => void;
+    setTeamLogoUrl: (url: string | null) => void;  // ロゴ URL を即時更新するセッター
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -54,6 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     loading: true,
     isAdmin: false,
     justLoggedInUser: null,
+    teamLogoUrl: null,
 
     signInWith: (provider: AuthProvider) => {
         switch (provider) {
@@ -123,7 +126,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         // ② Firebase Auth ログアウト
         await firebaseSignOut(auth);
-        set({ user: null, isAdmin: false });
+        set({ user: null, isAdmin: false, teamLogoUrl: null });
 
         // ③ localStorageとZustandストアをクリア
         localStorage.removeItem('plan-storage');
@@ -185,7 +188,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
 
         // ③ ローカルストレージとストアをクリア
-        set({ user: null, isAdmin: false });
+        set({ user: null, isAdmin: false, teamLogoUrl: null });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
         usePlanStore.setState({
@@ -199,6 +202,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     clearJustLoggedIn: () => set({ justLoggedInUser: null }),
+
+    setTeamLogoUrl: (url) => set({ teamLogoUrl: url }),
 }));
 
 /**
@@ -242,9 +247,21 @@ onAuthStateChanged(auth, async (user) => {
         // Custom Claimsから管理者フラグを取得
         const tokenResult = await user.getIdTokenResult();
         const isAdmin = tokenResult.claims.role === 'admin';
-        useAuthStore.setState({ user, loading: false, isAdmin });
+
+        // FirestoreからチームロゴURLを読み込み（非ブロッキング）
+        let teamLogoUrl: string | null = null;
+        try {
+            const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
+            if (userDoc.exists()) {
+                teamLogoUrl = userDoc.data().teamLogoUrl || null;
+            }
+        } catch {
+            // ロゴ読み込み失敗は無視（ログインには影響させない）
+        }
+
+        useAuthStore.setState({ user, loading: false, isAdmin, teamLogoUrl });
     } else {
-        useAuthStore.setState({ user: null, loading: false, isAdmin: false });
+        useAuthStore.setState({ user: null, loading: false, isAdmin: false, teamLogoUrl: null });
     }
 });
 
