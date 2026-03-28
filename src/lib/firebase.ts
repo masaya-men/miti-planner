@@ -32,4 +32,4 @@ export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : nul
 
 // App Check（アプリの正当性検証）
 import { initAppCheck } from './appCheck';
-export const appCheck = initAppCheck();
+export const appCheck = initAppCheck(app);
