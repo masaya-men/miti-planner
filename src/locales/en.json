@@ -80,6 +80,20 @@
         "end_mode": "End",
         "damage_required": "Please enter damage amount"
     },
+    "team_logo": {
+        "title": "Team Logo",
+        "upload": "Upload Logo",
+        "change": "Change Logo",
+        "remove": "Remove Logo",
+        "show_on_ogp": "Show logo on shared image",
+        "uploading": "Uploading...",
+        "format_hint": "PNG / JPG / WebP (max 2MB)",
+        "upload_success": "Logo uploaded",
+        "remove_success": "Logo removed",
+        "error_too_large": "File is too large (max 2MB)",
+        "error_invalid_type": "Unsupported file format",
+        "error_upload_failed": "Upload failed"
+    },
     "party": {
         "title": "Party Composition",
         "settings_title": "Parameter Settings",
