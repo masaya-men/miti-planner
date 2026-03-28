@@ -1,6 +1,9 @@
 # Superpowers brainstorm files
 .superpowers/
 
+# Claude worktrees
+.claude/worktrees/
+
 # Logs
 logs
 *.log
