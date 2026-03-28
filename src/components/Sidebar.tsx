@@ -35,7 +35,8 @@ import {
     Share2,
     Trash2,
     X,
-    Pencil
+    Pencil,
+    Copy,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -259,14 +260,30 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                         <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
                                         {plan.title}
                                         {currentPlanId === plan.id && (
-                                            <Tooltip content={t('app.rename')}>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); startEditing(plan.id, plan.title, e); }}
-                                                    className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                >
-                                                    <Pencil size={9} />
-                                                </button>
-                                            </Tooltip>
+                                            <>
+                                                <Tooltip content={t('sidebar.duplicate_plan')}>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
+                                                            if (!newPlan) {
+                                                                showToast(t('sidebar.duplicate_limit_reached'), 'error');
+                                                            }
+                                                        }}
+                                                        className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                    >
+                                                        <Copy size={9} />
+                                                    </button>
+                                                </Tooltip>
+                                                <Tooltip content={t('app.rename')}>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); startEditing(plan.id, plan.title, e); }}
+                                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                    >
+                                                        <Pencil size={9} />
+                                                    </button>
+                                                </Tooltip>
+                                            </>
                                         )}
                                     </button>
                                 )}
