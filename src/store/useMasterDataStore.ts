@@ -7,7 +7,11 @@ import type {
   ContentCategory,
   ContentDefinition,
   ContentSeries,
+  Job,
+  LevelModifier,
   LocalizedString,
+  Mitigation,
+  TemplateStats,
 } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
@@ -27,15 +31,34 @@ export interface MasterContents {
   series: ContentSeries[];
 }
 
+export interface MasterSkills {
+  jobs: Job[];
+  mitigations: Mitigation[];
+  displayOrder: string[];
+}
+
+export interface MasterStats {
+  levelModifiers: Record<number, LevelModifier>;
+  patchStats: Record<string, TemplateStats>;
+  defaultStatsByLevel: Record<number, string>;
+}
+
 interface MasterDataState {
   config: MasterConfig | null;
   contents: MasterContents | null;
+  skills: MasterSkills | null;
+  stats: MasterStats | null;
   ready: boolean;
   error: string | null;
   templateCache: Record<string, TemplateData>;
 
   // アクション
-  setData: (config: MasterConfig, contents: MasterContents) => void;
+  setData: (
+    config: MasterConfig,
+    contents: MasterContents,
+    skills?: MasterSkills | null,
+    stats?: MasterStats | null,
+  ) => void;
   setError: (error: string) => void;
   setTemplate: (contentId: string, data: TemplateData) => void;
 }
@@ -47,12 +70,14 @@ interface MasterDataState {
 export const useMasterDataStore = create<MasterDataState>()((set) => ({
   config: null,
   contents: null,
+  skills: null,
+  stats: null,
   ready: false,
   error: null,
   templateCache: {},
 
-  setData: (config, contents) =>
-    set({ config, contents, ready: true, error: null }),
+  setData: (config, contents, skills = null, stats = null) =>
+    set({ config, contents, skills, stats, ready: true, error: null }),
 
   setError: (error) =>
     set({ error }),
@@ -74,6 +99,8 @@ interface MasterCachePayload {
   version: number;
   config: MasterConfig;
   contents: MasterContents;
+  skills: MasterSkills | null;
+  stats: MasterStats | null;
 }
 
 /** マスターデータをlocalStorageに保存 */
@@ -81,9 +108,11 @@ export function saveMasterCache(
   version: number,
   config: MasterConfig,
   contents: MasterContents,
+  skills: MasterSkills | null = null,
+  stats: MasterStats | null = null,
 ): void {
   try {
-    const payload: MasterCachePayload = { version, config, contents };
+    const payload: MasterCachePayload = { version, config, contents, skills, stats };
     localStorage.setItem(MASTER_CACHE_KEY, JSON.stringify(payload));
   } catch (e) {
     console.warn('[MasterData] localStorageへの保存に失敗:', e);

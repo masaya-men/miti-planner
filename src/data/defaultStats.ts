@@ -1,12 +1,11 @@
+import type { TemplateStats } from '../types';
+
+export type { TemplateStats };
 
 /**
  * 編集時の注意:
  * ここで定義する4項目以外(crt, ten, ss)は、システム内部でレベルごとのベース値が自動補完されます。
  */
-export interface TemplateStats {
-    tank: { hp: number; mainStat: number; det: number; wd: number; };
-    other: { hp: number; mainStat: number; det: number; wd: number; };
-}
 
 // ============================================================================
 // 1. 拡張パッケージごとの定義
