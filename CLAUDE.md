@@ -8,7 +8,7 @@
 - 最新の `docs/SESSION_HANDOFF_*.md` — 前回セッションの引き継ぎ書
 
 ### 関連タスクに着手するときに読むファイル（必要時参照）
-- `docs/管理基盤設計書.md` — **管理基盤・マスター���ータFirestore移行の設計書（最重要・実装待ち）**
+- `docs/管理基盤設計書.md` — **管理基盤・マスターデータFirestore移行の設計書（Phase 0実装済み・Phase 1以降実装待ち）**
 - `docs/GRAPL_PROJECT_PLAN.md` — プロジェクト全体ロードマップ
 - `docs/Firebase設計書.md` — Firestore構造・セキュリティ・スケーラビリティ
 - `docs/CORE_UPGRADE_PLAN.md` — SA法オートプランナー + OGP + チームロゴ
@@ -48,6 +48,14 @@
 - **完了したタスク** → 「完了」セクションに日付付きで移動
 
 これらは指示されなくても自動的にやること。会話で決まったことが `docs/TODO.md` に反映されていなければ、次のセッションで失われる。
+
+## スキル（skill）の使用
+利用可能なスキルがある場合は、必ず適宜使用すること。特に以下のケースでは必須:
+- **新機能の実装** → `brainstorming` → `writing-plans` → `subagent-driven-development` or `executing-plans` の流れ
+- **バグ修正** → `systematic-debugging`
+- **コードレビュー** → `requesting-code-review`
+- **既に設計書がある場合** → brainstormingはスキップして `writing-plans` から開始してOK
+スキルの使用を省略しない。迷ったら使う。
 
 ## 言語設定
 - 常に日本語で会話する
