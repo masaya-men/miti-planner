@@ -7,7 +7,7 @@ import {
     getContentById,
     getProjectLabel,
 } from '../data/contentRegistry';
-import { JOBS } from '../data/mockData';
+import { useJobs } from '../hooks/useSkillsData';
 import type { PlanData, SavedPlan, ContentLevel } from '../types';
 import { ArrowLeft, Sun, Moon, Link2, Download } from 'lucide-react';
 import { GridOverlay } from './GridOverlay';
@@ -82,6 +82,7 @@ const getFloorLabel = (contentId: string, lang: 'ja' | 'en'): string => {
 export const PopularPage: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useThemeStore();
+    const JOBS = useJobs();
     const lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
 
     const [data, setData] = useState<PopularApiResponse>({});

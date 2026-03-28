@@ -4,7 +4,7 @@ import { Trash2, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { JOBS } from '../data/mockData';
+import { useJobs } from '../hooks/useSkillsData';
 import { Tooltip } from './ui/Tooltip';
 
 interface ClearMitigationsPopoverProps {
@@ -27,6 +27,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
     setConfirmDialog
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
+    const jobs = useJobs();
     const { t } = useTranslation();
     const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
     const [isPositioned, setIsPositioned] = useState(false);
@@ -120,7 +121,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
             {/* Member List Grid */}
             <div className="grid grid-cols-4 gap-2 px-3 pb-3 pt-1">
                 {partyMembers.map(m => {
-                    const job = JOBS.find(j => j.id === m.jobId);
+                    const job = jobs.find(j => j.id === m.jobId);
                     const count = timelineMitigations.filter(mit => mit.ownerId === m.id).length;
                     const hasMitigations = count > 0;
 

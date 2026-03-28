@@ -1,5 +1,5 @@
 import type { AppliedMitigation, Mitigation } from '../types';
-import { MITIGATIONS } from '../data/mockData';
+import { getMitigationsFromStore } from '../hooks/useSkillsData';
 
 /**
  * Aetherflow (SCH) - Pattern timings
@@ -49,7 +49,7 @@ export function getAetherflowStacks(
     // Collect AF-consuming skills sorted by time
     const consumptions = placedMitigations
         .filter(m => {
-            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            const def = getMitigationsFromStore().find(d => d.id === m.mitigationId);
             return def?.resourceCost?.type === 'aetherflow';
         })
         .filter(m => m.time <= time)
@@ -65,7 +65,7 @@ export function getAetherflowStacks(
 
         // Process consumptions before this gain
         while (consumeIdx < consumptions.length && consumptions[consumeIdx].time < gainTime) {
-            const def = MITIGATIONS.find(d => d.id === consumptions[consumeIdx].mitigationId);
+            const def = getMitigationsFromStore().find(d => d.id === consumptions[consumeIdx].mitigationId);
             stacks = Math.max(0, stacks - (def?.resourceCost?.amount || 0));
             consumeIdx++;
         }
@@ -75,7 +75,7 @@ export function getAetherflowStacks(
 
         // Process consumptions between this gain and next gain (or target time)
         while (consumeIdx < consumptions.length && consumptions[consumeIdx].time < nextGainTime && consumptions[consumeIdx].time <= time) {
-            const def = MITIGATIONS.find(d => d.id === consumptions[consumeIdx].mitigationId);
+            const def = getMitigationsFromStore().find(d => d.id === consumptions[consumeIdx].mitigationId);
             stacks = Math.max(0, stacks - (def?.resourceCost?.amount || 0));
             consumeIdx++;
         }
@@ -95,7 +95,7 @@ export function getAddersgallStacks(
     // Collect Addersgall-consuming skills sorted by time
     const consumptions = placedMitigations
         .filter(m => {
-            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            const def = getMitigationsFromStore().find(d => d.id === m.mitigationId);
             return def?.resourceCost?.type === 'addersgall';
         })
         .filter(m => m.time <= time)
@@ -127,7 +127,7 @@ export function getAddersgallStacks(
         }
 
         // Consume
-        const def = MITIGATIONS.find(d => d.id === consumption.mitigationId);
+        const def = getMitigationsFromStore().find(d => d.id === consumption.mitigationId);
         stacks = Math.max(0, stacks - (def?.resourceCost?.amount || 0));
         lastTime = consumption.time;
     }
@@ -173,7 +173,7 @@ export function getRemainingCharges(
     selectedTime: number,
     activeMitigations: AppliedMitigation[]
 ): number {
-    const def = MITIGATIONS.find(d => d.id === mitigationId);
+    const def = getMitigationsFromStore().find(d => d.id === mitigationId);
     if (!def || !def.maxCharges) return -1; // -1 = not a charge skill
 
     if (def.requires) {
@@ -278,7 +278,7 @@ export function validateMitigationPlacement(
 
         // 収まっていない場合は、エラーメッセージを返して配置をブロック！
         if (!isActiveParent) {
-            const parentDef = MITIGATIONS.find(d => d.id === m.requires);
+            const parentDef = getMitigationsFromStore().find(d => d.id === m.requires);
             // Fix: parentDef.name is a LocalizedString object { ja: string, en: string }. 
             // We must extract the string based on context or use i18next's capabilities.
             const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };

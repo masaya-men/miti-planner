@@ -20,7 +20,7 @@ import { AASettingsPopover } from './AASettingsPopover';
 import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Settings, Sword, ChevronDown, Crown, Rows3
 } from 'lucide-react';
-import { JOBS, MITIGATIONS } from '../data/mockData';
+import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
@@ -134,6 +134,8 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
+    const MITIGATIONS = useMitigations();
+    const JOBS = useJobs();
     const dragStartRef = useRef<{ pointerY: number; scrollTop: number } | null>(null);
     const autoScrollRef = useRef<number | null>(null);
     const lastPointerYRef = useRef<number>(0);
@@ -520,6 +522,8 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 const Timeline: React.FC = () => {
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
+    const MITIGATIONS = useMitigations();
+    const JOBS = useJobs();
     const {
         mobilePartyOpen, setMobilePartyOpen,
         mobileToolsOpen, setMobileToolsOpen,

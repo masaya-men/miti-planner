@@ -2,7 +2,7 @@ import React from 'react';
 import { X, ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { MITIGATIONS, getMitigationPriority, JOBS } from '../data/mockData';
+import { useMitigations, useJobs, getMitigationPriority } from '../hooks/useSkillsData';
 import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
@@ -36,6 +36,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const { partyMembers, currentLevel } = useMitigationStore();
+    const MITIGATIONS = useMitigations();
+    const JOBS = useJobs();
     const tutorialState = useTutorialStore();
 
     const [isMobile, setIsMobile] = React.useState(false);

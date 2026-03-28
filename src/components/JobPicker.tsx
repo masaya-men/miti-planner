@@ -1,5 +1,5 @@
 import React from 'react';
-import { JOBS } from '../data/mockData';
+import { useJobs } from '../hooks/useSkillsData';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,20 +19,21 @@ import { useThemeStore } from '../store/useThemeStore';
 export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect, position, currentJobId }) => {
     const { t } = useTranslation();
     const { contentLanguage, theme } = useThemeStore();
+    const jobs = useJobs();
 
     if (!isOpen) return null;
 
     // Group jobs by role
-    const tanks = JOBS.filter(j => j.role === 'tank');
-    const healers = JOBS.filter(j => j.role === 'healer');
+    const tanks = jobs.filter(j => j.role === 'tank');
+    const healers = jobs.filter(j => j.role === 'healer');
 
     // Split DPS
     // Melee: mnk, drg, nin, sam, rpr, vpr
-    const melee = JOBS.filter(j => ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(j.id));
+    const melee = jobs.filter(j => ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(j.id));
     // Phys Ranged: brd, mch, dnc
-    const physRanged = JOBS.filter(j => ['brd', 'mch', 'dnc'].includes(j.id));
+    const physRanged = jobs.filter(j => ['brd', 'mch', 'dnc'].includes(j.id));
     // Magic Ranged: blm, smn, rdm, pct, blu
-    const magicRanged = JOBS.filter(j => ['blm', 'smn', 'rdm', 'pct'].includes(j.id));
+    const magicRanged = jobs.filter(j => ['blm', 'smn', 'rdm', 'pct'].includes(j.id));
 
     return (
         <AnimatePresence>
