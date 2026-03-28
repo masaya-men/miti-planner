@@ -29,3 +29,7 @@ export const db = initializeFirestore(app, {
 
 // Analytics（SSR/テスト環境では無効化）
 export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+
+// App Check（アプリの正当性検証）
+import { initAppCheck } from './appCheck';
+export const appCheck = initAppCheck();
