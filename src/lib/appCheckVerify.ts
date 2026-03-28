@@ -1,6 +1,6 @@
 // src/lib/appCheckVerify.ts
 import { getAppCheck } from 'firebase-admin/app-check';
-import { initAdmin } from './adminAuth';
+import { initAdmin } from './adminAuth.js';
 
 /**
  * App Checkトークンを検証するミドルウェア関数

@@ -6,10 +6,10 @@
  * PUT    /api/admin/templates       — テンプレート更新
  * DELETE /api/admin/templates       — テンプレート削除
  */
-import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth';
-import { writeAuditLog } from '../../../src/lib/auditLog';
-import { applyRateLimit } from '../../../src/lib/rateLimit';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
+import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
+import { writeAuditLog } from '../../../src/lib/auditLog.js';
+import { applyRateLimit } from '../../../src/lib/rateLimit.js';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */

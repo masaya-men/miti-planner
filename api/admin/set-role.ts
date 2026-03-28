@@ -10,10 +10,10 @@
  * セキュリティ: ADMIN_SECRET による保護（初回設定用）
  * 2人目以降の管理者追加は、既存管理者のトークン認証でも可能
  */
-import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth';
-import { writeAuditLog } from '../../src/lib/auditLog';
-import { applyRateLimit } from '../../src/lib/rateLimit';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify';
+import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth.js';
+import { writeAuditLog } from '../../src/lib/auditLog.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { getAuth } from 'firebase-admin/auth';
 
 /** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */

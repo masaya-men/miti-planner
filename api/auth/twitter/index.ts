@@ -18,7 +18,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
 const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';

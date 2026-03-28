@@ -8,7 +8,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { nanoid } from 'nanoid';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
 const COLLECTION = 'shared_plans';
 
