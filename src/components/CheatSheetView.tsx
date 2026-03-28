@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { MITIGATIONS, JOBS } from '../data/mockData';
+import { useMitigations, useJobs } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
 import { MitigationSelector } from './MitigationSelector';
@@ -14,6 +14,8 @@ export const CheatSheetView: React.FC = () => {
     const { contentLanguage } = useThemeStore();
     const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
     const { t } = useTranslation();
+    const MITIGATIONS = useMitigations();
+    const JOBS = useJobs();
 
     // 状態管理
     const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);

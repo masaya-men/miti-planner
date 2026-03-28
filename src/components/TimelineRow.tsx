@@ -5,7 +5,7 @@ import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getColumnWidth } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
-import { JOBS, MITIGATIONS } from '../data/mockData';
+import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Tooltip } from './ui/Tooltip';
 
@@ -35,6 +35,7 @@ interface TimelineRowProps {
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
 const MobileTargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[] }> = ({ event, partyMembers }) => {
+    const JOBS = useJobs();
     if (event.target === 'AoE') return null;
     const member = partyMembers.find(m => m.id === event.target);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -58,7 +59,9 @@ const MobileMitiIcons: React.FC<{
     myJobHighlight: boolean;
     myMemberId: string | null;
     size?: string;
-}> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId, size = 'w-3 h-3' }) => (
+}> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId, size = 'w-3 h-3' }) => {
+    const MITIGATIONS = useMitigations();
+    return (
     <div className="flex md:hidden items-center gap-px flex-shrink-0">
         {mitigations.map(mit => {
             const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
@@ -77,7 +80,7 @@ const MobileMitiIcons: React.FC<{
             );
         })}
     </div>
-);
+); };
 
 export const TimelineRow = memo(({
     time,
@@ -95,6 +98,7 @@ export const TimelineRow = memo(({
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
+    const JOBS = useJobs();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);

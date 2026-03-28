@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
-import { LEVEL_MODIFIERS } from '../data/levelModifiers';
+import { useLevelModifiers } from '../hooks/useSkillsData';
 import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
@@ -21,6 +21,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const { partyMembers, updateMemberStats, currentLevel } = useMitigationStore();
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
+    const LEVEL_MODIFIERS = useLevelModifiers();
     const popoverRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { JOBS } from '../data/mockData';
+import { useJobs } from '../hooks/useSkillsData';
 import { User, Trash2, Star, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ interface PartySettingsModalProps {
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
     const { theme } = useThemeStore();
+    const JOBS = useJobs();
     const partyMembers = useMitigationStore(state => state.partyMembers);
     const updatePartyBulk = useMitigationStore(state => state.updatePartyBulk);
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);

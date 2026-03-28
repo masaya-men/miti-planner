@@ -5,9 +5,8 @@ import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
-import { MITIGATIONS, JOBS } from '../data/mockData';
+import { useMitigations, useJobs, useLevelModifiers } from '../hooks/useSkillsData';
 import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
-import { LEVEL_MODIFIERS } from '../data/levelModifiers';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
@@ -131,6 +130,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
 
     const { partyMembers, currentLevel } = useMitigationStore();
+    const MITIGATIONS = useMitigations();
+    const JOBS = useJobs();
+    const LEVEL_MODIFIERS = useLevelModifiers();
 
     const tutorialState = useTutorialStore();
     const isTutorialActive = tutorialState.isActive;

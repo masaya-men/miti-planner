@@ -16,7 +16,7 @@ import { getContentById } from '../data/contentRegistry';
 import { LoPoButton } from './LoPoButton';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-import { JOBS } from '../data/mockData';
+import { useJobs } from '../hooks/useSkillsData';
 import { Sun, Moon, X, Star, LogOut, Loader2 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { motion } from 'framer-motion';
@@ -92,6 +92,7 @@ const MobileHeader: React.FC<{
 // ── モバイル用パーティ編成UI ──
 const MobilePartySettings: React.FC = () => {
     const { t } = useTranslation();
+    const JOBS = useJobs();
     const partyMembers = useMitigationStore(s => s.partyMembers);
     const setMemberJob = useMitigationStore(s => s.setMemberJob);
     const updatePartyBulk = useMitigationStore(s => s.updatePartyBulk);
@@ -266,6 +267,7 @@ const MobilePartySettings: React.FC = () => {
 // ── モバイル用ステータス表示 ──
 const MobileStatusView: React.FC = () => {
     const { t } = useTranslation();
+    const JOBS = useJobs();
     const partyMembers = useMitigationStore(s => s.partyMembers);
     const myMemberId = useMitigationStore(s => s.myMemberId);
 

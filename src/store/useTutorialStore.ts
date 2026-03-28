@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useMitigationStore, type TutorialSnapshot } from './useMitigationStore';
 import { usePlanStore } from './usePlanStore';
-import { MITIGATIONS } from '../data/mockData';
+import { getMitigationsFromStore } from '../hooks/useSkillsData';
 
 // ─────────────────────────────────────────────
 // Tutorial Step Definitions
@@ -685,7 +685,7 @@ export const useTutorialStore = create<TutorialState>()(
 
                         // MTの120s軽減を事前配置
                         if (mt?.jobId) {
-                            const mt120sMiti = MITIGATIONS.find(m => m.jobId === mt.jobId && m.family === 'tank_40');
+                            const mt120sMiti = getMitigationsFromStore().find(m => m.jobId === mt.jobId && m.family === 'tank_40');
                             if (mt120sMiti) {
                                 mitiState.addMitigation({
                                     id: 'tut_mit_tank40',

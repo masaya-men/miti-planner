@@ -1,5 +1,5 @@
 import type { AppliedMitigation } from '../types';
-import { MITIGATIONS, getMitigationPriority } from '../data/mockData';
+import { getMitigationsFromStore, getMitigationPriority } from '../hooks/useSkillsData';
 
 export type MigrationMode = 'inherit' | 'common_only' | 'reset';
 
@@ -29,7 +29,7 @@ export function migrateMitigations(
         return [];
     }
 
-    const newJobMitigations = MITIGATIONS.filter(m => m.jobId === newJobId || m.id.endsWith(`_${newJobId}`));
+    const newJobMitigations = getMitigationsFromStore().filter(m => m.jobId === newJobId || m.id.endsWith(`_${newJobId}`));
 
     // Helper to find skills in the new job by family
     const findByFamily = (family: string) => newJobMitigations.filter(m => m.family === family);
@@ -43,7 +43,7 @@ export function migrateMitigations(
 
     for (const mit of currentMitigations.sort((a, b) => a.time - b.time)) {
         // Find the definition of the currently applied skill
-        const oldDef = MITIGATIONS.find(m => m.id === mit.mitigationId);
+        const oldDef = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
         if (!oldDef) continue; // Unknown skill, skip
 
         if (mode === 'common_only') {

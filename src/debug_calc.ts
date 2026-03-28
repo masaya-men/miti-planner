@@ -1,6 +1,6 @@
 
 import { calculatePotencyValue, calculateCriticalValue } from './utils/calculator';
-import { LEVEL_MODIFIERS } from './data/levelModifiers';
+import { getLevelModifiersFromStore } from './hooks/useSkillsData';
 
 const input = {
     mainStat: 6317,
@@ -17,7 +17,7 @@ console.log('Input:', input);
 const potency = 300;
 const role = 'healer';
 
-const baseVal = calculatePotencyValue(input, potency, role, LEVEL_MODIFIERS[100]);
+const baseVal = calculatePotencyValue(input, potency, role, getLevelModifiersFromStore()[100]);
 const critVal = calculateCriticalValue(baseVal);
 
 console.log(`Potency: ${potency}, Role: ${role}`);
