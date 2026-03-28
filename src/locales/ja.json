@@ -68,7 +68,7 @@
         "title": "AA追加モード",
         "popover_header": "オートアタック設定",
         "target": "対象タンク",
-        "damage": "基本ダメージ量",
+        "damage": "ダメージ",
         "type": "ダメージ属性",
         "phys": "物理",
         "magic": "魔法",

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Settings, X, Info } from 'lucide-react';
+import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
 import type { AASettings } from '../store/useMitigationStore';
 import { useTranslation } from 'react-i18next';
@@ -124,15 +124,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
-                        <div className="group relative">
-                            <Info size={12} className="text-app-text-sec cursor-help" />
-                            <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-black/90 border border-app-border rounded text-[10px] text-gray-300 leading-tight opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                                {t('aa_settings.help_text')}
-                            </div>
-                        </div>
-                    </div>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
 
                     <input
                         type="number"
