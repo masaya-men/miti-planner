@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
 import {
-    CONTENT_DEFINITIONS,
+    getContentDefinitions,
     getContentById,
     getProjectLabel,
 } from '../data/contentRegistry';
@@ -50,7 +50,7 @@ const showToast = (msg: string) => {
 };
 
 // --- コンテンツID算出 ---
-const savageContents = CONTENT_DEFINITIONS.filter(c => c.category === 'savage');
+const savageContents = getContentDefinitions().filter(c => c.category === 'savage');
 const latestPatch = savageContents.reduce((max, c) => c.patch > max ? c.patch : max, '0');
 const savageIds = savageContents
     .filter(c => c.patch === latestPatch)
@@ -61,7 +61,7 @@ const savageIds = savageContents
 const savageLevel = savageContents.find(c => c.patch === latestPatch)?.level as ContentLevel | undefined;
 
 // 全絶コンテンツ（dsr_p1はランキングから除外）
-const ultimateIds = CONTENT_DEFINITIONS
+const ultimateIds = getContentDefinitions()
     .filter(c => c.category === 'ultimate' && c.id !== 'dsr_p1')
     .map(c => c.id);
 

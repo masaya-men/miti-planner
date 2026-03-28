@@ -876,6 +876,21 @@
         "templates_upload_guide": "テンプレートのJSONファイルは src/data/templates/ にあるファイルと同じ形式です。通常はシステムが自動生成するため、手動アップロードは不要です。",
         "templates_upload_title": "テンプレートのアップロード（上級者向け）",
         "hint_template_content_id": "アップロード先のコンテンツID（例: m9s）",
-        "hint_template_file": "src/data/templates/ にある .json ファイルと同じ形式"
+        "hint_template_file": "src/data/templates/ にある .json ファイルと同じ形式",
+        "template_lock": "ロック",
+        "template_unlock": "アンロック",
+        "template_locked": "ロック中（自動更新停止）",
+        "template_discovery": "発見フェーズ（自動更新中）",
+        "promotion_candidates": "昇格候補",
+        "promotion_approve": "承認",
+        "promotion_reject": "却下",
+        "promotion_copy_count": "コピー数",
+        "promotion_empty": "昇格候補はありません",
+        "config": "設定",
+        "config_title": "設定",
+        "promotion_threshold": "昇格閾値（コピー数）",
+        "promotion_multiplier": "昇格倍率",
+        "config_save": "保存",
+        "config_saved": "設定を保存しました"
     }
 }

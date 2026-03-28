@@ -151,11 +151,20 @@ export default async function handler(req: any, res: any) {
       // バックアップ作成
       await createBackup(db, contentId, existing.data());
 
-      const mergeData = {
+      const mergeData: Record<string, any> = {
         ...updates,
         lastUpdatedAt: FieldValue.serverTimestamp(),
         lastUpdatedBy: adminUid,
       };
+
+      // lockedAt の特殊処理
+      if (updates.lock === true) {
+        mergeData.lockedAt = FieldValue.serverTimestamp();
+        delete mergeData.lock;
+      } else if (updates.lock === false) {
+        mergeData.lockedAt = null;
+        delete mergeData.lock;
+      }
 
       await docRef.update(mergeData);
       await bumpDataVersion(db);

@@ -872,6 +872,21 @@
         "templates_upload_guide": "Template JSON files use the same format as src/data/templates/. Usually auto-generated — manual upload is rarely needed.",
         "templates_upload_title": "Upload Template (Advanced)",
         "hint_template_content_id": "Target content ID (e.g. m9s)",
-        "hint_template_file": "Same format as .json files in src/data/templates/"
+        "hint_template_file": "Same format as .json files in src/data/templates/",
+        "template_lock": "Lock",
+        "template_unlock": "Unlock",
+        "template_locked": "Locked (auto-update disabled)",
+        "template_discovery": "Discovery phase (auto-updating)",
+        "promotion_candidates": "Promotion Candidates",
+        "promotion_approve": "Approve",
+        "promotion_reject": "Reject",
+        "promotion_copy_count": "Copy count",
+        "promotion_empty": "No promotion candidates",
+        "config": "Settings",
+        "config_title": "Settings",
+        "promotion_threshold": "Promotion threshold (copy count)",
+        "promotion_multiplier": "Promotion multiplier",
+        "config_save": "Save",
+        "config_saved": "Settings saved"
     }
 }
