@@ -39,6 +39,7 @@ interface JustLoggedInUser {
 interface AuthState {
     user: User | null;
     loading: boolean;
+    isAdmin: boolean;
     justLoggedInUser: JustLoggedInUser | null;
     signInWith: (provider: AuthProvider) => void;
     signOut: () => Promise<void>;
@@ -49,6 +50,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
     loading: true,
+    isAdmin: false,
     justLoggedInUser: null,
 
     signInWith: (provider: AuthProvider) => {
@@ -110,7 +112,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         // ② Firebase Auth ログアウト
         await firebaseSignOut(auth);
-        set({ user: null });
+        set({ user: null, isAdmin: false });
 
         // ③ localStorageとZustandストアをクリア
         localStorage.removeItem('plan-storage');
@@ -172,7 +174,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
 
         // ③ ローカルストレージとストアをクリア
-        set({ user: null });
+        set({ user: null, isAdmin: false });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
         usePlanStore.setState({
@@ -224,8 +226,15 @@ async function processPendingAuth() {
 }
 
 // Auth状態の監視（アプリ起動時に1回だけ実行）
-onAuthStateChanged(auth, (user) => {
-    useAuthStore.setState({ user, loading: false });
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Custom Claimsから管理者フラグを取得
+        const tokenResult = await user.getIdTokenResult();
+        const isAdmin = tokenResult.claims.role === 'admin';
+        useAuthStore.setState({ user, loading: false, isAdmin });
+    } else {
+        useAuthStore.setState({ user: null, loading: false, isAdmin: false });
+    }
 });
 
 // リダイレクト認証の結果を処理
