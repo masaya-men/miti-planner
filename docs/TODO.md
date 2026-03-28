@@ -2,8 +2,13 @@
 
 > 完了済みタスクは [TODO_COMPLETED.md](./TODO_COMPLETED.md) に移動済み
 
-## 今セッションで完了（2026-03-28 第27セッション）
-- [x] **管理基盤・マスターデータFirestore移行 設計書作成** — 全ゲームデータのFirestore移行計画。5フェーズ段階的移行、キャッシュ戦略、セキュリティ、テンプレート自動生成、ハウジング共有設計を含む（→ `docs/superpowers/specs/2026-03-28-admin-master-data-platform-design.md`）
+## 今セッションで完了（2026-03-28 第28セッション）
+- [x] **管理基盤 Phase 0 実装** — 管理者ロール(Custom Claims)、管理画面骨組み(/admin)、APIレート制限、監査ログ、プラン複製機能、GoogleログインPWA対応、CORSホワイトリスト化
+- [x] **プラン複製機能** — サイドバーのCopyボタンでワンクリック複製。件数制限チェック付き
+- [x] **GoogleログインPWA対応** — standalone時のみsignInWithRedirectに自動切り替え
+
+## 前セッション完了（第27セッション）
+- [x] **管理基盤・マスターデータFirestore移行 設計書作成** — 全ゲームデータのFirestore移行計画（→ `docs/管理基盤設計書.md`）
 
 ---
 
@@ -18,8 +23,10 @@
 - [ ] **Stripe審査結果待ち** — 追加情報提出済み（2026-03-27）。結果を確認する
 - [ ] **Stripe審査通過後：フッターの法的リンクをまとめる** — プライバシー・利用規約・特商法の3リンクをドロップダウン等にまとめてフッターを短縮する
 
-## 次セッション予定（第28セッション）
-- [ ] **管理基盤 Phase 0 実装開始** — 管理者ロール、管理画面骨組み、App Check、レート制限、プラン複製、Google PWAログイン対応（設計書: `docs/superpowers/specs/2026-03-28-admin-master-data-platform-design.md`）
+## 次セッション予定（第29セッション）
+- [ ] **管理者ロール初回セットアップ** — ADMIN_SECRETをVercelに設定 → APIで自分を管理者に設定 → /admin動作確認
+- [ ] **Firebase App Check導入** — Firebase ConsoleでreCAPTCHA v3を設定 → コードに組み込み
+- [ ] **管理基盤 Phase 1 実装開始** — コンテンツ・テンプレートのFirestore化（設計書: `docs/管理基盤設計書.md`）
 - [ ] **モーダルの見やすさ向上** — 各モーダルの視認性・統一感を改善
 - [ ] **アクセントカラーの導入** — 白黒ベースが整ったので、ここからアクセントカラーを検討・導入
 
@@ -30,7 +37,7 @@
 - [ ] **アプリ動作パフォーマンスの最適化** — 公開前に改善必須
 - [ ] **サイドメニュー・ヘッダーの開閉パフォーマンス最適化** — React.memoで対応可能
 - [ ] **管理基盤・マスターデータFirestore移行（Phase 0〜4）** — 全ゲームデータのブラウザ管理。設計書完成済み（→ `docs/superpowers/specs/2026-03-28-admin-master-data-platform-design.md`）。必須
-- [ ] **プラン複製機能** — サイドバーにコピーボタン追加。ワンクリックで直下にコピー作成。Phase 0に含む
+- [x] ~~**プラン複製機能** — サイドバーにコピーボタン追加。ワンクリックで直下にコピー作成。Phase 0で実装済み~~
 - [ ] **軽減のないヒールスキル（テトラ、ディグニティ等のoGCDヒール）をタイムラインに配置可能にする**
 
 ## スマホ対応 残タスク
@@ -213,6 +220,41 @@
 - 開始ダイアログにJP/EN言語切り替え配置済み（フッター左）
 - ブラウザ言語自動検出は未実装（将来検討）
 - 将来: オートプラン体験・プラン名編集・共有体験・動画デモ
+
+## 管理者ログイン手順（初回セットアップ）
+
+### 準備
+1. **Vercelに環境変数`ADMIN_SECRET`を追加**
+   - Vercelダッシュボード → Settings → Environment Variables
+   - 名前: `ADMIN_SECRET`
+   - 値: 長いランダム文字列（例: 32文字以上の英数字）
+   - 対象: Production, Preview, Development すべてにチェック
+   - 追加後、再デプロイが必要（Settings → Deployments → 最新を Redeploy）
+
+2. **自分のFirebase UIDを確認**
+   - Firebase Console → Authentication → Users → 自分のメールアドレスの行のUID列をコピー
+
+### 管理者ロール設定
+3. **ターミナルから以下のコマンドを実行**（UIDとsecretを自分のものに置き換える）
+```bash
+curl -X POST https://lopoly.app/api/admin/set-role \
+  -H "Content-Type: application/json" \
+  -d '{"uid":"ここにFirebase UID","role":"admin","secret":"ここにADMIN_SECRET"}'
+```
+   - 成功: `{"success":true,"uid":"...","role":"admin"}`
+   - 失敗: `{"error":"Unauthorized"}` → secretが間違っている
+
+4. **ブラウザでログインし直す**（Custom Claimsの反映にはトークン更新が必要）
+   - ログアウト → 再ログイン
+   - または: 1時間待つ（トークンの自動更新）
+
+5. **管理画面にアクセス**
+   - https://lopoly.app/admin にアクセス → ダッシュボードが表示されれば成功
+
+### トラブルシューティング
+- `/admin`にアクセスしてもトップページにリダイレクトされる → ログアウト→再ログインを試す
+- curlで403が返る → `ADMIN_SECRET`の値がVercelの環境変数と一致しているか確認
+- curlで500が返る → Vercelのログ（Functions タブ）でエラー内容を確認
 
 ## 技術メモ
 - Vercel無料プラン: 月10万関数実行 / Firebase無料: 月5万アクティブユーザーまでOK
