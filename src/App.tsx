@@ -8,6 +8,9 @@ import { PopularPage } from './components/PopularPage';
 
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
+import { AdminGuard } from './components/admin/AdminGuard';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -92,6 +95,10 @@ function App() {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/commercial" element={<CommercialDisclosurePage />} />
+            {/* 管理画面 */}
+            <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+              <Route index element={<AdminDashboard />} />
+            </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
