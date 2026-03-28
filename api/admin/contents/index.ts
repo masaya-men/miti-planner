@@ -39,9 +39,7 @@ async function createBackup(db: FirebaseFirestore.Firestore, data: any) {
 /** /master/config の dataVersion を+1する */
 async function bumpDataVersion(db: FirebaseFirestore.Firestore) {
   const configRef = db.doc('master/config');
-  const configSnap = await configRef.get();
-  const current = configSnap.exists ? (configSnap.data()?.dataVersion ?? 0) : 0;
-  await configRef.set({ dataVersion: current + 1 }, { merge: true });
+  await configRef.set({ dataVersion: FieldValue.increment(1) }, { merge: true });
 }
 
 /** コンテンツアイテムの必須フィールド検証 */

@@ -33,7 +33,7 @@ export function AdminContents() {
       });
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
-      setContents(data);
+      setContents(data.items ?? []);
     } catch {
       setError(t('admin.error_load'));
     } finally {
@@ -51,17 +51,27 @@ export function AdminContents() {
       setSaving(true);
       const token = await user?.getIdToken();
       const isNew = !editing?.id;
-      const res = await apiFetch(
-        isNew ? '/api/admin/contents' : `/api/admin/contents/${data.id}`,
-        {
-          method: isNew ? 'POST' : 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
+      const res = await apiFetch('/api/admin/contents', {
+        method: isNew ? 'POST' : 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          item: {
+            id: data.id,
+            name: { ja: data.nameJa, en: data.nameEn },
+            shortName: { ja: data.shortNameJa, en: data.shortNameEn },
+            category: data.category,
+            level: data.level,
+            patch: data.patch,
+            seriesId: data.seriesId,
+            order: data.order,
+            fflogsEncounterId: data.fflogsEncounterId,
+            hasCheckpoint: data.hasCheckpoint ?? false,
+          },
+        }),
+      });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.contents_saved'));
       setShowForm(false);
@@ -80,7 +90,7 @@ export function AdminContents() {
     if (!ok) return;
     try {
       const token = await user?.getIdToken();
-      const res = await apiFetch(`/api/admin/contents/${item.id}`, {
+      const res = await apiFetch(`/api/admin/contents?id=${item.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

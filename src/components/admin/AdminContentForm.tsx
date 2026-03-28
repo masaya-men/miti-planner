@@ -18,6 +18,7 @@ export interface ContentData {
   seriesId: string;
   order: number;
   fflogsEncounterId: number | null;
+  hasCheckpoint: boolean;
 }
 
 const CATEGORIES = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'] as const;
@@ -37,6 +38,7 @@ export function emptyContent(): ContentData {
     seriesId: '',
     order: 0,
     fflogsEncounterId: null,
+    hasCheckpoint: false,
   };
 }
 
@@ -221,7 +223,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
           onClick={onCancel}
           className="px-3 py-1.5 text-xs text-app-text-muted hover:text-app-text transition-colors"
         >
-          {t('admin.edit')}
+          {t('common.cancel')}
         </button>
       </div>
     </form>

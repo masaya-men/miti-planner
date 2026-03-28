@@ -41,7 +41,7 @@ export function AdminTemplates() {
       });
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
-      setTemplates(data);
+      setTemplates(data.templates ?? []);
     } catch {
       setError(t('admin.error_load'));
     } finally {
@@ -64,13 +64,18 @@ export function AdminTemplates() {
       const json = JSON.parse(text);
 
       const token = await user?.getIdToken();
-      const res = await apiFetch(`/api/admin/templates/${uploadContentId}`, {
-        method: 'PUT',
+      const res = await apiFetch('/api/admin/templates', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(json),
+        body: JSON.stringify({
+          contentId: uploadContentId,
+          timelineEvents: json.timelineEvents ?? json,
+          phases: json.phases ?? [],
+          source: json.source ?? 'admin_upload',
+        }),
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.templates_uploaded'));
@@ -92,7 +97,7 @@ export function AdminTemplates() {
     if (!ok) return;
     try {
       const token = await user?.getIdToken();
-      const res = await apiFetch(`/api/admin/templates/${item.contentId}`, {
+      const res = await apiFetch(`/api/admin/templates?contentId=${item.contentId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
