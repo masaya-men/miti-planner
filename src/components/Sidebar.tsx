@@ -267,7 +267,7 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                                             e.stopPropagation();
                                                             const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
                                                             if (!newPlan) {
-                                                                showToast(t('sidebar.duplicate_limit_reached'), 'error');
+                                                                showToast(t('sidebar.duplicate_limit_reached'));
                                                             }
                                                         }}
                                                         className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
