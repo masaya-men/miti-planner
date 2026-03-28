@@ -1,10 +1,6 @@
-export interface LevelModifier {
-    level: number;
-    main: number; // 攻撃魔法威力/回復魔法威力の計算に使われるメインステータス補正値
-    sub: number;  // クリティカル/意思力/不屈の計算に使われるサブステータス補正値
-    div: number;  // 汎用的な除算補正値 (LevelModDiv)
-    hp: number;   // HP計算時の補正値
-}
+import type { LevelModifier } from '../types';
+
+export type { LevelModifier };
 
 export const LEVEL_MODIFIERS: Record<number, LevelModifier> = {
     // パッチ7.0 (黄金のレガシー) 基準値 (Lv100)

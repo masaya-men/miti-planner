@@ -71,6 +71,23 @@ export interface Phase {
     endTime: number;
 }
 
+// ─────────────────────────────────────────────
+// Level / Stats 型定義
+// ─────────────────────────────────────────────
+
+export interface LevelModifier {
+    level: number;
+    main: number; // 攻撃魔法威力/回復魔法威力の計算に使われるメインステータス補正値
+    sub: number;  // クリティカル/意思力/不屈の計算に使われるサブステータス補正値
+    div: number;  // 汎用的な除算補正値 (LevelModDiv)
+    hp: number;   // HP計算時の補正値
+}
+
+export interface TemplateStats {
+    tank: { hp: number; mainStat: number; det: number; wd: number; };
+    other: { hp: number; mainStat: number; det: number; wd: number; };
+}
+
 export interface PlayerStats {
     hp: number;
     mainStat: number; // STR or MND
