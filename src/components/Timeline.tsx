@@ -133,6 +133,7 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { t } = useTranslation();
+
     const { contentLanguage } = useThemeStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
@@ -977,6 +978,7 @@ const Timeline: React.FC = () => {
             targetId: mitigation._targetId
         });
         setMitigationSelectorOpen(false);
+
     };
 
     const handleJobIconClick = (memberId: string, e: React.MouseEvent) => {
@@ -1884,8 +1886,25 @@ const Timeline: React.FC = () => {
                                                         return Math.max(0, t - offsetTime) * pixelsPerSecond;
                                                     };
 
+                                                    // コンパクトモード: 終了時間が空行なら、その前の可視行に切り詰める
+                                                    let effectiveEndTime = durationEndTime;
+                                                    if (hideEmptyRows) {
+                                                        const isEndVisible = eventsByTime.has(durationEndTime) || mitStartsByTime.has(durationEndTime);
+                                                        if (!isEndVisible) {
+                                                            // durationEndTime以下の最大の可視行を探す
+                                                            let prevVisible = mitigation.time;
+                                                            for (let t = durationEndTime; t >= mitigation.time; t--) {
+                                                                if (eventsByTime.has(t) || mitStartsByTime.has(t)) {
+                                                                    prevVisible = t;
+                                                                    break;
+                                                                }
+                                                            }
+                                                            effectiveEndTime = prevVisible;
+                                                        }
+                                                    }
+
                                                     const startY = getMappedY(mitigation.time);
-                                                    const endY = getMappedY(durationEndTime) + 24;
+                                                    const endY = getMappedY(effectiveEndTime) + 24;
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
                                                     const recast = def?.recast || def?.recast || 0;
                                                     const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
