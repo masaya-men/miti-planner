@@ -130,9 +130,56 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         }
     };
 
+    // バックグラウンドでテンプレート候補登録を試みる（失敗しても無視）
+    const tryAutoRegisterTemplate = useCallback(async (
+        mapped: MapperResult,
+        fight: FFLogsFight,
+        reportId: string,
+    ) => {
+        try {
+            const user = useAuthStore.getState().user;
+            if (!user) return;
+
+            const token = await user.getIdToken();
+            const { plans, currentPlanId } = (await import('../store/usePlanStore')).usePlanStore.getState();
+            const currentPlan = plans.find(p => p.id === currentPlanId);
+            const contentId = currentPlan?.contentId;
+            if (!contentId) return;
+
+            const { getContentById } = await import('../data/contentRegistry');
+            const contentDef = getContentById(contentId);
+            const category = contentDef?.category || 'custom';
+
+            await fetch('/api/template/auto-register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    contentId,
+                    category,
+                    timelineEvents: mapped.events,
+                    phases: [],
+                    kill: fight.kill === true,
+                    deathCount: 0,
+                    sourceReport: reportId,
+                }),
+            });
+        } catch {
+            // サイレント失敗 — ユーザーのインポート体験に影響しない
+        }
+    }, []);
+
     const handleImport = () => {
         if (status.phase !== 'preview') return;
         importTimelineEvents(status.mapped.events);
+
+        // バックグラウンドでテンプレート候補登録を試みる
+        if (parsedData) {
+            tryAutoRegisterTemplate(status.mapped, status.fight, parsedData.reportId);
+        }
+
         handleClose();
     };
 
