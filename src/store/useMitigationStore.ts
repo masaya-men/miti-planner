@@ -2,9 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData } from '../types';
 import { calculateMemberValues } from '../utils/calculator';
-import { JOBS, MITIGATIONS } from '../data/mockData';
-import { LEVEL_MODIFIERS } from '../data/levelModifiers';
-import { DEFAULT_STATS_BY_LEVEL, ALL_PATCH_STATS } from '../data/defaultStats';
+import {
+  getJobsFromStore,
+  getMitigationsFromStore,
+  getLevelModifiersFromStore,
+  getDefaultStatsByLevelFromStore,
+  getPatchStatsFromStore,
+} from '../hooks/useSkillsData';
 import { useTutorialStore } from './useTutorialStore';
 
 export interface AASettings {
@@ -107,27 +111,44 @@ interface MitigationState {
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
 }
 
-const subBase100 = LEVEL_MODIFIERS[100].sub;
-const fillDefaultStats = (partial: any): PlayerStats => ({
+// レベルに応じたサブステベース値を取得（遅延評価）
+const getSubBase = (level: number = 100) => {
+    const mods = getLevelModifiersFromStore();
+    return mods[level]?.sub ?? 420;
+};
+
+const fillDefaultStats = (partial: any, level: number = 100): PlayerStats => ({
     ...partial,
-    crt: subBase100,
-    ten: subBase100,
-    ss: subBase100
+    crt: getSubBase(level),
+    ten: getSubBase(level),
+    ss: getSubBase(level),
 });
 
-export const DEFAULT_TANK_STATS: PlayerStats = fillDefaultStats(DEFAULT_STATS_BY_LEVEL[100].tank);
-export const DEFAULT_HEALER_STATS: PlayerStats = fillDefaultStats(DEFAULT_STATS_BY_LEVEL[100].other);
+// ストアからデフォルトステータスを遅延取得する関数
+export function getDefaultTankStats(level: number = 100): PlayerStats {
+    const defaults = getDefaultStatsByLevelFromStore();
+    return fillDefaultStats(defaults[level]?.tank ?? defaults[100]?.tank ?? { hp: 296194, mainStat: 6217, det: 2410, wd: 154 }, level);
+}
+
+export function getDefaultHealerStats(level: number = 100): PlayerStats {
+    const defaults = getDefaultStatsByLevelFromStore();
+    return fillDefaultStats(defaults[level]?.other ?? defaults[100]?.other ?? { hp: 186846, mainStat: 6317, det: 2987, wd: 154 }, level);
+}
+
+// 後方互換性（モジュールレベル定数として静的フォールバック値で初期化）
+export const DEFAULT_TANK_STATS: PlayerStats = getDefaultTankStats();
+export const DEFAULT_HEALER_STATS: PlayerStats = getDefaultHealerStats();
 
 // Initial Party Slots
 const INITIAL_PARTY: PartyMember[] = [
-    { id: 'MT', jobId: null, role: 'tank', stats: { ...DEFAULT_TANK_STATS }, computedValues: {} },
-    { id: 'ST', jobId: null, role: 'tank', stats: { ...DEFAULT_TANK_STATS }, computedValues: {} },
-    { id: 'H1', jobId: null, role: 'healer', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
-    { id: 'H2', jobId: null, role: 'healer', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
-    { id: 'D1', jobId: null, role: 'dps', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
-    { id: 'D2', jobId: null, role: 'dps', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
-    { id: 'D3', jobId: null, role: 'dps', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
-    { id: 'D4', jobId: null, role: 'dps', stats: { ...DEFAULT_HEALER_STATS }, computedValues: {} },
+    { id: 'MT', jobId: null, role: 'tank', stats: { ...getDefaultTankStats() }, computedValues: {} },
+    { id: 'ST', jobId: null, role: 'tank', stats: { ...getDefaultTankStats() }, computedValues: {} },
+    { id: 'H1', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'H2', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'D1', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'D2', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'D3', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'D4', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
 ];
 
 export const useMitigationStore = create<MitigationState>()(
@@ -308,11 +329,11 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         // 1. パッチ情報があれば優先的に検索
                         // 2. なければレベルごとのデフォルトを使用
-                        const patchData = patch ? ALL_PATCH_STATS[patch] : null;
-                        const template = patchData || DEFAULT_STATS_BY_LEVEL[level] || DEFAULT_STATS_BY_LEVEL[100];
+                        const patchData = patch ? getPatchStatsFromStore()[patch] : null;
+                        const template = patchData || getDefaultStatsByLevelFromStore()[level] || getDefaultStatsByLevelFromStore()[100];
                         
                         // 不足項目(crt, ten, ss)をベース値で補完
-                        const subBase = LEVEL_MODIFIERS[level]?.sub || 420;
+                        const subBase = getLevelModifiersFromStore()[level]?.sub || 420;
                         const fillStats = (partial: any): PlayerStats => ({
                             ...partial,
                             crt: subBase,
@@ -443,11 +464,11 @@ export const useMitigationStore = create<MitigationState>()(
                         const removed = state.timelineMitigations.find(m => m.id === id);
                         if (!removed) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
 
-                        const removedDef = MITIGATIONS.find(d => d.id === removed.mitigationId);
+                        const removedDef = getMitigationsFromStore().find(d => d.id === removed.mitigationId);
                         if (!removedDef) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
 
                         // Find skills that depend on the removed skill
-                        const dependentIds = MITIGATIONS.filter(d => d.requires === removed.mitigationId).map(d => d.id);
+                        const dependentIds = getMitigationsFromStore().filter(d => d.requires === removed.mitigationId).map(d => d.id);
 
                         const removedStart = removed.time;
                         const removedEnd = removed.time + removed.duration;
@@ -501,7 +522,7 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const newMembers = state.partyMembers.map(m => {
                             if (m.id === memberId) {
-                                const job = JOBS.find(j => j.id === jobId);
+                                const job = getJobsFromStore().find(j => j.id === jobId);
                                 const newRole = job ? job.role : m.role;
                                 let newStats = { ...m.stats };
 
@@ -527,7 +548,7 @@ export const useMitigationStore = create<MitigationState>()(
                                 return acc;
                             }
 
-                            const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                            const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
 
                             // If exact match (job specific or shared if any), keep it
                             if (def?.jobId === jobId) {
@@ -539,7 +560,7 @@ export const useMitigationStore = create<MitigationState>()(
                             if (def && def.jobId !== jobId) {
                                 const baseId = def.id.replace(`_${def.jobId}`, '');
                                 const newId = `${baseId}_${jobId}`;
-                                const newDef = MITIGATIONS.find(m => m.id === newId);
+                                const newDef = getMitigationsFromStore().find(m => m.id === newId);
 
                                 if (newDef && newDef.jobId === jobId) {
                                     // Migration successful
@@ -585,7 +606,7 @@ export const useMitigationStore = create<MitigationState>()(
                         // Update member job
                         const newMembers = state.partyMembers.map(m => {
                             if (m.id === memberId) {
-                                const job = JOBS.find(j => j.id === jobId);
+                                const job = getJobsFromStore().find(j => j.id === jobId);
                                 const newRole = job ? job.role : m.role;
                                 let newStats = { ...m.stats };
                                 if (job && job.role !== m.role) {
@@ -632,7 +653,7 @@ export const useMitigationStore = create<MitigationState>()(
                             // 1. メンバー情報の更新
                             currentMembers = currentMembers.map(m => {
                                 if (m.id === memberId) {
-                                    const job = JOBS.find(j => j.id === jobId);
+                                    const job = getJobsFromStore().find(j => j.id === jobId);
                                     const newRole = job ? job.role : m.role;
                                     let newStats = { ...m.stats };
                                     if (job && job.role !== m.role) {
@@ -660,7 +681,7 @@ export const useMitigationStore = create<MitigationState>()(
                                             acc.push(mit);
                                             return acc;
                                         }
-                                        const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                                        const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
                                         if (def?.jobId === jobId) {
                                             acc.push(mit);
                                             return acc;
@@ -668,7 +689,7 @@ export const useMitigationStore = create<MitigationState>()(
                                         if (def && def.jobId !== jobId) {
                                             const baseId = def.id.replace(`_${def.jobId}`, '');
                                             const newId = `${baseId}_${jobId}`;
-                                            const newDef = MITIGATIONS.find(m => m.id === newId);
+                                            const newDef = getMitigationsFromStore().find(m => m.id === newId);
                                             if (newDef && newDef.jobId === jobId) {
                                                 acc.push({ ...mit, mitigationId: newId });
                                                 return acc;
