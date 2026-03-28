@@ -886,6 +886,8 @@
         "promotion_reject": "却下",
         "promotion_copy_count": "コピー数",
         "promotion_empty": "昇格候補はありません",
+        "skills": "スキル管理",
+        "stats": "ステータス管理",
         "config": "設定",
         "config_title": "設定",
         "promotion_threshold": "昇格閾値（コピー数）",
