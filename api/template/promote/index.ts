@@ -8,7 +8,7 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/admi
 import { writeAuditLog } from '../../../src/lib/auditLog.js';
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../../src/lib/rateLimit.js';
-import { sendDiscordNotification } from '../../webhook/discord/index.js';
+import { sendDiscordNotification } from '../../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 function setCors(req: any, res: any) {

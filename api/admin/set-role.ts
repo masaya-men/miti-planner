@@ -1,8 +1,12 @@
 /**
- * 管理者ロール付与API
- * POST /api/admin/set-role
+ * 管理者ロール付与 + 権限検証API（統合）
+ * GET  /api/admin/set-role — 管理者権限の検証（旧 /api/admin/verify）
+ * POST /api/admin/set-role — ロール付与/剥奪
  *
- * Body: { uid: string, role: 'admin' | null, secret: string }
+ * GET Headers: Authorization: Bearer <idToken>
+ * GET Response: { isAdmin: boolean }
+ *
+ * POST Body: { uid: string, role: 'admin' | null, secret: string }
  * - uid: 対象ユーザーのFirebase UID
  * - role: 'admin' で付与、null で剥奪
  * - secret: ADMIN_SECRET 環境変数と一致する秘密キー
@@ -27,7 +31,7 @@ function setCors(req: any, res: any) {
   ];
   const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
   res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
@@ -38,6 +42,19 @@ export default async function handler(req: any, res: any) {
   // App Check検証（ADMIN_SECRETによるcurlアクセス時はスキップ）
   const hasSecret = req.body?.secret;
   if (!hasSecret && !(await verifyAppCheck(req, res))) return;
+
+  // --- GET: 管理者権限検証（旧 /api/admin/verify） ---
+  if (req.method === 'GET') {
+    if (!applyRateLimit(req, res, 20, 60_000)) return;
+    try {
+      initAdmin();
+      const adminUid = await verifyAdmin(req);
+      return res.status(200).json({ isAdmin: adminUid !== null });
+    } catch (err: any) {
+      console.error('admin verify error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
