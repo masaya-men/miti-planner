@@ -2,9 +2,20 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/share/:id", "destination": "/api/share-page?id=:id" },
+    {
+      "source": "/icons/:path",
+      "destination": "https://firebasestorage.googleapis.com/v0/b/lopo-7793e.firebasestorage.app/o/icons%2F:path?alt=media"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/icons/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
