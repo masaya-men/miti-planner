@@ -13,6 +13,7 @@
 import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth';
 import { writeAuditLog } from '../../src/lib/auditLog';
 import { applyRateLimit } from '../../src/lib/rateLimit';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify';
 import { getAuth } from 'firebase-admin/auth';
 
 /** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */
@@ -27,12 +28,16 @@ function setCors(req: any, res: any) {
   const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
   res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
 }
 
 export default async function handler(req: any, res: any) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // App Check検証（ADMIN_SECRETによるcurlアクセス時はスキップ）
+  const hasSecret = req.body?.secret;
+  if (!hasSecret && !(await verifyAppCheck(req, res))) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

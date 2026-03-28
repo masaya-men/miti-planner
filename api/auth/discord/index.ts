@@ -16,6 +16,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -35,6 +36,13 @@ function initAdmin() {
 }
 
 export default async function handler(req: any, res: any) {
+    // CORS
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    // App Check検証
+    if (!(await verifyAppCheck(req, res))) return;
+
     try {
         const { code } = req.query;
 

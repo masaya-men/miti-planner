@@ -11,7 +11,7 @@
  * リクエストごとに異なるキーを使用し、API枠を分散させる。
  */
 
-export const config = { runtime: 'edge' };
+import { verifyAppCheck } from '../../../src/lib/appCheckVerify';
 
 // 利用可能なAPIキーペアを環境変数から収集
 function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
@@ -37,24 +37,35 @@ function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
     return pairs;
 }
 
-// ラウンドロビン用カウンター（Edge Functionのインスタンス内で保持）
+// ラウンドロビン用カウンター（Serverless Functionのインスタンス内で保持）
 let roundRobinIndex = 0;
 
-export default async function handler(request: Request) {
-    if (request.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-            status: 405,
-            headers: { 'Content-Type': 'application/json' },
-        });
+export default async function handler(req: any, res: any) {
+    // CORS
+    const origin = req.headers?.origin || '';
+    const allowedOrigins = [
+        'https://lopoly.app',
+        'https://lopo-miti.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:4173',
+    ];
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    // App Check検証
+    if (!(await verifyAppCheck(req, res))) return;
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     const pairs = getCredentialPairs();
 
     if (pairs.length === 0) {
-        return new Response(
-            JSON.stringify({ error: 'FFLogs API credentials are not configured on the server.' }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } },
-        );
+        return res.status(500).json({ error: 'FFLogs API credentials are not configured on the server.' });
     }
 
     // ラウンドロビンで次のキーを選択
@@ -74,25 +85,20 @@ export default async function handler(request: Request) {
 
         if (!tokenResponse.ok) {
             const body = await tokenResponse.text();
-            return new Response(
-                JSON.stringify({ error: `FFLogs token request failed (${tokenResponse.status})`, details: body }),
-                { status: tokenResponse.status, headers: { 'Content-Type': 'application/json' } },
-            );
+            return res.status(tokenResponse.status).json({
+                error: `FFLogs token request failed (${tokenResponse.status})`,
+                details: body,
+            });
         }
 
         const data = await tokenResponse.json();
 
-        return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-store',
-            },
-        });
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(data);
     } catch (err) {
-        return new Response(
-            JSON.stringify({ error: 'Internal server error', details: String(err) }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } },
-        );
+        return res.status(500).json({
+            error: 'Internal server error',
+            details: String(err),
+        });
     }
 }

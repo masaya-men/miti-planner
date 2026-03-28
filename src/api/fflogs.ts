@@ -12,6 +12,8 @@
  *   remove the credential references entirely from the frontend.
  */
 
+import { apiFetch } from '../lib/apiClient';
+
 // ─────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────
@@ -96,7 +98,7 @@ export async function getAccessToken(): Promise<string> {
 
     // ── Production: use server-side proxy ──
     if (import.meta.env.PROD) {
-        const response = await fetch('/api/fflogs/token', { method: 'POST' });
+        const response = await apiFetch('/api/fflogs/token', { method: 'POST' });
 
         if (!response.ok) {
             const body = await response.text();
