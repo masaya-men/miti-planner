@@ -329,7 +329,7 @@
         "create_plan_button": "Create",
         "add_plan": "Add",
         "custom_plans": "Custom",
-        "duplicate_plan": "Create a copy just below",
+        "duplicate_plan": "Create a copy below",
         "duplicate_limit_reached": "Plan limit reached"
     },
     "footer": {
