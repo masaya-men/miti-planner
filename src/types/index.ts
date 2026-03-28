@@ -172,6 +172,25 @@ export interface PlanData {
     schAetherflowPatterns: Record<string, 1 | 2>;
 }
 
+/** DC/サーバーマスターデータ */
+export interface MasterServers {
+  datacenters: Record<string, {
+    aliases: string[];
+    servers: Record<string, string[]>;
+  }>;
+  housingAreas: Record<string, {
+    name_jp: string;
+    apartment_name: string;
+    aliases: string[];
+  }>;
+  housingSizes: Array<{
+    id: string;
+    label: string;
+    aliases: string[];
+  }>;
+  tags: Record<string, string[]>;
+}
+
 export interface SavedPlan {
     id: string;
     ownerId: string;

@@ -8,8 +8,10 @@
  * PUT    /api/admin/templates (type=config)— マスターコンフィグ更新
  * GET    /api/admin/templates?type=skills — スキルデータ取得
  * GET    /api/admin/templates?type=stats  — ステータスデータ取得
+ * GET    /api/admin/templates?type=servers — サーバーデータ取得
  * PUT    /api/admin/templates (type=skills)— スキルデータ更新
  * PUT    /api/admin/templates (type=stats) — ステータスデータ更新
+ * PUT    /api/admin/templates (type=servers)— サーバーデータ更新
  * DELETE /api/admin/templates              — テンプレート削除
  */
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
@@ -93,6 +95,12 @@ export default async function handler(req: any, res: any) {
         const snap = await db.doc('master/stats').get();
         if (!snap.exists) return res.status(404).json({ error: 'Stats data not found' });
         return res.status(200).json(snap.data());
+      }
+
+      // サーバーデータ取得
+      if (req.query?.type === 'servers') {
+        const serversSnap = await db.doc('master/servers').get();
+        return res.status(200).json(serversSnap.exists ? serversSnap.data() : {});
       }
 
       const id = req.query?.id;
@@ -208,6 +216,31 @@ export default async function handler(req: any, res: any) {
           target: 'skills',
           adminUid,
           changes: { after: { jobCount: jobs.length, mitigationCount: mitigations.length } },
+        });
+
+        return res.status(200).json({ success: true });
+      }
+
+      // サーバーデータ更新
+      if (req.body?.type === 'servers') {
+        const docRef = db.doc('master/servers');
+        // バックアップ
+        const current = await docRef.get();
+        if (current.exists) {
+          await db.collection('master_backups').doc(`servers_${Date.now()}`).set({
+            type: 'servers',
+            data: current.data(),
+            createdAt: FieldValue.serverTimestamp(),
+          });
+        }
+        const { type: _, ...serversData } = req.body;
+        await docRef.set(serversData);
+        await bumpDataVersion(db);
+        await writeAuditLog({
+          action: 'update',
+          target: 'servers',
+          adminUid,
+          changes: {},
         });
 
         return res.status(200).json({ success: true });
