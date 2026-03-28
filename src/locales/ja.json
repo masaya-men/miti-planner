@@ -331,7 +331,9 @@
         "name_dialog_desc": "デフォルト名のままでもOKです。",
         "create_plan_button": "作成",
         "add_plan": "追加",
-        "custom_plans": "カスタム"
+        "custom_plans": "カスタム",
+        "duplicate_plan": "すぐ下にコピーを作成",
+        "duplicate_limit_reached": "プラン数の上限に達しています"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -813,5 +815,10 @@
         "share_x": "X",
         "share_link": "リンク",
         "link_copied": "リンクをコピーしました"
+    },
+    "admin": {
+        "dashboard": "ダッシュボード",
+        "dashboard_placeholder": "管理機能はPhase 1以降で追加されます。",
+        "back_to_app": "アプリに戻る"
     }
 }
