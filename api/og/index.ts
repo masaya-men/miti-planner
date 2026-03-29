@@ -330,8 +330,7 @@ function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textC
         };
     }
 
-    // ロゴあり → 画像背景 + 50%暗オーバーレイ
-    const RIGHT_WIDTH = 1200 - LEFT_PANEL_WIDTH; // 1056
+    // ロゴあり → backgroundImage で画像背景 + 暗オーバーレイをテキストシャドウで代替
     return {
         type: 'div',
         props: {
@@ -341,15 +340,17 @@ function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textC
                 {
                     type: 'div',
                     props: {
-                        style: { width: RIGHT_WIDTH, height: 630, position: 'relative', display: 'flex', overflow: 'hidden' },
-                        children: [
-                            // ユーザー画像（背景）
-                            { type: 'img', props: { src: teamLogoSrc, width: RIGHT_WIDTH, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
-                            // 50%暗オーバーレイ
-                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: RIGHT_WIDTH, height: 630, backgroundColor: 'rgba(0,0,0,0.5)' } } },
-                            // テキストレイヤー
-                            { type: 'div', props: { style: { position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: '56px 72px' }, children: textChildren } },
-                        ],
+                        style: {
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            padding: '56px 72px',
+                            backgroundImage: `url(${teamLogoSrc})`,
+                            backgroundSize: '1056px 630px',
+                            backgroundPosition: 'center',
+                        },
+                        children: textChildren,
                     },
                 },
             ],
@@ -368,7 +369,7 @@ function buildSingleLayout(
     const hasLogo = !!teamLogoSrc;
     const displayName = contentName || planTitle || 'LoPo';
     const nameLen = displayName.length;
-    const nameFontSize = hasLogo ? 52 : (nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52);
+    const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
     const subtitle = contentName && planTitle ? planTitle : '';
 
     const textChildren: any[] = [];
