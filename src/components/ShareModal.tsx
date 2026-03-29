@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Check, Loader2, ExternalLink, Upload, ImageIcon, Trash2 } from 'lucide-react';
+import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -100,6 +100,28 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         }
     };
 
+    // 既存shareIdのロゴを更新（PUT）
+    const updateShareLogo = async (withLogo: boolean) => {
+        if (!shareIdRef) return;
+        setImageLoaded(false);
+        try {
+            const body: any = { shareId: shareIdRef };
+            if (withLogo && teamLogoUrl && user) {
+                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
+            }
+            await apiFetch('/api/share', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            // プレビュー画像を再読み込み（キャッシュ回避のためタイムスタンプ付与）
+            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, withLogo) + `&t=${Date.now()}`);
+        } catch (err) {
+            console.error('Share logo update failed:', err);
+            showToast(t('app.share_failed'));
+        }
+    };
+
     // プラン名表示トグル変更時にOGP画像を再生成
     const handleTogglePlanTitle = () => {
         const next = !showPlanTitle;
@@ -114,10 +136,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const handleToggleLogo = () => {
         const next = !showLogo;
         setShowLogo(next);
-        if (shareIdRef) {
-            setImageLoaded(false);
-            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, next));
-        }
+        // shareデータのロゴを更新（ON→ロゴ埋め込み、OFF→ロゴ削除）
+        updateShareLogo(next);
     };
 
     // ロゴファイル処理（共通）
@@ -135,11 +155,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             const url = await uploadTeamLogo(user.uid, file);
             setTeamLogoUrl(url);
             showToast(t('team_logo.upload_success'));
-            if (shareIdRef) {
-                setImageLoaded(false);
-                setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, true));
-                setShowLogo(true);
-            }
+            setShowLogo(true);
+            // 既存shareデータのロゴを上書き更新
+            await updateShareLogo(true);
         } catch (err) {
             console.error('[LogoUpload] アップロードエラー詳細:', err);
             showToast(t('team_logo.error_upload_failed'), 'error');
@@ -163,11 +181,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             setTeamLogoUrl(null);
             setShowLogo(false);
             showToast(t('team_logo.remove_success'));
-            // OGPプレビューをロゴなし状態で更新
-            if (shareIdRef) {
-                setImageLoaded(false);
-                setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, false));
-            }
+            // 既存shareデータからロゴを削除
+            await updateShareLogo(false);
         } catch {
             showToast(t('team_logo.error_remove_failed'), 'error');
         }
@@ -334,14 +349,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                         className="w-8 h-8 rounded object-cover border border-app-border"
                                     />
                                     <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={uploading}
-                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
-                                    >
-                                        <ImageIcon size={11} />
-                                        {t('team_logo.change')}
-                                    </button>
-                                    <button
                                         onClick={handleLogoDelete}
                                         disabled={uploading}
                                         className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
@@ -385,10 +392,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     {/* URLコピー */}
                     <button
                         onClick={handleCopy}
-                        disabled={!shareUrl}
+                        disabled={!shareUrl || !imageLoaded}
                         className={clsx(
                             "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer",
-                            shareUrl
+                            shareUrl && imageLoaded
                                 ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
                                 : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
                         )}
@@ -403,10 +410,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     {/* X共有 */}
                     <button
                         onClick={handleShareX}
-                        disabled={!shareUrl}
+                        disabled={!shareUrl || !imageLoaded}
                         className={clsx(
                             "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer border",
-                            shareUrl
+                            shareUrl && imageLoaded
                                 ? "border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98]"
                                 : "border-app-border text-app-text-muted cursor-not-allowed"
                         )}
