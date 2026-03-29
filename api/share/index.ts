@@ -41,7 +41,7 @@ export default async function handler(req: any, res: any) {
     // Vercelのプレビューデプロイ（*.vercel.app）も許可
     const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -107,6 +107,42 @@ export default async function handler(req: any, res: any) {
             if (logoBase64) doc.logoBase64 = logoBase64;
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
+
+            return res.status(200).json({ shareId });
+
+        } else if (req.method === 'PUT') {
+            // ── 既存共有のロゴ更新 ──
+            const { shareId, logoStoragePath } = req.body;
+            if (!shareId || typeof shareId !== 'string') {
+                return res.status(400).json({ error: 'shareId is required' });
+            }
+
+            // 既存ドキュメントの存在確認
+            const existingRef = db.collection(COLLECTION).doc(shareId);
+            const existingSnap = await existingRef.get();
+            if (!existingSnap.exists) {
+                return res.status(404).json({ error: 'share not found' });
+            }
+
+            // firebase-adminでロゴをダウンロードしてbase64に変換
+            let logoBase64: string | null = null;
+            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg')) {
+                try {
+                    const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
+                    const file = bucket.file(logoStoragePath);
+                    const [buffer] = await file.download();
+                    logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                } catch (err) {
+                    console.error('Logo download failed:', err);
+                }
+            }
+
+            // ロゴフィールドのみ更新（logoBase64がnullなら削除）
+            if (logoBase64) {
+                await existingRef.update({ logoBase64 });
+            } else {
+                await existingRef.update({ logoBase64: FieldValue.delete() });
+            }
 
             return res.status(200).json({ shareId });
 
