@@ -11,7 +11,7 @@
  */
 
 import { ImageResponse } from '@vercel/og';
-import { getCategoryTag, getContentName, trySeriesSummary } from '../../src/lib/ogpHelpers';
+import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers';
 
 export const config = { runtime: 'edge' };
 
@@ -28,6 +28,7 @@ export default async function handler(req: Request) {
         const shareId = searchParams.get('id');
         const showTitle = searchParams.get('showTitle') !== 'false';
         const showLogo = searchParams.get('showLogo') === 'true';
+        const lang: OgpLang = searchParams.get('lang') === 'en' ? 'en' : 'ja';
 
         let contentId: string | null = null;
         let contentName = '';
@@ -54,7 +55,7 @@ export default async function handler(req: Request) {
                     } else {
                         contentId = data.contentId || null;
                         planTitle = data.title || '';
-                        contentName = getContentName(contentId);
+                        contentName = getContentName(contentId, lang);
                         categoryTag = getCategoryTag(contentId);
                     }
                 }
@@ -64,9 +65,9 @@ export default async function handler(req: Request) {
         // フォント取得（M PLUS 1）
         let allText = 'LoPo｜前半後半';
         if (isBundle) {
-            allText += bundlePlans.map(p => getContentName(p.contentId) + (p.title || '')).join('');
+            allText += bundlePlans.map(p => getContentName(p.contentId, lang) + (p.title || '')).join('');
             allText += `${bundlePlans.length} plans shared`;
-            const series = trySeriesSummary(bundlePlans);
+            const series = trySeriesSummary(bundlePlans, lang);
             if (series) allText += series.summary;
         } else {
             allText += contentName + planTitle + categoryTag;
@@ -104,7 +105,7 @@ export default async function handler(req: Request) {
         const element = !shareId
             ? buildFallbackLayout()
             : isBundle
-                ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc)
+                ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc, lang)
                 : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, faviconBase64, teamLogoSrc);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
@@ -280,16 +281,16 @@ function buildSingleLayout(
 
 function buildBundleLayout(
     plans: { contentId: string | null; title: string }[],
-    faviconBase64: string, teamLogoSrc: string | null,
+    faviconBase64: string, teamLogoSrc: string | null, lang: OgpLang,
 ) {
     // 同シリーズ判定
-    const series = trySeriesSummary(plans);
+    const series = trySeriesSummary(plans, lang);
     if (series) {
         return buildSeriesLayout(series, faviconBase64, teamLogoSrc);
     }
 
     // 混在コンテンツ
-    return buildMixedLayout(plans, faviconBase64, teamLogoSrc);
+    return buildMixedLayout(plans, faviconBase64, teamLogoSrc, lang);
 }
 
 // 同シリーズまとめ表記
@@ -329,7 +330,7 @@ function buildSeriesLayout(
 // 混在コンテンツリスト
 function buildMixedLayout(
     plans: { contentId: string | null; title: string }[],
-    faviconBase64: string, teamLogoSrc: string | null,
+    faviconBase64: string, teamLogoSrc: string | null, lang: OgpLang,
 ) {
     const hasLogo = !!teamLogoSrc;
     const textChildren: any[] = [];
@@ -352,7 +353,7 @@ function buildMixedLayout(
             });
         }
 
-        const name = getContentName(plan.contentId) || plan.title || '';
+        const name = getContentName(plan.contentId, lang) || plan.title || '';
         const shortName = plan.contentId ? plan.contentId.replace(/_p(\d+)$/, ' P$1').toUpperCase() : '';
 
         listChildren.push({
