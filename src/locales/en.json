@@ -101,7 +101,7 @@
     },
     "party": {
         "title": "Party Composition",
-        "settings_title": "Parameter Settings",
+        "settings_title": "Status Settings",
         "settings_desc": "Stats from the content release are automatically applied.\nPlease edit as needed.",
         "comp_short": "Party Comp",
         "configuration_title": "Party Composition",

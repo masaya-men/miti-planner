@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoPo ToDo Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    padding: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .subtitle {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+  .stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px 20px;
+    min-width: 120px;
+  }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 0.75rem; color: #888; }
+  .section {
+    margin-bottom: 20px;
+    border: 1px solid #222;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: #141414;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .section-header:hover { background: #1a1a1a; }
+  .section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .section-count {
+    font-size: 0.75rem;
+    color: #888;
+    background: #222;
+    padding: 2px 10px;
+    border-radius: 99px;
+  }
+  .section-body { padding: 0; }
+  .section-body.collapsed { display: none; }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 1px solid #1a1a1a;
+    transition: background 0.15s;
+  }
+  .item:hover { background: #111; }
+  .item.done, .item.checked { opacity: 0.35; }
+  .item.done .item-title, .item.checked .item-title {
+    text-decoration: line-through;
+    color: #666;
+  }
+  .item input[type="checkbox"] {
+    margin-top: 4px;
+    width: 16px;
+    height: 16px;
+    accent-color: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .item-content { flex: 1; min-width: 0; }
+  .item-title {
+    font-size: 0.9rem;
+    color: #e0e0e0;
+  }
+  .item-desc {
+    font-size: 0.78rem;
+    color: #777;
+    margin-top: 2px;
+  }
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .badge {
+    font-size: 0.65rem;
+    padding: 1px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+  .badge-high { background: #2a1515; color: #ff6b6b; border: 1px solid #3a2020; }
+  .badge-mid { background: #2a2515; color: #ffc85c; border: 1px solid #3a3020; }
+  .badge-low { background: #151a15; color: #6bcc6b; border: 1px solid #203020; }
+  .badge-wait { background: #15151a; color: #8888cc; border: 1px solid #202030; }
+  .badge-done { background: #111; color: #555; border: 1px solid #222; }
+  .copy-btn {
+    background: none;
+    border: 1px solid #333;
+    color: #888;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { border-color: #666; color: #ccc; }
+  .copy-btn.copied { border-color: #4a4; color: #6c6; }
+  .actions {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .btn:hover { background: #333; }
+  .btn-copy { background: #1a1a2a; border-color: #334; }
+  .btn-copy:hover { background: #252540; }
+</style>
+</head>
+<body>
+
+<h1>LoPo ToDo Review</h1>
+<p class="subtitle">各タスクの「copy」で個別コピー / 下の「チェック済みをコピー」でまとめてコピー</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num" id="total">0</div><div class="stat-label">未完了タスク</div></div>
+  <div class="stat"><div class="stat-num" id="high">0</div><div class="stat-label">高重要度</div></div>
+  <div class="stat"><div class="stat-num" id="mid">0</div><div class="stat-label">中重要度</div></div>
+  <div class="stat"><div class="stat-num" id="checked-count">0</div><div class="stat-label">チェック済み</div></div>
+  <div class="stat"><div class="stat-num" id="done-count">0</div><div class="stat-label">完了済み</div></div>
+</div>
+
+<div id="sections"></div>
+
+<div class="actions">
+  <button class="btn" onclick="uncheckAll()">全解除</button>
+  <button class="btn btn-copy" onclick="copyChecked()">チェック済みをコピー</button>
+</div>
+
+<script>
+const data = [
+  {
+    title: "バグ",
+    items: [
+      { text: "Firestore同期: 3分クールダウン未実装", desc: "書き込み過多のリスク。usePlanStore.ts", pri: "high" },
+      { text: "起動時Firestore読み込みがブロッキング", desc: "useAuthStore.tsでgetIdTokenResult+getDocを直列await。低速回線で2-3秒遅延", pri: "high" },
+      { text: "アプリ全体の動作が重い", desc: "React.memo追加等。視覚変更が全部終わってから対応", pri: "high" },
+      { text: "Sidebar: button入れ子HTML仕様違反", desc: "ContentTreeItem内。&lt;div&gt;ラップ+stopPropagation方式に修正。a11yにも影響", pri: "mid" },
+      { text: "Googleログイン画面のドメイン表示", desc: "authDomainをlopoly.appに変更済み（第44セッション）", pri: "done" },
+      { text: "THREE.Clock非推奨警告", desc: "THREE.Timerに移行が必要。動作には影響なし", pri: "low" },
+      { text: "FFLogs: 英語主言語ログの言語取得不可", desc: "英語圏ユーザーに影響", pri: "mid" },
+      { text: "FFLogs: 無敵/リビングデッド中のダメージ反映", desc: "データ精度の問題", pri: "mid" },
+      { text: "オートプラン: 無敵を同じ技にまとめたい", desc: "タイミングが違っても同じ技に使うべき", pri: "low" },
+    ]
+  },
+  {
+    title: "公開前に必須",
+    items: [
+      { text: "パフォーマンス最適化", desc: "React.memo / useMemo。視覚変更完了後に実施", pri: "high" },
+      { text: "サイドメニュー・ヘッダー開閉の最適化", desc: "React.memoで対応可能。上記の一部", pri: "high" },
+      { text: "ヒールスキルのタイムライン配置", desc: "テトラ、ディグニティ等のoGCDヒール", pri: "mid" },
+    ]
+  },
+  {
+    title: "Stripe / Ko-fi",
+    items: [
+      { text: "Stripe審査結果待ち", desc: "追加情報提出済み（2026-03-27）", pri: "wait" },
+      { text: "フッター法的リンクまとめ", desc: "審査通過後。プライバシー・利用規約・特商法をドロップダウン等に", pri: "low" },
+    ]
+  },
+  {
+    title: "デザイン改善・ライトモード",
+    items: [
+      { text: "ステータス表示", desc: "ライトモードでデザイン見直し", pri: "mid" },
+      { text: "フェーズ追加モーダル", desc: "OK（第44セッション確認）", pri: "done" },
+      { text: "共有プレビュー作成画面", desc: "OK（第44セッション確認）", pri: "done" },
+      { text: "削除確認画面", desc: "OK（第44セッション確認）", pri: "done" },
+      { text: "オートプラン実行画面", desc: "きれいかも？要確認", pri: "low" },
+      { text: "FFLogsインポート画面", desc: "OK（第44セッション確認）", pri: "done" },
+      { text: "ログイン画面", desc: "OK（第44セッション確認）", pri: "done" },
+    ]
+  },
+  {
+    title: "UI / UX改善",
+    items: [
+      { text: "プラン未選択時の空パネルデザイン", desc: "Liquid Glass実装済みだがデザイン見直しは継続検討", pri: "mid" },
+      { text: "非ログインユーザーへのログイン促進UI", desc: "表を数個作ったタイミングや共有時に案内", pri: "mid" },
+      { text: "ツールチップ色の反転検討", desc: "ダーク・ライト共通で色を反転すべきか", pri: "low" },
+      { text: "管理画面への導線", desc: "管理者ログイン中にユーザーアイコン→/admin", pri: "low" },
+      { text: "LP・人気ページにログイン状態表示", desc: "ヘッダーにアイコンやログインボタンを表示すべきか", pri: "low" },
+    ]
+  },
+  {
+    title: "確認・調査",
+    items: [
+      { text: "パルス・設定の保存確認", desc: "端末またぎで同期されるか", pri: "low" },
+      { text: "i18nハードコーディング精査（21ファイル）", desc: "PartyStatusPopover.tsxの21個のスキル名が最重要", pri: "mid" },
+    ]
+  },
+  {
+    title: "運用・品質基盤（外部レビュー指摘）",
+    items: [
+      { text: "コア機能のテスト追加", desc: "軽減計算・プラン保存復元・Firestore同期・SA法。変更するコードから順に", pri: "high" },
+      { text: "本番エラー監視の導入", desc: "Sentry無料枠 or window.onerror→Discord Webhook簡易版", pri: "high" },
+      { text: "Firestoreバックアップ設定", desc: "Firebase Console→週1自動バックアップ", pri: "high" },
+      { text: "npm audit 定期確認", desc: "月1回の確認を習慣化", pri: "low" },
+      { text: "Vercel 12関数上限の対策", desc: "有料プラン($20/月) or API統合（パスベースルーティング）", pri: "mid" },
+      { text: "a11y（キーボード・スクリーンリーダー・色覚多様性）", desc: "betaテスト後でOK", pri: "low" },
+      { text: "SE素材利用規約の準拠確認", desc: "FF14アイコン等の利用。公開前に確認すべき", pri: "high" },
+      { text: "GDPR対応", desc: "EUユーザーがアクセスした場合", pri: "mid" },
+      { text: "プライバシーポリシー内容確認", desc: "実際のデータ収集内容と一致しているか", pri: "mid" },
+      { text: "LP SEO確認", desc: "meta description、構造化データ等", pri: "low" },
+    ]
+  },
+  {
+    title: "テスト基盤",
+    items: [
+      { text: "planService.tsのテスト追加", desc: "マージロジック等の純粋関数から", pri: "mid" },
+      { text: "Playwright統合テスト", desc: "将来検討", pri: "low" },
+    ]
+  },
+  {
+    title: "スマホ対応",
+    items: [
+      { text: "モーダルのレスポンシブ最適化", desc: "追加改善", pri: "mid" },
+      { text: "タブレット表示の最適化", desc: "", pri: "low" },
+      { text: "スクショからダメージ・軽減判別", desc: "将来のスマホ向け", pri: "low" },
+    ]
+  },
+  {
+    title: "チュートリアル",
+    items: [
+      { text: "追加ステップ（オートプラン体験・共有体験）", desc: "", pri: "low" },
+      { text: "戻るボタンの通し動作確認", desc: "パーティ系ステップの巻き戻し", pri: "low" },
+    ]
+  },
+  {
+    title: "将来の機能",
+    items: [
+      { text: "public/icons/ 削除", desc: "2.1MB / 127ファイル削減", pri: "mid" },
+      { text: "古いプランの自動アーカイブ", desc: "30件超過時に圧縮退避", pri: "low" },
+      { text: "SA法オートプランナー改善", desc: "", pri: "low" },
+      { text: "詠唱バー注釈機能", desc: "ボスの詠唱バー上にメモ", pri: "low" },
+      { text: "AI APIでオートプラン", desc: "無料で数回試せる、課金モデル", pri: "low" },
+      { text: "ハウジングツアープランナー", desc: "要件定義済み。コード実装未着手", pri: "low" },
+      { text: "ゲーム内風リキャスト表示", desc: "円形クールダウンタイマー", pri: "low" },
+      { text: "チートシートモードについて考える", desc: "検討が必要", pri: "mid" },
+    ]
+  },
+];
+
+const priLabel = { high: "高", mid: "中", low: "低", wait: "待ち", done: "完了" };
+const priClass = { high: "badge-high", mid: "badge-mid", low: "badge-low", wait: "badge-wait", done: "badge-done" };
+
+const container = document.getElementById("sections");
+
+data.forEach((section, si) => {
+  const div = document.createElement("div");
+  div.className = "section";
+  div.innerHTML = `
+    <div class="section-header" onclick="toggleSection(${si})">
+      <span class="section-title">${section.title}</span>
+      <span class="section-count">${section.items.length}件</span>
+    </div>
+    <div class="section-body" id="sec-${si}">
+      ${section.items.map((item, ii) => `
+        <div class="item ${item.pri === 'done' ? 'done' : ''}" id="item-${si}-${ii}">
+          <input type="checkbox" onchange="toggle(${si},${ii},this)" ${item.pri === 'done' ? 'disabled' : ''}>
+          <div class="item-content">
+            <div class="item-title">${item.text}</div>
+            ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ""}
+          </div>
+          <div class="item-actions">
+            <button class="copy-btn" onclick="copyOne(this, ${si}, ${ii})">copy</button>
+            <span class="badge ${priClass[item.pri]}">${priLabel[item.pri]}</span>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  container.appendChild(div);
+});
+
+updateStats();
+
+function toggleSection(si) {
+  document.getElementById(`sec-${si}`).classList.toggle("collapsed");
+}
+
+function toggle(si, ii, cb) {
+  document.getElementById(`item-${si}-${ii}`).classList.toggle("checked", cb.checked);
+  updateStats();
+}
+
+function updateStats() {
+  let total = 0, high = 0, mid = 0, checked = 0, done = 0;
+  data.forEach((section, si) => {
+    section.items.forEach((item, ii) => {
+      if (item.pri === 'done') { done++; return; }
+      total++;
+      if (item.pri === 'high') high++;
+      if (item.pri === 'mid') mid++;
+    });
+  });
+  checked = document.querySelectorAll(".item:not(.done) input:checked").length;
+  document.getElementById("total").textContent = total;
+  document.getElementById("high").textContent = high;
+  document.getElementById("mid").textContent = mid;
+  document.getElementById("checked-count").textContent = checked;
+  document.getElementById("done-count").textContent = done;
+}
+
+function uncheckAll() {
+  document.querySelectorAll(".item:not(.done) input:checked").forEach(cb => {
+    cb.checked = false;
+    cb.closest(".item").classList.remove("checked");
+  });
+  updateStats();
+}
+
+function copyOne(btn, si, ii) {
+  const item = data[si].items[ii];
+  const text = item.desc ? `${item.text} — ${item.desc}` : item.text;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "ok!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "copy"; btn.classList.remove("copied"); }, 1200);
+  });
+}
+
+function copyChecked() {
+  const lines = [];
+  document.querySelectorAll(".item:not(.done) input:checked").forEach(cb => {
+    const item = cb.closest(".item");
+    const title = item.querySelector(".item-title").textContent;
+    const desc = item.querySelector(".item-desc");
+    const badge = item.querySelector(".badge").textContent;
+    lines.push(desc ? `[${badge}] ${title} — ${desc.textContent}` : `[${badge}] ${title}`);
+  });
+  if (lines.length === 0) {
+    alert("チェックされたタスクがありません");
+    return;
+  }
+  navigator.clipboard.writeText(lines.join("\n")).then(() => {
+    alert(`${lines.length}件コピーしました`);
+  });
+}
+</script>
+</body>
+</html>

@@ -247,7 +247,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         <button
                             data-tutorial="new-plan-close"
                             onClick={() => onClose()}
-                            className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
+                            className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                         >
                             <X size={18} />
                         </button>

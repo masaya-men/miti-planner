@@ -101,7 +101,7 @@
     },
     "party": {
         "title": "パーティ構成",
-        "settings_title": "パラメータ設定",
+        "settings_title": "ステータス設定",
         "settings_desc": "コンテンツ挑戦当時のステータスが自動適用されています。\n必要に応じて編集してください。",
         "composition": "パーティ",
         "comp_short": "パーティ編成",

@@ -179,7 +179,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             {/* Backdrop */}
             <div
                 className={clsx(
-                    "absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
+                    "absolute inset-0 transition-opacity duration-300 ease-out",
                     visible ? "opacity-100" : "opacity-0"
                 )}
                 onClick={onClose}
@@ -221,7 +221,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-app-text hover:text-white transition-colors p-1.5 rounded-lg hover:bg-app-surface2 cursor-pointer">
+                    <button onClick={onClose} className="text-app-text p-1.5 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                         <X size={16} />
                     </button>
                 </div>
@@ -236,7 +236,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                                    <h4 className="text-xs font-bold text-blue-100 uppercase tracking-wider">TANK</h4>
+                                    <h4 className="text-xs font-bold text-blue-700 dark:text-blue-100 uppercase tracking-wider">TANK</h4>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">HP</label>
@@ -253,7 +253,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         <div className="bg-glass-card border border-glass-border rounded-xl p-4 shadow-sm">
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <h4 className="text-xs font-bold text-green-100 uppercase tracking-wider">HEALER</h4>
+                                <h4 className="text-xs font-bold text-green-700 dark:text-green-100 uppercase tracking-wider">HEALER</h4>
                             </div>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                 <div className="flex items-center justify-between">
@@ -300,7 +300,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             {/* Top Row: Tank (4 cols) and DPS (2 cols) */}
                             <div className="flex gap-2">
                                 <div className="flex-[4]">
-                                    <h5 className="text-[9px] font-extrabold text-blue-300 mb-1">TANK</h5>
+                                    <h5 className="text-[9px] font-extrabold text-blue-700 dark:text-blue-300 mb-1">TANK</h5>
                                     <div className="grid grid-cols-4 gap-1.5">
                                         {skillPreviews.tank.map((s: any) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
@@ -308,7 +308,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     </div>
                                 </div>
                                 <div className="flex-[2]">
-                                    <h5 className="text-[9px] font-extrabold text-red-300 mb-1">DPS</h5>
+                                    <h5 className="text-[9px] font-extrabold text-red-700 dark:text-red-300 mb-1">DPS</h5>
                                     <div className="grid grid-cols-2 gap-1.5">
                                         {skillPreviews.dps.map((s: any) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
@@ -319,7 +319,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
 
                             {/* Bottom Row: Healer (6 cols) */}
                             <div>
-                                <h5 className="text-[9px] font-extrabold text-green-300 mb-1">HEALER</h5>
+                                <h5 className="text-[9px] font-extrabold text-green-700 dark:text-green-300 mb-1">HEALER</h5>
                                 <div className="grid grid-cols-6 gap-1.5 mb-1.5">
                                     {skillPreviews.healerTop.map((s: any) => (
                                         <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />

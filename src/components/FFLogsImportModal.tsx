@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -249,7 +250,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     <CloudDownload size={18} />
                                     {t('fflogs.title')}
                                 </h2>
-                                <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer">
+                                <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                                     <X size={18} />
                                 </button>
                             </div>
@@ -368,7 +369,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         </>
     );
 
-    return (
+    return createPortal(
         <AnimatePresence>
             <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center" onClick={handleClose}>
                 {/* Backdrop */}
@@ -407,7 +408,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             </h2>
                             <button
                                 onClick={handleClose}
-                                className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={18} />
                             </button>
@@ -484,7 +485,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="hidden md:flex relative w-full max-w-lg glass-tier3 shadow-sm rounded-2xl overflow-hidden flex-col"
+                    className="hidden md:flex relative z-[201] w-full max-w-lg glass-tier3 shadow-sm rounded-2xl overflow-hidden flex-col"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -495,7 +496,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                         >
                             <X size={18} />
                         </button>
@@ -516,7 +517,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         <button
                             onClick={handleClose}
                             disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-white hover:bg-app-surface2 transition-colors disabled:opacity-50 cursor-pointer"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>
@@ -550,6 +551,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
                 </motion.div>
             </div>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 };

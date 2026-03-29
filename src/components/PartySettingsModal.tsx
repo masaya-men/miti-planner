@@ -611,7 +611,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             {/* Backdrop */}
             <div
                 className={clsx(
-                    "absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ease-out",
+                    "absolute inset-0 transition-opacity duration-300 ease-out",
                     isOpen ? "opacity-100" : "opacity-0"
                 )}
                 onClick={handleAttemptClose}
@@ -661,7 +661,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text hover:text-white hover:bg-app-surface2 transition-colors cursor-pointer">
+                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                         <X size={18} />
                     </button>
                 </div>

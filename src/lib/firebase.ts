@@ -10,7 +10,7 @@ import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDI7aT8XS1fWWK9Z-lgnyxOcR_7KVkG6F0",
-    authDomain: "lopo-7793e.firebaseapp.com",
+    authDomain: "auth.lopoly.app",
     projectId: "lopo-7793e",
     storageBucket: "lopo-7793e.firebasestorage.app",
     messagingSenderId: "1005853596423",

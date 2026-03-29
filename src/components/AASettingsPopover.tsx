@@ -92,7 +92,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-app-text transition-colors cursor-pointer"
+                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                 >
                     <X size={14} />
                 </button>

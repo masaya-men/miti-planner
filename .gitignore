@@ -58,3 +58,4 @@ update_data.cjs
 *.xlsx
 
 .vercel
+.firebase/
