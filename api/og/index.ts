@@ -171,7 +171,7 @@ export default async function handler(req: Request) {
         let teamLogoBase64: string | null = null;
         if (logoUrl) {
             try {
-                const logoRes = await fetch(decodeURIComponent(logoUrl));
+                const logoRes = await fetch(logoUrl);
                 if (logoRes.ok) {
                     const buf = await logoRes.arrayBuffer();
                     const contentType = logoRes.headers.get('content-type') || 'image/webp';
