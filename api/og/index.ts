@@ -342,24 +342,31 @@ function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, te
         };
     }
 
-    // ロゴあり → 画像背景 + 50%暗オーバーレイ
+    // ロゴあり → 画像背景（backgroundImage: cover）+ 50%暗オーバーレイ
     return {
         type: 'div',
         props: {
-            style: { width: '100%', height: '100%', display: 'flex', backgroundColor: '#000000', fontFamily: '"M PLUS 1", sans-serif', position: 'relative' },
+            style: { width: '100%', height: '100%', display: 'flex', backgroundColor: '#000000', fontFamily: '"M PLUS 1", sans-serif' },
             children: [
                 buildLeftPanel(faviconBase64),
                 {
                     type: 'div',
                     props: {
-                        style: { flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' },
+                        style: {
+                            flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                            backgroundImage: `url(${teamLogoBase64})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            padding: '56px 72px',
+                        },
                         children: [
-                            // ユーザー画像（背景）
-                            { type: 'img', props: { src: teamLogoBase64, style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' } } },
-                            // 50%暗オーバーレイ
-                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)' } } },
-                            // テキストレイヤー
-                            { type: 'div', props: { style: { position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '56px 72px' }, children: textChildren } },
+                            // 50%暗オーバーレイ（テキストの背面に敷く）
+                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } } },
+                            // テキスト（position: relative でオーバーレイの上に）
+                            ...textChildren.map((child: any) => ({
+                                ...child,
+                                props: { ...child.props, style: { ...child.props.style, position: 'relative' } },
+                            })),
                         ],
                     },
                 },
