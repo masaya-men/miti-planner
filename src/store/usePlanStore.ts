@@ -220,7 +220,6 @@ export const usePlanStore = create<PlanState>()(
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
-                // 最低3分間隔のチェック（ただしページ離脱時は強制実行するため呼び出し側で制御）
                 set({ _isSyncing: true });
 
                 try {
@@ -228,20 +227,28 @@ export const usePlanStore = create<PlanState>()(
                     const deletedIds = new Set(state._deletedPlanIds);
                     for (const planId of deletedIds) {
                         try {
-                            // 削除済みプランのcontentIdは不明なので null で処理
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
                             console.error('Firestore削除エラー:', planId, err);
                         }
                     }
 
-                    // dirtyプランの同期
-                    await planService.syncDirtyPlans(
+                    // dirtyプランの同期（リモート削除検出付き）
+                    const deletedRemotely = await planService.syncDirtyPlans(
                         state._dirtyPlanIds,
                         state.plans,
                         uid,
                         displayName,
                     );
+
+                    // リモートで削除されたプランをローカルからも削除
+                    if (deletedRemotely.length > 0) {
+                        for (const planId of deletedRemotely) {
+                            get().deletePlan(planId);
+                        }
+                        const { showToast } = await import('../components/Toast');
+                        showToast('別の端末で削除された表を同期しました');
+                    }
 
                     // 同期完了 → dirty/deletedをクリア
                     set({

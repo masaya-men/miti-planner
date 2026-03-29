@@ -304,17 +304,31 @@ async function migrateLocalPlansToFirestore(
   return merged;
 }
 
+/** プランがFirestoreに存在するか確認 */
+async function checkPlanExists(planId: string): Promise<boolean> {
+  try {
+    const planRef = doc(db, COLLECTIONS.PLANS, planId);
+    const snap = await getDoc(planRef);
+    return snap.exists();
+  } catch {
+    // 権限エラー等 → 存在しないとみなす
+    return false;
+  }
+}
+
 /**
  * dirtyなプランをまとめて Firestore に同期
  * Layout.tsx の自動保存から呼ばれる
+ * @returns リモートで削除されたプランのID一覧
  */
 async function syncDirtyPlans(
   dirtyPlanIds: Set<string>,
   plans: SavedPlan[],
   uid: string,
   displayName: string,
-): Promise<void> {
-  if (dirtyPlanIds.size === 0) return;
+): Promise<string[]> {
+  const deletedRemotely: string[] = [];
+  if (dirtyPlanIds.size === 0) return deletedRemotely;
 
   const plansToSync = plans.filter((p) => dirtyPlanIds.has(p.id));
 
@@ -322,12 +336,19 @@ async function syncDirtyPlans(
   const results = await Promise.allSettled(
     plansToSync.map(async (plan) => {
       if (plan.ownerId === 'local' || plan.ownerId === uid) {
-        // ownerId=localはまだFirestoreに保存されていない新規プラン
-        // ownerId=uidは既存プランだが、更新か新規かをtry/catchで判定
         try {
           await updatePlan(plan, uid);
         } catch {
-          // updateが失敗（ドキュメント未作成など）→ 新規作成
+          // updateが失敗 → 新規作成を試行
+          // ただし ownerId が uid（以前存在したプラン）の場合は
+          // リモートで削除された可能性をチェック
+          if (plan.ownerId === uid) {
+            const exists = await checkPlanExists(plan.id);
+            if (!exists) {
+              deletedRemotely.push(plan.id);
+              return;
+            }
+          }
           await createPlan(plan, uid, displayName);
         }
       }
@@ -340,6 +361,8 @@ async function syncDirtyPlans(
       console.error('Firestore同期エラー:', plansToSync[i].id, result.reason);
     }
   }
+
+  return deletedRemotely;
 }
 
 // ========================================
@@ -352,6 +375,7 @@ export const planService = {
   updatePlan,
   deletePlan,
   checkPlanLimits,
+  checkPlanExists,
   ensurePlanCounts,
   migrateLocalPlansToFirestore,
   syncDirtyPlans,
