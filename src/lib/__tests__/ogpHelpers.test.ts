@@ -168,3 +168,89 @@ describe('trySeriesSummary', () => {
         expect(trySeriesSummary(plans)).toBeNull();
     });
 });
+
+// ========================================
+// CONTENT_META（多言語）
+// ========================================
+describe('CONTENT_META（多言語）', () => {
+    it('全エントリにenフィールドが存在する', () => {
+        for (const [id, meta] of Object.entries(CONTENT_META)) {
+            expect(meta.en, `${id}.en が空`).toBeTruthy();
+        }
+    });
+});
+
+// ========================================
+// getContentName（多言語）
+// ========================================
+describe('getContentName（多言語）', () => {
+    it('lang="ja"で日本語名を返す', () => {
+        expect(getContentName('m9s', 'ja')).toBe('至天の座アルカディア零式：ヘビー級1');
+    });
+
+    it('lang="en"で英語名を返す', () => {
+        expect(getContentName('m9s', 'en')).toBe('AAC Heavyweight M1 (Savage)');
+    });
+
+    it('langを省略するとjaを返す（後方互換）', () => {
+        expect(getContentName('m9s')).toBe('至天の座アルカディア零式：ヘビー級1');
+    });
+
+    it('絶コンテンツの英語名を正しく返す', () => {
+        expect(getContentName('fru', 'en')).toBe('Futures Rewritten (Ultimate)');
+        expect(getContentName('tea', 'en')).toBe('The Epic of Alexander (Ultimate)');
+        expect(getContentName('ucob', 'en')).toBe('The Unending Coil of Bahamut (Ultimate)');
+        expect(getContentName('uwu', 'en')).toBe("The Weapon's Refrain (Ultimate)");
+        expect(getContentName('top', 'en')).toBe('The Omega Protocol (Ultimate)');
+        expect(getContentName('dsr', 'en')).toBe("Dragonsong's Reprise (Ultimate)");
+    });
+
+    it('パンデモニウムの英語名を正しく返す', () => {
+        expect(getContentName('p9s', 'en')).toBe('Anabaseios: The Ninth Circle (Savage)');
+        expect(getContentName('p12s_p1', 'en')).toBe('Anabaseios: The Twelfth Circle (Savage) Phase 1');
+    });
+
+    it('エデンの英語名を正しく返す', () => {
+        expect(getContentName('e9s', 'en')).toBe("Eden's Promise: Umbra (Savage)");
+        expect(getContentName('e5s', 'en')).toBe("Eden's Verse: Fulmination (Savage)");
+        expect(getContentName('e1s', 'en')).toBe("Eden's Gate: Resurrection (Savage)");
+    });
+
+    it('オメガの英語名を正しく返す', () => {
+        expect(getContentName('o9s', 'en')).toBe('Omega: Alphascape V1.0 (Savage)');
+        expect(getContentName('o5s', 'en')).toBe('Omega: Sigmascape V1.0 (Savage)');
+        expect(getContentName('o1s', 'en')).toBe('Omega: Deltascape V1.0 (Savage)');
+    });
+});
+
+// ========================================
+// trySeriesSummary（多言語）
+// ========================================
+describe('trySeriesSummary（多言語）', () => {
+    it('lang="ja"で従来通りまとめ表記を返す', () => {
+        const plans = [
+            { contentId: 'm9s', title: '' },
+            { contentId: 'm10s', title: '' },
+        ];
+        const result = trySeriesSummary(plans, 'ja');
+        expect(result).not.toBeNull();
+        expect(result!.seriesName).toBe('至天の座アルカディア零式');
+        expect(result!.summary).toBe('ヘビー級 1 ｜ 2');
+    });
+
+    it('lang="en"ではnullを返す（英語名はparseTier非対応）', () => {
+        const plans = [
+            { contentId: 'm9s', title: '' },
+            { contentId: 'm10s', title: '' },
+        ];
+        expect(trySeriesSummary(plans, 'en')).toBeNull();
+    });
+
+    it('langを省略すると従来通り日本語で処理', () => {
+        const plans = [
+            { contentId: 'm9s', title: '' },
+            { contentId: 'm10s', title: '' },
+        ];
+        expect(trySeriesSummary(plans)).not.toBeNull();
+    });
+});
