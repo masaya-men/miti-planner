@@ -101,9 +101,6 @@ function getContentName(contentId: string | null): string {
     return CONTENT_META[contentId]?.ja || '';
 }
 
-// テキストシャドウ（画像背景時の視認性確保）
-const TEXT_SHADOW = '0 2px 16px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7)';
-
 // 左パネル幅
 const LEFT_PANEL_WIDTH = 144;
 
@@ -366,7 +363,6 @@ function buildSingleLayout(
     contentName: string, planTitle: string, categoryTag: string,
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoSrc;
     const displayName = contentName || planTitle || 'LoPo';
     const nameLen = displayName.length;
     const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
@@ -380,9 +376,7 @@ function buildSingleLayout(
             type: 'div', props: {
                 style: {
                     fontSize: 18, fontWeight: 400, letterSpacing: 10,
-                    color: hasLogo ? 'rgba(255,255,255,0.4)' : '#2a2a2a',
-                    textTransform: 'uppercase', marginBottom: 32,
-                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
+                    color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 32,
                 },
                 children: categoryTag,
             },
@@ -395,7 +389,6 @@ function buildSingleLayout(
             style: {
                 fontSize: nameFontSize, fontWeight: 900, color: '#ffffff',
                 lineHeight: 1.1, marginBottom: 20, letterSpacing: -0.5,
-                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
             },
             children: displayName,
         },
@@ -405,11 +398,7 @@ function buildSingleLayout(
     if (subtitle) {
         textChildren.push({
             type: 'div', props: {
-                style: {
-                    fontSize: 22, letterSpacing: 1,
-                    color: hasLogo ? 'rgba(255,255,255,0.45)' : '#3a3a3a',
-                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-                },
+                style: { fontSize: 22, letterSpacing: 1, color: '#3a3a3a' },
                 children: subtitle,
             },
         });
@@ -426,8 +415,6 @@ function buildBundleLayout(
     plans: { contentId: string | null; title: string }[],
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoSrc;
-
     // 同シリーズ判定
     const series = trySeriesSummary(plans);
     if (series) {
@@ -435,7 +422,7 @@ function buildBundleLayout(
     }
 
     // 混在コンテンツ
-    return buildMixedLayout(plans, faviconBase64, teamLogoSrc, hasLogo);
+    return buildMixedLayout(plans, faviconBase64, teamLogoSrc);
 }
 
 // 同シリーズまとめ表記
@@ -443,44 +430,27 @@ function buildSeriesLayout(
     series: { seriesName: string; summary: string; categoryTag: string },
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoSrc;
     const textChildren: any[] = [];
 
-    // カテゴリタグ
     if (series.categoryTag) {
         textChildren.push({
             type: 'div', props: {
-                style: {
-                    fontSize: 18, fontWeight: 400, letterSpacing: 10,
-                    color: hasLogo ? 'rgba(255,255,255,0.35)' : '#2a2a2a',
-                    textTransform: 'uppercase', marginBottom: 32,
-                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-                },
+                style: { fontSize: 18, fontWeight: 400, letterSpacing: 10, color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 32 },
                 children: series.categoryTag,
             },
         });
     }
 
-    // シリーズ名
     textChildren.push({
         type: 'div', props: {
-            style: {
-                fontSize: 42, fontWeight: 900, color: '#ffffff',
-                lineHeight: 1.1, marginBottom: 20,
-                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-            },
+            style: { fontSize: 42, fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: 20 },
             children: series.seriesName,
         },
     });
 
-    // まとめ表記（ヘビー級 1 ｜ 2 ｜ 3 ｜ 4）
     textChildren.push({
         type: 'div', props: {
-            style: {
-                fontSize: 30, fontWeight: 700, lineHeight: 1.2,
-                color: hasLogo ? 'rgba(255,255,255,0.7)' : '#999999',
-                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-            },
+            style: { fontSize: 30, fontWeight: 700, lineHeight: 1.2, color: '#999999' },
             children: series.summary,
         },
     });
@@ -491,19 +461,13 @@ function buildSeriesLayout(
 // 混在コンテンツリスト
 function buildMixedLayout(
     plans: { contentId: string | null; title: string }[],
-    faviconBase64: string, teamLogoSrc: string | null, hasLogo: boolean,
+    faviconBase64: string, teamLogoSrc: string | null,
 ) {
     const textChildren: any[] = [];
 
-    // "N PLANS SHARED" ヘッダー
     textChildren.push({
         type: 'div', props: {
-            style: {
-                fontSize: 14, fontWeight: 400, letterSpacing: 10,
-                color: hasLogo ? 'rgba(255,255,255,0.25)' : '#2a2a2a',
-                textTransform: 'uppercase', marginBottom: 24,
-                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-            },
+            style: { fontSize: 14, fontWeight: 400, letterSpacing: 10, color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 24 },
             children: `${plans.length} plans shared`,
         },
     });
@@ -515,7 +479,7 @@ function buildMixedLayout(
     itemsToShow.forEach((plan, i) => {
         if (i > 0) {
             listChildren.push({
-                type: 'div', props: { style: { height: 1, backgroundColor: hasLogo ? 'rgba(255,255,255,0.06)' : '#0a0a0a', width: '100%' } },
+                type: 'div', props: { style: { height: 1, backgroundColor: '#0a0a0a', width: '100%' } },
             });
         }
 
@@ -526,25 +490,9 @@ function buildMixedLayout(
             type: 'div', props: {
                 style: { display: 'flex', alignItems: 'center', padding: '8px 0', width: '100%' },
                 children: [
-                    {
-                        type: 'div', props: {
-                            style: {
-                                fontSize: 37, fontWeight: 900, lineHeight: 1.2, flex: 1,
-                                color: hasLogo ? '#ffffff' : '#cccccc',
-                                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-                            },
-                            children: name,
-                        },
-                    },
+                    { type: 'div', props: { style: { fontSize: 37, fontWeight: 900, lineHeight: 1.2, flex: 1, color: '#cccccc' }, children: name } },
                     ...(shortName ? [{
-                        type: 'div', props: {
-                            style: {
-                                fontSize: 17, letterSpacing: 4, marginLeft: 16,
-                                color: hasLogo ? 'rgba(255,255,255,0.25)' : '#2a2a2a',
-                                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
-                            },
-                            children: shortName,
-                        },
+                        type: 'div', props: { style: { fontSize: 17, letterSpacing: 4, marginLeft: 16, color: '#2a2a2a' }, children: shortName },
                     }] : []),
                 ],
             },
@@ -553,10 +501,7 @@ function buildMixedLayout(
 
     if (plans.length > 5) {
         listChildren.push({
-            type: 'div', props: {
-                style: { fontSize: 20, color: hasLogo ? 'rgba(255,255,255,0.3)' : '#333333', marginTop: 8 },
-                children: `+${plans.length - 5}`,
-            },
+            type: 'div', props: { style: { fontSize: 20, color: '#333333', marginTop: 8 }, children: `+${plans.length - 5}` },
         });
     }
 
