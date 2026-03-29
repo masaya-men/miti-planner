@@ -226,20 +226,8 @@ export default async function handler(req: Request) {
             fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
-        // チームロゴをBase64化（指定がある場合のみ）
-        let teamLogoBase64: string | null = null;
-        if (logoUrl) {
-            try {
-                const logoRes = await fetch(logoUrl);
-                if (logoRes.ok) {
-                    const buf = await logoRes.arrayBuffer();
-                    const ct = logoRes.headers.get('content-type') || 'image/webp';
-                    teamLogoBase64 = `data:${ct};base64,${arrayBufferToBase64(buf)}`;
-                }
-            } catch {
-                // ロゴ取得失敗はスキップ
-            }
-        }
+        // チームロゴURL（Satoriが直接取得する — base64変換はサイズが大きすぎてタイムアウトする）
+        const teamLogoSrc: string | null = logoUrl || null;
 
         // ファビコンをBase64化
         const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
@@ -250,8 +238,8 @@ export default async function handler(req: Request) {
         const element = !shareId
             ? buildFallbackLayout()
             : isBundle
-                ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoBase64)
-                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, faviconBase64, teamLogoBase64);
+                ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc)
+                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, faviconBase64, teamLogoSrc);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 
@@ -327,9 +315,9 @@ function buildLeftPanel(faviconBase64: string) {
 // 右エリアの背景（ユーザー画像 or 黒）
 // ========================================
 
-function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, textChildren: any[]) {
+function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textChildren: any[]) {
     // ロゴなし → 現行の黒背景
-    if (!teamLogoBase64) {
+    if (!teamLogoSrc) {
         return {
             type: 'div',
             props: {
@@ -356,7 +344,7 @@ function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, te
                         style: { width: RIGHT_WIDTH, height: 630, position: 'relative', display: 'flex', overflow: 'hidden' },
                         children: [
                             // ユーザー画像（背景）
-                            { type: 'img', props: { src: teamLogoBase64, width: RIGHT_WIDTH, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
+                            { type: 'img', props: { src: teamLogoSrc, width: RIGHT_WIDTH, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
                             // 50%暗オーバーレイ
                             { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: RIGHT_WIDTH, height: 630, backgroundColor: 'rgba(0,0,0,0.5)' } } },
                             // テキストレイヤー
@@ -375,9 +363,9 @@ function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, te
 
 function buildSingleLayout(
     contentName: string, planTitle: string, categoryTag: string,
-    faviconBase64: string, teamLogoBase64: string | null,
+    faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoBase64;
+    const hasLogo = !!teamLogoSrc;
     const displayName = contentName || planTitle || 'LoPo';
     const nameLen = displayName.length;
     const nameFontSize = hasLogo ? 52 : (nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52);
@@ -426,7 +414,7 @@ function buildSingleLayout(
         });
     }
 
-    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
+    return buildRightArea(faviconBase64, teamLogoSrc, textChildren);
 }
 
 // ========================================
@@ -435,26 +423,26 @@ function buildSingleLayout(
 
 function buildBundleLayout(
     plans: { contentId: string | null; title: string }[],
-    faviconBase64: string, teamLogoBase64: string | null,
+    faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoBase64;
+    const hasLogo = !!teamLogoSrc;
 
     // 同シリーズ判定
     const series = trySeriesSummary(plans);
     if (series) {
-        return buildSeriesLayout(series, faviconBase64, teamLogoBase64);
+        return buildSeriesLayout(series, faviconBase64, teamLogoSrc);
     }
 
     // 混在コンテンツ
-    return buildMixedLayout(plans, faviconBase64, teamLogoBase64, hasLogo);
+    return buildMixedLayout(plans, faviconBase64, teamLogoSrc, hasLogo);
 }
 
 // 同シリーズまとめ表記
 function buildSeriesLayout(
     series: { seriesName: string; summary: string; categoryTag: string },
-    faviconBase64: string, teamLogoBase64: string | null,
+    faviconBase64: string, teamLogoSrc: string | null,
 ) {
-    const hasLogo = !!teamLogoBase64;
+    const hasLogo = !!teamLogoSrc;
     const textChildren: any[] = [];
 
     // カテゴリタグ
@@ -496,13 +484,13 @@ function buildSeriesLayout(
         },
     });
 
-    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
+    return buildRightArea(faviconBase64, teamLogoSrc, textChildren);
 }
 
 // 混在コンテンツリスト
 function buildMixedLayout(
     plans: { contentId: string | null; title: string }[],
-    faviconBase64: string, teamLogoBase64: string | null, hasLogo: boolean,
+    faviconBase64: string, teamLogoSrc: string | null, hasLogo: boolean,
 ) {
     const textChildren: any[] = [];
 
@@ -578,5 +566,5 @@ function buildMixedLayout(
         },
     });
 
-    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
+    return buildRightArea(faviconBase64, teamLogoSrc, textChildren);
 }
