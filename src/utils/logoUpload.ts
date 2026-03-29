@@ -12,13 +12,13 @@ const MAX_SIZE = 2 * 1024 * 1024;
 /** リサイズ後のロゴサイズ（正方形、px） */
 const LOGO_SIZE = 400;
 /** 受け付ける画像MIME Type */
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpeg', 'image/webp'];
 
 /**
  * Canvas API で画像を 400x400px にリサイズして WebP に変換する
  * アスペクト比を維持した cover 方式で中央クロップする
  */
-async function resizeToWebP(file: File): Promise<Blob> {
+async function resizeToPng(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
@@ -40,7 +40,7 @@ async function resizeToWebP(file: File): Promise<Blob> {
                     URL.revokeObjectURL(img.src);
                     blob ? resolve(blob) : reject(new Error('Canvas toBlob failed'));
                 },
-                'image/webp',
+                'image/jpeg',
                 0.85
             );
         };
@@ -99,16 +99,16 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
 
     let blob: Blob;
     try {
-        blob = await resizeToWebP(file);
-        console.log('[LogoUpload] WebPリサイズ成功:', { blobSize: blob.size });
+        blob = await resizeToPng(file);
+        console.log('[LogoUpload] JPEGリサイズ成功:', { blobSize: blob.size });
     } catch (err) {
-        console.error('[LogoUpload] WebPリサイズ失敗:', err);
+        console.error('[LogoUpload] JPEGリサイズ失敗:', err);
         throw err;
     }
 
-    const storageRef = ref(storage, `users/${userId}/team-logo.webp`);
+    const storageRef = ref(storage, `users/${userId}/team-logo.jpg`);
     try {
-        await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
+        await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
         console.log('[LogoUpload] Storage アップロード成功');
     } catch (err) {
         console.error('[LogoUpload] Storage アップロード失敗:', err);
@@ -135,7 +135,7 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
  * Storage にファイルが存在しない場合はエラーを無視する
  */
 export async function deleteTeamLogo(userId: string): Promise<void> {
-    const storageRef = ref(storage, `users/${userId}/team-logo.webp`);
+    const storageRef = ref(storage, `users/${userId}/team-logo.jpg`);
     try {
         await deleteObject(storageRef);
     } catch {
