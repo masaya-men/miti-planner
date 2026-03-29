@@ -342,7 +342,8 @@ function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, te
         };
     }
 
-    // ロゴあり → 画像背景（backgroundImage: cover）+ 50%暗オーバーレイ
+    // ロゴあり → 画像背景 + 50%暗オーバーレイ
+    const RIGHT_WIDTH = 1200 - LEFT_PANEL_WIDTH; // 1056
     return {
         type: 'div',
         props: {
@@ -352,21 +353,14 @@ function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, te
                 {
                     type: 'div',
                     props: {
-                        style: {
-                            flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                            backgroundImage: `url(${teamLogoBase64})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            padding: '56px 72px',
-                        },
+                        style: { width: RIGHT_WIDTH, height: 630, position: 'relative', display: 'flex', overflow: 'hidden' },
                         children: [
-                            // 50%暗オーバーレイ（テキストの背面に敷く）
-                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' } } },
-                            // テキスト（position: relative でオーバーレイの上に）
-                            ...textChildren.map((child: any) => ({
-                                ...child,
-                                props: { ...child.props, style: { ...child.props.style, position: 'relative' } },
-                            })),
+                            // ユーザー画像（背景）
+                            { type: 'img', props: { src: teamLogoBase64, width: RIGHT_WIDTH, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
+                            // 50%暗オーバーレイ
+                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: RIGHT_WIDTH, height: 630, backgroundColor: 'rgba(0,0,0,0.5)' } } },
+                            // テキストレイヤー
+                            { type: 'div', props: { style: { position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: '56px 72px' }, children: textChildren } },
                         ],
                     },
                 },
