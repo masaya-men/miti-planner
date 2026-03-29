@@ -7,6 +7,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
@@ -53,14 +54,20 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'POST') {
             // ── 保存 ──
-            const { planData, title, contentId, plans, logoBase64 } = req.body;
+            const { planData, title, contentId, plans, logoStoragePath } = req.body;
 
-            // ロゴbase64のバリデーション（data:image/で始まる文字列のみ許可、500KB上限）
-            const validLogo = typeof logoBase64 === 'string'
-                && logoBase64.startsWith('data:image/')
-                && logoBase64.length < 500_000
-                ? logoBase64
-                : null;
+            // firebase-adminでロゴをダウンロードしてbase64に変換
+            let logoBase64: string | null = null;
+            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg')) {
+                try {
+                    const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
+                    const file = bucket.file(logoStoragePath);
+                    const [buffer] = await file.download();
+                    logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                } catch (err) {
+                    console.error('Logo download failed:', err);
+                }
+            }
 
             // バンドル共有（複数プランまとめて）
             if (Array.isArray(plans) && plans.length > 0) {
@@ -77,7 +84,7 @@ export default async function handler(req: any, res: any) {
                     viewCount: 0,
                     createdAt: Date.now(),
                 };
-                if (validLogo) doc.logoBase64 = validLogo;
+                if (logoBase64) doc.logoBase64 = logoBase64;
                 await db.collection(COLLECTION).doc(shareId).set(doc);
                 return res.status(200).json({ shareId });
             }
@@ -97,7 +104,7 @@ export default async function handler(req: any, res: any) {
                 viewCount: 0,
                 createdAt: Date.now(),
             };
-            if (validLogo) doc.logoBase64 = validLogo;
+            if (logoBase64) doc.logoBase64 = logoBase64;
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
 

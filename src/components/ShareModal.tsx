@@ -43,7 +43,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
     /**
      * OGP画像URLを構築するヘルパー
-     * プラン名・ロゴの表示フラグをクエリパラメータに反映する
      * ロゴはshareデータに埋め込み済みなので、showLogoフラグのみ渡す
      */
     const buildOgUrl = (id: string, planTitle: boolean, logo: boolean) => {
@@ -51,23 +50,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         if (!planTitle) url += '&showTitle=false';
         if (logo) url += '&showLogo=true';
         return url;
-    };
-
-    /** ロゴ画像をfetchしてbase64 data URIに変換する */
-    const fetchLogoAsBase64 = async (logoUrl: string): Promise<string | null> => {
-        try {
-            const res = await fetch(logoUrl);
-            if (!res.ok) return null;
-            const blob = await res.blob();
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = () => resolve(null);
-                reader.readAsDataURL(blob);
-            });
-        } catch {
-            return null;
-        }
     };
 
     // モーダルが開いたら共有URLを生成
@@ -83,12 +65,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const generateShareUrl = async () => {
         setLoading(true);
         try {
-            // ロゴが有効ならブラウザ側でbase64に変換（サーバーからFirebase Storageへのfetchを回避）
-            let logoBase64: string | null = null;
-            if (showLogo && teamLogoUrl) {
-                logoBase64 = await fetchLogoAsBase64(teamLogoUrl);
-            }
-
             let body: any;
             if (isBundle) {
                 body = { plans: bundlePlans };
@@ -100,7 +76,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     contentId: currentPlan?.contentId || null,
                 };
             }
-            if (logoBase64) body.logoBase64 = logoBase64;
+            // ロゴが有効ならストレージパスをサーバーに送る（サーバー側でfirebase-adminでダウンロード）
+            if (showLogo && teamLogoUrl && user) {
+                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
+            }
 
             const res = await apiFetch('/api/share', {
                 method: 'POST',
