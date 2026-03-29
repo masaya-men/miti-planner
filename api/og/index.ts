@@ -223,8 +223,23 @@ export default async function handler(req: Request) {
             fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
-        // チームロゴURL（Satoriが直接取得する — base64変換はサイズが大きすぎてタイムアウトする）
-        const teamLogoSrc: string | null = logoUrl || null;
+        // チームロゴをBase64化（タイムアウト5秒、失敗時はロゴなしで生成）
+        let teamLogoSrc: string | null = null;
+        if (logoUrl) {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+                const logoRes = await fetch(logoUrl, { signal: controller.signal });
+                clearTimeout(timeout);
+                if (logoRes.ok) {
+                    const buf = await logoRes.arrayBuffer();
+                    const ct = logoRes.headers.get('content-type') || 'image/jpeg';
+                    teamLogoSrc = `data:${ct};base64,${arrayBufferToBase64(buf)}`;
+                }
+            } catch {
+                // タイムアウトまたは取得失敗 → ロゴなしで生成
+            }
+        }
 
         // ファビコンをBase64化
         const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
@@ -327,7 +342,8 @@ function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textC
         };
     }
 
-    // ロゴあり → backgroundImage で画像背景 + 暗オーバーレイをテキストシャドウで代替
+    // ロゴあり → img要素で背景画像 + 暗オーバーレイ + テキスト
+    const RW = 1200 - LEFT_PANEL_WIDTH;
     return {
         type: 'div',
         props: {
@@ -337,17 +353,12 @@ function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textC
                 {
                     type: 'div',
                     props: {
-                        style: {
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: '56px 72px',
-                            backgroundImage: `url(${teamLogoSrc})`,
-                            backgroundSize: '1056px 630px',
-                            backgroundPosition: 'center',
-                        },
-                        children: textChildren,
+                        style: { width: RW, height: 630, display: 'flex', position: 'relative' },
+                        children: [
+                            { type: 'img', props: { src: teamLogoSrc, width: RW, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
+                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: RW, height: 630, backgroundColor: 'rgba(0,0,0,0.5)' } } },
+                            { type: 'div', props: { style: { position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: '56px 72px' }, children: textChildren } },
+                        ],
                     },
                 },
             ],
