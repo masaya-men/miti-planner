@@ -835,7 +835,7 @@
         "copied_toast": "コピーしました",
         "copied_all_toast": "{{count}}件の軽減表をコピーしました",
         "no_data": "まだデータがありません",
-        "no_data_desc": "軽減表を共有すると、ここにランキングが表示されます",
+        "no_data_desc": "軽減表を共有すると、ここに表示されます",
         "back_to_miti": "軽減表に戻る",
         "open_popular": "みんなの軽減表",
         "save_to_mine": "保存",

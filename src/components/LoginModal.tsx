@@ -136,7 +136,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     onClick={() => { signOut(); onClose(); }}
                                     className={clsx(
                                         "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
-                                        "text-red-400 border border-red-400/30 hover:bg-red-500/10 hover:border-red-400/50"
+                                        "text-app-red border border-app-red-border hover:bg-app-red-dim hover:border-app-red"
                                     )}
                                 >
                                     <LogOut size={14} />

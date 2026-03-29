@@ -311,7 +311,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
 
                 {/* Warning about overwrite */}
-                <div className="flex items-start gap-2 text-amber-400/80 bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 text-xs">
+                <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-3 rounded-lg border border-app-amber-border text-xs">
                     <AlertCircle size={13} className="shrink-0 mt-0.5" />
                     <span>{t('fflogs.warning_overwrite')}</span>
                 </div>
@@ -345,7 +345,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             </div>
 
             {urlError && (
-                <div className="mt-3 flex items-start gap-2 text-rose-400 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20 text-sm">
+                <div className="mt-3 flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-sm">
                     <AlertCircle size={16} className="shrink-0 mt-0.5" />
                     <p>{urlError}</p>
                 </div>
@@ -360,7 +360,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             )}
 
             {status.phase === 'error' && (
-                <div className="mt-4 flex items-start gap-2 text-rose-400 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20 text-sm">
+                <div className="mt-4 flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-sm">
                     <AlertCircle size={16} className="shrink-0 mt-0.5" />
                     <p className="whitespace-pre-wrap">{status.message}</p>
                 </div>
@@ -423,7 +423,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     <motion.div {...slideUp} key="fetch-actions" className="mt-5 flex flex-col gap-3">
                                         <button
                                             onClick={handleFetch}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-transform cursor-pointer"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CloudDownload size={18} />
                                             {t('fflogs.fetch_button')}
@@ -461,7 +461,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                                         <button
                                             onClick={handleImport}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-transform cursor-pointer"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CheckCircle2 size={18} />
                                             {t('fflogs.import_button')}
@@ -528,7 +528,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                 className={clsx(
                                     'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 cursor-pointer',
                                     canFetch
-                                        ? 'bg-app-text text-app-bg hover:opacity-80'
+                                        ? 'bg-app-blue text-white hover:bg-app-blue-hover'
                                         : 'bg-app-surface2 text-app-text-muted cursor-not-allowed'
                                 )}
                             >
@@ -541,7 +541,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         ) : (
                             <button
                                 onClick={handleImport}
-                                className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 bg-app-text text-app-bg hover:opacity-80 cursor-pointer"
+                                className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 bg-app-blue text-white hover:bg-app-blue-hover cursor-pointer"
                             >
                                 <CheckCircle2 size={16} />
                                 {t('fflogs.import_button')}

@@ -381,8 +381,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                             <div className={clsx(
                                 "flex items-start gap-2 p-3 rounded-xl text-[11px] border",
                                 isBlocked
-                                    ? "bg-app-text/5 border-app-text/20 text-app-text"
-                                    : "bg-app-text/3 border-app-text/10 text-app-text-muted"
+                                    ? "bg-app-red-dim border-app-red-border text-app-red"
+                                    : "bg-app-amber-dim border-app-amber-border text-app-amber"
                             )}>
                                 <AlertTriangle size={14} className="shrink-0 mt-0.5" />
                                 <div>
@@ -419,7 +419,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 className={clsx(
                                     "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
                                     canCreate && !isBlocked
-                                        ? "bg-app-text text-app-bg hover:opacity-80"
+                                        ? "bg-app-blue text-white hover:bg-app-blue-hover"
                                         : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
                                 )}
                             >

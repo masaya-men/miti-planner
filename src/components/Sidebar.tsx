@@ -1197,8 +1197,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     className={clsx(
                                         "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
                                         multiSelect.selectedIds.length > 0
-                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
-                                            : "bg-app-text/10 text-app-text-muted opacity-50 cursor-not-allowed"
+                                            ? "bg-app-blue text-white hover:bg-app-blue-hover active:scale-95"
+                                            : "bg-app-blue-dim text-app-text-muted opacity-50 cursor-not-allowed"
                                     )}
                                 >
                                     <Share2 size={13} />
@@ -1214,8 +1214,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     className={clsx(
                                         "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
                                         multiSelect.selectedIds.length > 0
-                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-95"
-                                            : "bg-app-text/10 text-app-text-muted opacity-50 cursor-not-allowed"
+                                            ? "bg-app-red text-white hover:bg-app-red-hover active:scale-95"
+                                            : "bg-app-red-dim text-app-text-muted opacity-50 cursor-not-allowed"
                                     )}
                                 >
                                     <Trash2 size={13} />
@@ -1408,7 +1408,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     onClick={() => setShowDeleteConfirm(false)}
                 >
                     <div
-                        className="relative w-full max-w-[400px] bg-glass-panel border border-glass-border/50 rounded-2xl shadow-sm overflow-hidden"
+                        className="relative w-full max-w-[400px] glass-tier3 rounded-2xl overflow-hidden"
                         onClick={e => e.stopPropagation()}
                     >
                         {/* ヘッダー */}
@@ -1459,7 +1459,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
                                     setShowDeleteConfirm(false);
                                 }}
-                                className="flex-[2] py-3.5 rounded-2xl text-[11px] font-black bg-app-text text-app-bg hover:opacity-80 transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
+                                className="flex-[2] py-3.5 rounded-2xl text-[11px] font-black bg-app-red text-white hover:bg-app-red-hover transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
                             >
                                 {t('sidebar.delete')}
                             </button>

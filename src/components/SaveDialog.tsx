@@ -109,7 +109,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                             className={clsx(
                                 "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95 flex items-center justify-center gap-2",
                                 title.trim()
-                                    ? "bg-app-text text-app-bg hover:opacity-80"
+                                    ? "bg-app-blue text-white hover:bg-app-blue-hover"
                                     : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"
                             )}
                         >
