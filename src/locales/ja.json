@@ -82,17 +82,18 @@
     },
     "team_logo": {
         "title": "チームロゴ",
-        "upload": "ロゴをアップロード",
-        "change": "ロゴを変更",
-        "remove": "ロゴを削除",
+        "upload": "ロゴを設定",
+        "change": "変更",
+        "remove": "削除",
         "show_on_ogp": "共有画像にロゴを表示",
         "uploading": "アップロード中...",
-        "format_hint": "PNG / JPG / WebP（最大2MB）",
-        "upload_success": "ロゴをアップロードしました",
+        "format_hint": "PNG / JPG / WebP（2MB以下）",
+        "upload_success": "ロゴを設定しました",
         "remove_success": "ロゴを削除しました",
-        "error_too_large": "ファイルサイズが大きすぎます（最大2MB）",
-        "error_invalid_type": "対応していないファイル形式です",
-        "error_upload_failed": "アップロードに失敗しました"
+        "error_too_large": "ファイルが大きすぎます（2MB以下にしてください）",
+        "error_invalid_type": "PNG・JPG・WebP のみ対応しています",
+        "error_upload_failed": "アップロードに失敗しました。時間を置いて再度お試しください",
+        "error_remove_failed": "削除に失敗しました。時間を置いて再度お試しください"
     },
     "party": {
         "title": "パーティ構成",

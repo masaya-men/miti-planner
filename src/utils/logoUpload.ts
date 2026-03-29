@@ -3,8 +3,8 @@
  * Firebase Storage に WebP 変換済みロゴを保存し、Firestore に URL を記録する
  */
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { doc, setDoc } from 'firebase/firestore';
-import { storage, db } from '../lib/firebase';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, storage, db } from '../lib/firebase';
 import { COLLECTIONS } from '../types/firebase';
 
 /** ロゴファイルの最大サイズ（2MB） */
@@ -63,19 +63,68 @@ export function validateLogoFile(file: File): string | null {
 }
 
 /**
+ * Firestore の users/{uid} ドキュメントに teamLogoUrl を保存する
+ * ドキュメントが存在しない場合は、セキュリティルールが要求する必須フィールド付きで作成する
+ */
+async function saveLogoUrlToFirestore(userId: string, url: string | null): Promise<void> {
+    const userRef = doc(db, COLLECTIONS.USERS, userId);
+    const snapshot = await getDoc(userRef);
+
+    if (snapshot.exists()) {
+        // ドキュメントが存在する場合は teamLogoUrl のみ更新
+        await updateDoc(userRef, { teamLogoUrl: url });
+    } else {
+        // ドキュメントが存在しない場合は必須フィールド付きで作成
+        const user = auth.currentUser;
+        const provider = user?.providerData[0]?.providerId === 'google.com' ? 'google'
+            : user?.providerData[0]?.providerId === 'discord' ? 'discord'
+            : 'twitter';
+        await setDoc(userRef, {
+            displayName: user?.displayName || 'User',
+            provider,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            settings: {},
+            teamLogoUrl: url,
+        });
+    }
+}
+
+/**
  * チームロゴをアップロードする
  * リサイズ → Firebase Storage → Firestore の順に処理し、ダウンロード URL を返す
- * Firestore ドキュメントが存在しない場合は自動作成（merge: true）
  */
 export async function uploadTeamLogo(userId: string, file: File): Promise<string> {
-    const blob = await resizeToWebP(file);
-    const storageRef = ref(storage, `users/${userId}/team-logo.webp`);
-    await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
-    const url = await getDownloadURL(storageRef);
+    console.log('[LogoUpload] 開始:', { userId, fileName: file.name, fileSize: file.size, fileType: file.type });
 
-    // Firestore に URL を保存（ドキュメントがなければ作成）
-    const userRef = doc(db, COLLECTIONS.USERS, userId);
-    await setDoc(userRef, { teamLogoUrl: url }, { merge: true });
+    let blob: Blob;
+    try {
+        blob = await resizeToWebP(file);
+        console.log('[LogoUpload] WebPリサイズ成功:', { blobSize: blob.size });
+    } catch (err) {
+        console.error('[LogoUpload] WebPリサイズ失敗:', err);
+        throw err;
+    }
+
+    const storageRef = ref(storage, `users/${userId}/team-logo.webp`);
+    try {
+        await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
+        console.log('[LogoUpload] Storage アップロード成功');
+    } catch (err) {
+        console.error('[LogoUpload] Storage アップロード失敗:', err);
+        throw err;
+    }
+
+    const url = await getDownloadURL(storageRef);
+    console.log('[LogoUpload] ダウンロードURL取得成功');
+
+    try {
+        await saveLogoUrlToFirestore(userId, url);
+        console.log('[LogoUpload] Firestore 保存成功');
+    } catch (err) {
+        console.error('[LogoUpload] Firestore 保存失敗:', err);
+        throw err;
+    }
 
     return url;
 }
@@ -92,6 +141,10 @@ export async function deleteTeamLogo(userId: string): Promise<void> {
     } catch {
         // ファイルが存在しない場合は無視
     }
-    const userRef = doc(db, COLLECTIONS.USERS, userId);
-    await setDoc(userRef, { teamLogoUrl: null }, { merge: true });
+    try {
+        await saveLogoUrlToFirestore(userId, null);
+    } catch (err) {
+        console.error('[LogoUpload] Firestore ロゴURL削除失敗:', err);
+        throw err;
+    }
 }

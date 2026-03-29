@@ -135,7 +135,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, true));
                 setShowLogo(true);
             }
-        } catch {
+        } catch (err) {
+            console.error('[LogoUpload] アップロードエラー詳細:', err);
             showToast(t('team_logo.error_upload_failed'), 'error');
         } finally {
             setUploading(false);
@@ -171,7 +172,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, false));
             }
         } catch {
-            showToast(t('team_logo.error_upload_failed'), 'error');
+            showToast(t('team_logo.error_remove_failed'), 'error');
         }
     };
 
@@ -220,9 +221,27 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     </button>
                 </div>
 
-                {/* OGPプレビュー */}
+                {/* OGPプレビュー（ロゴD&D対応） */}
                 <div className="px-5 py-4">
-                    <div className="relative w-full aspect-[1200/630] bg-app-surface2 rounded-lg overflow-hidden border border-app-border">
+                    <div
+                        className={clsx(
+                            "relative w-full aspect-[1200/630] bg-app-surface2 rounded-lg overflow-hidden border transition-colors",
+                            user && dragging
+                                ? "border-app-text border-dashed"
+                                : "border-app-border"
+                        )}
+                        onDragOver={user ? (e) => { e.preventDefault(); setDragging(true); } : undefined}
+                        onDragLeave={user ? () => setDragging(false) : undefined}
+                        onDrop={user ? handleDrop : undefined}
+                    >
+                        {/* D&Dオーバーレイ（ログインユーザーのみ） */}
+                        {user && dragging && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-app-bg/60 z-20">
+                                <span className="text-xs font-bold text-app-text">
+                                    {t('team_logo.upload')}
+                                </span>
+                            </div>
+                        )}
                         {/* 生成中インジケータ: API通信中 or 画像ロード完了前まで表示 */}
                         {(!imageLoaded) && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
@@ -290,61 +309,50 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             </button>
                         )}
 
-                        {/* アップロード/変更/削除 */}
-                        {teamLogoUrl ? (
-                            <div className="flex items-center gap-2">
-                                <img
-                                    src={teamLogoUrl}
-                                    alt="Team Logo"
-                                    className="w-8 h-8 rounded object-cover border border-app-border"
-                                />
+                        {/* ロゴ設定行（コンパクト） */}
+                        <div className="flex items-center gap-2">
+                            {teamLogoUrl ? (
+                                <>
+                                    <img
+                                        src={teamLogoUrl}
+                                        alt="Team Logo"
+                                        className="w-8 h-8 rounded object-cover border border-app-border"
+                                    />
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                    >
+                                        <ImageIcon size={11} />
+                                        {t('team_logo.change')}
+                                    </button>
+                                    <button
+                                        onClick={handleLogoDelete}
+                                        disabled={uploading}
+                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                    >
+                                        <Trash2 size={11} />
+                                        {t('team_logo.remove')}
+                                    </button>
+                                </>
+                            ) : (
                                 <button
-                                    onClick={() => fileInputRef.current?.click()}
+                                    onClick={() => !uploading && fileInputRef.current?.click()}
                                     disabled={uploading}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold border border-app-border text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
                                 >
-                                    <ImageIcon size={12} />
-                                    {t('team_logo.change')}
-                                </button>
-                                <button
-                                    onClick={handleLogoDelete}
-                                    disabled={uploading}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
-                                >
-                                    <Trash2 size={12} />
-                                    {t('team_logo.remove')}
-                                </button>
-                                <span className="text-[10px] text-app-text-muted ml-auto">
-                                    {t('team_logo.format_hint')}
-                                </span>
-                            </div>
-                        ) : (
-                            /* ドロップゾーン（PC向けD&D + クリックでファイル選択） */
-                            <div
-                                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-                                onDragLeave={() => setDragging(false)}
-                                onDrop={handleDrop}
-                                onClick={() => !uploading && fileInputRef.current?.click()}
-                                className={clsx(
-                                    "flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-dashed transition-all cursor-pointer",
-                                    dragging
-                                        ? "border-app-text bg-app-text/5"
-                                        : "border-app-border hover:border-app-text/40 hover:bg-app-text/[0.02]"
-                                )}
-                            >
-                                {uploading ? (
-                                    <Loader2 size={16} className="animate-spin text-app-text-muted" />
-                                ) : (
-                                    <Upload size={16} className="text-app-text-muted" />
-                                )}
-                                <span className="text-[11px] font-bold text-app-text-muted">
+                                    {uploading ? (
+                                        <Loader2 size={12} className="animate-spin" />
+                                    ) : (
+                                        <Upload size={12} />
+                                    )}
                                     {uploading ? t('team_logo.uploading') : t('team_logo.upload')}
-                                </span>
-                                <span className="text-[10px] text-app-text-muted/60">
-                                    {t('team_logo.format_hint')}
-                                </span>
-                            </div>
-                        )}
+                                </button>
+                            )}
+                            <span className="text-[10px] text-app-text-muted/50 ml-auto">
+                                {t('team_logo.format_hint')}
+                            </span>
+                        </div>
 
                         {/* 隠しファイルインプット */}
                         <input
