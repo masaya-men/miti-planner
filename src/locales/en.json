@@ -28,6 +28,7 @@
         "copy_link": "Copy Link",
         "link_copied": "Link copied",
         "share_failed": "Failed to generate share link",
+        "plan_deleted_remotely": "Synced: a table was deleted on another device",
         "share_modal_title": "Share",
         "share_bundle_title": "Share Selected",
         "share_on_x": "Share",

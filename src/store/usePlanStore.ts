@@ -247,7 +247,8 @@ export const usePlanStore = create<PlanState>()(
                             get().deletePlan(planId);
                         }
                         const { showToast } = await import('../components/Toast');
-                        showToast('別の端末で削除された表を同期しました');
+                        const i18next = (await import('i18next')).default;
+                        showToast(i18next.t('app.plan_deleted_remotely'));
                     }
 
                     // 同期完了 → dirty/deletedをクリア

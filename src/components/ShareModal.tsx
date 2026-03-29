@@ -119,6 +119,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         } catch (err) {
             console.error('Share logo update failed:', err);
             showToast(t('app.share_failed'));
+            setImageLoaded(true); // エラー時にボタンを再有効化
         }
     };
 
