@@ -58,7 +58,7 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
-            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg')) {
+            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg') && !logoStoragePath.includes('..')) {
                 try {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);
@@ -126,7 +126,7 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
-            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg')) {
+            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg') && !logoStoragePath.includes('..')) {
                 try {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);

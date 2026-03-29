@@ -30,6 +30,7 @@
         "copy_link": "リンクをコピー",
         "link_copied": "リンクをコピーしました",
         "share_failed": "共有リンクの生成に失敗しました",
+        "plan_deleted_remotely": "別の端末で削除された表を同期しました",
         "share_modal_title": "共有",
         "share_bundle_title": "まとめて共有",
         "share_on_x": "で共有",
