@@ -22,7 +22,7 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({
     isOpen, onClose, contentLabel, currentPlan, bundlePlans,
 }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);
     const [, setLoading] = useState(false);
@@ -49,6 +49,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         let url = `${window.location.origin}/api/og?id=${id}`;
         if (!planTitle) url += '&showTitle=false';
         if (logo) url += '&showLogo=true';
+        url += `&lang=${i18n.language === 'en' ? 'en' : 'ja'}`;
         return url;
     };
 
@@ -80,6 +81,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (showLogo && teamLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
+            body.lang = i18n.language === 'en' ? 'en' : 'ja';
 
             const res = await apiFetch('/api/share', {
                 method: 'POST',
