@@ -54,7 +54,7 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'POST') {
             // ── 保存 ──
-            const { planData, title, contentId, plans, logoStoragePath } = req.body;
+            const { planData, title, contentId, plans, logoStoragePath, lang } = req.body;
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
@@ -75,6 +75,7 @@ export default async function handler(req: any, res: any) {
                 const doc: any = {
                     shareId,
                     type: 'bundle',
+                    lang: lang === 'en' ? 'en' : 'ja',
                     plans: plans.map((p: any) => ({
                         contentId: p.contentId || null,
                         title: p.title || '',
@@ -97,6 +98,7 @@ export default async function handler(req: any, res: any) {
             const shareId = nanoid(8);
             const doc: any = {
                 shareId,
+                lang: lang === 'en' ? 'en' : 'ja',
                 title: title || '',
                 contentId: contentId || null,
                 planData,
