@@ -66,7 +66,7 @@ export default async function handler(req: Request) {
         let allText = 'LoPo｜前半後半';
         if (isBundle) {
             allText += bundlePlans.map(p => getContentName(p.contentId, lang) + (p.title || '')).join('');
-            allText += `${bundlePlans.length} plans shared`;
+            allText += lang === 'en' ? `${bundlePlans.length} plans shared` : `${bundlePlans.length}件の軽減プラン`;
             const series = trySeriesSummary(bundlePlans, lang);
             if (series) allText += series.summary;
         } else {
@@ -338,7 +338,7 @@ function buildMixedLayout(
     textChildren.push({
         type: 'div', props: {
             style: { fontSize: 14, fontWeight: 400, letterSpacing: 10, color: hasLogo ? 'rgba(255,255,255,0.5)' : '#2a2a2a', textTransform: 'uppercase', marginBottom: 24 },
-            children: `${plans.length} plans shared`,
+            children: lang === 'en' ? `${plans.length} plans shared` : `${plans.length}件の軽減プラン`,
         },
     });
 
