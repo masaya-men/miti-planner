@@ -87,9 +87,13 @@ export function getCategoryTag(contentId: string | null): string {
     return `${CATEGORY_LABELS[meta.category] || meta.category} — Lv.${meta.level}`;
 }
 
-export function getContentName(contentId: string | null): string {
+export type OgpLang = 'ja' | 'en';
+
+export function getContentName(contentId: string | null, lang: OgpLang = 'ja'): string {
     if (!contentId) return '';
-    return CONTENT_META[contentId]?.ja || '';
+    const meta = CONTENT_META[contentId];
+    if (!meta) return '';
+    return meta[lang] || meta.ja || '';
 }
 
 export interface ParsedTier {
@@ -108,7 +112,10 @@ export function parseTier(ja: string): ParsedTier | null {
 }
 
 // バンドルプランが全て同シリーズかどうか判定し、まとめ表記を返す
-export function trySeriesSummary(plans: { contentId: string | null; title: string }[]): {
+export function trySeriesSummary(
+    plans: { contentId: string | null; title: string }[],
+    lang: OgpLang = 'ja',
+): {
     seriesName: string;
     tierName: string;
     summary: string;
@@ -116,9 +123,12 @@ export function trySeriesSummary(plans: { contentId: string | null; title: strin
 } | null {
     if (plans.length < 2) return null;
 
+    // parseTierは日本語名の構造に依存するため、英語モードではまとめ表記を使わない
+    if (lang !== 'ja') return null;
+
     const parsed: ParsedTier[] = [];
     for (const plan of plans) {
-        const name = getContentName(plan.contentId);
+        const name = getContentName(plan.contentId, 'ja');
         if (!name) return null;
         const p = parseTier(name);
         if (!p) return null;
