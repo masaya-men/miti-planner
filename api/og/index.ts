@@ -162,7 +162,7 @@ export default async function handler(req: Request) {
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
         const showTitle = searchParams.get('showTitle') !== 'false';
-        const logoUrl = searchParams.get('logoUrl');
+        const showLogo = searchParams.get('showLogo') === 'true';
 
         let contentId: string | null = null;
         let contentName = '';
@@ -170,12 +170,16 @@ export default async function handler(req: Request) {
         let categoryTag = '';
         let bundlePlans: { contentId: string | null; title: string }[] = [];
         let isBundle = false;
+        let logoBase64FromShare: string | null = null;
 
         if (shareId) {
             try {
                 const res = await fetch(`${origin}/api/share?id=${encodeURIComponent(shareId)}`);
                 if (res.ok) {
                     const data = await res.json();
+                    // 共有データに埋め込まれたロゴを取得
+                    if (data.logoBase64) logoBase64FromShare = data.logoBase64;
+
                     if (data.type === 'bundle' && Array.isArray(data.plans)) {
                         isBundle = true;
                         bundlePlans = data.plans.map((p: any) => ({
@@ -223,74 +227,13 @@ export default async function handler(req: Request) {
             fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
         }
 
-        // チームロゴをBase64化（タイムアウト5秒、失敗時はロゴなしで生成）
-        let teamLogoSrc: string | null = null;
-        const debugMode = searchParams.get('debug');
-        let logoDebugInfo = '';  // 視覚デバッグ用
-        if (logoUrl) {
-            try {
-                logoDebugInfo += `URL: ${logoUrl.substring(0, 60)}...\n`;
-                console.log('[OG] ロゴフェッチ開始:', logoUrl.substring(0, 80) + '...');
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 5000);
-                const logoRes = await fetch(logoUrl, { signal: controller.signal });
-                clearTimeout(timeout);
-                const ct = logoRes.headers.get('content-type') || '(none)';
-                logoDebugInfo += `Status: ${logoRes.status} | CT: ${ct}\n`;
-                console.log('[OG] ロゴフェッチ結果: status=', logoRes.status, 'ok=', logoRes.ok, 'content-type=', ct);
-                if (logoRes.ok) {
-                    const buf = await logoRes.arrayBuffer();
-                    logoDebugInfo += `Size: ${buf.byteLength} bytes\n`;
-                    console.log('[OG] ロゴバッファサイズ:', buf.byteLength, 'bytes');
-                    const contentType = logoRes.headers.get('content-type') || 'image/jpeg';
-                    teamLogoSrc = `data:${contentType};base64,${arrayBufferToBase64(buf)}`;
-                    logoDebugInfo += `Base64: ${teamLogoSrc.length} chars → OK`;
-                    console.log('[OG] ロゴbase64生成成功: data URI長=', teamLogoSrc.length, '文字');
-                } else {
-                    logoDebugInfo += `FAILED: HTTP ${logoRes.status}`;
-                    console.log('[OG] ロゴフェッチ失敗: status=', logoRes.status);
-                }
-            } catch (err: any) {
-                logoDebugInfo += `ERROR: ${err?.name} ${err?.message}`;
-                console.log('[OG] ロゴフェッチ例外:', err?.name, err?.message);
-            }
-        } else {
-            logoDebugInfo = 'logoUrl not provided';
-        }
+        // チームロゴ: 共有データに埋め込まれたbase64を使用（showLogoフラグで制御）
+        const teamLogoSrc = (showLogo && logoBase64FromShare) ? logoBase64FromShare : null;
 
         // ファビコンをBase64化
         const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
         const faviconBuffer = await fetch(faviconUrl).then(r => r.arrayBuffer());
         const faviconBase64 = `data:image/png;base64,${arrayBufferToBase64(faviconBuffer)}`;
-
-        // デバッグ: favicon をロゴ代わりに使って Satori の大画像レンダリングを検証
-        if (debugMode === 'favicon' && !teamLogoSrc) {
-            teamLogoSrc = faviconBase64;
-        }
-
-        // debug=status: フェッチ診断情報を画像内にテキスト表示
-        if (debugMode === 'status') {
-            const statusElement = {
-                type: 'div',
-                props: {
-                    style: {
-                        width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-                        justifyContent: 'center', padding: '40px 60px',
-                        backgroundColor: '#111', fontFamily: '"M PLUS 1", sans-serif',
-                    },
-                    children: [
-                        { type: 'div', props: { style: { fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 24 }, children: 'OG Logo Fetch Debug' } },
-                        { type: 'div', props: { style: { fontSize: 16, color: '#aaa', marginBottom: 8 }, children: `teamLogoSrc: ${teamLogoSrc ? 'SET (' + teamLogoSrc.length + ' chars)' : 'NULL'}` } },
-                        ...logoDebugInfo.split('\n').map((line: string) => ({
-                            type: 'div', props: { style: { fontSize: 14, color: '#888', lineHeight: 1.6 }, children: line },
-                        })),
-                    ],
-                },
-            };
-            return new ImageResponse(statusElement as any, { width: 1200, height: 630, fonts });
-        }
-
-        console.log('[OG] 最終 teamLogoSrc:', teamLogoSrc ? `あり (${teamLogoSrc.length}文字)` : 'なし');
 
         // レイアウト選択
         const element = !shareId

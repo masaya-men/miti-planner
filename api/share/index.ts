@@ -53,12 +53,19 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'POST') {
             // ── 保存 ──
-            const { planData, title, contentId, plans } = req.body;
+            const { planData, title, contentId, plans, logoBase64 } = req.body;
+
+            // ロゴbase64のバリデーション（data:image/で始まる文字列のみ許可、500KB上限）
+            const validLogo = typeof logoBase64 === 'string'
+                && logoBase64.startsWith('data:image/')
+                && logoBase64.length < 500_000
+                ? logoBase64
+                : null;
 
             // バンドル共有（複数プランまとめて）
             if (Array.isArray(plans) && plans.length > 0) {
                 const shareId = nanoid(8);
-                const doc = {
+                const doc: any = {
                     shareId,
                     type: 'bundle',
                     plans: plans.map((p: any) => ({
@@ -70,6 +77,7 @@ export default async function handler(req: any, res: any) {
                     viewCount: 0,
                     createdAt: Date.now(),
                 };
+                if (validLogo) doc.logoBase64 = validLogo;
                 await db.collection(COLLECTION).doc(shareId).set(doc);
                 return res.status(200).json({ shareId });
             }
@@ -80,7 +88,7 @@ export default async function handler(req: any, res: any) {
             }
 
             const shareId = nanoid(8);
-            const doc = {
+            const doc: any = {
                 shareId,
                 title: title || '',
                 contentId: contentId || null,
@@ -89,6 +97,7 @@ export default async function handler(req: any, res: any) {
                 viewCount: 0,
                 createdAt: Date.now(),
             };
+            if (validLogo) doc.logoBase64 = validLogo;
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
 
