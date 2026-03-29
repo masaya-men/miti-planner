@@ -245,7 +245,10 @@ async function deletePlan(
 
 /**
  * ログイン時のデータマイグレーション
- * localStorageにあってFirestoreにないプランをアップロードする
+ * Firestoreを正（信頼できるデータ）として扱う。
+ * localにあってFirestoreにないプランは:
+ * - ownerId === 'local'（未ログイン時作成）→ アップロード
+ * - それ以外 → 別端末で削除されたとみなし除外
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
@@ -256,9 +259,12 @@ async function migrateLocalPlansToFirestore(
   const remotePlans = await fetchUserPlans(uid);
   const remoteIds = new Set(remotePlans.map((p) => p.id));
 
-  // ローカルにしかないプランをアップロード
+  // ローカルにしかないプランを処理
   const localOnly = localPlans.filter((p) => !remoteIds.has(p.id));
   for (const plan of localOnly) {
+    // 未ログイン時に作成されたプラン（ownerId === 'local'）のみアップロード
+    // それ以外はFirestoreで削除されたとみなしスキップ
+    if (plan.ownerId !== 'local') continue;
     try {
       await createPlan(plan, uid, displayName);
     } catch (err) {
@@ -271,21 +277,25 @@ async function migrateLocalPlansToFirestore(
     }
   }
 
-  // リモートにしかないプランもマージ
-  const localIds = new Set(localPlans.map((p) => p.id));
-  const remoteOnly = remotePlans.filter((p) => !localIds.has(p.id));
+  // マージ: Firestoreを正とする
+  const merged: SavedPlan[] = [];
 
   // 両方にあるプランは updatedAt が新しい方を採用
-  const merged: SavedPlan[] = [];
   for (const local of localPlans) {
     const remote = remotePlans.find((r) => r.id === local.id);
-    if (remote && remote.updatedAt > local.updatedAt) {
-      merged.push(remote);
-    } else {
+    if (remote) {
+      // 両方に存在 → updatedAtが新しい方
+      merged.push(remote.updatedAt > local.updatedAt ? remote : local);
+    } else if (local.ownerId === 'local') {
+      // ローカルのみ & 未ログイン作成 → 残す（アップロード済み）
       merged.push(local);
     }
+    // ローカルのみ & ownerId !== 'local' → 削除されたとみなし除外
   }
+
   // リモートにのみ存在するプランを追加
+  const localIds = new Set(localPlans.map((p) => p.id));
+  const remoteOnly = remotePlans.filter((p) => !localIds.has(p.id));
   merged.push(...remoteOnly);
 
   // updatedAt降順でソート
