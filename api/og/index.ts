@@ -367,6 +367,7 @@ function buildSingleLayout(
     const nameLen = displayName.length;
     const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
     const subtitle = contentName && planTitle ? planTitle : '';
+    const hasLogo = !!teamLogoSrc;
 
     const textChildren: any[] = [];
 
@@ -376,7 +377,8 @@ function buildSingleLayout(
             type: 'div', props: {
                 style: {
                     fontSize: 18, fontWeight: 400, letterSpacing: 10,
-                    color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 32,
+                    color: hasLogo ? 'rgba(255,255,255,0.5)' : '#2a2a2a',
+                    textTransform: 'uppercase', marginBottom: 32,
                 },
                 children: categoryTag,
             },
@@ -398,7 +400,7 @@ function buildSingleLayout(
     if (subtitle) {
         textChildren.push({
             type: 'div', props: {
-                style: { fontSize: 22, letterSpacing: 1, color: '#3a3a3a' },
+                style: { fontSize: 22, letterSpacing: 1, color: hasLogo ? 'rgba(255,255,255,0.45)' : '#3a3a3a' },
                 children: subtitle,
             },
         });
@@ -430,12 +432,13 @@ function buildSeriesLayout(
     series: { seriesName: string; summary: string; categoryTag: string },
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
+    const hasLogo = !!teamLogoSrc;
     const textChildren: any[] = [];
 
     if (series.categoryTag) {
         textChildren.push({
             type: 'div', props: {
-                style: { fontSize: 18, fontWeight: 400, letterSpacing: 10, color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 32 },
+                style: { fontSize: 18, fontWeight: 400, letterSpacing: 10, color: hasLogo ? 'rgba(255,255,255,0.5)' : '#2a2a2a', textTransform: 'uppercase', marginBottom: 32 },
                 children: series.categoryTag,
             },
         });
@@ -450,7 +453,7 @@ function buildSeriesLayout(
 
     textChildren.push({
         type: 'div', props: {
-            style: { fontSize: 30, fontWeight: 700, lineHeight: 1.2, color: '#999999' },
+            style: { fontSize: 30, fontWeight: 700, lineHeight: 1.2, color: hasLogo ? 'rgba(255,255,255,0.7)' : '#999999' },
             children: series.summary,
         },
     });
@@ -463,11 +466,12 @@ function buildMixedLayout(
     plans: { contentId: string | null; title: string }[],
     faviconBase64: string, teamLogoSrc: string | null,
 ) {
+    const hasLogo = !!teamLogoSrc;
     const textChildren: any[] = [];
 
     textChildren.push({
         type: 'div', props: {
-            style: { fontSize: 14, fontWeight: 400, letterSpacing: 10, color: '#2a2a2a', textTransform: 'uppercase', marginBottom: 24 },
+            style: { fontSize: 14, fontWeight: 400, letterSpacing: 10, color: hasLogo ? 'rgba(255,255,255,0.5)' : '#2a2a2a', textTransform: 'uppercase', marginBottom: 24 },
             children: `${plans.length} plans shared`,
         },
     });
@@ -479,7 +483,7 @@ function buildMixedLayout(
     itemsToShow.forEach((plan, i) => {
         if (i > 0) {
             listChildren.push({
-                type: 'div', props: { style: { height: 1, backgroundColor: '#0a0a0a', width: '100%' } },
+                type: 'div', props: { style: { height: 1, backgroundColor: hasLogo ? 'rgba(255,255,255,0.1)' : '#0a0a0a', width: '100%' } },
             });
         }
 
@@ -490,9 +494,9 @@ function buildMixedLayout(
             type: 'div', props: {
                 style: { display: 'flex', alignItems: 'center', padding: '8px 0', width: '100%' },
                 children: [
-                    { type: 'div', props: { style: { fontSize: 37, fontWeight: 900, lineHeight: 1.2, flex: 1, color: '#cccccc' }, children: name } },
+                    { type: 'div', props: { style: { fontSize: 37, fontWeight: 900, lineHeight: 1.2, flex: 1, color: hasLogo ? '#ffffff' : '#cccccc' }, children: name } },
                     ...(shortName ? [{
-                        type: 'div', props: { style: { fontSize: 17, letterSpacing: 4, marginLeft: 16, color: '#2a2a2a' }, children: shortName },
+                        type: 'div', props: { style: { fontSize: 17, letterSpacing: 4, marginLeft: 16, color: hasLogo ? 'rgba(255,255,255,0.4)' : '#2a2a2a' }, children: shortName },
                     }] : []),
                 ],
             },
@@ -501,7 +505,7 @@ function buildMixedLayout(
 
     if (plans.length > 5) {
         listChildren.push({
-            type: 'div', props: { style: { fontSize: 20, color: '#333333', marginTop: 8 }, children: `+${plans.length - 5}` },
+            type: 'div', props: { style: { fontSize: 20, color: hasLogo ? 'rgba(255,255,255,0.4)' : '#333333', marginTop: 8 }, children: `+${plans.length - 5}` },
         });
     }
 
