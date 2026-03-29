@@ -18,7 +18,7 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/admi
 import { writeAuditLog } from '../../../src/lib/auditLog.js';
 import { applyRateLimit } from '../../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
-import { sendUpdateNotification } from '../../../src/lib/discordWebhook.js';
+import { sendDiscordNotification } from '../../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */
@@ -257,7 +257,7 @@ export default async function handler(req: any, res: any) {
           lines.push(`📝 **${m.name?.ja || m.id}** — ${diffs.join('、')}`);
         }
         if (lines.length > 0) {
-          sendUpdateNotification({
+          sendDiscordNotification({
             title: '⚔️ スキルデータ更新',
             description: lines.join('\n'),
             color: 0x000000,
@@ -324,7 +324,7 @@ export default async function handler(req: any, res: any) {
 
         // ユーザー向けDiscord通知（新パッチ追加時のみ）
         if (newPatches.length > 0) {
-          sendUpdateNotification({
+          sendDiscordNotification({
             title: '📊 ステータスデータ更新',
             description: `パッチ ${newPatches.join(', ')} のデフォルトステータスが追加されました`,
             color: 0x000000,
