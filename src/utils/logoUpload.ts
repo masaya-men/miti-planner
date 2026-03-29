@@ -1,6 +1,6 @@
 /**
  * チームロゴのアップロード・削除ユーティリティ
- * Firebase Storage に WebP 変換済みロゴを保存し、Firestore に URL を記録する
+ * Firebase Storage に JPEG 変換済みロゴを保存し、Firestore に URL を記録する
  */
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -15,10 +15,10 @@ const LOGO_SIZE = 400;
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
 /**
- * Canvas API で画像を 400x400px にリサイズして WebP に変換する
+ * Canvas API で画像を 400x400px にリサイズして JPEG に変換する
  * アスペクト比を維持した cover 方式で中央クロップする
  */
-async function resizeToPng(file: File): Promise<Blob> {
+async function resizeToJpeg(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
@@ -99,7 +99,7 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
 
     let blob: Blob;
     try {
-        blob = await resizeToPng(file);
+        blob = await resizeToJpeg(file);
         console.log('[LogoUpload] JPEGリサイズ成功:', { blobSize: blob.size });
     } catch (err) {
         console.error('[LogoUpload] JPEGリサイズ失敗:', err);
@@ -135,11 +135,13 @@ export async function uploadTeamLogo(userId: string, file: File): Promise<string
  * Storage にファイルが存在しない場合はエラーを無視する
  */
 export async function deleteTeamLogo(userId: string): Promise<void> {
-    const storageRef = ref(storage, `users/${userId}/team-logo.jpg`);
-    try {
-        await deleteObject(storageRef);
-    } catch {
-        // ファイルが存在しない場合は無視
+    // 現行（JPEG）と旧形式（WebP）の両方を削除試行
+    for (const ext of ['team-logo.jpg', 'team-logo.webp']) {
+        try {
+            await deleteObject(ref(storage, `users/${userId}/${ext}`));
+        } catch {
+            // ファイルが存在しない場合は無視
+        }
     }
     try {
         await saveLogoUrlToFirestore(userId, null);
