@@ -1,14 +1,13 @@
 /**
- * Vercel Edge Function — OGP画像生成（P3デザイン）
+ * Vercel Edge Function — OGP画像生成
  *
  * GET /api/og?id=shareId — 共有プランのOGPカード画像(1200x630)を動的生成
  * Edge Runtimeで動作し、共有データはshare APIからHTTPで取得する
  *
- * デザイン: P3（ブドウ上 + 縦書きLoPo下 + 上下装飾ライン）
- * - 左パネル（72px幅）: 装飾ライン + ブドウロゴ + 縦書きLoPo
- * - 右パネル: カテゴリタグ + コンテンツ名（大・scaleY 0.85）+ プラン名（小）
- * - 白いアクセントライン（左下）
- * - バンドル: 同じ左パネル + 番号付きリスト
+ * デザイン:
+ * - 左パネル（144px幅）: 装飾ライン + ファビコン + 縦書きLoPo（浸食不可）
+ * - 右エリア: ロゴあり→ユーザー画像背景(50%暗)+中央大文字 / ロゴなし→黒背景+テキスト
+ * - バンドル: 同シリーズまとめ表記 or 混在リスト
  */
 
 import { ImageResponse } from '@vercel/og';
@@ -102,6 +101,65 @@ function getContentName(contentId: string | null): string {
     return CONTENT_META[contentId]?.ja || '';
 }
 
+// テキストシャドウ（画像背景時の視認性確保）
+const TEXT_SHADOW = '0 2px 16px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.7)';
+
+// 左パネル幅
+const LEFT_PANEL_WIDTH = 144;
+
+// ========================================
+// 同シリーズ判定
+// ========================================
+
+interface ParsedTier {
+    seriesName: string;   // 例: "至天の座アルカディア零式"
+    tierName: string;     // 例: "ヘビー級"
+    label: string;        // 例: "1" or "4前半"
+}
+
+// コンテンツ名から シリーズ名・階級名・番号を分解する
+// 例: "至天の座アルカディア零式：ヘビー級4（前半）" → { seriesName: "至天の座アルカディア零式", tierName: "ヘビー級", label: "4前半" }
+function parseTier(ja: string): ParsedTier | null {
+    const m = ja.match(/^(.+?)：(.+?)(\d+)(?:（(.+?)）)?$/);
+    if (!m) return null;
+    const suffix = m[4] || '';  // "前半" / "後半" / ""
+    return { seriesName: m[1], tierName: m[2], label: m[3] + suffix };
+}
+
+// バンドルプランが全て同シリーズかどうか判定し、まとめ表記を返す
+function trySeriesSummary(plans: { contentId: string | null; title: string }[]): {
+    seriesName: string;
+    tierName: string;
+    summary: string;
+    categoryTag: string;
+} | null {
+    if (plans.length < 2) return null;
+
+    const parsed: ParsedTier[] = [];
+    for (const plan of plans) {
+        const name = getContentName(plan.contentId);
+        if (!name) return null;
+        const p = parseTier(name);
+        if (!p) return null;
+        parsed.push(p);
+    }
+
+    // 全て同じシリーズ名+階級名か
+    const first = parsed[0];
+    if (!parsed.every(p => p.seriesName === first.seriesName && p.tierName === first.tierName)) {
+        return null;
+    }
+
+    const summary = first.tierName + ' ' + parsed.map(p => p.label).join(' ｜ ');
+    const categoryTag = plans[0].contentId ? getCategoryTag(plans[0].contentId) : '';
+
+    return { seriesName: first.seriesName, tierName: first.tierName, summary, categoryTag };
+}
+
+// ========================================
+// メインハンドラ
+// ========================================
+
 export default async function handler(req: Request) {
     try {
         const { searchParams, origin } = new URL(req.url);
@@ -137,17 +195,18 @@ export default async function handler(req: Request) {
             } catch { /* デフォルト表示 */ }
         }
 
-        // フォント取得（M PLUS 1 + Rajdhani相当の文字サブセット）
-        let allText = 'LoPo';
+        // フォント取得（M PLUS 1）
+        let allText = 'LoPo｜前半後半';
         if (isBundle) {
             allText += bundlePlans.map(p => getContentName(p.contentId) + (p.title || '')).join('');
             allText += `${bundlePlans.length} plans shared`;
+            const series = trySeriesSummary(bundlePlans);
+            if (series) allText += series.summary;
         } else {
             allText += contentName + planTitle + categoryTag;
         }
         const uniqueChars = [...new Set(allText)].join('');
 
-        // M PLUS 1 フォント（アプリと統一）
         const fontCssUrl = `https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@400;700;900&text=${encodeURIComponent(uniqueChars)}`;
         const fontCss = await fetch(fontCssUrl, {
             headers: { 'User-Agent': 'Mozilla/5.0' },
@@ -174,35 +233,25 @@ export default async function handler(req: Request) {
                 const logoRes = await fetch(logoUrl);
                 if (logoRes.ok) {
                     const buf = await logoRes.arrayBuffer();
-                    const contentType = logoRes.headers.get('content-type') || 'image/webp';
-                    teamLogoBase64 = `data:${contentType};base64,${arrayBufferToBase64(buf)}`;
+                    const ct = logoRes.headers.get('content-type') || 'image/webp';
+                    teamLogoBase64 = `data:${ct};base64,${arrayBufferToBase64(buf)}`;
                 }
             } catch {
-                // ロゴ取得失敗はスキップ（ロゴなしで生成）
+                // ロゴ取得失敗はスキップ
             }
         }
 
-        // ブドウロゴをBase64化（SVG優先、フォールバックでPNG）
-        let logoBase64: string;
-        try {
-            const svgUrl = new URL('/grape.svg', origin).toString();
-            const svgText = await fetch(svgUrl).then(r => r.text());
-            const encoded = new TextEncoder().encode(svgText);
-            let binary = '';
-            for (let i = 0; i < encoded.length; i++) binary += String.fromCharCode(encoded[i]);
-            logoBase64 = `data:image/svg+xml;base64,${btoa(binary)}`;
-        } catch {
-            const logoUrl = new URL('/icons/favicon-512x512.png', origin).toString();
-            const logoBuffer = await fetch(logoUrl).then(r => r.arrayBuffer());
-            logoBase64 = `data:image/png;base64,${arrayBufferToBase64(logoBuffer)}`;
-        }
+        // ファビコンをBase64化
+        const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
+        const faviconBuffer = await fetch(faviconUrl).then(r => r.arrayBuffer());
+        const faviconBase64 = `data:image/png;base64,${arrayBufferToBase64(faviconBuffer)}`;
 
-        // shareIdがない場合はGitHub式のシンプルなフォールバック
+        // レイアウト選択
         const element = !shareId
             ? buildFallbackLayout()
             : isBundle
-                ? buildBundleLayout(bundlePlans, logoBase64, teamLogoBase64)
-                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, logoBase64, teamLogoBase64);
+                ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoBase64)
+                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, faviconBase64, teamLogoBase64);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 
@@ -210,37 +259,6 @@ export default async function handler(req: Request) {
         console.error('OG image error:', err);
         return new Response(`OG image generation failed: ${err.message}`, { status: 500 });
     }
-}
-
-// GitHub式フォールバック: 黒背景 + 中央に「LoPo」だけ
-function buildFallbackLayout() {
-    return {
-        type: 'div',
-        props: {
-            style: {
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#000000',
-                fontFamily: '"M PLUS 1", sans-serif',
-            },
-            children: {
-                type: 'div',
-                props: {
-                    style: {
-                        fontSize: 200,
-                        fontWeight: 900,
-                        color: '#ffffff',
-                        letterSpacing: -4,
-                        lineHeight: 1,
-                    },
-                    children: 'LoPo',
-                },
-            },
-        },
-    };
 }
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -252,92 +270,97 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
     return btoa(binary);
 }
 
-// P3デザイン: 左パネル（72px）+ 上下装飾ライン + ブドウ + 縦書きLoPo
-const LEFT_PANEL_WIDTH = 144; // 1200px版（プレビューの72px × 2倍）
+// ========================================
+// フォールバック（shareIdなし）
+// ========================================
 
-function buildLeftPanel(logoBase64: string) {
+function buildFallbackLayout() {
     return {
         type: 'div',
         props: {
             style: {
-                width: LEFT_PANEL_WIDTH,
-                height: '100%',
-                backgroundColor: '#030303',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRight: '1px solid #0e0e0e',
-                position: 'relative',
-                gap: 16,
-                padding: '40px 0',
+                width: '100%', height: '100%', display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                backgroundColor: '#000000', fontFamily: '"M PLUS 1", sans-serif',
+            },
+            children: { type: 'div', props: { style: { fontSize: 200, fontWeight: 900, color: '#ffffff', letterSpacing: -4, lineHeight: 1 }, children: 'LoPo' } },
+        },
+    };
+}
+
+// ========================================
+// 左パネル（浸食不可）
+// ========================================
+
+function buildLeftPanel(faviconBase64: string) {
+    return {
+        type: 'div',
+        props: {
+            style: {
+                width: LEFT_PANEL_WIDTH, height: '100%', backgroundColor: '#030303',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                borderRight: '1px solid #111111', position: 'relative', gap: 16, padding: '40px 0',
             },
             children: [
-                // 上部の装飾ライン
+                // 上部装飾ライン
+                { type: 'div', props: { style: { position: 'absolute', top: 32, left: '50%', transform: 'translateX(-50%)', width: 1, height: 72, backgroundColor: '#1a1a1a' } } },
+                // ファビコン
+                { type: 'img', props: { src: faviconBase64, width: 64, height: 64, style: { borderRadius: 32 } } },
+                // 縦書きLoPo
                 {
                     type: 'div',
                     props: {
-                        style: {
-                            position: 'absolute',
-                            top: 32,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: 1,
-                            height: 72,
-                            backgroundColor: '#1a1a1a',
-                        },
-                    },
-                },
-                // ブドウロゴ（SVGなのでinvert不要）
-                {
-                    type: 'img',
-                    props: {
-                        src: logoBase64,
-                        width: 64,
-                        height: 64,
-                        style: {
-                            opacity: 0.95,
-                        },
-                    },
-                },
-                // 縦書きLoPo（1文字ずつ縦に並べる — Satoriはwriting-mode未対応）
-                {
-                    type: 'div',
-                    props: {
-                        style: {
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: 4,
-                        },
+                        style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 },
                         children: ['L', 'o', 'P', 'o'].map(ch => ({
-                            type: 'div',
-                            props: {
-                                style: {
-                                    fontSize: 28,
-                                    fontWeight: 700,
-                                    color: '#ffffff',
-                                    lineHeight: 1,
-                                    letterSpacing: 0,
-                                },
-                                children: ch,
-                            },
+                            type: 'div', props: { style: { fontSize: 28, fontWeight: 700, color: '#ffffff', lineHeight: 1 }, children: ch },
                         })),
                     },
                 },
-                // 下部の装飾ライン
+                // 下部装飾ライン
+                { type: 'div', props: { style: { position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', width: 1, height: 72, backgroundColor: '#1a1a1a' } } },
+            ],
+        },
+    };
+}
+
+// ========================================
+// 右エリアの背景（ユーザー画像 or 黒）
+// ========================================
+
+function buildRightArea(faviconBase64: string, teamLogoBase64: string | null, textChildren: any[]) {
+    // ロゴなし → 現行の黒背景
+    if (!teamLogoBase64) {
+        return {
+            type: 'div',
+            props: {
+                style: { width: '100%', height: '100%', display: 'flex', backgroundColor: '#000000', fontFamily: '"M PLUS 1", sans-serif', position: 'relative' },
+                children: [
+                    buildLeftPanel(faviconBase64),
+                    { type: 'div', props: { style: { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '56px 72px' }, children: textChildren } },
+                ],
+            },
+        };
+    }
+
+    // ロゴあり → 画像背景 + 50%暗オーバーレイ
+    return {
+        type: 'div',
+        props: {
+            style: { width: '100%', height: '100%', display: 'flex', backgroundColor: '#000000', fontFamily: '"M PLUS 1", sans-serif', position: 'relative' },
+            children: [
+                buildLeftPanel(faviconBase64),
                 {
                     type: 'div',
                     props: {
-                        style: {
-                            position: 'absolute',
-                            bottom: 32,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: 1,
-                            height: 72,
-                            backgroundColor: '#1a1a1a',
-                        },
+                        style: { flex: 1, display: 'flex', position: 'relative', overflow: 'hidden' },
+                        children: [
+                            // ユーザー画像（背景）
+                            { type: 'img', props: { src: teamLogoBase64, style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' } } },
+                            // 50%暗オーバーレイ
+                            { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)' } } },
+                            // テキストレイヤー
+                            { type: 'div', props: { style: { position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '56px 72px' }, children: textChildren } },
+                        ],
                     },
                 },
             ],
@@ -345,49 +368,44 @@ function buildLeftPanel(logoBase64: string) {
     };
 }
 
+// ========================================
+// 単体プラン
+// ========================================
+
 function buildSingleLayout(
-    contentName: string,
-    planTitle: string,
-    categoryTag: string,
-    logoBase64: string,
-    teamLogoBase64: string | null,
+    contentName: string, planTitle: string, categoryTag: string,
+    faviconBase64: string, teamLogoBase64: string | null,
 ) {
-    const nameLen = contentName.length || planTitle.length || 4;
-    const nameFontSize = nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52;
+    const hasLogo = !!teamLogoBase64;
     const displayName = contentName || planTitle || 'LoPo';
+    const nameLen = displayName.length;
+    const nameFontSize = hasLogo ? 52 : (nameLen > 24 ? 40 : nameLen > 16 ? 48 : 52);
     const subtitle = contentName && planTitle ? planTitle : '';
 
-    const rightChildren: any[] = [];
+    const textChildren: any[] = [];
 
     // カテゴリタグ
     if (categoryTag) {
-        rightChildren.push({
-            type: 'div',
-            props: {
+        textChildren.push({
+            type: 'div', props: {
                 style: {
-                    fontSize: 18,
-                    fontWeight: 400,
-                    letterSpacing: 10,
-                    color: '#2a2a2a',
-                    textTransform: 'uppercase',
-                    marginBottom: 32,
+                    fontSize: 18, fontWeight: 400, letterSpacing: 10,
+                    color: hasLogo ? 'rgba(255,255,255,0.4)' : '#2a2a2a',
+                    textTransform: 'uppercase', marginBottom: 32,
+                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
                 },
                 children: categoryTag,
             },
         });
     }
 
-    // コンテンツ名（scaleY 0.85 で横つぶし — Satoriではtransform未対応のためlineHeight調整で近似）
-    rightChildren.push({
-        type: 'div',
-        props: {
+    // コンテンツ名
+    textChildren.push({
+        type: 'div', props: {
             style: {
-                fontSize: nameFontSize,
-                fontWeight: 900,
-                color: '#ffffff',
-                lineHeight: 1.1,
-                marginBottom: 20,
-                letterSpacing: -0.5,
+                fontSize: nameFontSize, fontWeight: 900, color: '#ffffff',
+                lineHeight: 1.1, marginBottom: 20, letterSpacing: -0.5,
+                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
             },
             children: displayName,
         },
@@ -395,159 +413,145 @@ function buildSingleLayout(
 
     // プラン名
     if (subtitle) {
-        rightChildren.push({
-            type: 'div',
-            props: {
+        textChildren.push({
+            type: 'div', props: {
                 style: {
-                    fontSize: 22,
-                    color: '#3a3a3a',
-                    letterSpacing: 1,
+                    fontSize: 22, letterSpacing: 1,
+                    color: hasLogo ? 'rgba(255,255,255,0.45)' : '#3a3a3a',
+                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
                 },
                 children: subtitle,
             },
         });
     }
 
-    return {
-        type: 'div',
-        props: {
-            style: {
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                backgroundColor: '#000000',
-                fontFamily: '"M PLUS 1", sans-serif',
-                position: 'relative',
-            },
-            children: [
-                buildLeftPanel(logoBase64),
-                {
-                    type: 'div',
-                    props: {
-                        style: {
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: '56px 72px',
-                        },
-                        children: rightChildren,
-                    },
-                },
-                // 白いアクセントライン（左下）
-                {
-                    type: 'div',
-                    props: {
-                        style: {
-                            position: 'absolute',
-                            bottom: 0,
-                            left: LEFT_PANEL_WIDTH,
-                            width: 96,
-                            height: 2,
-                            backgroundColor: '#ffffff',
-                        },
-                    },
-                },
-                // チームロゴ（右上）
-                ...(teamLogoBase64 ? [{
-                    type: 'div',
-                    props: {
-                        style: {
-                            position: 'absolute',
-                            top: 24,
-                            right: 24,
-                            width: 80,
-                            height: 80,
-                            borderRadius: 12,
-                            overflow: 'hidden',
-                            border: '2px solid rgba(255,255,255,0.15)',
-                        },
-                        children: {
-                            type: 'img',
-                            props: {
-                                src: teamLogoBase64,
-                                width: 80,
-                                height: 80,
-                                style: {
-                                    objectFit: 'cover',
-                                },
-                            },
-                        },
-                    },
-                }] : []),
-            ],
-        },
-    };
+    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
 }
+
+// ========================================
+// バンドル
+// ========================================
 
 function buildBundleLayout(
     plans: { contentId: string | null; title: string }[],
-    logoBase64: string,
-    teamLogoBase64: string | null,
+    faviconBase64: string, teamLogoBase64: string | null,
 ) {
+    const hasLogo = !!teamLogoBase64;
+
+    // 同シリーズ判定
+    const series = trySeriesSummary(plans);
+    if (series) {
+        return buildSeriesLayout(series, faviconBase64, teamLogoBase64);
+    }
+
+    // 混在コンテンツ
+    return buildMixedLayout(plans, faviconBase64, teamLogoBase64, hasLogo);
+}
+
+// 同シリーズまとめ表記
+function buildSeriesLayout(
+    series: { seriesName: string; summary: string; categoryTag: string },
+    faviconBase64: string, teamLogoBase64: string | null,
+) {
+    const hasLogo = !!teamLogoBase64;
+    const textChildren: any[] = [];
+
+    // カテゴリタグ
+    if (series.categoryTag) {
+        textChildren.push({
+            type: 'div', props: {
+                style: {
+                    fontSize: 18, fontWeight: 400, letterSpacing: 10,
+                    color: hasLogo ? 'rgba(255,255,255,0.35)' : '#2a2a2a',
+                    textTransform: 'uppercase', marginBottom: 32,
+                    ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
+                },
+                children: series.categoryTag,
+            },
+        });
+    }
+
+    // シリーズ名
+    textChildren.push({
+        type: 'div', props: {
+            style: {
+                fontSize: 42, fontWeight: 900, color: '#ffffff',
+                lineHeight: 1.1, marginBottom: 20,
+                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
+            },
+            children: series.seriesName,
+        },
+    });
+
+    // まとめ表記（ヘビー級 1 ｜ 2 ｜ 3 ｜ 4）
+    textChildren.push({
+        type: 'div', props: {
+            style: {
+                fontSize: 30, fontWeight: 700, lineHeight: 1.2,
+                color: hasLogo ? 'rgba(255,255,255,0.7)' : '#999999',
+                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
+            },
+            children: series.summary,
+        },
+    });
+
+    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
+}
+
+// 混在コンテンツリスト
+function buildMixedLayout(
+    plans: { contentId: string | null; title: string }[],
+    faviconBase64: string, teamLogoBase64: string | null, hasLogo: boolean,
+) {
+    const textChildren: any[] = [];
+
+    // "N PLANS SHARED" ヘッダー
+    textChildren.push({
+        type: 'div', props: {
+            style: {
+                fontSize: 14, fontWeight: 400, letterSpacing: 10,
+                color: hasLogo ? 'rgba(255,255,255,0.25)' : '#2a2a2a',
+                textTransform: 'uppercase', marginBottom: 24,
+                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
+            },
+            children: `${plans.length} plans shared`,
+        },
+    });
+
+    // コンテンツリスト
     const itemsToShow = plans.slice(0, 5);
-    const itemChildren: any[] = [];
+    const listChildren: any[] = [];
 
     itemsToShow.forEach((plan, i) => {
         if (i > 0) {
-            itemChildren.push({
-                type: 'div',
-                props: {
-                    style: { height: 1, backgroundColor: '#0a0a0a', width: '100%' },
-                },
+            listChildren.push({
+                type: 'div', props: { style: { height: 1, backgroundColor: hasLogo ? 'rgba(255,255,255,0.06)' : '#0a0a0a', width: '100%' } },
             });
         }
 
         const name = getContentName(plan.contentId) || plan.title || '';
-        const shortName = plan.contentId
-            ? plan.contentId.replace(/_p(\d+)$/, ' P$1').toUpperCase()
-            : '';
+        const shortName = plan.contentId ? plan.contentId.replace(/_p(\d+)$/, ' P$1').toUpperCase() : '';
 
-        itemChildren.push({
-            type: 'div',
-            props: {
-                style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '10px 0',
-                    width: '100%',
-                },
+        listChildren.push({
+            type: 'div', props: {
+                style: { display: 'flex', alignItems: 'center', padding: '8px 0', width: '100%' },
                 children: [
                     {
-                        type: 'div',
-                        props: {
+                        type: 'div', props: {
                             style: {
-                                fontSize: 20,
-                                fontWeight: 400,
-                                color: '#222222',
-                                minWidth: 40,
-                                textAlign: 'right',
-                                marginRight: 20,
-                            },
-                            children: String(i + 1).padStart(2, '0'),
-                        },
-                    },
-                    {
-                        type: 'div',
-                        props: {
-                            style: {
-                                fontSize: 30,
-                                fontWeight: 700,
-                                color: '#cccccc',
-                                lineHeight: 1.1,
-                                flex: 1,
+                                fontSize: 37, fontWeight: 900, lineHeight: 1.2, flex: 1,
+                                color: hasLogo ? '#ffffff' : '#cccccc',
+                                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
                             },
                             children: name,
                         },
                     },
                     ...(shortName ? [{
-                        type: 'div',
-                        props: {
+                        type: 'div', props: {
                             style: {
-                                fontSize: 18,
-                                color: '#2a2a2a',
-                                letterSpacing: 2,
-                                marginLeft: 16,
+                                fontSize: 17, letterSpacing: 4, marginLeft: 16,
+                                color: hasLogo ? 'rgba(255,255,255,0.25)' : '#2a2a2a',
+                                ...(hasLogo ? { textShadow: TEXT_SHADOW } : {}),
                             },
                             children: shortName,
                         },
@@ -558,108 +562,20 @@ function buildBundleLayout(
     });
 
     if (plans.length > 5) {
-        itemChildren.push({
-            type: 'div',
-            props: {
-                style: { fontSize: 20, color: '#333333', marginTop: 8 },
+        listChildren.push({
+            type: 'div', props: {
+                style: { fontSize: 20, color: hasLogo ? 'rgba(255,255,255,0.3)' : '#333333', marginTop: 8 },
                 children: `+${plans.length - 5}`,
             },
         });
     }
 
-    return {
-        type: 'div',
-        props: {
-            style: {
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                backgroundColor: '#000000',
-                fontFamily: '"M PLUS 1", sans-serif',
-                position: 'relative',
-            },
-            children: [
-                buildLeftPanel(logoBase64),
-                {
-                    type: 'div',
-                    props: {
-                        style: {
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            padding: '40px 60px',
-                        },
-                        children: [
-                            {
-                                type: 'div',
-                                props: {
-                                    style: {
-                                        fontSize: 18,
-                                        fontWeight: 400,
-                                        letterSpacing: 10,
-                                        color: '#2a2a2a',
-                                        textTransform: 'uppercase',
-                                        marginBottom: 24,
-                                    },
-                                    children: `${plans.length} plans shared`,
-                                },
-                            },
-                            {
-                                type: 'div',
-                                props: {
-                                    style: {
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        width: '100%',
-                                    },
-                                    children: itemChildren,
-                                },
-                            },
-                        ],
-                    },
-                },
-                {
-                    type: 'div',
-                    props: {
-                        style: {
-                            position: 'absolute',
-                            bottom: 0,
-                            left: LEFT_PANEL_WIDTH,
-                            width: 96,
-                            height: 2,
-                            backgroundColor: '#ffffff',
-                        },
-                    },
-                },
-                // チームロゴ（右上）
-                ...(teamLogoBase64 ? [{
-                    type: 'div',
-                    props: {
-                        style: {
-                            position: 'absolute',
-                            top: 24,
-                            right: 24,
-                            width: 80,
-                            height: 80,
-                            borderRadius: 12,
-                            overflow: 'hidden',
-                            border: '2px solid rgba(255,255,255,0.15)',
-                        },
-                        children: {
-                            type: 'img',
-                            props: {
-                                src: teamLogoBase64,
-                                width: 80,
-                                height: 80,
-                                style: {
-                                    objectFit: 'cover',
-                                },
-                            },
-                        },
-                    },
-                }] : []),
-            ],
+    textChildren.push({
+        type: 'div', props: {
+            style: { display: 'flex', flexDirection: 'column', width: '100%' },
+            children: listChildren,
         },
-    };
+    });
+
+    return buildRightArea(faviconBase64, teamLogoBase64, textChildren);
 }
