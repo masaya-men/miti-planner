@@ -293,10 +293,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         {/* プレビュー更新ボタン（画像ロード済みのときのみ） */}
                         {imageLoaded && ogImageUrl && (
                             <button
-                                onClick={() => {
-                                    setImageLoaded(false);
-                                    setOgImageUrl(buildOgUrl(shareIdRef!, showPlanTitle, showLogo) + `&t=${Date.now()}`);
-                                }}
+                                onClick={() => updateShareLogo(showLogo)}
                                 className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all cursor-pointer"
                                 title={t('app.share_refresh_preview')}
                             >
