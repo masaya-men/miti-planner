@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2 } from 'lucide-react';
+import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -272,7 +272,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 </span>
                             </div>
                         )}
-                        {/* 生成中インジケータ: API通信中 or 画像ロード完了前まで表示 */}
+                        {/* 生成中インジケータ */}
                         {(!imageLoaded) && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                                 <Loader2 size={24} className="animate-spin text-app-text-muted" />
@@ -289,6 +289,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 onLoad={() => setImageLoaded(true)}
                                 onError={() => setImageLoaded(true)}
                             />
+                        )}
+                        {/* プレビュー更新ボタン（画像ロード済みのときのみ） */}
+                        {imageLoaded && ogImageUrl && (
+                            <button
+                                onClick={() => {
+                                    setImageLoaded(false);
+                                    setOgImageUrl(buildOgUrl(shareIdRef!, showPlanTitle, showLogo) + `&t=${Date.now()}`);
+                                }}
+                                className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all cursor-pointer"
+                                title={t('app.share_refresh_preview')}
+                            >
+                                <RefreshCw size={13} />
+                            </button>
                         )}
                     </div>
                 </div>
@@ -390,41 +403,64 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
                 {/* アクションボタン */}
                 <div className="px-5 pb-5 flex flex-col gap-2">
-                    {/* URLコピー */}
-                    <button
-                        onClick={handleCopy}
-                        disabled={!shareUrl || !imageLoaded}
-                        className={clsx(
-                            "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer",
-                            shareUrl && imageLoaded
-                                ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
-                                : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
-                        )}
-                    >
-                        {copied ? <Check size={16} /> : <Copy size={16} />}
-                        {copied
-                            ? t('app.link_copied')
-                            : t('app.copy_share_url')
-                        }
-                    </button>
+                    {/* 生成中の状態表示 */}
+                    {!imageLoaded && shareUrl && (
+                        <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold bg-app-surface2 text-app-text-muted cursor-not-allowed">
+                            <Loader2 size={16} className="animate-spin" />
+                            {t('app.share_generating')}
+                        </div>
+                    )}
 
-                    {/* X共有 */}
-                    <button
-                        onClick={handleShareX}
-                        disabled={!shareUrl || !imageLoaded}
-                        className={clsx(
-                            "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer border",
-                            shareUrl && imageLoaded
-                                ? "border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98]"
-                                : "border-app-border text-app-text-muted cursor-not-allowed"
-                        )}
-                    >
-                        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
-                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                        {t('app.share_on_x')}
-                        <ExternalLink size={12} className="text-app-text-muted" />
-                    </button>
+                    {/* URLコピー（生成中は非表示） */}
+                    {(imageLoaded || !shareUrl) && (
+                        <button
+                            onClick={handleCopy}
+                            disabled={!shareUrl}
+                            className={clsx(
+                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all",
+                                shareUrl
+                                    ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] cursor-pointer"
+                                    : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
+                            )}
+                        >
+                            {copied ? <Check size={16} /> : <Copy size={16} />}
+                            {copied
+                                ? t('app.link_copied')
+                                : t('app.copy_share_url')
+                            }
+                        </button>
+                    )}
+
+                    {/* X共有（生成中は非表示） */}
+                    {(imageLoaded || !shareUrl) && (
+                        <button
+                            onClick={handleShareX}
+                            disabled={!shareUrl}
+                            className={clsx(
+                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all border",
+                                shareUrl
+                                    ? "border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] cursor-pointer"
+                                    : "border-app-border text-app-text-muted cursor-not-allowed"
+                            )}
+                        >
+                            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                            {t('app.share_on_x')}
+                            <ExternalLink size={12} className="text-app-text-muted" />
+                        </button>
+                    )}
+
+                    {/* 画像無しで共有（URLだけコピー） */}
+                    {shareUrl && (
+                        <button
+                            onClick={handleCopy}
+                            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
+                        >
+                            <Copy size={12} />
+                            {t('app.share_url_only')}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>,
