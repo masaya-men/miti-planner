@@ -364,7 +364,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                     {uploading ? t('team_logo.uploading') : t('team_logo.upload')}
                                 </button>
                             )}
-                            <span className="text-[10px] text-app-text-muted/50 ml-auto">
+                            <span className="text-[10px] text-app-text-muted ml-auto">
                                 {t('team_logo.format_hint')}
                             </span>
                         </div>
