@@ -374,7 +374,7 @@ const Tooltip: React.FC<TooltipProps> = ({
             {/* Close button (Top Right) — UiTooltip不使用（absoluteが崩れるため） */}
             <button
                 onClick={requestExit}
-                className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-all cursor-pointer"
+                className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                 aria-label={t('common.close')}
             >
                 <X size={14} />
@@ -705,7 +705,7 @@ export const TutorialOverlay: React.FC = () => {
                                 </h3>
                                 <button
                                     onClick={() => useTutorialStore.getState().cancelExit()}
-                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                    className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                                 >
                                     <X size={18} />
                                 </button>
@@ -765,7 +765,7 @@ export const TutorialOverlay: React.FC = () => {
                         >
                             <button
                                 onClick={() => useTutorialStore.getState().cancelStart()}
-                                className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                className="absolute top-6 right-6 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={16} />
                             </button>

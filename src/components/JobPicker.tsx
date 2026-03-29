@@ -40,7 +40,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
             <div className="fixed inset-0 z-[9999] flex items-start justify-start pointer-events-none">
                 {/* Backdrop */}
                 <div
-                    className="absolute inset-0 bg-black/50 backdrop-blur-[2px] pointer-events-auto"
+                    className="absolute inset-0 pointer-events-auto"
                     onClick={onClose}
                 />
 
@@ -56,7 +56,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                 >
                     <div className="flex justify-between items-center border-b border-app-border pb-1.5 px-1">
                         <h3 className="font-bold text-app-text-primary text-xs tracking-wide">{t('jobs.select_job')}</h3>
-                        <button onClick={onClose} className="text-app-text hover:text-slate-800 dark:text-white transition-colors cursor-pointer">
+                        <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                             <X size={14} />
                         </button>
                     </div>

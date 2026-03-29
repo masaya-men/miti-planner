@@ -2,6 +2,33 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第44セッション 2026-03-30）
+- [x] **Googleログイン画面のドメイン表示修正** — auth.lopoly.appサブドメインをFirebase Hosting+Cloudflare DNSで設定、authDomainを変更（DNS反映待ち）
+- [x] **Stripe審査** — Ko-fiはPayPalのみに変更。Stripe不要
+- [x] **サイドバー畳み時のKo-fiロゴ化** — isOpen判定で☕のみ表示
+- [x] **全モーダル×ボタンの反転ホバー統一** — 15ファイルの×ボタンにhover:bg-app-text hover:text-app-bgを適用
+- [x] **ステータス設定のタイトル統一** — 「パラメータ設定」→「ステータス設定」
+- [x] **TANK/HEALER/DPSラベルのライトモード視認性改善** — dark:修飾子で色分け
+- [x] **FFLogsインポートモーダルのz-index修正** — createPortalでbody直下にレンダリング
+- [x] **デザイン改善6画面確認済み** — フェーズ追加・共有プレビュー・削除確認・オートプラン・FFLogs・ログイン画面OK
+- [x] **ToDo全体の整理・外部レビュー指摘の追記** — 運用・品質基盤セクション追加（テスト・エラー監視・バックアップ・a11y・法的確認等）
+- [x] **ToDo確認用HTML作成** — docs/todo-review.html（チェックボックス+コピー機能付き）
+
+## 完了（第43セッション 2026-03-30）
+- [x] **ライトモードのモーダル背景改善** — glass-tier3のライトモードデフォルトを `transparent→rgba(255,255,255,0.65)` + `blur 2px→12px` に変更。サイドバー・ヘッダーは `glass-frame` クラスで元の値を維持
+- [x] **スライドオーバーのバックドロップ暗転削除** — PartySettingsModal, PartyStatusPopoverのbg-black/50を除去
+- [x] **JobPickerのバックドロップ暗転削除**
+- [x] **共有モーダルのヘッダー改善** — bg-app-surface2/40追加、OGPプレビュー背景を60%透過に
+
+## 完了（第42セッション 2026-03-29）
+- [x] **アクセントカラー導入** — CSS変数でblue/red/amber定義。全モーダル・ダイアログのボタンに適用済み
+- [x] **ツールチップ反転表示** — glass-tier3変数上書き方式でテーマ反転
+- [x] **パルス設定のlocalStorage永続化**
+- [x] **MitigationSelector グラスモーフィズム復活**
+- [x] **ClearMitigationsPopover 角丸修正**
+- [x] **PartyStatusPopover text-whiteハードコード→テーマ変数化**
+- [x] **人気ページの「ランキング」文言削除**
+
 ## 完了（第40セッション 2026-03-29）
 - [x] **OGP画像の多言語対応** — vitest導入、OGPロジックをogpHelpers.tsに切り出し（32テスト）、CONTENT_METAにenフィールド追加、getContentName/trySeriesSummary多言語対応、共有データにlangフィールド保存、OG画像・メタタグの言語切替
 - [x] **テストフレームワーク導入（vitest）** — vitest導入済み。ogpHelpersのテスト32件

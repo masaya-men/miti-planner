@@ -962,7 +962,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
-            className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
+            className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
             style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
@@ -1235,7 +1235,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 rel="noopener noreferrer"
                                 className="text-[9px] text-app-text-muted hover:text-app-text transition-colors"
                             >
-                                ☕ {t('footer.support')}
+                                {isOpen ? <>☕ {t('footer.support')}</> : '☕'}
                             </a>
                         </div>
                     )}
@@ -1419,7 +1419,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             </h2>
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="p-2 hover:bg-glass-hover rounded-full transition-colors text-app-text cursor-pointer"
+                                className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={18} />
                             </button>

@@ -221,7 +221,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 onClick={e => e.stopPropagation()}
             >
                 {/* ヘッダー */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-app-border">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-app-border bg-app-surface2/40">
                     <h3 className="text-sm font-bold text-app-text">
                         {isBundle
                             ? t('app.share_bundle_title')
@@ -230,7 +230,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     </h3>
                     <button
                         onClick={onClose}
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-app-text-muted hover:bg-app-text/10 transition-colors cursor-pointer"
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
                     >
                         <X size={16} />
                     </button>
@@ -240,7 +240,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 <div className="px-5 py-4">
                     <div
                         className={clsx(
-                            "relative w-full aspect-[1200/630] bg-app-surface2 rounded-lg overflow-hidden border transition-colors",
+                            "relative w-full aspect-[1200/630] bg-app-surface2/60 rounded-lg overflow-hidden border transition-colors",
                             user && dragging
                                 ? "border-app-text border-dashed"
                                 : "border-app-border"

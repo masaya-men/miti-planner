@@ -97,7 +97,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                             <h2 className="text-sm font-bold text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
-                            <button onClick={onClose} className="text-app-text hover:text-white transition-colors p-1 rounded hover:bg-app-surface2 cursor-pointer">
+                            <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                                 <X size={16} />
                             </button>
                         </div>
@@ -135,7 +135,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text hover:text-white hover:bg-app-surface2 rounded-md transition-colors text-xs font-medium cursor-pointer"
+                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 text-xs font-medium cursor-pointer active:scale-95"
                                     >
                                         {t('modal.cancel')}
                                     </button>
