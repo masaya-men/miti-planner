@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, Loader2, ExternalLink, Upload, ImageIcon, Trash2 } from 'lucide-react';
@@ -37,6 +37,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const [uploading, setUploading] = useState(false);
     const [dragging, setDragging] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const dragCountRef = useRef(0);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
@@ -150,14 +151,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    // ドラッグ＆ドロップ（PC向け）
-    const handleDrop = async (e: React.DragEvent) => {
-        e.preventDefault();
-        setDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) await processLogoFile(file);
-    };
-
     // ロゴ削除処理
     const handleLogoDelete = async () => {
         if (!user) return;
@@ -230,13 +223,30 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 ? "border-app-text border-dashed"
                                 : "border-app-border"
                         )}
-                        onDragOver={user ? (e) => { e.preventDefault(); setDragging(true); } : undefined}
-                        onDragLeave={user ? () => setDragging(false) : undefined}
-                        onDrop={user ? handleDrop : undefined}
+                        onDragEnter={user ? (e) => {
+                            e.preventDefault();
+                            dragCountRef.current++;
+                            setDragging(true);
+                        } : undefined}
+                        onDragOver={user ? (e) => { e.preventDefault(); } : undefined}
+                        onDragLeave={user ? () => {
+                            dragCountRef.current--;
+                            if (dragCountRef.current <= 0) {
+                                dragCountRef.current = 0;
+                                setDragging(false);
+                            }
+                        } : undefined}
+                        onDrop={user ? (e) => {
+                            e.preventDefault();
+                            dragCountRef.current = 0;
+                            setDragging(false);
+                            const file = e.dataTransfer.files[0];
+                            if (file) processLogoFile(file);
+                        } : undefined}
                     >
                         {/* D&Dオーバーレイ（ログインユーザーのみ） */}
                         {user && dragging && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-app-bg/60 z-20">
+                            <div className="absolute inset-0 flex items-center justify-center bg-app-bg/60 z-20 pointer-events-none">
                                 <span className="text-xs font-bold text-app-text">
                                     {t('team_logo.upload')}
                                 </span>
@@ -257,6 +267,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 alt="OGP Preview"
                                 className={clsx("w-full h-full object-cover transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
                                 onLoad={() => setImageLoaded(true)}
+                                onError={() => setImageLoaded(true)}
                             />
                         )}
                     </div>
