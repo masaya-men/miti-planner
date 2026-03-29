@@ -290,10 +290,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 onError={() => setImageLoaded(true)}
                             />
                         )}
-                        {/* プレビュー更新ボタン（画像ロード済みのときのみ） */}
+                        {/* プレビュー更新ボタン（トグルOFF→ONと同じ処理で確実に再生成） */}
                         {imageLoaded && ogImageUrl && (
                             <button
-                                onClick={() => updateShareLogo(showLogo)}
+                                onClick={async () => {
+                                    await updateShareLogo(false);
+                                    await updateShareLogo(showLogo);
+                                }}
                                 className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/70 transition-all cursor-pointer"
                                 title={t('app.share_refresh_preview')}
                             >
