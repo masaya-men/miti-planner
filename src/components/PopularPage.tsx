@@ -602,7 +602,7 @@ export const PopularPage: React.FC = () => {
                     <span>·</span>
                     <a href="/commercial" className="underline hover:text-app-text transition-colors">{t('footer.commercial')}</a>
                     <span>·</span>
-                    <a href="https://discord.gg/V288kfPFMG" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
+                    <a href="https://discord.gg/z7uypbJSnN" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
                     <span>·</span>
                     <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.kofi')}</a>
                     <span>·</span>

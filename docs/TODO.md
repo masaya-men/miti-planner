@@ -7,15 +7,26 @@
 
 ## バグ
 - [ ] LP: THREE.Clock非推奨警告 — THREE.Timerに移行が必要（動作には影響なし）
+  - 対象: `src/components/landing/LandingScene.tsx:155`, `src/components/ParticleBackground.tsx:133`
 - [ ] FFLogsインポート: 英語主言語のログで言語取得できない問題
 - [ ] FFLogsインポート: 無敵で0にしたダメージ、リビングデッド中のダメージが正しく反映されない
 - [ ] オートプラン: 無敵はなるべく同じ技に対して使うようにしたい（タイミングが違っても）
 - [ ] Googleログイン画面に「lopo-7793e.firebaseapp.com」が表示される — Blazeプラン移行済み、カスタムドメイン設定で修正可能
 - [ ] **アプリ全体の動作が重い** — ログアウト並列化は完了。残り: 起動時Firestore読み込みの非ブロッキング化、React.memo追加（視覚変更後に対応）
+- [ ] **Sidebar: button入れ子問題** — ContentTreeItem内でコピー/リネーム/メニューボタンが親ボタンの子要素になっておりHTML仕様違反。`<div>`でラップしてstopPropagationする方式に修正が必要（Sidebar.tsx:268-340）
+- [ ] **Firestore同期: 3分クールダウン未実装** — usePlanStore.tsのコメント(L216)に「3分以上のインターバルを強制」と書いてあるが、実際にはチェックされていない。プラン高速切替で想定以上のFirestore書き込みが発生する可能性あり
+- [ ] **起動時Firestore読み込みがブロッキング** — useAuthStore.tsのonAuthStateChanged内でgetIdTokenResult+getDocを直列awaitしており、loading: falseが遅延する。非クリティカルデータ（ロゴ・admin claims）はバックグラウンドで取得すべき
 
 ## Stripe/Ko-fi
 - [ ] **Stripe審査結果待ち** — 追加情報提出済み（2026-03-27）。結果を確認する
 - [ ] **Stripe審査通過後：フッターの法的リンクをまとめる** — プライバシー・利用規約・特商法の3リンクをドロップダウン等にまとめてフッターを短縮する
+
+## 第43セッション完了
+- [x] **ライトモードのモーダル背景改善** — glass-tier3のライトモードデフォルトを `transparent→rgba(255,255,255,0.65)` + `blur 2px→12px` に変更。サイドバー・ヘッダーは `glass-frame` クラスで元の値(transparent+2px)を維持
+- [x] **スライドオーバーのバックドロップ暗転削除** — PartySettingsModal, PartyStatusPopoverのbg-black/50を除去（スライドパネルに暗転は不要）
+- [x] **JobPickerのバックドロップ暗転削除** — 小さいポップオーバーに暗転は不要
+- [x] **共有モーダルのヘッダー改善** — bg-app-surface2/40追加、OGPプレビュー背景を60%透過に
+- [x] **ビルド確認** — backdrop-filter 28件検出、Lightning CSS問題なし
 
 ## 第42セッション完了
 - [x] **アクセントカラー導入** — CSS変数でblue/red/amber定義。全モーダル・ダイアログのボタンに適用済み
@@ -25,12 +36,6 @@
 - [x] **ClearMitigationsPopover 角丸修正**
 - [x] **PartyStatusPopover text-whiteハードコード→テーマ変数化**
 - [x] **人気ページの「ランキング」文言削除**
-
-## 第42セッション 未完了（次セッションで継続）
-- [ ] **ライトモードのモーダル背景改善** — glass-tier3がtransparent+blur2pxで後ろが丸見え。ライトモード時のみ白背景を適用する必要がある。**glass-tier3のCSS変数上書き方式で対応すること（Tailwindクラス直書きはglass-tier3の!importantに負ける）**。対象: PartySettingsModal, PartyStatusPopover, ShareModal, LoginModal, ConfirmDialog, Sidebar削除確認モーダル
-- [ ] **パフォーマンス最適化**（全ての視覚変更後）
-- [ ] **public/icons/ 削除** — 全動作確認完了後に実施（バンドル2.1MB削減）
-- [ ] **軽減配置時のフィードバックアニメーション** — 方向性再検討中。最後の最後に対応（パルス/トースト等は不採用。良いアイデアが出るまで保留）
 
 ## テスト基盤
 - [x] ~~**テストフレームワーク導入（vitest）**~~ — vitest導入済み（第40セッション）
@@ -42,12 +47,13 @@
 
 ## 確認・調査が必要
 - [ ] **パルス・設定の保存確認** — 保存されているか？ログインなら端末またぎも同期される？（スマホではパルスは見えないのでOK）
-- [ ] **ユーザーに優しくない表現の精査** — 共有モーダルは第38セッションで修正済み。他の画面にも技術用語が残っていないか全体チェック（19ファイルにi18nハードコーディング残存）
+- [ ] **ユーザーに優しくない表現の精査** — 共有モーダルは第38セッションで修正済み。他の画面にも技術用語が残っていないか全体チェック（21ファイルにi18nハードコーディング残存 — 特にPartyStatusPopover.tsxの21個のスキル名が最重要）
 - [ ] **管理画面への導線** — 管理者のGoogleアカウントでログイン中なら、右上のユーザーアイコンから /admin に遷移できるようにする（2026-03-28 第33セッション）
 - [ ] **LP・人気ページにログイン状態の表示がない** — ヘッダーにアイコンやログインボタンを表示すべきか検討（2026-03-28 第33セッション）
 
 ## デザイン改善（モーダル・画面の見直し）
 以下の画面はライトモードでデザイン的な見直しが必要:
+- [x] ~~共有モーダル~~ — 第43セッションでヘッダーbg追加+OGP透過改善
 - [ ] ステータス表示
 - [ ] フェーズ追加モーダル
 - [ ] 共有プレビュー作成画面
@@ -93,6 +99,7 @@
 - [ ] **詠唱バー注釈機能** — ボスの詠唱バー上にメモ。実装方法の検討が必要
 - [ ] AI APIでオートプラン — 無料で数回試せる、課金モデル
 - [ ] **ハウジングツアープランナー** — 要件定義済み（`docs/housing-tour-planner-requirements.md`）。コード実装未着手。AdminServers.tsxにhousingタブの構造のみ存在
+- [ ] **public/icons/ 削除** — 全動作確認完了後に実施（バンドル2.1MB削減、127ファイル）
 
 ## アイデア・やりたいこと
 
@@ -312,7 +319,7 @@ curl -X POST https://lopoly.app/api/admin/set-role \
 - firebase-admin v13 は モジュラーimport
 - .env.local に全シークレット保管済み
 - 本番URL: https://lopoly.app/
-- Discord: https://discord.gg/V288kfPFMG
+- Discord: https://discord.gg/z7uypbJSnN
 - Ko-fi: https://ko-fi.com/lopoly
 - **backdrop-filterは直書き禁止** → docs/TECH_NOTES.md参照
 - **conic-gradientの回転要素は200vmax正方形にすること** → docs/TECH_NOTES.md参照
