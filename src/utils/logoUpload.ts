@@ -12,7 +12,7 @@ const MAX_SIZE = 2 * 1024 * 1024;
 /** リサイズ後のロゴサイズ（正方形、px） */
 const LOGO_SIZE = 400;
 /** 受け付ける画像MIME Type */
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpeg', 'image/webp'];
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
 /**
  * Canvas API で画像を 400x400px にリサイズして WebP に変換する
