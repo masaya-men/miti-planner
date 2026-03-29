@@ -225,19 +225,26 @@ export default async function handler(req: Request) {
 
         // チームロゴをBase64化（タイムアウト5秒、失敗時はロゴなしで生成）
         let teamLogoSrc: string | null = null;
+        const debugMode = searchParams.get('debug');
         if (logoUrl) {
             try {
+                console.log('[OG] ロゴフェッチ開始:', logoUrl.substring(0, 80) + '...');
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 5000);
                 const logoRes = await fetch(logoUrl, { signal: controller.signal });
                 clearTimeout(timeout);
+                console.log('[OG] ロゴフェッチ結果: status=', logoRes.status, 'ok=', logoRes.ok, 'content-type=', logoRes.headers.get('content-type'));
                 if (logoRes.ok) {
                     const buf = await logoRes.arrayBuffer();
+                    console.log('[OG] ロゴバッファサイズ:', buf.byteLength, 'bytes');
                     const ct = logoRes.headers.get('content-type') || 'image/jpeg';
                     teamLogoSrc = `data:${ct};base64,${arrayBufferToBase64(buf)}`;
+                    console.log('[OG] ロゴbase64生成成功: data URI長=', teamLogoSrc.length, '文字');
+                } else {
+                    console.log('[OG] ロゴフェッチ失敗: status=', logoRes.status);
                 }
-            } catch {
-                // タイムアウトまたは取得失敗 → ロゴなしで生成
+            } catch (err: any) {
+                console.log('[OG] ロゴフェッチ例外:', err?.name, err?.message);
             }
         }
 
@@ -245,6 +252,13 @@ export default async function handler(req: Request) {
         const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
         const faviconBuffer = await fetch(faviconUrl).then(r => r.arrayBuffer());
         const faviconBase64 = `data:image/png;base64,${arrayBufferToBase64(faviconBuffer)}`;
+
+        // デバッグ: favicon をロゴ代わりに使って Satori の大画像レンダリングを検証
+        if (debugMode === 'favicon' && !teamLogoSrc) {
+            teamLogoSrc = faviconBase64;
+            console.log('[OG] デバッグモード: faviconをロゴ代わりに使用');
+        }
+        console.log('[OG] 最終 teamLogoSrc:', teamLogoSrc ? `あり (${teamLogoSrc.length}文字)` : 'なし');
 
         // レイアウト選択
         const element = !shareId
