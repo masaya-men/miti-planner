@@ -17,12 +17,17 @@
 - [ ] **Stripe審査結果待ち** — 追加情報提出済み（2026-03-27）。結果を確認する
 - [ ] **Stripe審査通過後：フッターの法的リンクをまとめる** — プライバシー・利用規約・特商法の3リンクをドロップダウン等にまとめてフッターを短縮する
 
-## 第41セッション完了
-- [x] **🔥 Discord Bot実装** — 設計・実装・Wispbyteデプロイ完了。転送+返信の両機能動作確認済み。429リトライ機能あり
-- [x] **🔥 既存Webhookの確認・修復** — DISCORD_ADMIN_WEBHOOK_URLをMainDiscordに変更。コミット通知（GitHub Actions）廃止。DISCORD_UPDATE_WEBHOOK_URL削除
+## 第42セッション完了
+- [x] **アクセントカラー導入** — CSS変数でblue/red/amber定義。全モーダル・ダイアログのボタンに適用済み
+- [x] **ツールチップ反転表示** — glass-tier3変数上書き方式でテーマ反転。ダーク=白背景、ライト=黒背景
+- [x] **パルス設定のlocalStorage永続化** — ページ遷移しても設定が維持される
+- [x] **MitigationSelector グラスモーフィズム復活** — glass-panel→glass-tier3
+- [x] **ClearMitigationsPopover 角丸修正**
+- [x] **PartyStatusPopover text-whiteハードコード→テーマ変数化**
+- [x] **人気ページの「ランキング」文言削除**
 
-## 次セッション予定（第42セッション）
-- [ ] **モーダル・画面のデザイン改善 + アクセントカラー**
+## 第42セッション 未完了（次セッションで継続）
+- [ ] **ライトモードのモーダル背景改善** — glass-tier3がtransparent+blur2pxで後ろが丸見え。ライトモード時のみ白背景を適用する必要がある。**glass-tier3のCSS変数上書き方式で対応すること（Tailwindクラス直書きはglass-tier3の!importantに負ける）**。対象: PartySettingsModal, PartyStatusPopover, ShareModal, LoginModal, ConfirmDialog, Sidebar削除確認モーダル
 - [ ] **パフォーマンス最適化**（全ての視覚変更後）
 - [ ] **public/icons/ 削除** — 全動作確認完了後に実施（バンドル2.1MB削減）
 - [ ] **軽減配置時のフィードバックアニメーション** — 方向性再検討中。最後の最後に対応（パルス/トースト等は不採用。良いアイデアが出るまで保留）
