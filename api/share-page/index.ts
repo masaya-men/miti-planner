@@ -8,32 +8,9 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers';
 
 const COLLECTION = 'shared_plans';
-
-// コンテンツID→日本語名マッピング
-const CONTENT_NAMES: Record<string, string> = {
-    m9s: '至天の座アルカディア零式：ヘビー級1',
-    m10s: '至天の座アルカディア零式：ヘビー級2',
-    m11s: '至天の座アルカディア零式：ヘビー級3',
-    m12s_p1: '至天の座アルカディア零式：ヘビー級4（前半）',
-    m12s_p2: '至天の座アルカディア零式：ヘビー級4（後半）',
-    m5s: '至天の座アルカディア零式：クルーザー級1',
-    m6s: '至天の座アルカディア零式：クルーザー級2',
-    m7s: '至天の座アルカディア零式：クルーザー級3',
-    m8s: '至天の座アルカディア零式：クルーザー級4',
-    m1s: '至天の座アルカディア零式：ライトヘビー級1',
-    m2s: '至天の座アルカディア零式：ライトヘビー級2',
-    m3s: '至天の座アルカディア零式：ライトヘビー級3',
-    m4s: '至天の座アルカディア零式：ライトヘビー級4',
-    fru: '絶エデン',
-    dsr_p1: '絶竜詩戦争 P1', dsr_p2: '絶竜詩戦争 P2', dsr_p3: '絶竜詩戦争 P3',
-    dsr_p4: '絶竜詩戦争 P4', dsr_p5: '絶竜詩戦争 P5', dsr_p6: '絶竜詩戦争 P6',
-    dsr_p7: '絶竜詩戦争 P7',
-    tea: '絶アレキサンダー',
-    ucob: '絶バハムート',
-    uwu: '絶アルテマウェポン',
-};
 
 function initAdmin() {
     if (!getApps().length) {
@@ -60,6 +37,7 @@ export default async function handler(req: any, res: any) {
     let ogTitle = 'LoPo | FF14 軽減プランナー';
     let ogDescription = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
     let ogImageUrl = '/api/og';
+    let lang: OgpLang = 'ja';
 
     try {
         if (shareId) {
@@ -69,35 +47,40 @@ export default async function handler(req: any, res: any) {
 
             if (snap.exists) {
                 const data = snap.data()!;
+                lang = data.lang === 'en' ? 'en' : 'ja';
 
                 // バンドル共有
                 if (data.type === 'bundle' && Array.isArray(data.plans)) {
                     const names = data.plans
-                        .map((p: any) => CONTENT_NAMES[p.contentId] || p.title || '')
+                        .map((p: any) => getContentName(p.contentId, lang) || p.title || '')
                         .filter(Boolean);
                     if (names.length > 0) {
                         ogTitle = `${names.join(' / ')} - LoPo`;
-                        ogDescription = `${names.length}件の軽減プラン`;
+                        ogDescription = lang === 'en'
+                            ? `${names.length} mitigation plans`
+                            : `${names.length}件の軽減プラン`;
                     }
                 } else {
                     // 単一プラン
-                    const contentName = CONTENT_NAMES[data.contentId] || '';
+                    const contentName = getContentName(data.contentId, lang);
                     const planTitle = data.title || '';
 
                     if (contentName) {
                         ogTitle = `${contentName} - LoPo`;
-                        ogDescription = planTitle
-                            ? `${planTitle} | ${contentName} の軽減プラン`
-                            : `${contentName} の軽減プラン`;
+                        ogDescription = lang === 'en'
+                            ? (planTitle ? `${planTitle} | Mitigation plan for ${contentName}` : `Mitigation plan for ${contentName}`)
+                            : (planTitle ? `${planTitle} | ${contentName} の軽減プラン` : `${contentName} の軽減プラン`);
                     } else if (planTitle) {
                         ogTitle = `${planTitle} - LoPo`;
-                        ogDescription = `${planTitle} の軽減プラン`;
+                        ogDescription = lang === 'en'
+                            ? `Mitigation plan: ${planTitle}`
+                            : `${planTitle} の軽減プラン`;
                     }
                 }
 
                 const host = req.headers.host || 'lopo-eta.vercel.app';
                 const protocol = host.includes('localhost') ? 'http' : 'https';
-                ogImageUrl = `${protocol}://${host}/api/og?id=${encodeURIComponent(shareId)}`;
+                ogImageUrl = `${protocol}://${host}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}`;
             }
         }
     } catch (err) {
@@ -137,7 +120,7 @@ export default async function handler(req: any, res: any) {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(`<!doctype html>
-<html lang="ja">
+<html lang="${lang}">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
