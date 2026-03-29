@@ -15,6 +15,21 @@
   --color-app-border: var(--color-border);
   --color-app-border-accent: var(--color-border-accent);
 
+  --color-app-blue: var(--color-blue);
+  --color-app-blue-hover: var(--color-blue-hover);
+  --color-app-blue-dim: var(--color-blue-dim);
+  --color-app-blue-border: var(--color-blue-border);
+
+  --color-app-red: var(--color-red);
+  --color-app-red-hover: var(--color-red-hover);
+  --color-app-red-dim: var(--color-red-dim);
+  --color-app-red-border: var(--color-red-border);
+
+  --color-app-amber: var(--color-amber);
+  --color-app-amber-hover: var(--color-amber-hover);
+  --color-app-amber-dim: var(--color-amber-dim);
+  --color-app-amber-border: var(--color-amber-border);
+
   --color-glass-header: var(--glass-bg-header);
   --color-glass-panel: var(--glass-bg-panel);
   --color-glass-card: var(--glass-bg-card);
@@ -88,6 +103,22 @@
     --color-border: rgba(255, 255, 255, 0.22);
     --color-border-accent: rgba(255, 255, 255, 0.3);
 
+    /* アクセントカラー */
+    --color-blue: #3b82f6;
+    --color-blue-hover: #2563eb;
+    --color-blue-dim: rgba(59, 130, 246, 0.10);
+    --color-blue-border: rgba(59, 130, 246, 0.25);
+
+    --color-red: #ef4444;
+    --color-red-hover: #dc2626;
+    --color-red-dim: rgba(239, 68, 68, 0.10);
+    --color-red-border: rgba(239, 68, 68, 0.25);
+
+    --color-amber: #f59e0b;
+    --color-amber-hover: #d97706;
+    --color-amber-dim: rgba(245, 158, 11, 0.10);
+    --color-amber-border: rgba(245, 158, 11, 0.25);
+
     --glass-tier3-bg: transparent;
     --glass-tier3-blur: 2px;
     --glass-tier3-border: rgba(255, 255, 255, 0.18);
@@ -136,6 +167,22 @@
 
     --color-border: rgba(0, 0, 0, 1);
     --color-border-accent: rgba(0, 0, 0, 0.3);
+
+    /* アクセントカラー */
+    --color-blue: #2563eb;
+    --color-blue-hover: #1d4ed8;
+    --color-blue-dim: rgba(37, 99, 235, 0.08);
+    --color-blue-border: rgba(37, 99, 235, 0.20);
+
+    --color-red: #dc2626;
+    --color-red-hover: #b91c1c;
+    --color-red-dim: rgba(220, 38, 38, 0.08);
+    --color-red-border: rgba(220, 38, 38, 0.20);
+
+    --color-amber: #d97706;
+    --color-amber-hover: #b45309;
+    --color-amber-dim: rgba(217, 119, 6, 0.08);
+    --color-amber-border: rgba(217, 119, 6, 0.20);
 
     --glass-tier3-bg: transparent;
     --glass-tier3-blur: 2px;
@@ -315,6 +362,26 @@
 .glass-tier3::after {
   -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,) !important;
+}
+
+/* ツールチップ用: テーマ反転（逆テーマのglass-tier3変数を上書き） */
+.tooltip-invert {
+  color: var(--color-text-on-accent);
+}
+:root .tooltip-invert,
+.theme-dark .tooltip-invert {
+  --glass-tier3-bg: rgba(255, 255, 255, 0.80);
+  --glass-tier3-blur: 20px;
+  --glass-tier3-border: rgba(0, 0, 0, 0.08);
+  --glass-tier3-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.theme-light .tooltip-invert {
+  --glass-tier3-bg: rgba(0, 0, 0, 0.80);
+  --glass-tier3-blur: 20px;
+  --glass-tier3-border: rgba(255, 255, 255, 0.12);
+  --glass-tier3-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .glass-tier2 {

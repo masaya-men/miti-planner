@@ -208,7 +208,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
                                         onRemoveJob(member.id);
                                     }}
-                                    className="px-4 py-2 rounded-xl text-[11px] font-black text-white/40 hover:text-white hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                                    className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
                                 >
                                     <Trash2 size={16} />
                                 </button>

@@ -684,7 +684,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         onClose();
                                     }
                                 }}
-                                className="w-full sm:w-auto px-4 py-2 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold cursor-pointer"
+                                className="w-full sm:w-auto px-4 py-2 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold cursor-pointer"
                             >
                                 <Trash2 size={16} />
                                 <span>{t('modal.delete')}</span>
@@ -694,7 +694,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <button
                             data-tutorial="event-save-btn"
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-text text-app-bg hover:opacity-80 rounded-lg text-sm font-bold transition-all border border-app-text hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-lg text-sm font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
                         >
                             <Save size={16} />
                             {t('mechanic_modal.add_button')}

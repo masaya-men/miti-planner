@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS } from './GridOverlay';
+import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings } from './GridOverlay';
 
 // --- 色変換ユーティリティ ---
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
@@ -264,18 +264,18 @@ export const PulseSettings: React.FC = () => {
         pulseVisualConfig.customColor = `${r}, ${g}, ${b}`;
     }, []);
 
-    // 更新関数
+    // 更新関数（変更のたびにlocalStorageに保存）
     const update = {
-        enabled: (v: boolean) => { setEnabled(v); pulseConfig.enabled = v; },
-        distance: (v: number) => { setDistance(v); pulseConfig.distance = v; },
-        speed: (v: number) => { setSpeed(v); pulseConfig.speed = v; },
-        pulseWidth: (v: number) => { setPulseWidth(v); pulseVisualConfig.width = v; },
-        pulseOpacity: (v: number) => { setPulseOpacity(v); pulseVisualConfig.opacity = v; },
-        colorId: (v: string) => { setColorId(v); pulseVisualConfig.colorId = v; },
-        glow: (v: number) => { setGlow(v); pulseVisualConfig.glow = v; },
-        gridLineWidth: (v: number) => { setGridLineWidth(v); gridConfig.lineWidth = v; },
-        customHue: (v: number) => { setCustomHue(v); updateCustomColor(v, customLightness); },
-        customLightness: (v: number) => { setCustomLightness(v); updateCustomColor(customHue, v); },
+        enabled: (v: boolean) => { setEnabled(v); pulseConfig.enabled = v; savePulseSettings(); },
+        distance: (v: number) => { setDistance(v); pulseConfig.distance = v; savePulseSettings(); },
+        speed: (v: number) => { setSpeed(v); pulseConfig.speed = v; savePulseSettings(); },
+        pulseWidth: (v: number) => { setPulseWidth(v); pulseVisualConfig.width = v; savePulseSettings(); },
+        pulseOpacity: (v: number) => { setPulseOpacity(v); pulseVisualConfig.opacity = v; savePulseSettings(); },
+        colorId: (v: string) => { setColorId(v); pulseVisualConfig.colorId = v; savePulseSettings(); },
+        glow: (v: number) => { setGlow(v); pulseVisualConfig.glow = v; savePulseSettings(); },
+        gridLineWidth: (v: number) => { setGridLineWidth(v); gridConfig.lineWidth = v; savePulseSettings(); },
+        customHue: (v: number) => { setCustomHue(v); updateCustomColor(v, customLightness); savePulseSettings(); },
+        customLightness: (v: number) => { setCustomLightness(v); updateCustomColor(customHue, v); savePulseSettings(); },
     };
 
     const resetToDefault = () => {

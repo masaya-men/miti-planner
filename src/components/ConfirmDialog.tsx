@@ -46,10 +46,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 <div className="flex items-center gap-3 px-5 pt-5 pb-2">
                     <div className={clsx(
                         "p-2 rounded-xl",
-                        variant === 'danger' ? "bg-red-500/10" : "bg-amber-500/10"
+                        variant === 'danger' ? "bg-app-red-dim" : "bg-app-amber-dim"
                     )}>
                         <AlertTriangle size={18} className={
-                            variant === 'danger' ? "text-red-500" : "text-amber-500"
+                            variant === 'danger' ? "text-app-red" : "text-app-amber"
                         } />
                     </div>
                     <h3 className="text-sm font-black text-app-text tracking-wide">{title}</h3>
@@ -77,8 +77,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                         className={clsx(
                             "px-4 py-2 rounded-xl text-[11px] font-bold text-white transition-all shadow-lg cursor-pointer",
                             variant === 'danger'
-                                ? "bg-red-500 hover:bg-red-600 shadow-red-500/25"
-                                : "bg-amber-500 hover:bg-amber-600 shadow-amber-500/25"
+                                ? "bg-app-red hover:bg-app-red-hover shadow-app-red/25"
+                                : "bg-app-amber hover:bg-app-amber-hover shadow-app-amber/25"
                         )}
                     >
                         {finalConfirmLabel}

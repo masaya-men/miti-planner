@@ -96,7 +96,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                             },
                         });
                     }}
-                    className="flex-1 text-left px-4 py-2.5 text-[11px] font-black text-red-500 dark:text-red-400 hover:bg-red-500/10 cursor-pointer transition-colors flex items-center gap-3 group/btn"
+                    className="flex-1 text-left px-4 py-2.5 text-[11px] font-black text-app-red hover:bg-app-red-dim rounded-xl cursor-pointer transition-colors flex items-center gap-3 group/btn"
                 >
                     <Trash2 size={14} className="group-hover/btn:scale-110 transition-transform" />
                     <span className="uppercase tracking-wider font-black">{t('timeline.all_mitigations')}</span>

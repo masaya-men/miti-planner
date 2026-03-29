@@ -93,7 +93,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         {/* Mobile Drag Handle Indicator */}
                         {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-black/40 shrink-0">
+                        <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-app-surface2/40 shrink-0">
                             <h2 className="text-sm font-bold text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
@@ -124,7 +124,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                             onDelete();
                                             onClose();
                                         }}
-                                        className="px-3 py-1.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-md flex items-center gap-1.5 transition-colors text-xs cursor-pointer"
+                                        className="px-3 py-1.5 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-md flex items-center gap-1.5 transition-colors text-xs cursor-pointer"
                                     >
                                         <Trash2 size={14} />
                                         <span>{t('modal.delete')}</span>
@@ -141,7 +141,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-app-text text-app-bg hover:opacity-80 rounded-md text-xs font-semibold transition-all border border-app-text uppercase cursor-pointer"
+                                        className="px-4 py-1.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-md text-xs font-semibold transition-all uppercase cursor-pointer"
                                     >
                                         {t('phase_modal.add_button')}
                                     </button>
