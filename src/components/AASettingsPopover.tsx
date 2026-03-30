@@ -4,6 +4,7 @@ import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
 import type { AASettings } from '../store/useMitigationStore';
 import { useTranslation } from 'react-i18next';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface AASettingsPopoverProps {
     isOpen: boolean;
@@ -26,6 +27,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
+    useEscapeClose(isOpen, onClose);
 
     // Close on click outside
     useEffect(() => {

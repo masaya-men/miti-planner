@@ -6,6 +6,7 @@ import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalV
 import { useLevelModifiers } from '../hooks/useSkillsData';
 import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import clsx from 'clsx';
 import { FormattedNumberInput } from './ui/FormattedNumberInput';
 import { useTutorialStore } from '../store/useTutorialStore';
@@ -21,6 +22,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const { partyMembers, updateMemberStats, currentLevel } = useMitigationStore();
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
+    useEscapeClose(isOpen, onClose);
     const LEVEL_MODIFIERS = useLevelModifiers();
     const popoverRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);

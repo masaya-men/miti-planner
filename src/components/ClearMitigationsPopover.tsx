@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Trash2, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { Tooltip } from './ui/Tooltip';
@@ -29,6 +30,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
     const popoverRef = useRef<HTMLDivElement>(null);
     const jobs = useJobs();
     const { t } = useTranslation();
+    useEscapeClose(isOpen, onClose);
     const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
     const [isPositioned, setIsPositioned] = useState(false);
 
