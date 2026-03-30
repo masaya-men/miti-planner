@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
@@ -124,7 +125,7 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
     };
 };
 
-const MitigationItem: React.FC<MitigationItemProps> = (props) => {
+const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
@@ -145,9 +146,9 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
-    const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
-    const myMemberId = useMitigationStore(state => state.myMemberId);
-    const hideEmptyRows = useMitigationStore(state => state.hideEmptyRows);
+    const { myJobHighlight, myMemberId, hideEmptyRows } = useMitigationStore(
+        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
+    );
 
     const def = MITIGATIONS.find(m => m.id === mitigation.mitigationId);
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
@@ -519,7 +520,8 @@ const MitigationItem: React.FC<MitigationItemProps> = (props) => {
             </div>
         </>
     );
-};
+});
+MitigationItem.displayName = 'MitigationItem';
 
 const Timeline: React.FC = () => {
     const { contentLanguage } = useThemeStore();
