@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第49セッション）
+# セッション引き継ぎ書（2026-03-30 第50セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -34,51 +34,29 @@
 - **本番URL**: https://lopoly.app/
 - **管理画面**: https://lopoly.app/admin
 - **技術スタック**: React 19 + TypeScript + Vite 7 + Tailwind CSS v4 + Zustand + Firebase + Vercel
-- **Discord**: https://discord.gg/V288kfPFMG
+- **Discord**: https://discord.gg/z7uypbJSnN
 - **Ko-fi**: https://ko-fi.com/lopoly
 
 ---
 
-## 今回のセッション（第49セッション）で完了したこと
+## 今回のセッション（第50セッション）で完了したこと
 
-### 1. Upstash Redisベースのレート制限（セキュリティ最重要）
+### プライバシーポリシー全面改訂
 
-**問題**: インメモリMapのレート制限がVercel Serverless Functionsで実質無効だった。
+**背景**: 第45〜49セッションのセキュリティ強化により、実際のデータ収集とポリシー記載に乖離が発生していた。
 
-**対応**:
-- Upstash Redis（無料枠、us-east-1リージョン）のデータベースを作成
-- `@upstash/redis` パッケージをインストール
-- `src/lib/rateLimit.ts` をインメモリMap → Upstash Redisに書き換え
-- 同期関数 → 非同期関数（async/await）に変更
-- 全6 APIファイル（8箇所）に`await`追加
-- フェイルオープン設計（Redis障害時はレート制限をスキップ、アプリは正常動作）
-- Vercel全3環境（Production/Preview/Development）に環境変数登録
-
-### 2. CSP（Content Security Policy）修正（5件）
-
-**問題**: 第47セッションのApp Check強制化以降、CSPの不足で複数の機能がブロックされていた。
-
-| ディレクティブ | 追加したドメイン | 理由 |
-|---|---|---|
-| `script-src` | `https://www.googletagmanager.com` | Firebase Analytics |
-| `connect-src` | `wss://*.googleapis.com` | Firestore WebSocket接続 |
-| `connect-src` | `wss://*.firebaseio.com` | Firebase Realtime DB WebSocket |
-| `connect-src` | `https://www.google.com` | reCAPTCHA Enterprise API |
-| `connect-src` | `https://www.googletagmanager.com` | Analytics データ送信 |
-| `connect-src` | `https://www.google-analytics.com` | Analytics データ収集 |
-| `frame-src` | `https://www.google.com` | reCAPTCHA iframe |
-
-### 3. reCAPTCHAキー改行除去
-
-**問題**: Vercel環境変数`VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`に末尾改行（`%0A`）が混入。App Checkトークンが取得できず、全APIのPOSTが403で失敗していた。
-
-**対応**: Vercel REST APIで全環境の環境変数を削除→改行なしで再登録。
-
-### 4. 共有API修正（3件）
-
-- **GETリクエストのApp Checkスキップ** — OGP画像生成の内部fetchと外部共有リンクアクセスに必要
-- **`require('crypto')` → `import { createHash }`** — VercelのESモジュールバンドルで`require is not defined`エラー
-- **`x-forwarded-for`ヘッダー配列対応** — 型安全な処理に変更
+**対応内容**:
+- コードベース全体を監査し、実際に収集・送信・保存しているデータを網羅的に特定
+- 9セクション → 11セクションに再構成
+- **新設セクション**: 「集めない情報」（独立化）、「外部サービス一覧表」、「データ保存場所・保持期間表」
+- 全文を平易な日本語に書き直し（FF14プレイヤーが読んで理解できるトーン）
+- 不正確な記載を修正:
+  - 「IPアドレスのログは収集しない」→ 一時記録（1分削除）＋ハッシュ保存（復元不可）を正直に記載
+  - 外部サービスをFirebaseのみ → Firebase, Analytics, reCAPTCHA, FFLogs, Upstash, Ko-fi, Discord の7サービスに
+  - Cookie無使用 → OAuth Cookie（5分間）を正直に記載
+- 問い合わせ先: GitHub Issue → Discord + メール（lopoly.contact@gmail.com）に変更
+- Twitter → X に表記統一
+- Stripe関連の記載を削除（審査不通過のため）
 
 ---
 
@@ -86,17 +64,11 @@
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `src/lib/rateLimit.ts` | インメモリMap → Upstash Redis（フェイルオープン） |
-| `api/share/index.ts` | await追加 + GET App Checkスキップ + crypto import + ヘッダー型安全化 |
-| `api/admin/contents/index.ts` | await追加 |
-| `api/admin/set-role.ts` | await追加（2箇所） |
-| `api/admin/templates/index.ts` | await追加 |
-| `api/template/auto-register/index.ts` | await追加 |
-| `api/template/promote/index.ts` | await追加 |
-| `vercel.json` | CSP修正（6ドメイン追加） |
-| `package.json` / `package-lock.json` | `@upstash/redis`追加 |
-| `docs/TODO.md` | レート制限完了マーク + 共有モーダルログイン訴求アイデア追加 |
-| `.env.local` | Upstash Redis環境変数追加 |
+| `src/locales/ja.json` | プライバシーポリシー日本語テキスト全面改訂 |
+| `src/locales/en.json` | プライバシーポリシー英語テキスト全面改訂 |
+| `src/components/LegalPage.tsx` | ThreeColumnTable・Noteコンポーネント追加、セクション9→11拡張 |
+| `docs/superpowers/specs/2026-03-30-privacy-policy-update-design.md` | 設計書 |
+| `docs/TODO.md` | プライバシーポリシー完了マーク |
 
 ---
 
@@ -108,7 +80,7 @@
 |---|------|------|
 | 1 | ENFORCE_APP_CHECK未設定 | ✅ 第47セッションで完了 |
 | 2 | .env.vercel-checkがgitに永続化 | ✅ 第48セッションで完了 |
-| 3 | レート制限がインメモリ | ✅ **第49セッションで完了** — Upstash Redis |
+| 3 | レート制限がインメモリ | ✅ 第49セッションで完了 |
 | 4 | shared_plansクリーンアップ | ❌ 未対応（Vercel 12関数上限の解消が先） |
 | 5 | localStorage認証トークンリスク | ❌ 未対応（Firebase Auth標準動作、CSP多層防御で対応済み） |
 | 6 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
@@ -117,17 +89,20 @@
 
 ---
 
-## 最優先タスク（第50セッション）
+## 最優先タスク（第51セッション）
 
-### 1. プライバシーポリシー更新（パターンC）
-
-### 2. Firestore同期修正3件（持ち越し）
-- 3分クールダウン未実装（usePlanStore.ts）
+### 1. Firestore同期修正3件（持ち越し）
+- 3分クールダウン未実装（usePlanStore.ts L216付近）
 - 起動時Firestore読み込みの非ブロッキング化（useAuthStore.ts）
 - forceSyncAllにタイムアウト追加
 
+### 2. アプリ動作パフォーマンスの最適化
+- ログアウト並列化は完了済み
+- 起動時Firestore読み込みの非ブロッキング化（上記と重複）
+- React.memo追加（視覚変更後に対応）
+
 ### 3. シークレットローテーション（推奨・緊急度低）
-- リポジトリをpublicにする前に、Discord/FFLogs/Twitter/Firebaseの各シークレットを再生成すること
+- リポジトリをpublicにする前に実施
 
 ---
 
