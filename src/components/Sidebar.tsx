@@ -135,6 +135,18 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
         return () => document.removeEventListener('mousedown', handler);
     }, [menuPlanId]);
 
+    // ⋮メニュー: Escapeで閉じる
+    React.useEffect(() => {
+        if (!menuPlanId) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setMenuPlanId(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [menuPlanId]);
+
     // メニューが閉じたら削除確認もリセット
     React.useEffect(() => {
         if (!menuPlanId) { setConfirmDeletePlanId(null); setMenuPos(null); setDeleteAnimating(false); }
