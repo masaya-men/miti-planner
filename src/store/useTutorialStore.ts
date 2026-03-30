@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { useMitigationStore, type TutorialSnapshot } from './useMitigationStore';
 import { usePlanStore } from './usePlanStore';
 import { getMitigationsFromStore } from '../hooks/useSkillsData';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 
 // ─────────────────────────────────────────────
 // Tutorial Step Definitions
@@ -556,7 +557,7 @@ export const useTutorialStore = create<TutorialState>()(
                     // パーティパレット（残り4人）に戻す: 後半メンバーをクリア
                     case 'party-palette': {
                         // 先着4人を残し、それ以降をクリア
-                        const partyOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
+                        const partyOrder = PARTY_MEMBER_IDS;
                         const keep = new Set<string>();
                         for (const id of partyOrder) {
                             const m = mitiState.partyMembers.find(pm => pm.id === id);
