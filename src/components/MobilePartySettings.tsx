@@ -75,7 +75,7 @@ const MobilePartySettings: React.FC = () => {
                 className={clsx(
                     "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer",
                     myJobMode
-                        ? "bg-app-text text-app-bg border-app-text"
+                        ? "bg-yellow-500 text-black border-yellow-500"
                         : "bg-app-surface2 border-app-border text-app-text"
                 )}
             >
@@ -130,8 +130,8 @@ const MobilePartySettings: React.FC = () => {
                             )}
                             <span className="text-[10px] font-black text-app-text">{member.id}</span>
                             {isMyJob && (
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-app-text rounded-full flex items-center justify-center">
-                                    <Star size={8} className="text-app-bg fill-app-bg" />
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                                    <Star size={8} className="text-black fill-black" />
                                 </div>
                             )}
                         </button>
@@ -215,7 +215,7 @@ const MobileStatusView: React.FC = () => {
                         <div className="flex-1 flex items-center gap-3 text-[10px] text-app-text-muted font-mono">
                             <span>{t('party.hp_label', 'HP')} {member.stats?.hp?.toLocaleString() || '—'}</span>
                         </div>
-                        {isMyJob && <Star size={12} className="text-app-text fill-app-text shrink-0" />}
+                        {isMyJob && <Star size={12} className="text-yellow-500 fill-yellow-500 shrink-0" />}
                     </div>
                 );
             })}
