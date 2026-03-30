@@ -355,8 +355,12 @@
         "custom_plans": "Custom",
         "duplicate_plan": "Create a copy below",
         "duplicate_limit_reached": "Plan limit reached",
-        "export_csv": "Download CSV",
-        "csv_exported": "CSV downloaded"
+        "export_csv": "Download CSV (Coming soon)",
+        "csv_exported": "CSV downloaded",
+        "delete_single": "Delete",
+        "delete_single_confirm_click": "Click to delete",
+        "delete_single_confirm_tap": "Tap to delete",
+        "plan_limit": "Limit {{current}}/{{max}}"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
