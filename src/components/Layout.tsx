@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
@@ -50,7 +51,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     React.useEffect(() => {
         if (plans.length === 0 || !currentPlanId) setIsSidebarOpen(true);
     }, [plans.length, currentPlanId]);
-    const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
+    const { myJobHighlight, setMyJobHighlight } = useMitigationStore(
+        useShallow(s => ({ myJobHighlight: s.myJobHighlight, setMyJobHighlight: s.setMyJobHighlight }))
+    );
 
     // モバイル判定（md: 768px）
     const [isMobile, setIsMobile] = React.useState(() =>
@@ -69,7 +72,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [mobileLoginModalOpen, setMobileLoginModalOpen] = React.useState(false);
     const [mobileAccountOpen, setMobileAccountOpen] = React.useState(false);
-    const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore();
+    const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore(
+        useShallow(s => ({ timelineSortOrder: s.timelineSortOrder, setTimelineSortOrder: s.setTimelineSortOrder }))
+    );
     const [isHeaderCollapsed, setIsHeaderCollapsed] = React.useState(false);
     const [isHeaderNear, setIsHeaderNear] = React.useState(false);
     // チュートリアル中ならサイドバーを強制的に開く
