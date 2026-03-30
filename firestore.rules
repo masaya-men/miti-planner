@@ -38,7 +38,8 @@ service cloud.firestore {
       allow update: if isOwner(uid)
                     && isValidString(request.resource.data.displayName, 30)
                     && !('email' in request.resource.data)
-                    && request.resource.data.provider == resource.data.provider;  // プロバイダ変更禁止
+                    && request.resource.data.provider == resource.data.provider  // プロバイダ変更禁止
+                    && request.resource.data.keys().hasAll(['displayName', 'provider', 'createdAt', 'updatedAt', 'settings']);  // 必須フィールドの存在を強制
 
       allow delete: if isOwner(uid);
     }
@@ -49,10 +50,8 @@ service cloud.firestore {
     // 書き込み: 自分のプランのみ
     // ========================================
     match /plans/{planId} {
-      // 読み取り: 認証済みユーザー OR 公開プラン
-      // ※ isAuthenticated() が広めだが、syncDirtyPlansのgetDoc（存在確認→update/createフォールバック）に必要
-      // ※ リスト取得クエリは常にownerId==uid条件付きなので、他人のプランは実質取得されない
-      allow read: if isAuthenticated()
+      // 読み取り: 自分のプラン OR 公開プラン
+      allow read: if isOwner(resource.data.ownerId)
                   || (resource != null && resource.data.isPublic == true);
 
       allow create: if isAuthenticated()
@@ -73,8 +72,11 @@ service cloud.firestore {
                     && request.resource.data.data is map
                     && request.resource.data.isPublic is bool
                     && request.resource.data.contentId is string
-                    // バージョン: 現在値以上（楽観的ロック方向への拡張余地）
-                    && request.resource.data.version >= resource.data.version;
+                    // バージョン: 現在値より大きい（楽観的ロック）
+                    && request.resource.data.version > resource.data.version
+                    // copyCount/useCountの改ざん防止（クライアントからは変更不可）
+                    && request.resource.data.copyCount == resource.data.copyCount
+                    && request.resource.data.useCount == resource.data.useCount;
 
       allow delete: if isOwner(resource.data.ownerId);
     }
@@ -95,7 +97,9 @@ service cloud.firestore {
 
       allow update: if isOwner(resource.data.ownerId)
                     // ownerIdの変更禁止
-                    && request.resource.data.ownerId == resource.data.ownerId;
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && isValidString(request.resource.data.title, 100)
+                    && request.resource.data.planId is string;
 
       allow delete: if isOwner(resource.data.ownerId);
     }

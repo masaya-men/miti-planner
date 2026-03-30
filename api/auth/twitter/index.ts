@@ -54,6 +54,11 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
+    // HTTPメソッド制限（GETのみ — OAuth認証フロー）
+    if (req.method !== 'GET' && req.method !== 'OPTIONS') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     // App Check検証
     if (!(await verifyAppCheck(req, res))) return;
 
@@ -84,7 +89,7 @@ export default async function handler(req: any, res: any) {
                 response_type: 'code',
                 client_id: clientId,
                 redirect_uri: redirectUri,
-                scope: 'tweet.read users.read',
+                scope: 'users.read',
                 state: stateParam,
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
@@ -133,11 +138,8 @@ export default async function handler(req: any, res: any) {
         });
 
         if (!tokenRes.ok) {
-            const err = await tokenRes.text();
-            return res.status(400).json({
-                error: 'Twitter token exchange failed',
-                details: err
-            });
+            console.error('Twitter token exchange failed:', await tokenRes.text());
+            return res.status(400).json({ error: 'Twitter token exchange failed' });
         }
 
         const { access_token } = await tokenRes.json();
@@ -182,7 +184,7 @@ export default async function handler(req: any, res: any) {
                 <script>
                     localStorage.setItem('lopo_auth_pending', JSON.stringify({
                         provider: 'twitter',
-                        token: '${customToken}',
+                        token: ${JSON.stringify(customToken)},
                         displayName: ${JSON.stringify(displayName)},
                         photoURL: ${JSON.stringify(photoURL)}
                     }));
@@ -200,10 +202,7 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err) {
         console.error('Twitter auth error:', err);
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: String(err),
-        });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
 

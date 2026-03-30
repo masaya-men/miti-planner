@@ -112,33 +112,14 @@ export async function getAccessToken(): Promise<string> {
         return _cachedToken;
     }
 
-    // ── Development: use env vars directly ──
-    const clientId = import.meta.env.VITE_FFLOGS_CLIENT_ID as string | undefined;
-    const clientSecret = import.meta.env.VITE_FFLOGS_CLIENT_SECRET as string | undefined;
+    // ── Development: サーバーサイドプロキシ経由（シークレットをクライアントに露出しない）──
+    const devResponse = await fetch('/api/fflogs/token', { method: 'POST' });
 
-    if (!clientId || !clientSecret) {
-        throw new Error(
-            'FFLogs API credentials are not configured.\n' +
-            'Please add VITE_FFLOGS_CLIENT_ID and VITE_FFLOGS_CLIENT_SECRET to your .env.local file.'
-        );
+    if (!devResponse.ok) {
+        throw new Error(`FFLogs token proxy failed (${devResponse.status})`);
     }
 
-    const response = await fetch('https://www.fflogs.com/oauth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            grant_type: 'client_credentials',
-            client_id: clientId,
-            client_secret: clientSecret,
-        }),
-    });
-
-    if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`FFLogs token request failed (${response.status}): ${body}`);
-    }
-
-    const json = await response.json() as { access_token: string; expires_in: number };
+    const json = await devResponse.json() as { access_token: string; expires_in: number };
     _cachedToken = json.access_token;
     _tokenExpiresAt = now + json.expires_in * 1000;
 

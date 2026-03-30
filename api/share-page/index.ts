@@ -78,9 +78,11 @@ export default async function handler(req: any, res: any) {
                     }
                 }
 
-                const host = req.headers.host || 'lopo-eta.vercel.app';
-                const protocol = host.includes('localhost') ? 'http' : 'https';
-                ogImageUrl = `${protocol}://${host}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}`;
+                const ogAllowedHosts = ['lopoly.app', 'lopo-eta.vercel.app', 'localhost:5173'];
+                const ogRawHost = req.headers.host || 'lopoly.app';
+                const ogHost = ogAllowedHosts.find(h => ogRawHost.includes(h)) || 'lopoly.app';
+                const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
+                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}`;
             }
         }
     } catch (err) {
@@ -89,7 +91,10 @@ export default async function handler(req: any, res: any) {
 
     // ビルド済みindex.htmlを取得してメタタグを差し替え
     try {
-        const host = req.headers.host || 'lopo-eta.vercel.app';
+        // 自サイトのホスト名を固定（hostヘッダー偽装対策）
+        const allowedHosts = ['lopoly.app', 'lopo-eta.vercel.app', 'localhost:5173', 'localhost:4173'];
+        const rawHost = req.headers.host || 'lopoly.app';
+        const host = allowedHosts.find(h => rawHost.includes(h)) || 'lopoly.app';
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const indexRes = await fetch(`${protocol}://${host}/index.html`);
 

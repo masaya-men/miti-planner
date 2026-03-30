@@ -70,6 +70,17 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'contentId and timelineEvents are required' });
     }
 
+    // timelineEventsの各要素を検証（最低限の型チェック）
+    const isValidEvent = (e: any) =>
+      e && typeof e === 'object' && typeof e.time === 'number' && typeof e.name === 'string';
+    if (!body.timelineEvents.every(isValidEvent)) {
+      return res.status(400).json({ error: 'Invalid timelineEvents format' });
+    }
+    // イベント数上限（異常な大量データ防止）
+    if (body.timelineEvents.length > 500) {
+      return res.status(400).json({ error: 'Too many timeline events' });
+    }
+
     const db = getAdminFirestore();
     const minEvents = MIN_EVENT_COUNT[body.category] || MIN_EVENT_COUNT.default;
 

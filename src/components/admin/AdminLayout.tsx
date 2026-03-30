@@ -36,7 +36,7 @@ export function AdminLayout() {
         <div className="p-4 border-b border-app-text/10">
           <div className="text-sm font-bold">LoPo Admin</div>
           <div className="text-[10px] text-app-text-muted truncate mt-1">
-            {user?.displayName || user?.email || 'Admin'}
+            {user?.displayName || 'Admin'}
           </div>
         </div>
         <div className="flex-1 p-2 flex flex-col gap-0.5">

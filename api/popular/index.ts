@@ -94,7 +94,7 @@ export default async function handler(req: any, res: any) {
         'http://localhost:5173',
         'http://localhost:4173',
     ];
-    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
@@ -114,7 +114,7 @@ export default async function handler(req: any, res: any) {
                 return res.status(400).json({ error: 'contentIds is required' });
             }
 
-            const ids: string[] = (contentIds as string).split(',').map(s => s.trim()).filter(Boolean);
+            const ids: string[] = (contentIds as string).split(',').map(s => s.trim()).filter(Boolean).slice(0, 20);
             if (ids.length === 0) {
                 return res.status(400).json({ error: 'contentIds is empty' });
             }
@@ -180,7 +180,20 @@ export default async function handler(req: any, res: any) {
 
         } else if (req.method === 'POST') {
             // ── コピーカウント増加（重複排除付き）──
-            const { shareId, uid } = req.body;
+            // uidはFirebase IDトークンから検証（自己申告を信頼しない）
+            let uid: string | null = null;
+            const authHeader = req.headers.authorization || '';
+            const authToken = authHeader.replace('Bearer ', '');
+            if (authToken) {
+                try {
+                    const { getAuth } = await import('firebase-admin/auth');
+                    const decoded = await getAuth().verifyIdToken(authToken);
+                    uid = decoded.uid;
+                } catch {
+                    // トークン検証失敗 → uid なしとして扱う
+                }
+            }
+            const { shareId } = req.body;
             if (!shareId) {
                 return res.status(400).json({ error: 'shareId is required' });
             }
@@ -222,6 +235,6 @@ export default async function handler(req: any, res: any) {
         }
     } catch (err: any) {
         console.error('Popular API error:', err);
-        return res.status(500).json({ error: 'Internal server error', details: String(err) });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }

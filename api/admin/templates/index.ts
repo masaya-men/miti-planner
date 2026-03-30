@@ -280,7 +280,13 @@ export default async function handler(req: any, res: any) {
           });
         }
         const { type: _, ...serversData } = req.body;
-        await docRef.set(serversData);
+        // 許可するフィールドのみ保存（任意フィールド混入防止）
+        const allowedFields = ['dataCenters', 'dataVersion'];
+        const filtered: Record<string, any> = {};
+        for (const key of allowedFields) {
+          if (key in serversData) filtered[key] = serversData[key];
+        }
+        await docRef.set(filtered);
         await bumpDataVersion(db);
         await writeAuditLog({
           action: 'update',

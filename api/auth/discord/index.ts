@@ -2,12 +2,12 @@
  * Vercel Serverless Function — Discord OAuth2 → Firebase Custom Token
  *
  * フロー:
- *   1. クライアントがDiscord認証ページにリダイレクト
+ *   1. クライアントがDiscord認証ページにリダイレクト（CSRF対策のstateパラメータ付き）
  *   2. Discordが認証コードをこのエンドポイントに返す
- *   3. コードをDiscordトークンに交換
+ *   3. state検証 → コードをDiscordトークンに交換
  *   4. Discordユーザー情報を取得
  *   5. Firebase Admin SDKでカスタムトークンを生成
- *   6. クライアントにトークンを返す（HTMLでpostMessage経由）
+ *   6. クライアントにトークンを返す（HTMLでlocalStorage経由）
  *
  * 必要な環境変数:
  *   DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET,
@@ -16,6 +16,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
@@ -35,32 +36,68 @@ function initAdmin() {
     }
 }
 
+/** Cookieヘッダーをパースしてオブジェクトに変換 */
+function parseCookies(cookieHeader: string): Record<string, string> {
+    const cookies: Record<string, string> = {};
+    for (const pair of cookieHeader.split(';')) {
+        const [key, ...rest] = pair.trim().split('=');
+        if (key) cookies[key] = rest.join('=');
+    }
+    return cookies;
+}
+
 export default async function handler(req: any, res: any) {
     // CORS
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
+    // HTTPメソッド制限（GETのみ — OAuth認証フロー）
+    if (req.method !== 'GET' && req.method !== 'OPTIONS') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     // App Check検証
     if (!(await verifyAppCheck(req, res))) return;
 
     try {
-        const { code } = req.query;
+        const { code, state } = req.query;
 
         if (!code) {
-            // ステップ1: Discord認証ページにリダイレクト
+            // ステップ1: state生成 → cookie保存 → Discord認証ページにリダイレクト
             const clientId = process.env.DISCORD_CLIENT_ID;
             if (!clientId) {
-                return res.status(500).json({ error: 'DISCORD_CLIENT_ID not configured' });
+                return res.status(500).json({ error: 'Server configuration error' });
             }
             const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
+            const stateParam = crypto.randomBytes(16).toString('hex');
+
+            // stateをHttpOnly cookieに保存（5分有効）
+            res.setHeader('Set-Cookie',
+                `discord_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/discord; Max-Age=300`
+            );
+
             const params = new URLSearchParams({
                 client_id: clientId,
                 redirect_uri: redirectUri,
                 response_type: 'code',
                 scope: 'identify',
+                state: stateParam,
             });
             return res.redirect(`https://discord.com/oauth2/authorize?${params}`);
         }
+
+        // ステップ2: コールバック — state検証（CSRF保護）
+        const cookies = parseCookies(req.headers.cookie || '');
+        const savedState = cookies['discord_oauth_state'];
+
+        if (!savedState || state !== savedState) {
+            return res.status(400).json({ error: 'State mismatch. Please try again.' });
+        }
+
+        // cookieをクリア
+        res.setHeader('Set-Cookie',
+            'discord_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/discord; Max-Age=0'
+        );
 
         // Firebase Admin 初期化
         initAdmin();
@@ -69,7 +106,7 @@ export default async function handler(req: any, res: any) {
         const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
         const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
 
-        // ステップ2: コード → Discordトークン交換
+        // ステップ3: コード → Discordトークン交換
         const tokenRes = await fetch(`${DISCORD_API}/oauth2/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -83,13 +120,13 @@ export default async function handler(req: any, res: any) {
         });
 
         if (!tokenRes.ok) {
-            const err = await tokenRes.text();
-            return res.status(400).json({ error: 'Discord token exchange failed', details: err });
+            console.error('Discord token exchange failed:', await tokenRes.text());
+            return res.status(400).json({ error: 'Discord token exchange failed' });
         }
 
         const { access_token } = await tokenRes.json();
 
-        // ステップ3: Discordユーザー情報取得
+        // ステップ4: Discordユーザー情報取得
         const userRes = await fetch(`${DISCORD_API}/users/@me`, {
             headers: { Authorization: `Bearer ${access_token}` },
         });
@@ -100,7 +137,7 @@ export default async function handler(req: any, res: any) {
 
         const discordUser = await userRes.json();
 
-        // ステップ4: Firebase カスタムトークン生成
+        // ステップ5: Firebase カスタムトークン生成
         const firebaseUid = `discord:${discordUser.id}`;
         const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'discord',
@@ -110,7 +147,7 @@ export default async function handler(req: any, res: any) {
                 : null,
         });
 
-        // ステップ5: トークンをlocalStorageに保存してアプリにリダイレクト
+        // ステップ6: トークンをlocalStorageに保存してアプリにリダイレクト
         const displayName = discordUser.global_name || discordUser.username;
         const avatarUrl = discordUser.avatar
             ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
@@ -125,7 +162,7 @@ export default async function handler(req: any, res: any) {
                 <script>
                     localStorage.setItem('lopo_auth_pending', JSON.stringify({
                         provider: 'discord',
-                        token: '${customToken}',
+                        token: ${JSON.stringify(customToken)},
                         displayName: ${JSON.stringify(displayName)},
                         photoURL: ${JSON.stringify(avatarUrl)}
                     }));
@@ -143,9 +180,6 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err: any) {
         console.error('Discord auth error:', err);
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: String(err),
-        });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }

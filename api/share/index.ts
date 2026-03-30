@@ -10,8 +10,11 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
 
 const COLLECTION = 'shared_plans';
+// リクエストボディの最大サイズ（500KB）
+const MAX_BODY_SIZE = 500 * 1024;
 
 function initAdmin() {
     if (!getApps().length) {
@@ -38,8 +41,8 @@ export default async function handler(req: any, res: any) {
         'http://localhost:5173',
         'http://localhost:4173',
     ];
-    // Vercelのプレビューデプロイ（*.vercel.app）も許可
-    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+    // Vercelのプレビューデプロイ（自プロジェクトのみ許可）
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
@@ -53,12 +56,23 @@ export default async function handler(req: any, res: any) {
         const db = getFirestore();
 
         if (req.method === 'POST') {
+            // レート制限（1分あたり10回）
+            if (!applyRateLimit(req, res, 10, 60_000)) return;
+
+            // ボディサイズ制限
+            const bodyStr = JSON.stringify(req.body || {});
+            if (bodyStr.length > MAX_BODY_SIZE) {
+                return res.status(413).json({ error: 'Request body too large' });
+            }
+
             // ── 保存 ──
             const { planData, title, contentId, plans, logoStoragePath, lang } = req.body;
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
-            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg') && !logoStoragePath.includes('..')) {
+            // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
+            const logoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
+            if (typeof logoStoragePath === 'string' && logoPathRegex.test(logoStoragePath)) {
                 try {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);
@@ -113,6 +127,9 @@ export default async function handler(req: any, res: any) {
             return res.status(200).json({ shareId });
 
         } else if (req.method === 'PUT') {
+            // レート制限（1分あたり5回）
+            if (!applyRateLimit(req, res, 5, 60_000)) return;
+
             // ── 既存共有のロゴ更新 ──
             const { shareId, logoStoragePath } = req.body;
             if (!shareId || typeof shareId !== 'string') {
@@ -128,7 +145,9 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
-            if (typeof logoStoragePath === 'string' && logoStoragePath.startsWith('users/') && logoStoragePath.endsWith('.jpg') && !logoStoragePath.includes('..')) {
+            // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
+            const putLogoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
+            if (typeof logoStoragePath === 'string' && putLogoPathRegex.test(logoStoragePath)) {
                 try {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);
@@ -161,8 +180,20 @@ export default async function handler(req: any, res: any) {
                 return res.status(404).json({ error: 'not found' });
             }
 
-            // 閲覧数を+1（fire-and-forget、レスポンスを遅延させない）
-            docRef.update({ viewCount: FieldValue.increment(1) }).catch(() => {});
+            // 閲覧数を+1（IPベースの簡易重複排除、fire-and-forget）
+            const viewerIp = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
+            if (viewerIp) {
+                const ipHash = require('crypto').createHash('sha256').update(viewerIp + id).digest('hex').slice(0, 16);
+                const viewRef = db.collection(COLLECTION).doc(id as string).collection('viewers').doc(ipHash);
+                viewRef.get().then((s: any) => {
+                    if (!s.exists) {
+                        const batch = db.batch();
+                        batch.set(viewRef, { at: Date.now() });
+                        batch.update(docRef, { viewCount: FieldValue.increment(1) });
+                        batch.commit().catch(() => {});
+                    }
+                }).catch(() => {});
+            }
 
             return res.status(200).json(snap.data());
 
@@ -171,6 +202,6 @@ export default async function handler(req: any, res: any) {
         }
     } catch (err: any) {
         console.error('Share API error:', err);
-        return res.status(500).json({ error: 'Internal server error', details: String(err) });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }

@@ -391,9 +391,6 @@ const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     <p className="text-sm font-bold text-app-text truncate">
                         {user.displayName || t('nav.account')}
                     </p>
-                    <p className="text-[10px] text-app-text-muted truncate">
-                        {user.email || ''}
-                    </p>
                 </div>
             </div>
 
