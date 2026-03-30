@@ -359,8 +359,12 @@
         "custom_plans": "カスタム",
         "duplicate_plan": "すぐ下にコピーを作成",
         "duplicate_limit_reached": "プラン数の上限に達しています",
-        "export_csv": "CSV ダウンロード",
-        "csv_exported": "CSV をダウンロードしました"
+        "export_csv": "CSV ダウンロード（準備中）",
+        "csv_exported": "CSV をダウンロードしました",
+        "delete_single": "削除",
+        "delete_single_confirm_click": "クリックで削除",
+        "delete_single_confirm_tap": "タップで削除",
+        "plan_limit": "上限 {{current}}/{{max}}"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

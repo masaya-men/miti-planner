@@ -99,6 +99,14 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
     // ⋮メニュー
     const [menuPlanId, setMenuPlanId] = React.useState<string | null>(null);
     const menuRef = React.useRef<HTMLDivElement>(null);
+    const [menuPos, setMenuPos] = React.useState<{ top: number; right: number } | null>(null);
+
+    // 削除確認ステート
+    const [confirmDeletePlanId, setConfirmDeletePlanId] = React.useState<string | null>(null);
+    const [deleteAnimating, setDeleteAnimating] = React.useState(false);
+
+    // タッチデバイス判定（クリック/タップの文言切り替え用）
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     const startEditing = (planId: string, title: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -114,16 +122,22 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
         setEditingPlanId(null);
     };
 
-    // ⋮メニュー外クリックで閉じる
+    // ⋮メニュー外クリックで閉じる（Portal対応: menuRef + data属性で除外判定）
     React.useEffect(() => {
         if (!menuPlanId) return;
         const handler = (e: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-                setMenuPlanId(null);
-            }
+            const target = e.target as HTMLElement;
+            if (menuRef.current?.contains(target)) return;
+            if (target.closest?.('[data-menu-trigger]')) return;
+            setMenuPlanId(null);
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
+    }, [menuPlanId]);
+
+    // メニューが閉じたら削除確認もリセット
+    React.useEffect(() => {
+        if (!menuPlanId) { setConfirmDeletePlanId(null); setMenuPos(null); setDeleteAnimating(false); }
     }, [menuPlanId]);
 
     const handleCSVExport = (plan: SavedPlan) => {
@@ -265,9 +279,11 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                         className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
                                     />
                                 ) : (
-                                    <button
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                            "flex-1 min-w-0 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] group/plan",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -285,72 +301,138 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
                                                 store.setCurrentPlanId(plan.id);
                                             }, 'plan');
                                         }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                e.currentTarget.click();
+                                            }
+                                        }}
                                     >
                                         {currentPlanId === plan.id && (
                                             <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
                                         )}
                                         <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
-                                        {plan.title}
-                                        {currentPlanId === plan.id && (
-                                            <>
-                                                <Tooltip content={t('sidebar.duplicate_plan')}>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
-                                                            if (!newPlan) {
-                                                                showToast(t('sidebar.duplicate_limit_reached'));
-                                                            }
-                                                        }}
-                                                        className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                        <Tooltip content={plan.title} position="top" wrapperClassName="flex-1 min-w-0 !w-auto !justify-start">
+                                            <span className="block truncate text-left">{plan.title}</span>
+                                        </Tooltip>
+                                        <div className={clsx(
+                                            "flex items-center shrink-0 transition-opacity duration-150",
+                                            currentPlanId === plan.id
+                                                ? "opacity-100"
+                                                : "opacity-0 group-hover/plan:opacity-100"
+                                        )}>
+                                            <Tooltip content={t('sidebar.duplicate_plan')}>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
+                                                        if (!newPlan) {
+                                                            showToast(t('sidebar.duplicate_limit_reached'), 'error');
+                                                        }
+                                                    }}
+                                                    className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    <Copy size={9} />
+                                                </button>
+                                            </Tooltip>
+                                            <Tooltip content={t('app.rename')}>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); startEditing(plan.id, plan.title, e); }}
+                                                    className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    <Pencil size={9} />
+                                                </button>
+                                            </Tooltip>
+                                            {/* ⋮ メニュー */}
+                                            <div>
+                                                <button
+                                                    data-menu-trigger
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (menuPlanId === plan.id) {
+                                                            setMenuPlanId(null);
+                                                        } else {
+                                                            const rect = e.currentTarget.getBoundingClientRect();
+                                                            setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                                            setMenuPlanId(plan.id);
+                                                        }
+                                                    }}
+                                                    className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    <MoreVertical size={9} />
+                                                </button>
+                                                {menuPlanId === plan.id && menuPos && createPortal(
+                                                    <div
+                                                        ref={menuRef}
+                                                        className="fixed z-[99999] min-w-[140px] py-1 bg-app-bg border border-app-border rounded-lg shadow-lg"
+                                                        style={{ top: menuPos.top, right: menuPos.right }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onMouseDown={(e) => e.stopPropagation()}
                                                     >
-                                                        <Copy size={9} />
-                                                    </button>
-                                                </Tooltip>
-                                                <Tooltip content={t('app.rename')}>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); startEditing(plan.id, plan.title, e); }}
-                                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                    >
-                                                        <Pencil size={9} />
-                                                    </button>
-                                                </Tooltip>
-                                                {/* ⋮ メニュー */}
-                                                <div className="relative" ref={menuPlanId === plan.id ? menuRef : undefined}>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setMenuPlanId(menuPlanId === plan.id ? null : plan.id); }}
-                                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                    >
-                                                        <MoreVertical size={9} />
-                                                    </button>
-                                                    {menuPlanId === plan.id && (
-                                                        <div className="absolute right-0 top-6 z-50 min-w-[140px] py-1 bg-app-bg border border-app-border rounded-lg shadow-lg">
+                                                        <button
+                                                            disabled
+                                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-app-text-muted/40 cursor-not-allowed"
+                                                        >
+                                                            <Download size={11} />
+                                                            {t('sidebar.export_csv')}
+                                                        </button>
+                                                        <div className="border-t border-app-border my-1" />
+                                                        {confirmDeletePlanId === plan.id ? (
+                                                            deleteAnimating ? (
+                                                                <div className="w-full flex items-center justify-center py-1.5">
+                                                                    <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                                                                </div>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        usePlanStore.getState().deletePlan(plan.id);
+                                                                        setMenuPlanId(null);
+                                                                        setConfirmDeletePlanId(null);
+                                                                    }}
+                                                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-white bg-red-500 hover:bg-red-600 transition-colors cursor-pointer rounded-sm"
+                                                                >
+                                                                    <Trash2 size={11} />
+                                                                    {t(isTouchDevice ? 'sidebar.delete_single_confirm_tap' : 'sidebar.delete_single_confirm_click')}
+                                                                </button>
+                                                            )
+                                                        ) : (
                                                             <button
-                                                                onClick={(e) => { e.stopPropagation(); handleCSVExport(plan); }}
-                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
+                                                                onClick={() => {
+                                                                    setDeleteAnimating(true);
+                                                                    setConfirmDeletePlanId(plan.id);
+                                                                    setTimeout(() => setDeleteAnimating(false), 400);
+                                                                }}
+                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                                                             >
-                                                                <Download size={11} />
-                                                                {t('sidebar.export_csv', 'CSV ダウンロード')}
+                                                                <Trash2 size={11} />
+                                                                {t('sidebar.delete_single')}
                                                             </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-                                    </button>
+                                                        )}
+                                                    </div>,
+                                                    document.body
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         );
                     })}
                     {/* 「+」行 — 同コンテンツに新しいプランを追加 */}
                     {isActive && !multiSelect.isEnabled && (
-                        <button
-                            onClick={() => onSelect(content, true)}
-                            className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
-                        >
-                            <Plus size={10} className="shrink-0" />
-                            {t('sidebar.add_plan')}
-                        </button>
+                        contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT ? (
+                            <div className="flex-1 text-[10px] py-1 px-2 font-medium flex items-center gap-2 text-app-text-muted/40">
+                                {t('sidebar.plan_limit', { current: contentPlans.length, max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT })}
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => onSelect(content, true)}
+                                className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
+                            >
+                                <Plus size={10} className="shrink-0" />
+                                {t('sidebar.add_plan')}
+                            </button>
+                        )
                     )}
                 </div>
             )}
@@ -1017,45 +1099,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     )}
 
-                    <div className="px-3 flex items-center gap-1 mb-2 shrink-0 flex-wrap">
-                        <button
-                            onClick={() => {
-                                setIsNewPlanModalOpen(true);
-                                useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
-                            }}
-                            data-tutorial="new-plan"
-                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
-                        >
-                            <Plus size={10} />
-                            {t('sidebar.new_plan').toUpperCase()}
-                        </button>
-                        <button
-                            onClick={() => toggleMultiSelectMode('share')}
-                            className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
-                                multiSelect.isEnabled && multiSelect.mode === 'share'
-                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
-                            )}
-                        >
-                            {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={10} /> : <Square size={10} />}
-                            {t('sidebar.multi_select_mode').toUpperCase()}
-                        </button>
-                        {/* 選択削除ボタン — 押すと削除用選択モードに入る */}
-                        <button
-                            onClick={() => toggleMultiSelectMode('delete')}
-                            className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
-                                multiSelect.isEnabled && multiSelect.mode === 'delete'
-                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
-                            )}
-                        >
-                            <Trash2 size={10} />
-                            {t('sidebar.select_delete').toUpperCase()}
-                        </button>
-                    </div>
-
                     <div className="px-3 space-y-2 shrink-0 mb-3">
                         <div className="flex gap-1 bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
                             {LEVEL_TIERS.map(level => (
@@ -1104,6 +1147,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="px-3 flex items-center gap-1 mb-2 shrink-0 flex-wrap">
+                        <button
+                            onClick={() => {
+                                setIsNewPlanModalOpen(true);
+                                useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
+                            }}
+                            data-tutorial="new-plan"
+                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
+                        >
+                            <Plus size={10} />
+                            {t('sidebar.new_plan').toUpperCase()}
+                        </button>
+                        <button
+                            onClick={() => toggleMultiSelectMode('share')}
+                            className={clsx(
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
+                                multiSelect.isEnabled && multiSelect.mode === 'share'
+                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
+                            )}
+                        >
+                            {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={10} /> : <Square size={10} />}
+                            {t('sidebar.multi_select_mode').toUpperCase()}
+                        </button>
+                        {/* 選択削除ボタン — 押すと削除用選択モードに入る */}
+                        <button
+                            onClick={() => toggleMultiSelectMode('delete')}
+                            className={clsx(
+                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
+                                multiSelect.isEnabled && multiSelect.mode === 'delete'
+                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
+                            )}
+                        >
+                            <Trash2 size={10} />
+                            {t('sidebar.select_delete').toUpperCase()}
+                        </button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto px-3 pb-20 space-y-1 custom-scrollbar">
@@ -1249,9 +1331,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 onMouseLeave={() => setIsNear(false)}
             >
                 {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
-                {/* ── 修正: ヘッダー2段分(上段48px+下段48px=96px)に干渉しないよう上端をずらす ── */}
+                {/* ── 修正: サイドバーコンテンツのボタンに干渉しないよう、左側の張り出しを抑える ── */}
                 <div
-                    className="absolute top-24 bottom-0 -left-10 w-[120px] pointer-events-auto cursor-pointer"
+                    className="absolute top-24 bottom-0 -left-1 w-[60px] pointer-events-auto cursor-pointer"
                     onMouseEnter={() => setIsNear(true)}
                 />
 
