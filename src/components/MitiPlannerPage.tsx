@@ -27,8 +27,8 @@ export const MitiPlannerPage: React.FC = () => {
 
     // Set page title
     useEffect(() => {
-        document.title = "LoPo | 軽減プランナー";
-    }, []);
+        document.title = t('app.page_title_planner');
+    }, [t]);
 
     // チュートリアル / モバイルガイドの自動起動
     // モバイル: 簡易ガイド（スワイプカード式）を表示

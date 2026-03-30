@@ -37,6 +37,7 @@
         "share_generating": "Generating",
         "share_url_only": "Share without image",
         "share_refresh_preview": "Refresh preview",
+        "share_guest_hint": "<login>Sign in</login> to add your team logo to the shared image.",
         "include_plan_title": "Show table name in shared image",
         "loading_plan": "Loading...",
         "share_loading": "Loading...",
@@ -56,7 +57,9 @@
         "empty_state_pc": "Select content from the sidebar",
         "empty_state_mobile": "Select content from the menu",
         "toggle_theme_light": "Switch to Light Theme",
-        "toggle_theme_dark": "Switch to Dark Theme"
+        "toggle_theme_dark": "Switch to Dark Theme",
+        "page_title_planner": "LoPo | Mitigation Planner",
+        "page_title_landing": "LoPo — FFXIV Tool Portal"
     },
     "login": {
         "title": "Sign In",
@@ -298,6 +301,20 @@
             }
         },
         "confirm": "Execute Changes"
+    },
+    "csv_import": {
+        "title": "Import Timeline (CSV)",
+        "description": "Paste CSV text to import timeline events. The expected format is:",
+        "format": "Time, Name, DamageAmount, DamageType, Target",
+        "example": "Example: 0:15, Raidwide, 120000, magical, PT",
+        "note": "Note: Only Time and Name are strictly required.",
+        "no_events": "No valid events found in the CSV text.",
+        "parse_error": "Failed to parse CSV. Please check the format.",
+        "import_button": "Import"
+    },
+    "error_boundary": {
+        "title": "Something went wrong.",
+        "retry": "Try again"
     },
     "fflogs": {
         "title": "Import from FFLogs",
@@ -823,7 +840,9 @@
         "plan_limit_total": "You can have up to {{max}} mitigation plans. Please delete unused plans first.",
         "plan_limit_per_content": "You can have up to {{max}} plans per content.",
         "plan_limit_count": "{{current}} / {{max}}",
-        "plan_archive_warning": "You have over {{threshold}} plans. Older plans outside of current Savage and Ultimate tiers will be automatically archived."
+        "plan_archive_warning": "You have over {{threshold}} plans. Older plans outside of current Savage and Ultimate tiers will be automatically archived.",
+        "guest_hint": "Your data is saved in this browser only. <login>Sign in</login> to sync across devices and set a team logo on shared images.",
+        "guest_hint_short": "<login>Sign in</login> to sync across devices."
     },
     "mobile": {
         "tools_title": "Tools",

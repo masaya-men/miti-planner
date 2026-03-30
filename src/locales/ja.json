@@ -22,6 +22,8 @@
         "view_tutorial": "チュートリアルを見る",
         "toggle_theme_light": "ライトテーマにする",
         "toggle_theme_dark": "ダークテーマにする",
+        "page_title_planner": "LoPo | 軽減プランナー",
+        "page_title_landing": "LoPo — FFXIV Tool Portal",
         "sign_in": "ログイン",
         "sign_out": "ログアウト",
         "sign_in_via": "でログイン中",
@@ -39,6 +41,7 @@
         "share_generating": "生成中",
         "share_url_only": "画像無しで共有",
         "share_refresh_preview": "プレビューを更新",
+        "share_guest_hint": "<login>ログイン</login>すると、共有画像にチームロゴを表示できます。",
         "include_plan_title": "表の名前を共有画像に表示",
         "loading_plan": "読み込み中...",
         "share_loading": "読み込み中...",
@@ -302,6 +305,20 @@
             }
         },
         "confirm": "変更を実行"
+    },
+    "csv_import": {
+        "title": "タイムラインのインポート (CSV)",
+        "description": "CSVテキストを貼り付けてタイムラインイベントをインポートします。想定フォーマット:",
+        "format": "Time, Name, DamageAmount, DamageType, Target",
+        "example": "例: 0:15, 全体攻撃, 120000, magical, PT",
+        "note": "※ TimeとNameのみ必須です。",
+        "no_events": "有効なイベントが見つかりませんでした。",
+        "parse_error": "CSVの解析に失敗しました。フォーマットを確認してください。",
+        "import_button": "インポート"
+    },
+    "error_boundary": {
+        "title": "エラーが発生しました。",
+        "retry": "再試行"
     },
     "fflogs": {
         "title": "FFLogsからインポート",
@@ -827,7 +844,9 @@
         "plan_limit_total": "軽減表は最大{{max}}件までです。不要な軽減表を削除してから作成してください。",
         "plan_limit_per_content": "このコンテンツの軽減表は最大{{max}}件までです。",
         "plan_limit_count": "{{current}} / {{max}}",
-        "plan_archive_warning": "軽減表が{{threshold}}件を超えています。現行の零式・絶以外の古い軽減表は自動的に圧縮保存されます。"
+        "plan_archive_warning": "軽減表が{{threshold}}件を超えています。現行の零式・絶以外の古い軽減表は自動的に圧縮保存されます。",
+        "guest_hint": "データはこのブラウザにのみ保存されます。<login>ログイン</login>すると、他の端末でも引き継ぎ＆共有画像にロゴを設定できます。",
+        "guest_hint_short": "<login>ログイン</login>すると他の端末でも引き継げます。"
     },
     "mobile": {
         "tools_title": "ツール",

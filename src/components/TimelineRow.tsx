@@ -208,9 +208,9 @@ export const TimelineRow = memo(({
                             }}
                         >
                             {/* 種別アイコン */}
-                            {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
-                            {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
-                            {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
+                            {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.magical')} />}
+                            {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
+                            {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
 
                             {/* 攻撃名（スマホ: truncate + 長押しで全文、PC: 通常表示） */}
                             <span
@@ -297,9 +297,9 @@ export const TimelineRow = memo(({
                                     }}
                                 >
                                     {/* 種別アイコン */}
-                                    {events[idx].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Magical" />}
-                                    {events[idx].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Physical" />}
-                                    {events[idx].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt="Dark" />}
+                                    {events[idx].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.magical')} />}
+                                    {events[idx].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
+                                    {events[idx].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
 
                                     {/* 攻撃名 */}
                                     <span

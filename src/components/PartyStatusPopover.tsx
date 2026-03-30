@@ -93,10 +93,17 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     const tankRep = partyMembers.find(m => m.role === 'tank');
     const healerRep = partyMembers.find(m => m.role === 'healer');
 
+    // プレビュー対象スキル名（SKILL_DATAのキー = 日本語名）
+    const PREVIEW_SKILLS = {
+        tank: ["ディヴァインヴェール", "シェイクオフ", "原初の血気", "ブラックナイト"],
+        dps: ["インプロビゼーション", "テンペラグラッサ"],
+        healerTop: ["ディヴァインカレス", "秘策：展開戦術", "コンソレイション", "アクセッション", "ホーリズム", "パンハイマ"],
+        healerBottom: ["鼓舞激励の策", "意気軒高の策", "士気高揚の策", "エウクラシア・プログノシスII", "エウクラシア・プログノシス", "アスペクト・ヘリオス (Nセクト)", "コンジャンクション・ヘリオス (Nセクト)"],
+    };
+
     // スキル計算はステータスが変わった時だけ実行（パネル開閉では再計算しない）
     const skillPreviews = useMemo(() => {
-        const compute = (skillNames: { ja: string; en: string }) => {
-            const skillName = skillNames.ja;
+        const compute = (skillName: string) => {
             const skill = SKILL_DATA[skillName as keyof typeof SKILL_DATA] as any;
             if (!skill) return null;
             if (skill.minLevel && currentLevel < skill.minLevel) return null;
@@ -118,37 +125,15 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             }
 
             const iconUrl = (skill as any).icon ? `/icons/${(skill as any).icon}` : null;
-            return { key: skillName, value, iconUrl, nameJa: skillNames.ja, nameEn: skillNames.en };
+            const nameEn = (skill as any).nameEn || skillName;
+            return { key: skillName, value, iconUrl, nameJa: skillName, nameEn };
         };
 
         return {
-            tank: [
-                { ja: "ディヴァインヴェール", en: "Divine Veil" },
-                { ja: "シェイクオフ", en: "Shake It Off" },
-                { ja: "原初の血気", en: "Bloodwhetting" },
-                { ja: "ブラックナイト", en: "The Blackest Night" },
-            ].map(compute).filter(Boolean),
-            dps: [
-                { ja: "インプロビゼーション", en: "Improvisation" },
-                { ja: "テンペラグラッサ", en: "Tempera Grassa" },
-            ].map(compute).filter(Boolean),
-            healerTop: [
-                { ja: "ディヴァインカレス", en: "Divine Caress" },
-                { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics" },
-                { ja: "コンソレイション", en: "Consolation" },
-                { ja: "アクセッション", en: "Accession" },
-                { ja: "ホーリズム", en: "Holos" },
-                { ja: "パンハイマ", en: "Panhaima" },
-            ].map(compute).filter(Boolean),
-            healerBottom: [
-                { ja: "鼓舞激励の策", en: "Adloquium" },
-                { ja: "意気軒高の策", en: "Concitation" },
-                { ja: "士気高揚の策", en: "Succor" },
-                { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II" },
-                { ja: "エウクラシア・プログノシス", en: "Eukrasian Prognosis" },
-                { ja: "アスペクト・ヘリオス (Nセクト)", en: "Aspected Helios (Neutral)" },
-                { ja: "コンジャンクション・ヘリオス (Nセクト)", en: "Helios Conjunction (Neutral)" },
-            ].map(compute).filter(Boolean),
+            tank: PREVIEW_SKILLS.tank.map(compute).filter(Boolean),
+            dps: PREVIEW_SKILLS.dps.map(compute).filter(Boolean),
+            healerTop: PREVIEW_SKILLS.healerTop.map(compute).filter(Boolean),
+            healerBottom: PREVIEW_SKILLS.healerBottom.map(compute).filter(Boolean),
         };
     }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel, contentLanguage]);
 

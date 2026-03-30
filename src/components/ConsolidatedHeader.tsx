@@ -64,8 +64,8 @@ const SaveIndicator: React.FC = React.memo(() => {
             style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
         >
             {saveStatus === 'saving'
-                ? t('app.saving', { defaultValue: '保存中...' })
-                : t('app.saved', { defaultValue: '保存済み ✓' })
+                ? t('app.saving')
+                : t('app.saved')
             }
         </span>
     );

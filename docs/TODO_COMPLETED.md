@@ -2,6 +2,10 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第57セッション 2026-03-31）
+- [x] **i18nハードコーディング精査** — PartyStatusPopover(スキル名21個→SKILL_DATA動的取得)、MitiPlannerPage/LandingPage(document.title)、CsvImportModal(UIテキスト全件)、ErrorBoundary(エラーメッセージ)、ConsolidatedHeader/ShareButtons/SharePage(defaultValue日本語削除)、CheatSheetView/TimelineRow(alt属性)
+- [x] **非ログインユーザーへのログイン促進UI** — NewPlanModal・ShareModalに非ログイン時のさりげない案内テキスト+ログインリンク追加（★実機確認未完了→第58セッションで要確認）
+
 ## 完了（第56セッション 2026-03-31）
 - [x] **アプリ動作パフォーマンスの最適化** — React.memo（MitigationItem, ContentTreeItem, SaveIndicator）+ useShallow（Timeline, Sidebar, ConsolidatedHeader, CheatSheetView, Layout）+ useCallback（Timeline内6ハンドラ）+ Layout.tsx分割（MobileHeader, MobilePartySettings切り出し）
 - [x] **サイドメニュー・ヘッダーの開閉パフォーマンス最適化** — 上記React.memo+useShallowで対応

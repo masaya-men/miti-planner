@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-31 第56セッション）
+# セッション引き継ぎ書（2026-03-31 第57セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -46,71 +46,70 @@
 
 ---
 
-## 今回のセッション（第56セッション）で完了したこと
+## 今回のセッション（第57セッション）で完了したこと
 
-### 1. パフォーマンス最適化（React.memo + useShallow + useCallback + Layout分割）
-- **React.memo**: MitigationItem, ContentTreeItem, SaveIndicator
-- **useShallow**: Timeline, Sidebar, CheatSheetView, Layout（ConsolidatedHeaderは個別セレクタに戻し）
-- **useCallback**: Timeline内6ハンドラ（handlePhaseAdd, handleAddClick, handleEventClick, handleCellClick, handleDamageClick, handleMobileDamageClick）
-- **Layout.tsx分割**: MobileHeader.tsx（~150行）, MobilePartySettings.tsx（~330行）を別ファイルに切り出し → Layout.tsx: 980行→500行に縮小
-- **canUndo/canRedo**: リアクティブセレクタで Undo/Redo ボタンの disabled 状態を正しく管理
+### 1. i18nハードコーディング精査（全8箇所修正）
+- **PartyStatusPopover.tsx**: スキル名21個のハードコードをSKILL_DATAから動的取得に変更。`nameEn`プロパティを活用
+- **MitiPlannerPage.tsx**: `document.title = "LoPo | 軽減プランナー"` → `t('app.page_title_planner')`
+- **LandingPage.tsx**: `document.title = 'LoPo — FFXIV Tool Portal'` → `t('app.page_title_landing')`（`useTranslation`インポート追加）
+- **CsvImportModal.tsx**: タイトル・説明文・エラーメッセージ・ボタン全てi18nキー化（`csv_import.*`セクション新設）
+- **ErrorBoundary.tsx**: クラスコンポーネントなので`i18next.t()`直接使用（`error_boundary.*`セクション新設）
+- **ConsolidatedHeader.tsx**: `{ defaultValue: '保存中...' }` / `{ defaultValue: '保存済み ✓' }` の日本語フォールバック削除（キーは既にen/ja.jsonに存在）
+- **ShareButtons.tsx**: `{ defaultValue: '共有' }` 削除
+- **SharePage.tsx**: `{ defaultValue: 'すべてコピー' }` 削除
+- **CheatSheetView.tsx / TimelineRow.tsx**: `alt="Magical"` → `alt={t('modal.magical')}` 等、ダメージ種別alt属性3箇所×3ファイル
 
-### 2. テスト中に発見した問題の修正（11件）
-- イベントポップオーバー: glass-tier3追加、削除ボタン赤文字+角丸、Escape対応
-- Redo修正: Ctrl+Shift+Zの大文字問題（toLowerCase）
-- MyJobボタン: 全箇所で黄色に統一（PartySettingsModal, MobilePartySettings, ConsolidatedHeader, MobileBottomNav）
-- JobMigrationModal: ライトモード視認性改善、createPortal化（ヘッダー埋まり修正）
-- オートプランi18n翻訳キー追加（en.json/ja.json）
-- ConfirmDialogのi18nハードコーディング修正
+### 2. 非ログインユーザーへのログイン促進UI（★実機確認未完了）
+- **NewPlanModal.tsx**: `useAuthStore`と`LoginModal`を追加。フッター部分に`!user`条件で案内テキスト表示。`<login>`タグパース方式で「ログイン」部分をクリック可能なボタンに
+- **ShareModal.tsx**: チームロゴセクションの前に`!user`条件で案内テキスト表示。同じ`<login>`タグパース方式
+- **i18nキー**: `new_plan.guest_hint`、`app.share_guest_hint` を en.json / ja.json に追加
+- **★問題**: ユーザーがシークレットウィンドウで確認したところ、テキストが表示されなかった。ビルドは成功。TypeScriptエラーなし。原因未特定
 
 ---
 
-## 第56セッションで変更したファイル一覧
+## 第57セッションで変更したファイル一覧
 
-### パフォーマンス最適化
-- `src/components/Timeline.tsx` — React.memo(MitigationItem) + useShallow + useCallback + canUndo/canRedo
-- `src/components/TimelineRow.tsx` — 変更なし（既にmemo使用）
-- `src/components/Sidebar.tsx` — React.memo(ContentTreeItem) + useShallow
-- `src/components/ConsolidatedHeader.tsx` — React.memo(SaveIndicator) + 個別セレクタ
-- `src/components/CheatSheetView.tsx` — useShallow追加
-- `src/components/Layout.tsx` — useShallow + MobileHeader/MobilePartySettings切り出し
-- `src/components/MobileHeader.tsx` — **新規**（Layout.tsxから切り出し）
-- `src/components/MobilePartySettings.tsx` — **新規**（Layout.tsxから切り出し）
+### i18nハードコーディング修正
+- `src/components/PartyStatusPopover.tsx` — スキル名をSKILL_DATA動的取得に変更
+- `src/components/MitiPlannerPage.tsx` — document.title i18n化
+- `src/components/landing/LandingPage.tsx` — document.title i18n化 + useTranslation追加
+- `src/components/CsvImportModal.tsx` — UIテキスト全件i18n化
+- `src/components/ErrorBoundary.tsx` — i18next.t()でエラーメッセージi18n化
+- `src/components/ConsolidatedHeader.tsx` — defaultValue日本語削除
+- `src/components/ShareButtons.tsx` — defaultValue日本語削除
+- `src/components/SharePage.tsx` — defaultValue日本語削除
+- `src/components/CheatSheetView.tsx` — alt属性i18n化
+- `src/components/TimelineRow.tsx` — alt属性i18n化（2箇所）
 
-### バグ修正・UI改善
-- `src/components/Timeline.tsx` — イベントポップオーバー改善、Redo修正、ESC対応、i18n修正
-- `src/components/ConsolidatedHeader.tsx` — MyJobボタン黄色
-- `src/components/MobileBottomNav.tsx` — MyJobインジケーター黄色
-- `src/components/PartySettingsModal.tsx` — MyJob星ボタン黄色
-- `src/components/MobilePartySettings.tsx` — MyJobバッジ・モード切替黄色
-- `src/components/JobMigrationModal.tsx` — ライトモード修正 + createPortal
-- `src/locales/en.json` — auto_plan翻訳キー追加
-- `src/locales/ja.json` — auto_plan翻訳キー追加
+### ログイン促進UI（★要確認）
+- `src/components/NewPlanModal.tsx` — useAuthStore + LoginModal追加、ゲストヒントテキスト追加
+- `src/components/ShareModal.tsx` — LoginModal追加、ゲストヒントテキスト追加
+
+### i18nファイル
+- `src/locales/en.json` — `app.page_title_planner/landing`、`app.share_guest_hint`、`csv_import.*`、`error_boundary.*`、`new_plan.guest_hint/guest_hint_short` 追加
+- `src/locales/ja.json` — 同上の日本語翻訳追加
 
 ### ドキュメント
-- `docs/TODO.md` — パフォーマンス最適化完了マーク
-- `docs/superpowers/specs/2026-03-30-performance-optimization-design.md` — 設計書
-- `docs/superpowers/plans/2026-03-30-performance-optimization.md` — 実装計画書
+- `docs/TODO.md` — 完了マーク + バグ追記
+- `docs/TODO_COMPLETED.md` — 完了タスク移動
 
 ---
 
-## 最優先タスク（第57セッション）
+## ★ 最優先タスク（第58セッション）
 
-### βテスト前の残りタスク（TODO.md 優先順位2-3）
-1. **i18nハードコーディング精査** — リスク調査から着手。特にPartyStatusPopover.tsxの21個のスキル名が最重要
-2. **非ログインユーザーへのログイン促進UI** — NewPlanModalに非ログイン時のみ注意書き追加 + 共有モーダルにも追記
+### 1. ログイン促進UI実機確認（修正必須）
+- 非ログイン状態で `/miti` にアクセス → サイドバー「新規作成」クリック → NewPlanModalのフッター部分にゲストヒントが表示されるか確認
+- ShareModalも同様に確認
+- **表示されない場合の調査ポイント**:
+  - `useAuthStore`の`user`がFirebase Auth初期化中は`null`だが初期化完了後も`null`か
+  - `!user`条件が正しく評価されているか（React DevToolsで確認）
+  - `t('new_plan.guest_hint')`の`.split(/<\/?login>/)`が正しく動作しているか
+  - `createPortal`で`<>`フラグメントを使った構造に問題がないか
 
-### その他の候補
-- Admin系ファイル（AdminContentForm, AdminSkills, AdminServers）のi18nハードコーディングは管理者専用のため低優先
-- MitiPlannerPage.tsxのdocument.titleのi18n化
-
----
-
-## アクセントカラーの方針（確定 第42・56セッション）
-- 警告系 → 黄色
-- 削除・危険系 → 赤
-- OK・先に進む系 → 青
-- **MyJob関連 → 黄色**（第56セッション確定）
+### 2. βテスト残りタスク
+- 優先順位1-3は完了（パフォーマンス、i18n、ログイン促進UI）
+- 優先順位4: ヒールスキル追加は管理者画面テストと兼ねて後回し
+- 優先順位5: FFLogsバグ2件も後回し
 
 ---
 
@@ -185,6 +184,7 @@
 - **JobMigrationModal**: createPortalでbody直下に描画（framer-motionのtransformでfixed配置が崩れるため）
 - **Undo/Redoのdisabled判定**: canUndo/canRedoリアクティブセレクタを使う（getState()._history.lengthはレンダリング時に最新値を取れない場合がある）
 - **キーボードショートカット**: e.key.toLowerCase()で比較すること（Shift併用時にe.keyが大文字になる）
+- **i18nの`<login>`タグパース**: `t('key').split(/<\/?login>/)` で3分割し、index=1をボタンに。NewPlanModal・ShareModalで使用
 
 ## バックアップについて
 - `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在

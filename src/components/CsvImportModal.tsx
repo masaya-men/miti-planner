@@ -24,7 +24,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
             const events = parseCSVToEvents(csvText);
 
             if (events.length === 0) {
-                setError('No valid events found in the CSV text.');
+                setError(t('csv_import.no_events'));
                 return;
             }
 
@@ -35,7 +35,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
             setCsvText('');
             onClose();
         } catch (e) {
-            setError('Failed to parse CSV. Please check the format.');
+            setError(t('csv_import.parse_error'));
         }
     };
 
@@ -64,7 +64,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
                         <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                             <Download size={18} className="text-app-text" />
-                            Import Timeline (CSV)
+                            {t('csv_import.title')}
                         </h2>
                         <button
                             onClick={onClose}
@@ -78,15 +78,15 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     <div className="p-5 flex-1 overflow-y-auto">
                         <div className="mb-4">
                             <p className="text-sm text-app-text mb-2 leading-relaxed">
-                                Paste CSV text to import timeline events. The expected format is:
+                                {t('csv_import.description')}
                                 <br />
                                 <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-cyan-300">
-                                    Time, Name, DamageAmount, DamageType, Target
+                                    {t('csv_import.format')}
                                 </code>
                             </p>
                             <p className="text-xs text-app-text mb-2">
-                                Example: <span className="font-mono text-app-text">0:15, Raidwide, 120000, magical, PT</span><br />
-                                Note: Only Time and Name are strictly required.
+                                {t('csv_import.example')}<br />
+                                {t('csv_import.note')}
                             </p>
                         </div>
 
@@ -112,7 +112,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             onClick={onClose}
                             className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-app-text hover:bg-app-surface2 transition-colors"
                         >
-                            {t('common.cancel', 'キャンセル')}
+                            {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleImport}
@@ -125,7 +125,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             )}
                         >
                             <Download size={16} />
-                            {t('common.ok', 'OK')}
+                            {t('csv_import.import_button')}
                         </button>
                     </div>
                 </motion.div>

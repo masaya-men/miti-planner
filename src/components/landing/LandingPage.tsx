@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Preloader } from './Preloader';
@@ -21,9 +22,10 @@ export function LandingPage() {
   useSmoothScroll();
 
   // トップページ用のタイトル設定
+  const { t } = useTranslation();
   useEffect(() => {
-    document.title = 'LoPo — FFXIV Tool Portal';
-  }, []);
+    document.title = t('app.page_title_landing');
+  }, [t]);
 
   const handlePreloaderComplete = useCallback(() => {
     setPreloaderDone(true);

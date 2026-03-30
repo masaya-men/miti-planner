@@ -253,7 +253,7 @@ export const SharePage: React.FC = () => {
                     >
                         <Copy size={12} />
                         {isBundleView
-                            ? t('app.share_copy_all_to_mine', { defaultValue: 'すべてコピー' })
+                            ? t('app.share_copy_all_to_mine')
                             : t('app.share_copy_to_mine')
                         }
                     </button>
