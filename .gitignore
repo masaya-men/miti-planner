@@ -7,6 +7,10 @@ ADMIN_REFERENCE.md
 # Claude worktrees
 .claude/worktrees/
 
+# Environment files (secrets)
+.env*
+!.env.local.example
+
 # Logs
 logs
 *.log
