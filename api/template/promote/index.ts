@@ -26,7 +26,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!applyRateLimit(req, res, 10, 60_000)) return;
+  if (!(await applyRateLimit(req, res, 10, 60_000))) return;
 
   try {
     initAdmin();

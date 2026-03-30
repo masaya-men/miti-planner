@@ -62,7 +62,7 @@ export default async function handler(req: any, res: any) {
   if (!(await verifyAppCheck(req, res))) return;
 
   // レート制限（30回/分）
-  if (!applyRateLimit(req, res, 30, 60_000)) return;
+  if (!(await applyRateLimit(req, res, 30, 60_000))) return;
 
   try {
     initAdmin();

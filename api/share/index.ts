@@ -11,6 +11,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { createHash } from 'crypto';
 
 const COLLECTION = 'shared_plans';
 // リクエストボディの最大サイズ（500KB）
@@ -48,8 +49,10 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // App Check検証
-    if (!(await verifyAppCheck(req, res))) return;
+    // App Check検証（POST/PUTのみ。GETは共有リンク閲覧・OGP画像生成の内部fetchで使うためスキップ）
+    if (req.method !== 'GET') {
+        if (!(await verifyAppCheck(req, res))) return;
+    }
 
     try {
         initAdmin();
@@ -57,7 +60,7 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'POST') {
             // レート制限（1分あたり10回）
-            if (!applyRateLimit(req, res, 10, 60_000)) return;
+            if (!(await applyRateLimit(req, res, 10, 60_000))) return;
 
             // ボディサイズ制限
             const bodyStr = JSON.stringify(req.body || {});
@@ -128,7 +131,7 @@ export default async function handler(req: any, res: any) {
 
         } else if (req.method === 'PUT') {
             // レート制限（1分あたり5回）
-            if (!applyRateLimit(req, res, 5, 60_000)) return;
+            if (!(await applyRateLimit(req, res, 5, 60_000))) return;
 
             // ── 既存共有のロゴ更新 ──
             const { shareId, logoStoragePath } = req.body;
@@ -181,9 +184,11 @@ export default async function handler(req: any, res: any) {
             }
 
             // 閲覧数を+1（IPベースの簡易重複排除、fire-and-forget）
-            const viewerIp = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').split(',')[0].trim();
+            const fwd = req.headers['x-forwarded-for'];
+            const fwdStr = Array.isArray(fwd) ? fwd[0] : (fwd || '');
+            const viewerIp = (fwdStr || req.socket?.remoteAddress || '').split(',')[0].trim();
             if (viewerIp) {
-                const ipHash = require('crypto').createHash('sha256').update(viewerIp + id).digest('hex').slice(0, 16);
+                const ipHash = createHash('sha256').update(viewerIp + id).digest('hex').slice(0, 16);
                 const viewRef = db.collection(COLLECTION).doc(id as string).collection('viewers').doc(ipHash);
                 viewRef.get().then((s: any) => {
                     if (!s.exists) {
