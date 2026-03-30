@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-31 第58セッション）
+# セッション引き継ぎ書（2026-03-31 第59セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -46,47 +46,78 @@
 
 ---
 
-## 今回のセッション（第58セッション）で完了したこと
+## 今回のセッション（第59セッション）で完了したこと
 
-### 1. ログイン促進UI実機確認＆改善
-- シークレットウィンドウで表示確認 → **正常に表示されていた**（第57セッションの懸念は杞憂だった）
-- **ShareModal.tsx**: ゲストヒント文言を改善。「チームロゴを表示できます」→「端末間のデータ同期や共有画像のカスタマイズができます」
-- **Sidebar.tsx**: サイドバーの名前入力ダイアログ（pendingContentモーダル）にもログイン促進テキスト+LoginModalを追加。`new_plan.guest_hint_short`キーを再利用
+### 1. セキュリティスコア検証
+- Mozilla Observatory等のスキャンで-20点（F）→ 原因は`script-src 'unsafe-inline'`
+- **結論: 現状のXSS穴がない状態では実害なし。除去するとreCAPTCHA/Firebase Authが壊れるリスクが高いため、β後にステージング環境で対応する方針**
+- TODO.mdのセキュリティ残課題セクションに追記済み
 
-### 2. CSP強化（3ディレクティブ追加）
-- 外部セキュリティ診断（スコア80/100 B+）の結果を検証
-- **vercel.json**に以下を追加：
-  - `object-src 'none'` — Flash等の古いプラグイン埋め込みを完全禁止
-  - `base-uri 'self'` — `<base>`タグ注入によるURL乗っ取り防止
-  - `form-action 'self'` — フォーム送信先を自サイトのみに制限
-- `unsafe-inline`の除去は工数大（nonce方式＋サーバーサイド注入が必要）のため、βテスト段階では見送り
+### 2. Pretext LP演出強化（feature/pretext-lpブランチ — 未マージ・動作確認途中）
+- `@chenglou/pretext`ライブラリを導入し、LP全4セクションに演出を実装
+- **ブランチ: `feature/pretext-lp`**（mainにはマージされていない）
+- **stash: `stash@{0}` にHeroSectionの変更あり**（`git stash pop`で復元）
+- 設計書: `docs/superpowers/specs/2026-03-31-pretext-lp-enhancement-design.md`
+- 実装計画: `docs/superpowers/plans/2026-03-31-pretext-lp-enhancement.md`
 
-### 3. セキュリティ診断の検証結論
-- `unsafe-inline`指摘 → 正しいが優先度低（XSS脆弱性がなければ顕在化しない）
-- `data:`指摘 → `img-src`のみで使用しているため過剰警告、無視OK
-- `object-src`未設定 → 対応済み
+#### 実装済みセクション（feature/pretext-lpブランチ）
+| セクション | コミット | 内容 |
+|-----------|---------|------|
+| Task 1 | `ff518e0` | @chenglou/pretextインストール |
+| Task 2 | `b9040dc` | textParticles.ts ユーティリティ作成 |
+| Task 3 | 同上 | Hero: パーティクルがLoPo文字に集合するシェーダー |
+| Task 4 | `d10d4bf` | MitiSection: タイムライン行のテキストフローアニメーション |
+| Task 5 | `9225307` | FeaturesSection: 2カラムエディトリアルグリッド |
+| Task 6 | `bdb94df` | CTA: パーティクルが「無料で使えます」に再集合 |
+
+#### 次セッションでやること
+1. `feature/pretext-lp`ブランチに切り替え → `git stash pop`
+2. `npm run dev`で全セクションの動作を確認
+3. ユーザーに見せて採用/不採用を判断
+4. 採用分だけmainにマージ
+
+### 3. MyJobハイライトボタン白黒化（mainにデプロイ済み）
+- ConsolidatedHeader: 黄色（bg-yellow-500）→ 白黒反転（pillBtnActive）に変更
+- 他のボタンのON状態と統一
+
+### 4. テーマ初期値をブラウザ設定に連動（mainにデプロイ済み）
+- useThemeStore: `prefers-color-scheme`から初期テーマを取得
+- index.html: テーマフラッシュ防止スクリプトも同様に対応
+- 既存ユーザー（LocalStorageにテーマ保存済み）には影響なし
 
 ---
 
-## 第58セッションで変更したファイル一覧
+## 第59セッションで変更したファイル一覧
 
-- `src/components/Sidebar.tsx` — LoginModalインポート追加、名前入力ダイアログにゲストヒント+LoginModal追加
-- `src/locales/ja.json` — `app.share_guest_hint`文言更新
-- `src/locales/en.json` — `app.share_guest_hint`文言更新
-- `vercel.json` — CSP 3ディレクティブ追加
+### mainブランチ（デプロイ済み）
+- `src/components/ConsolidatedHeader.tsx` — MyJobハイライトボタン白黒化
+- `src/store/useThemeStore.ts` — テーマ初期値をブラウザ設定に連動
+- `index.html` — テーマフラッシュ防止スクリプト更新
+- `docs/TODO.md` — CSP unsafe-inline除去をセキュリティ残課題に追加、完了タスク整理
+- `docs/superpowers/specs/2026-03-31-pretext-lp-enhancement-design.md` — Pretext設計書
+- `docs/superpowers/plans/2026-03-31-pretext-lp-enhancement.md` — Pretext実装計画
+
+### feature/pretext-lpブランチ（未マージ）
+- `src/lib/textParticles.ts` — 新規: テキスト→パーティクル座標ユーティリティ
+- `src/components/landing/LandingScene.tsx` — forwardRef化、シェーダーにターゲット座標追加
+- `src/components/landing/HeroSection.tsx` — Pretext計算、パーティクル集合アニメーション
+- `src/components/landing/MitiSection.tsx` — テキストフローアニメーション
+- `src/components/landing/FeaturesSection.tsx` — 2カラムエディトリアルグリッド
+- `src/components/landing/CTASection.tsx` — パーティクル再集合演出
+- `src/components/landing/LandingPage.tsx` — sceneRef管理
 
 ---
 
 ## 次セッションの優先タスク
 
-### βテスト残りタスク
-- 優先順位1-3は完了（パフォーマンス、i18n、ログイン促進UI）
-- 優先順位4: ヒールスキル追加は管理者画面テストと兼ねて後回し
-- 優先順位5: FFLogsバグ2件も後回し
+### 1. Pretext LP演出の動作確認と採用判断（最優先）
+- `git checkout feature/pretext-lp && git stash pop`
+- `npm run dev`で確認 → ユーザーが採用セクションを決定
+- mainにマージ or 不採用分を除去
 
-### その他検討事項
-- `t('key', '日本語フォールバック')` パターンが多数残存 — キーが両言語に存在する限り実害なし。将来的にフォールバック削除の一括作業を検討
-- セキュリティスコア再確認（CSP追加後に改善しているか）
+### 2. その他
+- βテスト残タスク確認（TODO.md参照）
+- LP: THREE.Clock非推奨警告の修正（LandingScene.tsxを触ったついでに）
 
 ---
 
@@ -104,12 +135,8 @@
 | 6 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
 | 7 | Firestoreパスフォーマット検証 | ❌ 未対応（admin専用のため影響限定的） |
 | 8 | クライアント側バッチ削除中断 | ❌ 未対応（Vercel環境ではCloud Functions不可） |
-
-### 第58セッション追加
-| # | 課題 | 状態 |
-|---|------|------|
 | 9 | CSP: object-src/base-uri/form-action追加 | ✅ 第58セッションで完了 |
-| 10 | CSP: unsafe-inline除去 | ❌ 見送り（nonce方式の工数大。β後に再検討） |
+| 10 | CSP: unsafe-inline除去 | ❌ β後に対応（TODO.md記載済み） |
 
 ---
 
