@@ -67,12 +67,8 @@
 - [x] **シークレット漏洩対応** — `git filter-branch`で全履歴から`.env.vercel-check`を除去済み。`.gitignore`に`.env*`パターン追加で再発防止済み。force push完了。バックアップから全ファイル一致を検証済み
   - 将来publicにする場合はシークレットローテーション推奨（履歴からは消去済みだが保険として）
 
-### レート制限がインメモリ（Vercel Serverlessで実質無効）
-- [ ] **外部ストアベースのレート制限** — 現在のインメモリMapはVercel Serverless Functionsのインスタンスが分散するため効かない。auth系・公開エンドポイント含め全APIに影響
-  - 対象: `src/lib/rateLimit.ts`
-  - 案1: Vercel KV（月$0〜、Hobbyプランで利用可能か要確認）
-  - 案2: Upstash Redis（無料枠あり）
-  - 案3: Cloudflare Rate Limiting（DNSレベル）
+### ~~レート制限がインメモリ（Vercel Serverlessで実質無効）~~ ✅ 完了（第49セッション 2026-03-30）
+- [x] **Upstash Redisベースのレート制限** — インメモリMapをUpstash Redis（無料枠、us-east-1）に移行。全6API・8箇所をawait対応。フェイルオープン設計（Redis障害時はレート制限スキップ）
 
 ### アカウント削除時shared_plansが残る
 - [ ] **shared_plansクリーンアップ** — shared_plansにユーザーIDは含まれないが、logoBase64（チームロゴ画像）が残る可能性あり。新APIエンドポイント追加にはVercel 12関数上限の解消が必要
