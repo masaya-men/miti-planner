@@ -21,7 +21,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
 
     return (
         <>
-            <Tooltip content={t('app.share', { defaultValue: '共有' })}>
+            <Tooltip content={t('app.share')}>
                 <button
                     onClick={() => setModalOpen(true)}
                     className={clsx(iconBtnBase, iconBtnDefault, "w-8 h-8")}

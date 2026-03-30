@@ -278,9 +278,9 @@ export const CheatSheetView: React.FC = () => {
 
                     {/* 2段目: 攻撃種別アイコン + 攻撃名 + 連続ヒット */}
                     <div className="flex items-center gap-1 w-full justify-center opacity-90 mb-0.5">
-                        {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5 shrink-0" alt="Magical" />}
-                        {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5 shrink-0" alt="Physical" />}
-                        {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt="Dark" />}
+                        {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.magical')} />}
+                        {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.physical')} />}
+                        {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.unique')} />}
                         <span
                             className={clsx(
                                 "text-[10px] leading-tight truncate font-black drop-shadow-md cursor-help",

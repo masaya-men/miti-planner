@@ -12,8 +12,10 @@ import type { ContentLevel, ContentCategory, ContentDefinition } from '../types'
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { getTemplate } from '../data/templateLoader';
 import { PLAN_LIMITS } from '../types/firebase';
+import { LoginModal } from './LoginModal';
 import { X, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -36,6 +38,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
     const { plans, addPlan, setCurrentPlanId, updatePlan, currentPlanId: activePlanId } = usePlanStore();
     const { getSnapshot } = useMitigationStore();
+    const user = useAuthStore(s => s.user);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     // 件数制限チェック
     const totalPlanCount = plans.length;
@@ -221,7 +225,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     };
     const missingMessage = getMissingMessage();
 
-    return createPortal(
+    return (<>
+        {createPortal(
         <AnimatePresence mode="wait">
             <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4" onKeyDown={handleKeyDown}>
                 <motion.div
@@ -404,6 +409,26 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                     {/* Footer */}
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex flex-col gap-3">
+                        {/* 非ログイン時のさりげない案内 */}
+                        {!user && (
+                            <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                                {t('new_plan.guest_hint')
+                                    .split(/<\/?login>/)
+                                    .map((part, i) =>
+                                        i === 1 ? (
+                                            <button
+                                                key="login"
+                                                onClick={() => setShowLoginModal(true)}
+                                                className="underline hover:text-app-text transition-colors cursor-pointer"
+                                            >
+                                                {part}
+                                            </button>
+                                        ) : (
+                                            <span key={i}>{part}</span>
+                                        )
+                                    )}
+                            </p>
+                        )}
                         {/* 未入力項目の案内 */}
                         {missingMessage && !isBlocked && (
                             <p className="text-[10px] text-app-text-muted text-center">{missingMessage}</p>
@@ -433,5 +458,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
             </div>
         </AnimatePresence>,
         document.body
-    );
+        )}
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    </>);
 };

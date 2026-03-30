@@ -6,6 +6,7 @@ import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { LoginModal } from './LoginModal';
 import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
@@ -40,6 +41,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const [dragging, setDragging] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const dragCountRef = useRef(0);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
@@ -211,9 +213,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         );
     };
 
-    if (!isOpen) return null;
+    if (!isOpen) return <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />;
 
-    return createPortal(
+    return (<>
+        {createPortal(
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]"
             onClick={onClose}
@@ -330,6 +333,29 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 {t('app.include_plan_title')}
                             </span>
                         </button>
+                    </div>
+                )}
+
+                {/* 非ログイン時のさりげない案内 */}
+                {!user && (
+                    <div className="px-5 pb-2">
+                        <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                            {t('app.share_guest_hint')
+                                .split(/<\/?login>/)
+                                .map((part, i) =>
+                                    i === 1 ? (
+                                        <button
+                                            key="login"
+                                            onClick={() => setShowLoginModal(true)}
+                                            className="underline hover:text-app-text transition-colors cursor-pointer"
+                                        >
+                                            {part}
+                                        </button>
+                                    ) : (
+                                        <span key={i}>{part}</span>
+                                    )
+                                )}
+                        </p>
                     </div>
                 )}
 
@@ -469,5 +495,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             </div>
         </div>,
         document.body
-    );
+        )}
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    </>);
 };
