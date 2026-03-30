@@ -2,6 +2,11 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第54セッション 2026-03-30）
+- [x] **Escapeキーでモーダル・メニューを閉じる** — useEscapeCloseフック（スタック機構付き）で全モーダル14個+ポップオーバー3個+Sidebar⋮メニューに対応
+- [x] **PartyStatusPopover contentLanguage依存修正** — useMemoの依存配列にcontentLanguageを追加（言語切替時にスキルプレビューが再計算されないバグ修正）
+- [x] **パーティメンバーID定数の共通化** — Layout.tsx(2箇所)・Timeline.tsx(2箇所)・useTutorialStore.ts(1箇所)の重複をsrc/constants/party.tsに集約
+
 ## 完了（第53セッション 2026-03-30）
 - [x] **Sidebar: button入れ子問題** — 親button→div role=button化、ホバーボタン表示、⋮メニューPortal化、削除ボタン追加、プラン名ツールチップ、レイアウト変更
 
