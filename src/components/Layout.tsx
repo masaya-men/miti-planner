@@ -526,7 +526,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // 自動保存（2層構造）
     // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
-    // Firestore: イベント駆動のみ（ページ離脱 / タブ非表示 / プラン切替時）→ DAU 3,000でも無料枠内
+    // Firestore: イベント駆動（ページ離脱 / タブ非表示 / プラン切替時）+ 5分定期バックアップ
     React.useEffect(() => {
         /** localStorage への保存 */
         const saveSilently = () => {
@@ -545,7 +545,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 planStore.syncToFirestore(
                     authState.user.uid,
                     authState.user.displayName || 'Guest',
-                ).catch(() => {});
+                ).catch((err) => {
+                    console.error('[LoPo] Firestore同期エラー:', err);
+                });
             }
         };
 
@@ -577,15 +579,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }, 500);
         });
 
-        /** ページ離脱時: localStorage即時保存 + Firestore同期 */
+        /** ページ離脱時: localStorage即時保存 + Firestore同期 + 未保存警告 */
         const onBeforeUnload = (e: BeforeUnloadEvent) => {
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
             syncToCloud();
-            // 未ログインでプランがある場合、離脱前に警告
             const authState = useAuthStore.getState();
             const planState = usePlanStore.getState();
-            if (!authState.user && planState.plans.length > 0) {
+            // 未ログインでプランがある、またはログイン中で未同期の変更がある場合に警告
+            if ((!authState.user && planState.plans.length > 0) ||
+                (authState.user && planState.hasDirtyPlans())) {
                 e.preventDefault();
             }
         };
@@ -615,10 +618,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         });
 
+        // 5分ごとの定期バックアップ同期（beforeunload/visibilitychangeが効かないケースの保険）
+        const periodicSyncInterval = setInterval(() => {
+            syncToCloud();
+        }, 5 * 60 * 1000);
+
         return () => {
             unsubMiti();
             unsubPlan();
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
+            clearInterval(periodicSyncInterval);
             window.removeEventListener('beforeunload', onBeforeUnload);
             document.removeEventListener('visibilitychange', onVisibilityChange);
         };
