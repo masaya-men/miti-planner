@@ -33,10 +33,7 @@ export function AdminStats() {
     try {
       setLoading(true);
       setError('');
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/templates?type=stats', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/templates?type=stats');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -58,13 +55,9 @@ export function AdminStats() {
     if (!data) return;
     try {
       setSaving(true);
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'stats',
           levelModifiers: data.levelModifiers,

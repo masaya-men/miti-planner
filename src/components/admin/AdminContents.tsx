@@ -27,10 +27,7 @@ export function AdminContents() {
     try {
       setLoading(true);
       setError('');
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/contents', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/contents');
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       setContents(data.items ?? []);
@@ -49,14 +46,10 @@ export function AdminContents() {
   const handleSave = async (data: ContentData) => {
     try {
       setSaving(true);
-      const token = await user?.getIdToken();
       const isNew = !editing?.id;
       const res = await apiFetch('/api/admin/contents', {
         method: isNew ? 'POST' : 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           item: {
             id: data.id,
@@ -89,10 +82,8 @@ export function AdminContents() {
     const ok = window.confirm(t('admin.contents_delete_confirm', { name: item.nameJa }));
     if (!ok) return;
     try {
-      const token = await user?.getIdToken();
       const res = await apiFetch(`/api/admin/contents?id=${item.id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.contents_deleted'));

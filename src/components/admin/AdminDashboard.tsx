@@ -19,11 +19,9 @@ export function AdminDashboard() {
     let cancelled = false;
     async function load() {
       try {
-        const token = await user?.getIdToken();
-        const headers = { Authorization: `Bearer ${token}` };
         const [cRes, tRes] = await Promise.all([
-          apiFetch('/api/admin/contents', { headers }),
-          apiFetch('/api/admin/templates', { headers }),
+          apiFetch('/api/admin/contents'),
+          apiFetch('/api/admin/templates'),
         ]);
         if (cancelled) return;
         if (cRes.ok) {

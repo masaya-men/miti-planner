@@ -56,13 +56,13 @@ export default async function handler(req: any, res: any) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // App Check検証
-    if (!(await verifyAppCheck(req, res))) return;
-
     try {
         const { code, state } = req.query;
 
+        // App Check検証（ステップ1のみ — コールバック時は外部リダイレクトのためヘッダー付与不可）
+        // コールバックはstate+cookie検証でCSRF保護済み
         if (!code) {
+            if (!(await verifyAppCheck(req, res))) return;
             // ステップ1: state生成 → cookie保存 → Discord認証ページにリダイレクト
             const clientId = process.env.DISCORD_CLIENT_ID;
             if (!clientId) {

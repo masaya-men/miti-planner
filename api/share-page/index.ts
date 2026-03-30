@@ -78,9 +78,12 @@ export default async function handler(req: any, res: any) {
                     }
                 }
 
-                const ogAllowedHosts = ['lopoly.app', 'lopo-eta.vercel.app', 'localhost:5173'];
+                const ogAllowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173'];
+                const ogPreviewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
                 const ogRawHost = req.headers.host || 'lopoly.app';
-                const ogHost = ogAllowedHosts.find(h => ogRawHost.includes(h)) || 'lopoly.app';
+                const ogHost = ogAllowedHosts.find(h => ogRawHost.includes(h))
+                    || (ogPreviewPattern.test(ogRawHost) ? ogRawHost : null)
+                    || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
                 ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}`;
             }
@@ -92,9 +95,12 @@ export default async function handler(req: any, res: any) {
     // ビルド済みindex.htmlを取得してメタタグを差し替え
     try {
         // 自サイトのホスト名を固定（hostヘッダー偽装対策）
-        const allowedHosts = ['lopoly.app', 'lopo-eta.vercel.app', 'localhost:5173', 'localhost:4173'];
+        const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
+        const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
         const rawHost = req.headers.host || 'lopoly.app';
-        const host = allowedHosts.find(h => rawHost.includes(h)) || 'lopoly.app';
+        const host = allowedHosts.find(h => rawHost.includes(h))
+            || (previewPattern.test(rawHost) ? rawHost : null)
+            || 'lopoly.app';
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const indexRes = await fetch(`${protocol}://${host}/index.html`);
 

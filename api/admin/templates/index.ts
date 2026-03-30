@@ -30,7 +30,7 @@ function setCors(req: any, res: any) {
     'http://localhost:5173',
     'http://localhost:4173',
   ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
   res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
