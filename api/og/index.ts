@@ -11,7 +11,7 @@
  */
 
 import { ImageResponse } from '@vercel/og';
-import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers';
+import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers.js';
 
 export const config = { runtime: 'edge' };
 

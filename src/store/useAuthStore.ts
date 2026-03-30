@@ -25,6 +25,7 @@ import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
+import { apiFetch } from '../lib/apiClient';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
 
@@ -92,12 +93,38 @@ export const useAuthStore = create<AuthState>((set) => ({
             case 'discord':
                 saveReturnUrl();
                 localStorage.setItem('lopo_auth_redirecting', 'true');
-                window.location.href = '/api/auth/discord';
+                apiFetch('/api/auth/discord', { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            console.error('Discord OAuth: URL not received');
+                            localStorage.removeItem('lopo_auth_redirecting');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Discord login error:', err);
+                        localStorage.removeItem('lopo_auth_redirecting');
+                    });
                 break;
             case 'twitter':
                 saveReturnUrl();
                 localStorage.setItem('lopo_auth_redirecting', 'true');
-                window.location.href = '/api/auth/twitter';
+                apiFetch('/api/auth/twitter', { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            console.error('Twitter OAuth: URL not received');
+                            localStorage.removeItem('lopo_auth_redirecting');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Twitter login error:', err);
+                        localStorage.removeItem('lopo_auth_redirecting');
+                    });
                 break;
         }
     },

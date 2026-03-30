@@ -62,6 +62,12 @@
 
 ## セキュリティ残課題（第45セッション監査で発覚・未対応7件）
 
+### .env.vercel-checkがgitに永続化（第47セッション発見）
+- [ ] **シークレット漏洩対応** — コミット`3b242c3`で`.env.vercel-check`（全シークレット含む）がgitにコミットされている。リポジトリがprivateなら即座の影響は低いが、以下の対応を検討:
+  - `.gitignore`に`.env.vercel-check`を追加
+  - リポジトリがpublicなら全シークレットのローテーションが必須
+  - `git filter-branch`等で履歴から削除（破壊的操作のため慎重に）
+
 ### レート制限がインメモリ（Vercel Serverlessで実質無効）
 - [ ] **外部ストアベースのレート制限** — 現在のインメモリMapはVercel Serverless Functionsのインスタンスが分散するため効かない。auth系・公開エンドポイント含め全APIに影響
   - 対象: `src/lib/rateLimit.ts`
@@ -86,10 +92,8 @@
 ### クライアント側バッチ削除の中断リスク
 - [ ] **アカウント削除時のwriteBatch** — ネットワーク切断やブラウザクローズでFirestore削除が途中停止する可能性。理想はCloud Functionsの`onDelete`トリガーだがVercel環境では対応困難
 
-### ENFORCE_APP_CHECK未設定
-- [ ] **Vercelダッシュボードで手動設定が必要** — `ENFORCE_APP_CHECK=true` を環境変数に追加 → 再デプロイ。これがないとApp Checkが防御として機能しない
-  - Vercel → Settings → Environment Variables → Production/Preview/Development全てに追加
-  - ※ 第46セッションでOAuthコールバック時のApp Checkスキップを実装済み。設定しても安全
+### ~~ENFORCE_APP_CHECK未設定~~ ✅ 完了（第47セッション 2026-03-30）
+- [x] **Vercel CLI経由で全環境（Production/Preview/Development）に設定済み** — 全11エンドポイントで403拒否を検証済み。OAuthコールバックのスキップも正常動作確認済み
 
 ## 運用・品質基盤（第44セッション外部レビューで発覚）
 
