@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { X, Save } from 'lucide-react';
 import clsx from 'clsx';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface SaveDialogProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     const [title, setTitle] = useState(defaultTitle);
     const [mounted, setMounted] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    useEscapeClose(isOpen, onClose);
 
     useEffect(() => {
         setMounted(true);
