@@ -220,12 +220,20 @@ export const usePlanStore = create<PlanState>()(
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
+                // 3分クールダウン: 前回の同期から3分以内なら実行しない
+                const SYNC_COOLDOWN_MS = 3 * 60 * 1000;
+                const now = Date.now();
+                if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
+
+                // 同期開始時点のdirty/deletedをスナップショット（同期中に追加された分を保持するため）
+                const syncingDirtyIds = new Set(state._dirtyPlanIds);
+                const syncingDeletedIds = new Set(state._deletedPlanIds);
+
                 set({ _isSyncing: true });
 
                 try {
                     // 削除されたプランの処理
-                    const deletedIds = new Set(state._deletedPlanIds);
-                    for (const planId of deletedIds) {
+                    for (const planId of syncingDeletedIds) {
                         try {
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
@@ -235,7 +243,7 @@ export const usePlanStore = create<PlanState>()(
 
                     // dirtyプランの同期（リモート削除検出付き）
                     const deletedRemotely = await planService.syncDirtyPlans(
-                        state._dirtyPlanIds,
+                        syncingDirtyIds,
                         state.plans,
                         uid,
                         displayName,
@@ -251,11 +259,17 @@ export const usePlanStore = create<PlanState>()(
                         showToast(i18next.t('app.plan_deleted_remotely'));
                     }
 
-                    // 同期完了 → dirty/deletedをクリア
-                    set({
-                        _dirtyPlanIds: new Set<string>(),
-                        _deletedPlanIds: new Set<string>(),
-                        _lastSyncAt: Date.now(),
+                    // 同期完了 → 同期した分のみをdirty/deletedから除去（同期中に追加された分は残す）
+                    set((current) => {
+                        const remainingDirty = new Set(current._dirtyPlanIds);
+                        for (const id of syncingDirtyIds) remainingDirty.delete(id);
+                        const remainingDeleted = new Set(current._deletedPlanIds);
+                        for (const id of syncingDeletedIds) remainingDeleted.delete(id);
+                        return {
+                            _dirtyPlanIds: remainingDirty,
+                            _deletedPlanIds: remainingDeleted,
+                            _lastSyncAt: Date.now(),
+                        };
                     });
                 } catch (err) {
                     console.error('Firestore同期エラー:', err);
@@ -265,13 +279,15 @@ export const usePlanStore = create<PlanState>()(
             },
 
             /**
-             * ログアウト前に全プランを強制同期（_isSyncingチェックをバイパス）
+             * ログアウト前に全プランを強制同期（_isSyncingチェック・クールダウンをバイパス）
              * 全プランをdirty扱いで確実にFirestoreに保存する
+             * 10秒でタイムアウト（ネットワーク障害時にログアウトをブロックしない）
              */
             forceSyncAll: async (uid, displayName) => {
-                try {
+                const FORCE_SYNC_TIMEOUT_MS = 10_000;
+
+                const syncWork = async () => {
                     const state = get();
-                    // 全プランをdirty扱いにする
                     const allPlanIds = new Set(state.plans.map(p => p.id));
                     // 削除の処理
                     for (const planId of state._deletedPlanIds) {
@@ -288,30 +304,46 @@ export const usePlanStore = create<PlanState>()(
                         uid,
                         displayName,
                     );
+                };
+
+                try {
+                    await Promise.race([
+                        syncWork(),
+                        new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('SYNC_TIMEOUT')), FORCE_SYNC_TIMEOUT_MS)
+                        ),
+                    ]);
+                } catch (err) {
+                    if (err instanceof Error && err.message === 'SYNC_TIMEOUT') {
+                        console.warn('Firestore強制同期がタイムアウト（10秒）。ログアウトを続行します');
+                    } else {
+                        console.error('Firestore強制同期エラー:', err);
+                    }
+                } finally {
                     set({
                         _dirtyPlanIds: new Set<string>(),
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
                         _isSyncing: false,
                     });
-                } catch (err) {
-                    console.error('Firestore強制同期エラー:', err);
                 }
             },
 
             /**
              * ログイン時: localStorageプランをFirestoreにマイグレーション＋マージ
+             * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
              */
             migrateOnLogin: async (uid, displayName) => {
                 try {
-                    const merged = await planService.migrateLocalPlansToFirestore(
+                    const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
                         get().plans,
                         uid,
                         displayName,
                     );
                     set({
                         plans: merged,
-                        _dirtyPlanIds: new Set<string>(),
+                        // Firestoreに書き戻せなかったプランはdirtyとして残す（次回syncで再試行）
+                        _dirtyPlanIds: new Set<string>(dirtyIds),
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
                     });

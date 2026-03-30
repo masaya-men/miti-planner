@@ -116,6 +116,29 @@ async function ensurePlanCounts(uid: string): Promise<void> {
   }
 }
 
+/**
+ * カウンターをFirestoreの実データから再計算して修復する
+ * 過去の同期失敗でカウンターが実態と乖離した場合のリカバリ用
+ */
+async function repairPlanCounts(uid: string): Promise<void> {
+  const plans = await fetchUserPlans(uid);
+  const total = plans.length;
+  const byContent: Record<string, number> = {};
+  for (const plan of plans) {
+    const cid = plan.contentId || '';
+    if (cid) {
+      byContent[cid] = (byContent[cid] || 0) + 1;
+    }
+  }
+  await ensurePlanCounts(uid);
+  const ref = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
+  await setDoc(ref, {
+    total,
+    byContent,
+    updatedAt: serverTimestamp(),
+  });
+}
+
 /** プラン上限チェック（クライアント側の事前チェック） */
 async function checkPlanLimits(
   uid: string,
@@ -249,15 +272,27 @@ async function deletePlan(
  * localにあってFirestoreにないプランは:
  * - ownerId === 'local'（未ログイン時作成）→ アップロード
  * - それ以外 → 別端末で削除されたとみなし除外
+ *
+ * 両方に存在してローカルが新しい場合はFirestoreに書き戻す（端末間同期の要）
+ *
+ * @returns { merged, dirtyIds } — マージ済みプラン + Firestoreに書き戻せなかったプランID
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
   uid: string,
   displayName: string,
-): Promise<SavedPlan[]> {
+): Promise<{ merged: SavedPlan[]; dirtyIds: string[] }> {
+  // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
+  try {
+    await repairPlanCounts(uid);
+  } catch (err) {
+    console.error('カウンター修復エラー（続行）:', err);
+  }
+
   // Firestoreから既存プランを取得
   const remotePlans = await fetchUserPlans(uid);
   const remoteIds = new Set(remotePlans.map((p) => p.id));
+  const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
 
   // ローカルにしかないプランを処理
   const localOnly = localPlans.filter((p) => !remoteIds.has(p.id));
@@ -277,15 +312,29 @@ async function migrateLocalPlansToFirestore(
     }
   }
 
-  // マージ: Firestoreを正とする
+  // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];
+  const dirtyIds: string[] = []; // Firestoreに書き戻せなかったプランID
 
-  // 両方にあるプランは updatedAt が新しい方を採用
   for (const local of localPlans) {
-    const remote = remotePlans.find((r) => r.id === local.id);
+    const remote = remoteMap.get(local.id);
     if (remote) {
-      // 両方に存在 → updatedAtが新しい方
-      merged.push(remote.updatedAt > local.updatedAt ? remote : local);
+      if (remote.updatedAt > local.updatedAt) {
+        // リモートが新しい → リモートを採用
+        merged.push(remote);
+      } else if (local.updatedAt > remote.updatedAt) {
+        // ローカルが新しい → ローカルを採用 + Firestoreに書き戻し
+        merged.push(local);
+        try {
+          await updatePlan(local, uid);
+        } catch {
+          // 書き戻し失敗 → dirtyとしてマーク（次回のsyncで再試行）
+          dirtyIds.push(local.id);
+        }
+      } else {
+        // 同じ → リモートを採用（Firestoreのバージョン番号を維持）
+        merged.push(remote);
+      }
     } else if (local.ownerId === 'local') {
       // ローカルのみ & 未ログイン作成 → 残す（アップロード済み）
       merged.push(local);
@@ -301,7 +350,7 @@ async function migrateLocalPlansToFirestore(
   // updatedAt降順でソート
   merged.sort((a, b) => b.updatedAt - a.updatedAt);
 
-  return merged;
+  return { merged, dirtyIds };
 }
 
 /** プランがFirestoreに存在するか確認 */
@@ -377,6 +426,7 @@ export const planService = {
   checkPlanLimits,
   checkPlanExists,
   ensurePlanCounts,
+  repairPlanCounts,
   migrateLocalPlansToFirestore,
   syncDirtyPlans,
 };

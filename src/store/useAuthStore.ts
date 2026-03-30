@@ -279,22 +279,24 @@ async function processPendingAuth() {
 // Auth状態の監視（アプリ起動時に1回だけ実行）
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Custom Claimsから管理者フラグを取得
+        // Custom Claimsから管理者フラグを取得（認証に必須 → awaitで待つ）
         const tokenResult = await user.getIdTokenResult();
         const isAdmin = tokenResult.claims.role === 'admin';
 
-        // FirestoreからチームロゴURLを読み込み（非ブロッキング）
-        let teamLogoUrl: string | null = null;
-        try {
-            const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
-            if (userDoc.exists()) {
-                teamLogoUrl = userDoc.data().teamLogoUrl || null;
-            }
-        } catch {
-            // ロゴ読み込み失敗は無視（ログインには影響させない）
-        }
+        // 認証完了 → loading: false を先に設定（画面表示をブロックしない）
+        useAuthStore.setState({ user, loading: false, isAdmin });
 
-        useAuthStore.setState({ user, loading: false, isAdmin, teamLogoUrl });
+        // チームロゴURLはバックグラウンドで取得（画面表示をブロックしない）
+        getDoc(doc(db, COLLECTIONS.USERS, user.uid))
+            .then((userDoc) => {
+                if (userDoc.exists()) {
+                    const logoUrl = userDoc.data().teamLogoUrl || null;
+                    useAuthStore.setState({ teamLogoUrl: logoUrl });
+                }
+            })
+            .catch(() => {
+                // ロゴ読み込み失敗は無視（ログインには影響させない）
+            });
     } else {
         useAuthStore.setState({ user: null, loading: false, isAdmin: false, teamLogoUrl: null });
     }
