@@ -62,11 +62,9 @@
 
 ## セキュリティ残課題（第45セッション監査で発覚・未対応7件）
 
-### .env.vercel-checkがgitに永続化（第47セッション発見）
-- [ ] **シークレット漏洩対応** — コミット`3b242c3`で`.env.vercel-check`（全シークレット含む）がgitにコミットされている。リポジトリがprivateなら即座の影響は低いが、以下の対応を検討:
-  - `.gitignore`に`.env.vercel-check`を追加
-  - リポジトリがpublicなら全シークレットのローテーションが必須
-  - `git filter-branch`等で履歴から削除（破壊的操作のため慎重に）
+### ~~.env.vercel-checkがgitに永続化~~ ✅ 完了（第48セッション 2026-03-30）
+- [x] **シークレット漏洩対応** — `git filter-branch`で全履歴から`.env.vercel-check`を除去済み。`.gitignore`に`.env*`パターン追加で再発防止済み。force push完了。バックアップから全ファイル一致を検証済み
+  - 将来publicにする場合はシークレットローテーション推奨（履歴からは消去済みだが保険として）
 
 ### レート制限がインメモリ（Vercel Serverlessで実質無効）
 - [ ] **外部ストアベースのレート制限** — 現在のインメモリMapはVercel Serverless Functionsのインスタンスが分散するため効かない。auth系・公開エンドポイント含め全APIに影響
