@@ -150,7 +150,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                 { ja: "コンジャンクション・ヘリオス (Nセクト)", en: "Helios Conjunction (Neutral)" },
             ].map(compute).filter(Boolean),
         };
-    }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel]);
+    }, [tankRep?.stats.hp, healerRep?.stats.hp, healerRep?.stats.mainStat, healerRep?.stats.det, healerRep?.stats.wd, currentLevel, contentLanguage]);
 
     if (!mounted) return null;
 
