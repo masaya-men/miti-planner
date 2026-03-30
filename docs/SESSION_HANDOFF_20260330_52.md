@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第51セッション）
+# セッション引き継ぎ書（2026-03-30 第52セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -36,41 +36,43 @@
 - **管理画面**: https://lopoly.app/admin
 - **技術スタック**: React 19 + TypeScript + Vite 7 + Tailwind CSS v4 + Zustand + Firebase + Vercel
 - **Discord**: https://discord.gg/z7uypbJSnN
+- **公式X**: https://x.com/lopoly_app
 - **Ko-fi**: https://ko-fi.com/lopoly
 
 ---
 
-## 今回のセッション（第51セッション）で完了したこと
+## 今回のセッション（第52セッション）で完了したこと
 
-### Firestore端末間同期の修正
+### 1. ライトモード: パーティ編成モーダルの文字色修正
+- `text-white` → `text-app-text` に6箇所修正（ヘッダー、説明文、MT/STグループ見出し、カテゴリ名）
+- `drop-shadow` → `dark:drop-shadow` に変更（ダークモードのみ影を表示）
+- 対象: `src/components/PartySettingsModal.tsx`
 
-**背景**: ログイン済みの端末間（PCとスマホ等）でプランが全く同期されていなかった。
+### 2. スマホ: プラン名タップでポップアップ表示
+- MobileHeaderの中央タイトル部分をタップすると、吹き出し風ポップアップで省略されていたプラン名をフル表示
+- iPhoneライクなスプリングアニメーション（scale + opacity + translate-y）
+- 3秒後に自動消滅、背景タップでも即閉じ
+- ダーク/ライトモード両対応、`md:hidden` でPC表示では絶対に出ない
+- 対象: `src/components/Layout.tsx`（MobileHeaderコンポーネント）
 
-**発見した根本原因**:
-1. `migrateOnLogin`がローカルの方が新しいプランをFirestoreに書き戻していなかった
-2. `syncToFirestore`の完了時に、同期中に追加されたdirtyフラグまで全消去していた
-3. `userPlanCounts`カウンターが壊れていた（過去の同期失敗でカウンターだけインクリメントされ、実際のプラン数と乖離）
-4. エラーが`.catch(() => {})`で完全に握りつぶされていた
+### 3. ダークモード: モーダルのブラー値強化
+- `--glass-tier3-blur` を `2px` → `12px` に変更（ダークモード）
+- サイドバー・ヘッダーは `.theme-dark .glass-frame` で `2px` を維持（影響なし）
+- 対象: `src/index.css`
 
-**修正内容（4ファイル）**:
+### 4. 全ページフッターに公式Xリンク追加
+- ランディングページ、人気ページ、軽減表アプリの全フッターにDiscordの隣にXリンクを追加
+- 翻訳キー `footer.x_official`（JA: 「X（Twitter）」/ EN: 「X (Twitter)」）
+- 対象: `src/components/landing/LandingFooter.tsx`, `src/components/Layout.tsx`, `src/components/PopularPage.tsx`, `src/locales/ja.json`, `src/locales/en.json`
 
-| ファイル | 変更内容 |
-|---------|---------|
-| `src/lib/planService.ts` | `migrateLocalPlansToFirestore`がローカルの新しいプランをFirestoreに書き戻す。`repairPlanCounts`関数を追加（ログイン時にカウンターを実データから再計算） |
-| `src/store/usePlanStore.ts` | `syncToFirestore`にdirtyスナップショット方式+3分クールダウン。`forceSyncAll`に10秒タイムアウト。`migrateOnLogin`が新戻り値（dirtyIds）に対応 |
-| `src/store/useAuthStore.ts` | チームロゴ読み込みをバックグラウンド化（loading: falseを先に設定） |
-| `src/components/Layout.tsx` | エラーログ可視化、5分定期バックアップ同期追加、beforeunload警告をログイン中+未同期にも拡張 |
+### 5. TODO.md更新
+- フッター統一ルールにX追加を反映
+- ツールチップ色反転・ステータス表示ライトモードは対応済みと確認（ユーザー報告）
 
-**確認済み**: PCで編集→スマホでリロード→同期を確認
+---
 
-### 確定した設計方針（第51セッション）
-
-**Firestore同期のタイミング（確定）**:
-- localStorage: 編集のたびに即保存（500msデバウンス）
-- Firestore: タブ離脱 / ページ閉じ / プラン切替 / ログアウト / 5分定期バックアップ
-- **編集のたびにFirestore同期はしない**（試行錯誤中の無駄を避ける）
-- 3分クールダウンで過剰書き込み防止
-- ログイン時にカウンター自動修復
+## 確認済みの仕様
+- **テーマ設定は端末ごとに独立**（localStorageのみ、Firestore同期対象外）。PCとスマホで別テーマ設定が可能。この仕様が正しい。
 
 ---
 
@@ -91,7 +93,7 @@
 
 ---
 
-## 最優先タスク（第52セッション）
+## 最優先タスク（第53セッション）
 
 ### 1. アプリ動作パフォーマンスの最適化
 - 起動時非ブロッキング化は完了済み
@@ -147,6 +149,7 @@
 - **API内で`require()`を使わない** — ESモジュールバンドルで`require is not defined`になる。必ず`import`を使う
 - **Upstash Redis**: 無料枠1日10,000コマンド。DAU成長時は有料プラン($0.2/10万コマンド)に切替
 - **Firestore同期の3分クールダウン** — syncToFirestoreは_lastSyncAtから3分以内は実行しない。forceSyncAllはバイパス
+- **ダークモードのglass-tier3 blur**: 12px（第52セッションで2px→12pxに変更）。サイドバー・ヘッダーは`.glass-frame`で2px維持
 
 ## バックアップについて
 - `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在
