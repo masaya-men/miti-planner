@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第47セッション）
+# セッション引き継ぎ書（2026-03-30 第48セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -37,37 +37,31 @@
 
 ---
 
-## 今回のセッション（第47セッション）で完了したこと
+## 今回のセッション（第48セッション）で完了したこと
 
-### 1. ENFORCE_APP_CHECK=true の設定・検証・修正
+### 1. git履歴からシークレットファイル除去
 
-**Vercel環境変数にENFORCE_APP_CHECK=trueを設定し、全APIでApp Check強制化を実現。**
+**問題**: コミット`3b242c3`で`.env.vercel-check`（Discord/FFLogs/Firebase/Twitter等の全シークレット含む）がgit履歴に残っていた。
 
-- 初回設定時に`echo "true"`で改行が混入し、`"true\n" !== "true"`で強制化が無効だった
-- `printf "true"`で再設定し、ランタイムログで`enforced=true`を確認
-- 全11エンドポイントでApp Checkトークンなしの403拒否を検証済み
+**対応**:
+- リポジトリがPRIVATEであること、共同作業者が本人のみであること、フォークがないことを確認
+- デスクトップにプロジェクト全体のバックアップを作成
+- `git filter-branch`で全466コミットの履歴から`.env.vercel-check`を完全除去
+- 古い参照（refs/original/）を削除、`git gc --prune=now --aggressive`で不要データ消去
+- `git push --force --all`でGitHubに反映
+- 全履歴にファイルが残っていないことを検証（`git rev-list --all`で0件確認）
 
-### 2. OAuth開始フローのApp Check保護強化
+### 2. .gitignore強化
 
-**従来**: `window.location.href = '/api/auth/discord'`（ブラウザナビゲーション → App Checkヘッダー付与不可）
+- `.env*`パターンを追加（`.env.local.example`のみ例外許可）
+- 今後`.env`で始まるファイルがgitに入る事故を防止
 
-**改善後**: `apiFetch('/api/auth/discord', { method: 'POST' })` → JSON応答でリダイレクトURL受取 → `window.location.href`でリダイレクト
+### 3. プロジェクト破損なし検証
 
-これにより:
-- **ステップ1（OAuth開始）**: App Check + state + cookie で保護（ボットによるフロー乱用を防止）
-- **ステップ2（コールバック）**: state/PKCE + HttpOnly cookie で保護（外部リダイレクトのためApp Checkスキップは正しい設計）
-
-### 3. FFLogsテンプレート自動登録のApp Check対応
-
-`FFLogsImportModal.tsx`の直接`fetch`を`apiFetch`に置き換え。手動Authorization削除（`apiFetch`が自動付与）。
-
-### 4. share-page/og の ESM import修正
-
-`ogpHelpers`のimportに`.js`拡張子を追加。過去のコミット`d8982dc`で他APIは修正済みだったが、この2ファイルだけスキップされていた修正漏れ。OGPメタタグ（SNS共有カード）が正常に生成されるようになった。
-
-### 5. 検証中に作成された偽共有プランの削除
-
-App Check未適用時のcurlテストで偽作成された`shared_plans/J_UK3qpY`をFirebase Admin SDKで削除済み。
+- ビルド成功（`npm run build`）
+- TypeScript型チェックエラーなし（`tsc --noEmit`）
+- テスト全32件パス
+- `src/`, `api/`, `docs/`, `public/`, 設定ファイル全てがバックアップと完全一致
 
 ---
 
@@ -75,13 +69,10 @@ App Check未適用時のcurlテストで偽作成された`shared_plans/J_UK3qpY
 
 | ファイル | 変更内容 |
 |---------|---------|
-| `api/auth/discord/index.ts` | POST=ステップ1（App Check保護）+ JSON返却、GET=ステップ2（コールバック） + CORS追加 |
-| `api/auth/twitter/index.ts` | 同上 |
-| `src/store/useAuthStore.ts` | `window.location.href`を`apiFetch` POST → URL受取 → リダイレクトに変更 + apiFetchインポート追加 |
-| `src/components/FFLogsImportModal.tsx` | 直接`fetch`を`apiFetch`に置き換え + 手動Authorization・token削除 + apiFetchインポート追加 |
-| `api/share-page/index.ts` | ogpHelpers importに`.js`拡張子追加 |
-| `api/og/index.ts` | 同上 |
-| `docs/TODO.md` | ENFORCE_APP_CHECK完了マーク |
+| `.gitignore` | `.env*`パターン追加（再発防止） |
+| `docs/TODO.md` | `.env.vercel-check`課題を完了マーク |
+
+※ `git filter-branch`により全コミットのハッシュが変更されている（内容は同一）
 
 ---
 
@@ -91,20 +82,21 @@ App Check未適用時のcurlテストで偽作成された`shared_plans/J_UK3qpY
 
 | # | 課題 | 状態 |
 |---|------|------|
-| 1 | ENFORCE_APP_CHECK未設定 | ✅ **第47セッションで完了** — 全環境設定 + 全11エンドポイント検証 + OAuth POST化 |
-| 2 | レート制限がインメモリ | ❌ **未対応（最重要）** — Upstash Redis等の外部ストアが必要 |
-| 3 | shared_plansクリーンアップ | ❌ 未対応（Vercel 12関数上限の解消が先） |
-| 4 | localStorage認証トークンリスク | ❌ 未対応（Firebase Auth標準動作、CSP多層防御で対応済み） |
-| 5 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
-| 6 | Firestoreパスフォーマット検証 | ❌ 未対応（admin専用のため影響限定的） |
-| 7 | クライアント側バッチ削除中断 | ❌ 未対応（Vercel環境ではCloud Functions不可） |
+| 1 | ENFORCE_APP_CHECK未設定 | ✅ 第47セッションで完了 |
+| 2 | .env.vercel-checkがgitに永続化 | ✅ **第48セッションで完了** — 全履歴から除去 + .gitignore強化 |
+| 3 | レート制限がインメモリ | ❌ **未対応（最重要）** — Upstash Redis等の外部ストアが必要 |
+| 4 | shared_plansクリーンアップ | ❌ 未対応（Vercel 12関数上限の解消が先） |
+| 5 | localStorage認証トークンリスク | ❌ 未対応（Firebase Auth標準動作、CSP多層防御で対応済み） |
+| 6 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
+| 7 | Firestoreパスフォーマット検証 | ❌ 未対応（admin専用のため影響限定的） |
+| 8 | クライアント側バッチ削除中断 | ❌ 未対応（Vercel環境ではCloud Functions不可） |
 
 ### 第46セッション検証レポート（8件）の対応状況
 
 | # | 問題 | 状態 |
 |---|------|------|
 | 1 | copyカウント不動 | ✅ 第46セッションで修正済み |
-| 2 | App Check + OAuth干渉 | ✅ **第47セッションで強化** — POST方式に改善 |
+| 2 | App Check + OAuth干渉 | ✅ 第47セッションで強化 |
 | 3 | CSP reCAPTCHA不足 | ✅ 第46セッションで修正済み |
 | 4 | share-page lopo-eta | ✅ 第46セッションで修正済み |
 | 5 | templates CORS | ✅ 第46セッションで修正済み |
@@ -112,31 +104,24 @@ App Check未適用時のcurlテストで偽作成された`shared_plans/J_UK3qpY
 | 7 | share API Storage正規表現 | ❌ 未対応（極めて低リスク） |
 | 8 | userPlanCounts delete | ❌ 未対応（孤児ドキュメントが残るのみ） |
 
-### 第47セッションで新たに発見
-
-| 問題 | 状態 |
-|------|------|
-| `.env.vercel-check`がgitに永続化（全シークレット含む） | ❌ **要対応** — コミット`3b242c3`で混入。シークレットローテーションを検討すべき |
-
 ---
 
-## 最優先タスク（第48セッション）
+## 最優先タスク（第49セッション）
 
-### 1. .env.vercel-checkのシークレット漏洩対応（最重要）
-- `.env.vercel-check`がgitに全シークレットごとコミットされている（コミット`3b242c3`）
-- リポジトリがprivateなら影響は限定的だが、シークレットローテーションを検討すべき
-- `.gitignore`に追加してgitから除外する
-
-### 2. レート制限のインメモリ問題（セキュリティ最重要）
+### 1. レート制限のインメモリ問題（セキュリティ最重要）
 - Upstash Redis等の外部ストアによるレート制限の実装
 - TODO.mdに詳細記載
 
-### 3. プライバシーポリシー更新（パターンC）
+### 2. プライバシーポリシー更新（パターンC）
 
-### 4. Firestore同期修正3件（持ち越し）
+### 3. Firestore同期修正3件（持ち越し）
 - 3分クールダウン未実装（usePlanStore.ts）
 - 起動時Firestore読み込みの非ブロッキング化（useAuthStore.ts）
 - forceSyncAllにタイムアウト追加
+
+### 4. シークレットローテーション（推奨・緊急度低）
+- リポジトリをpublicにする前に、Discord/FFLogs/Twitter/Firebaseの各シークレットを再生成すること
+- 現時点ではPRIVATEかつ履歴除去済みのため急がない
 
 ---
 
@@ -180,3 +165,8 @@ App Check未適用時のcurlテストで偽作成された`shared_plans/J_UK3qpY
 - **エラーレスポンスにdetailsを含めない** — 全APIで統一済み
 - **CORSは`lopo-miti(-xxx).vercel.app`のみ許可** — `*.vercel.app`全許可は禁止
 - **Vercel環境変数を`echo`でパイプしない** — `printf`か`--value`フラグを使う
+- **git filter-branch実行済み** — 全コミットハッシュが変更されている。過去の引き継ぎ書に書かれたコミットハッシュ（`3b242c3`, `a02d48a`等）は無効
+
+## バックアップについて
+- `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在
+- プロジェクトが正常に動作し続けることを確認したら削除してよい
