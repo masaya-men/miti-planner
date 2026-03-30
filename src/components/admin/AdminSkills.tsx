@@ -40,10 +40,7 @@ export function AdminSkills() {
     try {
       setLoading(true);
       setError('');
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/templates?type=skills', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/templates?type=skills');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -69,13 +66,9 @@ export function AdminSkills() {
     if (!data) return;
     try {
       setSaving(true);
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'skills',
           jobs: data.jobs,

@@ -35,10 +35,7 @@ export function AdminServers() {
     try {
       setLoading(true);
       setError('');
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/templates?type=servers', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/templates?type=servers');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -65,13 +62,9 @@ export function AdminServers() {
     if (!data) return;
     try {
       setSaving(true);
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'servers',
           datacenters: data.datacenters,

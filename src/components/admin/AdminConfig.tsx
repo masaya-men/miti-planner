@@ -19,10 +19,7 @@ export function AdminConfig() {
   const fetchConfig = useCallback(async () => {
     try {
       setLoading(true);
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/templates?type=config', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/templates?type=config');
       if (res.ok) {
         const data = await res.json();
         if (data.promotionThreshold !== undefined) setThreshold(data.promotionThreshold);
@@ -42,13 +39,9 @@ export function AdminConfig() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'config',
           promotionThreshold: threshold,

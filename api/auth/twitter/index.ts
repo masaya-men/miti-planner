@@ -59,9 +59,6 @@ export default async function handler(req: any, res: any) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // App Check検証
-    if (!(await verifyAppCheck(req, res))) return;
-
     try {
         const { code, state } = req.query;
         const clientId = process.env.TWITTER_CLIENT_ID;
@@ -73,7 +70,10 @@ export default async function handler(req: any, res: any) {
 
         const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/twitter`;
 
+        // App Check検証（ステップ1のみ — コールバック時は外部リダイレクトのためヘッダー付与不可）
+        // コールバックはstate+PKCE検証でCSRF保護済み
         if (!code) {
+            if (!(await verifyAppCheck(req, res))) return;
             // ステップ1: code_verifier 生成 → cookie 保存 → Twitter 認証ページにリダイレクト
             const codeVerifier = generateCodeVerifier();
             const codeChallenge = generateCodeChallenge(codeVerifier);

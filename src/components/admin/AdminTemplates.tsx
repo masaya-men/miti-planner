@@ -49,10 +49,7 @@ export function AdminTemplates() {
   /** コンテンツ一覧を取得（ドロップダウン用） */
   const fetchContents = useCallback(async () => {
     try {
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/contents', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/contents');
       if (res.ok) {
         const data = await res.json();
         setContents(data.items ?? []);
@@ -65,10 +62,7 @@ export function AdminTemplates() {
     try {
       setLoading(true);
       setError('');
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/admin/templates', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/admin/templates');
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       setTemplates(
@@ -88,10 +82,7 @@ export function AdminTemplates() {
   /** 昇格候補を取得 */
   const fetchCandidates = useCallback(async () => {
     try {
-      const token = await user?.getIdToken();
-      const res = await apiFetch('/api/template/promote?candidates=true', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/template/promote?candidates=true');
       if (res.ok) {
         const data = await res.json();
         setCandidates(data.candidates ?? []);
@@ -115,13 +106,9 @@ export function AdminTemplates() {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contentId: uploadContentId,
           timelineEvents: json.timelineEvents ?? json,
@@ -148,10 +135,8 @@ export function AdminTemplates() {
     );
     if (!ok) return;
     try {
-      const token = await user?.getIdToken();
       const res = await apiFetch(`/api/admin/templates?contentId=${item.contentId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.templates_deleted'));
@@ -165,13 +150,9 @@ export function AdminTemplates() {
   const handleToggleLock = async (item: TemplateItem) => {
     const newLock = !item.lockedAt;
     try {
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/admin/templates', {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contentId: item.contentId, lock: newLock }),
       });
       if (!res.ok) throw new Error(res.statusText);
@@ -184,13 +165,9 @@ export function AdminTemplates() {
   /** 昇格候補の承認/却下 */
   const handlePromotion = async (candidate: PromotionCandidate, action: 'approve' | 'reject') => {
     try {
-      const token = await user?.getIdToken();
       const res = await apiFetch('/api/template/promote', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shareId: candidate.shareId,
           contentId: candidate.contentId,
