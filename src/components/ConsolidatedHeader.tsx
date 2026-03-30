@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { useShallow } from 'zustand/react/shallow';
+
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -82,9 +82,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 }) => {
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
-    const { myJobHighlight, setMyJobHighlight } = useMitigationStore(
-        useShallow(s => ({ myJobHighlight: s.myJobHighlight, setMyJobHighlight: s.setMyJobHighlight }))
-    );
+    const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
+    const setMyJobHighlight = useMitigationStore(s => s.setMyJobHighlight);
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
