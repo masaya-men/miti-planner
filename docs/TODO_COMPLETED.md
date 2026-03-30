@@ -2,6 +2,23 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第45セッション 2026-03-30）
+- [x] **包括的セキュリティ監査** — API・フロントエンド・Firebase 3方面から35件の問題を検出、28件修正
+- [x] **OAuth CSRF保護** — Discord OAuthにstate+HttpOnly cookie追加
+- [x] **OAuthトークンXSS修正** — JSON.stringifyエスケープ（Discord/Twitter）
+- [x] **全APIエラーレスポンスからdetails除去** — 6ファイル
+- [x] **CORS制限強化** — *.vercel.app全許可 → lopo-miti(-xxx)のみ
+- [x] **/api/share保護** — レート制限+ボディサイズ制限+viewCount IP重複排除
+- [x] **ADMIN_SECRETタイミングセーフ比較** — crypto.timingSafeEqual使用
+- [x] **Firestoreルール強化** — plansのread制限、copyCount/useCount改ざん防止、version楽観ロック、users hasAll
+- [x] **アカウント削除時Storageロゴ削除追加**
+- [x] **VITE_FFLOGS_CLIENT_SECRET露出リスク解消** — 開発環境もサーバーサイドプロキシ経由
+- [x] **CSPヘッダー追加**（vercel.json）
+- [x] **email表示削除**（Layout.tsx、AdminLayout.tsx）
+- [x] **Twitter OAuthスコープ最小化** — tweet.read除去
+- [x] **未使用xlsxパッケージ削除**（高脆弱性解消）
+- [x] **auth.lopoly.app DNS反映確認** — Googleログイン正常動作
+
 ## 完了（第44セッション 2026-03-30）
 - [x] **Googleログイン画面のドメイン表示修正** — auth.lopoly.appサブドメインをFirebase Hosting+Cloudflare DNSで設定、authDomainを変更（DNS反映待ち）
 - [x] **Stripe審査** — Ko-fiはPayPalのみに変更。Stripe不要
