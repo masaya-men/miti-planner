@@ -40,6 +40,40 @@ const SubSection: React.FC<{ title: string; items: string[] }> = ({ title, items
     </div>
 );
 
+/** 3列テーブル（外部サービス一覧・データ保存一覧用） */
+const ThreeColumnTable: React.FC<{
+    headers: [string, string, string];
+    col1: string[];
+    col2: string[];
+    col3: string[];
+}> = ({ headers, col1, col2, col3 }) => (
+    <div className="overflow-x-auto mb-3">
+        <table className="w-full text-sm">
+            <thead>
+                <tr className="border-b border-app-border">
+                    {headers.map((h, i) => (
+                        <th key={i} className="text-left font-semibold py-2 pr-3">{h}</th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {col1.map((_, i) => (
+                    <tr key={i} className="border-b border-app-border/50">
+                        <td className="py-2 pr-3 text-app-text-muted">{col1[i]}</td>
+                        <td className="py-2 pr-3 text-app-text-muted">{col2[i]}</td>
+                        <td className="py-2 pr-3 text-app-text-muted">{col3[i]}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+);
+
+/** 注釈テキスト */
+const Note: React.FC<{ text: string }> = ({ text }) => (
+    <p className="text-xs text-app-text-muted mt-2 leading-relaxed">{text}</p>
+);
+
 // ========================================
 // プライバシーポリシー
 // ========================================
@@ -52,44 +86,82 @@ export const PrivacyPolicyPage: React.FC = () => {
             <p className="text-xs text-app-text-muted mb-6">{t('legal.privacy_last_updated')}</p>
             <p className="text-sm text-app-text-muted mb-8">{t('legal.privacy_intro')}</p>
 
+            {/* 1. 集める情報 */}
             <Section title={t('legal.privacy_section1_title')}>
                 <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section1_body')}</p>
                 <SubSection title={t('legal.privacy_section1_auth_title')} items={splitItems(t('legal.privacy_section1_auth_items'))} />
                 <SubSection title={t('legal.privacy_section1_plan_title')} items={splitItems(t('legal.privacy_section1_plan_items'))} />
-                <SubSection title={t('legal.privacy_section1_no_collect_title')} items={splitItems(t('legal.privacy_section1_no_collect_items'))} />
+                <SubSection title={t('legal.privacy_section1_auto_title')} items={splitItems(t('legal.privacy_section1_auto_items'))} />
             </Section>
 
+            {/* 2. 集めない情報 */}
             <Section title={t('legal.privacy_section2_title')}>
+                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section2_body')}</p>
                 <BulletList items={splitItems(t('legal.privacy_section2_items'))} />
             </Section>
 
+            {/* 3. 情報の使いみち */}
             <Section title={t('legal.privacy_section3_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section3_body')}</p>
+                <BulletList items={splitItems(t('legal.privacy_section3_items'))} />
             </Section>
 
+            {/* 4. 利用している外部サービス */}
             <Section title={t('legal.privacy_section4_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section4_body')}</p>
+                <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section4_body')}</p>
+                <ThreeColumnTable
+                    headers={[t('legal.privacy_section4_col_service'), t('legal.privacy_section4_col_provider'), t('legal.privacy_section4_col_purpose')]}
+                    col1={splitItems(t('legal.privacy_section4_service_names'))}
+                    col2={splitItems(t('legal.privacy_section4_service_providers'))}
+                    col3={splitItems(t('legal.privacy_section4_service_purposes'))}
+                />
+                <Note text={t('legal.privacy_section4_analytics_note')} />
+                <Note text={t('legal.privacy_section4_recaptcha_note')} />
             </Section>
 
+            {/* 5. Cookieとブラウザへのデータ保存 */}
             <Section title={t('legal.privacy_section5_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section5_body')}</p>
+                <SubSection title={t('legal.privacy_section5_cookie_title')} items={splitItems(t('legal.privacy_section5_cookie_items'))} />
+                <SubSection title={t('legal.privacy_section5_storage_title')} items={splitItems(t('legal.privacy_section5_storage_items'))} />
+                <Note text={t('legal.privacy_section5_storage_note')} />
             </Section>
 
+            {/* 6. データの保存場所と保持期間 */}
             <Section title={t('legal.privacy_section6_title')}>
-                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section6_body')}</p>
-                <BulletList items={splitItems(t('legal.privacy_section6_items'))} />
+                <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section6_body')}</p>
+                <ThreeColumnTable
+                    headers={[t('legal.privacy_section6_col_data'), t('legal.privacy_section6_col_location'), t('legal.privacy_section6_col_period')]}
+                    col1={splitItems(t('legal.privacy_section6_data_types'))}
+                    col2={splitItems(t('legal.privacy_section6_data_locations'))}
+                    col3={splitItems(t('legal.privacy_section6_data_periods'))}
+                />
+                <Note text={t('legal.privacy_section6_note')} />
             </Section>
 
+            {/* 7. 第三者への情報提供 */}
             <Section title={t('legal.privacy_section7_title')}>
                 <p className="text-sm text-app-text-muted">{t('legal.privacy_section7_body')}</p>
             </Section>
 
+            {/* 8. あなたの権利 */}
             <Section title={t('legal.privacy_section8_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section8_body')}</p>
+                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section8_body')}</p>
+                <BulletList items={splitItems(t('legal.privacy_section8_items'))} />
             </Section>
 
+            {/* 9. お子様について */}
             <Section title={t('legal.privacy_section9_title')}>
                 <p className="text-sm text-app-text-muted">{t('legal.privacy_section9_body')}</p>
+            </Section>
+
+            {/* 10. このポリシーの変更 */}
+            <Section title={t('legal.privacy_section10_title')}>
+                <p className="text-sm text-app-text-muted">{t('legal.privacy_section10_body')}</p>
+            </Section>
+
+            {/* 11. お問い合わせ */}
+            <Section title={t('legal.privacy_section11_title')}>
+                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section11_body')}</p>
+                <BulletList items={splitItems(t('legal.privacy_section11_items'))} />
             </Section>
         </LegalPageLayout>
     );
