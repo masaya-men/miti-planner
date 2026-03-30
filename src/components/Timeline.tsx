@@ -533,17 +533,23 @@ const Timeline: React.FC = () => {
         mobileToolsOpen, setMobileToolsOpen,
     } = useContext(MobileTriggersContext);
 
-    // データ（変更時のみ再レンダー）
-    const aaSettings = useMitigationStore(s => s.aaSettings);
-    const schAetherflowPatterns = useMitigationStore(s => s.schAetherflowPatterns);
-    const partyMembers = useMitigationStore(s => s.partyMembers);
-    const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
-    const timelineEvents = useMitigationStore(s => s.timelineEvents);
-    const phases = useMitigationStore(s => s.phases);
-    const clipboardEvent = useMitigationStore(s => s.clipboardEvent);
-    const hideEmptyRows = useMitigationStore(s => s.hideEmptyRows);
+    // データ（useShallowで浅い比較 → 値が変わったときだけ再レンダー）
+    const {
+        aaSettings, schAetherflowPatterns, partyMembers,
+        timelineMitigations, timelineEvents, phases,
+        clipboardEvent, hideEmptyRows, currentLevel,
+    } = useMitigationStore(useShallow(s => ({
+        aaSettings: s.aaSettings,
+        schAetherflowPatterns: s.schAetherflowPatterns,
+        partyMembers: s.partyMembers,
+        timelineMitigations: s.timelineMitigations,
+        timelineEvents: s.timelineEvents,
+        phases: s.phases,
+        clipboardEvent: s.clipboardEvent,
+        hideEmptyRows: s.hideEmptyRows,
+        currentLevel: s.currentLevel,
+    })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
-    const currentLevel = useMitigationStore(s => s.currentLevel);
     // アクション（参照安定・再レンダー不発火）
     const addEvent = useMitigationStore(s => s.addEvent);
     const updateEvent = useMitigationStore(s => s.updateEvent);
