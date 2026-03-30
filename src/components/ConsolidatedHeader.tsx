@@ -11,6 +11,7 @@ import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -45,7 +46,7 @@ const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverIn
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
 // 保存状態インジケータ（実際の保存完了を反映）
-const SaveIndicator: React.FC = () => {
+const SaveIndicator: React.FC = React.memo(() => {
     const { t } = useTranslation();
     const currentPlanId = usePlanStore(s => s.currentPlanId);
     const saveStatus = usePlanStore(s => s._saveStatus);
@@ -68,7 +69,8 @@ const SaveIndicator: React.FC = () => {
             }
         </span>
     );
-};
+});
+SaveIndicator.displayName = 'SaveIndicator';
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
@@ -80,7 +82,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 }) => {
     const { t } = useTranslation();
     const { theme, setTheme } = useThemeStore();
-    const { myJobHighlight, setMyJobHighlight } = useMitigationStore();
+    const { myJobHighlight, setMyJobHighlight } = useMitigationStore(
+        useShallow(s => ({ myJobHighlight: s.myJobHighlight, setMyJobHighlight: s.setMyJobHighlight }))
+    );
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
