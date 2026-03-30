@@ -46,7 +46,7 @@ export default async function handler(req: any, res: any) {
 
   // --- GET: 管理者権限検証（旧 /api/admin/verify） ---
   if (req.method === 'GET') {
-    if (!applyRateLimit(req, res, 20, 60_000)) return;
+    if (!(await applyRateLimit(req, res, 20, 60_000))) return;
     try {
       initAdmin();
       const adminUid = await verifyAdmin(req);
@@ -62,7 +62,7 @@ export default async function handler(req: any, res: any) {
   }
 
   // レート制限（1分あたり5回まで）
-  if (!applyRateLimit(req, res, 5, 60_000)) return;
+  if (!(await applyRateLimit(req, res, 5, 60_000))) return;
 
   try {
     initAdmin();

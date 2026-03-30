@@ -19,6 +19,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/three": "^0.183.1",
+    "@upstash/redis": "^1.37.0",
     "@vercel/og": "^0.11.1",
     "clsx": "^2.1.1",
     "firebase": "^12.11.0",
