@@ -120,7 +120,7 @@
     --color-amber-border: rgba(245, 158, 11, 0.25);
 
     --glass-tier3-bg: transparent;
-    --glass-tier3-blur: 2px;
+    --glass-tier3-blur: 12px; /* 2px→12px: モーダル等のブラーを強化 */
     --glass-tier3-border: rgba(255, 255, 255, 0.18);
     --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
     --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -384,9 +384,12 @@
   --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* サイドバー・ヘッダーはライトモードでblur控えめ（元の値を維持） */
+/* サイドバー・ヘッダーはblur控えめ（元の値を維持） */
 .theme-light .glass-frame {
   --glass-tier3-bg: transparent;
+  --glass-tier3-blur: 2px;
+}
+.theme-dark .glass-frame {
   --glass-tier3-blur: 2px;
 }
 

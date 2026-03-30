@@ -604,6 +604,8 @@ export const PopularPage: React.FC = () => {
                     <span>·</span>
                     <a href="https://discord.gg/z7uypbJSnN" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
                     <span>·</span>
+                    <a href="https://x.com/lopoly_app" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.x_official')}</a>
+                    <span>·</span>
                     <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.kofi')}</a>
                     <span>·</span>
                     <PulseSettings />
