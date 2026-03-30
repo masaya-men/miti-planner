@@ -386,9 +386,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     setMyJobHighlight(!myJobHighlight);
                                     useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
                                 }}
-                                className={clsx(pillBtnBase, myJobHighlight ? "bg-yellow-500 text-black border-yellow-500 hover:bg-yellow-400 hover:border-yellow-400 hover:text-black" : pillBtnDefault)}
+                                className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
                             >
-                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-black" : "group-hover:rotate-12 group-hover:scale-110")} />
+                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
                                 <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 

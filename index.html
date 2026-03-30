@@ -38,10 +38,10 @@
       if (t === 'light' || t === 'dark') {
         document.documentElement.classList.add('theme-' + t);
       } else {
-        document.documentElement.classList.add('theme-dark');
+        document.documentElement.classList.add(window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark');
       }
     } catch(e) {
-      document.documentElement.classList.add('theme-dark');
+      document.documentElement.classList.add(window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark');
     }
   </script>
   <div id="root"></div>
