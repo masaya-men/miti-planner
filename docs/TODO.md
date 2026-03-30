@@ -89,6 +89,7 @@
 ### ENFORCE_APP_CHECK未設定
 - [ ] **Vercelダッシュボードで手動設定が必要** — `ENFORCE_APP_CHECK=true` を環境変数に追加 → 再デプロイ。これがないとApp Checkが防御として機能しない
   - Vercel → Settings → Environment Variables → Production/Preview/Development全てに追加
+  - ※ 第46セッションでOAuthコールバック時のApp Checkスキップを実装済み。設定しても安全
 
 ## 運用・品質基盤（第44セッション外部レビューで発覚）
 
