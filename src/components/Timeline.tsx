@@ -550,6 +550,9 @@ const Timeline: React.FC = () => {
         currentLevel: s.currentLevel,
     })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
+    // Undo/Redo可否（リアクティブに監視して disabled 状態を正しく反映する）
+    const canUndo = useMitigationStore(s => s._history.length > 0);
+    const canRedo = useMitigationStore(s => s._future.length > 0);
     // アクション（参照安定・再レンダー不発火）
     const addEvent = useMitigationStore(s => s.addEvent);
     const updateEvent = useMitigationStore(s => s.updateEvent);
@@ -1287,6 +1290,18 @@ const Timeline: React.FC = () => {
         };
     }, []);
 
+    // イベントポップオーバー: Escapeで閉じる
+    useEffect(() => {
+        if (!eventPopover) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setEventPopover(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [eventPopover]);
+
     useEffect(() => {
         if (!clearMenuOpen) return;
         const handleClick = () => setClearMenuOpen(false);
@@ -1455,10 +1470,10 @@ const Timeline: React.FC = () => {
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}
-                                        disabled={useMitigationStore.getState()._history.length === 0}
+                                        disabled={!canUndo}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
-                                            useMitigationStore.getState()._history.length > 0
+                                            canUndo
                                                 ? "text-app-text hover:bg-app-surface2"
                                                 : "text-app-text-muted cursor-default"
                                         )}
@@ -1469,10 +1484,10 @@ const Timeline: React.FC = () => {
                                 <Tooltip content={t('timeline.redo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().redo()}
-                                        disabled={useMitigationStore.getState()._future.length === 0}
+                                        disabled={!canRedo}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
-                                            useMitigationStore.getState()._future.length > 0
+                                            canRedo
                                                 ? "text-app-text hover:bg-app-surface2"
                                                 : "text-app-text-muted cursor-default"
                                         )}
@@ -2299,7 +2314,7 @@ const Timeline: React.FC = () => {
                         </button>
                         <button
                             onClick={() => useMitigationStore.getState().undo()}
-                            disabled={useMitigationStore.getState()._history.length === 0}
+                            disabled={!canUndo}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-app-surface2 border-app-border text-app-text"
@@ -2309,7 +2324,7 @@ const Timeline: React.FC = () => {
                         </button>
                         <button
                             onClick={() => useMitigationStore.getState().redo()}
-                            disabled={useMitigationStore.getState()._future.length === 0}
+                            disabled={!canRedo}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-app-surface2 border-app-border text-app-text"
@@ -2373,7 +2388,7 @@ const Timeline: React.FC = () => {
                 >
                     <div
                         className={clsx(
-                            "min-w-[200px] rounded-xl py-1.5 glass-panel",
+                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
                             "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
                             // モバイル: 画面中央、PC: クリック位置
                             "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
@@ -2432,7 +2447,7 @@ const Timeline: React.FC = () => {
                             onClick={handlePopoverDelete}
                             className={clsx(
                                 "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
-                                "text-app-text-muted hover:bg-app-surface2"
+                                "text-red-500 hover:bg-red-500/10"
                             )}
                         >
                             <Trash2 size={15} className="shrink-0" />

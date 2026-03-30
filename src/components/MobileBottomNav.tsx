@@ -86,13 +86,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                         "transition-all duration-150 cursor-pointer active:scale-90",
                         "relative",
                         item.active
-                            ? "text-app-text"
+                            ? (item.id === 'myjob' ? "text-yellow-500" : "text-app-text")
                             : "text-app-text/40"
                     )}
                 >
                     {/* アクティブインジケーター */}
                     {item.active && (
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full bg-app-text" />
+                        <div className={clsx("absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full", item.id === 'myjob' ? "bg-yellow-500" : "bg-app-text")} />
                     )}
                     <div>{item.icon}</div>
                     <span className={clsx(
