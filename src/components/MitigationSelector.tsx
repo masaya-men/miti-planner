@@ -43,7 +43,14 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
     const [isMobile, setIsMobile] = React.useState(false);
 
-    useEscapeClose(isOpen, onClose);
+    // Escape: 対象選択中→スキル一覧に戻る、スキル一覧→モーダルを閉じる
+    useEscapeClose(isOpen, () => {
+        if (selectedSingleTargetMit) {
+            setSelectedSingleTargetMit(null);
+        } else {
+            onClose();
+        }
+    });
 
     React.useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
