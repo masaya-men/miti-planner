@@ -140,7 +140,8 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
         if (!menuPlanId) { setConfirmDeletePlanId(null); setMenuPos(null); setDeleteAnimating(false); }
     }, [menuPlanId]);
 
-    const handleCSVExport = (plan: SavedPlan) => {
+    // CSV機能が有効になったら `_` を外して復活させる
+    const _handleCSVExport = (plan: SavedPlan) => {
         const lang = (i18n.language?.startsWith('ja') ? 'ja' : 'en') as 'ja' | 'en';
         exportPlanToCSV(
             plan.title,
@@ -152,6 +153,9 @@ const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
         setMenuPlanId(null);
         showToast(t('sidebar.csv_exported', 'CSV をダウンロードしました'));
     };
+    void _handleCSVExport; // TypeScript unused抑制
+
+
 
     return (
         <div className="w-full flex flex-col" data-content-id={content.id}>
