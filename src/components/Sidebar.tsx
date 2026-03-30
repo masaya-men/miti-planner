@@ -23,6 +23,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
 import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
+import { LoginModal } from './LoginModal';
 import { getTemplate } from '../data/templateLoader';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
@@ -787,6 +788,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     // 名前入力ダイアログ用ステート
     const [pendingContent, setPendingContent] = useState<ContentDefinition | null>(null);
     const [pendingPlanName, setPendingPlanName] = useState('');
+    const user = useAuthStore(s => s.user);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     // ローディング状態（テンプレート読み込み・プラン切替中）
 
     const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore(
@@ -1481,30 +1484,52 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-sm text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
                             />
                         </div>
-                        <div className="px-5 pb-4 flex gap-2">
-                            <button
-                                onClick={handleCancelNewPlan}
-                                className="flex-1 py-2.5 rounded-xl border border-app-border text-xs font-bold text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
-                            >
-                                {t('common.cancel')}
-                            </button>
-                            <button
-                                onClick={handleConfirmNewPlan}
-                                disabled={!pendingPlanName.trim()}
-                                className={clsx(
-                                    "flex-[2] py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
-                                    pendingPlanName.trim()
-                                        ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
-                                        : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
-                                )}
-                            >
-                                {t('sidebar.create_plan_button')}
-                            </button>
+                        <div className="px-5 pb-4 flex flex-col gap-3">
+                            {!user && (
+                                <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                                    {t('new_plan.guest_hint_short')
+                                        .split(/<\/?login>/)
+                                        .map((part, i) =>
+                                            i === 1 ? (
+                                                <button
+                                                    key="login"
+                                                    onClick={() => setShowLoginModal(true)}
+                                                    className="underline hover:text-app-text transition-colors cursor-pointer"
+                                                >
+                                                    {part}
+                                                </button>
+                                            ) : (
+                                                <span key={i}>{part}</span>
+                                            )
+                                        )}
+                                </p>
+                            )}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleCancelNewPlan}
+                                    className="flex-1 py-2.5 rounded-xl border border-app-border text-xs font-bold text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                >
+                                    {t('common.cancel')}
+                                </button>
+                                <button
+                                    onClick={handleConfirmNewPlan}
+                                    disabled={!pendingPlanName.trim()}
+                                    className={clsx(
+                                        "flex-[2] py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                        pendingPlanName.trim()
+                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
+                                            : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
+                                    )}
+                                >
+                                    {t('sidebar.create_plan_button')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>,
                 document.body
             )}
+            <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
             {/* 削除確認モーダル — NewPlanModalと同じ温度感 */}
             {showDeleteConfirm && createPortal(
                 <div

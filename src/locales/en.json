@@ -37,7 +37,7 @@
         "share_generating": "Generating",
         "share_url_only": "Share without image",
         "share_refresh_preview": "Refresh preview",
-        "share_guest_hint": "<login>Sign in</login> to add your team logo to the shared image.",
+        "share_guest_hint": "<login>Sign in</login> to sync data across devices and customize shared images.",
         "include_plan_title": "Show table name in shared image",
         "loading_plan": "Loading...",
         "share_loading": "Loading...",
