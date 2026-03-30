@@ -91,6 +91,9 @@
 ### クライアント側バッチ削除の中断リスク
 - [ ] **アカウント削除時のwriteBatch** — ネットワーク切断やブラウザクローズでFirestore削除が途中停止する可能性。理想はCloud Functionsの`onDelete`トリガーだがVercel環境では対応困難
 
+### CSP unsafe-inline除去（β後に対応）
+- [ ] **script-srcからunsafe-inlineを除去** — Mozilla Observatory等のスキャナーで-20点の原因。ただしXSS脆弱性がない現状では実害なし。reCAPTCHA Enterprise・Firebase Authが動的にインラインスクリプトを注入するため、除去するとログイン・App Checkが壊れるリスクが高い。ステージング環境で十分テストしてから対応する。ユーザーにはスコアは見えないため緊急性なし
+
 ### ~~ENFORCE_APP_CHECK未設定~~ ✅ 完了（第47セッション 2026-03-30）
 - [x] **Vercel CLI経由で全環境（Production/Preview/Development）に設定済み** — 全11エンドポイントで403拒否を検証済み。OAuthコールバックのスキップも正常動作確認済み
 
