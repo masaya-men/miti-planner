@@ -2,6 +2,9 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第55セッション 2026-03-30）
+- [x] **MitigationSelectorにEscapeキー対応追加** — useEscapeCloseフック適用。対象選択サブビュー表示中はEscでスキル一覧に戻り、スキル一覧でEscを押すとモーダル全体を閉じる段階的閉じ動作
+
 ## 完了（第54セッション 2026-03-30）
 - [x] **Escapeキーでモーダル・メニューを閉じる** — useEscapeCloseフック（スタック機構付き）で全モーダル14個+ポップオーバー3個+Sidebar⋮メニューに対応
 - [x] **PartyStatusPopover contentLanguage依存修正** — useMemoの依存配列にcontentLanguageを追加（言語切替時にスキルプレビューが再計算されないバグ修正）

@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第54セッション）
+# セッション引き継ぎ書（2026-03-30 第55セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -43,83 +43,50 @@
 
 ---
 
-## 今回のセッション（第54セッション）で完了したこと
+## 今回のセッション（第55セッション）で完了したこと
 
-### 1. Escapeキーで全モーダル・メニューを閉じる機能
-- **useEscapeCloseフック** (`src/hooks/useEscapeClose.ts`) を新規作成
-  - グローバルスタック機構: モーダルが重なった場合、最前面だけがEscapeに反応
-  - チュートリアル中はEscapeを無視
-  - `callbackRef`パターンでonClose変更時の再登録を防止
-  - `stopImmediatePropagation`で同一Escapeイベントの多重処理を防止
-- **適用した全UI要素（14+4=18箇所）:**
-  - モーダル10個: ConfirmDialog / EventModal / FFLogsImportModal / CsvImportModal / LoginModal / NewPlanModal / JobMigrationModal / PhaseModal / ShareModal / PartySettingsModal
-  - ポップオーバー3個: AASettingsPopover / ClearMitigationsPopover / PartyStatusPopover
-  - SaveDialog（既存のinput内Escape + フック併用）
-  - Sidebar⋮メニュー（直接useEffect、フック不使用 — menuPlanIdベースのため）
+### 1. MitigationSelectorのEscapeキー対応（漏れ修正 + 段階的閉じ）
+- `src/components/MitigationSelector.tsx` に `useEscapeClose` フックを追加
+- **段階的閉じ動作**: 対象選択サブビュー表示中 → Escでスキル一覧に戻る → もう一度Escでモーダル全体を閉じる
+- `callbackRef`パターンにより`selectedSingleTargetMit`の状態変化にも正しく追従
 
-### 2. PartyStatusPopover contentLanguage依存バグ修正
-- `useMemo`の依存配列に`contentLanguage`を追加
-- 言語切替時にスキルプレビュー（シールド・ヒール量）が再計算されるようになった
-
-### 3. パーティメンバーID定数の共通化
-- `src/constants/party.ts` を新規作成: `PARTY_MEMBER_IDS` + `PARTY_MEMBER_ORDER`
-- Layout.tsx（2箇所）, Timeline.tsx（2箇所）, useTutorialStore.ts（1箇所）の重複定義を置換
+### 2. βテスト前の優先順位を確定
+1. パフォーマンス最適化（React.memo） — 最優先
+2. i18nハードコーディング精査 — リスク調査から着手
+3. 非ログインユーザーへのログイン促進UI — NewPlanModal + 共有モーダル
+4. ヒールスキル追加は管理者画面テストと兼ねて後回し
+5. FFLogsバグ2件も後回し（管理者手動追加で代替可能）
+6. エラー監視はβではDiscordフィードバックで十分
 
 ---
 
-## 第54セッションで追加・変更したファイル一覧
+## 第55セッションで変更したファイル一覧
 
-### 新規作成
-- `src/hooks/useEscapeClose.ts` — Escape共通フック
-- `src/constants/party.ts` — パーティメンバーID定数
-- `docs/superpowers/plans/2026-03-30-pre-optimization-cleanup.md` — 実装計画書
+### 修正
+- `src/components/MitigationSelector.tsx` — useEscapeClose追加（段階的閉じ対応）
 
-### 修正（useEscapeClose適用）
-- `src/components/ConfirmDialog.tsx`
-- `src/components/EventModal.tsx`
-- `src/components/FFLogsImportModal.tsx`
-- `src/components/CsvImportModal.tsx`
-- `src/components/LoginModal.tsx`
-- `src/components/NewPlanModal.tsx`
-- `src/components/JobMigrationModal.tsx`
-- `src/components/PhaseModal.tsx`
-- `src/components/ShareModal.tsx`
-- `src/components/PartySettingsModal.tsx`
-- `src/components/AASettingsPopover.tsx`
-- `src/components/ClearMitigationsPopover.tsx`
-- `src/components/PartyStatusPopover.tsx` — Escape追加 + contentLanguage依存修正
-- `src/components/SaveDialog.tsx`
-- `src/components/Sidebar.tsx` — ⋮メニューEscape対応
-
-### 修正（定数共通化）
-- `src/components/Layout.tsx`
-- `src/components/Timeline.tsx`
-- `src/store/useTutorialStore.ts`
+### ドキュメント更新
+- `docs/TODO.md` — βテスト前優先順位・方針決定事項を追記
+- `docs/TODO_COMPLETED.md` — 第55セッション完了タスク追加
 
 ---
 
-## ユーザーによるテスト中（第55セッション開始前に結果を確認）
+## 最優先タスク（第56セッション）
 
-ユーザーがEscapeキー対応の動作確認を行っている。次セッション開始時にテスト結果を聞くこと。
-
-### テスト項目
-1. 各モーダル/ポップオーバーでEscキーが効くか（14+4箇所）
-2. スタック動作: パーティ設定→ジョブ変更確認→Esc→最前面だけ閉じるか
-3. チュートリアル中にEscが無視されるか
-4. 言語切替でPartyStatusPopoverのスキルプレビューが更新されるか
-5. 既存機能（プラン作成・編集・保存・サイドバー操作）が壊れていないか
-
----
-
-## 最優先タスク（第55セッション）
-
-### 1. テスト結果の確認とバグ修正
-- ユーザーのテスト結果に基づいて修正が必要な箇所を対応
-
-### 2. アプリ動作パフォーマンスの最適化
-- React.memo追加（全ての視覚的変更が完了したため着手可能）
+### 1. アプリ動作パフォーマンスの最適化（React.memo追加）
+- 全ての視覚的変更が完了したため着手可能
 - サイドメニュー・ヘッダーの開閉パフォーマンス最適化
 - 対象候補: Timeline.tsx, Sidebar.tsx, ConsolidatedHeader.tsx
+- ローカル（`npm run dev`）+ React DevTools Profilerで再レンダリング計測→最終確認のみ本番
+
+### 2. i18nハードコーディング精査（リスク調査）
+- 21ファイルにi18nハードコーディング残存
+- 特にPartyStatusPopover.tsxの21個のスキル名が最重要
+- まずリスク調査から着手（既存機能の破壊を避ける）
+
+### 3. 非ログインユーザーへのログイン促進UI
+- NewPlanModalに非ログイン時のみ注意書き追加
+- 共有モーダルにも追記
 
 ---
 
@@ -172,6 +139,7 @@
 
 ## 重要な技術的注意
 - **useEscapeCloseフック**: `src/hooks/useEscapeClose.ts` — グローバルスタックで最前面モーダルのみEscapeに反応。新規モーダル追加時は必ずこのフックを使うこと
+- **MitigationSelectorのEscape**: 段階的閉じ（対象選択→スキル一覧→閉じる）。callbackRef経由でselectedSingleTargetMit状態に追従
 - **PARTY_MEMBER_IDS / PARTY_MEMBER_ORDER**: `src/constants/party.ts` — パーティメンバーIDの配列・ソートマップ。新規に`['MT','ST',...]`を書かず、ここからimportすること
 - **ENFORCE_APP_CHECK=true が本番で有効** — 全APIがApp Checkトークン必須。新規API追加時は必ず`verifyAppCheck`を呼ぶこと
 - **共有API GETはApp Check不要** — OGP画像生成の内部fetch用にスキップ設定済み
