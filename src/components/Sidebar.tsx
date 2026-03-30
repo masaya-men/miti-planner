@@ -18,6 +18,7 @@ import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
 import { NewPlanModal } from './NewPlanModal';
@@ -73,11 +74,13 @@ interface ContentTreeItemProps {
     lang: ContentLanguage;
 }
 
-const ContentTreeItem: React.FC<ContentTreeItemProps> = ({
+const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang
 }) => {
     const { t } = useTranslation();
-    const { plans, currentPlanId, updatePlan } = usePlanStore();
+    const { plans, currentPlanId, updatePlan } = usePlanStore(
+        useShallow(s => ({ plans: s.plans, currentPlanId: s.currentPlanId, updatePlan: s.updatePlan }))
+    );
     const { runTransition } = useTransitionOverlay();
     const contentPlans = plans.filter(p => p.contentId === content.id);
     // 複数選択モード: プラン単位で選択する
@@ -719,7 +722,8 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
             </div>
         </div>
     );
-};
+});
+ContentTreeItem.displayName = 'ContentTreeItem';
 
 // ─────────────────────────────────────────────
 // Main: Sidebar
@@ -785,7 +789,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [pendingPlanName, setPendingPlanName] = useState('');
     // ローディング状態（テンプレート読み込み・プラン切替中）
 
-    const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore();
+    const { plans, currentPlanId, setCurrentPlanId, updatePlan } = usePlanStore(
+        useShallow(s => ({ plans: s.plans, currentPlanId: s.currentPlanId, setCurrentPlanId: s.setCurrentPlanId, updatePlan: s.updatePlan }))
+    );
     const { getSnapshot, loadSnapshot } = useMitigationStore();
 
     // currentPlanIdが変わったらselectedContentIdも追従する（タブ復帰・プラン切替時）
