@@ -8,6 +8,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -41,6 +42,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const tutorialState = useTutorialStore();
 
     const [isMobile, setIsMobile] = React.useState(false);
+
+    useEscapeClose(isOpen, onClose);
 
     React.useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
