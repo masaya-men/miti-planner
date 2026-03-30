@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第53セッション）
+# セッション引き継ぎ書（2026-03-30 第54セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -43,61 +43,83 @@
 
 ---
 
-## 今回のセッション（第53セッション）で完了したこと
+## 今回のセッション（第54セッション）で完了したこと
 
-### 1. Sidebar button入れ子問題の修正（HTML仕様違反）
-- 親`<button>`を`<div role="button" tabIndex={0}>`に変更
-- `onKeyDown`でEnter/Spaceキー対応（buttonの標準動作を再現）
-- 子ボタン（コピー/リネーム/⋮メニュー）は変更なし（既に`stopPropagation`済み）
-- 対象: `src/components/Sidebar.tsx:276-308`
+### 1. Escapeキーで全モーダル・メニューを閉じる機能
+- **useEscapeCloseフック** (`src/hooks/useEscapeClose.ts`) を新規作成
+  - グローバルスタック機構: モーダルが重なった場合、最前面だけがEscapeに反応
+  - チュートリアル中はEscapeを無視
+  - `callbackRef`パターンでonClose変更時の再登録を防止
+  - `stopImmediatePropagation`で同一Escapeイベントの多重処理を防止
+- **適用した全UI要素（14+4=18箇所）:**
+  - モーダル10個: ConfirmDialog / EventModal / FFLogsImportModal / CsvImportModal / LoginModal / NewPlanModal / JobMigrationModal / PhaseModal / ShareModal / PartySettingsModal
+  - ポップオーバー3個: AASettingsPopover / ClearMitigationsPopover / PartyStatusPopover
+  - SaveDialog（既存のinput内Escape + フック併用）
+  - Sidebar⋮メニュー（直接useEffect、フック不使用 — menuPlanIdベースのため）
 
-### 2. 非選択プランのホバーでアクションボタン表示
-- 親divに`group/plan`追加
-- アクションボタン群を常にレンダリング、CSSで表示制御
-  - 選択中: `opacity-100`
-  - 非選択: `opacity-0 group-hover/plan:opacity-100`
-  - `transition-opacity duration-150`でフェードイン
+### 2. PartyStatusPopover contentLanguage依存バグ修正
+- `useMemo`の依存配列に`contentLanguage`を追加
+- 言語切替時にスキルプレビュー（シールド・ヒール量）が再計算されるようになった
 
-### 3. 長いプラン名の省略 + ツールチップ
-- プラン行divに`min-w-0`追加（flex itemの縮小を許可）
-- プラン名を`<Tooltip>`でラップ、`wrapperClassName="flex-1 min-w-0 !w-auto !justify-start"`で上書き
-- `<span className="block truncate text-left">`で省略表示
+### 3. パーティメンバーID定数の共通化
+- `src/constants/party.ts` を新規作成: `PARTY_MEMBER_IDS` + `PARTY_MEMBER_ORDER`
+- Layout.tsx（2箇所）, Timeline.tsx（2箇所）, useTutorialStore.ts（1箇所）の重複定義を置換
 
-### 4. ⋮メニューに削除ボタン追加（スピナー付き2段階確認）
-- `confirmDeletePlanId` + `deleteAnimating`ステート追加
-- 動作: 「削除」→赤スピナー(400ms)→「クリックで削除」/「タップで削除」
-- PC/スマホでテキスト切替（`isTouchDevice`判定）
-- 削除は`usePlanStore.getState().deletePlan(plan.id)`を呼ぶ
+---
 
-### 5. ⋮メニューのPortal化
-- `createPortal`でdocument.bodyに描画（z-[99999], fixed配置）
-- ⋮ボタンの`getBoundingClientRect()`で位置計算
-- `onClick/onMouseDown stopPropagation`でReactイベントバブリング防止
-- click-outside検出: `menuRef` + `data-menu-trigger`属性で除外判定
+## 第54セッションで追加・変更したファイル一覧
 
-### 6. +ボタンの上限時表示
-- `PLAN_LIMITS.MAX_PLANS_PER_CONTENT`到達時、グレー表示で「上限 5/5」
-- 翻訳キー`sidebar.plan_limit`（動的テンプレート）
+### 新規作成
+- `src/hooks/useEscapeClose.ts` — Escape共通フック
+- `src/constants/party.ts` — パーティメンバーID定数
+- `docs/superpowers/plans/2026-03-30-pre-optimization-cleanup.md` — 実装計画書
 
-### 7. コピー上限トーストのエラー色修正
-- `showToast(msg, 'error')`に変更（赤いXCircleアイコン表示）
+### 修正（useEscapeClose適用）
+- `src/components/ConfirmDialog.tsx`
+- `src/components/EventModal.tsx`
+- `src/components/FFLogsImportModal.tsx`
+- `src/components/CsvImportModal.tsx`
+- `src/components/LoginModal.tsx`
+- `src/components/NewPlanModal.tsx`
+- `src/components/JobMigrationModal.tsx`
+- `src/components/PhaseModal.tsx`
+- `src/components/ShareModal.tsx`
+- `src/components/PartySettingsModal.tsx`
+- `src/components/AASettingsPopover.tsx`
+- `src/components/ClearMitigationsPopover.tsx`
+- `src/components/PartyStatusPopover.tsx` — Escape追加 + contentLanguage依存修正
+- `src/components/SaveDialog.tsx`
+- `src/components/Sidebar.tsx` — ⋮メニューEscape対応
 
-### 8. CSVダウンロード準備中表示
-- ボタン無効化 + テキストに「（準備中）」追加
+### 修正（定数共通化）
+- `src/components/Layout.tsx`
+- `src/components/Timeline.tsx`
+- `src/store/useTutorialStore.ts`
 
-### 9. サイドバーレイアウト変更
-- ボタン群（新規作成/まとめて共有/選択削除）をレベル/カテゴリタブの下に移動
+---
 
-### 10. 近接センサー範囲縮小
-- `-left-10 w-[120px]`→`-left-1 w-[60px]`に変更（サイドバーコンテンツのボタンクリック干渉回避）
+## ユーザーによるテスト中（第55セッション開始前に結果を確認）
 
-### 11. TODO.md更新
-- Escapeキーでモーダル閉じ対応を追記
-- button入れ子問題を完了マーク
+ユーザーがEscapeキー対応の動作確認を行っている。次セッション開始時にテスト結果を聞くこと。
 
-### 12. 翻訳キー追加
-- `sidebar.delete_single` / `delete_single_confirm_click` / `delete_single_confirm_tap` / `plan_limit`
-- CSVテキストに「（準備中）」/ "(Coming soon)"
+### テスト項目
+1. 各モーダル/ポップオーバーでEscキーが効くか（14+4箇所）
+2. スタック動作: パーティ設定→ジョブ変更確認→Esc→最前面だけ閉じるか
+3. チュートリアル中にEscが無視されるか
+4. 言語切替でPartyStatusPopoverのスキルプレビューが更新されるか
+5. 既存機能（プラン作成・編集・保存・サイドバー操作）が壊れていないか
+
+---
+
+## 最優先タスク（第55セッション）
+
+### 1. テスト結果の確認とバグ修正
+- ユーザーのテスト結果に基づいて修正が必要な箇所を対応
+
+### 2. アプリ動作パフォーマンスの最適化
+- React.memo追加（全ての視覚的変更が完了したため着手可能）
+- サイドメニュー・ヘッダーの開閉パフォーマンス最適化
+- 対象候補: Timeline.tsx, Sidebar.tsx, ConsolidatedHeader.tsx
 
 ---
 
@@ -115,17 +137,6 @@
 | 6 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
 | 7 | Firestoreパスフォーマット検証 | ❌ 未対応（admin専用のため影響限定的） |
 | 8 | クライアント側バッチ削除中断 | ❌ 未対応（Vercel環境ではCloud Functions不可） |
-
----
-
-## 最優先タスク（第54セッション）
-
-### 1. アプリ動作パフォーマンスの最適化
-- React.memo追加（サイドバーUI変更完了のため着手可能に）
-- サイドメニュー・ヘッダーの開閉パフォーマンス最適化
-
-### 2. Escapeキーでモーダル・メニューを閉じる対応
-- 全モーダル・ドロップダウンでEscapeキー対応（第53セッションで追加されたTODO）
 
 ---
 
@@ -160,6 +171,8 @@
 - セキュリティ残課題の一部（shared_plansクリーンアップ等）がこの制限で対応不可
 
 ## 重要な技術的注意
+- **useEscapeCloseフック**: `src/hooks/useEscapeClose.ts` — グローバルスタックで最前面モーダルのみEscapeに反応。新規モーダル追加時は必ずこのフックを使うこと
+- **PARTY_MEMBER_IDS / PARTY_MEMBER_ORDER**: `src/constants/party.ts` — パーティメンバーIDの配列・ソートマップ。新規に`['MT','ST',...]`を書かず、ここからimportすること
 - **ENFORCE_APP_CHECK=true が本番で有効** — 全APIがApp Checkトークン必須。新規API追加時は必ず`verifyAppCheck`を呼ぶこと
 - **共有API GETはApp Check不要** — OGP画像生成の内部fetch用にスキップ設定済み
 - **OAuthはPOST（開始）+GET（コールバック）の2ステップ** — POSTにApp Check、GETはstate/PKCEで保護
