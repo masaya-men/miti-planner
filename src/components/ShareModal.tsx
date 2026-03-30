@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
 import clsx from 'clsx';
@@ -22,6 +23,7 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({
     isOpen, onClose, contentLabel, currentPlan, bundlePlans,
 }) => {
+    useEscapeClose(isOpen, onClose);
     const { t, i18n } = useTranslation();
     const [shareUrl, setShareUrl] = useState<string | null>(null);
     const [ogImageUrl, setOgImageUrl] = useState<string | null>(null);

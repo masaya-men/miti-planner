@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { User, Trash2, Star, X } from 'lucide-react';
@@ -20,6 +21,7 @@ interface PartySettingsModalProps {
 }
 
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
+    useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { theme } = useThemeStore();
     const JOBS = useJobs();

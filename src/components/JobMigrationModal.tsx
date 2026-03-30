@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import type { MigrationMode } from '../utils/jobMigration';
 import { ArrowRightLeft, ShieldAlert, Check } from 'lucide-react';
@@ -26,6 +27,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
 }) => {
     const { t, i18n } = useTranslation();
     const [selectedMode, setSelectedMode] = React.useState<MigrationMode>('inherit');
+    useEscapeClose(isOpen, onCancel);
 
     // Reset selection when opened
     React.useEffect(() => {

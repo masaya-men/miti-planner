@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Trash2, Calculator, Save } from 'lucide-react';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
@@ -29,6 +30,7 @@ interface EventModalProps {
 }
 
 export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, onDelete, initialData, initialTime, position }) => {
+    useEscapeClose(isOpen, onClose);
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { X, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
     isEdit = false,
     position
 }) => {
+    useEscapeClose(isOpen, onClose);
     const [name, setName] = useState(initialName);
     const [time, setTime] = useState(initialTime || 0);
     const [mounted, setMounted] = useState(false);

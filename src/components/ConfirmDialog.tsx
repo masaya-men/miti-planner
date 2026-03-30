@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { AlertTriangle, X } from 'lucide-react';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface ConfirmDialogProps {
     isOpen: boolean;
@@ -27,6 +28,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     const { t } = useTranslation();
     const finalConfirmLabel = confirmLabel || t('ui.ok');
     const finalCancelLabel = cancelLabel || t('modal.cancel');
+    useEscapeClose(isOpen, onCancel);
 
     if (!isOpen) return null;
 

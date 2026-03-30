@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -61,6 +62,7 @@ const slideUp = {
 };
 
 export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, onClose }) => {
+    useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
     const authUser = useAuthStore((s) => s.user);
