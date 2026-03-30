@@ -60,6 +60,36 @@
 - [ ] 追加ステップ候補: オートプラン体験・プラン名編集・共有体験
 - [ ] チュートリアル中の戻るボタンの通し動作確認（特にパーティ系ステップの巻き戻し）
 
+## セキュリティ残課題（第45セッション監査で発覚・未対応7件）
+
+### レート制限がインメモリ（Vercel Serverlessで実質無効）
+- [ ] **外部ストアベースのレート制限** — 現在のインメモリMapはVercel Serverless Functionsのインスタンスが分散するため効かない。auth系・公開エンドポイント含め全APIに影響
+  - 対象: `src/lib/rateLimit.ts`
+  - 案1: Vercel KV（月$0〜、Hobbyプランで利用可能か要確認）
+  - 案2: Upstash Redis（無料枠あり）
+  - 案3: Cloudflare Rate Limiting（DNSレベル）
+
+### アカウント削除時shared_plansが残る
+- [ ] **shared_plansクリーンアップ** — shared_plansにユーザーIDは含まれないが、logoBase64（チームロゴ画像）が残る可能性あり。新APIエンドポイント追加にはVercel 12関数上限の解消が必要
+  - 対策案: 既存APIに統合（パスベースルーティング）
+
+### localStorage認証トークンリスク
+- [ ] **lopo_auth_pending** — Discord/Twitter OAuthコールバックでFirebaseカスタムトークンをlocalStorageに一時保存。使用後即時削除しているが、XSSがあった場合に窃取可能
+  - Firebase Auth標準動作であり根本的な代替なし。XSS対策（CSP等）で多層防御
+
+### Google Fonts integrity属性未設定
+- [ ] **SRI適用不可** — Google Fontsは動的CSS生成のため、CSPのstyle-srcで`fonts.googleapis.com`を限定することで代替防御済み。セルフホスティングは保守負荷が増大するため現時点では見送り
+
+### Firestoreドキュメントパスフォーマット検証
+- [ ] **contentIdにスラッシュ等が含まれると予期しないパスにアクセスする可能性** — admin専用APIのみのため影響限定的。`api/template/promote/index.ts`等が対象
+
+### クライアント側バッチ削除の中断リスク
+- [ ] **アカウント削除時のwriteBatch** — ネットワーク切断やブラウザクローズでFirestore削除が途中停止する可能性。理想はCloud Functionsの`onDelete`トリガーだがVercel環境では対応困難
+
+### ENFORCE_APP_CHECK未設定
+- [ ] **Vercelダッシュボードで手動設定が必要** — `ENFORCE_APP_CHECK=true` を環境変数に追加 → 再デプロイ。これがないとApp Checkが防御として機能しない
+  - Vercel → Settings → Environment Variables → Production/Preview/Development全てに追加
+
 ## 運用・品質基盤（第44セッション外部レビューで発覚）
 
 ### テスト（最大の弱点）
