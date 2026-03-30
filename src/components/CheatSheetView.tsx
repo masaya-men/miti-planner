@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useMitigations, useJobs } from '../hooks/useSkillsData';
@@ -12,7 +13,15 @@ type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime
 
 export const CheatSheetView: React.FC = () => {
     const { contentLanguage } = useThemeStore();
-    const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore();
+    const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore(
+        useShallow(s => ({
+            timelineEvents: s.timelineEvents,
+            timelineMitigations: s.timelineMitigations,
+            partyMembers: s.partyMembers,
+            addMitigation: s.addMitigation,
+            schAetherflowPatterns: s.schAetherflowPatterns,
+        }))
+    );
     const { t } = useTranslation();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
