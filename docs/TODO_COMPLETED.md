@@ -2,6 +2,16 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第56セッション 2026-03-31）
+- [x] **アプリ動作パフォーマンスの最適化** — React.memo（MitigationItem, ContentTreeItem, SaveIndicator）+ useShallow（Timeline, Sidebar, ConsolidatedHeader, CheatSheetView, Layout）+ useCallback（Timeline内6ハンドラ）+ Layout.tsx分割（MobileHeader, MobilePartySettings切り出し）
+- [x] **サイドメニュー・ヘッダーの開閉パフォーマンス最適化** — 上記React.memo+useShallowで対応
+- [x] **イベントポップオーバー改善** — glass-tier3追加、削除ボタン赤文字+角丸、Escape対応
+- [x] **Redo修正** — Ctrl+Shift+Zでe.keyが大文字'Z'になる問題をtoLowerCase()で解決 + canUndo/canRedoリアクティブセレクタ追加
+- [x] **MyJobボタン黄色統一** — PartySettingsModal, MobilePartySettings, ConsolidatedHeader, MobileBottomNavの全箇所で黄色に変更
+- [x] **JobMigrationModalライトモード修正** — text-white→text-app-text、ダーク専用背景除去、createPortalでbody描画（ヘッダー埋まり問題修正）
+- [x] **オートプランi18n翻訳キー追加** — auto_plan_title/confirm/confirm_mobileをen.json/ja.jsonに追加
+- [x] **ConfirmDialogのi18nハードコーディング修正** — confirmLabel/cancelLabelをt()キーに変更
+
 ## 完了（第55セッション 2026-03-30）
 - [x] **MitigationSelectorにEscapeキー対応追加** — useEscapeCloseフック適用。対象選択サブビュー表示中はEscでスキル一覧に戻り、スキル一覧でEscを押すとモーダル全体を閉じる段階的閉じ動作
 

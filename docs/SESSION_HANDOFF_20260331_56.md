@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第55セッション）
+# セッション引き継ぎ書（2026-03-31 第56セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -28,6 +28,9 @@
 - **編集のたびにFirestoreに同期しない** — 試行錯誤中の無駄な同期を避ける。イベント駆動（タブ離脱/プラン切替等）+定期バックアップが正しい設計
 - **createPortalのイベントバブリング** — ReactのPortalはDOMツリーではなくReactツリーでイベントが伝播する。Portal内で`stopPropagation`が必要
 - **Tooltipのwrapperが`w-fit justify-center`** — Tooltip内にflex-1要素を入れる場合は`wrapperClassName="flex-1 min-w-0 !w-auto !justify-start"`で上書き必須
+- **useShallowでConsolidatedHeaderのmyJobHighlightをまとめると再レンダリングが阻害される** — 個別セレクタを使うこと（第56セッション発見）
+- **React.memoの閉じ位置を間違える** — 内部サブコンポーネント（ContentTreeItem等）をmemo化する際、次のコンポーネント定義まで巻き込まないよう注意
+- **Ctrl+Shift+Zのe.keyは大文字'Z'** — キーボードショートカットの比較はtoLowerCase()を使う
 
 ---
 
@@ -36,57 +39,78 @@
 - **サービス名**: LoPo（ロポ）— FF14プレイヤー向けツールポータル
 - **本番URL**: https://lopoly.app/
 - **管理画面**: https://lopoly.app/admin
-- **技術スタック**: React 19 + TypeScript + Vite 7 + Tailwind CSS v4 + Zustand + Firebase + Vercel
+- **技術スタック**: React 19 + TypeScript + Vite 7 + Tailwind CSS v4 + Zustand 5 + Firebase + Vercel
 - **Discord**: https://discord.gg/z7uypbJSnN
 - **公式X**: https://x.com/lopoly_app
 - **Ko-fi**: https://ko-fi.com/lopoly
 
 ---
 
-## 今回のセッション（第55セッション）で完了したこと
+## 今回のセッション（第56セッション）で完了したこと
 
-### 1. MitigationSelectorのEscapeキー対応（漏れ修正 + 段階的閉じ）
-- `src/components/MitigationSelector.tsx` に `useEscapeClose` フックを追加
-- **段階的閉じ動作**: 対象選択サブビュー表示中 → Escでスキル一覧に戻る → もう一度Escでモーダル全体を閉じる
-- `callbackRef`パターンにより`selectedSingleTargetMit`の状態変化にも正しく追従
+### 1. パフォーマンス最適化（React.memo + useShallow + useCallback + Layout分割）
+- **React.memo**: MitigationItem, ContentTreeItem, SaveIndicator
+- **useShallow**: Timeline, Sidebar, CheatSheetView, Layout（ConsolidatedHeaderは個別セレクタに戻し）
+- **useCallback**: Timeline内6ハンドラ（handlePhaseAdd, handleAddClick, handleEventClick, handleCellClick, handleDamageClick, handleMobileDamageClick）
+- **Layout.tsx分割**: MobileHeader.tsx（~150行）, MobilePartySettings.tsx（~330行）を別ファイルに切り出し → Layout.tsx: 980行→500行に縮小
+- **canUndo/canRedo**: リアクティブセレクタで Undo/Redo ボタンの disabled 状態を正しく管理
 
-### 2. βテスト前の優先順位を確定
-1. パフォーマンス最適化（React.memo） — 最優先
-2. i18nハードコーディング精査 — リスク調査から着手
-3. 非ログインユーザーへのログイン促進UI — NewPlanModal + 共有モーダル
-4. ヒールスキル追加は管理者画面テストと兼ねて後回し
-5. FFLogsバグ2件も後回し（管理者手動追加で代替可能）
-6. エラー監視はβではDiscordフィードバックで十分
-
----
-
-## 第55セッションで変更したファイル一覧
-
-### 修正
-- `src/components/MitigationSelector.tsx` — useEscapeClose追加（段階的閉じ対応）
-
-### ドキュメント更新
-- `docs/TODO.md` — βテスト前優先順位・方針決定事項を追記
-- `docs/TODO_COMPLETED.md` — 第55セッション完了タスク追加
+### 2. テスト中に発見した問題の修正（11件）
+- イベントポップオーバー: glass-tier3追加、削除ボタン赤文字+角丸、Escape対応
+- Redo修正: Ctrl+Shift+Zの大文字問題（toLowerCase）
+- MyJobボタン: 全箇所で黄色に統一（PartySettingsModal, MobilePartySettings, ConsolidatedHeader, MobileBottomNav）
+- JobMigrationModal: ライトモード視認性改善、createPortal化（ヘッダー埋まり修正）
+- オートプランi18n翻訳キー追加（en.json/ja.json）
+- ConfirmDialogのi18nハードコーディング修正
 
 ---
 
-## 最優先タスク（第56セッション）
+## 第56セッションで変更したファイル一覧
 
-### 1. アプリ動作パフォーマンスの最適化（React.memo追加）
-- 全ての視覚的変更が完了したため着手可能
-- サイドメニュー・ヘッダーの開閉パフォーマンス最適化
-- 対象候補: Timeline.tsx, Sidebar.tsx, ConsolidatedHeader.tsx
-- ローカル（`npm run dev`）+ React DevTools Profilerで再レンダリング計測→最終確認のみ本番
+### パフォーマンス最適化
+- `src/components/Timeline.tsx` — React.memo(MitigationItem) + useShallow + useCallback + canUndo/canRedo
+- `src/components/TimelineRow.tsx` — 変更なし（既にmemo使用）
+- `src/components/Sidebar.tsx` — React.memo(ContentTreeItem) + useShallow
+- `src/components/ConsolidatedHeader.tsx` — React.memo(SaveIndicator) + 個別セレクタ
+- `src/components/CheatSheetView.tsx` — useShallow追加
+- `src/components/Layout.tsx` — useShallow + MobileHeader/MobilePartySettings切り出し
+- `src/components/MobileHeader.tsx` — **新規**（Layout.tsxから切り出し）
+- `src/components/MobilePartySettings.tsx` — **新規**（Layout.tsxから切り出し）
 
-### 2. i18nハードコーディング精査（リスク調査）
-- 21ファイルにi18nハードコーディング残存
-- 特にPartyStatusPopover.tsxの21個のスキル名が最重要
-- まずリスク調査から着手（既存機能の破壊を避ける）
+### バグ修正・UI改善
+- `src/components/Timeline.tsx` — イベントポップオーバー改善、Redo修正、ESC対応、i18n修正
+- `src/components/ConsolidatedHeader.tsx` — MyJobボタン黄色
+- `src/components/MobileBottomNav.tsx` — MyJobインジケーター黄色
+- `src/components/PartySettingsModal.tsx` — MyJob星ボタン黄色
+- `src/components/MobilePartySettings.tsx` — MyJobバッジ・モード切替黄色
+- `src/components/JobMigrationModal.tsx` — ライトモード修正 + createPortal
+- `src/locales/en.json` — auto_plan翻訳キー追加
+- `src/locales/ja.json` — auto_plan翻訳キー追加
 
-### 3. 非ログインユーザーへのログイン促進UI
-- NewPlanModalに非ログイン時のみ注意書き追加
-- 共有モーダルにも追記
+### ドキュメント
+- `docs/TODO.md` — パフォーマンス最適化完了マーク
+- `docs/superpowers/specs/2026-03-30-performance-optimization-design.md` — 設計書
+- `docs/superpowers/plans/2026-03-30-performance-optimization.md` — 実装計画書
+
+---
+
+## 最優先タスク（第57セッション）
+
+### βテスト前の残りタスク（TODO.md 優先順位2-3）
+1. **i18nハードコーディング精査** — リスク調査から着手。特にPartyStatusPopover.tsxの21個のスキル名が最重要
+2. **非ログインユーザーへのログイン促進UI** — NewPlanModalに非ログイン時のみ注意書き追加 + 共有モーダルにも追記
+
+### その他の候補
+- Admin系ファイル（AdminContentForm, AdminSkills, AdminServers）のi18nハードコーディングは管理者専用のため低優先
+- MitiPlannerPage.tsxのdocument.titleのi18n化
+
+---
+
+## アクセントカラーの方針（確定 第42・56セッション）
+- 警告系 → 黄色
+- 削除・危険系 → 赤
+- OK・先に進む系 → 青
+- **MyJob関連 → 黄色**（第56セッション確定）
 
 ---
 
@@ -130,12 +154,11 @@
 ## 既知のコンソールエラー（未対応・既存）
 - `<path> attribute d: Expected number` — LoPoButton.tsxのSVGパスに%やcalcが入っている（4件、表示には影響なし）
 - `THREE.Clock非推奨警告` — LandingScene.tsx:155, ParticleBackground.tsx:133（THREE.Timerに移行が必要）
-- `[Violation]` — Chromeのパフォーマンス警告。パフォーマンス最適化タスクで対応
+- `[Violation]` — Chromeのパフォーマンス警告。パフォーマンス最適化で改善済みだが完全には消えない
 
 ## Vercel関数制限
 - Hobby プラン: **12関数が上限**（現在12/12）
 - 新規APIファイル追加不可。既存エンドポイントに統合する方式
-- セキュリティ残課題の一部（shared_plansクリーンアップ等）がこの制限で対応不可
 
 ## 重要な技術的注意
 - **useEscapeCloseフック**: `src/hooks/useEscapeClose.ts` — グローバルスタックで最前面モーダルのみEscapeに反応。新規モーダル追加時は必ずこのフックを使うこと
@@ -158,6 +181,10 @@
 - **⋮メニューはcreatePortalでbody描画** — overflow-y-autoのクリップ回避。z-[99999]。イベントバブリング注意（stopPropagation必須）
 - **Tooltipラッパーのw-fitに注意** — flex-1要素をTooltipで包む場合はwrapperClassNameで上書き必須
 - **近接センサー**: `-left-1 w-[60px]`に縮小済み（第53セッション）。これ以上の変更は不要
+- **ConsolidatedHeaderのmyJobHighlight**: useShallowではなく個別セレクタで取得すること（useShallowだと再レンダリングが阻害される）
+- **JobMigrationModal**: createPortalでbody直下に描画（framer-motionのtransformでfixed配置が崩れるため）
+- **Undo/Redoのdisabled判定**: canUndo/canRedoリアクティブセレクタを使う（getState()._history.lengthはレンダリング時に最新値を取れない場合がある）
+- **キーボードショートカット**: e.key.toLowerCase()で比較すること（Shift併用時にe.keyが大文字になる）
 
 ## バックアップについて
 - `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在
