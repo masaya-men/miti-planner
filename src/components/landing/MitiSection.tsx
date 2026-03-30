@@ -15,6 +15,8 @@ export function MitiSection() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const descRef = useRef<HTMLDivElement>(null);
   const ctaBtnRef = useRef<HTMLButtonElement>(null);
+  // タイムライン各行のref（テキストフロー演出用）
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const el = mockupRef.current;
@@ -61,6 +63,38 @@ export function MitiSection() {
       tl.fromTo(ctaBtnRef.current,
         { clipPath: 'inset(0 100% 0 0)', opacity: 1 },
         { clipPath: 'inset(0 0% 0 0)', duration: 0.1 }, 0.38);
+
+      // タイムライン行のテキストフロー演出（スクロール連動スタガー）
+      rowRefs.current.forEach((row, i) => {
+        if (!row) return;
+        const timeEl = row.querySelector('.mock-time');
+        const nameEl = row.querySelector('.mock-name');
+        const barsEl = row.querySelector('.mock-bars');
+
+        const staggerBase = 0.38 + i * 0.03;
+        if (timeEl) {
+          tl.fromTo(timeEl,
+            { opacity: 0, x: -10 },
+            { opacity: 1, x: 0, duration: 0.04, ease: 'power2.out' },
+            staggerBase);
+        }
+        if (nameEl) {
+          tl.fromTo(nameEl,
+            { clipPath: 'inset(0 100% 0 0)', opacity: 1 },
+            { clipPath: 'inset(0 0% 0 0)', duration: 0.05, ease: 'power3.out' },
+            staggerBase + 0.01);
+        }
+        if (barsEl) {
+          const bars = barsEl.querySelectorAll('.mock-bar');
+          bars.forEach((bar, j) => {
+            tl.fromTo(bar,
+              { scaleX: 0, opacity: 0 },
+              { scaleX: 1, opacity: 1, duration: 0.03, ease: 'power2.out' },
+              staggerBase + 0.02 + j * 0.01);
+          });
+        }
+      });
+
       tl.to(sectionRef.current, { opacity: 0, y: -80, duration: 0.2 }, 0.8);
     }, sectionRef);
     return () => ctx.revert();
@@ -113,14 +147,17 @@ export function MitiSection() {
               { time: '1:48', name: 'Sunrise Sabbath', bars: [2, 3, 4, 1] },
               { time: '2:10', name: 'Beckon Moonlight', bars: [4, 1, 2, 3] },
               { time: '2:35', name: 'Ion Cluster', bars: [1, 3, 4, 2] },
-            ].map((row) => (
-              <div key={row.time} className="flex items-center gap-3 py-2 border-t border-white/[0.03]">
-                <div className="text-[10px] md:text-[11px] text-white/15 w-10 font-mono shrink-0">{row.time}</div>
-                <div className="text-[11px] md:text-xs text-white/25 flex-1 truncate">{row.name}</div>
-                <div className="flex gap-1">
+            ].map((row, i) => (
+              <div key={row.time} ref={(el) => { rowRefs.current[i] = el; }}
+                className="flex items-center gap-3 py-2 border-t border-white/[0.03]">
+                <div className="mock-time text-[10px] md:text-[11px] text-white/15 w-10 font-mono shrink-0"
+                  style={{ opacity: 0 }}>{row.time}</div>
+                <div className="mock-name text-[11px] md:text-xs text-white/25 flex-1 truncate"
+                  style={{ clipPath: 'inset(0 100% 0 0)' }}>{row.name}</div>
+                <div className="mock-bars flex gap-1">
                   {row.bars.map((w, j) => (
-                    <div key={j} className="h-5 md:h-6 rounded-sm bg-white/[0.03] border border-white/[0.04]"
-                      style={{ width: `${w * 12 + 12}px` }} />
+                    <div key={j} className="mock-bar h-5 md:h-6 rounded-sm bg-white/[0.03] border border-white/[0.04]"
+                      style={{ width: `${w * 12 + 12}px`, transform: 'scaleX(0)', opacity: 0, transformOrigin: 'left' }} />
                   ))}
                 </div>
               </div>
