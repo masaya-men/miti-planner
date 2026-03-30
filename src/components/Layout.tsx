@@ -28,6 +28,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { migrateMitigations } from '../utils/jobMigration';
 import type { MigrationMode } from '../utils/jobMigration';
 import type { Job } from '../types';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 
 // ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
 const MobileHeader: React.FC<{
@@ -192,8 +193,7 @@ const MobilePartySettings: React.FC = () => {
         newJob: Job;
     } | null>(null);
 
-    const memberOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
-    const sortedMembers = memberOrder.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
+    const sortedMembers = PARTY_MEMBER_IDS.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
 
     // ジョブ変更ハンドラ — 軽減がある場合はマイグレーション確認を表示
     const handleJobChange = (memberId: string, jobId: string) => {
@@ -354,8 +354,7 @@ const MobileStatusView: React.FC = () => {
     const partyMembers = useMitigationStore(s => s.partyMembers);
     const myMemberId = useMitigationStore(s => s.myMemberId);
 
-    const memberOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
-    const sortedMembers = memberOrder.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
+    const sortedMembers = PARTY_MEMBER_IDS.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
 
     return (
         <div className="flex flex-col gap-2">

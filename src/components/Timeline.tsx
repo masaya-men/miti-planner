@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
+import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
@@ -1289,9 +1290,7 @@ const Timeline: React.FC = () => {
 
     const sortedPartyMembers = useMemo(() => {
         const lightPartyOrder = ['MT', 'H1', 'D1', 'D3', 'ST', 'H2', 'D2', 'D4'];
-        const roleOrder = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
-
-        const order = partySortOrder === 'light_party' ? lightPartyOrder : roleOrder;
+        const order: string[] = partySortOrder === 'light_party' ? lightPartyOrder : [...PARTY_MEMBER_IDS];
 
         return [...partyMembers].sort((a, b) => {
             const indexA = order.indexOf(a.id);
@@ -2087,7 +2086,6 @@ const Timeline: React.FC = () => {
                                     // 2. ロール順: タンク→ヒーラー→DPS(1234)
                                     // 3. 最後にヒーラー単体ケア → タンク個別軽減
                                     const roleOrder: Record<string, number> = { tank: 0, healer: 1, dps: 2 };
-                                    const memberOrder: Record<string, number> = { MT: 0, ST: 1, H1: 2, H2: 3, D1: 4, D2: 5, D3: 6, D4: 7 };
 
                                     // カテゴリ分類: 0=全体軽減, 1=ヒーラー単体, 2=タンク個別, 3=DPSその他
                                     // ※ 大半のスキルにscopeが未設定のため、明示的にself/targetのもの以外は全体扱い
@@ -2126,7 +2124,7 @@ const Timeline: React.FC = () => {
                                                 return gA.localeCompare(gB);
                                             }
                                             // 同スキル名: メンバー順（MT→ST等）
-                                            return (memberOrder[a.member.id] ?? 9) - (memberOrder[b.member.id] ?? 9);
+                                            return (PARTY_MEMBER_ORDER[a.member.id] ?? 9) - (PARTY_MEMBER_ORDER[b.member.id] ?? 9);
                                         }
 
                                         // ヒーラー単体 / タンク個別 / その他: 同名グループ化 → リキャスト短い順 → メンバー順
@@ -2136,7 +2134,7 @@ const Timeline: React.FC = () => {
                                             if (a.mit.recast !== b.mit.recast) return a.mit.recast - b.mit.recast;
                                             return gA.localeCompare(gB);
                                         }
-                                        return (memberOrder[a.member.id] ?? 9) - (memberOrder[b.member.id] ?? 9);
+                                        return (PARTY_MEMBER_ORDER[a.member.id] ?? 9) - (PARTY_MEMBER_ORDER[b.member.id] ?? 9);
                                     });
 
                                     // 同名スキルが複数メンバーに存在するか事前計算
