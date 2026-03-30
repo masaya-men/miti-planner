@@ -2,8 +2,8 @@
  * Vercel Serverless Function — Discord OAuth2 → Firebase Custom Token
  *
  * フロー:
- *   1. クライアントがDiscord認証ページにリダイレクト（CSRF対策のstateパラメータ付き）
- *   2. Discordが認証コードをこのエンドポイントに返す
+ *   1. フロントエンドがPOSTでApp Checkトークン付きリクエスト → リダイレクトURLを返却
+ *   2. Discordが認証コードをGETコールバックで返す（App Checkスキップ、state+cookieで保護）
  *   3. state検証 → コードをDiscordトークンに交換
  *   4. Discordユーザー情報を取得
  *   5. Firebase Admin SDKでカスタムトークンを生成
@@ -47,23 +47,32 @@ function parseCookies(cookieHeader: string): Record<string, string> {
 }
 
 export default async function handler(req: any, res: any) {
-    // CORS
+    // CORS（同一オリジンからのPOSTリクエストに対応）
+    const origin = req.headers?.origin || '';
+    const allowedOrigins = [
+        'https://lopoly.app',
+        'https://lopo-miti.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:4173',
+    ];
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
+    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // HTTPメソッド制限（GETのみ — OAuth認証フロー）
-    if (req.method !== 'GET' && req.method !== 'OPTIONS') {
+    // HTTPメソッド制限（POST=ステップ1開始、GET=ステップ2コールバック）
+    if (req.method !== 'GET' && req.method !== 'POST' && req.method !== 'OPTIONS') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { code, state } = req.query;
-
-        // App Check検証（ステップ1のみ — コールバック時は外部リダイレクトのためヘッダー付与不可）
-        // コールバックはstate+cookie検証でCSRF保護済み
-        if (!code) {
+        // ステップ1: POST — フロントエンドからApp Checkトークン付きで呼び出し
+        // リダイレクトURLをJSON返却 → フロントエンドがリダイレクト
+        if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
-            // ステップ1: state生成 → cookie保存 → Discord認証ページにリダイレクト
+
             const clientId = process.env.DISCORD_CLIENT_ID;
             if (!clientId) {
                 return res.status(500).json({ error: 'Server configuration error' });
@@ -83,10 +92,16 @@ export default async function handler(req: any, res: any) {
                 scope: 'identify',
                 state: stateParam,
             });
-            return res.redirect(`https://discord.com/oauth2/authorize?${params}`);
+            return res.status(200).json({ url: `https://discord.com/oauth2/authorize?${params}` });
         }
 
-        // ステップ2: コールバック — state検証（CSRF保護）
+        // ステップ2: GET — Discordからのコールバック（外部リダイレクトのためApp Checkスキップ）
+        // CSRF保護はstate+HttpOnly cookieで担保済み
+        const { code, state } = req.query;
+        if (!code) {
+            return res.status(400).json({ error: 'Missing authorization code' });
+        }
+
         const cookies = parseCookies(req.headers.cookie || '');
         const savedState = cookies['discord_oauth_state'];
 

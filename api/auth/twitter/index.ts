@@ -2,7 +2,7 @@
  * Vercel Serverless Function — Twitter(X) OAuth 2.0 + PKCE → Firebase Custom Token
  *
  * フロー:
- *   1. クライアントがこのエンドポイントにアクセス
+ *   1. フロントエンドがPOSTでApp Checkトークン付きリクエスト → リダイレクトURLを返却
  *   2. code_verifier を生成し cookie に保存、Twitter 認証ページにリダイレクト
  *   3. Twitter がコールバックで code を返す
  *   4. cookie の code_verifier を使って code → アクセストークン交換
@@ -50,17 +50,27 @@ function generateCodeChallenge(verifier: string): string {
 }
 
 export default async function handler(req: any, res: any) {
-    // CORS
+    // CORS（フロントエンドからのPOSTリクエストに対応）
+    const origin = req.headers?.origin || '';
+    const allowedOrigins = [
+        'https://lopoly.app',
+        'https://lopo-miti.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:4173',
+    ];
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
+    res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // HTTPメソッド制限（GETのみ — OAuth認証フロー）
-    if (req.method !== 'GET' && req.method !== 'OPTIONS') {
+    // POST=ステップ1（OAuth開始、App Check保護）、GET=ステップ2（コールバック）
+    if (req.method !== 'GET' && req.method !== 'POST' && req.method !== 'OPTIONS') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { code, state } = req.query;
         const clientId = process.env.TWITTER_CLIENT_ID;
         const clientSecret = process.env.TWITTER_CLIENT_SECRET;
 
@@ -70,11 +80,11 @@ export default async function handler(req: any, res: any) {
 
         const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/twitter`;
 
-        // App Check検証（ステップ1のみ — コールバック時は外部リダイレクトのためヘッダー付与不可）
-        // コールバックはstate+PKCE検証でCSRF保護済み
-        if (!code) {
+        // ── ステップ1: POST — フロントエンドからApp Checkトークン付きで呼び出し ──
+        // code_verifier生成 → cookie保存 → リダイレクトURLをJSON返却
+        if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
-            // ステップ1: code_verifier 生成 → cookie 保存 → Twitter 認証ページにリダイレクト
+
             const codeVerifier = generateCodeVerifier();
             const codeChallenge = generateCodeChallenge(codeVerifier);
             const stateParam = crypto.randomBytes(16).toString('hex');
@@ -95,10 +105,16 @@ export default async function handler(req: any, res: any) {
                 code_challenge_method: 'S256',
             });
 
-            return res.redirect(`${TWITTER_AUTH_URL}?${params}`);
+            return res.status(200).json({ url: `${TWITTER_AUTH_URL}?${params}` });
         }
 
-        // ステップ2: コールバック処理
+        // ── ステップ2: GET — Twitterからのコールバック（外部リダイレクトのためApp Checkスキップ）──
+        // CSRF保護はstate+PKCE+HttpOnly cookieで担保済み
+        const { code, state } = req.query;
+        if (!code) {
+            return res.status(400).json({ error: 'Missing authorization code' });
+        }
+
         // cookie から code_verifier と state を取得
         const cookies = parseCookies(req.headers.cookie || '');
         const codeVerifier = cookies['twitter_code_verifier'];

@@ -10,6 +10,7 @@ import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { apiFetch } from '../lib/apiClient';
 import { LoginModal } from './LoginModal';
 
 // クライアント側レート制限: 1時間あたり最大15回
@@ -141,7 +142,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             const user = useAuthStore.getState().user;
             if (!user) return;
 
-            const token = await user.getIdToken();
             const { plans, currentPlanId } = (await import('../store/usePlanStore')).usePlanStore.getState();
             const currentPlan = plans.find(p => p.id === currentPlanId);
             const contentId = currentPlan?.contentId;
@@ -151,12 +151,9 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             const contentDef = getContentById(contentId);
             const category = contentDef?.category || 'custom';
 
-            await fetch('/api/template/auto-register', {
+            await apiFetch('/api/template/auto-register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contentId,
                     category,

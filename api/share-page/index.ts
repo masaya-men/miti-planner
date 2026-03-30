@@ -8,7 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers';
+import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 
 const COLLECTION = 'shared_plans';
 
