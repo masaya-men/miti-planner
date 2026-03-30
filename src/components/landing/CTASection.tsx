@@ -3,10 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { generateTextTargets } from '../../lib/textParticles';
+import type { LandingSceneHandle } from './LandingScene';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function CTASection() {
+interface CTASectionProps {
+  sceneRef: React.RefObject<LandingSceneHandle | null>;
+}
+
+export function CTASection({ sceneRef }: CTASectionProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,6 +20,44 @@ export function CTASection() {
   const subRef = useRef<HTMLParagraphElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const kofiRef = useRef<HTMLDivElement>(null);
+
+  // パーティクルのCTAテキストターゲットを生成
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    document.fonts.ready.then(() => {
+      const isMobile = window.innerWidth < 768;
+      const particleCount = isMobile ? 500000 : 1500000;
+      const ctaText = t('portal.cta.heading');
+      const font = "900 80px 'M PLUS 1'";
+
+      const aspect = window.innerWidth / window.innerHeight;
+      const vFov = (50 * Math.PI) / 180;
+      const viewH = 2 * Math.tan(vFov / 2) * 5;
+      const viewW = viewH * aspect;
+
+      const targets = generateTextTargets(ctaText, font, particleCount, viewW, viewH);
+      scene.setCtaTargets(targets.positions, particleCount);
+    });
+  }, [sceneRef, t]);
+
+  // パーティクル再集合（CTAセクションが見えてきたら）
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const st = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top 60%',
+      end: 'top top',
+      scrub: 1,
+      onUpdate: (self) => {
+        sceneRef.current?.setCtaFormProgress(self.progress);
+      },
+    });
+
+    return () => { st.kill(); };
+  }, [sceneRef]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

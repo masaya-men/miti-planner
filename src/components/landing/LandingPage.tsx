@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,6 +6,7 @@ import { Preloader } from './Preloader';
 import { CustomCursor } from './CustomCursor';
 import { ScrollProgress } from './ScrollProgress';
 import { LandingScene } from './LandingScene';
+import type { LandingSceneHandle } from './LandingScene';
 import { LangToggle } from './LangToggle';
 import { HeroSection } from './HeroSection';
 import { MitiSection } from './MitiSection';
@@ -15,6 +16,7 @@ import { CTASection } from './CTASection';
 import { LandingFooter } from './LandingFooter';
 
 export function LandingPage() {
+  const sceneRef = useRef<LandingSceneHandle>(null);
   const [preloaderDone, setPreloaderDone] = useState(
     () => !!sessionStorage.getItem('lopo-visited')
   );
@@ -44,15 +46,15 @@ export function LandingPage() {
     <div className="relative bg-black text-white overflow-x-hidden">
       <CustomCursor />
       <ScrollProgress />
-      <LandingScene />
+      <LandingScene ref={sceneRef} />
       <LangToggle />
       {!preloaderDone && <Preloader onComplete={handlePreloaderComplete} />}
       <main className="relative z-10">
-        <HeroSection />
+        <HeroSection sceneRef={sceneRef} />
         <MitiSection />
         <FeaturesSection />
         <HousingSection />
-        <CTASection />
+        <CTASection sceneRef={sceneRef} />
         <LandingFooter />
       </main>
     </div>
