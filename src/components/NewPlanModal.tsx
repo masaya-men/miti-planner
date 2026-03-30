@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,6 +30,7 @@ const hasContentRegistry = (cat: ContentCategory | null): cat is 'savage' | 'ult
     cat === 'savage' || cat === 'ultimate';
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) => {
+    useEscapeClose(isOpen, () => onClose());
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
 

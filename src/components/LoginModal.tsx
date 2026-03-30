@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { X, LogOut, Shield } from 'lucide-react';
@@ -50,6 +51,7 @@ const providers = [
 ];
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+    useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { user, signInWith, signOut, deleteAccount } = useAuthStore();
     const navigate = useNavigate();

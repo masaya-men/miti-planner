@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useEscapeClose } from '../hooks/useEscapeClose';
 import { X, Download, AlertCircle } from 'lucide-react';
 import { parseCSVToEvents } from '../utils/csvParser';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -12,6 +13,7 @@ interface CsvImportModalProps {
 }
 
 export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose }) => {
+    useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const [csvText, setCsvText] = useState('');
     const [error, setError] = useState<string | null>(null);
