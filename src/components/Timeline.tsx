@@ -795,13 +795,14 @@ const Timeline: React.FC = () => {
         return map;
     }, [timelineEvents]);
 
-    const handleAddClick = (time: number, e: React.MouseEvent) => {
+    const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
 
-        if (clipboardEvent) {
+        const currentClipboard = useMitigationStore.getState().clipboardEvent;
+        if (currentClipboard) {
             const generateId = () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
-            addEvent({
-                ...clipboardEvent,
+            useMitigationStore.getState().addEvent({
+                ...currentClipboard,
                 id: generateId(),
                 time: time
             });
@@ -811,14 +812,15 @@ const Timeline: React.FC = () => {
         if (isAaModeEnabled) {
             const existingEvents = eventsByTime.get(time) || [];
             if (existingEvents.length < 2) {
+                const currentAaSettings = useMitigationStore.getState().aaSettings;
                 const newId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9);
-                addEvent({
+                useMitigationStore.getState().addEvent({
                     id: newId,
                     time: time,
                     name: { ja: 'AA', en: 'AA' },
-                    damageAmount: aaSettings.damage,
-                    damageType: aaSettings.type,
-                    target: aaSettings.target
+                    damageAmount: currentAaSettings.damage,
+                    damageType: currentAaSettings.type,
+                    target: currentAaSettings.target
                 });
                 return;
             } else {
@@ -831,15 +833,15 @@ const Timeline: React.FC = () => {
         setSelectedEvent(null);
         setIsModalOpen(true);
         useTutorialStore.getState().completeEvent('tutorial:opened-add-event-modal');
-    };
+    }, [isAaModeEnabled, eventsByTime]);
 
-    const handlePhaseAdd = (time: number, e: React.MouseEvent) => {
+    const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
         setSelectedPhaseTime(time + 1);
         setSelectedPhase(null);
         setIsPhaseModalOpen(true);
-    };
+    }, []);
 
     const handlePhaseEdit = (id: string, currentName: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -866,7 +868,7 @@ const Timeline: React.FC = () => {
         }
     };
 
-    const handleEventClick = (event: TimelineEvent, e: React.MouseEvent) => {
+    const handleEventClick = useCallback((event: TimelineEvent, e: React.MouseEvent) => {
         e.stopPropagation();
 
         if (isAaModeEnabled) {
@@ -874,7 +876,7 @@ const Timeline: React.FC = () => {
         }
 
         setEventPopover({ event, position: { x: e.clientX, y: e.clientY } });
-    };
+    }, [isAaModeEnabled]);
 
     const handlePopoverEdit = () => {
         if (!eventPopover) return;
@@ -958,8 +960,8 @@ const Timeline: React.FC = () => {
         }
     };
 
-    const handleCellClick = (memberId: string, time: number, e: React.MouseEvent) => {
-        const member = partyMembers.find(m => m.id === memberId);
+    const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
+        const member = useMitigationStore.getState().partyMembers.find(m => m.id === memberId);
         if (!member || !member.jobId) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
@@ -967,17 +969,18 @@ const Timeline: React.FC = () => {
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
         useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
-    };
+    }, []);
 
-    const handleMobileDamageClick = (time: number, e: React.MouseEvent) => {
+    const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
-    };
+    }, []);
 
-    const handleDamageClick = (time: number, e: React.MouseEvent) => {
-        const targetId = useMitigationStore.getState().myMemberId || partyMembers.find(m => m.role === 'healer')?.id;
+    const handleDamageClick = useCallback((time: number, e: React.MouseEvent) => {
+        const currentPartyMembers = useMitigationStore.getState().partyMembers;
+        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id;
         if (!targetId) return;
-        const member = partyMembers.find(m => m.id === targetId);
+        const member = currentPartyMembers.find(m => m.id === targetId);
         if (!member || !member.jobId) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
@@ -985,7 +988,7 @@ const Timeline: React.FC = () => {
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
         useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
-    };
+    }, []);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
         if (!selectedMemberId) return;
