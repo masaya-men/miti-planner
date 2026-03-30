@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
@@ -38,7 +39,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
@@ -55,7 +56,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         <ArrowRightLeft size={20} />
                     </div>
                     <div>
-                        <h2 className="text-sm font-bold text-white tracking-wide">
+                        <h2 className="text-sm font-bold text-app-text tracking-wide">
                             {t('migration.title')}
                         </h2>
                         <p className="text-[10px] text-app-text mt-0.5">
@@ -71,7 +72,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-5 flex flex-col gap-3 bg-[#0a0a0c]/80">
+                <div className="p-5 flex flex-col gap-3">
                     <p className="text-xs text-app-text mb-2 leading-relaxed">
                         {t('migration.description', 'すでに配置されているタイムライン上のスキルをどのように処理するか選択してください。')}
                     </p>
@@ -137,10 +138,10 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         <div className={clsx("mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
                             selectedMode === 'reset' ? "border-red-400 bg-red-400" : "border-app-border"
                         )}>
-                            {selectedMode === 'reset' && <Check size={10} className="text-[#0a0a0c]" strokeWidth={3} />}
+                            {selectedMode === 'reset' && <Check size={10} className="text-white" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-red-100' : 'text-app-text')}>
+                            <div className={clsx("text-sm font-bold mb-1 flex items-center gap-1 transition-colors", selectedMode === 'reset' ? 'text-red-500' : 'text-app-text')}>
                                 <ShieldAlert size={14} className={selectedMode === 'reset' ? "text-red-400" : "text-app-text-muted"} />
                                 {t('migration.mode.reset.title', '配置をすべてリセットする')}
                             </div>
@@ -153,7 +154,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 </div>
 
                 {/* Footer Controls */}
-                <div className="px-5 py-3 border-t border-app-border bg-[#050505]/50 flex justify-end gap-2 shrink-0">
+                <div className="px-5 py-3 border-t border-app-border flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
                         className="px-4 py-2 rounded-lg text-xs font-medium text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-95"
@@ -173,6 +174,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

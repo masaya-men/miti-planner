@@ -1263,15 +1263,16 @@ const Timeline: React.FC = () => {
             const tag = (e.target as HTMLElement)?.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            const key = e.key.toLowerCase();
+            if ((e.ctrlKey || e.metaKey) && key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 useMitigationStore.getState().undo();
             }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+            if ((e.ctrlKey || e.metaKey) && key === 'z' && e.shiftKey) {
                 e.preventDefault();
                 useMitigationStore.getState().redo();
             }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+            if ((e.ctrlKey || e.metaKey) && key === 'y') {
                 e.preventDefault();
                 useMitigationStore.getState().redo();
             }
@@ -2286,8 +2287,8 @@ const Timeline: React.FC = () => {
                 variant={confirmDialog?.variant ?? 'danger'}
                 onConfirm={() => confirmDialog?.onConfirm?.()}
                 onCancel={() => setConfirmDialog(null)}
-                confirmLabel="実行"
-                cancelLabel="キャンセル"
+                confirmLabel={t('ui.ok', 'OK')}
+                cancelLabel={t('common.cancel', 'キャンセル')}
             />
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
@@ -2446,7 +2447,7 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={handlePopoverDelete}
                             className={clsx(
-                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "flex items-center gap-3 mx-1.5 px-3 py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg",
                                 "text-red-500 hover:bg-red-500/10"
                             )}
                         >
