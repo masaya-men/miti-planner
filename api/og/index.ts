@@ -112,7 +112,8 @@ export default async function handler(req: Request) {
 
     } catch (err: any) {
         console.error('OG image error:', err);
-        return new Response(`OG image generation failed: ${err.message}`, { status: 500 });
+        console.error('OG image error detail:', err.message);
+        return new Response('OG image generation failed', { status: 500 });
     }
 }
 

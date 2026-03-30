@@ -24,6 +24,7 @@ import { doc, collection, getDocs, getDoc, query, where, writeBatch } from 'fire
 import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
+import { deleteTeamLogo } from '../utils/logoUpload';
 
 type AuthProvider = 'google' | 'discord' | 'twitter';
 
@@ -147,7 +148,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         const uid = currentUser.uid;
 
-        // ① Firestoreからユーザーデータを全削除（バッチ）
+        // ① Firebase Storageのチームロゴを削除
+        try {
+            await deleteTeamLogo(uid);
+        } catch {
+            // ロゴが存在しない場合は無視
+        }
+
+        // ② Firestoreからユーザーデータを全削除（バッチ）
         try {
             const batch = writeBatch(db);
 
@@ -178,7 +186,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             console.error('Firestoreデータ削除エラー:', err);
         }
 
-        // ② Firebase Authアカウント削除
+        // ③ Firebase Authアカウント削除
         try {
             await deleteUser(currentUser);
         } catch (err) {
@@ -187,7 +195,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             await firebaseSignOut(auth);
         }
 
-        // ③ ローカルストレージとストアをクリア
+        // ④ ローカルストレージとストアをクリア
         set({ user: null, isAdmin: false, teamLogoUrl: null });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');

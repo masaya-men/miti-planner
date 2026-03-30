@@ -19,6 +19,7 @@ import { writeAuditLog } from '../../src/lib/auditLog.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { getAuth } from 'firebase-admin/auth';
+import * as crypto from 'crypto';
 
 /** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */
 function setCors(req: any, res: any) {
@@ -29,7 +30,7 @@ function setCors(req: any, res: any) {
     'http://localhost:5173',
     'http://localhost:4173',
   ];
-  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+  const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
   res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
@@ -39,9 +40,9 @@ export default async function handler(req: any, res: any) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // App Check検証（ADMIN_SECRETによるcurlアクセス時はスキップ）
-  const hasSecret = req.body?.secret;
-  if (!hasSecret && !(await verifyAppCheck(req, res))) return;
+  // App Check検証（POSTでsecretが提供されている場合のみス��ップ — curl初回設定用）
+  const hasValidSecret = req.method === 'POST' && typeof req.body?.secret === 'string' && req.body.secret.length > 0;
+  if (!hasValidSecret && !(await verifyAppCheck(req, res))) return;
 
   // --- GET: 管理者権限検証（旧 /api/admin/verify） ---
   if (req.method === 'GET') {
@@ -80,7 +81,10 @@ export default async function handler(req: any, res: any) {
     let authorizedBy = 'secret';
     const adminSecret = process.env.ADMIN_SECRET;
 
-    if (secret && adminSecret && secret === adminSecret) {
+    // タイミングセーフ比較（タイミング攻撃対策）
+    const secretMatch = secret && adminSecret && secret.length === adminSecret.length
+      && crypto.timingSafeEqual(Buffer.from(secret), Buffer.from(adminSecret));
+    if (secretMatch) {
       // 秘密キー認証（初回セットアップ用）
       authorizedBy = 'secret';
     } else {

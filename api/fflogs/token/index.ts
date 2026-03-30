@@ -49,7 +49,7 @@ export default async function handler(req: any, res: any) {
         'http://localhost:5173',
         'http://localhost:4173',
     ];
-    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+    const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
@@ -84,21 +84,20 @@ export default async function handler(req: any, res: any) {
         });
 
         if (!tokenResponse.ok) {
-            const body = await tokenResponse.text();
-            return res.status(tokenResponse.status).json({
-                error: `FFLogs token request failed (${tokenResponse.status})`,
-                details: body,
-            });
+            console.error('FFLogs token request failed:', tokenResponse.status, await tokenResponse.text());
+            return res.status(502).json({ error: 'FFLogs token request failed' });
         }
 
         const data = await tokenResponse.json();
 
+        // 必要なフィールドのみ返す
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(data);
-    } catch (err) {
-        return res.status(500).json({
-            error: 'Internal server error',
-            details: String(err),
+        return res.status(200).json({
+            access_token: data.access_token,
+            expires_in: data.expires_in,
         });
+    } catch (err) {
+        console.error('FFLogs token error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
