@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-31 第57セッション）
+# セッション引き継ぎ書（2026-03-31 第58セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -46,70 +46,47 @@
 
 ---
 
-## 今回のセッション（第57セッション）で完了したこと
+## 今回のセッション（第58セッション）で完了したこと
 
-### 1. i18nハードコーディング精査（全8箇所修正）
-- **PartyStatusPopover.tsx**: スキル名21個のハードコードをSKILL_DATAから動的取得に変更。`nameEn`プロパティを活用
-- **MitiPlannerPage.tsx**: `document.title = "LoPo | 軽減プランナー"` → `t('app.page_title_planner')`
-- **LandingPage.tsx**: `document.title = 'LoPo — FFXIV Tool Portal'` → `t('app.page_title_landing')`（`useTranslation`インポート追加）
-- **CsvImportModal.tsx**: タイトル・説明文・エラーメッセージ・ボタン全てi18nキー化（`csv_import.*`セクション新設）
-- **ErrorBoundary.tsx**: クラスコンポーネントなので`i18next.t()`直接使用（`error_boundary.*`セクション新設）
-- **ConsolidatedHeader.tsx**: `{ defaultValue: '保存中...' }` / `{ defaultValue: '保存済み ✓' }` の日本語フォールバック削除（キーは既にen/ja.jsonに存在）
-- **ShareButtons.tsx**: `{ defaultValue: '共有' }` 削除
-- **SharePage.tsx**: `{ defaultValue: 'すべてコピー' }` 削除
-- **CheatSheetView.tsx / TimelineRow.tsx**: `alt="Magical"` → `alt={t('modal.magical')}` 等、ダメージ種別alt属性3箇所×3ファイル
+### 1. ログイン促進UI実機確認＆改善
+- シークレットウィンドウで表示確認 → **正常に表示されていた**（第57セッションの懸念は杞憂だった）
+- **ShareModal.tsx**: ゲストヒント文言を改善。「チームロゴを表示できます」→「端末間のデータ同期や共有画像のカスタマイズができます」
+- **Sidebar.tsx**: サイドバーの名前入力ダイアログ（pendingContentモーダル）にもログイン促進テキスト+LoginModalを追加。`new_plan.guest_hint_short`キーを再利用
 
-### 2. 非ログインユーザーへのログイン促進UI（★実機確認未完了）
-- **NewPlanModal.tsx**: `useAuthStore`と`LoginModal`を追加。フッター部分に`!user`条件で案内テキスト表示。`<login>`タグパース方式で「ログイン」部分をクリック可能なボタンに
-- **ShareModal.tsx**: チームロゴセクションの前に`!user`条件で案内テキスト表示。同じ`<login>`タグパース方式
-- **i18nキー**: `new_plan.guest_hint`、`app.share_guest_hint` を en.json / ja.json に追加
-- **★問題**: ユーザーがシークレットウィンドウで確認したところ、テキストが表示されなかった。ビルドは成功。TypeScriptエラーなし。原因未特定
+### 2. CSP強化（3ディレクティブ追加）
+- 外部セキュリティ診断（スコア80/100 B+）の結果を検証
+- **vercel.json**に以下を追加：
+  - `object-src 'none'` — Flash等の古いプラグイン埋め込みを完全禁止
+  - `base-uri 'self'` — `<base>`タグ注入によるURL乗っ取り防止
+  - `form-action 'self'` — フォーム送信先を自サイトのみに制限
+- `unsafe-inline`の除去は工数大（nonce方式＋サーバーサイド注入が必要）のため、βテスト段階では見送り
 
----
-
-## 第57セッションで変更したファイル一覧
-
-### i18nハードコーディング修正
-- `src/components/PartyStatusPopover.tsx` — スキル名をSKILL_DATA動的取得に変更
-- `src/components/MitiPlannerPage.tsx` — document.title i18n化
-- `src/components/landing/LandingPage.tsx` — document.title i18n化 + useTranslation追加
-- `src/components/CsvImportModal.tsx` — UIテキスト全件i18n化
-- `src/components/ErrorBoundary.tsx` — i18next.t()でエラーメッセージi18n化
-- `src/components/ConsolidatedHeader.tsx` — defaultValue日本語削除
-- `src/components/ShareButtons.tsx` — defaultValue日本語削除
-- `src/components/SharePage.tsx` — defaultValue日本語削除
-- `src/components/CheatSheetView.tsx` — alt属性i18n化
-- `src/components/TimelineRow.tsx` — alt属性i18n化（2箇所）
-
-### ログイン促進UI（★要確認）
-- `src/components/NewPlanModal.tsx` — useAuthStore + LoginModal追加、ゲストヒントテキスト追加
-- `src/components/ShareModal.tsx` — LoginModal追加、ゲストヒントテキスト追加
-
-### i18nファイル
-- `src/locales/en.json` — `app.page_title_planner/landing`、`app.share_guest_hint`、`csv_import.*`、`error_boundary.*`、`new_plan.guest_hint/guest_hint_short` 追加
-- `src/locales/ja.json` — 同上の日本語翻訳追加
-
-### ドキュメント
-- `docs/TODO.md` — 完了マーク + バグ追記
-- `docs/TODO_COMPLETED.md` — 完了タスク移動
+### 3. セキュリティ診断の検証結論
+- `unsafe-inline`指摘 → 正しいが優先度低（XSS脆弱性がなければ顕在化しない）
+- `data:`指摘 → `img-src`のみで使用しているため過剰警告、無視OK
+- `object-src`未設定 → 対応済み
 
 ---
 
-## ★ 最優先タスク（第58セッション）
+## 第58セッションで変更したファイル一覧
 
-### 1. ログイン促進UI実機確認（修正必須）
-- 非ログイン状態で `/miti` にアクセス → サイドバー「新規作成」クリック → NewPlanModalのフッター部分にゲストヒントが表示されるか確認
-- ShareModalも同様に確認
-- **表示されない場合の調査ポイント**:
-  - `useAuthStore`の`user`がFirebase Auth初期化中は`null`だが初期化完了後も`null`か
-  - `!user`条件が正しく評価されているか（React DevToolsで確認）
-  - `t('new_plan.guest_hint')`の`.split(/<\/?login>/)`が正しく動作しているか
-  - `createPortal`で`<>`フラグメントを使った構造に問題がないか
+- `src/components/Sidebar.tsx` — LoginModalインポート追加、名前入力ダイアログにゲストヒント+LoginModal追加
+- `src/locales/ja.json` — `app.share_guest_hint`文言更新
+- `src/locales/en.json` — `app.share_guest_hint`文言更新
+- `vercel.json` — CSP 3ディレクティブ追加
 
-### 2. βテスト残りタスク
+---
+
+## 次セッションの優先タスク
+
+### βテスト残りタスク
 - 優先順位1-3は完了（パフォーマンス、i18n、ログイン促進UI）
 - 優先順位4: ヒールスキル追加は管理者画面テストと兼ねて後回し
 - 優先順位5: FFLogsバグ2件も後回し
+
+### その他検討事項
+- `t('key', '日本語フォールバック')` パターンが多数残存 — キーが両言語に存在する限り実害なし。将来的にフォールバック削除の一括作業を検討
+- セキュリティスコア再確認（CSP追加後に改善しているか）
 
 ---
 
@@ -127,6 +104,12 @@
 | 6 | Google Fonts SRI | ❌ 未対応（CSP style-srcで代替防御済み） |
 | 7 | Firestoreパスフォーマット検証 | ❌ 未対応（admin専用のため影響限定的） |
 | 8 | クライアント側バッチ削除中断 | ❌ 未対応（Vercel環境ではCloud Functions不可） |
+
+### 第58セッション追加
+| # | 課題 | 状態 |
+|---|------|------|
+| 9 | CSP: object-src/base-uri/form-action追加 | ✅ 第58セッションで完了 |
+| 10 | CSP: unsafe-inline除去 | ❌ 見送り（nonce方式の工数大。β後に再検討） |
 
 ---
 
@@ -184,7 +167,7 @@
 - **JobMigrationModal**: createPortalでbody直下に描画（framer-motionのtransformでfixed配置が崩れるため）
 - **Undo/Redoのdisabled判定**: canUndo/canRedoリアクティブセレクタを使う（getState()._history.lengthはレンダリング時に最新値を取れない場合がある）
 - **キーボードショートカット**: e.key.toLowerCase()で比較すること（Shift併用時にe.keyが大文字になる）
-- **i18nの`<login>`タグパース**: `t('key').split(/<\/?login>/)` で3分割し、index=1をボタンに。NewPlanModal・ShareModalで使用
+- **i18nの`<login>`タグパース**: `t('key').split(/<\/?login>/)` で3分割し、index=1をボタンに。NewPlanModal・ShareModal・Sidebarで使用
 
 ## バックアップについて
 - `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在

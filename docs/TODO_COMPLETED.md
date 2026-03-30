@@ -2,6 +2,10 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第58セッション 2026-03-31）
+- [x] **ログイン促進UI実機確認＆改善** — シークレットウィンドウで表示確認OK。ShareModalゲストヒント文言をチームロゴ限定→汎用表現に改善。サイドバー名前入力ダイアログにもログイン促進テキスト+LoginModal追加
+- [x] **CSP強化** — vercel.jsonに`object-src 'none'`（プラグイン禁止）、`base-uri 'self'`（baseタグ注入防止）、`form-action 'self'`（フォーム送信先制限）を追加
+
 ## 完了（第57セッション 2026-03-31）
 - [x] **i18nハードコーディング精査** — PartyStatusPopover(スキル名21個→SKILL_DATA動的取得)、MitiPlannerPage/LandingPage(document.title)、CsvImportModal(UIテキスト全件)、ErrorBoundary(エラーメッセージ)、ConsolidatedHeader/ShareButtons/SharePage(defaultValue日本語削除)、CheatSheetView/TimelineRow(alt属性)
 - [x] **非ログインユーザーへのログイン促進UI** — NewPlanModal・ShareModalに非ログイン時のさりげない案内テキスト+ログインリンク追加（★実機確認未完了→第58セッションで要確認）
