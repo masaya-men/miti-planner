@@ -457,7 +457,8 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
             )}
         </div>
     );
-};
+});
+ContentTreeItem.displayName = 'ContentTreeItem';
 
 // ─────────────────────────────────────────────
 // Sub-component: SeriesAccordion
@@ -722,8 +723,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
             </div>
         </div>
     );
-});
-ContentTreeItem.displayName = 'ContentTreeItem';
+};
 
 // ─────────────────────────────────────────────
 // Main: Sidebar
