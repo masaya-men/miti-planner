@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-30 第52セッション）
+# セッション引き継ぎ書（2026-03-30 第53セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -26,6 +26,8 @@
 - **`require()`をAPI関数内で使う** — VercelのESモジュールバンドルで`require is not defined`になる。必ず`import`を使う
 - **CSP変更後にデプロイしただけでAPIファイルが反映されたと思い込む** — `vercel --prod --force`で全ファイル強制アップロードが必要な場合がある
 - **編集のたびにFirestoreに同期しない** — 試行錯誤中の無駄な同期を避ける。イベント駆動（タブ離脱/プラン切替等）+定期バックアップが正しい設計
+- **createPortalのイベントバブリング** — ReactのPortalはDOMツリーではなくReactツリーでイベントが伝播する。Portal内で`stopPropagation`が必要
+- **Tooltipのwrapperが`w-fit justify-center`** — Tooltip内にflex-1要素を入れる場合は`wrapperClassName="flex-1 min-w-0 !w-auto !justify-start"`で上書き必須
 
 ---
 
@@ -41,38 +43,61 @@
 
 ---
 
-## 今回のセッション（第52セッション）で完了したこと
+## 今回のセッション（第53セッション）で完了したこと
 
-### 1. ライトモード: パーティ編成モーダルの文字色修正
-- `text-white` → `text-app-text` に6箇所修正（ヘッダー、説明文、MT/STグループ見出し、カテゴリ名）
-- `drop-shadow` → `dark:drop-shadow` に変更（ダークモードのみ影を表示）
-- 対象: `src/components/PartySettingsModal.tsx`
+### 1. Sidebar button入れ子問題の修正（HTML仕様違反）
+- 親`<button>`を`<div role="button" tabIndex={0}>`に変更
+- `onKeyDown`でEnter/Spaceキー対応（buttonの標準動作を再現）
+- 子ボタン（コピー/リネーム/⋮メニュー）は変更なし（既に`stopPropagation`済み）
+- 対象: `src/components/Sidebar.tsx:276-308`
 
-### 2. スマホ: プラン名タップでポップアップ表示
-- MobileHeaderの中央タイトル部分をタップすると、吹き出し風ポップアップで省略されていたプラン名をフル表示
-- iPhoneライクなスプリングアニメーション（scale + opacity + translate-y）
-- 3秒後に自動消滅、背景タップでも即閉じ
-- ダーク/ライトモード両対応、`md:hidden` でPC表示では絶対に出ない
-- 対象: `src/components/Layout.tsx`（MobileHeaderコンポーネント）
+### 2. 非選択プランのホバーでアクションボタン表示
+- 親divに`group/plan`追加
+- アクションボタン群を常にレンダリング、CSSで表示制御
+  - 選択中: `opacity-100`
+  - 非選択: `opacity-0 group-hover/plan:opacity-100`
+  - `transition-opacity duration-150`でフェードイン
 
-### 3. ダークモード: モーダルのブラー値強化
-- `--glass-tier3-blur` を `2px` → `12px` に変更（ダークモード）
-- サイドバー・ヘッダーは `.theme-dark .glass-frame` で `2px` を維持（影響なし）
-- 対象: `src/index.css`
+### 3. 長いプラン名の省略 + ツールチップ
+- プラン行divに`min-w-0`追加（flex itemの縮小を許可）
+- プラン名を`<Tooltip>`でラップ、`wrapperClassName="flex-1 min-w-0 !w-auto !justify-start"`で上書き
+- `<span className="block truncate text-left">`で省略表示
 
-### 4. 全ページフッターに公式Xリンク追加
-- ランディングページ、人気ページ、軽減表アプリの全フッターにDiscordの隣にXリンクを追加
-- 翻訳キー `footer.x_official`（JA: 「X（Twitter）」/ EN: 「X (Twitter)」）
-- 対象: `src/components/landing/LandingFooter.tsx`, `src/components/Layout.tsx`, `src/components/PopularPage.tsx`, `src/locales/ja.json`, `src/locales/en.json`
+### 4. ⋮メニューに削除ボタン追加（スピナー付き2段階確認）
+- `confirmDeletePlanId` + `deleteAnimating`ステート追加
+- 動作: 「削除」→赤スピナー(400ms)→「クリックで削除」/「タップで削除」
+- PC/スマホでテキスト切替（`isTouchDevice`判定）
+- 削除は`usePlanStore.getState().deletePlan(plan.id)`を呼ぶ
 
-### 5. TODO.md更新
-- フッター統一ルールにX追加を反映
-- ツールチップ色反転・ステータス表示ライトモードは対応済みと確認（ユーザー報告）
+### 5. ⋮メニューのPortal化
+- `createPortal`でdocument.bodyに描画（z-[99999], fixed配置）
+- ⋮ボタンの`getBoundingClientRect()`で位置計算
+- `onClick/onMouseDown stopPropagation`でReactイベントバブリング防止
+- click-outside検出: `menuRef` + `data-menu-trigger`属性で除外判定
 
----
+### 6. +ボタンの上限時表示
+- `PLAN_LIMITS.MAX_PLANS_PER_CONTENT`到達時、グレー表示で「上限 5/5」
+- 翻訳キー`sidebar.plan_limit`（動的テンプレート）
 
-## 確認済みの仕様
-- **テーマ設定は端末ごとに独立**（localStorageのみ、Firestore同期対象外）。PCとスマホで別テーマ設定が可能。この仕様が正しい。
+### 7. コピー上限トーストのエラー色修正
+- `showToast(msg, 'error')`に変更（赤いXCircleアイコン表示）
+
+### 8. CSVダウンロード準備中表示
+- ボタン無効化 + テキストに「（準備中）」追加
+
+### 9. サイドバーレイアウト変更
+- ボタン群（新規作成/まとめて共有/選択削除）をレベル/カテゴリタブの下に移動
+
+### 10. 近接センサー範囲縮小
+- `-left-10 w-[120px]`→`-left-1 w-[60px]`に変更（サイドバーコンテンツのボタンクリック干渉回避）
+
+### 11. TODO.md更新
+- Escapeキーでモーダル閉じ対応を追記
+- button入れ子問題を完了マーク
+
+### 12. 翻訳キー追加
+- `sidebar.delete_single` / `delete_single_confirm_click` / `delete_single_confirm_tap` / `plan_limit`
+- CSVテキストに「（準備中）」/ "(Coming soon)"
 
 ---
 
@@ -93,15 +118,14 @@
 
 ---
 
-## 最優先タスク（第53セッション）
+## 最優先タスク（第54セッション）
 
 ### 1. アプリ動作パフォーマンスの最適化
-- 起動時非ブロッキング化は完了済み
-- React.memo追加（視覚変更後に対応）
+- React.memo追加（サイドバーUI変更完了のため着手可能に）
 - サイドメニュー・ヘッダーの開閉パフォーマンス最適化
 
-### 2. Sidebar button入れ子問題
-- HTML仕様違反の修正（a11y的にも問題）
+### 2. Escapeキーでモーダル・メニューを閉じる対応
+- 全モーダル・ドロップダウンでEscapeキー対応（第53セッションで追加されたTODO）
 
 ---
 
@@ -150,6 +174,9 @@
 - **Upstash Redis**: 無料枠1日10,000コマンド。DAU成長時は有料プラン($0.2/10万コマンド)に切替
 - **Firestore同期の3分クールダウン** — syncToFirestoreは_lastSyncAtから3分以内は実行しない。forceSyncAllはバイパス
 - **ダークモードのglass-tier3 blur**: 12px（第52セッションで2px→12pxに変更）。サイドバー・ヘッダーは`.glass-frame`で2px維持
+- **⋮メニューはcreatePortalでbody描画** — overflow-y-autoのクリップ回避。z-[99999]。イベントバブリング注意（stopPropagation必須）
+- **Tooltipラッパーのw-fitに注意** — flex-1要素をTooltipで包む場合はwrapperClassNameで上書き必須
+- **近接センサー**: `-left-1 w-[60px]`に縮小済み（第53セッション）。これ以上の変更は不要
 
 ## バックアップについて
 - `C:\Users\masay\Desktop\FF14Sim - コピー` にfilter-branch前の完全バックアップが存在

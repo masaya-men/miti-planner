@@ -2,6 +2,9 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（第53セッション 2026-03-30）
+- [x] **Sidebar: button入れ子問題** — 親button→div role=button化、ホバーボタン表示、⋮メニューPortal化、削除ボタン追加、プラン名ツールチップ、レイアウト変更
+
 ## 完了（第51セッション 2026-03-30）
 - [x] **Firestore同期修正** — 端末間同期が動作していなかった問題を修正。migrateOnLoginでのFirestore書き戻し、dirtyフラグ管理、3分クールダウン、forceSyncAllタイムアウト、カウンター自動修復（repairPlanCounts）、5分定期バックアップ同期
 - [x] **Firestore同期: 3分クールダウン実装** — syncToFirestoreに_lastSyncAtチェック追加
