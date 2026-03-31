@@ -285,6 +285,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     <React.Fragment key={mitigation.id}>
                                     <button
                                         id={`miti-btn-${mitigation.id}`}
+                                        {...(mitigation.name.en === 'Reprisal' ? { 'data-tutorial': 'tutorial-skill-reprisal' } : {})}
                                         onClick={() => isClickable && handleMitigationClick(mitigation)}
                                         disabled={!isClickable}
                                         className={clsx(
