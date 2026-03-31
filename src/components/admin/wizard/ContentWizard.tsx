@@ -4,7 +4,8 @@
  */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useWizard, WizardStep } from './useWizard';
+import { useWizard } from './useWizard';
+import type { WizardStep } from './useWizard';
 import { AdminWizard } from './AdminWizard';
 import { apiFetch } from '../../../lib/apiClient';
 import { showToast } from '../../Toast';
@@ -138,10 +139,7 @@ export function ContentWizard() {
       throw new Error(msg);
     }
 
-    showToast(
-      isJa ? 'コンテンツを追加しました' : 'Content added successfully',
-      'success'
-    );
+    showToast(t('admin.contents_saved'));
   };
 
   const wizard = useWizard({ steps: WIZARD_STEPS, onSubmit: handleSubmit });
