@@ -616,70 +616,87 @@
         }
     },
     "tutorial": {
-        "portal_select_title": "Choose a Tool",
-        "portal_select_desc": "Select \"Mitigation Planner\" to start building your mitigation sheet!",
-        "content_select_title": "Select Content",
-        "content_select_desc": "Choose the boss you want to plan for and load the timeline. You can also import from FFLogs.",
-        "open_party_settings_title": "Set Up Your Party",
-        "open_party_settings_desc": "Next, let's set up the party. Click the \"Party Settings\" button at the top.",
-        "party_slots_title": "Set Up Jobs",
-        "party_slots_desc": "Click on a slot to place any job in your preferred role. Set up 4 members first.",
-        "party_palette_title": "Add the Remaining 4",
-        "party_palette_desc": "No need to select slots this time! Just click a job icon and it'll find a good spot on its own!",
-        "party_myjob_title": "Set Your Job",
-        "party_myjob_desc": "Click the ★ icon to set your own job (Paladin for this tutorial). Your column will be highlighted for easier viewing!",
-        "party_close_title": "Great!",
-        "party_close_desc": "Your job has been set. Close the window by clicking the × button or the background, and let's move on!",
-        "complete_title": "Tutorial Complete! 🎉",
-        "complete_desc": "Great work! You've mastered the basics. Try FFLogs Import for auto-generated timelines, or Auto Plan for automatic mitigation placement!",
-        "start_title": "Start Tutorial?",
-        "start_desc": "Your current mitigation sheet will be safely saved. It will be restored when the tutorial ends.",
-        "start_confirm": "Start",
-        "next": "Next",
-        "complete": "Get Started",
-        "prev": "Prev",
-        "skip": "End Tutorial",
-        "step7a_title": "Brace for Damage",
-        "step7a_desc": "A sample timeline has been generated. The damage is lethal as-is, so the numbers are shown in red as a warning!",
-        "step7b_title": "Add Mitigation",
-        "step7b_desc": "Let's add some mitigation! Click the cell in your column at the time of the attack to open mitigation skills.",
-        "step7c_title": "Select AoE Mitigation",
-        "step7c_desc": "Use \"Reprisal\" to protect the entire party from damage!",
-        "step7d_title": "Mitigation Successful!",
-        "step7d_desc": "Great! The damage numbers have turned green — everyone will now survive the attack.",
-        "step8a_title": "Brace for a Heavy Hit",
-        "step8a_desc": "Next is a heavy attack targeting the MT (Main Tank). This is also lethal and needs to be mitigated.",
-        "step8b_title": "Buff a Party Member",
-        "step8b_desc": "To support your co-tank (MT), click the cell in your column to open your skills.",
-        "step8c_title": "Select a Single-Target Buff",
-        "step8c_desc": "Choose a powerful single-target buff to protect the MT.",
-        "step8d_title": "Select the Target",
-        "step8d_desc": "Choose who receives the buff. Select \"MT\".",
-        "step8e_title": "Support Successful!",
-        "step8e_desc": "Great! Thanks to your buff, the MT can now survive the heavy attack!",
-        "step9a_title": "Add a New Attack",
-        "step9a_desc": "Click the \"+\" button to add a new event.",
-        "step9b_title": "Attack Name",
-        "step9b_desc": "First, enter the name of the attack. Try typing \"Ultima\".",
-        "step9c_title": "Reverse Calculating Damage",
-        "step9c_desc": "Imagine you barely survived in-game with \"Reprisal, Sacred Soil, and Addle\" active! Enter the damage you took: \"{{damage}}\".",
-        "step9d_title": "Select Mitigations",
-        "step9d_desc": "Find and click the three icons for \"Reprisal\", \"Sacred Soil\", and \"Addle\" — the mitigations used in the calculation.",
-        "step9e_title": "Save the Event",
-        "step9e_desc": "Great! The app has auto-calculated the true raw damage based on those mitigations. Click \"Save\" to record it!",
-        "step10_title": "Highlight My Job",
-        "step10_desc": "Click the \"Highlight My Job\" button. This highlights only the mitigation skills you used — great for reviewing your work!",
-        "step10b_title": "Highlight Check",
-        "step10b_desc": "Your mitigations are now highlighted and easy to spot! You can toggle this on/off anytime.",
-        "step11a_title": "Try Creating a New Plan",
-        "step11a_desc": "Click the \"New Plan\" button in the sidebar. You can create mitigation sheets for any boss — even ones not in the content list!",
-        "step11b_title": "That's All for Now!",
-        "step11b_desc": "From here you can select content or create plans with custom names. For now, just close this to finish the tutorial!",
-        "exit_title": "End Tutorial?",
-        "exit_desc": "You can restart the tutorial anytime from the 'View Tutorial' button on the top right.",
-        "exit_confirm": "End Tutorial",
-        "exit_cancel": "Continue",
-        "step_of": "{{current}} / {{total}}"
+        "skip": "Skip",
+        "exit_confirm": "Exit tutorial?",
+        "exit_yes": "Exit",
+        "menu": {
+            "main": "Getting Started",
+            "add_event": "Adding Attacks",
+            "share": "How to Share"
+        },
+        "main": {
+            "content": {
+                "message": "Choose a boss",
+                "description": "Select content from the sidebar to load the timeline."
+            },
+            "party_open": {
+                "message": "Set up your party",
+                "description": "Click the Party Comp button to configure your team."
+            },
+            "wrong_slot": {
+                "message": "Try placing a job here",
+                "description": "You can place any job in any slot, regardless of role. Give it a try!"
+            },
+            "delete_job": {
+                "message": "Mistakes are OK!",
+                "description": "Click to remove it. You can redo this anytime."
+            },
+            "pick_two": {
+                "message": "Pick two jobs",
+                "description": "Click two jobs from the palette. They'll auto-fill into empty slots."
+            },
+            "auto_fill": {
+                "message": "We'll handle the rest!"
+            },
+            "party_close": {
+                "message": "Party's ready! Close this window"
+            },
+            "damage_check": {
+                "message": "This damage is lethal!",
+                "description": "Red numbers mean the party will wipe without mitigation. Let's fix that."
+            },
+            "select_miti": {
+                "message": "Choose a mitigation",
+                "description": "Select Reprisal to protect the whole party!"
+            },
+            "complete": {
+                "message": "Tutorial complete!"
+            }
+        },
+        "add_event": {
+            "name": {
+                "message": "Enter the attack name",
+                "description": "Type the boss ability name."
+            },
+            "damage": {
+                "message": "Enter the damage taken",
+                "description": "Enter the damage value you saw in-game."
+            },
+            "miti": {
+                "message": "Select mitigations"
+            },
+            "save": {
+                "message": "Save it!"
+            }
+        },
+        "share": {
+            "copy": {
+                "message": "Copy the share URL",
+                "description": "Send this URL to your teammates so they can see your plan."
+            },
+            "logo": {
+                "message": "Set a team logo!",
+                "description": "Log in to add your team logo to the OGP image. Makes sharing even better!"
+            }
+        },
+        "completion": {
+            "title": "You've got the basics!",
+            "subtitle": "You're ready to create your own mitigation plans. Try these features too.",
+            "share_hint": "Share your plans with teammates. Log in to add a team logo!",
+            "new_plan_hint": "Create plans for any content using the New Plan button.",
+            "menu_hint": "Revisit tutorials anytime from the tutorial button.",
+            "start_button": "Let's go"
+        }
     },
     "phase_modal": {
         "title": "Add Phase",
