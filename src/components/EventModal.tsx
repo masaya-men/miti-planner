@@ -10,7 +10,7 @@ import { useMitigations, useJobs, useLevelModifiers } from '../hooks/useSkillsDa
 import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
@@ -138,11 +138,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     const tutorialState = useTutorialStore();
     const isTutorialActive = tutorialState.isActive;
-    const currentStep = isTutorialActive ? TUTORIAL_STEPS[tutorialState.currentStepIndex] : null;
+    const currentStep = isTutorialActive ? tutorialState.getCurrentStep() : null;
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
-        if (isTutorialActive && currentStep?.id === 'tutorial-9d-miti-select') {
+        if (isTutorialActive && currentStep?.id === 'add-3-miti') {
             const mit = MITIGATIONS.find(m => m.id === id);
             const isTargetSkill = mit && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en);
             if (!isTargetSkill) return; // Block clicks on other mitigations during this step
@@ -295,7 +295,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     // Compute expected damage for Step 9C
     useEffect(() => {
-        if (isTutorialActive && currentStep?.id === 'tutorial-9c-damage-input') {
+        if (isTutorialActive && currentStep?.id === 'add-2-damage') {
             const h1 = partyMembers.find(m => m.id === 'H1');
             setTargetActualDamage(Math.floor(h1 ? h1.stats.hp * 0.8 : 80000));
         }
@@ -306,7 +306,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         if (!isTutorialActive) return;
 
         // 9B: Name Input
-        if (currentStep?.id === 'tutorial-9b-name-input') {
+        if (currentStep?.id === 'add-1-name') {
             setInputMode('reverse');
             const val = (contentLanguage === 'en' ? name.en : name.ja).toLowerCase();
             if (val.includes('アルテマ') || val.includes('ultima')) {
@@ -316,7 +316,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
 
         // 9C: Damage Input
-        if (currentStep?.id === 'tutorial-9c-damage-input' && targetActualDamage > 0) {
+        if (currentStep?.id === 'add-2-damage' && targetActualDamage > 0) {
             if (calcActualDamage === targetActualDamage) {
                 const tId = setTimeout(() => tutorialState.completeEvent('event:damage-entered'), 500);
                 return () => clearTimeout(tId);
@@ -324,7 +324,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
 
         // 9D: Mitigation Selection
-        if (currentStep?.id === 'tutorial-9d-miti-select') {
+        if (currentStep?.id === 'add-3-miti') {
             const selectedENNames = selectedMitigations.map(id => MITIGATIONS.find(m => m.id === id)?.name.en);
             const hasReprisal = selectedENNames.includes('Reprisal');
             const hasAddle = selectedENNames.includes('Addle');
@@ -337,7 +337,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
 
         // 9D: Auto-scroll to mitigations area
-        if (currentStep?.id === 'tutorial-9d-miti-select') {
+        if (currentStep?.id === 'add-3-miti') {
             const container = document.getElementById('event-modal-form');
             if (container) {
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
@@ -345,7 +345,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
 
         // 9E: Auto-scroll to bottom (save button)
-        if (currentStep?.id === 'tutorial-9e-save-btn') {
+        if (currentStep?.id === 'add-4-save') {
             const container = document.getElementById('event-modal-form');
             if (container) {
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
@@ -657,7 +657,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         })}
                                     </div>
                                     {/* Tutorial scroll hint for Step 9D */}
-                                    {currentStep?.id === 'tutorial-9d-miti-select' && selectedMitigations.length < 3 && (
+                                    {currentStep?.id === 'add-3-miti' && selectedMitigations.length < 3 && (
                                         <div className="flex flex-col items-center gap-1 py-2 text-cyan-400 animate-bounce">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M12 5v14M5 12l7 7 7-7" />
