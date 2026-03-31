@@ -64,7 +64,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 </div>
                 {/* Body */}
                 <div className="px-5 py-3">
-                    <p className="text-[12px] text-app-text-sec leading-relaxed font-medium">{message}</p>
+                    <p className="text-[12px] text-app-text-sec leading-relaxed font-medium whitespace-pre-line">{message}</p>
                 </div>
                 {/* Footer */}
                 <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-app-border">

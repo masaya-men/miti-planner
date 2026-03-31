@@ -138,34 +138,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
         ? addWaEiSpace(rawContentLabel)
         : rawContentLabel;
 
-    // ── Sidebar.tsx パターンの近接・ホバーState ──
-    const [isNear, setIsNear] = React.useState(false);
     const [isHovered, setIsHovered] = React.useState(false);
-
-    const leaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const clearLeaveTimer = () => {
-        if (leaveTimerRef.current) {
-            clearTimeout(leaveTimerRef.current);
-            leaveTimerRef.current = null;
-        }
-    };
-
-    const handleLeave = (e: React.MouseEvent) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const isMovingUp = e.clientY < rect.top;
-        if (isMovingUp) {
-            clearLeaveTimer();
-            setIsNear(false);
-            setIsHovered(false);
-        } else {
-            clearLeaveTimer();
-            leaveTimerRef.current = setTimeout(() => {
-                setIsNear(false);
-                setIsHovered(false);
-            }, 80);
-        }
-    };
 
     return (
 
@@ -182,13 +155,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none"
-                onMouseEnter={() => { clearLeaveTimer(); setIsNear(false); setIsHovered(false); }}
             >
-                <motion.div
+                <div
                     className="flex flex-col w-full h-[96px] pt-[5px]"
-                    initial={false}
-                    animate={{ y: (isNear || isHovered) ? -5 : 0 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
                     <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
@@ -414,41 +383,25 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             </motion.div>
 
-            {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
+            {/* [2] ── 常設ハンドル領域 ── */}
             <div className="w-full relative shrink-0" style={{ height: '24px' }}>
-                {/* 近接センサー：ハンドルの下側にのみ配置（上のボタン誤操作防止） */}
-                <div
-                    className="absolute top-[24px] left-0 right-0 h-3 pointer-events-auto z-30"
-                    onMouseEnter={() => { clearLeaveTimer(); setIsNear(true); }}
-                    onMouseLeave={(e) => handleLeave(e)}
-                />
-
                 {/* ハンドル本体 */}
-                <motion.div
-                    className="absolute bottom-0 left-0 right-0 z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
-                    initial={false}
-                    animate={{ height: (isNear || isHovered) ? 37 : 25 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                <div
+                    className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
                     <Tooltip content={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="bottom" wrapperClassName="w-full h-full">
                     <button
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-                        onMouseEnter={() => { clearLeaveTimer(); setIsNear(true); setIsHovered(true); }}
-                        onMouseLeave={(e) => handleLeave(e)}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
                         className={clsx(
                             "relative w-full h-full cursor-pointer overflow-hidden group/btn",
                             "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
-                        <motion.div
-                            className="absolute inset-0 bg-transparent"
-                            animate={{ opacity: isNear ? 0.5 : 0.1 }}
-                            transition={{ duration: 0.15 }}
-                        />
-
                         {/* 上端の固定ライン */}
                         <div className="absolute inset-x-0 top-0 h-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
                         {/* 下端の固定ライン */}
@@ -473,24 +426,19 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 {isHeaderCollapsed ? (
                                     <ChevronDown
                                         size={18}
-                                        className="text-app-text-muted"
+                                        className={clsx("transition-all duration-200", isHovered ? "text-app-text-sec" : "text-app-text-muted group-hover/btn:text-app-text-sec")}
                                     />
                                 ) : (
                                     <ChevronUp
                                         size={18}
-                                        className={clsx(
-                                            "transition-all duration-200",
-                                            isNear
-                                                ? "text-app-text-sec"
-                                                : "text-app-text-muted group-hover/btn:text-app-text-sec"
-                                        )}
+                                        className={clsx("transition-all duration-200", isHovered ? "text-app-text-sec" : "text-app-text-muted group-hover/btn:text-app-text-sec")}
                                     />
                                 )}
                             </motion.div>
                         </div>
                     </button>
                     </Tooltip>
-                </motion.div>
+                </div>
             </div>
 
             <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />

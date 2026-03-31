@@ -174,10 +174,16 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             return;
         }
 
+        // 配置時にリキャスト被り警告があれば、被り先をハイライト
+        const status = getResourceStatus(mitigation);
+        if (status.conflictInstanceId) {
+            useMitigationStore.getState().setConflictingMitigationId(status.conflictInstanceId);
+        }
+
         if (mitigation.scope === 'target') {
             setSelectedSingleTargetMit(mitigation);
             useTutorialStore.getState().completeEvent('tutorial:selected-target-miti');
-            
+
             setTimeout(() => {
                 const el = document.getElementById(`miti-btn-${mitigation.id}`);
                 const container = scrollContainerRef.current;
@@ -364,11 +370,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 )}
                                             </div>
                                             {!status.available ? (
-                                                <div className="text-[10px] text-red-600 dark:text-red-400 font-bold truncate">
+                                                <div className="text-[10px] text-red-600 dark:text-red-400 font-bold">
                                                     {status.message}
                                                 </div>
                                             ) : status.warning && (
-                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold truncate">
+                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
                                                     ⚠ {status.message}
                                                 </div>
                                             )}
