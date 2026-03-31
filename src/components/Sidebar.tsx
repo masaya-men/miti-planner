@@ -490,27 +490,32 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
 
     const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
 
-    // シリーズ一括選択: 各層の1番目のプランIDを収集
-    const firstPlanIds = React.useMemo(() => {
+    // シリーズ一括選択: 共有=各層の1番目、削除=全プラン
+    const seriesPlanIds = React.useMemo(() => {
+        if (multiSelect.mode === 'delete') {
+            // 削除モード: シリーズ内の全プランを対象
+            return floors.flatMap(floor => plans.filter(p => p.contentId === floor.id).map(p => p.id));
+        }
+        // 共有モード: 各層の1番目のプランのみ
         return floors
             .map(floor => {
                 const floorPlans = plans.filter(p => p.contentId === floor.id);
                 return floorPlans.length > 0 ? floorPlans[0].id : null;
             })
             .filter((id): id is string => id !== null);
-    }, [floors, plans]);
+    }, [floors, plans, multiSelect.mode]);
 
     // シリーズ内の選択状態: 全選択/一部/なし
     const selectedCount = React.useMemo(() =>
-        firstPlanIds.filter(id => multiSelect.selectedIds.includes(id)).length
-    , [firstPlanIds, multiSelect.selectedIds]);
-    const isAllSelected = firstPlanIds.length > 0 && selectedCount === firstPlanIds.length;
+        seriesPlanIds.filter(id => multiSelect.selectedIds.includes(id)).length
+    , [seriesPlanIds, multiSelect.selectedIds]);
+    const isAllSelected = seriesPlanIds.length > 0 && selectedCount === seriesPlanIds.length;
     const isSomeSelected = selectedCount > 0 && !isAllSelected;
 
     const handleSeriesCheckbox = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (onToggleSeriesSelect && firstPlanIds.length > 0) {
-            onToggleSeriesSelect(firstPlanIds);
+        if (onToggleSeriesSelect && seriesPlanIds.length > 0) {
+            onToggleSeriesSelect(seriesPlanIds);
             // チェック時に展開する
             if (!isAllSelected) {
                 setIsExpanded(true);
@@ -540,10 +545,10 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
     return (
         <div className="mb-1">
             <button
-                onClick={multiSelect.isEnabled && firstPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
+                onClick={multiSelect.isEnabled && seriesPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
                 className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
-                {multiSelect.isEnabled && firstPlanIds.length > 0 ? (
+                {multiSelect.isEnabled && seriesPlanIds.length > 0 ? (
                     <div className={clsx(
                         "shrink-0 transition-colors",
                         isAllSelected || isSomeSelected ? "text-app-text" : "text-app-text-muted/40 group-hover/series:text-app-text-muted"
@@ -1334,7 +1339,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             "bg-app-bg border border-app-text/15 rounded-2xl",
                             "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
                             "transition-all duration-300",
-                            multiSelect.isEnabled
+                            multiSelect.isEnabled && !bundleModalOpen
                                 ? "opacity-100 translate-x-[-50%] translate-y-0 pointer-events-auto"
                                 : "opacity-0 translate-x-[-50%] translate-y-10 pointer-events-none"
                         )}
