@@ -467,6 +467,7 @@ interface SeriesAccordionProps {
     selectedContentId: string | null;
     multiSelect: MultiSelectState;
     onToggleSelect: (id: string) => void;
+    onToggleSeriesSelect?: (floorIds: string[]) => void;
     onSelectContent: (content: ContentDefinition, forceNew?: boolean) => void;
     lang: ContentLanguage;
     highlightFirst?: boolean;
@@ -475,10 +476,11 @@ interface SeriesAccordionProps {
 }
 
 const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
-    series, floors, selectedContentId, multiSelect, onToggleSelect, onSelectContent, lang, highlightFirst, showLabel, defaultExpanded = true
+    series, floors, selectedContentId, multiSelect, onToggleSelect, onToggleSeriesSelect, onSelectContent, lang, highlightFirst, showLabel, defaultExpanded = true
 }) => {
     const hasActiveFloor = React.useMemo(() => floors.some(f => f.id === selectedContentId), [floors, selectedContentId]);
     const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
+    const plans = usePlanStore(s => s.plans);
 
     React.useEffect(() => {
         if (hasActiveFloor) {
@@ -487,6 +489,34 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
     }, [hasActiveFloor]);
 
     const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
+
+    // シリーズ一括選択: 各層の1番目のプランIDを収集
+    const firstPlanIds = React.useMemo(() => {
+        return floors
+            .map(floor => {
+                const floorPlans = plans.filter(p => p.contentId === floor.id);
+                return floorPlans.length > 0 ? floorPlans[0].id : null;
+            })
+            .filter((id): id is string => id !== null);
+    }, [floors, plans]);
+
+    // シリーズ内の選択状態: 全選択/一部/なし
+    const selectedCount = React.useMemo(() =>
+        firstPlanIds.filter(id => multiSelect.selectedIds.includes(id)).length
+    , [firstPlanIds, multiSelect.selectedIds]);
+    const isAllSelected = firstPlanIds.length > 0 && selectedCount === firstPlanIds.length;
+    const isSomeSelected = selectedCount > 0 && !isAllSelected;
+
+    const handleSeriesCheckbox = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onToggleSeriesSelect && firstPlanIds.length > 0) {
+            onToggleSeriesSelect(firstPlanIds);
+            // チェック時に展開する
+            if (!isAllSelected) {
+                setIsExpanded(true);
+            }
+        }
+    };
 
     if (!showLabel) {
         return (
@@ -510,12 +540,27 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
     return (
         <div className="mb-1">
             <button
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={multiSelect.isEnabled && firstPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
                 className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
-                <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                    <ChevronRight size={10} className="text-app-text-muted" />
-                </div>
+                {multiSelect.isEnabled && firstPlanIds.length > 0 ? (
+                    <div className={clsx(
+                        "shrink-0 transition-colors",
+                        isAllSelected || isSomeSelected ? "text-app-text" : "text-app-text-muted/40 group-hover/series:text-app-text-muted"
+                    )}>
+                        {isAllSelected ? (
+                            <CheckSquare size={14} />
+                        ) : isSomeSelected ? (
+                            <CheckSquare size={14} className="opacity-50" />
+                        ) : (
+                            <Square size={14} />
+                        )}
+                    </div>
+                ) : (
+                    <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                        <ChevronRight size={10} className="text-app-text-muted" />
+                    </div>
+                )}
                 <span className={clsx("flex-1 text-left truncate", "text-app-text")}>
                     {seriesName}
                 </span>
@@ -550,6 +595,7 @@ interface CategoryAccordionProps {
     selectedContentId: string | null;
     multiSelect: MultiSelectState;
     onToggleSelect: (id: string) => void;
+    onToggleSeriesSelect?: (floorIds: string[]) => void;
     onSelectContent: (content: ContentDefinition, forceNew?: boolean) => void;
     highlightFirst?: boolean;
     lang: ContentLanguage;
@@ -557,7 +603,7 @@ interface CategoryAccordionProps {
 }
 
 const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
-    level, category, selectedContentId, multiSelect, onToggleSelect, onSelectContent, highlightFirst, lang, defaultExpanded = false
+    level, category, selectedContentId, multiSelect, onToggleSelect, onToggleSeriesSelect, onSelectContent, highlightFirst, lang, defaultExpanded = false
 }) => {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
     const projectLabel = getProjectLabel(level, category);
@@ -594,6 +640,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                             selectedContentId={selectedContentId}
                             multiSelect={multiSelect}
                             onToggleSelect={onToggleSelect}
+                            onToggleSeriesSelect={onToggleSeriesSelect}
                             onSelectContent={onSelectContent}
                             lang={lang}
                             highlightFirst={highlightFirst}
@@ -1010,6 +1057,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         });
     };
 
+    // シリーズ一括選択: 全選択済みなら全解除、それ以外なら未選択分を追加
+    const toggleSeriesSelect = (planIds: string[]) => {
+        setMultiSelect(prev => {
+            const allSelected = planIds.every(id => prev.selectedIds.includes(id));
+            if (allSelected) {
+                // 全解除
+                return { ...prev, selectedIds: prev.selectedIds.filter(id => !planIds.includes(id)) };
+            } else {
+                // 未選択分を追加（共有モード時は10件制限を考慮）
+                const toAdd = planIds.filter(id => !prev.selectedIds.includes(id));
+                const newIds = [...prev.selectedIds];
+                for (const id of toAdd) {
+                    if (prev.mode === 'delete' || newIds.length < 10) {
+                        newIds.push(id);
+                    }
+                }
+                return { ...prev, selectedIds: newIds };
+            }
+        });
+    };
+
     // まとめて共有（バンドル） → モーダル経由
     const [bundleModalOpen, setBundleModalOpen] = useState(false);
     const [bundlePlansForModal, setBundlePlansForModal] = useState<{ contentId: string | null; title: string; planData: any }[]>([]);
@@ -1219,6 +1287,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     selectedContentId={selectedContentId}
                                     multiSelect={multiSelect}
                                     onToggleSelect={toggleItemId}
+                                    onToggleSeriesSelect={toggleSeriesSelect}
                                     onSelectContent={handleSelectContent}
                                     lang={lang}
                                     highlightFirst={isTutorialContentSelect && category === availableCategories[0]}

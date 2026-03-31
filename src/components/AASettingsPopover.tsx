@@ -177,10 +177,10 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         }}
                         disabled={settings.damage <= 0}
                         className={clsx(
-                            "w-full py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                            "w-full py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer border",
                             settings.damage > 0
-                                ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
-                                : "bg-app-text/20 text-app-text/40 cursor-not-allowed"
+                                ? "border-app-text text-app-text bg-transparent hover:bg-app-text hover:text-app-bg active:scale-[0.98]"
+                                : "border-app-text/20 text-app-text/40 bg-transparent cursor-not-allowed"
                         )}
                     >
                         {settings.damage > 0

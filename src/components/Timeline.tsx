@@ -19,7 +19,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, List
 } from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
@@ -635,11 +635,14 @@ const Timeline: React.FC = () => {
     useEffect(() => {
         const handleAutoPlanEvent = () => handleAutoPlan();
         const handleImportEvent = () => setImportModalOpen(true);
+        const handlePartyShortcut = () => setPartySettingsOpenLocal(prev => !prev);
         window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
         window.addEventListener('timeline:import', handleImportEvent);
+        window.addEventListener('shortcut:party', handlePartyShortcut);
         return () => {
             window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
             window.removeEventListener('timeline:import', handleImportEvent);
+            window.removeEventListener('shortcut:party', handlePartyShortcut);
         };
     }, [handleAutoPlan]);
 
@@ -1299,6 +1302,18 @@ const Timeline: React.FC = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [eventPopover]);
 
+    // コピーモード: Escapeでキャンセル
+    useEffect(() => {
+        if (!clipboardEvent) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setClipboardEvent(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [clipboardEvent]);
+
     useEffect(() => {
         if (!clearMenuOpen) return;
         const handleClick = () => setClearMenuOpen(false);
@@ -1442,8 +1457,8 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area C: U.Dmg(100) — 罫線トグル */}
-                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center h-full">
+                            {/* Area C: U.Dmg(100) — 罫線トグル + チートシート（準備中） */}
+                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center gap-1 h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().setShowRowBorders(!useMitigationStore.getState().showRowBorders)}
@@ -1455,6 +1470,14 @@ const Timeline: React.FC = () => {
                                         )}
                                     >
                                         <Rows3 size={12} />
+                                    </button>
+                                </Tooltip>
+                                <Tooltip content={t('timeline.secret_feature')}>
+                                    <button
+                                        className="p-1 rounded transition-all duration-150 text-app-text-muted cursor-default opacity-40"
+                                        disabled
+                                    >
+                                        <List size={12} />
                                     </button>
                                 </Tooltip>
                             </div>
@@ -2001,14 +2024,14 @@ const Timeline: React.FC = () => {
             </div>
 
             {clipboardEvent && (
-                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-app-text text-app-bg px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 border border-app-text">
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5 bg-app-bg border border-app-text/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,.6)] transition-all duration-300 pointer-events-auto">
                     <div className="flex items-center gap-2">
                         <span className="text-xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm leading-tight drop-shadow-md">
+                            <span className="font-bold text-sm leading-tight drop-shadow-md text-app-text">
                                 {t('timeline.copying', { name: clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : t('timeline.event') })}
                             </span>
-                            <span className="text-[10px] text-app-bg/70 leading-tight">
+                            <span className="text-[10px] text-app-text-muted leading-tight">
                                 {t('timeline.paste_hint')}
                             </span>
                         </div>
@@ -2016,7 +2039,7 @@ const Timeline: React.FC = () => {
                     <Tooltip content={t('timeline.cancel_copy')}>
                         <button
                             onClick={() => setClipboardEvent(null)}
-                            className="ml-3 bg-black/20 hover:bg-black/40 p-1.5 rounded-full  cursor-pointer"
+                            className="ml-3 bg-app-text/10 hover:bg-app-text/20 p-1.5 rounded-full cursor-pointer text-app-text"
                         >
                             <X size={16} />
                         </button>
