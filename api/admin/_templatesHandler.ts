@@ -95,6 +95,23 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json(serversSnap.exists ? serversSnap.data() : {});
       }
 
+      // バックアップ一覧取得
+      if (req.query?.type === 'backups') {
+        const masterSnap = await db.collection('master_backups')
+          .orderBy('createdAt', 'desc')
+          .limit(50)
+          .get();
+        const templateSnap = await db.collection('template_backups')
+          .orderBy('createdAt', 'desc')
+          .limit(50)
+          .get();
+        const backups = [
+          ...masterSnap.docs.map(d => ({ id: d.id, ...d.data(), collection: 'master' })),
+          ...templateSnap.docs.map(d => ({ id: d.id, ...d.data(), collection: 'template' })),
+        ].sort((a: any, b: any) => (b.createdAt?._seconds || 0) - (a.createdAt?._seconds || 0));
+        return res.status(200).json({ backups });
+      }
+
       const id = req.query?.id;
 
       // 特定テンプレート取得
@@ -166,6 +183,50 @@ export default async function handler(req: any, res: any) {
 
     // --- PUT: テンプレート更新 / マスターコンフィグ更新 ---
     if (req.method === 'PUT') {
+      // バックアップから復元
+      if (req.body?.type === 'restore') {
+        const { backupId, backupCollection } = req.body;
+        if (!backupId || !backupCollection) {
+          return res.status(400).json({ error: 'backupId and backupCollection required' });
+        }
+        const collName = backupCollection === 'master' ? 'master_backups' : 'template_backups';
+        const backupDoc = await db.collection(collName).doc(backupId).get();
+        if (!backupDoc.exists) {
+          return res.status(404).json({ error: 'Backup not found' });
+        }
+        const backup = backupDoc.data() as any;
+
+        // 復元先を決定し、現在のデータをバックアップしてから復元
+        if (backup.type === 'template' && backup.contentId) {
+          const currentDoc = await db.collection('templates').doc(backup.contentId).get();
+          if (currentDoc.exists) {
+            await db.collection('template_backups').doc(`template_${backup.contentId}_${Date.now()}`).set({
+              type: 'template', contentId: backup.contentId, data: currentDoc.data(), createdAt: FieldValue.serverTimestamp(),
+            });
+          }
+          await db.collection('templates').doc(backup.contentId).set(backup.data);
+        } else if (backup.type && backup.data) {
+          const targetPath = `master/${backup.type}`;
+          const currentDoc = await db.doc(targetPath).get();
+          if (currentDoc.exists) {
+            await db.collection('master_backups').doc(`${backup.type}_${Date.now()}`).set({
+              type: backup.type, data: currentDoc.data(), createdAt: FieldValue.serverTimestamp(),
+            });
+          }
+          await db.doc(targetPath).set(backup.data);
+        }
+
+        await bumpDataVersion(db);
+        await writeAuditLog({
+          action: 'restore' as any,
+          target: `backup.${backupId}`,
+          adminUid,
+          changes: { before: undefined, after: { restored_from: backupId } },
+        });
+
+        return res.status(200).json({ success: true });
+      }
+
       // マスターコンフィグ更新
       if (req.body?.type === 'config') {
         const configRef = db.doc('master/config');
