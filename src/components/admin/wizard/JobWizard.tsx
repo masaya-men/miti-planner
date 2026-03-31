@@ -4,7 +4,6 @@
  */
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { useWizard } from './useWizard';
 import type { WizardStep } from './useWizard';
 import { AdminWizard } from './AdminWizard';
@@ -40,7 +39,6 @@ const JOB_WIZARD_STEPS: WizardStep[] = [
 
 export function JobWizard() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const isJa = i18n.language.startsWith('ja');
 
   // サブミット処理
