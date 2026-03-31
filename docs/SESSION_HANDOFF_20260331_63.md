@@ -1,4 +1,4 @@
-# セッション引き継ぎ書（2026-03-31 第62セッション）
+# セッション引き継ぎ書（2026-03-31 第63セッション）
 
 > **このファイルは、メモリやコンテキストが完全にリセットされた場合でも、次のセッションが完璧に開始できるよう詳細に記述されている。**
 
@@ -41,61 +41,63 @@
 
 ---
 
-## 今回のセッション（第62セッション）で完了したこと
+## 今回のセッション（第63セッション）で完了したこと
 
-### βテストフィードバック対応 第1弾（全て本番デプロイ済み）
+### βテストフィードバック対応 第2弾（全て本番デプロイ済み）
 
-**1. サイドバー・ヘッダーのホバー展開挙動削除**
-- `isNear` 近接センサー・幅変化を削除。アイコンの振動+スケールアニメーションは `isHovered` で維持
-- 変更: `Sidebar.tsx`, `ConsolidatedHeader.tsx`
+**1. コントロールバーのアイコン配置見直し**
+- チートシートボタンをMitiPlannerPage.tsxのフローティングUIからコントロールバーArea C（罫線エリア）に移動
+- ボタンは無効化状態（disabled + opacity-40）。ツールチップ: JA「もうちょっと待ってね」/ EN「Maybe someday」
+- MitiPlannerPage.tsxからviewMode state、CheatSheetView import、ビュー切り替えUI一式を削除
+- CheatSheetView.tsxコンポーネント自体は将来再利用のため残置
+- 変更: `MitiPlannerPage.tsx`, `Timeline.tsx`, `ja.json`, `en.json`
 
-**2. 「表を展開する」（旧コンパクト表示）名称変更＋デフォルト化**
-- i18n: `compact_view` → JA「表を展開する」/ EN「Expand Table」
-- デフォルト: `hideEmptyRows: true`（コンパクトがデフォルト）
-- スタイル反転: `!hideEmptyRows` でハイライト
-- 変更: `Timeline.tsx`, `useMitigationStore.ts`, `ja.json`, `en.json`
+**2. AA設定ボタンのスタイル修正**
+- 黒塗りベタ→白背景+黒ボーダーのアウトライン、ホバーで色反転に変更
+- disabled状態も同様にアウトラインスタイルに
+- 変更: `AASettingsPopover.tsx`
 
-**3. ジョブアイコン行の右端角丸除去＋罫線追加**
-- `rounded-tr-2xl border-r-0` → `border-r border-app-border`
+**3. コピートーストのスタイル統一+ESC対応**
+- 黒背景トースト→他のトーストと同じスタイル（bg-app-bg, border-app-text/15, rounded-2xl, shadow）に統一
+- テキスト色をtext-app-text / text-app-text-mutedに変更
+- ×ボタンもテーマに合わせた色に
+- ESCキーでクリップボードモードをキャンセルするuseEffect追加
 - 変更: `Timeline.tsx`
 
-**4. コピースタンプのメッセージ改善**
-- i18nテンプレート化: `copying` キーに `{{name}}` パラメータ追加
-- ハードコード `'イベント'` → `t('timeline.event')` に
-- 英語の語順修正（`"Attack Copying"` → `"Copying: Attack"`）
-- 変更: `Timeline.tsx`, `ja.json`, `en.json`
+**4. キーボードショートカット追加**
+- Layout.tsxにグローバルキーボードショートカットを実装
+  - `S`: サイドバー開閉（handleToggleSidebar呼び出し）
+  - `H`: ヘッダー開閉（isHeaderCollapsed切り替え）
+  - `P`: パーティ編成モーダル開閉（カスタムイベント`shortcut:party`経由）
+  - `F`: フォーカスモード（サイドバー+ヘッダー両方非表示。再押下で元の状態に復元）
+- INPUT/TEXTAREA/SELECT内、Ctrl/Meta/Alt組み合わせ時は無視
+- フォーカスモードは進入前の状態をrefで記憶して復元
+- PCのみ動作（isMobileチェック）
+- Timeline.tsxで`shortcut:party`イベントをリッスンしてpartySettingsOpenLocalをトグル
+- 変更: `Layout.tsx`, `Timeline.tsx`
 
-**5. 軽減配置時のリキャスト被り表現改善**
-- 警告メッセージ: JA「○s後に配置済。ずらすか除去してください。」/ EN「Placed Xs later. Remove or adjust it.」
-- `cd_overlap` キーをi18nに登録
-- **被り先パルスアニメーション**: 配置時に被り先の軽減が `ring-2 ring-amber-400` + パルスで点滅。操作or削除で解除
-- 新規: `conflictingMitigationId` をZustandストアに追加、`resourceTracker.ts` から `conflictInstanceId` を返却
-- 無効配置トースト: 画面下部中央の統一スタイルに変更。メッセージ「ここには配置できません」
-- 変更: `Timeline.tsx`, `MitigationSelector.tsx`, `useMitigationStore.ts`, `resourceTracker.ts`, `index.css`, `ja.json`, `en.json`
+**5. シリーズ一括選択（まとめて共有の強化）**
+- SeriesAccordionにmultiSelectモード時のチェックボックスを追加
+- チェックボックスはシリーズ名ボタンの内部に配置（行全体がクリック判定）
+- クリックで各floorの1番目のプランを自動選択/解除
+- 全選択→CheckSquare、一部選択→CheckSquare(opacity-50)、未選択→Square
+- 共有モード時の10件制限も考慮
+- Sidebar.tsxにtoggleSeriesSelect関数を追加、CategoryAccordion→SeriesAccordionへprop中継
+- 変更: `Sidebar.tsx`
 
-**6. オートプラン確認ダイアログの注意書き追加**
-- 「8人フルパーティ以外では正しく動作しない場合があります。AIは使用しておらず、独自アルゴリズムによる実験的な機能です。」
-- `ConfirmDialog.tsx` に `whitespace-pre-line` 追加で改行対応
-- 変更: `ConfirmDialog.tsx`, `ja.json`, `en.json`
-
-**7. 最小フォントサイズ見直し＋サイドバーUI改善**
-- `text-[7px]` → `text-[8px]`（Timeline.tsxヘッダーモバイル）
-- 主要な `text-[8px]` → `text-[10px]`（Sidebar.tsxコンテンツ名、Timeline.tsx STARTラベル）
-- サイドバー層名バッジ: 1行・2行を同一箱（`w-7 h-8`）に統一
-- 「最近のアクティビティ」下に `border-b border-glass-border` 罫線追加
-- 変更: `Sidebar.tsx`, `Timeline.tsx`
+**6. ツールチップのテーマ配色統一**
+- tooltip-invertクラスを削除し、ダークモードでダーク配色/ライトモードでライト配色に変更
+- glass-tier3のデフォルトスタイルがそのまま適用される
+- text-app-textでテキスト色をテーマに合わせる
+- 変更: `Tooltip.tsx`
 
 ---
 
 ## βテストフィードバック 残タスク
 
-### 未着手（方針相談が必要）
-1. **コントロールバーのアイコン配置見直し** — AA・コンパクトの右のアイコンが何か分からない。チートシートをなくすか別のものに変更し、罫線ONOFFとくっつける等を検討中
-2. **ヘビー級まとめ共有** — シリーズクリックで中のプラン全選択。共有限度でチェック外し。デザイン要検討
-
 ### 未着手（設計から必要な大タスク）
-3. **チュートリアル全面刷新** — 短い個別チュートリアルに分割。指アイコン方式に統一。戻るボタン廃止
-4. **チュートリアル構成の見直し** — 攻撃追加ステップの要否、ユーザーストーリー再設計
+1. **チュートリアル全面刷新** — 短い個別チュートリアルに分割。指アイコン方式に統一。戻るボタン廃止
+2. **チュートリアル構成の見直し** — 攻撃追加ステップの要否、ユーザーストーリー再設計
 
 ### 継続検討（方針未確定）
 - FFLogsアイコン案、チートシートMTST分け、フェーズなしコンテンツ、テンプレート日本語攻撃名、みんなの軽減表、軽減選択モーダル画面サイズ
@@ -104,15 +106,14 @@
 
 ## 次セッションの優先タスク
 
-### 1. βテストフィードバック対応の続き
-- コントロールバーのアイコン配置見直し（方針相談→実装）
-- ヘビー級まとめ共有（設計→実装）
-
-### 2. チュートリアル刷新（大タスク）
+### 1. チュートリアル刷新（大タスク）
 - 設計から入る必要あり。brainstorming → writing-plans → 実装の流れ
+- βテストフィードバックの主要な残タスク
 
-### 3. feature/pretext-lpブランチの整理
+### 2. feature/pretext-lpブランチの整理
 - 不採用が確定しているのでブランチ削除を検討
+
+### 3. 継続検討タスクの方針決め
 
 ---
 
@@ -125,6 +126,7 @@
 - **OAuthコールバックURL**: Discord=`/api/auth?provider=discord`, Twitter=`/api/auth?provider=twitter`
 - **Cookieパス**: 統合後は `/api/auth`
 - **LoPo管理マニュアル**: `C:\Users\masay\Desktop\LoPo管理マニュアル\` — 全シークレット含む（git外）
+- **キーボードショートカット**: S(サイドバー), H(ヘッダー), P(パーティ), F(フォーカスモード) — Layout.tsxで実装
 
 ## 管理者ログイン情報
 - ADMIN_SECRET: Vercel環境変数に設定済み
