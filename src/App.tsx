@@ -20,6 +20,8 @@ import { AdminServers } from './components/admin/AdminServers';
 import { ContentWizard } from './components/admin/wizard/ContentWizard';
 import { TemplateWizard } from './components/admin/wizard/TemplateWizard';
 import { SkillWizard } from './components/admin/wizard/SkillWizard';
+import { SkillEditWizard } from './components/admin/wizard/SkillEditWizard';
+import { JobWizard } from './components/admin/wizard/JobWizard';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -118,6 +120,8 @@ function App() {
               <Route path="content-wizard" element={<ContentWizard />} />
               <Route path="template-wizard" element={<TemplateWizard />} />
               <Route path="skill-wizard" element={<SkillWizard />} />
+              <Route path="skill-edit" element={<SkillEditWizard />} />
+              <Route path="job-wizard" element={<JobWizard />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
