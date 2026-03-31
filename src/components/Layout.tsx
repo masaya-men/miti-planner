@@ -127,6 +127,54 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         };
     }, [isMobile]);
 
+    // キーボードショートカット（PCのみ）
+    // F: フォーカスモード（サイドバー+ヘッダー両方非表示/復元）
+    // S: サイドバー開閉
+    // H: ヘッダー開閉
+    // P: パーティ編成モーダル
+    const focusModeRef = React.useRef(false);
+    const preFocusSidebarRef = React.useRef(true);
+    const preFocusHeaderRef = React.useRef(false);
+    React.useEffect(() => {
+        const handleShortcut = (e: KeyboardEvent) => {
+            if (isMobile) return;
+            const tag = (e.target as HTMLElement)?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            const key = e.key.toLowerCase();
+            if (key === 's') {
+                e.preventDefault();
+                handleToggleSidebar();
+            } else if (key === 'h') {
+                e.preventDefault();
+                setIsHeaderCollapsed(prev => !prev);
+            } else if (key === 'p') {
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('shortcut:party'));
+            } else if (key === 'f') {
+                e.preventDefault();
+                if (!focusModeRef.current) {
+                    // フォーカスモードに入る: 現在の状態を記憶してから隠す
+                    preFocusSidebarRef.current = isSidebarOpen;
+                    preFocusHeaderRef.current = isHeaderCollapsed;
+                    setIsSidebarOpen(false);
+                    localStorage.setItem('lopo_sidebar_open', 'false');
+                    setIsHeaderCollapsed(true);
+                    focusModeRef.current = true;
+                } else {
+                    // フォーカスモードから抜ける: 記憶した状態に復元
+                    setIsSidebarOpen(preFocusSidebarRef.current);
+                    localStorage.setItem('lopo_sidebar_open', String(preFocusSidebarRef.current));
+                    setIsHeaderCollapsed(preFocusHeaderRef.current);
+                    focusModeRef.current = false;
+                }
+            }
+        };
+        window.addEventListener('keydown', handleShortcut);
+        return () => window.removeEventListener('keydown', handleShortcut);
+    }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
+
     // 自動保存（2層構造）
     // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
     // Firestore: イベント駆動（ページ離脱 / タブ非表示 / プラン切替時）+ 5分定期バックアップ

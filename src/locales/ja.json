@@ -280,6 +280,7 @@
         "event_delete": "イベントを削除",
         "add_mitigation_here": "軽減を追加",
         "row_borders": "罫線の表示/非表示",
+        "secret_feature": "もうちょっと待ってね",
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",
