@@ -34,9 +34,9 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel }: PillFlyPro
     }
   }, [toSelector]);
 
-  // 1.5秒後に飛行開始
+  // 3秒後に飛行開始
   useEffect(() => {
-    const timer = setTimeout(() => setPhase('fly'), 1500);
+    const timer = setTimeout(() => setPhase('fly'), 3000);
     return () => clearTimeout(timer);
   }, []);
 

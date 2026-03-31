@@ -62,10 +62,11 @@ function useTargetRect(selector: string | null): TargetRect | null {
  */
 function calcPillPos(rect: TargetRect | null): { top: number; left: number } {
   if (!rect) return { top: -100, left: -100 };
-  return {
-    top: rect.top - 32,
-    left: rect.left + rect.width / 2 - 28,
-  };
+  // 上に表示。画面上端に出ないようクランプ。出る場合は下に表示。
+  let top = rect.top - 32;
+  if (top < 8) top = rect.top + rect.height + 8;
+  const left = Math.max(8, Math.min(rect.left + rect.width / 2 - 28, window.innerWidth - 70));
+  return { top, left };
 }
 
 /**
@@ -137,10 +138,10 @@ export function TutorialOverlay() {
 
   return (
     <>
-      {/* クリックブロック — ターゲットがある場合のみ有効（target: nullなら自由操作） */}
+      {/* クリックブロック — ターゲットがあり演出中でない場合のみ有効 */}
       <TutorialBlocker
         targetRect={targetRect}
-        active={!!step.target && (!step.animation || step.animation === 'pill-fly')}
+        active={!!step.target && !step.animation}
       />
 
       <AnimatePresence mode="wait">

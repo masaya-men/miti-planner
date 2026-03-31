@@ -155,6 +155,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </button>
                             <Tooltip content="Remove Job">
                                 <button
+                                    data-tutorial-remove={member.id}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onRemoveJob(member.id);
@@ -303,8 +304,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
     // Memoized Callbacks for SlotItem
     const handleFocusToggle = React.useCallback((index: number) => {
-        // Tutorial checks handled in SlotItem for simplicity or passed as flags
         setFocusedSlot(prev => prev === index ? null : index);
+        useTutorialStore.getState().completeEvent('party:slot-focused');
     }, []);
 
     const handleRemoveJob = React.useCallback((memberId: string) => {
@@ -498,6 +499,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     return (
                                         <button
                                             key={job.id}
+                                            data-job-id={job.id}
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn cursor-pointer",

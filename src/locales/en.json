@@ -633,17 +633,23 @@
                 "message": "Set up your party",
                 "description": "Click the Party Comp button to configure your team."
             },
-            "wrong_slot": {
-                "message": "Try placing a job here",
-                "description": "You can place any job in any slot, regardless of role. Give it a try!"
+            "select_slot": {
+                "message": "Select a slot",
+                "description": "Click the H1 (Healer) slot to select it."
+            },
+            "pick_blm": {
+                "message": "Place Black Mage here",
+                "description": "A healer slot with Black Mage? That's fine — any job can go anywhere!"
             },
             "delete_job": {
                 "message": "Mistakes are OK!",
-                "description": "Click to remove it. You can redo this anytime."
+                "description": "Click the trash button to remove it. Try again anytime."
             },
-            "pick_two": {
-                "message": "Pick two jobs",
-                "description": "Click two jobs from the palette. They'll auto-fill into empty slots."
+            "pick_war": {
+                "message": "Now pick Warrior"
+            },
+            "pick_whm": {
+                "message": "Now pick White Mage"
             },
             "auto_fill": {
                 "message": "We'll handle the rest!"
