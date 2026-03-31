@@ -524,8 +524,9 @@ export const TimelineRow = memo(({
                     <div
                         key={member.id}
                         data-tutorial={
-                            member.id === 'ST' && time === 4 ? 'miti-cell-st-4' :
-                                member.id === 'ST' && time === 10 ? 'miti-cell-st-10' : undefined
+                            member.id === 'MT' && time === 4 ? 'miti-cell-mt-4' :
+                                member.id === 'ST' && time === 4 ? 'miti-cell-st-4' :
+                                    member.id === 'ST' && time === 10 ? 'miti-cell-st-10' : undefined
                         }
                         className={clsx(
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
