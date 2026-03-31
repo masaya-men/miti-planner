@@ -24,6 +24,7 @@ import { SkillEditWizard } from './components/admin/wizard/SkillEditWizard';
 import { JobWizard } from './components/admin/wizard/JobWizard';
 import { StatsWizard } from './components/admin/wizard/StatsWizard';
 import { AdminBackups } from './components/admin/AdminBackups';
+import { AdminLogs } from './components/admin/AdminLogs';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -126,6 +127,7 @@ function App() {
               <Route path="job-wizard" element={<JobWizard />} />
               <Route path="stats-wizard" element={<StatsWizard />} />
               <Route path="backups" element={<AdminBackups />} />
+              <Route path="logs" element={<AdminLogs />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />

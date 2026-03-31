@@ -112,6 +112,17 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json({ backups });
       }
 
+      // 監査ログ取得
+      if (req.query?.type === 'logs') {
+        const limitNum = parseInt(req.query.limit as string) || 50;
+        const snap = await db.collection('admin_logs')
+          .orderBy('timestamp', 'desc')
+          .limit(limitNum)
+          .get();
+        const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        return res.status(200).json({ logs });
+      }
+
       const id = req.query?.id;
 
       // 特定テンプレート取得

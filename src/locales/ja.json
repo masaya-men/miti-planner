@@ -1141,6 +1141,7 @@
         "logs_no_data": "変更履歴はありません",
         "logs_action_create": "作成",
         "logs_action_update": "更新",
-        "logs_action_delete": "削除"
+        "logs_action_delete": "削除",
+        "logs_action_restore": "復元"
     }
 }
