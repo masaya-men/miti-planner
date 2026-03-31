@@ -55,7 +55,7 @@ export function CompletionCard({ onDismiss }: CompletionCardProps) {
 
         <button
           onClick={onDismiss}
-          className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80"
+          className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80 cursor-pointer"
           style={{ backgroundColor: '#22c55e', color: 'white' }}
         >
           {t('tutorial.completion.start_button')}

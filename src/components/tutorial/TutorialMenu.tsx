@@ -76,7 +76,7 @@ export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
                   useTutorialStore.getState().startTutorial(id);
                 }}
                 className={clsx(
-                  'w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors',
+                  'w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors cursor-pointer',
                   'hover:bg-app-text/5 text-app-text'
                 )}
               >
