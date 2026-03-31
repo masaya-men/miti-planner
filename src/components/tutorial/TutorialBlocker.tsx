@@ -55,10 +55,13 @@ function buildClipPath(rect: TargetRect): string {
   const w = rect.width + pad * 2;
   const h = rect.height + pad * 2;
   const r = 8; // 角丸
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
   // SVG path: 外側（全画面を時計回り）+ 内側（角丸矩形を反時計回り）
+  // clip-path: path() ではvw/vh単位が使えないためピクセル値を使用
   return `path(evenodd, "\
-M 0 0 L 100vw 0 L 100vw 100vh L 0 100vh Z \
+M 0 0 L ${vw} 0 L ${vw} ${vh} L 0 ${vh} Z \
 M ${x + r} ${y} \
 L ${x + w - r} ${y} Q ${x + w} ${y} ${x + w} ${y + r} \
 L ${x + w} ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} \
