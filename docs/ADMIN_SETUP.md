@@ -49,5 +49,5 @@ curl -X POST "https://lopoly.app/api/admin?resource=role" \
 - 本番URL: https://lopoly.app/
 - Discord: https://discord.gg/z7uypbJSnN
 - Ko-fi: https://ko-fi.com/lopoly
-- **backdrop-filterは直書き禁止** → docs/TECH_NOTES.md参照
-- **conic-gradientの回転要素は200vmax正方形にすること** → docs/TECH_NOTES.md参照
+- **backdrop-filterは直書き禁止** → `.claude/rules/css-rules.md` 参照
+- **conic-gradientの回転要素は200vmax正方形にすること** → `.claude/rules/css-rules.md` 参照
