@@ -55,6 +55,7 @@ interface MitigationState {
     showRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
+    conflictingMitigationId: string | null;
 
     // Undo/Redo History (not persisted)
     _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
@@ -109,6 +110,7 @@ interface MitigationState {
     setShowRowBorders: (show: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
+    setConflictingMitigationId: (id: string | null) => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -190,10 +192,11 @@ export const useMitigationStore = create<MitigationState>()(
                 schAetherflowPatterns: {} as Record<string, 1 | 2>,
                 myMemberId: null,
                 myJobHighlight: false,
-                hideEmptyRows: false,
+                hideEmptyRows: true,
                 showRowBorders: false,
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
+                conflictingMitigationId: null,
                 _history: [],
                 _future: [],
 
@@ -363,6 +366,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setShowRowBorders: (show) => set({ showRowBorders: show }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
+                setConflictingMitigationId: (id) => set({ conflictingMitigationId: id }),
 
                 addEvent: (event) => {
                     pushHistory();
@@ -460,6 +464,9 @@ export const useMitigationStore = create<MitigationState>()(
 
                 removeMitigation: (id) => {
                     pushHistory();
+                    // 被り先のアニメーション、または被り元の軽減が削除された場合もクリア
+                    const currentConflict = get().conflictingMitigationId;
+                    if (currentConflict) set({ conflictingMitigationId: null });
                     set((state) => {
                         const removed = state.timelineMitigations.find(m => m.id === id);
                         if (!removed) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
@@ -788,7 +795,7 @@ export const useMitigationStore = create<MitigationState>()(
                         partyMembers: freshMembers,
                         myMemberId: null,
                         myJobHighlight: false,
-                        hideEmptyRows: false,
+                        hideEmptyRows: true,
                         _history: [],
                         _future: [],
                     });

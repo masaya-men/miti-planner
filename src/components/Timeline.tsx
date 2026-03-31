@@ -146,9 +146,10 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
-    const { myJobHighlight, myMemberId, hideEmptyRows } = useMitigationStore(
-        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
+    const { myJobHighlight, myMemberId, hideEmptyRows, conflictingMitigationId } = useMitigationStore(
+        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows, conflictingMitigationId: s.conflictingMitigationId }))
     );
+    const isConflicting = conflictingMitigationId === mitigation.id;
 
     const def = MITIGATIONS.find(m => m.id === mitigation.mitigationId);
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
@@ -243,7 +244,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         if (timeLabelRef.current) timeLabelRef.current.style.display = 'none';
     };
 
-    const [toastMessage, setToastMessage] = useState<{ message: string; leftOffset: number } | null>(null);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     useEffect(() => {
         if (toastMessage) {
@@ -358,11 +359,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                 resetDragPosition(false);
                 onUpdateTime(mitigation.id, newTime);
             } else {
-                const containerLeft = scrollContainerRef.current?.getBoundingClientRect().left ?? 0;
-                setToastMessage({
-                    message: status.message || t('timeline.invalid_placement', 'Invalid placement'),
-                    leftOffset: containerLeft + left
-                });
+                setToastMessage(t('timeline.cannot_place_here'));
                 resetDragPosition(true);
             }
         } else {
@@ -406,16 +403,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     return (
         <>
             {toastMessage && (
-                <div
-                    className="fixed z-[150] bg-red-600 border border-red-400 text-slate-800 dark:text-white px-3 py-1.5 rounded-lg shadow-[0_4px_16px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 pointer-events-none transition-all duration-200 animate-in slide-in-from-top-2 fade-in whitespace-nowrap"
-                    style={{
-                        left: `${toastMessage.leftOffset + 12}px`,
-                        top: `88px`,
-                        transform: 'translateX(-50%)'
-                    }}
-                >
-                    <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-600 border-l border-t border-red-400 rotate-45" />
-                    <span className="text-xs font-bold whitespace-nowrap relative z-10">{toastMessage.message}</span>
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-red-600 text-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-2 animate-in slide-in-from-bottom-5 fade-in duration-200 pointer-events-none">
+                    <span className="text-sm font-bold">{toastMessage}</span>
                 </div>
             )}
 
@@ -440,10 +429,17 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         "w-6 h-6",
                         !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
                         isVirtual && "cursor-default pointer-events-none",
-                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale"
+                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale",
+                        isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
                     )}
-                    onContextMenu={handleContextMenu}
-                    onPointerDown={handlePointerDown}
+                    onContextMenu={(e) => {
+                        if (isConflicting) useMitigationStore.getState().setConflictingMitigationId(null);
+                        handleContextMenu(e);
+                    }}
+                    onPointerDown={(e) => {
+                        if (isConflicting) useMitigationStore.getState().setConflictingMitigationId(null);
+                        handlePointerDown(e);
+                    }}
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onTouchStart={handleTouchStart}
@@ -1388,7 +1384,7 @@ const Timeline: React.FC = () => {
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
-                                        hideEmptyRows
+                                        !hideEmptyRows
                                             ? "bg-app-text text-app-bg"
                                             : "text-app-text"
                                     )}
@@ -1558,7 +1554,7 @@ const Timeline: React.FC = () => {
                                                     "bg-app-surface border-app-border hover:border-app-text hover:bg-app-surface2"
                                                 )}
                                             >
-                                                <span className="text-[8px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
+                                                <span className="text-[10px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1598,11 +1594,11 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            <div className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[7px] md:text-[11px]">
+                            <div className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[8px] md:text-[11px]">
                                 <span className="md:hidden">{t('timeline.header_phase_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_phase')}</span>
                             </div>
-                            <div className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[7px] md:text-[10px]">{t('timeline.header_time')}</div>
+                            <div className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
                             <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
                             <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
@@ -1619,7 +1615,7 @@ const Timeline: React.FC = () => {
                                     style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
                                     className={clsx(
                                         "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
-                                        index === sortedPartyMembers.length - 1 && "rounded-tr-2xl border-r-0",
+                                        index === sortedPartyMembers.length - 1 && "border-r border-app-border",
                                         partySortOrder === 'role' ? (
                                             member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
                                                 member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
@@ -2010,7 +2006,7 @@ const Timeline: React.FC = () => {
                         <span className="text-xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
                             <span className="font-bold text-sm leading-tight drop-shadow-md">
-                                {clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : 'イベント'} {t('timeline.copying')}
+                                {t('timeline.copying', { name: clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : t('timeline.event') })}
                             </span>
                             <span className="text-[10px] text-app-bg/70 leading-tight">
                                 {t('timeline.paste_hint')}

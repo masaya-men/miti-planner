@@ -206,20 +206,16 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     )}
                 >
 
-                    <div className="w-6 shrink-0 flex items-center justify-center">
-                        <div className="relative flex flex-col items-center shrink-0 w-6">
-                            <div className={clsx(
-                                "w-6 h-6 rounded flex items-center justify-center font-black text-[9px] shrink-0",
-                                isActive && !multiSelect.isEnabled
-                                    ? "bg-app-text text-app-bg"
-                                    : "bg-glass-card text-app-text group-hover:bg-glass-hover"
-                            )}>
-                                {shortName.split('\n')[0]}
-                            </div>
+                    <div className="shrink-0 flex items-center justify-center">
+                        <div className={clsx(
+                            "w-7 h-8 rounded flex flex-col items-center justify-center font-black text-[9px] shrink-0",
+                            isActive && !multiSelect.isEnabled
+                                ? "bg-app-text text-app-bg"
+                                : "bg-glass-card text-app-text group-hover:bg-glass-hover"
+                        )}>
+                            <span className="leading-none">{shortName.split('\n')[0]}</span>
                             {shortName.split('\n')[1] && (
-                                <span className="text-[7px] text-app-text-muted/60 font-bold leading-none mt-0.5">
-                                    {shortName.split('\n')[1]}
-                                </span>
+                                <span className="text-[8px] leading-none mt-0.5">{shortName.split('\n')[1]}</span>
                             )}
                         </div>
                     </div>
@@ -1060,14 +1056,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
     const isTutorialContentSelect = tutorialActive && TUTORIAL_STEPS[currentStepIndex]?.id === 'content-select';
 
-    // Proximity and hover state for the handle
-    const [isNear, setIsNear] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
     return (<>
         <motion.aside
             initial={false}
-            animate={{ width: fullWidth ? '100%' : isOpen ? (isNear ? 312 : 300) : (isNear ? 36 : 24) }}
+            animate={{ width: fullWidth ? '100%' : isOpen ? 300 : 24 }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
             className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
             style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
@@ -1090,6 +1084,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
+                            <div className="border-b border-glass-border mb-2" />
                             <div className="space-y-1 max-h-[84px] overflow-y-auto px-3 custom-scrollbar">
                                 {plans.slice(0, 5).map((plan) => (
                                     <button
@@ -1109,7 +1104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                             )}>
                                                 {plan.title}
                                             </p>
-                                            <p className="text-[8px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
+                                            <p className="text-[10px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
                                                 {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
                                             </p>
                                         </div>
@@ -1349,27 +1344,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 </div>
             </motion.div>
 
-            {/* [2] ── 近接センサー付き・究極の常設ハンドル領域 ── */}
+            {/* [2] ── 常設ハンドル領域 ── */}
             {fullWidth ? null : <div
                 className="h-full w-6 z-50 flex items-center justify-center shrink-0 relative"
-                onMouseEnter={() => setIsNear(true)}
-                onMouseLeave={() => setIsNear(false)}
             >
-                {/* 近接センサー領域 (透明) — ハンドルよりも広い反応範囲 */}
-                {/* ── 修正: サイドバーコンテンツのボタンに干渉しないよう、左側の張り出しを抑える ── */}
                 <div
-                    className="absolute top-24 bottom-0 -left-1 w-[60px] pointer-events-auto cursor-pointer"
-                    onMouseEnter={() => setIsNear(true)}
-                />
-
-                <motion.div
                     className={clsx(
-                        "absolute left-0 h-full bg-glass-header z-50",
+                        "absolute left-0 h-full w-6 bg-glass-header z-50",
                         tutorialActive && currentStepIndex <= 2 ? "opacity-0 pointer-events-none" : "opacity-100"
                     )}
-                    initial={false}
-                    animate={{ width: isNear ? 36 : 24 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
                 >
                     <Tooltip content={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="right" wrapperClassName="w-full h-full">
                     <button
@@ -1381,13 +1364,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
-                        {/* 迫り出し感のある背景 — 透明化 */}
-                        <motion.div
-                            className="absolute inset-0 bg-transparent"
-                            animate={{ opacity: isNear ? 0.5 : 0.1 }}
-                            transition={{ duration: 0.15 }}
-                        />
-
                         {/* 左端の固定ライン（右端はサイドバーのglass-tier3 borderが担当） */}
                         <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 
@@ -1409,23 +1385,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     size={18}
                                     className={clsx(
                                         "transition-all duration-200",
-                                        isOpen
-                                            ? "text-app-text-muted group-hover/btn:text-app-text-sec"
-                                            : "text-app-text-muted",
+                                        "text-app-text-muted group-hover/btn:text-app-text-sec",
                                         isHovered && "text-app-text-sec"
                                     )}
                                 />
                             </motion.div>
                         </div>
 
-                        {/* 右端の境界線 (拡張に合わせて移動) */}
+                        {/* 右端の境界線 */}
                         <div className={clsx(
                             "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
                             isOpen ? "bg-glass-border" : "bg-app-border"
                         )} />
                     </button>
                     </Tooltip>
-                </motion.div>
+                </div>
             </div>}
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={(created) => {
                 setIsNewPlanModalOpen(false);
