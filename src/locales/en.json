@@ -1137,6 +1137,7 @@
         "logs_no_data": "No change history",
         "logs_action_create": "Created",
         "logs_action_update": "Updated",
-        "logs_action_delete": "Deleted"
+        "logs_action_delete": "Deleted",
+        "logs_action_restore": "Restored"
     }
 }
