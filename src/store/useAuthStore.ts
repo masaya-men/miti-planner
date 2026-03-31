@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             case 'discord':
                 saveReturnUrl();
                 localStorage.setItem('lopo_auth_redirecting', 'true');
-                apiFetch('/api/auth/discord', { method: 'POST' })
+                apiFetch('/api/auth?provider=discord', { method: 'POST' })
                     .then(r => r.json())
                     .then(data => {
                         if (data.url) {
@@ -111,7 +111,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             case 'twitter':
                 saveReturnUrl();
                 localStorage.setItem('lopo_auth_redirecting', 'true');
-                apiFetch('/api/auth/twitter', { method: 'POST' })
+                apiFetch('/api/auth?provider=twitter', { method: 'POST' })
                     .then(r => r.json())
                     .then(data => {
                         if (data.url) {

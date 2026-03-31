@@ -20,8 +20,8 @@ export function AdminDashboard() {
     async function load() {
       try {
         const [cRes, tRes] = await Promise.all([
-          apiFetch('/api/admin/contents'),
-          apiFetch('/api/admin/templates'),
+          apiFetch('/api/admin?resource=contents'),
+          apiFetch('/api/admin?resource=templates'),
         ]);
         if (cancelled) return;
         if (cRes.ok) {

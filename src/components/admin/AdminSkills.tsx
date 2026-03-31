@@ -1,7 +1,7 @@
 /**
  * スキル管理画面
  * ジョブ一覧 + スキル一覧のインライン編集UI
- * GET /api/admin/templates?type=skills で取得
+ * GET /api/admin?resource=templates&type=skills で取得
  * PUT /api/admin/templates { type: 'skills', ... } で保存
  */
 import { useState, useEffect, useCallback } from 'react';
@@ -40,7 +40,7 @@ export function AdminSkills() {
     try {
       setLoading(true);
       setError('');
-      const res = await apiFetch('/api/admin/templates?type=skills');
+      const res = await apiFetch('/api/admin?resource=templates&type=skills');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -66,7 +66,7 @@ export function AdminSkills() {
     if (!data) return;
     try {
       setSaving(true);
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

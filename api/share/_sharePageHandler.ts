@@ -1,5 +1,5 @@
 /**
- * Vercel Serverless Function — 共有ページHTML返却
+ * 共有ページHTML返却ハンドラー
  *
  * /share/:id へのアクセスを受けて、動的OGPメタタグ付きHTMLを返す。
  * - クローラー: OGPメタタグを読み取ってカード表示

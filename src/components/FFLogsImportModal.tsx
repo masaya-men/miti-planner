@@ -153,7 +153,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             const contentDef = getContentById(contentId);
             const category = contentDef?.category || 'custom';
 
-            await apiFetch('/api/template/auto-register', {
+            await apiFetch('/api/template?action=auto-register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

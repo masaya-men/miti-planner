@@ -1,24 +1,15 @@
 /**
- * Vercel Serverless Function — Twitter(X) OAuth 2.0 + PKCE → Firebase Custom Token
+ * Twitter(X) OAuth 2.0 + PKCE → Firebase Custom Token ハンドラー
  *
  * フロー:
- *   1. フロントエンドがPOSTでApp Checkトークン付きリクエスト → リダイレクトURLを返却
- *   2. code_verifier を生成し cookie に保存、Twitter 認証ページにリダイレクト
- *   3. Twitter がコールバックで code を返す
- *   4. cookie の code_verifier を使って code → アクセストークン交換
- *   5. Twitter ユーザー情報を取得
- *   6. Firebase Admin SDK でカスタムトークンを生成
- *   7. クライアントにトークンを返す（HTML で postMessage 経由）
- *
- * 必要な環境変数:
- *   TWITTER_CLIENT_ID, TWITTER_CLIENT_SECRET,
- *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
+ *   1. POST: App Checkトークン付きリクエスト → リダイレクトURLを返却
+ *   2. GET: Twitterからのコールバック → PKCE交換 → Firebase Custom Token生成
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
 const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
@@ -39,7 +30,7 @@ function initAdmin() {
 }
 const TWITTER_USER_URL = 'https://api.twitter.com/2/users/me';
 
-/** PKCE 用: ランダムな code_verifier を生成（43〜128文字の URL-safe 文字列） */
+/** PKCE 用: ランダムな code_verifier を生成 */
 function generateCodeVerifier(): string {
     return crypto.randomBytes(32).toString('base64url');
 }
@@ -47,6 +38,16 @@ function generateCodeVerifier(): string {
 /** PKCE 用: code_verifier から code_challenge を生成（S256） */
 function generateCodeChallenge(verifier: string): string {
     return crypto.createHash('sha256').update(verifier).digest('base64url');
+}
+
+/** Cookie ヘッダーをパースしてオブジェクトに変換 */
+function parseCookies(cookieHeader: string): Record<string, string> {
+    const cookies: Record<string, string> = {};
+    for (const pair of cookieHeader.split(';')) {
+        const [key, ...rest] = pair.trim().split('=');
+        if (key) cookies[key] = rest.join('=');
+    }
+    return cookies;
 }
 
 export default async function handler(req: any, res: any) {
@@ -78,10 +79,10 @@ export default async function handler(req: any, res: any) {
             return res.status(500).json({ error: 'Twitter OAuth credentials not configured' });
         }
 
-        const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/twitter`;
+        // コールバックURLは統合後のエンドポイント
+        const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth?provider=twitter`;
 
         // ── ステップ1: POST — フロントエンドからApp Checkトークン付きで呼び出し ──
-        // code_verifier生成 → cookie保存 → リダイレクトURLをJSON返却
         if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
 
@@ -89,10 +90,10 @@ export default async function handler(req: any, res: any) {
             const codeChallenge = generateCodeChallenge(codeVerifier);
             const stateParam = crypto.randomBytes(16).toString('hex');
 
-            // code_verifier を HttpOnly cookie に保存（5分有効）
+            // code_verifier を HttpOnly cookie に保存（5分有効）— パスは統合後の /api/auth
             res.setHeader('Set-Cookie', [
-                `twitter_code_verifier=${codeVerifier}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/twitter; Max-Age=300`,
-                `twitter_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/twitter; Max-Age=300`,
+                `twitter_code_verifier=${codeVerifier}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`,
+                `twitter_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`,
             ]);
 
             const params = new URLSearchParams({
@@ -108,8 +109,7 @@ export default async function handler(req: any, res: any) {
             return res.status(200).json({ url: `${TWITTER_AUTH_URL}?${params}` });
         }
 
-        // ── ステップ2: GET — Twitterからのコールバック（外部リダイレクトのためApp Checkスキップ）──
-        // CSRF保護はstate+PKCE+HttpOnly cookieで担保済み
+        // ── ステップ2: GET — Twitterからのコールバック ──
         const { code, state } = req.query;
         if (!code) {
             return res.status(400).json({ error: 'Missing authorization code' });
@@ -130,14 +130,14 @@ export default async function handler(req: any, res: any) {
 
         // cookie をクリア
         res.setHeader('Set-Cookie', [
-            'twitter_code_verifier=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/twitter; Max-Age=0',
-            'twitter_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/twitter; Max-Age=0',
+            'twitter_code_verifier=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0',
+            'twitter_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0',
         ]);
 
         // Firebase Admin 初期化
         initAdmin();
 
-        // ステップ3: code → アクセストークン交換（Confidential Client は Basic auth 必須）
+        // ステップ3: code → アクセストークン交換
         const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
         const tokenRes = await fetch(TWITTER_TOKEN_URL, {
             method: 'POST',
@@ -161,8 +161,6 @@ export default async function handler(req: any, res: any) {
         const { access_token } = await tokenRes.json();
 
         // ステップ4: Twitter ユーザー情報取得
-        // X API Free プランは廃止されたため /2/users/me が使えない場合がある
-        // 取得できなければアクセストークンのハッシュから一意のIDを生成
         let twitterUserId: string;
         let displayName: string | null = null;
         let photoURL: string | null = null;
@@ -178,7 +176,6 @@ export default async function handler(req: any, res: any) {
                 displayName = data.name || data.username || null;
                 photoURL = data.profile_image_url || null;
             } else {
-                // API制限でユーザー情報取得不可 → トークンハッシュで一意ID生成
                 twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
             }
         } catch {
@@ -220,14 +217,4 @@ export default async function handler(req: any, res: any) {
         console.error('Twitter auth error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }
-}
-
-/** Cookie ヘッダーをパースしてオブジェクトに変換 */
-function parseCookies(cookieHeader: string): Record<string, string> {
-    const cookies: Record<string, string> = {};
-    for (const pair of cookieHeader.split(';')) {
-        const [key, ...rest] = pair.trim().split('=');
-        if (key) cookies[key] = rest.join('=');
-    }
-    return cookies;
 }
