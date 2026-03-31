@@ -30,7 +30,7 @@ export const MitiPlannerPage: React.FC = () => {
     // PC: 従来の25ステップチュートリアルを起動
     useEffect(() => {
         const isMobile = window.innerWidth < 768;
-        const { isActive, hasCompleted, hasVisitedShare, startFromStep } = useTutorialStore.getState();
+        const { isActive, hasCompleted, hasVisitedShare } = useTutorialStore.getState();
         const { timelineEvents } = useMitigationStore.getState();
 
         if (isMobile) {
@@ -43,7 +43,7 @@ export const MitiPlannerPage: React.FC = () => {
         } else {
             // PC: 従来のチュートリアル
             if (!hasCompleted && !isActive && !hasVisitedShare && timelineEvents.length === 0) {
-                const timer = setTimeout(() => startFromStep(1), 500);
+                const timer = setTimeout(() => useTutorialStore.getState().startTutorial('main'), 500);
                 return () => clearTimeout(timer);
             }
         }

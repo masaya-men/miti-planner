@@ -185,9 +185,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
                                     onMyJobToggle(member.id, isMyJob);
 
-                                    if (isTutorialMyJob && member.id === 'ST') {
-                                        useTutorialStore.getState().completeEvent('my-job:set');
-                                    }
+                                    // (チュートリアルイベント削除済み)
                                 }}
                                 className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
@@ -290,7 +288,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 updatePartyBulk(safeChanges.map(c => ({ memberId: c.memberId, jobId: c.jobId! })));
             }
             // ── Tutorial: Complete Step 5 ──
-            useTutorialStore.getState().completeEvent('party-settings:closed');
+            useTutorialStore.getState().completeEvent('party:closed');
             onClose();
         } else {
             // Unsafe changes
@@ -500,15 +498,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 const nextSub = tutorialSubStep + 1;
                 setTutorialSubStep(nextSub);
                 if (nextSub >= SLOT_TUTORIAL_SEQUENCE.length) {
-                    useTutorialStore.getState().completeEvent('party:four-set');
+                    // (チュートリアルイベント削除済み: party:four-set)
                 }
             }
         }
         if (isTutorialPalette) {
-            const filled = draftMembers.filter(m => m.jobId).length;
-            if (filled >= 7) {
-                setTimeout(() => useTutorialStore.getState().completeEvent('party:all-set'), 300);
-            }
+            // (チュートリアルイベント削除済み: party:all-set)
         }
     };
 

@@ -1001,7 +1001,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             planStore.setCurrentPlanId(newPlanId);
 
             // チュートリアル: テンプレートなしでもプラン作成完了を通知
-            useTutorialStore.getState().completeEvent('timeline:events-loaded');
+            useTutorialStore.getState().completeEvent('content:selected');
         }, 'plan');
     };
 
@@ -1246,7 +1246,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => {
                                 setIsNewPlanModalOpen(true);
-                                useTutorialStore.getState().completeEvent('sidebar:new-plan-clicked');
                             }}
                             data-tutorial="new-plan"
                             className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
@@ -1477,8 +1476,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             </div>}
             <NewPlanModal isOpen={isNewPlanModalOpen} onClose={(created) => {
                 setIsNewPlanModalOpen(false);
-                // チュートリアル: モーダルを閉じたことを通知
-                useTutorialStore.getState().completeEvent('tutorial:new-plan-modal-closed');
                 if (created) {
                     setSelectedContentId(created.contentId);
                     setActiveLevel(created.level);
