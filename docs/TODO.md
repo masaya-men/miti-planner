@@ -9,8 +9,9 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: `feature/tutorial-overhaul`（mainにはまだマージしていない）
+- **今回の作業**: コンテキスト最適化（CLAUDE.md圧縮、TODO.md 3分割、rules/作成、Hooks設定、メモリ整理）+ チュートリアルバグ修正4件
 - **最優先**: PartyAutoFill.tsx の自動埋めアニメーション修正（DOMからスロット/アイコンを見つけられていない）
-- **次**: PillFly.tsx のピル飛行演出ブラッシュアップ（CHECK→ジャンプ→着地のタイミング改善）
+- **次**: チュートリアル全体を `npm run dev` で通し確認（STEP1→2のローディング待ち、STEP11のピル位置修正が正しく動くか）
 - **その後**: feature/tutorial-overhaul を main にマージ → デプロイ
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12
 
