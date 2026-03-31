@@ -137,10 +137,10 @@ export function TutorialOverlay() {
 
   return (
     <>
-      {/* クリックブロック */}
+      {/* クリックブロック — ターゲットがある場合のみ有効（target: nullなら自由操作） */}
       <TutorialBlocker
         targetRect={targetRect}
-        active={!step.animation || step.animation === 'pill-fly'}
+        active={!!step.target && (!step.animation || step.animation === 'pill-fly')}
       />
 
       <AnimatePresence mode="wait">

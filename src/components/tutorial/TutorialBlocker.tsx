@@ -14,57 +14,55 @@ interface TutorialBlockerProps {
 
 /**
  * クリックブロック層。
- * 画面全体を覆い、ターゲット領域だけclipPathでくり抜く。
+ * SVGオーバーレイで画面全体を覆い、ターゲット領域だけくり抜く。
  * 画面を暗くしない（スポットライト廃止）。
+ * fill-rule="evenodd" で外側パスと内側パスの間だけが塗られる。
  */
 export function TutorialBlocker({ targetRect, active }: TutorialBlockerProps) {
   if (!active) return null;
 
-  // ターゲットがない場合は全画面ブロック
-  const clipPath = targetRect
-    ? buildClipPath(targetRect)
-    : undefined;
-
   return (
-    <div
+    <svg
       className="fixed inset-0 z-[10001]"
-      style={{
-        pointerEvents: 'auto',
-        clipPath,
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    />
+      style={{ width: '100vw', height: '100vh', pointerEvents: 'none' }}
+    >
+      <path
+        fillRule="evenodd"
+        d={buildPath(targetRect)}
+        fill="transparent"
+        style={{ pointerEvents: 'auto' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      />
+    </svg>
   );
 }
 
 /**
- * evenodd clipPathでターゲット領域をくり抜く。
- * 外側の矩形が全画面、内側の矩形がターゲット。
+ * evenoddパスを構築。
+ * 外側: 画面全体（時計回り）、内側: ターゲット領域（反時計回り・角丸）。
+ * ターゲットがなければ画面全体のみ（全面ブロック）。
  */
-function buildClipPath(rect: TargetRect): string {
-  const pad = 4;
+function buildPath(rect: TargetRect | null): string {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const outer = `M0,0 L${vw},0 L${vw},${vh} L0,${vh} Z`;
+
+  if (!rect) return outer;
+
+  const pad = 6;
   const x = rect.left - pad;
   const y = rect.top - pad;
   const w = rect.width + pad * 2;
   const h = rect.height + pad * 2;
-  const r = 8; // 角丸
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const r = 8;
 
-  // SVG path: 外側（全画面を時計回り）+ 内側（角丸矩形を反時計回り）
-  // clip-path: path() ではvw/vh単位が使えないためピクセル値を使用
-  return `path(evenodd, "\
-M 0 0 L ${vw} 0 L ${vw} ${vh} L 0 ${vh} Z \
-M ${x + r} ${y} \
-L ${x + w - r} ${y} Q ${x + w} ${y} ${x + w} ${y + r} \
-L ${x + w} ${y + h - r} Q ${x + w} ${y + h} ${x + w - r} ${y + h} \
-L ${x + r} ${y + h} Q ${x} ${y + h} ${x} ${y + h - r} \
-L ${x} ${y + r} Q ${x} ${y} ${x + r} ${y} Z")`;
+  // 反時計回りの角丸矩形
+  const inner = `M${x + r},${y} `
+    + `L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} `
+    + `L${x + w},${y + h - r} Q${x + w},${y + h} ${x + w - r},${y + h} `
+    + `L${x + r},${y + h} Q${x},${y + h} ${x},${y + h - r} `
+    + `L${x},${y + r} Q${x},${y} ${x + r},${y} Z`;
+
+  return `${outer} ${inner}`;
 }

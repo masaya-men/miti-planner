@@ -1127,8 +1127,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         }
     }, [availableCategories, activeCategory]);
 
-    // 旧チュートリアルのcontent-selectロジックは削除済み（TutorialBlocker方式に移行）
-    const isTutorialContentSelect = false;
+    // チュートリアルのステップ1（コンテンツ選択）でサイドバーの最初のアイテムをハイライト
+    const tutorialStep = useTutorialStore(s => s.getCurrentStep());
+    const isTutorialContentSelect = tutorialStep?.id === 'main-1-content';
 
     const [isHovered, setIsHovered] = useState(false);
 
