@@ -16,6 +16,8 @@ const NAV_ITEMS = [
   { path: '/admin/stats', labelKey: 'admin.stats', end: false },
   { path: '/admin/servers', labelKey: 'admin.servers', end: false },
   { path: '/admin/config', labelKey: 'admin.config', end: false },
+  { path: '/admin/backups', labelKey: 'admin.backups_title', end: false },
+  { path: '/admin/logs', labelKey: 'admin.logs_title', end: false },
 ] as const;
 
 export function AdminLayout() {
