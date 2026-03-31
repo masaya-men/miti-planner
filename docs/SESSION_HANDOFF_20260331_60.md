@@ -74,6 +74,24 @@
 - LoPo公式サーバーのLoPo Botロールに管理者権限を付与
 - 「頑張って開発中」カテゴリのチャンネルがBotから見えなかったのが原因
 
+### 5. 管理画面ウィザードファースト刷新（設計＋実装計画完了、実装未着手）
+- **目的**: 「記憶ゼロ・知識ゼロでも確実に操作できる」ウィザードファーストUIに全面刷新
+- **設計書**: `docs/superpowers/specs/2026-03-31-admin-wizard-redesign.md`
+- **実装計画**: `docs/superpowers/plans/2026-03-31-admin-wizard-redesign.md`（全11タスク）
+- **内容**: ウィザードフレームワーク、ダッシュボード刷新、コンテンツ/テンプレート/スキル/ステータスの各ウィザード、バックアップ復元UI、監査ログUI
+- **方針**: UIのみ刷新。API・データ構造は変更しない
+
+### 6. Firestoreバックアップ設定
+- Firebase Consoleで週次（月曜）自動バックアップを設定、14日保持
+
+### 7. Pretext LP演出 — 不採用判断
+- feature/pretext-lpブランチの演出はLPには不採用
+- Pretextはハウジングツアープランナーの雑誌風リフローで活用する方針に変更（TODO.md記載済み）
+
+### 8. Discord Bot @everyone通知追加
+- `C:\Users\masay\Desktop\lopo-bot\src\forward.ts` に `content: '@everyone'` + `allowed_mentions` を追加
+- Wispbyteにユーザーが手動デプロイ済み
+
 ---
 
 ## 第60セッションで変更したファイル一覧
@@ -122,14 +140,16 @@
 
 ## 次セッションの優先タスク
 
-### 1. Pretext LP演出の動作確認と採用判断（前セッションからの持ち越し）
-- `git checkout feature/pretext-lp && git stash pop`
-- `npm run dev`で確認 → ユーザーが採用セクションを決定
-- mainにマージ or 不採用分を除去
+### 1. 管理画面ウィザード刷新の実装（最優先）
+- 実装計画: `docs/superpowers/plans/2026-03-31-admin-wizard-redesign.md`
+- subagent-driven-development または executing-plans スキルを使って実装
+- Task 1（フレームワーク）→ Task 2（i18n）が前提。それ以降は並行可能
 
-### 2. その他
-- βテスト残タスク確認（TODO.md参照）
-- LP: THREE.Clock非推奨警告の修正
+### 2. βテスト中のフィードバック対応
+- 友人からのフィードバックが来たら優先対応
+
+### 3. feature/pretext-lpブランチの整理
+- 不採用が確定したので、ブランチの削除を検討
 
 ---
 
