@@ -5,7 +5,8 @@
       "Bash(npm run:*)",
       "Bash(node scripts/generate-templates.mjs --content m12s_p2)",
       "Bash(npm install:*)",
-      "Bash(npx skills:*)"
+      "Bash(npx skills:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

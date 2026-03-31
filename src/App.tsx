@@ -17,6 +17,14 @@ import { AdminConfig } from './components/admin/AdminConfig';
 import { AdminSkills } from './components/admin/AdminSkills';
 import { AdminStats } from './components/admin/AdminStats';
 import { AdminServers } from './components/admin/AdminServers';
+import { ContentWizard } from './components/admin/wizard/ContentWizard';
+import { TemplateWizard } from './components/admin/wizard/TemplateWizard';
+import { SkillWizard } from './components/admin/wizard/SkillWizard';
+import { SkillEditWizard } from './components/admin/wizard/SkillEditWizard';
+import { JobWizard } from './components/admin/wizard/JobWizard';
+import { StatsWizard } from './components/admin/wizard/StatsWizard';
+import { AdminBackups } from './components/admin/AdminBackups';
+import { AdminLogs } from './components/admin/AdminLogs';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -112,6 +120,14 @@ function App() {
               <Route path="stats" element={<AdminStats />} />
               <Route path="servers" element={<AdminServers />} />
               <Route path="config" element={<AdminConfig />} />
+              <Route path="content-wizard" element={<ContentWizard />} />
+              <Route path="template-wizard" element={<TemplateWizard />} />
+              <Route path="skill-wizard" element={<SkillWizard />} />
+              <Route path="skill-edit" element={<SkillEditWizard />} />
+              <Route path="job-wizard" element={<JobWizard />} />
+              <Route path="stats-wizard" element={<StatsWizard />} />
+              <Route path="backups" element={<AdminBackups />} />
+              <Route path="logs" element={<AdminLogs />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
