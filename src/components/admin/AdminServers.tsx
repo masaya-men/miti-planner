@@ -1,7 +1,7 @@
 /**
  * サーバー管理画面
  * DC/ハウジングエリア/サイズ/タグの管理UI
- * GET /api/admin/templates?type=servers で取得
+ * GET /api/admin?resource=templates&type=servers で取得
  * PUT /api/admin/templates { type: 'servers', ... } で保存
  */
 import { useState, useEffect, useCallback } from 'react';
@@ -35,7 +35,7 @@ export function AdminServers() {
     try {
       setLoading(true);
       setError('');
-      const res = await apiFetch('/api/admin/templates?type=servers');
+      const res = await apiFetch('/api/admin?resource=templates&type=servers');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -62,7 +62,7 @@ export function AdminServers() {
     if (!data) return;
     try {
       setSaving(true);
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

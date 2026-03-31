@@ -27,7 +27,7 @@ export function AdminContents() {
     try {
       setLoading(true);
       setError('');
-      const res = await apiFetch('/api/admin/contents');
+      const res = await apiFetch('/api/admin?resource=contents');
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       setContents(data.items ?? []);
@@ -47,7 +47,7 @@ export function AdminContents() {
     try {
       setSaving(true);
       const isNew = !editing?.id;
-      const res = await apiFetch('/api/admin/contents', {
+      const res = await apiFetch('/api/admin?resource=contents', {
         method: isNew ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ export function AdminContents() {
     const ok = window.confirm(t('admin.contents_delete_confirm', { name: item.nameJa }));
     if (!ok) return;
     try {
-      const res = await apiFetch(`/api/admin/contents?id=${item.id}`, {
+      const res = await apiFetch(`/api/admin?resource=contents&id=${item.id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error(res.statusText);

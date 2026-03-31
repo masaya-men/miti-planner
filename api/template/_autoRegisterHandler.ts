@@ -1,15 +1,12 @@
 /**
- * テンプレート自動登録API
- * POST /api/template/auto-register
- *
- * FFLogsインポート成功後にクライアントから呼ばれる。
- * 品質チェックを通過したログのみテンプレートとして登録する。
+ * テンプレート自動登録API ハンドラー
+ * POST — FFLogsインポート成功後にクライアントから呼ばれる
  */
-import { initAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
-import { applyRateLimit } from '../../../src/lib/rateLimit.js';
-import { writeAuditLog } from '../../../src/lib/auditLog.js';
-import { sendDiscordNotification } from '../../../src/lib/discordWebhook.js';
+import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { writeAuditLog } from '../../src/lib/auditLog.js';
+import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 

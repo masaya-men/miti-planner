@@ -1,24 +1,15 @@
 /**
- * テンプレート管理API + マスターコンフィグ管理API（統合）
- * GET    /api/admin/templates              — 全テンプレート一覧（サマリー）
- * GET    /api/admin/templates?id=xx        — 特定テンプレート取得
- * GET    /api/admin/templates?type=config  — マスターコンフィグ取得
- * POST   /api/admin/templates              — テンプレート作成/置換
- * PUT    /api/admin/templates              — テンプレート更新
- * PUT    /api/admin/templates (type=config)— マスターコンフィグ更新
- * GET    /api/admin/templates?type=skills — スキルデータ取得
- * GET    /api/admin/templates?type=stats  — ステータスデータ取得
- * GET    /api/admin/templates?type=servers — サーバーデータ取得
- * PUT    /api/admin/templates (type=skills)— スキルデータ更新
- * PUT    /api/admin/templates (type=stats) — ステータスデータ更新
- * PUT    /api/admin/templates (type=servers)— サーバーデータ更新
- * DELETE /api/admin/templates              — テンプレート削除
+ * テンプレート管理API + マスターコンフィグ管理API ハンドラー
+ * GET    — テンプレート/コンフィグ/スキル/ステータス/サーバー取得
+ * POST   — テンプレート作成/置換
+ * PUT    — テンプレート/マスターデータ更新
+ * DELETE — テンプレート削除
  */
-import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
-import { writeAuditLog } from '../../../src/lib/auditLog.js';
-import { applyRateLimit } from '../../../src/lib/rateLimit.js';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
-import { sendDiscordNotification } from '../../../src/lib/discordWebhook.js';
+import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
+import { writeAuditLog } from '../../src/lib/auditLog.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */

@@ -1,18 +1,10 @@
 /**
- * 管理者ロール付与 + 権限検証API（統合）
- * GET  /api/admin/set-role — 管理者権限の検証（旧 /api/admin/verify）
- * POST /api/admin/set-role — ロール付与/剥奪
- *
- * GET Headers: Authorization: Bearer <idToken>
- * GET Response: { isAdmin: boolean }
+ * 管理者ロール付与 + 権限検証API ハンドラー
+ * GET  — 管理者権限の検証
+ * POST — ロール付与/剥奪
  *
  * POST Body: { uid: string, role: 'admin' | null, secret: string }
- * - uid: 対象ユーザーのFirebase UID
- * - role: 'admin' で付与、null で剥奪
- * - secret: ADMIN_SECRET 環境変数と一致する秘密キー
- *
  * セキュリティ: ADMIN_SECRET による保護（初回設定用）
- * 2人目以降の管理者追加は、既存管理者のトークン認証でも可能
  */
 import { initAdmin, verifyAdmin } from '../../src/lib/adminAuth.js';
 import { writeAuditLog } from '../../src/lib/auditLog.js';
@@ -21,7 +13,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 
-/** CORS: 許可オリジンのホワイトリスト（api/share/index.tsと同じパターン） */
+/** CORS: 許可オリジンのホワイトリスト */
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
   const allowedOrigins = [
@@ -40,11 +32,11 @@ export default async function handler(req: any, res: any) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // App Check検証（POSTでsecretが提供されている場合のみス��ップ — curl初回設定用）
+  // App Check検証（POSTでsecretが提供されている場合のみスキップ — curl初回設定用）
   const hasValidSecret = req.method === 'POST' && typeof req.body?.secret === 'string' && req.body.secret.length > 0;
   if (!hasValidSecret && !(await verifyAppCheck(req, res))) return;
 
-  // --- GET: 管理者権限検証（旧 /api/admin/verify） ---
+  // --- GET: 管理者権限検証 ---
   if (req.method === 'GET') {
     if (!(await applyRateLimit(req, res, 20, 60_000))) return;
     try {

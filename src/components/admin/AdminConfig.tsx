@@ -19,7 +19,7 @@ export function AdminConfig() {
   const fetchConfig = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiFetch('/api/admin/templates?type=config');
+      const res = await apiFetch('/api/admin?resource=templates&type=config');
       if (res.ok) {
         const data = await res.json();
         if (data.promotionThreshold !== undefined) setThreshold(data.promotionThreshold);
@@ -39,7 +39,7 @@ export function AdminConfig() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,8 +1,12 @@
 /**
- * Vercel Serverless Function — 軽減プラン共有API
+ * 共有API統合エンドポイント
  *
- * POST /api/share  — プランをFirestoreに保存し、短縮IDを返す
+ * POST /api/share        — プランをFirestoreに保存し、短縮IDを返す
  * GET  /api/share?id=xxx — 短縮IDからプランデータを取得
+ * PUT  /api/share        — 既存共有のロゴ更新
+ * GET  /api/share?type=page&id=xxx — 共有ページHTML返却（OGP対応）
+ *
+ * 既存の share + share-page を統合
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
@@ -12,6 +16,7 @@ import { nanoid } from 'nanoid';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { createHash } from 'crypto';
+import sharePageHandler from './_sharePageHandler.js';
 
 const COLLECTION = 'shared_plans';
 // リクエストボディの最大サイズ（500KB）
@@ -33,6 +38,11 @@ function initAdmin() {
 }
 
 export default async function handler(req: any, res: any) {
+    // share-pageへのルーティング（?type=page）
+    if (req.query?.type === 'page') {
+        return sharePageHandler(req, res);
+    }
+
     // CORS
     // CORSを自サイトのみに制限（Vercelプレビュー・本番の両方に対応）
     const origin = req.headers?.origin || '';

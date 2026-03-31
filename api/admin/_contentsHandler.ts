@@ -1,15 +1,15 @@
 /**
- * コンテンツ管理API
- * GET    /api/admin/contents — 全コンテンツ取得
- * POST   /api/admin/contents — コンテンツ追加
- * PUT    /api/admin/contents — コンテンツ更新
- * DELETE /api/admin/contents — コンテンツ削除
+ * コンテンツ管理API ハンドラー
+ * GET    — 全コンテンツ取得
+ * POST   — コンテンツ追加
+ * PUT    — コンテンツ更新
+ * DELETE — コンテンツ削除
  */
-import { initAdmin, verifyAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
-import { writeAuditLog } from '../../../src/lib/auditLog.js';
-import { applyRateLimit } from '../../../src/lib/rateLimit.js';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
-import { sendDiscordNotification } from '../../../src/lib/discordWebhook.js';
+import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
+import { writeAuditLog } from '../../src/lib/auditLog.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { sendDiscordNotification } from '../../src/lib/discordWebhook.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /** CORS設定 */

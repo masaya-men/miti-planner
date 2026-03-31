@@ -1,23 +1,15 @@
 /**
- * Vercel Serverless Function — Discord OAuth2 → Firebase Custom Token
+ * Discord OAuth2 → Firebase Custom Token ハンドラー
  *
  * フロー:
- *   1. フロントエンドがPOSTでApp Checkトークン付きリクエスト → リダイレクトURLを返却
- *   2. Discordが認証コードをGETコールバックで返す（App Checkスキップ、state+cookieで保護）
- *   3. state検証 → コードをDiscordトークンに交換
- *   4. Discordユーザー情報を取得
- *   5. Firebase Admin SDKでカスタムトークンを生成
- *   6. クライアントにトークンを返す（HTMLでlocalStorage経由）
- *
- * 必要な環境変数:
- *   DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET,
- *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
+ *   1. POST: App Checkトークン付きリクエスト → リダイレクトURLを返却
+ *   2. GET: Discordからのコールバック → トークン交換 → Firebase Custom Token生成
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
-import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -69,7 +61,6 @@ export default async function handler(req: any, res: any) {
 
     try {
         // ステップ1: POST — フロントエンドからApp Checkトークン付きで呼び出し
-        // リダイレクトURLをJSON返却 → フロントエンドがリダイレクト
         if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
 
@@ -77,12 +68,13 @@ export default async function handler(req: any, res: any) {
             if (!clientId) {
                 return res.status(500).json({ error: 'Server configuration error' });
             }
-            const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
+            // コールバックURLは統合後のエンドポイント
+            const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth?provider=discord`;
             const stateParam = crypto.randomBytes(16).toString('hex');
 
-            // stateをHttpOnly cookieに保存（5分有効）
+            // stateをHttpOnly cookieに保存（5分有効）— パスは統合後の /api/auth
             res.setHeader('Set-Cookie',
-                `discord_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/discord; Max-Age=300`
+                `discord_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`
             );
 
             const params = new URLSearchParams({
@@ -96,7 +88,6 @@ export default async function handler(req: any, res: any) {
         }
 
         // ステップ2: GET — Discordからのコールバック（外部リダイレクトのためApp Checkスキップ）
-        // CSRF保護はstate+HttpOnly cookieで担保済み
         const { code, state } = req.query;
         if (!code) {
             return res.status(400).json({ error: 'Missing authorization code' });
@@ -111,7 +102,7 @@ export default async function handler(req: any, res: any) {
 
         // cookieをクリア
         res.setHeader('Set-Cookie',
-            'discord_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/discord; Max-Age=0'
+            'discord_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0'
         );
 
         // Firebase Admin 初期化
@@ -119,7 +110,7 @@ export default async function handler(req: any, res: any) {
 
         const clientId = process.env.DISCORD_CLIENT_ID!;
         const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
-        const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth/discord`;
+        const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth?provider=discord`;
 
         // ステップ3: コード → Discordトークン交換
         const tokenRes = await fetch(`${DISCORD_API}/oauth2/token`, {

@@ -2,7 +2,7 @@
  * ステータス管理画面
  * Section 1: レベル補正値テーブル（LevelModifiers）
  * Section 2: パッチステータス（PatchStats）
- * GET /api/admin/templates?type=stats で取得
+ * GET /api/admin?resource=templates&type=stats で取得
  * PUT /api/admin/templates { type: 'stats', ... } で保存
  */
 import { useState, useEffect, useCallback } from 'react';
@@ -33,7 +33,7 @@ export function AdminStats() {
     try {
       setLoading(true);
       setError('');
-      const res = await apiFetch('/api/admin/templates?type=stats');
+      const res = await apiFetch('/api/admin?resource=templates&type=stats');
       if (!res.ok) throw new Error(res.statusText);
       const json = await res.json();
       setData(json);
@@ -55,7 +55,7 @@ export function AdminStats() {
     if (!data) return;
     try {
       setSaving(true);
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

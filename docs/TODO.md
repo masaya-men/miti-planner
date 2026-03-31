@@ -21,7 +21,7 @@
 - [ ] **Playwright等で統合テスト** — 将来検討
 
 ## UI改善（要対応・要相談）
-- [ ] **プラン未選択時の空パネルデザイン刷新** — Liquid Glass実装済みだがデザイン見直しは継続検討
+- [x] **プラン未選択時の空パネルデザイン刷新** — 完了（第60セッション確認）
 
 ## 確認・調査が必要
 - [ ] **パルス・設定の保存確認** — 保存されているか？ログインなら端末またぎも同期される？（スマホではパルスは見えないのでOK）
@@ -29,7 +29,7 @@
 - [ ] **LP・人気ページにログイン状態の表示がない** — ヘッダーにアイコンやログインボタンを表示すべきか検討（2026-03-28 第33セッション）
 
 ## デザイン改善（モーダル・画面の見直し）
-- [ ] ステータス表示 — ライトモードでデザイン見直し（TANK/HEALER/DPS色は改善済み）
+- [x] ステータス表示 — ライトモードでデザイン見直し完了（第60セッション確認）
 
 ## ツールチップ
 - [ ] **ダーク・ライト共通で色を反転すべきか** — 要検討
@@ -69,8 +69,7 @@
 - [x] **Upstash Redisベースのレート制限** — インメモリMapをUpstash Redis（無料枠、us-east-1）に移行。全6API・8箇所をawait対応。フェイルオープン設計（Redis障害時はレート制限スキップ）
 
 ### アカウント削除時shared_plansが残る
-- [ ] **shared_plansクリーンアップ** — shared_plansにユーザーIDは含まれないが、logoBase64（チームロゴ画像）が残る可能性あり。新APIエンドポイント追加にはVercel 12関数上限の解消が必要
-  - 対策案: 既存APIに統合（パスベースルーティング）
+- [ ] **shared_plansクリーンアップ** — shared_plansにユーザーIDは含まれないが、logoBase64（チームロゴ画像）が残る可能性あり。Vercel関数の枠は空いたので、新エンドポイント追加 or 既存APIに統合で対応可能
 
 ### localStorage認証トークンリスク
 - [ ] **lopo_auth_pending** — Discord/Twitter OAuthコールバックでFirebaseカスタムトークンをlocalStorageに一時保存。使用後即時削除しているが、XSSがあった場合に窃取可能
@@ -103,16 +102,14 @@
   - 案2: window.onerrorでDiscord Webhookに飛ばす簡易版
 
 ### バックアップ
-- [ ] **Firestoreバックアップ設定** — データが消えたら復元不可。Blazeプランなら自動バックアップ可能
-  - Firebase Console → Firestore → バックアップ → スケジュール設定（週1回で十分）
+- [x] **Firestoreバックアップ設定** — 週次（月曜）自動バックアップ、14日保持で設定完了（第60セッション 2026-03-31）
 
 ### 依存パッケージ管理
 - [ ] **npm audit 定期確認** — 月1回の確認を習慣化。現時点では実害なしだが放置すると積み重なる
 
 ### Vercel関数制限
-- [ ] **12関数上限の対策** — 現在12/12。新規APIエンドポイント追加不可。ハウジングツアープランナー等の障壁
-  - 案1: 有料プラン（月$20）
-  - 案2: API統合（1エンドポイントでパスベースルーティング）
+- [x] **12関数→7関数に圧縮完了**（第60セッション 2026-03-31）— admin(3→1), auth(2→1), template(2→1), share+share-page(2→1)に統合。`_` プレフィックスのハンドラーファイル+ルーターindex.ts方式。5枠の空きができた
+  - **デプロイ後にDiscord/Twitter開発者コンソールのコールバックURL変更が必要**（`/api/auth/discord` → `/api/auth?provider=discord`、`/api/auth/twitter` → `/api/auth?provider=twitter`）
 
 ### アクセシビリティ（a11y）
 - [ ] **キーボード操作・スクリーンリーダー・色覚多様性への配慮** — 未検討。FF14プレイヤーにも一定数必要なユーザーがいる
@@ -132,6 +129,7 @@
 - [ ] **詠唱バー注釈機能** — ボスの詠唱バー上にメモ。実装方法の検討が必要
 - [ ] AI APIでオートプラン — 無料で数回試せる、課金モデル
 - [ ] **ハウジングツアープランナー** — 要件定義済み（`docs/housing-tour-planner-requirements.md`）。コード実装未着手。AdminServers.tsxにhousingタブの構造のみ存在
+  - **Pretextによる雑誌風リフロー採用決定**（第60セッション）— 物件紹介をタブロイド紙/インテリア雑誌風にする。テキストが画像の周りをリアルタイムで流れる`layoutNextLine()`を活用。`@chenglou/pretext`はfeature/pretext-lpで導入済み
 - [ ] **public/icons/ 削除** — 全動作確認完了後に実施（バンドル2.1MB削減、127ファイル）
 - [ ] **チートシートモードについて考える** — 検討が必要
 
@@ -331,7 +329,7 @@
 ### 管理者ロール設定
 3. **ターミナルから以下のコマンドを実行**（UIDとsecretを自分のものに置き換える）
 ```bash
-curl -X POST https://lopoly.app/api/admin/set-role \
+curl -X POST "https://lopoly.app/api/admin?resource=role" \
   -H "Content-Type: application/json" \
   -d '{"uid":"ここにFirebase UID","role":"admin","secret":"ここにADMIN_SECRET"}'
 ```

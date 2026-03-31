@@ -49,7 +49,7 @@ export function AdminTemplates() {
   /** コンテンツ一覧を取得（ドロップダウン用） */
   const fetchContents = useCallback(async () => {
     try {
-      const res = await apiFetch('/api/admin/contents');
+      const res = await apiFetch('/api/admin?resource=contents');
       if (res.ok) {
         const data = await res.json();
         setContents(data.items ?? []);
@@ -62,7 +62,7 @@ export function AdminTemplates() {
     try {
       setLoading(true);
       setError('');
-      const res = await apiFetch('/api/admin/templates');
+      const res = await apiFetch('/api/admin?resource=templates');
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       setTemplates(
@@ -82,7 +82,7 @@ export function AdminTemplates() {
   /** 昇格候補を取得 */
   const fetchCandidates = useCallback(async () => {
     try {
-      const res = await apiFetch('/api/template/promote?candidates=true');
+      const res = await apiFetch('/api/template?action=promote&candidates=true');
       if (res.ok) {
         const data = await res.json();
         setCandidates(data.candidates ?? []);
@@ -106,7 +106,7 @@ export function AdminTemplates() {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -135,7 +135,7 @@ export function AdminTemplates() {
     );
     if (!ok) return;
     try {
-      const res = await apiFetch(`/api/admin/templates?contentId=${item.contentId}`, {
+      const res = await apiFetch(`/api/admin?resource=templates&contentId=${item.contentId}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error(res.statusText);
@@ -150,7 +150,7 @@ export function AdminTemplates() {
   const handleToggleLock = async (item: TemplateItem) => {
     const newLock = !item.lockedAt;
     try {
-      const res = await apiFetch('/api/admin/templates', {
+      const res = await apiFetch('/api/admin?resource=templates', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contentId: item.contentId, lock: newLock }),
@@ -165,7 +165,7 @@ export function AdminTemplates() {
   /** 昇格候補の承認/却下 */
   const handlePromotion = async (candidate: PromotionCandidate, action: 'approve' | 'reject') => {
     try {
-      const res = await apiFetch('/api/template/promote', {
+      const res = await apiFetch('/api/template?action=promote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
