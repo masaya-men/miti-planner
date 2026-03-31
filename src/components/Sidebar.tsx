@@ -1000,8 +1000,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             });
             planStore.setCurrentPlanId(newPlanId);
 
-            // チュートリアル: テンプレートなしでもプラン作成完了を通知
-            useTutorialStore.getState().completeEvent('content:selected');
+            // チュートリアル: トランジション完了後にステップ進行（ローディング中にカード移動が見えない問題を回避）
+            setTimeout(() => {
+                useTutorialStore.getState().completeEvent('content:selected');
+            }, 800);
         }, 'plan');
     };
 

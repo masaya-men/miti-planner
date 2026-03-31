@@ -232,10 +232,8 @@ export const useMitigationStore = create<MitigationState>()(
                         _future: [],
                     });
 
-                    // チュートリアル: スナップショット読み込みでイベントが存在すれば通知
-                    if (snapshot.timelineEvents.length > 0) {
-                        useTutorialStore.getState().completeEvent('content:selected');
-                    }
+                    // チュートリアル: content:selected はSidebar.tsx側でトランジション完了後に発火する
+                    // （loadSnapshot内で即座に発火すると、ローディング中にSTEP2に進んでしまう）
                 },
 
                 // Undo: restore the last snapshot from history
