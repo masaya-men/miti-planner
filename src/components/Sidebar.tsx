@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import {
     CATEGORY_LABELS,
@@ -1127,7 +1127,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         }
     }, [availableCategories, activeCategory]);
 
-    const isTutorialContentSelect = tutorialActive && TUTORIAL_STEPS[currentStepIndex]?.id === 'content-select';
+    // 旧チュートリアルのcontent-selectロジックは削除済み（TutorialBlocker方式に移行）
+    const isTutorialContentSelect = false;
 
     const [isHovered, setIsHovered] = useState(false);
 

@@ -5,7 +5,7 @@ import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
@@ -666,11 +666,7 @@ const Timeline: React.FC = () => {
         }
     }, [tutorialActive, tutorialStepIndex]);
 
-    useEffect(() => {
-        if (tutorialActive && TUTORIAL_STEPS[tutorialStepIndex]?.id === 'party-slots' && !partySettingsOpen) {
-            setPartySettingsOpen(true);
-        }
-    }, [tutorialActive, tutorialStepIndex, partySettingsOpen]);
+    // 旧チュートリアルのparty-slots自動オープンロジックは削除済み（TutorialBlocker方式に移行）
 
     // モバイルでパーティが開かれたらチュートリアルイベントを通知
     useEffect(() => {
