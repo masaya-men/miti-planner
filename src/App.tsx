@@ -18,6 +18,7 @@ import { AdminSkills } from './components/admin/AdminSkills';
 import { AdminStats } from './components/admin/AdminStats';
 import { AdminServers } from './components/admin/AdminServers';
 import { ContentWizard } from './components/admin/wizard/ContentWizard';
+import { TemplateWizard } from './components/admin/wizard/TemplateWizard';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -114,6 +115,7 @@ function App() {
               <Route path="servers" element={<AdminServers />} />
               <Route path="config" element={<AdminConfig />} />
               <Route path="content-wizard" element={<ContentWizard />} />
+              <Route path="template-wizard" element={<TemplateWizard />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
