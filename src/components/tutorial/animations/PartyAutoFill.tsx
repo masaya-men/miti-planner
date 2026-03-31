@@ -88,30 +88,44 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
     }
   }, [completedCount, jobs.length, onComplete]);
 
+  // ブーメランのように弧を描いてスロットにはまるアニメーション
+  // まずふわっと分身が出現→右に膨らんだ弧を描いて→スロットにカチャッと着地
   return (
     <>
-      {jobs.map(job => (
-        <motion.div
-          key={job.id}
-          className="fixed z-[10005] pointer-events-none"
-          initial={{ x: job.fromX - 16, y: job.fromY - 16, scale: 1, opacity: 1 }}
-          animate={{
-            x: [job.fromX - 16, (job.fromX + job.toX) / 2 + (Math.random() - 0.5) * 100, job.toX - 16],
-            y: [job.fromY - 16, Math.min(job.fromY, job.toY) - 40 - Math.random() * 40, job.toY - 16],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 0.6,
-            delay: job.delay,
-            ease: [0.34, 1.56, 0.64, 1],
-          }}
-          onAnimationComplete={() => setCompletedCount(c => c + 1)}
-        >
-          {job.iconSrc && (
-            <img src={job.iconSrc} alt="" className="w-8 h-8 rounded-full" />
-          )}
-        </motion.div>
-      ))}
+      {jobs.map(job => {
+        const dx = job.toX - job.fromX;
+        const dy = job.toY - job.fromY;
+        // 弧の頂点: 右方向にずらして放物線を描く
+        const arcX = job.fromX + dx * 0.5 + Math.abs(dy) * 0.4 * (Math.random() > 0.5 ? 1 : -1);
+        const arcY = Math.min(job.fromY, job.toY) - 60 - Math.random() * 40;
+
+        return (
+          <motion.div
+            key={job.id}
+            className="fixed z-[10005] pointer-events-none"
+            initial={{ x: job.fromX - 16, y: job.fromY - 16, scale: 0.3, opacity: 0 }}
+            animate={{
+              x: [job.fromX - 16, arcX - 16, job.toX - 16],
+              y: [job.fromY - 16, arcY - 16, job.toY - 16],
+              scale: [0.3, 1.3, 1],
+              opacity: [0, 1, 1],
+              rotate: [0, 15, 0],
+            }}
+            transition={{
+              duration: 0.8,
+              delay: job.delay,
+              ease: [0.25, 0.46, 0.45, 0.94],
+              scale: { times: [0, 0.4, 1] },
+              opacity: { times: [0, 0.15, 1] },
+            }}
+            onAnimationComplete={() => setCompletedCount(c => c + 1)}
+          >
+            {job.iconSrc && (
+              <img src={job.iconSrc} alt="" className="w-8 h-8 rounded-full drop-shadow-lg" />
+            )}
+          </motion.div>
+        );
+      })}
     </>
   );
 }

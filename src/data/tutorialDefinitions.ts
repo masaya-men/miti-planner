@@ -19,7 +19,9 @@ export interface TutorialStep {
   /** この文字列のイベントで次ステップへ進む */
   completionEvent: string;
   /** 特殊演出名（省略可） */
-  animation?: 'party-auto-fill' | 'pill-fly' | 'completion-card';
+  animation?: 'palette-hint' | 'party-auto-fill' | 'pill-fly' | 'completion-card';
+  /** ピルの矢印方向（デフォルト: down） */
+  pillArrow?: 'down' | 'right';
   /** ピル飛行の定義（省略可） */
   pillTransition?: {
     toTarget: string;
@@ -99,7 +101,16 @@ const mainTutorial: TutorialDefinition = {
       completionEvent: 'party:job-set',
     },
     {
-      id: 'main-8-auto-fill',
+      id: 'main-8-palette-hint',
+      target: null,
+      pill: 'check',
+      messageKey: 'tutorial.main.palette_hint.message',
+      descriptionKey: 'tutorial.main.palette_hint.description',
+      completionEvent: 'party:palette-hint-done',
+      animation: 'palette-hint',
+    },
+    {
+      id: 'main-9-auto-fill',
       target: null,
       pill: 'check',
       messageKey: 'tutorial.main.auto_fill.message',
@@ -107,15 +118,16 @@ const mainTutorial: TutorialDefinition = {
       animation: 'party-auto-fill',
     },
     {
-      id: 'main-9-party-close',
+      id: 'main-10-party-close',
       target: '[data-tutorial="party-settings-close-btn"]',
       pill: 'click',
+      pillArrow: 'right',
       messageKey: 'tutorial.main.party_close.message',
       completionEvent: 'party:closed',
     },
     // ── 軽減追加: 致死ダメージCHECK → ピル飛行 → セルクリック → リプライザル ──
     {
-      id: 'main-10-check-damage',
+      id: 'main-11-check-damage',
       target: '[data-tutorial="tutorial-damage-cell-4-aoe"]',
       pill: 'check',
       messageKey: 'tutorial.main.damage_check.message',
@@ -128,7 +140,7 @@ const mainTutorial: TutorialDefinition = {
       },
     },
     {
-      id: 'main-11-select-miti',
+      id: 'main-12-select-miti',
       target: '[data-tutorial="tutorial-skill-reprisal"]',
       pill: 'click',
       messageKey: 'tutorial.main.select_miti.message',
@@ -136,7 +148,7 @@ const mainTutorial: TutorialDefinition = {
       completionEvent: 'mitigation:added',
     },
     {
-      id: 'main-12-complete',
+      id: 'main-13-complete',
       target: null,
       pill: 'next',
       messageKey: 'tutorial.main.complete.message',
