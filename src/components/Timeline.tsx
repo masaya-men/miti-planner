@@ -959,7 +959,8 @@ const Timeline: React.FC = () => {
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
         const member = useMitigationStore.getState().partyMembers.find(m => m.id === memberId);
-        if (!member || !member.jobId) return;
+        const isTutorial = useTutorialStore.getState().isActive;
+        if (!member || (!member.jobId && !isTutorial)) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(memberId);
@@ -976,10 +977,12 @@ const Timeline: React.FC = () => {
 
     const handleDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         const currentPartyMembers = useMitigationStore.getState().partyMembers;
-        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id;
+        const isTutorial = useTutorialStore.getState().isActive;
+        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id
+            || (isTutorial ? currentPartyMembers.find(m => m.jobId)?.id : null);
         if (!targetId) return;
         const member = currentPartyMembers.find(m => m.id === targetId);
-        if (!member || !member.jobId) return;
+        if (!member || (!member.jobId && !isTutorial)) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(targetId);
