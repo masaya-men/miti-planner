@@ -965,6 +965,8 @@ const Timeline: React.FC = () => {
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
+        // ── Tutorial: セルクリックイベント ──
+        useTutorialStore.getState().completeEvent('mitigation:cell-clicked');
     }, []);
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {

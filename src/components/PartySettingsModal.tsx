@@ -310,6 +310,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const handleRemoveJob = React.useCallback((memberId: string) => {
         setDraftMembers(prev => prev.map(m => m.id === memberId ? { ...m, jobId: null as any } : m));
         setFocusedSlot(null);
+        // ── Tutorial: ジョブ削除イベント ──
+        useTutorialStore.getState().completeEvent('party:job-removed');
     }, []);
 
     const handleMyJobToggle = React.useCallback((memberId: string, isMyJob: boolean) => {
@@ -421,6 +423,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 }
             }, 50);
         }
+
+        // ── Tutorial: ジョブ配置イベント ──
+        useTutorialStore.getState().completeEvent('party:job-set');
+
+        // ジョブ配置後、配置済みジョブ数が2以上なら party:two-set を発火
+        // NOTE: setDraftMembers は非同期なので、直前の変更を含めてカウントする
+        setDraftMembers(prev => {
+            const filledCount = prev.filter(m => m.jobId).length;
+            if (filledCount >= 2) {
+                useTutorialStore.getState().completeEvent('party:two-set');
+            }
+            return prev; // 状態は変更しない（カウントのみ）
+        });
 
         // Always unfocus after a selection attempt
         setFocusedSlot(null);
