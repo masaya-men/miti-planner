@@ -27,3 +27,5 @@
 ## ルール（自動適用）
 CSS・UIデザイン・i18nのルールは `.claude/rules/` に定義済み。
 該当ファイルを編集すると自動的にロードされる。
+
+When compacting, always preserve: 現在のタスク、変更中のファイルパス、docs/TODO.mdの「現在の状態」内容。
