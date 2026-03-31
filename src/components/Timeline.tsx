@@ -675,7 +675,7 @@ const Timeline: React.FC = () => {
     // モバイルでパーティが開かれたらチュートリアルイベントを通知
     useEffect(() => {
         if (mobilePartyOpen) {
-            useTutorialStore.getState().completeEvent('party-settings:opened');
+            useTutorialStore.getState().completeEvent('party:opened');
         }
     }, [mobilePartyOpen]);
 
@@ -834,7 +834,6 @@ const Timeline: React.FC = () => {
         setSelectedTime(time);
         setSelectedEvent(null);
         setIsModalOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-add-event-modal');
     }, [isAaModeEnabled, eventsByTime]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
@@ -970,7 +969,6 @@ const Timeline: React.FC = () => {
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
     }, []);
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
@@ -989,7 +987,6 @@ const Timeline: React.FC = () => {
         setSelectedMemberId(targetId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
     }, []);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {

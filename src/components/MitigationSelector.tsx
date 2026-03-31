@@ -182,8 +182,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
         if (mitigation.scope === 'target') {
             setSelectedSingleTargetMit(mitigation);
-            useTutorialStore.getState().completeEvent('tutorial:selected-target-miti');
-
             setTimeout(() => {
                 const el = document.getElementById(`miti-btn-${mitigation.id}`);
                 const container = scrollContainerRef.current;

@@ -198,7 +198,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         setCurrentPlanId(newPlanId);
 
         // チュートリアル通知
-        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+        useTutorialStore.getState().completeEvent('content:selected');
 
         // サイドバーに作成結果を伝える
         onClose({ contentId, level: useLevel as ContentLevel });

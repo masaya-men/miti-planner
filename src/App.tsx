@@ -25,7 +25,7 @@ import { JobWizard } from './components/admin/wizard/JobWizard';
 import { StatsWizard } from './components/admin/wizard/StatsWizard';
 import { AdminBackups } from './components/admin/AdminBackups';
 import { AdminLogs } from './components/admin/AdminLogs';
-import { TutorialOverlay } from './components/TutorialOverlay';
+import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
 import { ErrorBoundary } from './components/ErrorBoundary';

@@ -310,7 +310,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             setInputMode('reverse');
             const val = (contentLanguage === 'en' ? name.en : name.ja).toLowerCase();
             if (val.includes('アルテマ') || val.includes('ultima')) {
-                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:entered-event-name'), 500);
+                const tId = setTimeout(() => tutorialState.completeEvent('event:name-entered'), 500);
                 return () => clearTimeout(tId);
             }
         }
@@ -318,7 +318,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         // 9C: Damage Input
         if (currentStep?.id === 'tutorial-9c-damage-input' && targetActualDamage > 0) {
             if (calcActualDamage === targetActualDamage) {
-                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:entered-event-damage'), 500);
+                const tId = setTimeout(() => tutorialState.completeEvent('event:damage-entered'), 500);
                 return () => clearTimeout(tId);
             }
         }
@@ -331,7 +331,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             const hasSoil = selectedENNames.includes('Sacred Soil');
 
             if (hasReprisal && hasAddle && hasSoil) {
-                const tId = setTimeout(() => tutorialState.completeEvent('tutorial:selected-event-mitis'), 500);
+                const tId = setTimeout(() => tutorialState.completeEvent('event:miti-selected'), 500);
                 return () => clearTimeout(tId);
             }
         }

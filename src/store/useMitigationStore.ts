@@ -234,7 +234,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                     // チュートリアル: スナップショット読み込みでイベントが存在すれば通知
                     if (snapshot.timelineEvents.length > 0) {
-                        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+                        useTutorialStore.getState().completeEvent('content:selected');
                     }
                 },
 
@@ -308,10 +308,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 setMyMemberId: (memberId) => {
                     set({ myMemberId: memberId });
-                    // Tutorial: notify my job was set
-                    if (memberId) {
-                        useTutorialStore.getState().completeEvent('myjob:set');
-                    }
+                    // (チュートリアルイベント削除済み: myjob:set)
                 },
                 setCurrentLevel: (level) => {
                     const prevState = get();
@@ -373,7 +370,7 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
                     }));
-                    useTutorialStore.getState().completeEvent('event:created');
+                    useTutorialStore.getState().completeEvent('event:saved');
                 },
 
                 importTimelineEvents: (events) => {
@@ -384,7 +381,7 @@ export const useMitigationStore = create<MitigationState>()(
                     });
                     // Tutorial: notify that timeline content has been loaded
                     if (events.length > 0) {
-                        useTutorialStore.getState().completeEvent('timeline:events-loaded');
+                        useTutorialStore.getState().completeEvent('content:selected');
                     }
                 },
 
@@ -414,8 +411,7 @@ export const useMitigationStore = create<MitigationState>()(
                         };
                         return { phases: [...state.phases, newPhase].sort((a, b) => a.endTime - b.endTime) };
                     });
-                    // Tutorial: notify phase added
-                    useTutorialStore.getState().completeEvent('phase:added');
+                    // (チュートリアルイベント削除済み: phase:added)
                 },
 
                 updatePhase: (id, name) => {
@@ -598,13 +594,7 @@ export const useMitigationStore = create<MitigationState>()(
                         return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
                     });
                     // Tutorial: detect if 4 or 8 members are set
-                    const updatedMembers = get().partyMembers;
-                    const setCount = updatedMembers.filter(m => m.jobId !== null).length;
-                    if (setCount >= 8) {
-                        useTutorialStore.getState().completeEvent('party:eight-set');
-                    } else if (setCount >= 4) {
-                        useTutorialStore.getState().completeEvent('party:four-set');
-                    }
+                    // (チュートリアルイベント削除済み: party:eight-set / party:four-set)
                 },
 
                 changeMemberJobWithMitigations: (memberId, jobId, mitis) => {
@@ -729,14 +719,7 @@ export const useMitigationStore = create<MitigationState>()(
                         };
                     });
 
-                    // チュートリアルイベントのチェック
-                    const updatedMembers = get().partyMembers;
-                    const setCount = updatedMembers.filter(m => m.jobId !== null).length;
-                    if (setCount >= 8) {
-                        useTutorialStore.getState().completeEvent('party:eight-set');
-                    } else if (setCount >= 4) {
-                        useTutorialStore.getState().completeEvent('party:four-set');
-                    }
+                    // (チュートリアルイベント削除済み: party:eight-set / party:four-set)
                 },
 
                 updateMemberStats: (memberId, stats) => {

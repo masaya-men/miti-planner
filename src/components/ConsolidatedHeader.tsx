@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    HelpCircle, Sun, Moon, CloudDownload,
+    Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
     Users, Activity, Wand2, Star, LogIn, Crown
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
+import { TutorialMenu } from './tutorial/TutorialMenu';
 import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 
@@ -231,20 +232,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
 
                             {/* チュートリアル */}
-                            <button
-                                onClick={() => {
-                                    const path = window.location.pathname;
-                                    if (path === '/' || path === '') {
-                                        useTutorialStore.getState().startTutorial();
-                                    } else {
-                                        useTutorialStore.getState().startFromStep(1);
-                                    }
-                                }}
-                                className={clsx(pillBtnBase, pillBtnDefault)}
-                            >
-                                <HelpCircle size={14} className="group-hover:rotate-12 transition-transform duration-300 shrink-0" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('app.view_tutorial')}</span>
-                            </button>
+                            <TutorialMenu btnClassName={clsx(pillBtnBase, pillBtnDefault)} />
 
                             <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
 
@@ -293,7 +281,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 data-tutorial="party-comp"
                                 onClick={() => {
                                     window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }));
-                                    useTutorialStore.getState().completeEvent('party-settings:opened');
+                                    useTutorialStore.getState().completeEvent('party:opened');
                                 }}
                                 className={clsx(pillBtnBase, pillBtnDefault)}
                             >
@@ -305,7 +293,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <button
                                 onClick={() => {
                                     setStatusOpen(!statusOpen);
-                                    if (!statusOpen) useTutorialStore.getState().completeEvent('status:opened');
+                                    // (チュートリアルイベント削除済み)
                                 }}
                                 className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault)}
                             >
@@ -353,7 +341,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 data-tutorial="my-job-highlight-btn"
                                 onClick={() => {
                                     setMyJobHighlight(!myJobHighlight);
-                                    useTutorialStore.getState().completeEvent('tutorial:my-job-highlight-toggled');
+                                    // (チュートリアルイベント削除済み)
                                 }}
                                 className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
                             >
