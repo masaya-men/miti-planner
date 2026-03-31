@@ -96,8 +96,6 @@ function calcCardPos(rect: TargetRect | null): { top: number; left: number } {
 
 export function TutorialOverlay() {
   const isActive = useTutorialStore(s => s.isActive);
-  const activeTutorialId = useTutorialStore(s => s.activeTutorialId);
-  const currentStepNum = useTutorialStore(s => s.currentStep);
   const pendingExit = useTutorialStore(s => s.pendingExit);
 
   const step = useTutorialStore(s => s.getCurrentStep());
