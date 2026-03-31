@@ -63,7 +63,7 @@ export default async function handler(req: Request) {
         }
 
         // フォント取得（M PLUS 1）
-        let allText = 'LoPo｜前半後半';
+        let allText = 'LoPo/前半後半';
         if (isBundle) {
             allText += bundlePlans.map(p => getContentName(p.contentId, lang) + (p.title || '')).join('');
             allText += lang === 'en' ? `${bundlePlans.length} plans shared` : `${bundlePlans.length}件の軽減プラン`;

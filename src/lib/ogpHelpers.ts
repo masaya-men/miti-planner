@@ -141,7 +141,7 @@ export function trySeriesSummary(
         return null;
     }
 
-    const summary = first.tierName + ' ' + parsed.map(p => p.label).join(' ｜ ');
+    const summary = first.tierName + ' ' + parsed.map(p => p.label).join(' / ');
     const categoryTag = plans[0].contentId ? getCategoryTag(plans[0].contentId) : '';
 
     return { seriesName: first.seriesName, tierName: first.tierName, summary, categoryTag };
