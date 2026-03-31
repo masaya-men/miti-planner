@@ -650,13 +650,17 @@
                 "description": "ゴミ箱ボタンで削除できます。何度でもやり直せます。"
             },
             "pick_war": {
-                "message": "戦士を入れよう"
+                "message": "戦士をクリック！"
             },
             "pick_whm": {
-                "message": "白魔導士を入れよう"
+                "message": "白魔導士をクリック！"
+            },
+            "palette_hint": {
+                "message": "アイコンクリックで自動配置！",
+                "description": "今の戦士と白魔導士のように、ジョブアイコンをクリックするだけでいい感じのスロットに入ります。ちょっと便利！"
             },
             "auto_fill": {
-                "message": "残りはおまかせ！"
+                "message": "残りは代わりに入れておきますね！"
             },
             "party_close": {
                 "message": "パーティ編成完了！閉じましょう"

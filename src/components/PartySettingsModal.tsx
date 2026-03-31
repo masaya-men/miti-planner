@@ -153,18 +153,16 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     )} />
                                 </Tooltip>
                             </button>
-                            <Tooltip content="Remove Job">
-                                <button
-                                    data-tutorial-remove={member.id}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onRemoveJob(member.id);
-                                    }}
-                                    className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </Tooltip>
+                            <button
+                                data-tutorial-remove={member.id}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRemoveJob(member.id);
+                                }}
+                                className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </>
                     )}
                 </div>

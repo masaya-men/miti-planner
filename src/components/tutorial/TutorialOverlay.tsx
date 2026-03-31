@@ -7,6 +7,7 @@ import { TutorialPill } from './TutorialPill';
 import { TutorialCard } from './TutorialCard';
 import { TutorialBlocker } from './TutorialBlocker';
 import { PartyAutoFill } from './animations/PartyAutoFill';
+import { PaletteHint } from './animations/PaletteHint';
 import { PillFly } from './animations/PillFly';
 import { CompletionCard } from './animations/CompletionCard';
 
@@ -60,9 +61,18 @@ function useTargetRect(selector: string | null): TargetRect | null {
 /**
  * ピルの表示位置を計算（ターゲットの上・中央）
  */
-function calcPillPos(rect: TargetRect | null): { top: number; left: number } {
+function calcPillPos(rect: TargetRect | null, arrow?: 'down' | 'right'): { top: number; left: number } {
   if (!rect) return { top: -100, left: -100 };
-  // 上に表示。画面上端に出ないようクランプ。出る場合は下に表示。
+
+  if (arrow === 'right') {
+    // 左に配置、右矢印でターゲットを指す
+    return {
+      top: rect.top + rect.height / 2 - 12,
+      left: Math.max(8, rect.left - 80),
+    };
+  }
+
+  // デフォルト: 上に表示。画面上端に出ないようクランプ。
   let top = rect.top - 32;
   if (top < 8) top = rect.top + rect.height + 8;
   const left = Math.max(8, Math.min(rect.left + rect.width / 2 - 28, window.innerWidth - 70));
@@ -98,12 +108,16 @@ function calcCardPos(rect: TargetRect | null): { top: number; left: number } {
 export function TutorialOverlay() {
   const isActive = useTutorialStore(s => s.isActive);
   const pendingExit = useTutorialStore(s => s.pendingExit);
+  const currentStepIdx = useTutorialStore(s => s.currentStep);
+  const tutorial = useTutorialStore(s => s.getActiveTutorial());
 
   const step = useTutorialStore(s => s.getCurrentStep());
   const targetRect = useTargetRect(step?.target ?? null);
 
-  const pillPos = calcPillPos(targetRect);
+  const pillPos = calcPillPos(targetRect, step?.pillArrow);
   const cardPos = calcCardPos(targetRect);
+  const totalSteps = tutorial?.steps.length ?? 0;
+  const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
 
   const handleSkip = useCallback(() => {
     useTutorialStore.getState().requestExit();
@@ -114,6 +128,10 @@ export function TutorialOverlay() {
   // 特殊演出のレンダリング
   const renderAnimation = () => {
     switch (step.animation) {
+      case 'palette-hint':
+        return <PaletteHint onComplete={() => {
+          useTutorialStore.getState().completeEvent('party:palette-hint-done');
+        }} />;
       case 'party-auto-fill':
         return <PartyAutoFill onComplete={() => {
           useTutorialStore.getState().completeEvent('party:auto-filled');
@@ -156,6 +174,7 @@ export function TutorialOverlay() {
             top={pillPos.top}
             left={pillPos.left}
             visible={!!targetRect}
+            arrow={step.pillArrow}
           />
         )}
 
@@ -170,6 +189,7 @@ export function TutorialOverlay() {
             left={cardPos.left}
             visible={true}
             onSkip={handleSkip}
+            stepLabel={stepLabel}
           />
         )}
       </AnimatePresence>

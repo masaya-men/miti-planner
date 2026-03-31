@@ -646,13 +646,17 @@
                 "description": "Click the trash button to remove it. Try again anytime."
             },
             "pick_war": {
-                "message": "Now pick Warrior"
+                "message": "Click Warrior!"
             },
             "pick_whm": {
-                "message": "Now pick White Mage"
+                "message": "Click White Mage!"
+            },
+            "palette_hint": {
+                "message": "Click to auto-place!",
+                "description": "Just like Warrior and White Mage — click a job icon and it finds a good slot. Handy!"
             },
             "auto_fill": {
-                "message": "We'll handle the rest!"
+                "message": "We'll fill in the rest for you!"
             },
             "party_close": {
                 "message": "Party's ready! Close this window"
