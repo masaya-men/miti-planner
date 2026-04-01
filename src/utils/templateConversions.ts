@@ -12,7 +12,7 @@ import type { TemplateData } from '../data/templateLoader';
 // 公開型定義
 // ─────────────────────────────────────────────
 
-export type ColumnType = 'time' | 'name' | 'damage' | 'type' | 'target' | 'phase' | 'skip';
+export type ColumnType = 'time' | 'name' | 'damage' | 'type' | 'target' | 'phase' | 'mechanic' | 'skip';
 
 export interface ColumnMapping {
   index: number;
@@ -102,6 +102,7 @@ export function guessColumnType(header: string): ColumnType {
   if (/種別|type/.test(h)) return 'type';
   if (/対象|target/.test(h)) return 'target';
   if (/フェーズ|phase/.test(h)) return 'phase';
+  if (/ギミック|mechanic|group/.test(h)) return 'mechanic';
 
   return 'skip';
 }
@@ -173,6 +174,7 @@ export function convertCsvToEvents(
 
   let phaseCounter = 0;
   let currentPhaseName: string | null = null;
+  let currentMechanicGroup: string | undefined = undefined;
 
   rows.forEach((row, rowIndex) => {
     const get = (type: ColumnType): string => {
@@ -183,6 +185,12 @@ export function convertCsvToEvents(
 
     const nameVal = get('name');
     if (!nameVal) return; // 名前のない行はスキップ
+
+    // ギミックグループ検出
+    const mechanicVal = get('mechanic');
+    if (mechanicVal) {
+      currentMechanicGroup = mechanicVal;
+    }
 
     // フェーズ検出
     const phaseVal = get('phase');
@@ -217,6 +225,10 @@ export function convertCsvToEvents(
       damageType,
       target,
     };
+
+    if (currentMechanicGroup) {
+      event.mechanicGroup = currentMechanicGroup;
+    }
 
     if (damageAmount !== undefined && !isNaN(damageAmount)) {
       event.damageAmount = damageAmount;
