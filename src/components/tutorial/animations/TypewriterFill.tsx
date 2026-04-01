@@ -17,6 +17,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
   const { t } = useTranslation();
   const [fieldIndex, setFieldIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
+  const [started, setStarted] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completedRef = useRef(false);
   // onComplete を ref に保持することで、参照が変わっても useEffect が再実行されないようにする
@@ -27,8 +28,18 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
   const prefersReduced = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // 開始前に視線を集める遅延（1.2秒）
   useEffect(() => {
-    if (completedRef.current) return;
+    if (prefersReduced) {
+      setStarted(true);
+      return;
+    }
+    const id = setTimeout(() => setStarted(true), 1200);
+    return () => clearTimeout(id);
+  }, [prefersReduced]);
+
+  useEffect(() => {
+    if (!started || completedRef.current) return;
     const fields = config.fields;
     if (!fields || fields.length === 0) {
       completedRef.current = true;
@@ -88,7 +99,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [fieldIndex, charIndex, config, t, prefersReduced]);
+  }, [started, fieldIndex, charIndex, config, t, prefersReduced]);
 
   // レンダリングなし（DOM操作のみ）
   return null;

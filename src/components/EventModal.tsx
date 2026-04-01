@@ -358,8 +358,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             }
         }
 
-        // create-plan: ステップ8に進んだら軽減をプリセット
+        // create-plan: ステップ8に進んだら軽減エリアまでスクロール + プリセット
         if (currentStep?.id === 'create-8-miti') {
+            // 軽減エリアまで自動スクロール
+            const container = document.getElementById('event-modal-form');
+            if (container) {
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            }
+
             const sacredSoilId = MITIGATIONS.find(m => m.name.en === 'Sacred Soil')?.id;
             const divineVeilId = MITIGATIONS.find(m => m.name.en === 'Divine Veil')?.id;
             const presets = [sacredSoilId, divineVeilId].filter((id): id is string => !!id);
