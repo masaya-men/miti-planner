@@ -1669,14 +1669,15 @@ const Timeline: React.FC = () => {
                                     </span>
                                 </div>
                             ) : (
-                                <div
-                                    ref={phaseHeaderRef}
-                                    className="w-[6px] min-w-[6px] max-w-[6px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
-                                    onClick={() => handleTogglePhaseCollapse()}
-                                    title={t('timeline.nav_phase_expand')}
-                                >
-                                    <div className="w-[2px] h-[16px] bg-app-text-muted rounded-full" />
-                                </div>
+                                <Tooltip content={t('timeline.nav_phase_expand')}>
+                                    <div
+                                        ref={phaseHeaderRef}
+                                        className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                        onClick={() => handleTogglePhaseCollapse()}
+                                    >
+                                        <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
+                                    </div>
+                                </Tooltip>
                             )}
                             <div
                                 ref={timeHeaderRef}
