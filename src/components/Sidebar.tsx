@@ -1250,8 +1250,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => {
                                 setIsNewPlanModalOpen(true);
+                                // create-plan チュートリアルトリガー（初回のみ）
+                                const tutState = useTutorialStore.getState();
+                                if (!tutState.completed['create-plan'] && !tutState.isActive) {
+                                    tutState.startTutorial('create-plan');
+                                }
                             }}
-                            data-tutorial="new-plan"
+                            data-tutorial="new-plan-btn"
                             className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
                         >
                             <Plus size={10} />

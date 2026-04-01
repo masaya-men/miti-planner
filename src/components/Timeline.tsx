@@ -830,6 +830,7 @@ const Timeline: React.FC = () => {
         setSelectedTime(time);
         setSelectedEvent(null);
         setIsModalOpen(true);
+        useTutorialStore.getState().completeEvent('create:event-modal-opened');
     }, [isAaModeEnabled, eventsByTime]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
