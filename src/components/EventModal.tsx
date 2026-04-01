@@ -621,7 +621,28 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
                                         <label className="block text-xs font-medium text-app-text">{t('mechanic_modal.calc_mitigations')}</label>
-                                        <span className="text-[10px] text-app-text-muted bg-app-surface2 px-2 py-0.5 rounded-full">{selectedMitigations.length} Selected</span>
+                                        {selectedMitigations.length > 0 && (
+                                          <div className="flex items-center gap-0.5">
+                                            {selectedMitigations.slice(0, 4).map(mitId => {
+                                              const mit = MITIGATIONS.find(m => m.id === mitId);
+                                              if (!mit) return null;
+                                              const lang = t('app.language') === 'English' ? 'en' : 'ja';
+                                              return (
+                                                <img
+                                                  key={mitId}
+                                                  src={mit.icon}
+                                                  alt={mit.name[lang] || mit.name.ja}
+                                                  className="w-5 h-5 rounded object-contain"
+                                                />
+                                              );
+                                            })}
+                                            {selectedMitigations.length > 4 && (
+                                              <span className="text-[10px] text-app-text-muted ml-0.5">
+                                                +{selectedMitigations.length - 4}
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
                                     </div>
                                     <div
                                         id="mitigation-grid-container"
