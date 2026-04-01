@@ -364,11 +364,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             // プリセットは一度だけ実行
             if (!mitiPresetDoneRef.current) {
                 mitiPresetDoneRef.current = true;
-                // 軽減エリアまで自動スクロール
-                const container = document.getElementById('event-modal-form');
-                if (container) {
-                    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-                }
                 const sacredSoilId = MITIGATIONS.find(m => m.name.en === 'Sacred Soil')?.id;
                 const divineVeilId = MITIGATIONS.find(m => m.name.en === 'Divine Veil')?.id;
                 const presets = [sacredSoilId, divineVeilId].filter((id): id is string => !!id);
@@ -377,13 +372,23 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     return Array.from(newSet);
                 });
             }
+            // 軽減エリアが見えるよう一番下までスクロール
+            const scrollTimer = setTimeout(() => {
+                const container = document.getElementById('event-modal-form');
+                if (container) {
+                    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+                }
+            }, 100);
 
             // リプライザル選択で完了
             const reprisalId = MITIGATIONS.find(m => m.name.en === 'Reprisal')?.id;
             if (reprisalId && selectedMitigations.includes(reprisalId)) {
+                clearTimeout(scrollTimer);
                 const tId = setTimeout(() => tutorialState.completeEvent('create:miti-selected'), 500);
                 return () => clearTimeout(tId);
             }
+
+            return () => clearTimeout(scrollTimer);
         }
     }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 

@@ -127,8 +127,15 @@ export function TutorialOverlay() {
   const pillToRect = useTargetRect(pillToSelector);
   const [pillPhase, setPillPhase] = useState<'idle' | 'check' | 'fly' | 'land'>('idle');
 
+  // typewriter-fill 中の現在フィールドセレクタ追跡
+  const [typewriterTarget, setTypewriterTarget] = useState<string | null>(null);
+  const typewriterTargetRect = useTargetRect(typewriterTarget);
+
   // ステップが変わったらリセット
-  useEffect(() => { setPillPhase('idle'); }, [currentStepIdx]);
+  useEffect(() => {
+    setPillPhase('idle');
+    setTypewriterTarget(null);
+  }, [currentStepIdx]);
 
   const handlePillPhaseChange = useCallback((phase: 'check' | 'fly' | 'land') => {
     setPillPhase(phase);
@@ -137,8 +144,11 @@ export function TutorialOverlay() {
   const anchorRect = useTargetRect(step?.cardAnchor ?? null);
   const pillPos = calcPillPos(targetRect, step?.pillArrow);
   // ピル飛行後はカードを飛行先セル基準に配置
+  // typewriter-fill 中は現在のフィールド基準に配置
   const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
-  const cardBaseRect = pillFlew && pillToRect ? pillToRect : (targetRect ?? anchorRect);
+  const cardBaseRect = pillFlew && pillToRect ? pillToRect
+    : typewriterTarget && typewriterTargetRect ? typewriterTargetRect
+    : (targetRect ?? anchorRect);
   const cardPos = calcCardPos(cardBaseRect);
   const totalSteps = tutorial?.steps.length ?? 0;
   const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
@@ -181,6 +191,7 @@ export function TutorialOverlay() {
             onComplete={() => {
               useTutorialStore.getState().completeEvent(step.completionEvent);
             }}
+            onFieldChange={setTypewriterTarget}
           />
         ) : null;
       default:

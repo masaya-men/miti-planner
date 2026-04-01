@@ -230,7 +230,6 @@ const createPlanTutorial: TutorialDefinition = {
             charDelay: 80,
           },
         ],
-        postDelay: 2000,
       },
     },
     {
