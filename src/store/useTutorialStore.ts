@@ -110,10 +110,10 @@ export const useTutorialStore = create<TutorialState>()(
         const mitiState = useMitigationStore.getState();
         const planStore = usePlanStore.getState();
 
-        // メインチュートリアルの場合、現在の状態を退避
+        // メインチュートリアル・create-plan チュートリアルの場合、現在の状態を退避
         let snapshot: TutorialSnapshot | null = null;
         let savedPlanId: string | null = null;
-        if (id === 'main') {
+        if (id === 'main' || id === 'create-plan') {
           savedPlanId = planStore.currentPlanId;
           if (savedPlanId) {
             planStore.updatePlan(savedPlanId, { data: mitiState.getSnapshot() });
@@ -127,7 +127,10 @@ export const useTutorialStore = create<TutorialState>()(
             myJobHighlight: mitiState.myJobHighlight,
             hideEmptyRows: mitiState.hideEmptyRows,
           };
-          mitiState.resetForTutorial();
+          // main はリセット、create-plan はリセットしない（新規作成がチュートリアルの一部）
+          if (id === 'main') {
+            mitiState.resetForTutorial();
+          }
         }
 
         set({
@@ -169,8 +172,8 @@ export const useTutorialStore = create<TutorialState>()(
         const { activeTutorialId } = get();
         if (!activeTutorialId) return;
 
-        // メインチュートリアルの場合は状態復元
-        if (activeTutorialId === 'main') {
+        // メインチュートリアル・create-plan チュートリアルの場合は状態復元
+        if (activeTutorialId === 'main' || activeTutorialId === 'create-plan') {
           restoreUserState(get());
         }
 
@@ -197,7 +200,7 @@ export const useTutorialStore = create<TutorialState>()(
 
       confirmExit: () => {
         const { activeTutorialId } = get();
-        if (activeTutorialId === 'main') {
+        if (activeTutorialId === 'main' || activeTutorialId === 'create-plan') {
           restoreUserState(get());
         }
         set({
