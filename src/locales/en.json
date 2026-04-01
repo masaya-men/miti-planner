@@ -622,7 +622,7 @@
         "got_it": "Got it!",
         "menu": {
             "main": "Getting Started",
-            "add_event": "Adding Attacks",
+            "create_plan": "Creating a Plan",
             "share": "How to Share"
         },
         "main": {
@@ -674,30 +674,52 @@
                 "message": "Tutorial complete!"
             }
         },
-        "add_event": {
-            "name": {
-                "message": "Enter the attack name",
-                "description": "Type the boss ability name."
+        "create_plan": {
+            "open_modal": {
+                "message": "Let's make a plan from scratch!",
+                "description": "Create mitigation plans for any dungeon or content."
             },
-            "damage": {
-                "message": "Enter the damage taken",
-                "description": "Enter the damage value you saw in-game."
+            "level": {
+                "message": "Choose a level"
+            },
+            "category": {
+                "message": "Pick a type — let's try Dungeon"
+            },
+            "name": {
+                "message": "We'll type it for you!",
+                "description": "You can name it anything you like."
+            },
+            "submit": {
+                "message": "Hit Create"
+            },
+            "add_event": {
+                "message": "Let's add an attack",
+                "description": "Click the + button to add an attack."
+            },
+            "fill_event": {
+                "message": "Entering attack name and damage",
+                "description": "Watch — we'll type it in for you."
             },
             "miti": {
-                "message": "Select mitigations"
+                "message": "Choose a mitigation",
+                "description": "Sacred Soil and Divine Veil are already set! Click Reprisal."
             },
             "save": {
-                "message": "Save it!"
-            }
+                "message": "Save it"
+            },
+            "complete": {
+                "message": "Tutorial complete!"
+            },
+            "typewriter_name": "Dungeon_Tutorial",
+            "typewriter_event_name": "Boss Attack"
         },
         "share": {
-            "copy": {
-                "message": "Copy the share URL",
-                "description": "Send this URL to your teammates so they can see your plan."
+            "open": {
+                "message": "Try the share button"
             },
-            "logo": {
-                "message": "Set a team logo!",
-                "description": "Log in to add your team logo to the OGP image. Makes sharing even better!"
+            "done": {
+                "message": "Set up images and share!",
+                "description": "Add an OGP image or team logo, then share your plan with everyone."
             }
         },
         "completion": {

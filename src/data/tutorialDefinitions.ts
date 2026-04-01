@@ -180,42 +180,113 @@ const mainTutorial: TutorialDefinition = {
 };
 
 // ─────────────────────────────────────────────
-// 個別チュートリアル: 攻撃の追加
+// 個別チュートリアル: 新規作成
 // ─────────────────────────────────────────────
-const addEventTutorial: TutorialDefinition = {
-  id: 'add-event',
-  nameKey: 'tutorial.menu.add_event',
+const createPlanTutorial: TutorialDefinition = {
+  id: 'create-plan',
+  nameKey: 'tutorial.menu.create_plan',
   steps: [
     {
-      id: 'add-1-name',
+      id: 'create-1-open-modal',
+      target: '[data-tutorial="new-plan-btn"]',
+      pill: 'click',
+      messageKey: 'tutorial.create_plan.open_modal.message',
+      descriptionKey: 'tutorial.create_plan.open_modal.description',
+      completionEvent: 'create:modal-opened',
+    },
+    {
+      id: 'create-2-level',
+      target: '[data-tutorial="level-max"]',
+      pill: 'click',
+      messageKey: 'tutorial.create_plan.level.message',
+      completionEvent: 'create:level-selected',
+    },
+    {
+      id: 'create-3-category',
+      target: '[data-tutorial="category-dungeon"]',
+      pill: 'click',
+      messageKey: 'tutorial.create_plan.category.message',
+      completionEvent: 'create:category-selected',
+    },
+    {
+      id: 'create-4-name',
+      target: '[data-tutorial="plan-name-input"]',
+      pill: 'check',
+      messageKey: 'tutorial.create_plan.name.message',
+      descriptionKey: 'tutorial.create_plan.name.description',
+      completionEvent: 'create:name-filled',
+      animation: 'typewriter-fill',
+      typewriterConfig: {
+        fields: [
+          {
+            target: '[data-tutorial="plan-name-input"]',
+            text: 'tutorial.create_plan.typewriter_name',
+            charDelay: 80,
+          },
+        ],
+      },
+    },
+    {
+      id: 'create-5-submit',
+      target: '[data-tutorial="create-plan-btn"]',
+      pill: 'click',
+      messageKey: 'tutorial.create_plan.submit.message',
+      completionEvent: 'create:plan-created',
+    },
+    {
+      id: 'create-6-add-event',
+      target: '[data-tutorial="add-event-btn"]',
+      pill: 'click',
+      messageKey: 'tutorial.create_plan.add_event.message',
+      descriptionKey: 'tutorial.create_plan.add_event.description',
+      completionEvent: 'create:event-modal-opened',
+    },
+    {
+      id: 'create-7-fill-event',
       target: '[data-tutorial="event-name-input"]',
-      pill: 'click',
-      messageKey: 'tutorial.add_event.name.message',
-      descriptionKey: 'tutorial.add_event.name.description',
-      completionEvent: 'event:name-entered',
+      pill: 'check',
+      messageKey: 'tutorial.create_plan.fill_event.message',
+      descriptionKey: 'tutorial.create_plan.fill_event.description',
+      completionEvent: 'create:event-filled',
+      animation: 'typewriter-fill',
+      typewriterConfig: {
+        fields: [
+          {
+            target: '[data-tutorial="event-name-input"]',
+            text: 'tutorial.create_plan.typewriter_event_name',
+            charDelay: 80,
+          },
+          {
+            target: '[data-tutorial="event-actual-damage-input"]',
+            text: '120000',
+            charDelay: 120,
+            raw: true,
+          },
+        ],
+      },
     },
     {
-      id: 'add-2-damage',
-      target: '[data-tutorial="event-actual-damage-input"]',
+      id: 'create-8-miti',
+      target: '[data-tutorial="tutorial-skill-reprisal"]',
       pill: 'click',
-      messageKey: 'tutorial.add_event.damage.message',
-      descriptionKey: 'tutorial.add_event.damage.description',
-      image: '/images/tutorial/ff14-damage-screenshot.webp',
-      completionEvent: 'event:damage-entered',
+      messageKey: 'tutorial.create_plan.miti.message',
+      descriptionKey: 'tutorial.create_plan.miti.description',
+      completionEvent: 'create:miti-selected',
     },
     {
-      id: 'add-3-miti',
-      target: '[data-tutorial="tutorial-skill-target"]',
-      pill: 'click',
-      messageKey: 'tutorial.add_event.miti.message',
-      completionEvent: 'event:miti-selected',
-    },
-    {
-      id: 'add-4-save',
+      id: 'create-9-save',
       target: '[data-tutorial="event-save-btn"]',
       pill: 'click',
-      messageKey: 'tutorial.add_event.save.message',
-      completionEvent: 'event:saved',
+      messageKey: 'tutorial.create_plan.save.message',
+      completionEvent: 'create:event-saved',
+    },
+    {
+      id: 'create-10-complete',
+      target: null,
+      pill: 'next',
+      messageKey: 'tutorial.create_plan.complete.message',
+      completionEvent: 'tutorial:dismissed',
+      animation: 'completion-card',
     },
   ],
 };
@@ -228,19 +299,18 @@ const shareTutorial: TutorialDefinition = {
   nameKey: 'tutorial.menu.share',
   steps: [
     {
-      id: 'share-1-copy',
+      id: 'share-1-open',
       target: '[data-tutorial="share-copy-btn"]',
-      pill: 'check',
-      messageKey: 'tutorial.share.copy.message',
-      descriptionKey: 'tutorial.share.copy.description',
-      completionEvent: 'share:url-copied',
+      pill: 'click',
+      messageKey: 'tutorial.share.open.message',
+      completionEvent: 'share:modal-opened',
     },
     {
-      id: 'share-2-logo',
+      id: 'share-2-done',
       target: null,
       pill: 'next',
-      messageKey: 'tutorial.share.logo.message',
-      descriptionKey: 'tutorial.share.logo.description',
+      messageKey: 'tutorial.share.done.message',
+      descriptionKey: 'tutorial.share.done.description',
       completionEvent: 'share:tutorial-done',
     },
   ],
@@ -251,7 +321,7 @@ const shareTutorial: TutorialDefinition = {
 // ─────────────────────────────────────────────
 export const TUTORIALS: Record<string, TutorialDefinition> = {
   main: mainTutorial,
-  'add-event': addEventTutorial,
+  'create-plan': createPlanTutorial,
   share: shareTutorial,
 };
 

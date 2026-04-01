@@ -626,7 +626,7 @@
         "got_it": "わかった！",
         "menu": {
             "main": "はじめてガイド",
-            "add_event": "攻撃の追加",
+            "create_plan": "新規作成のしかた",
             "share": "共有のしかた"
         },
         "main": {
@@ -678,30 +678,52 @@
                 "message": "チュートリアル完了！"
             }
         },
-        "add_event": {
-            "name": {
-                "message": "攻撃名を入力しよう",
-                "description": "ボスの技名を入力してください。"
+        "create_plan": {
+            "open_modal": {
+                "message": "テンプレにない表を作ってみよう！",
+                "description": "好きなダンジョンやコンテンツの軽減表を一から作れます。"
             },
-            "damage": {
-                "message": "受けるダメージを入力",
-                "description": "実際のゲーム中に表示されたダメージ値を入力しましょう。"
+            "level": {
+                "message": "レベルを選ぼう"
+            },
+            "category": {
+                "message": "種類を選ぼう — ダンジョンを選んでみましょう"
+            },
+            "name": {
+                "message": "代わりに入力しますね！",
+                "description": "好きな名前を付けられます。"
+            },
+            "submit": {
+                "message": "作成ボタンを押そう"
+            },
+            "add_event": {
+                "message": "攻撃を追加してみよう",
+                "description": "＋ボタンを押して攻撃を追加します。"
+            },
+            "fill_event": {
+                "message": "攻撃名とダメージを入力します",
+                "description": "ゆっくり入力するので見ていてください。"
             },
             "miti": {
-                "message": "軽減を選ぼう"
+                "message": "軽減を選ぼう",
+                "description": "野戦治療の陣とディヴァインベールは押しておきました！リプライザルを押してみましょう。"
             },
             "save": {
-                "message": "追加で保存！"
-            }
+                "message": "保存しよう"
+            },
+            "complete": {
+                "message": "チュートリアル完了！"
+            },
+            "typewriter_name": "ダンジョン_チュートリアル",
+            "typewriter_event_name": "ボス攻撃"
         },
         "share": {
-            "copy": {
-                "message": "共有URLをコピー",
-                "description": "このURLを仲間に送ると、あなたの軽減表を見てもらえます。"
+            "open": {
+                "message": "共有ボタンを押してみよう"
             },
-            "logo": {
-                "message": "チームロゴを設定できるよ！",
-                "description": "ログインするとOGP画像にチームロゴを表示できます。共有がもっと楽しくなります！"
+            "done": {
+                "message": "画像などを設定して共有しよう！",
+                "description": "OGP画像やチームロゴを設定して、完成した軽減表をみんなに共有できます。"
             }
         },
         "completion": {
