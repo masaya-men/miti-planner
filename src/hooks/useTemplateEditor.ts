@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import { TimelineEvent } from '../types';
-import { TemplateData } from '../data/templateLoader';
+import type { TimelineEvent } from '../types';
+import type { TemplateData } from '../data/templateLoader';
 
 export interface EditState {
   original: TimelineEvent[];
