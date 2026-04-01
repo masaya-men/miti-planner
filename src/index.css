@@ -217,6 +217,34 @@
   }
 }
 
+/* ── フォントサイズスケーリング ──
+   data-font-scale="1" で有効化。glass-panel（表エリア）と footer 内は除外。
+   最低12px、大きいものは比例拡大。 */
+[data-font-scale="1"] :not(.glass-panel):not(.glass-panel *):not(footer):not(footer *):not(.font-scale-exclude) {
+  &.text-\[6px\], &.text-\[7px\], &.text-\[8px\], &.text-\[9px\],
+  &.text-\[9\.5px\], &.text-\[10px\], &.text-\[11px\] {
+    font-size: 12px !important;
+  }
+  &.text-\[12px\], &.text-xs {
+    font-size: 13px !important;
+  }
+  &.text-\[13px\] {
+    font-size: 14px !important;
+  }
+  &.text-sm {
+    font-size: 15px !important;
+  }
+  &.text-base {
+    font-size: 17px !important;
+  }
+  &.text-lg {
+    font-size: 20px !important;
+  }
+}
+[data-font-scale="1"] body {
+  font-size: 14px !important;
+}
+
 /* 背景: 単色 */
 .bg-abstract-dark { background-color: #000000; }
 .bg-abstract-light { background-color: #ffffff; }

@@ -343,12 +343,12 @@
         "rate_limit_exceeded": "You've reached the usage limit. Please wait and try again later (up to {{max}} times per hour)."
     },
     "sidebar": {
-        "new_plan": "Create New",
+        "new_plan": "New",
         "create_new_list": "Create New List",
         "recent_activity": "Recent Activity",
         "level_select": "Level",
         "category_select": "Category",
-        "multi_select_mode": "Multi Share",
+        "multi_select_mode": "Share",
         "selected_count": "{{count}}/10 Selected",
         "selected_count_simple": "{{count}} Selected",
         "share_together": "Share Selected",
