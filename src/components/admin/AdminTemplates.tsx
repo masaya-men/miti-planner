@@ -1,13 +1,20 @@
 /**
  * テンプレート管理画面
- * テンプレートの一覧表示・JSONアップロード・削除・ロック/アンロック
- * テンプレート = コンテンツのタイムライン（ボスの攻撃順序）データ
+ * スプレッドシート型エディター + テンプレート一覧 + 昇格候補
  */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
+import { useTemplateEditor } from '../../hooks/useTemplateEditor';
+import { TemplateEditor } from './TemplateEditor';
+import { TemplateEditorToolbar } from './TemplateEditorToolbar';
+import { PlanToTemplateModal } from './PlanToTemplateModal';
+import { CsvImportModal } from './CsvImportModal';
+import { FflogsTranslationModal } from './FflogsTranslationModal';
+import type { TimelineEvent } from '../../types';
+import type { TemplateData } from '../../data/templateLoader';
 
 interface TemplateItem {
   contentId: string;
@@ -41,10 +48,17 @@ export function AdminTemplates() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // アップロードフォーム
-  const [uploadContentId, setUploadContentId] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // エディター用ステート
+  const [selectedContentId, setSelectedContentId] = useState('');
+  const [showUntranslatedOnly, setShowUntranslatedOnly] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // モーダル表示フラグ
+  const [showPromoteModal, setShowPromoteModal] = useState(false);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [showFflogsModal, setShowFflogsModal] = useState(false);
+
+  const editor = useTemplateEditor();
 
   /** コンテンツ一覧を取得（ドロップダウン用） */
   const fetchContents = useCallback(async () => {
@@ -96,35 +110,66 @@ export function AdminTemplates() {
     fetchCandidates();
   }, [fetchTemplates, fetchContents, fetchCandidates]);
 
-  /** JSONファイルをアップロード */
-  const handleUpload = async () => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file || !uploadContentId) return;
+  /** コンテンツを選択してテンプレートをロード */
+  const handleContentChange = useCallback(async (contentId: string) => {
+    if (editor.hasChanges) {
+      const ok = window.confirm(t('admin.tpl_editor_unsaved'));
+      if (!ok) return;
+    }
+    setSelectedContentId(contentId);
+    setShowUntranslatedOnly(false);
+
+    if (!contentId) return;
 
     try {
-      setUploading(true);
-      const text = await file.text();
-      const json = JSON.parse(text);
+      const res = await apiFetch(`/api/admin?resource=templates&id=${contentId}`);
+      if (res.ok) {
+        const data = await res.json();
+        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? []);
+      } else if (res.status === 404) {
+        editor.loadEvents([], []);
+      } else {
+        showToast(t('admin.error_load'), 'error');
+      }
+    } catch {
+      showToast(t('admin.error_load'), 'error');
+    }
+  }, [editor, t]);
 
+  /** 保存 */
+  const handleSave = async () => {
+    if (editor.untranslatedCount > 0) {
+      const ok = window.confirm(t('admin.tpl_editor_save_confirm_untranslated'));
+      if (!ok) return;
+    }
+
+    try {
+      setSaving(true);
+      const { events, phases } = editor.getSaveData();
       const res = await apiFetch('/api/admin?resource=templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contentId: uploadContentId,
-          timelineEvents: json.timelineEvents ?? json,
-          phases: json.phases ?? [],
-          source: json.source ?? 'admin_upload',
+          contentId: selectedContentId,
+          timelineEvents: events,
+          phases,
+          source: 'admin_editor',
         }),
       });
       if (!res.ok) throw new Error(res.statusText);
-      showToast(t('admin.templates_uploaded'));
-      setUploadContentId('');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+
+      showToast(t('admin.tpl_editor_saved'));
+      // 保存後にテンプレートをリロードしてエディターを更新
+      const reloadRes = await apiFetch(`/api/admin?resource=templates&id=${selectedContentId}`);
+      if (reloadRes.ok) {
+        const data = await reloadRes.json();
+        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? []);
+      }
       await fetchTemplates();
     } catch {
-      showToast(t('admin.error_save'), 'error');
+      showToast(t('admin.tpl_editor_save_error'), 'error');
     } finally {
-      setUploading(false);
+      setSaving(false);
     }
   };
 
@@ -140,6 +185,10 @@ export function AdminTemplates() {
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.templates_deleted'));
+      if (selectedContentId === item.contentId) {
+        setSelectedContentId('');
+        editor.loadEvents([], []);
+      }
       await fetchTemplates();
     } catch {
       showToast(t('admin.error_save'), 'error');
@@ -182,6 +231,20 @@ export function AdminTemplates() {
     }
   };
 
+  // モーダルコールバック
+  const handlePromoteImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
+    editor.replaceAll(events, phases);
+  };
+  const handleCsvImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
+    editor.replaceAll(events, phases);
+  };
+  const handleFflogsMatched = (matches: Map<string, string>) => {
+    editor.autoFillEnNames(matches);
+  };
+
+  const hasExistingTemplate = templates.some((t) => t.contentId === selectedContentId);
+  const hasEvents = editor.visibleEvents.length > 0;
+
   const inputClass =
     'px-2 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
 
@@ -189,59 +252,89 @@ export function AdminTemplates() {
     <div>
       <h1 className="text-lg font-bold mb-4">{t('admin.templates_title')}</h1>
 
-      {/* テンプレートとは何かの説明 */}
-      <div className="mb-4 p-3 border border-app-text/10 rounded text-[10px] text-app-text-muted/80 space-y-1">
-        <p>{t('admin.templates_description')}</p>
-        <p>{t('admin.templates_upload_guide')}</p>
+      {/* コンテンツ選択ドロップダウン */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <select
+          className={`${inputClass} bg-app-bg [&>option]:bg-app-bg [&>option]:text-app-text`}
+          value={selectedContentId}
+          onChange={(e) => handleContentChange(e.target.value)}
+        >
+          <option value="">{t('admin.tpl_editor_no_content')}</option>
+          {contents.map((c) => {
+            const name = c.nameJa || c.name?.ja || c.id;
+            return (
+              <option key={c.id} value={c.id}>
+                {c.id.toUpperCase()} — {name}
+              </option>
+            );
+          })}
+        </select>
+
+        {selectedContentId && (
+          <span className="text-xs text-app-text-muted">
+            {t('admin.tpl_editor_content_summary', {
+              events: editor.visibleEvents.length,
+              phases: editor.state.currentPhases.length,
+            })}
+          </span>
+        )}
       </div>
 
-      {/* アップロードフォーム */}
-      <div className="mb-6 p-4 border border-app-text/10 rounded space-y-3">
-        <div className="text-xs font-bold">{t('admin.templates_upload_title')}</div>
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="block text-[10px] text-app-text-muted mb-1">
-              対象コンテンツ
-            </label>
-            <select
-              className={`${inputClass} bg-app-bg [&>option]:bg-app-bg [&>option]:text-app-text`}
-              value={uploadContentId}
-              onChange={(e) => setUploadContentId(e.target.value)}
-            >
-              <option value="">（選択してください）</option>
-              {contents.map((c) => {
-                const name = c.nameJa || c.name?.ja || c.id;
-                return (
-                  <option key={c.id} value={c.id}>
-                    {c.id.toUpperCase()} — {name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] text-app-text-muted mb-1">
-              {t('admin.templates_upload')}
-            </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              className="text-xs text-app-text-muted file:mr-2 file:px-2 file:py-1 file:text-xs file:border file:border-app-text/20 file:rounded file:bg-transparent file:text-app-text file:cursor-pointer"
-            />
-            <p className="text-[9px] text-app-text-muted/60 mt-0.5">
-              {t('admin.hint_template_file')}
-            </p>
-          </div>
+      {/* ツールバー（コンテンツ選択時のみ） */}
+      {selectedContentId && (
+        <div className="mb-3">
+          <TemplateEditorToolbar
+            untranslatedCount={editor.untranslatedCount}
+            showUntranslatedOnly={showUntranslatedOnly}
+            onToggleUntranslatedOnly={() => setShowUntranslatedOnly((v) => !v)}
+            onOpenPromote={() => setShowPromoteModal(true)}
+            onOpenCsvImport={() => setShowCsvModal(true)}
+            onOpenFflogsTranslation={() => setShowFflogsModal(true)}
+            hasEvents={hasEvents}
+          />
+        </div>
+      )}
+
+      {/* エディター（コンテンツ選択 + イベントあり） */}
+      {selectedContentId && hasEvents && (
+        <div className="mb-3">
+          <TemplateEditor
+            events={editor.visibleEvents}
+            phases={editor.state.currentPhases}
+            editState={editor.state}
+            showUntranslatedOnly={showUntranslatedOnly}
+            onUpdateCell={editor.updateCell}
+            onDeleteEvent={editor.deleteEvent}
+          />
+        </div>
+      )}
+
+      {/* 空状態（コンテンツ選択済みだがイベントなし） */}
+      {selectedContentId && !hasEvents && (
+        <p className="text-xs text-app-text-muted mb-3">{t('admin.tpl_editor_empty')}</p>
+      )}
+
+      {/* フッター: 元に戻す + 保存（イベントあり時のみ） */}
+      {selectedContentId && hasEvents && (
+        <div className="flex items-center gap-2 mb-6">
           <button
-            onClick={handleUpload}
-            disabled={uploading || !uploadContentId}
-            className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+            type="button"
+            onClick={editor.undo}
+            disabled={!editor.hasChanges}
+            className="text-xs px-3 py-1.5 rounded border border-app-text/20 text-app-text-muted hover:bg-app-text/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {uploading ? '...' : t('admin.upload')}
+            {t('admin.tpl_editor_undo')}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="text-xs px-3 py-1.5 rounded border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving ? '...' : t('admin.tpl_editor_save')}
           </button>
         </div>
-      </div>
+      )}
 
       {/* エラー */}
       {error && (
@@ -253,13 +346,13 @@ export function AdminTemplates() {
         <p className="text-xs text-app-text-muted">...</p>
       )}
 
-      {/* テーブル */}
+      {/* テンプレート一覧テーブル */}
       {!loading && templates.length === 0 && (
         <p className="text-xs text-app-text-muted">{t('admin.no_data')}</p>
       )}
 
       {!loading && templates.length > 0 && (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto mb-8">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-app-text/10 text-left text-app-text-muted">
@@ -276,7 +369,10 @@ export function AdminTemplates() {
               {templates.map((item) => (
                 <tr
                   key={item.contentId}
-                  className="border-b border-app-text/5 hover:bg-app-text/5 transition-colors"
+                  onClick={() => handleContentChange(item.contentId)}
+                  className={`border-b border-app-text/5 hover:bg-app-text/5 transition-colors cursor-pointer ${
+                    item.contentId === selectedContentId ? 'bg-blue-500/[0.06]' : ''
+                  }`}
                 >
                   <td className="py-2 pr-4 font-mono">{item.contentId}</td>
                   <td className="py-2 pr-4">{item.source}</td>
@@ -294,13 +390,13 @@ export function AdminTemplates() {
                   </td>
                   <td className="py-2 text-right flex items-center gap-2 justify-end">
                     <button
-                      onClick={() => handleToggleLock(item)}
+                      onClick={(e) => { e.stopPropagation(); handleToggleLock(item); }}
                       className="text-app-text-muted hover:text-app-text transition-colors"
                     >
                       {item.lockedAt ? t('admin.template_unlock') : t('admin.template_lock')}
                     </button>
                     <button
-                      onClick={() => handleDelete(item)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(item); }}
                       className="text-app-text-muted hover:text-app-text transition-colors"
                     >
                       {t('admin.delete')}
@@ -347,6 +443,25 @@ export function AdminTemplates() {
           </div>
         )}
       </div>
+
+      {/* モーダル群 */}
+      <PlanToTemplateModal
+        isOpen={showPromoteModal}
+        onClose={() => setShowPromoteModal(false)}
+        contentId={selectedContentId}
+        hasExistingTemplate={hasExistingTemplate}
+        onImport={handlePromoteImport}
+      />
+      <CsvImportModal
+        isOpen={showCsvModal}
+        onClose={() => setShowCsvModal(false)}
+        onImport={handleCsvImport}
+      />
+      <FflogsTranslationModal
+        isOpen={showFflogsModal}
+        onClose={() => setShowFflogsModal(false)}
+        onMatched={handleFflogsMatched}
+      />
     </div>
   );
 }
