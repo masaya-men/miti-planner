@@ -161,7 +161,7 @@ export const TimelineRow = memo(({
                     </Tooltip>
                 </div>
             ) : (
-                <div className="w-[6px] min-w-[6px] max-w-[6px] border-r border-app-border h-full hidden md:block" />
+                <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
             )}
 
             {/* Time Column — スマホ: 軽減追加 */}
