@@ -1256,6 +1256,7 @@
         "tpl_csv_column_type": "種別",
         "tpl_csv_column_target": "対象",
         "tpl_csv_column_phase": "フェーズ",
+        "tpl_csv_column_mechanic": "ギミック",
         "tpl_csv_column_skip": "使わない",
         "tpl_csv_import": "読み込む",
         "tpl_csv_error": "貼り付けたデータを読み取れませんでした。スプレッドシートからコピーしたデータか確認してください",

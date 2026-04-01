@@ -31,7 +31,7 @@ interface CsvImportModalProps {
 
 type Step = 'paste' | 'mapping';
 
-const COLUMN_TYPES: ColumnType[] = ['time', 'name', 'damage', 'type', 'target', 'phase', 'skip'];
+const COLUMN_TYPES: ColumnType[] = ['time', 'name', 'damage', 'type', 'target', 'phase', 'mechanic', 'skip'];
 
 // ─────────────────────────────────────────────
 // コンポーネント
