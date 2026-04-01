@@ -1270,6 +1270,8 @@
         "tpl_damage_enrage": "Enrage",
         "tpl_target_aoe": "AoE",
         "tpl_target_mt": "MT",
-        "tpl_target_st": "ST"
+        "tpl_target_st": "ST",
+        "cancel": "Cancel",
+        "tpl_promote_fetching": "Fetching..."
     }
 }
