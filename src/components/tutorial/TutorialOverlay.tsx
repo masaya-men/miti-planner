@@ -156,19 +156,23 @@ export function TutorialOverlay() {
   }, []);
 
   const anchorRect = useTargetRect(step?.cardAnchor ?? null);
-  // typewriter-fill ステップのみフィールド追従（他ステップではステート残留を無視）
   const isTypewriterStep = step?.animation === 'typewriter-fill';
+
+  // ピル位置: typewriter-fill 中はフィールド追従、それ以外は step.target
   const effectivePillRect = (isTypewriterStep && typewriterPillRect) ? typewriterPillRect : targetRect;
   const pillPos = calcPillPos(effectivePillRect, step?.pillArrow);
-  // カード位置: pill-fly > typewriter cardAnchor > target > step cardAnchor
+
+  // カード位置: pill-fly > typewriter > target > cardAnchor
   const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
-  const isTypewriting = isTypewriterStep && typewriterCardTarget;
+  // typewriter-fill 中: カード追従先がまだ未設定ならstep.targetにフォールバック
+  const typewriterEffectiveCardRect = (isTypewriterStep && typewriterCardRect) ? typewriterCardRect : targetRect;
   const cardBaseRect = pillFlew && pillToRect ? pillToRect
-    : isTypewriting && typewriterCardRect ? typewriterCardRect
+    : isTypewriterStep ? typewriterEffectiveCardRect
     : (targetRect ?? anchorRect);
+
   // typewriter-fill 中はモーダル内にカードを制約
-  const modalRect = useTargetRect(isTypewriting ? '[data-tutorial-modal]' : null);
-  const cardPos = calcCardPos(cardBaseRect, isTypewriting ? modalRect : undefined);
+  const modalRect = useTargetRect(isTypewriterStep ? '[data-tutorial-modal]' : null);
+  const cardPos = calcCardPos(cardBaseRect, isTypewriterStep ? modalRect : undefined);
   const totalSteps = tutorial?.steps.length ?? 0;
   const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
 
@@ -244,14 +248,14 @@ export function TutorialOverlay() {
         {/* 特殊演出 */}
         {step.animation && renderAnimation()}
 
-        {/* 通常ピル（演出中は非表示） */}
-        {!step.animation && (
+        {/* 通常ピル（typewriter-fill は表示、他の演出中は非表示） */}
+        {(!step.animation || step.animation === 'typewriter-fill') && (
           <TutorialPill
             key={`pill-${step.id}`}
             label={step.pill}
             top={pillPos.top}
             left={pillPos.left}
-            visible={!!targetRect}
+            visible={!!effectivePillRect}
             arrow={step.pillArrow}
           />
         )}
