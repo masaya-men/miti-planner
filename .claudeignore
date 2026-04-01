@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.next/
+*.lock
+*.log
+.vercel/
+.claude/worktrees/
+docs/superpowers/plans/
+docs/superpowers/specs/
+docs/TODO_COMPLETED.md

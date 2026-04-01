@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
@@ -36,27 +36,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const [focusedSlot, setFocusedSlot] = useState<number | null>(null);
     const [mounted, setMounted] = useState(false);
 
-    // ── Tutorial state (additive only) ──
-    const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
-    const currentTutorialStep = tutorialActive ? TUTORIAL_STEPS[currentStepIndex] : null;
-    const isTutorialSlots = currentTutorialStep?.id === 'party-slots';
-    const isTutorialPalette = currentTutorialStep?.id === 'party-palette';
-    const isTutorialMyJob = currentTutorialStep?.id === 'party-myjob';
-    const isTutorialClose = currentTutorialStep?.id === 'party-close';
-
     // Absolute Rules - DO NOT MODIFY
     const mtGroupIndices = [0, 2, 4, 6];
     const stGroupIndices = [1, 3, 5, 7];
-
-    // Sub-step sequence for Step 3 (slot-click method)
-    const SLOT_TUTORIAL_SEQUENCE: { type: 'slot' | 'job'; slotIndex?: number; jobId?: string }[] = [
-        { type: 'slot', slotIndex: 0 }, { type: 'job', jobId: 'drk' },
-        { type: 'slot', slotIndex: 2 }, { type: 'job', jobId: 'whm' },
-        { type: 'slot', slotIndex: 4 }, { type: 'job', jobId: 'mnk' },
-        { type: 'slot', slotIndex: 6 }, { type: 'job', jobId: 'dnc' },
-    ];
-    // Step 4 palette jobs
-    const PALETTE_TUTORIAL_JOBS = ['pld', 'sch', 'drg', 'blm'];
 
     interface SlotItemProps {
         index: number;
@@ -64,23 +46,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         isFocused: boolean;
         isMyJob: boolean;
         theme: string;
-        tutorialActive: boolean;
-        isTutorialSlots: boolean;
-        isTutorialPalette: boolean;
-        isTutorialMyJob: boolean;
-        isTutorialClose: boolean;
-        tutorialSubStep: number;
         onFocusToggle: (index: number) => void;
         onRemoveJob: (memberId: string) => void;
         onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
-        setTutorialSubStep: React.Dispatch<React.SetStateAction<number>>;
+        dataTutorial?: string;
     }
 
     const SlotItem = React.memo<SlotItemProps>(({
         index, member, isFocused, isMyJob, theme,
-        tutorialActive, isTutorialSlots, isTutorialPalette,
-        isTutorialMyJob, isTutorialClose, tutorialSubStep,
-        onFocusToggle, onRemoveJob, onMyJobToggle, setTutorialSubStep
+        onFocusToggle, onRemoveJob, onMyJobToggle, dataTutorial
     }) => {
         if (!member) return null;
         const job = JOBS.find(j => j.id === member.jobId);
@@ -92,30 +66,12 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         };
         const activeColor = getSlotColor();
 
-        const isTutorialTarget = isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
-            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'slot'
-            && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].slotIndex === index;
-
         return (
             <div
                 id={`party-slot-${index}`}
-                data-tutorial={isTutorialTarget ? "party-slots-target" : undefined}
+                {...(dataTutorial ? { 'data-tutorial': dataTutorial } : {})}
                 onClick={() => {
-                    // Tutorial: block clicks on non-target slots
-                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-                        if (sub.type === 'slot' && sub.slotIndex !== index) return;
-                        if (sub.type === 'job') return;
-                    }
-                    if (isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
                     onFocusToggle(index);
-                    // Tutorial: advance sub-step when correct slot is clicked
-                    if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-                        const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-                        if (sub.type === 'slot' && sub.slotIndex === index && !isFocused) {
-                            setTutorialSubStep(prev => prev + 1);
-                        }
-                    }
                 }}
                 className={clsx(
                     "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
@@ -179,15 +135,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {job && (
                         <>
                             <button
-                                data-tutorial={isTutorialMyJob && member.id === 'ST' ? 'my-job-btn-pld' : undefined}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    if (tutorialActive && (!isTutorialMyJob || member.id !== 'ST')) return;
                                     onMyJobToggle(member.id, isMyJob);
-
-                                    if (isTutorialMyJob && member.id === 'ST') {
-                                        useTutorialStore.getState().completeEvent('my-job:set');
-                                    }
                                 }}
                                 className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
                                     isMyJob
@@ -203,18 +153,16 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     )} />
                                 </Tooltip>
                             </button>
-                            <Tooltip content="Remove Job">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (isTutorialSlots || isTutorialPalette || isTutorialMyJob || isTutorialClose) return;
-                                        onRemoveJob(member.id);
-                                    }}
-                                    className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </Tooltip>
+                            <button
+                                data-tutorial-remove={member.id}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRemoveJob(member.id);
+                                }}
+                                className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </>
                     )}
                 </div>
@@ -223,9 +171,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     });
 
 
-    const [tutorialSubStep, setTutorialSubStep] = useState(0);
     const lastMeleeSlotRef = useRef<number>(0);
-    useEffect(() => { setTutorialSubStep(0); }, [currentStepIndex]);
 
     useEffect(() => {
         setMounted(true);
@@ -251,12 +197,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     }, [isOpen, partyMembers]);
 
     const handleAttemptClose = React.useCallback(() => {
-        // Tutorial: block closing the modal during the tutorial
-        const state = useTutorialStore.getState();
-        if (state.isActive) {
-            const currentStep = TUTORIAL_STEPS[state.currentStepIndex];
-            if (currentStep?.id !== 'party-close') return;
-        }
+        // チュートリアル中はTutorialBlockerがクリック制御するため、ここでは閉じを許可
+        // （completeEvent('party:closed')で進行通知）
 
         if (migrationBatch) return;
 
@@ -290,7 +232,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 updatePartyBulk(safeChanges.map(c => ({ memberId: c.memberId, jobId: c.jobId! })));
             }
             // ── Tutorial: Complete Step 5 ──
-            useTutorialStore.getState().completeEvent('party-settings:closed');
+            useTutorialStore.getState().completeEvent('party:closed');
             onClose();
         } else {
             // Unsafe changes
@@ -360,13 +302,15 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
     // Memoized Callbacks for SlotItem
     const handleFocusToggle = React.useCallback((index: number) => {
-        // Tutorial checks handled in SlotItem for simplicity or passed as flags
         setFocusedSlot(prev => prev === index ? null : index);
+        useTutorialStore.getState().completeEvent('party:slot-focused');
     }, []);
 
     const handleRemoveJob = React.useCallback((memberId: string) => {
         setDraftMembers(prev => prev.map(m => m.id === memberId ? { ...m, jobId: null as any } : m));
         setFocusedSlot(null);
+        // ── Tutorial: ジョブ削除イベント ──
+        useTutorialStore.getState().completeEvent('party:job-removed');
     }, []);
 
     const handleMyJobToggle = React.useCallback((memberId: string, isMyJob: boolean) => {
@@ -380,17 +324,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     const handleJobSelect = (jobId: string) => {
         const job = JOBS.find(j => j.id === jobId);
         if (!job) return;
-
-        // Tutorial: during slot sub-steps, block direct palette clicks / wrong job
-        if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-            const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-            if (sub.type === 'slot') return;
-            if (sub.type === 'job' && sub.jobId !== jobId) return;
-        }
-        // Tutorial: during palette step, only allow palette tutorial jobs
-        if (isTutorialPalette && !PALETTE_TUTORIAL_JOBS.includes(jobId)) return;
-        // Tutorial: block palette clicks during other steps
-        if (isTutorialMyJob || isTutorialClose) return;
 
         let targetIndex: number | undefined = undefined;
 
@@ -490,26 +423,22 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             }, 50);
         }
 
+        // ── Tutorial: ジョブ配置イベント ──
+        useTutorialStore.getState().completeEvent('party:job-set');
+
+        // ジョブ配置後、配置済みジョブ数が2以上なら party:two-set を発火
+        // NOTE: setDraftMembers は非同期なので、直前の変更を含めてカウントする
+        setDraftMembers(prev => {
+            const filledCount = prev.filter(m => m.jobId).length;
+            if (filledCount >= 2) {
+                useTutorialStore.getState().completeEvent('party:two-set');
+            }
+            return prev; // 状態は変更しない（カウントのみ）
+        });
+
         // Always unfocus after a selection attempt
         setFocusedSlot(null);
 
-        // ── Tutorial sub-step advancement (additive only) ──
-        if (isTutorialSlots && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length) {
-            const sub = SLOT_TUTORIAL_SEQUENCE[tutorialSubStep];
-            if (sub.type === 'job' && sub.jobId === jobId) {
-                const nextSub = tutorialSubStep + 1;
-                setTutorialSubStep(nextSub);
-                if (nextSub >= SLOT_TUTORIAL_SEQUENCE.length) {
-                    useTutorialStore.getState().completeEvent('party:four-set');
-                }
-            }
-        }
-        if (isTutorialPalette) {
-            const filled = draftMembers.filter(m => m.jobId).length;
-            if (filled >= 7) {
-                setTimeout(() => useTutorialStore.getState().completeEvent('party:all-set'), 300);
-            }
-        }
     };
 
     // Protected Migration Handlers for Batch Process
@@ -555,7 +484,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
 
         return (
             // 👇 スマホ時にパレット全体がスクロールできるようにする
-            <div className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
+            <div data-tutorial="party-palette-pick" className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <div className="h-[1px] bg-app-border w-full" />}
@@ -565,30 +494,18 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                                 {cat.jobs.map(job => {
-                                    const isTutorialTargetJob = isTutorialSlots
-                                        && tutorialSubStep < SLOT_TUTORIAL_SEQUENCE.length
-                                        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].type === 'job'
-                                        && SLOT_TUTORIAL_SEQUENCE[tutorialSubStep].jobId === job.id;
-
-                                    const isAlreadyPlacedPaletteJob = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id) && draftMembers.some(m => m.jobId === job.id);
-                                    const isTutorialPaletteTarget = isTutorialPalette && PALETTE_TUTORIAL_JOBS.includes(job.id) && !isAlreadyPlacedPaletteJob;
-
                                     return (
                                         <button
                                             key={job.id}
-                                            data-tutorial={isTutorialTargetJob ? "party-slots-target" : isTutorialPaletteTarget ? "party-palette-target" : undefined}
-                                            onClick={() => {
-                                                if (isAlreadyPlacedPaletteJob) return;
-                                                handleJobSelect(job.id);
-                                            }}
+                                            data-job-id={job.id}
+                                            onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
-                                                "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn",
+                                                "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn cursor-pointer",
                                                 "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border",
-                                                cat.color,
-                                                isAlreadyPlacedPaletteJob ? "cursor-default" : "cursor-pointer"
+                                                cat.color
                                             )}
                                         >
-                                            {!isAlreadyPlacedPaletteJob && <Ripple />}
+                                            <Ripple />
                                             <Tooltip content={job.name?.ja || ''}>
                                                 <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                             </Tooltip>
@@ -663,7 +580,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             </p>
                         </div>
                     </div>
-                    <button data-tutorial={isTutorialClose ? "party-settings-close-btn" : undefined} onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                    <button data-tutorial="party-settings-close-btn" onClick={handleAttemptClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                         <X size={18} />
                     </button>
                 </div>
@@ -729,16 +646,10 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             isFocused={focusedSlot === index}
                                             isMyJob={myMemberId === member.id}
                                             theme={theme}
-                                            tutorialActive={tutorialActive}
-                                            isTutorialSlots={isTutorialSlots}
-                                            isTutorialPalette={isTutorialPalette}
-                                            isTutorialMyJob={isTutorialMyJob}
-                                            isTutorialClose={isTutorialClose}
-                                            tutorialSubStep={tutorialSubStep}
                                             onFocusToggle={handleFocusToggle}
                                             onRemoveJob={handleRemoveJob}
                                             onMyJobToggle={handleMyJobToggle}
-                                            setTutorialSubStep={setTutorialSubStep}
+                                            {...(index === mtGroupIndices[1] ? { dataTutorial: 'party-healer-slot' } : {})}
                                         />
                                     );
                                 })}
@@ -763,16 +674,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             isFocused={focusedSlot === index}
                                             isMyJob={myMemberId === member.id}
                                             theme={theme}
-                                            tutorialActive={tutorialActive}
-                                            isTutorialSlots={isTutorialSlots}
-                                            isTutorialPalette={isTutorialPalette}
-                                            isTutorialMyJob={isTutorialMyJob}
-                                            isTutorialClose={isTutorialClose}
-                                            tutorialSubStep={tutorialSubStep}
                                             onFocusToggle={handleFocusToggle}
                                             onRemoveJob={handleRemoveJob}
                                             onMyJobToggle={handleMyJobToggle}
-                                            setTutorialSubStep={setTutorialSubStep}
                                         />
                                     );
                                 })}

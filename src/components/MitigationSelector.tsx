@@ -7,7 +7,7 @@ import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 
 interface MitigationSelectorProps {
@@ -39,8 +39,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const { partyMembers, currentLevel } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
-    const tutorialState = useTutorialStore();
-
     const [isMobile, setIsMobile] = React.useState(false);
 
     // Escape: 対象選択中→スキル一覧に戻る、スキル一覧→モーダルを閉じる
@@ -182,8 +180,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
         if (mitigation.scope === 'target') {
             setSelectedSingleTargetMit(mitigation);
-            useTutorialStore.getState().completeEvent('tutorial:selected-target-miti');
-
             setTimeout(() => {
                 const el = document.getElementById(`miti-btn-${mitigation.id}`);
                 const container = scrollContainerRef.current;
@@ -281,31 +277,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                 const status = getResourceStatus(mitigation);
                                 const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
 
-                                let isClickBlockedByTutorial = false;
-                                let tutorialSkillDataAttr: string | undefined = undefined;
-
-                                if (tutorialState.isActive) {
-                                    const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
-                                    if (currentStep) {
-                                        if (currentStep.id === 'tutorial-7c-aoe-skill') {
-                                            const isAoEMiti = mitigation.family === 'role_action' && mitigation.scope === 'party';
-                                            if (isAoEMiti) {
-                                                tutorialSkillDataAttr = 'tutorial-skill-reprisal';
-                                            } else {
-                                                isClickBlockedByTutorial = true;
-                                            }
-                                        } else if (currentStep.id === 'tutorial-8c-tb-skill') {
-                                            const isTargetBuff = mitigation.scope === 'target';
-                                            if (isTargetBuff) {
-                                                tutorialSkillDataAttr = 'tutorial-skill-intervention';
-                                            } else {
-                                                isClickBlockedByTutorial = true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                const isClickable = (status.available || isAlreadyPlaced) && !isClickBlockedByTutorial;
+                                const isClickable = (status.available || isAlreadyPlaced);
                                 const isSelectedTargetMit = selectedSingleTargetMit?.id === mitigation.id;
                                 const isBlurred = selectedSingleTargetMit !== null && !isSelectedTargetMit;
 
@@ -313,7 +285,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     <React.Fragment key={mitigation.id}>
                                     <button
                                         id={`miti-btn-${mitigation.id}`}
-                                        data-tutorial={tutorialSkillDataAttr}
+                                        {...(mitigation.name.en === 'Reprisal' ? { 'data-tutorial': 'tutorial-skill-reprisal' } : {})}
                                         onClick={() => isClickable && handleMitigationClick(mitigation)}
                                         disabled={!isClickable}
                                         className={clsx(
@@ -394,27 +366,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             <div className="grid grid-cols-4 grid-rows-2 gap-2 pb-1 pt-1">
                                                 {partyMembers.map((member: PartyMember) => {
                                                     const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-                                                    let isTargetBlockedByTutorial = false;
-                                                    let tutorialTargetDataAttr: string | undefined = undefined;
-
-                                                    if (tutorialState.isActive) {
-                                                        const currentStep = TUTORIAL_STEPS[tutorialState.currentStepIndex];
-                                                        if (currentStep && currentStep.id === 'tutorial-8d-tb-target') {
-                                                            if (member.id === 'MT') {
-                                                                tutorialTargetDataAttr = 'tutorial-target-mt';
-                                                            } else {
-                                                                isTargetBlockedByTutorial = true;
-                                                            }
-                                                        }
-                                                    }
-
                                                     const isSelfTargetRestricted = selectedSingleTargetMit?.targetCannotBeSelf && member.id === ownerId;
-                                                    const isDisabled = isTargetBlockedByTutorial || isSelfTargetRestricted;
+                                                    const isDisabled = isSelfTargetRestricted;
 
                                                     return (
                                                         <button
                                                             key={`target-${member.id}`}
-                                                            data-tutorial={tutorialTargetDataAttr}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 if (!isDisabled) handleTargetSelect(member.id);
