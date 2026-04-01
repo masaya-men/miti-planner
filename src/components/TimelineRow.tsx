@@ -178,7 +178,11 @@ export const TimelineRow = memo(({
                 {events.length === 0 ? (
                     /* 0イベント: PC専用の追加ボタン */
                     <div
-                        data-tutorial={time === 11 ? 'add-event-btn-11' : undefined}
+                        data-tutorial={
+                          time === 11 ? 'add-event-btn-11' :
+                          time === 0 ? 'add-event-btn' :
+                          undefined
+                        }
                         className={clsx(
                             "w-full h-full items-center justify-center cursor-pointer transition-all",
                             "hidden md:flex",

@@ -61,11 +61,11 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     // モーダルが開くたびにリセット
     useEffect(() => {
         if (isOpen) {
+            useTutorialStore.getState().completeEvent('create:modal-opened');
             setLevel(null);
             setCategory(null);
             setBoss(null);
             setTitle('');
-            ;
         }
     }, [isOpen]);
 
@@ -199,6 +199,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
         // チュートリアル通知
         useTutorialStore.getState().completeEvent('content:selected');
+        useTutorialStore.getState().completeEvent('create:plan-created');
 
         // サイドバーに作成結果を伝える
         onClose({ contentId, level: useLevel as ContentLevel });
@@ -267,10 +268,14 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 {t('new_plan.level_label')}
                             </label>
                             <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
-                                {LEVEL_OPTIONS.map(l => (
+                                {LEVEL_OPTIONS.map((l, idx) => (
                                     <button
                                         key={l}
-                                        onClick={() => setLevel(l)}
+                                        data-tutorial={idx === 0 ? 'level-max' : undefined}
+                                        onClick={() => {
+                                            setLevel(l);
+                                            useTutorialStore.getState().completeEvent('create:level-selected');
+                                        }}
                                         className={clsx(
                                             "flex-1 py-2 rounded-lg text-[11px] font-black transition-all duration-300 cursor-pointer",
                                             level === l
@@ -293,7 +298,11 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 {CATEGORY_OPTIONS.map(cat => (
                                     <button
                                         key={cat}
-                                        onClick={() => setCategory(cat)}
+                                        data-tutorial={cat === 'dungeon' ? 'category-dungeon' : undefined}
+                                        onClick={() => {
+                                            setCategory(cat);
+                                            useTutorialStore.getState().completeEvent('create:category-selected');
+                                        }}
                                         className={clsx(
                                             "whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black transition-all border cursor-pointer",
                                             category === cat
@@ -370,6 +379,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 </label>
                                 <input
                                     ref={titleInputRef}
+                                    data-tutorial="plan-name-input"
                                     autoFocus
                                     type="text"
                                     value={title}
@@ -441,6 +451,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 {t('new_plan.cancel_button')}
                             </button>
                             <button
+                                data-tutorial="create-plan-btn"
                                 onClick={handleCreate}
                                 disabled={!canCreate || isBlocked}
                                 className={clsx(
