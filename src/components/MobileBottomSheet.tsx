@@ -111,7 +111,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                 {/* Title bar */}
                 {title && (
                     <div className="flex items-center justify-between px-4 pb-2 border-b border-app-border">
-                        <h3 className="text-sm font-black text-app-text tracking-wide">{title}</h3>
+                        <h3 className="text-[15px] font-bold text-app-text tracking-wide">{title}</h3>
                         <button
                             onClick={onClose}
                             className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer"
