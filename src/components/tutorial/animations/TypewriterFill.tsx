@@ -6,8 +6,8 @@ import type { TypewriterConfig } from '../../../data/tutorialDefinitions';
 interface TypewriterFillProps {
   config: TypewriterConfig;
   onComplete: () => void;
-  /** 現在入力中のフィールドターゲットセレクタを親に通知 */
-  onFieldChange?: (selector: string) => void;
+  /** 現在入力中のフィールド情報を親に通知 */
+  onFieldChange?: (info: { target: string; cardAnchor: string }) => void;
 }
 
 /**
@@ -28,11 +28,14 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
   const onFieldChangeRef = useRef(onFieldChange);
   onFieldChangeRef.current = onFieldChange;
 
-  // フィールドが変わったら親に通知（cardAnchor があればそちらを優先）
+  // フィールドが変わったら親に通知（ピル用target + カード用cardAnchor）
   useEffect(() => {
     const field = config.fields?.[fieldIndex];
     if (field && onFieldChangeRef.current) {
-      onFieldChangeRef.current(field.cardAnchor ?? field.target);
+      onFieldChangeRef.current({
+        target: field.target,
+        cardAnchor: field.cardAnchor ?? field.target,
+      });
     }
   }, [fieldIndex, config.fields]);
 

@@ -127,14 +127,17 @@ export function TutorialOverlay() {
   const pillToRect = useTargetRect(pillToSelector);
   const [pillPhase, setPillPhase] = useState<'idle' | 'check' | 'fly' | 'land'>('idle');
 
-  // typewriter-fill 中の現在フィールドセレクタ追跡
-  const [typewriterTarget, setTypewriterTarget] = useState<string | null>(null);
-  const typewriterTargetRect = useTargetRect(typewriterTarget);
+  // typewriter-fill 中の現在フィールド追跡（ピル用 / カード用）
+  const [typewriterPillTarget, setTypewriterPillTarget] = useState<string | null>(null);
+  const [typewriterCardTarget, setTypewriterCardTarget] = useState<string | null>(null);
+  const typewriterPillRect = useTargetRect(typewriterPillTarget);
+  const typewriterCardRect = useTargetRect(typewriterCardTarget);
 
   // ステップが変わったらリセット
   useEffect(() => {
     setPillPhase('idle');
-    setTypewriterTarget(null);
+    setTypewriterPillTarget(null);
+    setTypewriterCardTarget(null);
   }, [currentStepIdx]);
 
   const handlePillPhaseChange = useCallback((phase: 'check' | 'fly' | 'land') => {
@@ -142,12 +145,13 @@ export function TutorialOverlay() {
   }, []);
 
   const anchorRect = useTargetRect(step?.cardAnchor ?? null);
-  const pillPos = calcPillPos(targetRect, step?.pillArrow);
-  // ピル飛行後はカードを飛行先セル基準に配置
-  // typewriter-fill 中は現在のフィールド基準に配置
+  // typewriter-fill 中はピルも現在フィールドに追従
+  const effectivePillRect = typewriterPillRect ?? targetRect;
+  const pillPos = calcPillPos(effectivePillRect, step?.pillArrow);
+  // カード位置: pill-fly > typewriter cardAnchor > target > step cardAnchor
   const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
   const cardBaseRect = pillFlew && pillToRect ? pillToRect
-    : typewriterTarget && typewriterTargetRect ? typewriterTargetRect
+    : typewriterCardTarget && typewriterCardRect ? typewriterCardRect
     : (targetRect ?? anchorRect);
   const cardPos = calcCardPos(cardBaseRect);
   const totalSteps = tutorial?.steps.length ?? 0;
@@ -191,7 +195,10 @@ export function TutorialOverlay() {
             onComplete={() => {
               useTutorialStore.getState().completeEvent(step.completionEvent);
             }}
-            onFieldChange={setTypewriterTarget}
+            onFieldChange={({ target, cardAnchor }) => {
+              setTypewriterPillTarget(target);
+              setTypewriterCardTarget(cardAnchor);
+            }}
           />
         ) : null;
       default:
