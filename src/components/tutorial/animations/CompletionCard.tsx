@@ -1,18 +1,28 @@
 // src/components/tutorial/animations/CompletionCard.tsx
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { HelpCircle } from 'lucide-react';
 
 interface CompletionCardProps {
   onDismiss: () => void;
+  variant?: 'default' | 'real';
 }
 
 /**
  * チュートリアル完了画面。
  * お祝いメッセージ + 機能紹介リスト + チュートリアルメニューの場所案内。
  */
-export function CompletionCard({ onDismiss }: CompletionCardProps) {
+export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCardProps) {
   const { t } = useTranslation();
+  const prefix = variant === 'real' ? 'tutorial.completion_real' : 'tutorial.completion';
+
+  // variant=real: フォーカスモードを解除して元のUI状態に戻す
+  useEffect(() => {
+    if (variant === 'real') {
+      window.dispatchEvent(new Event('shortcut:exit-focus'));
+    }
+  }, [variant]);
 
   return (
     <motion.div
@@ -32,13 +42,13 @@ export function CompletionCard({ onDismiss }: CompletionCardProps) {
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       >
         <h2 className="text-lg font-bold text-app-text text-center mb-2">
-          {t('tutorial.completion.title')}
+          {t(`${prefix}.title`)}
         </h2>
 
         <div className="space-y-3 mb-5">
           <FeatureHint
             icon={<HelpCircle size={14} />}
-            text={t('tutorial.completion.menu_hint')}
+            text={t(`${prefix}.menu_hint`)}
           />
         </div>
 
@@ -47,7 +57,7 @@ export function CompletionCard({ onDismiss }: CompletionCardProps) {
           className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80 cursor-pointer"
           style={{ backgroundColor: '#22c55e', color: 'white' }}
         >
-          {t('tutorial.completion.start_button')}
+          {t(`${prefix}.start_button`)}
         </button>
       </motion.div>
     </motion.div>
