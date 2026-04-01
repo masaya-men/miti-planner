@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { X, LogOut, Shield } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 
 interface LoginModalProps {
@@ -53,7 +54,7 @@ const providers = [
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
-    const { user, signInWith, signOut, deleteAccount } = useAuthStore();
+    const { user, signInWith, signOut, deleteAccount, isAdmin } = useAuthStore();
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
     const [isDeleting, setIsDeleting] = React.useState(false);
@@ -133,6 +134,19 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => { navigate('/admin'); onClose(); }}
+                                        className={clsx(
+                                            "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
+                                            "text-yellow-400 border border-yellow-400/30 hover:bg-yellow-400/10 hover:border-yellow-400/60"
+                                        )}
+                                    >
+                                        <Settings size={14} />
+                                        {t('nav.adminPanel')}
+                                    </button>
+                                )}
 
                                 <button
                                     onClick={() => { signOut(); onClose(); }}
