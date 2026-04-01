@@ -9,10 +9,9 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: `feature/tutorial-overhaul`（mainにはまだマージしていない）
-- **今回の作業**: コンテキスト最適化（CLAUDE.md圧縮、TODO.md 3分割、rules/作成、Hooks設定、メモリ整理）+ チュートリアルバグ修正4件
-- **最優先**: PartyAutoFill.tsx の自動埋めアニメーション修正（DOMからスロット/アイコンを見つけられていない）
-- **次**: チュートリアル全体を `npm run dev` で通し確認（STEP1→2のローディング待ち、STEP11のピル位置修正が正しく動くか）
-- **その後**: feature/tutorial-overhaul を main にマージ → デプロイ
+- **今回の作業**: チュートリアルアニメーション全面改善（PartyAutoFill円運動+飛行弧、PillFlyバウンス着地、ブロッカー修正、cursor-pointer修正）
+- **最優先**: feature/tutorial-overhaul を main にマージ → デプロイ
+- **完了済み**: PartyAutoFill（rAF円運動→放物線飛行→WAAPI着地）、PillFly（1.4倍速+横バウンス着地）、STEP11ブロッカー、cursor-pointer漏れ、STEP8/9カード位置、prefers-reduced-motion対応
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12
 
 ---
@@ -24,7 +23,7 @@
 - [ ] オートプラン: 無敵はなるべく同じ技に使いたい
 
 ## 進行中
-- [ ] チュートリアル全面刷新 — `feature/tutorial-overhaul`ブランチ。残り: PartyAutoFill修正 + PillFlyブラッシュアップ
+- [ ] チュートリアル全面刷新 — `feature/tutorial-overhaul`ブランチ。残り: mainマージ → デプロイ
 
 ## 未着手（次にやること）
 - [ ] フッター法的リンクまとめ（プライバシー・利用規約・特商法をドロップダウン化）

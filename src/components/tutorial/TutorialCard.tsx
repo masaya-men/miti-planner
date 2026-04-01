@@ -40,8 +40,8 @@ export function TutorialCard({
       animate={{ opacity: 1, y: 0, top, left }}
       exit={{ opacity: 0, y: -4 }}
       transition={{
-        top: { type: 'spring', stiffness: 200, damping: 25 },
-        left: { type: 'spring', stiffness: 200, damping: 25 },
+        top: { type: 'spring', stiffness: 300, damping: 22 },
+        left: { type: 'spring', stiffness: 300, damping: 16, mass: 0.8 },
         opacity: { duration: 0.15 },
         y: { duration: 0.2 },
       }}
@@ -80,7 +80,7 @@ export function TutorialCard({
           {onSkip && (
             <button
               onClick={onSkip}
-              className="text-[10px] text-app-text-muted mt-2 underline underline-offset-2 hover:text-app-text transition-colors"
+              className="text-[10px] text-app-text-muted mt-2 underline underline-offset-2 hover:text-app-text transition-colors cursor-pointer"
             >
               {t('tutorial.skip')}
             </button>
