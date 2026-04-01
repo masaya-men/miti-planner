@@ -115,7 +115,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       {/* バックドロップ */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/60"
         onClick={handleClose}
       />
 
@@ -167,7 +167,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                   {headerCells.map((header, colIndex) => (
                     <div key={colIndex} className="flex flex-col gap-1 min-w-[80px]">
                       <span className="text-[9px] text-app-text-muted truncate max-w-[80px]" title={header}>
-                        {header || `Col ${colIndex + 1}`}
+                        {header || `${colIndex + 1}`}
                       </span>
                       <select
                         value={mappings[colIndex]?.type ?? 'skip'}

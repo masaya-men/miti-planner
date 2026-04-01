@@ -58,6 +58,9 @@ export function AdminTemplates() {
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [showFflogsModal, setShowFflogsModal] = useState(false);
 
+  // データソース追跡（保存時に使用）
+  const [dataSource, setDataSource] = useState<string>('admin_editor');
+
   const editor = useTemplateEditor();
 
   /** コンテンツ一覧を取得（ドロップダウン用） */
@@ -118,6 +121,7 @@ export function AdminTemplates() {
     }
     setSelectedContentId(contentId);
     setShowUntranslatedOnly(false);
+    setDataSource('admin_editor');
 
     if (!contentId) return;
 
@@ -139,7 +143,7 @@ export function AdminTemplates() {
   /** 保存 */
   const handleSave = async () => {
     if (editor.untranslatedCount > 0) {
-      const ok = window.confirm(t('admin.tpl_editor_save_confirm_untranslated'));
+      const ok = window.confirm(t('admin.tpl_editor_save_confirm_untranslated', { count: editor.untranslatedCount }));
       if (!ok) return;
     }
 
@@ -153,7 +157,7 @@ export function AdminTemplates() {
           contentId: selectedContentId,
           timelineEvents: events,
           phases,
-          source: 'admin_editor',
+          source: dataSource,
         }),
       });
       if (!res.ok) throw new Error(res.statusText);
@@ -234,9 +238,11 @@ export function AdminTemplates() {
   // モーダルコールバック
   const handlePromoteImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
     editor.replaceAll(events, phases);
+    setDataSource('plan_promote');
   };
   const handleCsvImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
     editor.replaceAll(events, phases);
+    setDataSource('csv_import');
   };
   const handleFflogsMatched = (matches: Map<string, string>) => {
     editor.autoFillEnNames(matches);
