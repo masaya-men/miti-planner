@@ -139,7 +139,7 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       {/* バックドロップ */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/60"
         onClick={handleClose}
       />
 

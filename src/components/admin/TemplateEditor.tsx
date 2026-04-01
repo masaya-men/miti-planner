@@ -90,6 +90,7 @@ function EditableCell({
   inputType = 'text',
   onCommit,
 }: EditableCellProps) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -142,7 +143,7 @@ function EditableCell({
         onClick={() => setEditing(true)}
         className="block w-full text-xs text-app-text-muted/60 border-b border-dashed border-app-text/20 cursor-pointer py-0.5 select-none"
       >
-        未翻訳 — クリックで入力
+        {t('admin.tpl_editor_untranslated_placeholder')}
       </span>
     );
   }
@@ -154,7 +155,7 @@ function EditableCell({
     >
       {value || <span className="text-app-text-muted/40">—</span>}
       {showAutoLabel && (
-        <span className="ml-1 text-[9px] text-blue-400 opacity-70">自動</span>
+        <span className="ml-1 text-[9px] text-blue-400 opacity-70">{t('admin.tpl_editor_auto_label')}</span>
       )}
     </span>
   );
