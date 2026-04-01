@@ -140,6 +140,26 @@ export function TutorialOverlay() {
     setTypewriterCardTarget(null);
   }, [currentStepIdx]);
 
+  // ステップのターゲット要素が画面外ならスクロールして表示
+  useEffect(() => {
+    const selector = step?.target;
+    if (!selector) return;
+    let cancelled = false;
+    let attempts = 0;
+    function tryScroll() {
+      if (cancelled) return;
+      const el = document.querySelector(selector!);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (++attempts < 20) {
+        setTimeout(tryScroll, 100);
+      }
+    }
+    // 少し遅延してから（レンダリング完了を待つ）
+    const timer = setTimeout(tryScroll, 150);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [step?.target]);
+
   const handlePillPhaseChange = useCallback((phase: 'check' | 'fly' | 'land') => {
     setPillPhase(phase);
   }, []);

@@ -95,6 +95,9 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     const hasNoPlans = contentPlans.length === 0;
     const isUnavailable = multiSelect.isEnabled && hasNoPlans;
 
+    // プランが存在するコンテンツはデフォルト展開、クリックでトグル
+    const [isExpanded, setIsExpanded] = React.useState(contentPlans.length > 0);
+
     // プラン名インライン編集
     const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
     const [editingTitle, setEditingTitle] = React.useState('');
@@ -182,15 +185,17 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     onClick={() => {
                         if (multiSelect.isEnabled) {
                             if (contentPlans.length === 1 && !isDisabled) {
-                                // プラン1件 → そのプランIDをトグル
                                 onToggleSelect(contentPlans[0].id);
                             } else if (contentPlans.length === 0) {
-                                // プラン0件 → 選択不可（まだ開いてないコンテンツ）
+                                // プラン0件 → 選択不可
                             } else {
-                                // プラン2件以上 → コンテンツを開いてサブアイテム表示
-                                onSelect(content);
+                                setIsExpanded(v => !v);
                             }
+                        } else if (contentPlans.length > 0) {
+                            // プランあり → サブアイテムをトグル展開
+                            setIsExpanded(v => !v);
                         } else {
+                            // プランなし → 新規プラン作成
                             onSelect(content);
                         }
                     }}
@@ -241,14 +246,17 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                         </div>
                     )}
 
-                    <div className={clsx(
-                        "flex-1 min-w-0 flex flex-col justify-center",
-                        isActive && !multiSelect.isEnabled ? "font-bold" : "font-medium"
-                    )}>
-                        <div className="truncate leading-tight text-[11px] text-inherit">
-                            {floorName}
-                        </div>
-                    </div>
+                    {/* プランありシェブロン（展開インジケーター兼プラン存在表示） */}
+                    {contentPlans.length > 0 && !multiSelect.isEnabled && (
+                        <ChevronRight
+                            size={12}
+                            className="shrink-0 text-app-text-muted transition-transform duration-200"
+                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                        />
+                    )}
+
+                    {/* クリック領域を維持するための flex-1 スペーサー */}
+                    <div className="flex-1 min-w-0" />
                 </button>
                 </Tooltip>
 
@@ -256,8 +264,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
             </div>
 
             {/* サブアイテム: 保存済みプラン一覧 */}
-            {/* 通常モード: アクティブかつ1件以上で展開 / 複数選択モード: プランがあれば常に展開 */}
-            {contentPlans.length >= 1 && (isActive || multiSelect.isEnabled) && (
+            {contentPlans.length >= 1 && (isExpanded || multiSelect.isEnabled) && (
                 <div className="pl-9 pr-2 py-1 flex flex-col gap-0.5 border-l-2 border-app-text/15 ml-3.5 mt-1 mb-2">
                     {contentPlans.map(plan => {
                         const isPlanSelected = multiSelect.selectedIds.includes(plan.id);
@@ -785,9 +792,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const { runTransition } = useTransitionOverlay();
     const lang = contentLanguage;
 
-    const [activeLevel, setActiveLevel] = useState<ContentLevel>(100);
-    const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>('all');
-    // 現在開いているプランのcontentIdで初期化（タブ復帰時にサイドバーが展開されるように）
+    // 現在のプランからレベル・カテゴリ・選択アイテムを初期化
     const [selectedContentId, setSelectedContentId] = useState<string | null>(() => {
         const planStore = usePlanStore.getState();
         if (planStore.currentPlanId) {
@@ -796,12 +801,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         }
         return null;
     });
+    const [activeLevel, setActiveLevel] = useState<ContentLevel>(() => {
+        if (selectedContentId) {
+            const content = getContentById(selectedContentId);
+            if (content) return content.level;
+        }
+        return 100;
+    });
+    const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>(() => {
+        if (selectedContentId) {
+            const content = getContentById(selectedContentId);
+            if (content) return content.category;
+        }
+        return 'all';
+    });
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
     React.useEffect(() => {
         const handleClose = () => setIsNewPlanModalOpen(false);
         window.addEventListener('tutorial:close-new-plan-modal', handleClose);
         return () => window.removeEventListener('tutorial:close-new-plan-modal', handleClose);
+    }, []);
+
+    // チュートリアル開始時に最新レベルを自動選択
+    React.useEffect(() => {
+        if (tutorialActive) {
+            setActiveLevel(LEVEL_TIERS[0]);
+            setActiveCategory('all');
+        }
+    }, [tutorialActive]);
+
+    // チュートリアル復帰時にサイドバーのレベル・カテゴリを同期
+    React.useEffect(() => {
+        const handleRestored = (e: Event) => {
+            const { contentId } = (e as CustomEvent).detail ?? {};
+            if (contentId) {
+                const c = getContentById(contentId);
+                if (c) {
+                    setActiveLevel(c.level);
+                    setActiveCategory(c.category);
+                    setSelectedContentId(contentId);
+                }
+            }
+        };
+        window.addEventListener('tutorial:plan-restored', handleRestored);
+        return () => window.removeEventListener('tutorial:plan-restored', handleRestored);
     }, []);
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
@@ -866,8 +910,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         const existingPlans = !forceNew && !isTutorial
             ? planStore.plans.filter(p => p.contentId === content.id)
             : [];
-        if (existingPlans.length >= 2) {
-            // 複数プランあり → サブアイテム展開のみ（ユーザーが選ぶ）
+        if (existingPlans.length >= 1) {
+            // プランあり → サブアイテム展開のみ（プラン読込はサブアイテムから）
             return;
         }
 
@@ -876,19 +920,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         // 現在のプランを保存してから切り替え
         if (currentPlanId) {
             planStore.updatePlan(currentPlanId, { data: store.getSnapshot() });
-        }
-
-        if (existingPlans.length === 1) {
-            // 1件だけ → そのまま開く
-            const plan = existingPlans[0];
-            runTransition(() => {
-                store.loadSnapshot(plan.data);
-                planStore.setCurrentPlanId(plan.id);
-                setActiveLevel(plan.data.currentLevel as ContentLevel);
-            }, 'plan');
-            // スマホのみメニューを閉じる（PCはユーザーが自分で閉じる体験を残す）
-            if (fullWidth) onClose?.();
-            return;
         }
 
         // 件数制限チェック（チュートリアル中はスキップ）
@@ -938,6 +969,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             );
             store.setMyMemberId(null);
             setActiveLevel(content.level);
+            setActiveCategory(content.category);
 
             if (isTutorial) {
                 // チュートリアル: 実際のステータスからダメージを動的計算
@@ -1038,6 +1070,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
             setActiveLevel(plan.data.currentLevel as ContentLevel);
+            const c = getContentById(plan.contentId ?? '');
+            if (c) setActiveCategory(c.category);
         }, 'plan');
     };
 
@@ -1488,6 +1522,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 if (created) {
                     setSelectedContentId(created.contentId);
                     setActiveLevel(created.level);
+                    const c = getContentById(created.contentId);
+                    if (c) setActiveCategory(c.category);
                     // 作成されたコンテンツが見える位置までスクロール
                     setTimeout(() => {
                         const el = document.querySelector(`[data-content-id="${created.contentId}"]`);

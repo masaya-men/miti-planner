@@ -764,12 +764,13 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 resetForTutorial: () => {
-                    const currentLevel = get().currentLevel;
+                    const maxLevel = 100;
                     const freshMembers = INITIAL_PARTY.map(m => ({
                         ...m,
-                        computedValues: calculateMemberValues(m, currentLevel)
+                        computedValues: calculateMemberValues(m, maxLevel)
                     }));
                     set({
+                        currentLevel: maxLevel,
                         timelineEvents: [],
                         timelineMitigations: [],
                         phases: [],

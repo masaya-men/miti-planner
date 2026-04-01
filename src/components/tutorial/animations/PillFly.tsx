@@ -35,7 +35,7 @@ const PILL_HEIGHT = 22;
  * CHECK → 3秒アピール → 飛行（crossfadeでCLICKに変化）→ バウンド着地
  */
 export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChange }: PillFlyProps) {
-  const [phase, setPhase] = useState<'check' | 'fly' | 'land'>('check');
+  const [phase, setPhase] = useState<'check' | 'fly' | 'land' | 'hover'>('check');
   const [toRect, setToRect] = useState<TargetRect | null>(null);
   const pillRef = useRef<HTMLDivElement>(null);
 
@@ -70,7 +70,11 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
     const t3 = setTimeout(() => {
       onPhaseChange?.('land');
     }, 3950);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // バウンス完了後に穏やかな上下ループへ移行
+    const t4 = setTimeout(() => {
+      setPhase('hover');
+    }, 4000);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [onPhaseChange]);
 
   // セルの上にピルを配置（CLICKピルと高さを揃える）
@@ -110,12 +114,19 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
             }
           : phase === 'fly'
             ? { top: toPos.top, left: toPos.left, y: 0, x: 0, scale: [1, 1.4, 1], rotate: [0, 8, 0] }
-            : {
-                top: toPos.top, left: toPos.left,
-                x: [0, 10, -4, 2, 0],
-                y: [0, 6, 0],
-                scale: 1, rotate: 0,
-              }
+            : phase === 'land'
+              ? {
+                  top: toPos.top, left: toPos.left,
+                  x: [0, 4, -1.5, 0],
+                  y: [0, -4, 0],
+                  scale: 1, rotate: 0,
+                }
+              : {
+                  // hover: 穏やかな上下ループ
+                  top: toPos.top, left: toPos.left,
+                  y: [0, -5, 0],
+                  x: 0, scale: 1, rotate: 0,
+                }
       }
       transition={
         phase === 'check'
@@ -127,12 +138,16 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
             }
           : phase === 'fly'
             ? { duration: 0.39, ease: [0.34, 1.2, 0.64, 1], scale: { times: [0, 0.4, 1] } }
-            : {
-                x: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
-                y: { duration: 1.4, delay: 0.55, ease: [0.36, 0, 0.66, 1], repeat: Infinity },
-                scale: { duration: 0.2 },
-                rotate: { duration: 0.2 },
-              }
+            : phase === 'land'
+              ? {
+                  x: { duration: 0.35, ease: [0.25, 1, 0.5, 1] },
+                  y: { duration: 0.3, ease: [0.25, 1, 0.5, 1] },
+                  scale: { duration: 0.2 },
+                  rotate: { duration: 0.2 },
+                }
+              : {
+                  y: { duration: 1.4, ease: [0.36, 0, 0.66, 1], repeat: Infinity },
+                }
       }
       style={{ top: fromPos.top, left: fromPos.left }}
     >
