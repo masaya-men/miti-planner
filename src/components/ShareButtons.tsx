@@ -20,16 +20,19 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const { t } = useTranslation();
     const [modalOpen, setModalOpen] = React.useState(false);
 
-    const shareCompleted = useTutorialStore(s => s.completed['share']);
-    const prevShareCompleted = useRef(shareCompleted);
+    // share チュートリアルが完了 or キャンセルされたらモーダルを閉じる
+    const activeTutorialId = useTutorialStore(s => s.activeTutorialId);
+    const wasShareTutorial = useRef(false);
 
     useEffect(() => {
-        // share チュートリアルが今完了した → モーダルを閉じる
-        if (shareCompleted && !prevShareCompleted.current) {
+        if (activeTutorialId === 'share') {
+            wasShareTutorial.current = true;
+        } else if (wasShareTutorial.current) {
+            // share チュートリアルが終了した（完了 or キャンセル）
+            wasShareTutorial.current = false;
             setModalOpen(false);
         }
-        prevShareCompleted.current = shareCompleted;
-    }, [shareCompleted]);
+    }, [activeTutorialId]);
 
     return (
         <>

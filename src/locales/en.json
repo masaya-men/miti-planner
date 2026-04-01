@@ -719,7 +719,7 @@
             },
             "done": {
                 "message": "Set up images and share!",
-                "description": "Add an OGP image or team logo, then share your plan with everyone."
+                "description": "Add a thumbnail image or team logo, then share your plan with everyone."
             }
         },
         "completion": {

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -139,6 +139,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const tutorialState = useTutorialStore();
     const isTutorialActive = tutorialState.isActive;
     const currentStep = isTutorialActive ? tutorialState.getCurrentStep() : null;
+    const mitiPresetDoneRef = useRef(false);
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
@@ -358,26 +359,26 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             }
         }
 
-        // create-plan: ステップ8に進んだら軽減エリアまでスクロール + プリセット
+        // create-plan: ステップ8 — 軽減プリセット + リプライザル検知
         if (currentStep?.id === 'create-8-miti') {
-            // 軽減エリアまで自動スクロール
-            const container = document.getElementById('event-modal-form');
-            if (container) {
-                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+            // プリセットは一度だけ実行
+            if (!mitiPresetDoneRef.current) {
+                mitiPresetDoneRef.current = true;
+                // 軽減エリアまで自動スクロール
+                const container = document.getElementById('event-modal-form');
+                if (container) {
+                    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+                }
+                const sacredSoilId = MITIGATIONS.find(m => m.name.en === 'Sacred Soil')?.id;
+                const divineVeilId = MITIGATIONS.find(m => m.name.en === 'Divine Veil')?.id;
+                const presets = [sacredSoilId, divineVeilId].filter((id): id is string => !!id);
+                setSelectedMitigations(prev => {
+                    const newSet = new Set([...prev, ...presets]);
+                    return Array.from(newSet);
+                });
             }
 
-            const sacredSoilId = MITIGATIONS.find(m => m.name.en === 'Sacred Soil')?.id;
-            const divineVeilId = MITIGATIONS.find(m => m.name.en === 'Divine Veil')?.id;
-            const presets = [sacredSoilId, divineVeilId].filter((id): id is string => !!id);
-
-            setSelectedMitigations(prev => {
-                const newSet = new Set([...prev, ...presets]);
-                return Array.from(newSet);
-            });
-        }
-
-        // create-plan: リプライザル選択で完了
-        if (currentStep?.id === 'create-8-miti') {
+            // リプライザル選択で完了
             const reprisalId = MITIGATIONS.find(m => m.name.en === 'Reprisal')?.id;
             if (reprisalId && selectedMitigations.includes(reprisalId)) {
                 const tId = setTimeout(() => tutorialState.completeEvent('create:miti-selected'), 500);
