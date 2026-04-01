@@ -12,6 +12,8 @@ export interface TypewriterFieldConfig {
   charDelay?: number;
   /** true の場合 i18n を通さずそのまま使う */
   raw?: boolean;
+  /** このフィールド入力中のカード表示基準セレクタ（省略時は target を使用） */
+  cardAnchor?: string;
 }
 
 export interface TypewriterConfig {
@@ -267,6 +269,7 @@ const createPlanTutorial: TutorialDefinition = {
             text: '120000',
             charDelay: 120,
             raw: true,
+            cardAnchor: '[data-tutorial="miti-section-label"]',
           },
         ],
         scrollBetweenFields: true,
