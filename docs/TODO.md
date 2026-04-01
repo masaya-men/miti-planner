@@ -9,9 +9,10 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: `feature/tutorial-overhaul`（mainにはまだマージしていない）
-- **今回の作業**: チュートリアルアニメーション全面改善（PartyAutoFill円運動+飛行弧、PillFlyバウンス着地、ブロッカー修正、cursor-pointer修正）
-- **最優先**: チュートリアル通し確認（add-event / share チュートリアルは未検証）→ 問題なければ feature/tutorial-overhaul を main にマージ → デプロイ
-- **完了済み**: メインチュートリアル(main)のアニメーション改善。add-event / share は定義・属性・イベント発火とも実装済み、通し動作未検証
+- **今回の作業**: create-plan チュートリアル新設 + share チュートリアルバグ修正 + 軽減UIアイコン表示
+- **最優先**: 手動で通し確認 → 問題なければ main マージ → デプロイ
+- **完了済み**: create-plan（10ステップ、タイプライター演出）、share修正（2ステップ簡略化）、軽減UI（アイコン並び表示）、TutorialCard「わかった」ボタン、TypewriterFillコンポーネント
+- **変更点**: add-event廃止→create-planに置換。shareのcompleteEvent未発火バグ修正。EventModalの「N Selected」→アイコン並び
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12
 
 ---
@@ -23,7 +24,7 @@
 - [ ] オートプラン: 無敵はなるべく同じ技に使いたい
 
 ## 進行中
-- [ ] チュートリアル全面刷新 — `feature/tutorial-overhaul`ブランチ。残り: mainマージ → デプロイ
+- [ ] チュートリアル全面刷新 — `feature/tutorial-overhaul`ブランチ。残り: 手動通し確認 → mainマージ → デプロイ
 
 ## 未着手（次にやること）
 - [ ] フッター法的リンクまとめ（プライバシー・利用規約・特商法をドロップダウン化）
