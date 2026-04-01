@@ -89,6 +89,13 @@ function calcCardPos(rect: TargetRect | null): { top: number; left: number } {
   const cardHeight = 120;
   const gap = 12;
 
+  // 大きい要素（モーダル全体など）の場合は右隣に配置
+  if (rect.width > 400 || rect.height > 400) {
+    const top = Math.max(16, rect.top + 60);
+    const left = Math.min(rect.left + rect.width + gap, window.innerWidth - cardWidth - 16);
+    return { top, left };
+  }
+
   // デフォルト: 下に表示
   let top = rect.top + rect.height + gap;
   let left = rect.left + rect.width / 2 - cardWidth / 2;
@@ -114,8 +121,24 @@ export function TutorialOverlay() {
   const step = useTutorialStore(s => s.getCurrentStep());
   const targetRect = useTargetRect(step?.target ?? null);
 
+  // PillFly のフェーズを追跡（カード移動 + ブロッカー制御）
+  const pillToSelector = step?.pillTransition?.toTarget ?? null;
+  const pillToRect = useTargetRect(pillToSelector);
+  const [pillPhase, setPillPhase] = useState<'idle' | 'check' | 'fly' | 'land'>('idle');
+
+  // ステップが変わったらリセット
+  useEffect(() => { setPillPhase('idle'); }, [currentStepIdx]);
+
+  const handlePillPhaseChange = useCallback((phase: 'check' | 'fly' | 'land') => {
+    setPillPhase(phase);
+  }, []);
+
+  const anchorRect = useTargetRect(step?.cardAnchor ?? null);
   const pillPos = calcPillPos(targetRect, step?.pillArrow);
-  const cardPos = calcCardPos(targetRect);
+  // ピル飛行後はカードを飛行先セル基準に配置
+  const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
+  const cardBaseRect = pillFlew && pillToRect ? pillToRect : (targetRect ?? anchorRect);
+  const cardPos = calcCardPos(cardBaseRect);
   const totalSteps = tutorial?.steps.length ?? 0;
   const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
 
@@ -143,6 +166,7 @@ export function TutorialOverlay() {
             toSelector={step.pillTransition.toTarget}
             fromLabel={step.pill}
             toLabel={step.pillTransition.toLabel}
+            onPhaseChange={handlePillPhaseChange}
           />
         ) : null;
       case 'completion-card':
@@ -156,11 +180,22 @@ export function TutorialOverlay() {
 
   return (
     <>
-      {/* クリックブロック — ターゲットがあり演出中でない場合のみ有効 */}
+      {/* クリックブロック — ターゲットがある通常ステップ（演出なし） */}
       <TutorialBlocker
         targetRect={targetRect}
         active={!!step.target && !step.animation}
       />
+      {/* 自動演出中は全面ブロック（スロット操作防止） */}
+      {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint') && (
+        <TutorialBlocker targetRect={null} active={true} />
+      )}
+      {/* pill-fly: check/fly中は全面ブロック、land後は飛行先セルだけ穴を開ける */}
+      {step.animation === 'pill-fly' && (
+        <TutorialBlocker
+          targetRect={pillPhase === 'land' ? pillToRect : null}
+          active={true}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {/* 特殊演出 */}
@@ -178,8 +213,8 @@ export function TutorialOverlay() {
           />
         )}
 
-        {/* 吹き出しカード（完了画面は専用コンポーネント） */}
-        {step.animation !== 'completion-card' && (
+        {/* 吹き出しカード（完了画面・auto-fill は専用演出内で表示） */}
+        {step.animation !== 'completion-card' && step.animation !== 'party-auto-fill' && (
           <TutorialCard
             key={`card-${step.id}`}
             messageKey={step.messageKey}
@@ -213,13 +248,13 @@ function ExitDialog() {
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => useTutorialStore.getState().cancelExit()}
-            className="px-4 py-2 text-xs rounded-lg border border-app-text/15 text-app-text hover:bg-app-text/5 transition-colors"
+            className="px-4 py-2 text-xs rounded-lg border border-app-text/15 text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
           >
             {t('common.cancel')}
           </button>
           <button
             onClick={() => useTutorialStore.getState().confirmExit()}
-            className="px-4 py-2 text-xs rounded-lg bg-app-text text-app-bg font-semibold hover:opacity-80 transition-opacity"
+            className="px-4 py-2 text-xs rounded-lg bg-app-text text-app-bg font-semibold hover:opacity-80 transition-opacity cursor-pointer"
           >
             {t('tutorial.exit_yes')}
           </button>

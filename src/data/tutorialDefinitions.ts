@@ -27,6 +27,8 @@ export interface TutorialStep {
     toTarget: string;
     toLabel: PillLabel;
   };
+  /** カード表示のアンカー要素セレクタ（targetがnullの時にカード位置の基準にする） */
+  cardAnchor?: string;
 }
 
 export interface TutorialDefinition {
@@ -108,6 +110,7 @@ const mainTutorial: TutorialDefinition = {
       descriptionKey: 'tutorial.main.palette_hint.description',
       completionEvent: 'party:palette-hint-done',
       animation: 'palette-hint',
+      cardAnchor: '[data-tutorial="party-healer-slot"]',
     },
     {
       id: 'main-9-auto-fill',
@@ -116,6 +119,7 @@ const mainTutorial: TutorialDefinition = {
       messageKey: 'tutorial.main.auto_fill.message',
       completionEvent: 'party:auto-filled',
       animation: 'party-auto-fill',
+      cardAnchor: '[data-tutorial="party-healer-slot"]',
     },
     {
       id: 'main-10-party-close',

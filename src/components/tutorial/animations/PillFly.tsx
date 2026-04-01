@@ -63,17 +63,20 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
       setPhase('fly');
       onPhaseChange?.('fly');
     }, 3000);
+    // 飛行0.39s + バウンス0.5s 後にland報告（ブロッカー解除）
     const t2 = setTimeout(() => {
       setPhase('land');
+    }, 3400);
+    const t3 = setTimeout(() => {
       onPhaseChange?.('land');
-    }, 3700);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    }, 3950);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onPhaseChange]);
 
-  // セルの中央にピルを配置（上ではなく中央）
+  // セルの上にピルを配置（CLICKピルと高さを揃える）
   const fromPos = fromRect
     ? {
-        top: fromRect.top + fromRect.height / 2 - PILL_HEIGHT / 2,
+        top: fromRect.top - PILL_HEIGHT - 10,
         left: fromRect.left + fromRect.width / 2 - PILL_WIDTH_HALF,
       }
     : { top: -100, left: -100 };
@@ -107,7 +110,12 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
             }
           : phase === 'fly'
             ? { top: toPos.top, left: toPos.left, y: 0, x: 0, scale: [1, 1.4, 1], rotate: [0, 8, 0] }
-            : { top: toPos.top, left: toPos.left, x: 0, scale: 1, rotate: 0, y: [0, 6, 0] }
+            : {
+                top: toPos.top, left: toPos.left,
+                x: [0, 10, -4, 2, 0],
+                y: [0, 6, 0],
+                scale: 1, rotate: 0,
+              }
       }
       transition={
         phase === 'check'
@@ -118,10 +126,12 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
               rotate: { duration: 1.2, ease: [0.36, 0, 0.66, 1], repeat: Infinity },
             }
           : phase === 'fly'
-            ? { duration: 0.55, ease: [0.34, 1.2, 0.64, 1], scale: { times: [0, 0.4, 1] } }
+            ? { duration: 0.39, ease: [0.34, 1.2, 0.64, 1], scale: { times: [0, 0.4, 1] } }
             : {
-                duration: 0.3,
-                y: { duration: 1.4, ease: [0.36, 0, 0.66, 1], repeat: Infinity },
+                x: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+                y: { duration: 1.4, delay: 0.55, ease: [0.36, 0, 0.66, 1], repeat: Infinity },
+                scale: { duration: 0.2 },
+                rotate: { duration: 0.2 },
               }
       }
       style={{ top: fromPos.top, left: fromPos.left }}
