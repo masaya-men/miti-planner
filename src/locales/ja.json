@@ -945,6 +945,7 @@
         "login": "ログイン",
         "account": "アカウント",
         "logout": "ログアウト",
+        "adminPanel": "管理画面",
         "deleteAccount": "アカウントを削除",
         "deleteAccountTitle": "アカウント削除",
         "deleteAccountMessage": "これは取り消せない操作です。作成した軽減表・設定はすべて完全に削除されます。本当に削除しますか？",

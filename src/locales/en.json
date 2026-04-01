@@ -941,6 +941,7 @@
         "login": "Login",
         "account": "Account",
         "logout": "Log out",
+        "adminPanel": "Admin",
         "deleteAccount": "Delete account",
         "deleteAccountTitle": "Delete Account",
         "deleteAccountMessage": "This action cannot be undone. All your mitigation plans and settings will be permanently deleted. Are you sure?",
