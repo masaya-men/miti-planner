@@ -3,6 +3,21 @@
 
 export type PillLabel = 'click' | 'tap' | 'check' | 'next';
 
+export interface TypewriterFieldConfig {
+  /** CSSセレクタ（入力先の input 要素） */
+  target: string;
+  /** i18n キー or 直値（数値文字列等） */
+  text: string;
+  /** 1文字あたりの遅延ms（デフォルト 80） */
+  charDelay?: number;
+  /** true の場合 i18n を通さずそのまま使う */
+  raw?: boolean;
+}
+
+export interface TypewriterConfig {
+  fields: TypewriterFieldConfig[];
+}
+
 export interface TutorialStep {
   /** ユニークID */
   id: string;
@@ -19,7 +34,7 @@ export interface TutorialStep {
   /** この文字列のイベントで次ステップへ進む */
   completionEvent: string;
   /** 特殊演出名（省略可） */
-  animation?: 'palette-hint' | 'party-auto-fill' | 'pill-fly' | 'completion-card';
+  animation?: 'palette-hint' | 'party-auto-fill' | 'pill-fly' | 'completion-card' | 'typewriter-fill';
   /** ピルの矢印方向（デフォルト: down） */
   pillArrow?: 'down' | 'right';
   /** ピル飛行の定義（省略可） */
@@ -29,6 +44,8 @@ export interface TutorialStep {
   };
   /** カード表示のアンカー要素セレクタ（targetがnullの時にカード位置の基準にする） */
   cardAnchor?: string;
+  /** タイプライター演出設定（animation: 'typewriter-fill' 時に必須） */
+  typewriterConfig?: TypewriterConfig;
 }
 
 export interface TutorialDefinition {
