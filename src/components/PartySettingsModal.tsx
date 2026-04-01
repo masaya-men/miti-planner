@@ -487,7 +487,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             <div data-tutorial="party-palette-pick" className="flex flex-col gap-0.5 overflow-y-auto custom-scrollbar pr-1 pt-2 pb-2">
                 {categories.map((cat, idx) => (
                     <React.Fragment key={cat.id}>
-                        {idx !== 0 && <div className="h-[1px] bg-app-border w-full" />}
+                        {idx !== 0 && <hr className="border-t border-app-border w-full m-0" />}
                         <div className="flex items-center gap-3">
                             <div className="w-12 text-right text-[9px] font-black text-app-text uppercase tracking-wider shrink-0 dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                                 {cat.name}
@@ -501,13 +501,13 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             onClick={() => handleJobSelect(job.id)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn cursor-pointer",
-                                                "bg-app-surface2 border-app-border hover:bg-app-surface2 hover:border-app-border",
+                                                "bg-transparent border-transparent hover:bg-app-surface2",
                                                 cat.color
                                             )}
                                         >
                                             <Ripple />
                                             <Tooltip content={job.name?.ja || ''}>
-                                                <img src={job.icon} alt={job.name?.ja} className="w-6 h-6 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
+                                                <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                             </Tooltip>
                                         </button>
                                     );
@@ -571,8 +571,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <h2 className="text-sm font-black text-app-text tracking-widest dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
                             <p className="text-[10px] mt-0.5 font-bold">
                                 {focusedSlot !== null
-                                    ? <span className="flex items-center gap-1.5 text-app-text font-black">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-app-text animate-pulse inline-block" />
+                                    ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: '#22c55e' }}>
+                                        <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#22c55e' }} />
                                         {t('party.manual_mode_desc', { slot: partyMembers[focusedSlot].id })}
                                     </span>
                                     : <span className="text-app-text dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] font-bold">{t('party.configuration_desc')}</span>

@@ -154,11 +154,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 window.dispatchEvent(new CustomEvent('shortcut:party'));
             } else if (key === 'f') {
                 e.preventDefault();
-                // チュートリアル: focus-mode 体験ステップの完了イベント発火
-                const tutState = useTutorialStore.getState();
-                if (tutState.isActive) {
-                    tutState.completeEvent('focus-mode:entered');
-                }
                 if (!focusModeRef.current) {
                     // フォーカスモードに入る: 現在の状態を記憶してから隠す
                     preFocusSidebarRef.current = isSidebarOpen;

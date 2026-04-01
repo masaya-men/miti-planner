@@ -683,6 +683,10 @@
                 "message": "ちょっと待って、あと1つだけ！",
                 "description": "「F」キーを押して、表だけの集中モードを体験してみよう！"
             },
+            "focus_done": {
+                "message": "集中して作業したいときはこれ！",
+                "description": "もう一度「F」を押すと元に戻ります。"
+            },
             "real_complete": {
                 "message": "今度こそチュートリアル完了！"
             }

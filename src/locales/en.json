@@ -679,6 +679,10 @@
                 "message": "Wait — one more thing!",
                 "description": "Press \"F\" to try Focus Mode — it hides everything but the table!"
             },
+            "focus_done": {
+                "message": "Use this when you want to focus!",
+                "description": "Press \"F\" again to go back."
+            },
             "real_complete": {
                 "message": "Tutorial complete — for real this time!"
             }
