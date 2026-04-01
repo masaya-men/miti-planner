@@ -1236,6 +1236,7 @@
         "tpl_editor_no_content": "コンテンツを選択してください",
         "tpl_editor_empty": "テンプレートがありません。ツールバーから作成できます",
         "tpl_editor_content_summary": "イベント {{events}}件 ・ フェーズ {{phases}}件",
+        "tpl_editor_auto_propagate": "翻訳自動伝播",
         "tpl_editor_new_phase": "+ 新規フェーズ",
         "tpl_promote_title": "プランをテンプレートにする",
         "tpl_promote_url_label": "プランの共有URLを貼り付けてください",

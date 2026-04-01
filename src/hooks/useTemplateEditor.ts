@@ -24,6 +24,7 @@ const emptyState = (): EditState => ({
 
 export function useTemplateEditor() {
   const [state, setState] = useState<EditState>(emptyState);
+  const [autoPropagate, setAutoPropagate] = useState(true);
 
   // visibleEvents: current を deleted 除外してフィルタ
   const visibleEvents = useMemo(
@@ -69,6 +70,9 @@ export function useTemplateEditor() {
         const ev = newCurrent.find((e) => e.id === eventId);
         if (!ev) return prev;
 
+        const oldJa = ev.name.ja;
+        const oldEn = ev.name.en;
+
         switch (field) {
           case 'time':
             ev.time = value as number;
@@ -99,6 +103,27 @@ export function useTemplateEditor() {
         const newAutoFilled = new Set(prev.autoFilled);
         newAutoFilled.delete(key);
 
+        // 翻訳自動伝播
+        if (autoPropagate && (field === 'name.en' || field === 'name.ja')) {
+          for (const other of newCurrent) {
+            if (other.id === eventId || prev.deleted.has(other.id)) continue;
+
+            if (field === 'name.en') {
+              // EN変更 → 同じJA名を持つ他の行に伝播
+              if (other.name.ja === oldJa && (other.name.en === '' || other.name.en === oldEn)) {
+                other.name.en = value as string;
+                newAutoFilled.add(`${other.id}:name.en`);
+              }
+            } else if (field === 'name.ja') {
+              // JA変更 → 同じEN名を持つ他の行に伝播
+              if (other.name.en === oldEn && oldEn !== '' && (other.name.ja === '' || other.name.ja === oldJa)) {
+                other.name.ja = value as string;
+                newAutoFilled.add(`${other.id}:name.ja`);
+              }
+            }
+          }
+        }
+
         return {
           ...prev,
           current: newCurrent,
@@ -107,7 +132,7 @@ export function useTemplateEditor() {
         };
       });
     },
-    [],
+    [autoPropagate],
   );
 
   // イベント削除
@@ -221,5 +246,7 @@ export function useTemplateEditor() {
     replaceAll,
     getSaveData,
     updatePhaseForGroup,
+    autoPropagate,
+    setAutoPropagate,
   };
 }

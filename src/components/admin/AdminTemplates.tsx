@@ -297,6 +297,8 @@ export function AdminTemplates() {
             onOpenCsvImport={() => setShowCsvModal(true)}
             onOpenFflogsTranslation={() => setShowFflogsModal(true)}
             hasEvents={hasEvents}
+            autoPropagate={editor.autoPropagate}
+            onToggleAutoPropagate={() => editor.setAutoPropagate((v) => !v)}
           />
         </div>
       )}
