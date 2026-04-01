@@ -74,8 +74,11 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
     const el = document.querySelector(currentField.target) as HTMLInputElement | null;
     if (!el) return;
 
-    // 入力中はユーザー操作を無効化
-    el.readOnly = true;
+    // 全フィールドの入力を無効化（ユーザー操作防止）
+    const allEls = fields
+      .map(f => document.querySelector(f.target) as HTMLInputElement | null)
+      .filter((e): e is HTMLInputElement => !!e);
+    allEls.forEach(e => { e.readOnly = true; });
 
     // reduced-motion: 即座に全文入力
     if (prefersReduced) {
@@ -136,8 +139,8 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      // readOnly を解除
-      el.readOnly = false;
+      // 全フィールドの readOnly を解除
+      allEls.forEach(e => { e.readOnly = false; });
     };
   }, [started, fieldIndex, charIndex, config, t, prefersReduced]);
 
