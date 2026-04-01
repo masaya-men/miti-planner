@@ -12,6 +12,8 @@ interface TemplateEditorToolbarProps {
   onOpenCsvImport: () => void;
   onOpenFflogsTranslation: () => void;
   hasEvents: boolean;
+  autoPropagate: boolean;
+  onToggleAutoPropagate: () => void;
 }
 
 const baseButtonClass =
@@ -25,6 +27,8 @@ export function TemplateEditorToolbar({
   onOpenCsvImport,
   onOpenFflogsTranslation,
   hasEvents,
+  autoPropagate,
+  onToggleAutoPropagate,
 }: TemplateEditorToolbarProps) {
   const { t } = useTranslation();
 
@@ -54,6 +58,18 @@ export function TemplateEditorToolbar({
         className={`${baseButtonClass} border-purple-500/40 text-purple-400 hover:bg-purple-500/10`}
       >
         {t('admin.tpl_fflogs_btn')}
+      </button>
+
+      <button
+        type="button"
+        onClick={onToggleAutoPropagate}
+        className={`${baseButtonClass} ${
+          autoPropagate
+            ? 'border-blue-500/60 bg-blue-500/15 text-blue-400'
+            : 'border-app-text/20 text-app-text-muted hover:bg-app-text/10'
+        }`}
+      >
+        {t('admin.tpl_editor_auto_propagate')}
       </button>
 
       {/* スペーサー */}
