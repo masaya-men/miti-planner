@@ -154,6 +154,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 window.dispatchEvent(new CustomEvent('shortcut:party'));
             } else if (key === 'f') {
                 e.preventDefault();
+                // チュートリアル: focus-mode 体験ステップの完了イベント発火
+                const tutState = useTutorialStore.getState();
+                if (tutState.isActive) {
+                    tutState.completeEvent('focus-mode:entered');
+                }
                 if (!focusModeRef.current) {
                     // フォーカスモードに入る: 現在の状態を記憶してから隠す
                     preFocusSidebarRef.current = isSidebarOpen;
@@ -171,8 +176,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }
             }
         };
+        const handleExitFocus = () => {
+            if (focusModeRef.current) {
+                setIsSidebarOpen(preFocusSidebarRef.current);
+                localStorage.setItem('lopo_sidebar_open', String(preFocusSidebarRef.current));
+                setIsHeaderCollapsed(preFocusHeaderRef.current);
+                focusModeRef.current = false;
+            }
+        };
         window.addEventListener('keydown', handleShortcut);
-        return () => window.removeEventListener('keydown', handleShortcut);
+        window.addEventListener('shortcut:exit-focus', handleExitFocus);
+        return () => {
+            window.removeEventListener('keydown', handleShortcut);
+            window.removeEventListener('shortcut:exit-focus', handleExitFocus);
+        };
     }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
 
     // 自動保存（2層構造）
