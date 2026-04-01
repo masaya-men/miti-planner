@@ -63,6 +63,7 @@ export interface TimelineEvent {
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
     warning?: boolean; // Indicates mitigation is insufficient
+    mechanicGroup?: string; // ギミックグループ名（例: "開幕", "蒼天の陣：雷槍"）
 }
 
 export interface Phase {
