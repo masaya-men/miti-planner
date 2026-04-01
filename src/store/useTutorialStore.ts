@@ -70,17 +70,24 @@ function restoreUserState(state: TutorialState) {
   }
 
   // 元のプランに復元
+  let restoredContentId: string | null = null;
   if (state._savedPlanId) {
     const savedPlan = planStore.getPlan(state._savedPlanId);
     if (savedPlan) {
       mitiState.loadSnapshot(savedPlan.data);
       planStore.setCurrentPlanId(state._savedPlanId);
+      restoredContentId = savedPlan.contentId;
     } else if (state._savedSnapshot) {
       mitiState.restoreFromSnapshot(state._savedSnapshot);
     }
   } else if (state._savedSnapshot) {
     mitiState.restoreFromSnapshot(state._savedSnapshot);
   }
+
+  // サイドバーにレベル・カテゴリの同期を通知
+  window.dispatchEvent(new CustomEvent('tutorial:plan-restored', {
+    detail: { contentId: restoredContentId },
+  }));
 }
 
 // ─────────────────────────────────────────────
@@ -130,6 +137,8 @@ export const useTutorialStore = create<TutorialState>()(
           // main はリセット、create-plan はリセットしない（新規作成がチュートリアルの一部）
           if (id === 'main') {
             mitiState.resetForTutorial();
+            // ヘッダーに古いコンテンツ名が残らないよう currentPlanId をクリア
+            planStore.setCurrentPlanId(null);
           }
         }
 
