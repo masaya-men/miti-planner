@@ -269,7 +269,6 @@ const createPlanTutorial: TutorialDefinition = {
             text: '120000',
             charDelay: 120,
             raw: true,
-            cardAnchor: '[data-tutorial="miti-section-label"]',
           },
         ],
         scrollBetweenFields: true,

@@ -658,7 +658,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     </div>
                                 </div>
 
-                                <div data-tutorial="miti-section-label">
+                                <div>
                                     <div className="flex items-center justify-between mb-3">
                                         <label className="block text-xs font-medium text-app-text">{t('mechanic_modal.calc_mitigations')}</label>
                                         {selectedMitigations.length > 0 && (
