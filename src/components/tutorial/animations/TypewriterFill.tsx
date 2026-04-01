@@ -51,7 +51,13 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
       .map(f => document.querySelector(f.target) as HTMLInputElement | null)
       .filter((e): e is HTMLInputElement => !!e);
     allEls.forEach(e => { e.readOnly = true; });
-    return () => { allEls.forEach(e => { e.readOnly = false; }); };
+    return () => {
+      allEls.forEach(e => { e.readOnly = false; });
+      // フォーカスを外して次ステップでのキーボード入力を防止
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    };
   }, [config.fields]);
 
   // 開始前に視線を集める遅延（1.8秒）
