@@ -85,7 +85,16 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
     useLayoutEffect(() => {
         if (isOpen && triggerRef?.current) {
             const rect = triggerRef.current.getBoundingClientRect();
-            setPosition({ top: rect.bottom + 4, left: rect.left });
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                const width = Math.min(window.innerWidth - 16, 320);
+                setPosition({
+                    top: rect.bottom + 4,
+                    left: Math.max(8, (window.innerWidth - width) / 2),
+                });
+            } else {
+                setPosition({ top: rect.bottom + 4, left: rect.left });
+            }
             setIsPositioned(true);
         } else if (!isOpen) {
             setIsPositioned(false);
@@ -150,12 +159,14 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
             style={{
                 top: `${position.top}px`,
                 left: `${position.left}px`,
-                width: selectedMechanic ? '420px' : '240px',
+                width: typeof window !== 'undefined' && window.innerWidth < 768
+                    ? `${Math.min(window.innerWidth - 16, 320)}px`
+                    : selectedMechanic ? '420px' : '240px',
             }}
         >
-            <div className="flex">
+            <div className={clsx("flex", typeof window !== 'undefined' && window.innerWidth < 768 ? "flex-col" : "flex-row")}>
                 {/* 1段目: 攻撃名リスト */}
-                <div className="w-[240px] flex-shrink-0">
+                <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full" : "w-[240px]")}>
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
                         <span className="text-xs font-black text-app-text uppercase tracking-wider">
@@ -213,7 +224,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
 
                 {/* 2段目: 出現箇所サブリスト */}
                 {selectedMechanic && (
-                    <div className="w-[180px] border-l border-glass-border flex-shrink-0">
+                    <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full border-t border-glass-border" : "w-[180px] border-l border-glass-border")}>
                         <div className="px-3 py-2 bg-glass-header border-b border-glass-border">
                             <span className="text-xs font-bold text-app-text truncate block">
                                 {selectedMechanic}
