@@ -697,12 +697,12 @@
                 "description": "Click the + button to add an attack."
             },
             "fill_event": {
-                "message": "Entering attack name and damage",
+                "message": "We'll enter the attack name and damage",
                 "description": "Watch — we'll type it in for you."
             },
             "miti": {
                 "message": "Choose a mitigation",
-                "description": "Sacred Soil and Divine Veil are already set! Click Reprisal."
+                "description": "Sacred Soil and Divine Veil are already selected! Click Reprisal."
             },
             "save": {
                 "message": "Save it"
@@ -724,10 +724,7 @@
         },
         "completion": {
             "title": "You've got the basics!",
-            "subtitle": "You're ready to create your own mitigation plans. Try these features too.",
-            "share_hint": "Share your plans with teammates. Log in to add a team logo!",
-            "new_plan_hint": "Create plans for any content using the New Plan button.",
-            "menu_hint": "Revisit tutorials anytime from the tutorial button.",
+            "menu_hint": "You can revisit tutorials anytime from the tutorial menu.",
             "start_button": "Let's go"
         }
     },
