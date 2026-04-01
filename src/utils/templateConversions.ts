@@ -292,6 +292,7 @@ export function convertPlanToTemplate(
     if (event.damageAmount !== undefined) e.damageAmount = event.damageAmount;
     if (event.target !== undefined) e.target = event.target;
     if (event.warning !== undefined) e.warning = event.warning;
+    if (event.mechanicGroup !== undefined) e.mechanicGroup = event.mechanicGroup;
     return e;
   });
 
