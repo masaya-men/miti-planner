@@ -225,6 +225,9 @@ export function TutorialOverlay() {
             visible={true}
             onSkip={handleSkip}
             stepLabel={stepLabel}
+            onNext={step.pill === 'next' ? () => {
+              useTutorialStore.getState().completeEvent(step.completionEvent);
+            } : undefined}
           />
         )}
       </AnimatePresence>
