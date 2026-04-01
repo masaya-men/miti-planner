@@ -17,7 +17,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
   const { t } = useTranslation();
   const [fieldIndex, setFieldIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completedRef = useRef(false);
 
   // prefers-reduced-motion チェック
