@@ -83,14 +83,34 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
           setCharIndex(prev => prev + 1);
         }, delay);
       } else {
-        // 現フィールド完了 → 次フィールドへ
+        // 現フィールド完了 → 次フィールドへ or 完了
         timerRef.current = setTimeout(() => {
           if (fieldIndex < fields.length - 1) {
-            setFieldIndex(prev => prev + 1);
-            setCharIndex(0);
+            // フィールド間スクロール
+            if (config.scrollBetweenFields && config.scrollContainerId) {
+              const container = document.getElementById(config.scrollContainerId);
+              const nextEl = document.querySelector(fields[fieldIndex + 1].target) as HTMLElement | null;
+              if (container && nextEl) {
+                nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+            // スクロール完了を待ってから次フィールド開始
+            timerRef.current = setTimeout(() => {
+              setFieldIndex(prev => prev + 1);
+              setCharIndex(0);
+            }, config.scrollBetweenFields ? 800 : 0);
           } else {
-            completedRef.current = true;
-            onCompleteRef.current();
+            // 全フィールド完了 → postDelay があれば待つ
+            const postDelay = config.postDelay ?? 0;
+            if (postDelay > 0) {
+              timerRef.current = setTimeout(() => {
+                completedRef.current = true;
+                onCompleteRef.current();
+              }, postDelay);
+            } else {
+              completedRef.current = true;
+              onCompleteRef.current();
+            }
           }
         }, 400); // フィールド間の間
       }

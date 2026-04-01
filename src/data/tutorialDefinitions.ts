@@ -16,6 +16,12 @@ export interface TypewriterFieldConfig {
 
 export interface TypewriterConfig {
   fields: TypewriterFieldConfig[];
+  /** 全フィールド完了後にカードを表示し続ける遅延ms（デフォルト 0 = 即座に完了） */
+  postDelay?: number;
+  /** フィールド間でスクロールコンテナを最下部にスクロールする（デフォルト false） */
+  scrollBetweenFields?: boolean;
+  /** スクロール対象のコンテナID（scrollBetweenFields 時に使用） */
+  scrollContainerId?: string;
 }
 
 export interface TutorialStep {
@@ -224,6 +230,7 @@ const createPlanTutorial: TutorialDefinition = {
             charDelay: 80,
           },
         ],
+        postDelay: 2000,
       },
     },
     {
@@ -263,6 +270,8 @@ const createPlanTutorial: TutorialDefinition = {
             raw: true,
           },
         ],
+        scrollBetweenFields: true,
+        scrollContainerId: 'event-modal-form',
       },
     },
     {
@@ -302,6 +311,7 @@ const shareTutorial: TutorialDefinition = {
       id: 'share-1-open',
       target: '[data-tutorial="share-copy-btn"]',
       pill: 'click',
+      pillArrow: 'right',
       messageKey: 'tutorial.share.open.message',
       completionEvent: 'share:modal-opened',
     },
