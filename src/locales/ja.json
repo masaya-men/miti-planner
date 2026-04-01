@@ -109,7 +109,7 @@
         "composition": "パーティ",
         "comp_short": "パーティ編成",
         "configuration_title": "パーティ編成",
-        "configuration_desc": "ジョブアイコンをクリックするか、スロットを選択してジョブを配置しましょう",
+        "configuration_desc": "ジョブをクリックかスロットを選択して配置",
         "my_job_instruction": "スロット右上の星をタップして自ジョブに設定",
         "content_level": "コンテンツレベル",
         "job_palette": "ジョブパレット (タップして配置)",
@@ -373,8 +373,10 @@
         "current_plan": "現在の表",
         "cancel": "キャンセル",
         "menu": "メニュー",
-        "close_menu": "メニューを閉じる",
-        "open_menu": "メニューを開く",
+        "close_menu": "メニューを閉じる (S)",
+        "open_menu": "メニューを開く (S)",
+        "collapse_header": "ヘッダーを閉じる (H)",
+        "expand_header": "ヘッダーを開く (H)",
         "select_delete": "選択削除",
         "name_dialog_title": "軽減表の名前を決めてください",
         "name_dialog_desc": "デフォルト名のままでもOKです。",
@@ -676,6 +678,13 @@
             },
             "complete": {
                 "message": "チュートリアル完了！"
+            },
+            "focus_mode": {
+                "message": "ちょっと待って、あと1つだけ！",
+                "description": "「F」キーを押して、表だけの集中モードを体験してみよう！"
+            },
+            "real_complete": {
+                "message": "今度こそチュートリアル完了！"
             }
         },
         "create_plan": {
@@ -730,6 +739,11 @@
             "title": "基本操作はこれで完璧！",
             "menu_hint": "チュートリアルはいつでも「チュートリアルを見る」から見返せます。",
             "start_button": "はじめる"
+        },
+        "completion_real": {
+            "title": "今度こそ、本当に完了！",
+            "menu_hint": "チュートリアルはいつでも「チュートリアルを見る」から見返せます。",
+            "start_button": "本当にはじめる"
         }
     },
     "phase_modal": {
