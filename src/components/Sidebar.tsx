@@ -1522,7 +1522,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 if (created) {
                     setSelectedContentId(created.contentId);
                     setActiveLevel(created.level);
-                    const c = getContentById(created.contentId);
+                    const c = created.contentId ? getContentById(created.contentId) : undefined;
                     if (c) setActiveCategory(c.category);
                     // 作成されたコンテンツが見える位置までスクロール
                     setTimeout(() => {
