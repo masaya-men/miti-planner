@@ -1,7 +1,7 @@
 // src/components/tutorial/animations/CompletionCard.tsx
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Share2, PlusCircle, HelpCircle } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 interface CompletionCardProps {
   onDismiss: () => void;
@@ -34,19 +34,8 @@ export function CompletionCard({ onDismiss }: CompletionCardProps) {
         <h2 className="text-lg font-bold text-app-text text-center mb-2">
           {t('tutorial.completion.title')}
         </h2>
-        <p className="text-sm text-app-text-muted text-center mb-4">
-          {t('tutorial.completion.subtitle')}
-        </p>
 
         <div className="space-y-3 mb-5">
-          <FeatureHint
-            icon={<Share2 size={14} />}
-            text={t('tutorial.completion.share_hint')}
-          />
-          <FeatureHint
-            icon={<PlusCircle size={14} />}
-            text={t('tutorial.completion.new_plan_hint')}
-          />
           <FeatureHint
             icon={<HelpCircle size={14} />}
             text={t('tutorial.completion.menu_hint')}
