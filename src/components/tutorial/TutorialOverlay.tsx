@@ -83,7 +83,7 @@ function calcPillPos(rect: TargetRect | null, arrow?: 'down' | 'right'): { top: 
 /**
  * カードの表示位置を計算（ターゲットの下、または空きスペース）
  */
-function calcCardPos(rect: TargetRect | null): { top: number; left: number } {
+function calcCardPos(rect: TargetRect | null, constrainTo?: TargetRect | null): { top: number; left: number } {
   if (!rect) return { top: window.innerHeight / 2 - 80, left: window.innerWidth / 2 - 150 };
 
   const cardWidth = 300;
@@ -106,9 +106,20 @@ function calcCardPos(rect: TargetRect | null): { top: number; left: number } {
     top = rect.top - cardHeight - gap;
   }
 
-  // 左右のクランプ
-  left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
-  top = Math.max(16, top);
+  // モーダル制約がある場合はモーダル内に収める
+  if (constrainTo) {
+    const minLeft = constrainTo.left + 8;
+    const maxLeft = constrainTo.left + constrainTo.width - cardWidth - 8;
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+    // 上下もモーダル内に
+    const minTop = constrainTo.top + 8;
+    const maxTop = constrainTo.top + constrainTo.height - cardHeight - 8;
+    top = Math.max(minTop, Math.min(top, maxTop));
+  } else {
+    // 左右のクランプ（画面端基準）
+    left = Math.max(16, Math.min(left, window.innerWidth - cardWidth - 16));
+    top = Math.max(16, top);
+  }
 
   return { top, left };
 }
@@ -150,10 +161,13 @@ export function TutorialOverlay() {
   const pillPos = calcPillPos(effectivePillRect, step?.pillArrow);
   // カード位置: pill-fly > typewriter cardAnchor > target > step cardAnchor
   const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
+  const isTypewriting = step?.animation === 'typewriter-fill' && typewriterCardTarget;
   const cardBaseRect = pillFlew && pillToRect ? pillToRect
-    : typewriterCardTarget && typewriterCardRect ? typewriterCardRect
+    : isTypewriting && typewriterCardRect ? typewriterCardRect
     : (targetRect ?? anchorRect);
-  const cardPos = calcCardPos(cardBaseRect);
+  // typewriter-fill 中はモーダル内にカードを制約
+  const modalRect = useTargetRect(isTypewriting ? '[data-tutorial-modal]' : null);
+  const cardPos = calcCardPos(cardBaseRect, isTypewriting ? modalRect : undefined);
   const totalSteps = tutorial?.steps.length ?? 0;
   const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
 
