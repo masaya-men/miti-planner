@@ -19,6 +19,9 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
   const [charIndex, setCharIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completedRef = useRef(false);
+  // onComplete を ref に保持することで、参照が変わっても useEffect が再実行されないようにする
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   // prefers-reduced-motion チェック
   const prefersReduced = typeof window !== 'undefined'
@@ -29,7 +32,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
     const fields = config.fields;
     if (!fields || fields.length === 0) {
       completedRef.current = true;
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
@@ -37,7 +40,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
     if (!currentField) {
       // 全フィールド完了
       completedRef.current = true;
-      onComplete();
+      onCompleteRef.current();
       return;
     }
 
@@ -53,7 +56,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
         setCharIndex(0);
       } else {
         completedRef.current = true;
-        onComplete();
+        onCompleteRef.current();
       }
       return;
     }
@@ -76,7 +79,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
             setCharIndex(0);
           } else {
             completedRef.current = true;
-            onComplete();
+            onCompleteRef.current();
           }
         }, 400); // フィールド間の間
       }
@@ -85,7 +88,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [fieldIndex, charIndex, config, t, onComplete, prefersReduced]);
+  }, [fieldIndex, charIndex, config, t, prefersReduced]);
 
   // レンダリングなし（DOM操作のみ）
   return null;

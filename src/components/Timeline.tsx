@@ -1692,7 +1692,12 @@ const Timeline: React.FC = () => {
 
                                     const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow) {
+                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
+                                    const forceShowTime0 = time === 0
+                                        && useTutorialStore.getState().isActive
+                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
+
+                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow || forceShowTime0) {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
@@ -1731,7 +1736,12 @@ const Timeline: React.FC = () => {
 
                                     const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow) {
+                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
+                                    const forceShowTime0 = time === 0
+                                        && useTutorialStore.getState().isActive
+                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
+
+                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow && !forceShowTime0) {
                                         timeToYMap.set(time, currentY);
                                         return;
                                     }
