@@ -123,6 +123,32 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json({ logs });
       }
 
+      // プランデータ取得（プラン→テンプレート変換用）
+      if (req.query?.subtype === 'plan' && req.query?.planId) {
+        const planId = req.query.planId as string;
+        const planDoc = await db.collection('shared_plans').doc(planId).get();
+        if (!planDoc.exists) {
+          return res.status(404).json({ error: `Plan "${planId}" not found` });
+        }
+        const planData = planDoc.data() as any;
+
+        if (planData.type === 'bundle') {
+          return res.status(400).json({ error: 'Bundle shares cannot be converted to templates' });
+        }
+
+        const pd = planData.planData;
+        if (!pd || !Array.isArray(pd.timelineEvents)) {
+          return res.status(400).json({ error: 'Plan does not contain valid timeline data' });
+        }
+
+        return res.status(200).json({
+          title: planData.title || '',
+          contentId: planData.contentId || null,
+          timelineEvents: pd.timelineEvents,
+          phases: pd.phases || [],
+        });
+      }
+
       const id = req.query?.id;
 
       // 特定テンプレート取得
