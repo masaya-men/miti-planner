@@ -28,11 +28,11 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
   const onFieldChangeRef = useRef(onFieldChange);
   onFieldChangeRef.current = onFieldChange;
 
-  // フィールドが変わったら親に通知
+  // フィールドが変わったら親に通知（cardAnchor があればそちらを優先）
   useEffect(() => {
     const field = config.fields?.[fieldIndex];
     if (field && onFieldChangeRef.current) {
-      onFieldChangeRef.current(field.target);
+      onFieldChangeRef.current(field.cardAnchor ?? field.target);
     }
   }, [fieldIndex, config.fields]);
 
