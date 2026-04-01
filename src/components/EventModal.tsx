@@ -142,10 +142,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
-        if (isTutorialActive && currentStep?.id === 'add-3-miti') {
+        if (isTutorialActive && (currentStep?.id === 'add-3-miti' || currentStep?.id === 'create-8-miti')) {
             const mit = MITIGATIONS.find(m => m.id === id);
-            const isTargetSkill = mit && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en);
-            if (!isTargetSkill) return; // Block clicks on other mitigations during this step
+            if (currentStep?.id === 'create-8-miti') {
+                // create-plan: リプライザルのみ許可
+                if (!mit || mit.name.en !== 'Reprisal') return;
+            } else {
+                // main: Reprisal, Addle, Sacred Soil のみ許可
+                const isTargetSkill = mit && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en);
+                if (!isTargetSkill) return;
+            }
         }
         setSelectedMitigations(prev =>
             prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
@@ -351,6 +357,27 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
             }
         }
+
+        // create-plan: ステップ8に進んだら軽減をプリセット
+        if (currentStep?.id === 'create-8-miti') {
+            const sacredSoilId = MITIGATIONS.find(m => m.name.en === 'Sacred Soil')?.id;
+            const divineVeilId = MITIGATIONS.find(m => m.name.en === 'Divine Veil')?.id;
+            const presets = [sacredSoilId, divineVeilId].filter((id): id is string => !!id);
+
+            setSelectedMitigations(prev => {
+                const newSet = new Set([...prev, ...presets]);
+                return Array.from(newSet);
+            });
+        }
+
+        // create-plan: リプライザル選択で完了
+        if (currentStep?.id === 'create-8-miti') {
+            const reprisalId = MITIGATIONS.find(m => m.name.en === 'Reprisal')?.id;
+            if (reprisalId && selectedMitigations.includes(reprisalId)) {
+                const tId = setTimeout(() => tutorialState.completeEvent('create:miti-selected'), 500);
+                return () => clearTimeout(tId);
+            }
+        }
     }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 
     const getTooltipText = (mit: typeof MITIGATIONS[0]) => {
@@ -368,6 +395,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             damageAmount,
             target
         });
+        useTutorialStore.getState().completeEvent('create:event-saved');
         onClose();
     };
 
@@ -652,7 +680,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         )}
                                     >
                                         {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
-                                            const isTutorialTarget = ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id);
+                                            const isTutorialTarget = isTutorialActive && (
+                                                (currentStep?.id === 'add-3-miti' && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id)) ||
+                                                (currentStep?.id === 'create-8-miti' && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id))
+                                            );
                                             // チュートリアル中はvisibleMitigationsチェックをスキップ（IntersectionObserverのタイミング問題回避）
                                             const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
 
@@ -660,7 +691,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 <button
                                                     key={mit.id}
                                                     data-mitigation-id={mit.id}
-                                                    data-tutorial={shouldHighlight ? 'tutorial-skill-target' : undefined}
+                                                    data-tutorial={
+                                                        isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
+                                                            ? 'tutorial-skill-reprisal'
+                                                            : shouldHighlight ? 'tutorial-skill-target' : undefined
+                                                    }
                                                     type="button"
                                                     onClick={() => toggleMitigation(mit.id)}
                                                     className={clsx(
