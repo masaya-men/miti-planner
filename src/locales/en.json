@@ -1232,6 +1232,7 @@
         "tpl_editor_no_content": "Select a content first",
         "tpl_editor_empty": "No template. Create one from the toolbar",
         "tpl_editor_content_summary": "{{events}} events ・ {{phases}} phases",
+        "tpl_editor_new_phase": "+ New Phase",
         "tpl_promote_title": "Create template from plan",
         "tpl_promote_url_label": "Paste the plan share URL",
         "tpl_promote_url_placeholder": "https://lopoly.app/share/xxxxxxxx",
