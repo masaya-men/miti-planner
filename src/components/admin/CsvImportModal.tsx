@@ -161,33 +161,33 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           {/* ─── Step 2: 列対応付け ─── */}
           {step === 'mapping' && (
             <>
-              {/* 列対応付けドロップダウン */}
-              <div className="overflow-x-auto">
-                <div className="flex gap-2 min-w-max">
-                  {headerCells.map((header, colIndex) => (
-                    <div key={colIndex} className="flex flex-col gap-1 min-w-[80px]">
-                      <span className="text-[9px] text-app-text-muted truncate max-w-[80px]" title={header}>
-                        {header || `${colIndex + 1}`}
-                      </span>
-                      <select
-                        value={mappings[colIndex]?.type ?? 'skip'}
-                        onChange={e => handleMappingChange(colIndex, e.target.value as ColumnType)}
-                        className="px-1 py-0.5 text-[10px] bg-app-bg border border-app-text/20 rounded text-app-text [&>option]:bg-app-bg cursor-pointer"
-                      >
-                        {COLUMN_TYPES.map(ct => (
-                          <option key={ct} value={ct}>
-                            {t(`admin.tpl_csv_column_${ct}`)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs text-app-text-muted leading-relaxed">
+                {t('admin.tpl_csv_column_label')}
+              </p>
 
-              {/* プレビューテーブル */}
+              {/* ドロップダウン付きプレビューテーブル */}
               <div className="overflow-x-auto border border-app-text/10 rounded">
                 <table className="text-[10px] text-app-text w-full">
+                  {/* ドロップダウンヘッダー行 */}
+                  <thead>
+                    <tr className="bg-app-text/5">
+                      {headerCells.map((_header, colIndex) => (
+                        <th key={colIndex} className="px-1 py-1.5 border-r border-app-text/10 last:border-r-0">
+                          <select
+                            value={mappings[colIndex]?.type ?? 'skip'}
+                            onChange={e => handleMappingChange(colIndex, e.target.value as ColumnType)}
+                            className="w-full px-1 py-0.5 text-[10px] bg-app-bg border border-app-text/20 rounded text-app-text [&>option]:bg-app-bg cursor-pointer"
+                          >
+                            {COLUMN_TYPES.map(ct => (
+                              <option key={ct} value={ct}>
+                                {t(`admin.tpl_csv_column_${ct}`)}
+                              </option>
+                            ))}
+                          </select>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
                   <tbody>
                     {previewRows.map((row, rowIndex) => (
                       <tr
