@@ -619,6 +619,7 @@
         "skip": "Skip",
         "exit_confirm": "Exit tutorial?",
         "exit_yes": "Exit",
+        "got_it": "Got it!",
         "menu": {
             "main": "Getting Started",
             "add_event": "Adding Attacks",

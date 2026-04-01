@@ -10,6 +10,8 @@ interface TutorialCardProps {
   left: number;
   visible: boolean;
   onSkip?: () => void;
+  /** 「わかった」ボタン押下時のコールバック（pill: 'next' ステップ用） */
+  onNext?: () => void;
   /** ステップ進捗 "3 / 12" 等 */
   stepLabel?: string;
 }
@@ -27,6 +29,7 @@ export function TutorialCard({
   left,
   visible,
   onSkip,
+  onNext,
   stepLabel,
 }: TutorialCardProps) {
   const { t } = useTranslation();
@@ -77,7 +80,17 @@ export function TutorialCard({
             </p>
           )}
 
-          {onSkip && (
+          {onNext && (
+            <button
+              onClick={onNext}
+              className="mt-3 w-full py-2 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-80 active:scale-95 cursor-pointer"
+              style={{ backgroundColor: '#22c55e' }}
+            >
+              {t('tutorial.got_it')}
+            </button>
+          )}
+
+          {onSkip && !onNext && (
             <button
               onClick={onSkip}
               className="text-[10px] text-app-text-muted mt-2 underline underline-offset-2 hover:text-app-text transition-colors cursor-pointer"
