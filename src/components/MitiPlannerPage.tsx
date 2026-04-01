@@ -6,6 +6,7 @@ import Timeline from './Timeline';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { usePlanStore } from '../store/usePlanStore';
 import { MobileGuide } from './MobileGuide';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
@@ -30,8 +31,28 @@ export const MitiPlannerPage: React.FC = () => {
     // PC: 従来の25ステップチュートリアルを起動
     useEffect(() => {
         const isMobile = window.innerWidth < 768;
-        const { isActive, hasCompleted, hasVisitedShare, startFromStep } = useTutorialStore.getState();
-        const { timelineEvents } = useMitigationStore.getState();
+        const { isActive, hasCompleted, hasVisitedShare } = useTutorialStore.getState();
+        const mitiState = useMitigationStore.getState();
+        let { timelineEvents } = mitiState;
+
+        // リロード時のクリーンアップ: チュートリアルが非アクティブなのに
+        // テンプレートイベント（tut_evt_*）が残っている場合は除去する
+        if (!isActive && timelineEvents.some(e => e.id.startsWith('tut_evt_'))) {
+            const cleaned = timelineEvents.filter(e => !e.id.startsWith('tut_evt_'));
+            mitiState.loadSnapshot({
+                ...mitiState.getSnapshot(),
+                timelineEvents: cleaned,
+                timelineMitigations: cleaned.length === 0 ? [] : mitiState.timelineMitigations,
+            });
+            timelineEvents = cleaned;
+
+            // チュートリアル専用プランが残っていれば削除
+            const planStore = usePlanStore.getState();
+            const tutPlan = planStore.plans.find(p =>
+                p.title.endsWith('_チュートリアル') || p.title.endsWith('_Tutorial')
+            );
+            if (tutPlan) planStore.deletePlan(tutPlan.id);
+        }
 
         if (isMobile) {
             // モバイル: 簡易ガイドを未完了なら表示
@@ -43,7 +64,7 @@ export const MitiPlannerPage: React.FC = () => {
         } else {
             // PC: 従来のチュートリアル
             if (!hasCompleted && !isActive && !hasVisitedShare && timelineEvents.length === 0) {
-                const timer = setTimeout(() => startFromStep(1), 500);
+                const timer = setTimeout(() => useTutorialStore.getState().startTutorial('main'), 500);
                 return () => clearTimeout(timer);
             }
         }

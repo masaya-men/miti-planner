@@ -8,5 +8,32 @@
       "Bash(npx skills:*)",
       "Bash(npx tsc:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== Git Status ===' && git branch --show-current && git log --oneline -3 && echo '=== 未コミット変更 ===' && git status --short"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== 保持すべき情報 ===' && head -20 docs/TODO.md && echo '=== 変更中ファイル ===' && git diff --name-only"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75"
   }
 }

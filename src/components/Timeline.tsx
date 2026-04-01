@@ -5,7 +5,7 @@ import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
-import { useTutorialStore, TUTORIAL_STEPS } from '../store/useTutorialStore';
+import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
 import { EventModal } from './EventModal';
@@ -666,16 +666,12 @@ const Timeline: React.FC = () => {
         }
     }, [tutorialActive, tutorialStepIndex]);
 
-    useEffect(() => {
-        if (tutorialActive && TUTORIAL_STEPS[tutorialStepIndex]?.id === 'party-slots' && !partySettingsOpen) {
-            setPartySettingsOpen(true);
-        }
-    }, [tutorialActive, tutorialStepIndex, partySettingsOpen]);
+    // 旧チュートリアルのparty-slots自動オープンロジックは削除済み（TutorialBlocker方式に移行）
 
     // モバイルでパーティが開かれたらチュートリアルイベントを通知
     useEffect(() => {
         if (mobilePartyOpen) {
-            useTutorialStore.getState().completeEvent('party-settings:opened');
+            useTutorialStore.getState().completeEvent('party:opened');
         }
     }, [mobilePartyOpen]);
 
@@ -834,7 +830,7 @@ const Timeline: React.FC = () => {
         setSelectedTime(time);
         setSelectedEvent(null);
         setIsModalOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-add-event-modal');
+        useTutorialStore.getState().completeEvent('create:event-modal-opened');
     }, [isAaModeEnabled, eventsByTime]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
@@ -964,13 +960,15 @@ const Timeline: React.FC = () => {
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
         const member = useMitigationStore.getState().partyMembers.find(m => m.id === memberId);
-        if (!member || !member.jobId) return;
+        const isTutorial = useTutorialStore.getState().isActive;
+        if (!member || (!member.jobId && !isTutorial)) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(memberId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
+        // ── Tutorial: セルクリックイベント ──
+        useTutorialStore.getState().completeEvent('mitigation:cell-clicked');
     }, []);
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
@@ -980,16 +978,17 @@ const Timeline: React.FC = () => {
 
     const handleDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         const currentPartyMembers = useMitigationStore.getState().partyMembers;
-        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id;
+        const isTutorial = useTutorialStore.getState().isActive;
+        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id
+            || (isTutorial ? currentPartyMembers.find(m => m.jobId)?.id : null);
         if (!targetId) return;
         const member = currentPartyMembers.find(m => m.id === targetId);
-        if (!member || !member.jobId) return;
+        if (!member || (!member.jobId && !isTutorial)) return;
 
         setSelectorPosition({ x: e.clientX, y: e.clientY });
         setSelectedMemberId(targetId);
         setSelectedMitigationTime(time);
         setMitigationSelectorOpen(true);
-        useTutorialStore.getState().completeEvent('tutorial:opened-miti-selector');
     }, []);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
@@ -1693,7 +1692,12 @@ const Timeline: React.FC = () => {
 
                                     const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow) {
+                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
+                                    const forceShowTime0 = time === 0
+                                        && useTutorialStore.getState().isActive
+                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
+
+                                    if (!hideEmptyRows || hasEvents || hasMitigationStart || isBottomEmptyRow || forceShowTime0) {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
@@ -1732,7 +1736,12 @@ const Timeline: React.FC = () => {
 
                                     const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
-                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow) {
+                                    // create-plan チュートリアル step6 では time=0 行を常に表示する
+                                    const forceShowTime0 = time === 0
+                                        && useTutorialStore.getState().isActive
+                                        && useTutorialStore.getState().getCurrentStep()?.id === 'create-6-add-event';
+
+                                    if (hideEmptyRows && !hasEvents && !hasMitigationStart && !isBottomEmptyRow && !forceShowTime0) {
                                         timeToYMap.set(time, currentY);
                                         return;
                                     }
