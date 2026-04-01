@@ -6,6 +6,8 @@ import type { TypewriterConfig } from '../../../data/tutorialDefinitions';
 interface TypewriterFillProps {
   config: TypewriterConfig;
   onComplete: () => void;
+  /** 現在入力中のフィールドターゲットセレクタを親に通知 */
+  onFieldChange?: (selector: string) => void;
 }
 
 /**
@@ -13,7 +15,7 @@ interface TypewriterFillProps {
  * 指定された input 要素に1文字ずつテキストを入力し、React の state を更新する。
  * prefers-reduced-motion 時は即座に全文表示。
  */
-export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
+export function TypewriterFill({ config, onComplete, onFieldChange }: TypewriterFillProps) {
   const { t } = useTranslation();
   const [fieldIndex, setFieldIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
@@ -23,6 +25,16 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
   // onComplete を ref に保持することで、参照が変わっても useEffect が再実行されないようにする
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const onFieldChangeRef = useRef(onFieldChange);
+  onFieldChangeRef.current = onFieldChange;
+
+  // フィールドが変わったら親に通知
+  useEffect(() => {
+    const field = config.fields?.[fieldIndex];
+    if (field && onFieldChangeRef.current) {
+      onFieldChangeRef.current(field.target);
+    }
+  }, [fieldIndex, config.fields]);
 
   // prefers-reduced-motion チェック
   const prefersReduced = typeof window !== 'undefined'
@@ -34,7 +46,7 @@ export function TypewriterFill({ config, onComplete }: TypewriterFillProps) {
       setStarted(true);
       return;
     }
-    const id = setTimeout(() => setStarted(true), 1200);
+    const id = setTimeout(() => setStarted(true), 1800);
     return () => clearTimeout(id);
   }, [prefersReduced]);
 
