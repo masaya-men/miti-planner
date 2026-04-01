@@ -43,7 +43,18 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
   const prefersReduced = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // 開始前に視線を集める遅延（1.2秒）
+  // マウント直後に全フィールドを readOnly にする（待機中もユーザー入力を防止）
+  useEffect(() => {
+    const fields = config.fields;
+    if (!fields) return;
+    const allEls = fields
+      .map(f => document.querySelector(f.target) as HTMLInputElement | null)
+      .filter((e): e is HTMLInputElement => !!e);
+    allEls.forEach(e => { e.readOnly = true; });
+    return () => { allEls.forEach(e => { e.readOnly = false; }); };
+  }, [config.fields]);
+
+  // 開始前に視線を集める遅延（1.8秒）
   useEffect(() => {
     if (prefersReduced) {
       setStarted(true);
@@ -73,12 +84,6 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
     const fullText = currentField.raw ? currentField.text : t(currentField.text);
     const el = document.querySelector(currentField.target) as HTMLInputElement | null;
     if (!el) return;
-
-    // 全フィールドの入力を無効化（ユーザー操作防止）
-    const allEls = fields
-      .map(f => document.querySelector(f.target) as HTMLInputElement | null)
-      .filter((e): e is HTMLInputElement => !!e);
-    allEls.forEach(e => { e.readOnly = true; });
 
     // reduced-motion: 即座に全文入力
     if (prefersReduced) {
@@ -139,8 +144,6 @@ export function TypewriterFill({ config, onComplete, onFieldChange }: Typewriter
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      // 全フィールドの readOnly を解除
-      allEls.forEach(e => { e.readOnly = false; });
     };
   }, [started, fieldIndex, charIndex, config, t, prefersReduced]);
 
