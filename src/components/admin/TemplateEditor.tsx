@@ -20,10 +20,12 @@ interface TemplateEditorProps {
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
+  onUpdatePhaseForGroup: (mechanicGroup: string, phaseId: number, phaseName: string) => void;
 }
 
 type RowItem =
   | { type: 'phase-separator'; phaseId: number; phaseName: string }
+  | { type: 'mechanic-separator'; mechanicGroup: string; phaseId: number }
   | { type: 'event'; event: TimelineEvent; phaseId: number };
 
 // ─────────────────────────────────────────────
@@ -233,6 +235,7 @@ export function TemplateEditor({
   showUntranslatedOnly,
   onUpdateCell,
   onDeleteEvent,
+  onUpdatePhaseForGroup,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
 
@@ -241,9 +244,10 @@ export function TemplateEditor({
     ? events.filter((ev) => !ev.name.en.trim())
     : events;
 
-  // フェーズ区切りを含むフラット行リストを構築
+  // フェーズ区切り・ギミックグループ区切りを含むフラット行リストを構築
   const rows: RowItem[] = [];
   let lastPhaseId: number | null = null;
+  let lastMechanicGroup: string | null = null;
 
   for (const event of filteredEvents) {
     const phase = getPhaseForTime(event.time, phases);
@@ -255,6 +259,16 @@ export function TemplateEditor({
         phaseName: phase.name,
       });
       lastPhaseId = phase.id;
+      lastMechanicGroup = null; // フェーズが変わったらギミックグループもリセット
+    }
+
+    if (event.mechanicGroup && event.mechanicGroup !== lastMechanicGroup) {
+      lastMechanicGroup = event.mechanicGroup;
+      rows.push({
+        type: 'mechanic-separator',
+        mechanicGroup: event.mechanicGroup,
+        phaseId: phase.id,
+      });
     }
 
     rows.push({ type: 'event', event, phaseId: phase.id });
@@ -309,6 +323,42 @@ export function TemplateEditor({
                 <tr key={`phase-${row.phaseId}-${index}`} className="bg-blue-500/[0.08]">
                   <td colSpan={8} className="py-1 px-2 font-bold text-blue-400 text-[11px]">
                     {row.phaseName}
+                  </td>
+                </tr>
+              );
+            }
+
+            if (row.type === 'mechanic-separator') {
+              const nextPhaseId = Math.max(...phases.map((p) => p.id), 0) + 1;
+
+              return (
+                <tr key={`mechanic-${row.mechanicGroup}-${index}`} className="bg-app-text/[0.04]">
+                  <td className="py-0.5 px-2" colSpan={2}>
+                    <select
+                      value={row.phaseId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '__new__') {
+                          const name = `P${nextPhaseId}`;
+                          onUpdatePhaseForGroup(row.mechanicGroup, nextPhaseId, name);
+                        } else {
+                          const pid = parseInt(val, 10);
+                          const existing = phases.find((p) => p.id === pid);
+                          onUpdatePhaseForGroup(row.mechanicGroup, pid, existing?.name ?? `P${pid}`);
+                        }
+                      }}
+                      className="px-1 py-0.5 text-[10px] bg-transparent border border-app-text/20 rounded text-app-text cursor-pointer [&>option]:bg-app-bg [&>option]:text-app-text"
+                    >
+                      {phases.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name ?? `P${p.id}`}
+                        </option>
+                      ))}
+                      <option value="__new__">{t('admin.tpl_editor_new_phase')}</option>
+                    </select>
+                  </td>
+                  <td colSpan={6} className="py-0.5 px-2 text-[10px] text-app-text-muted font-medium">
+                    {row.mechanicGroup}
                   </td>
                 </tr>
               );
