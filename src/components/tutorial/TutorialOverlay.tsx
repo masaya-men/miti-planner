@@ -156,12 +156,13 @@ export function TutorialOverlay() {
   }, []);
 
   const anchorRect = useTargetRect(step?.cardAnchor ?? null);
-  // typewriter-fill 中はピルも現在フィールドに追従
-  const effectivePillRect = typewriterPillRect ?? targetRect;
+  // typewriter-fill ステップのみフィールド追従（他ステップではステート残留を無視）
+  const isTypewriterStep = step?.animation === 'typewriter-fill';
+  const effectivePillRect = (isTypewriterStep && typewriterPillRect) ? typewriterPillRect : targetRect;
   const pillPos = calcPillPos(effectivePillRect, step?.pillArrow);
   // カード位置: pill-fly > typewriter cardAnchor > target > step cardAnchor
   const pillFlew = pillPhase === 'fly' || pillPhase === 'land';
-  const isTypewriting = step?.animation === 'typewriter-fill' && typewriterCardTarget;
+  const isTypewriting = isTypewriterStep && typewriterCardTarget;
   const cardBaseRect = pillFlew && pillToRect ? pillToRect
     : isTypewriting && typewriterCardRect ? typewriterCardRect
     : (targetRect ?? anchorRect);
