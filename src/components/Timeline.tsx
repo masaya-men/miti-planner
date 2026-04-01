@@ -1840,6 +1840,7 @@ const Timeline: React.FC = () => {
                                             onCellClick={handleCellClick}
                                             onDamageClick={handleDamageClick}
                                             onMobileDamageClick={handleMobileDamageClick}
+                                            phaseColumnCollapsed={phaseColumnCollapsed}
                                         />
                                     );
 
@@ -1852,7 +1853,7 @@ const Timeline: React.FC = () => {
                                     <>
                                         {renderItems}
 
-                                        {phases.map((phase, index) => {
+                                        {!phaseColumnCollapsed && phases.map((phase, index) => {
                                             if (!showPreStart && phase.endTime <= 0) return null;
 
                                             const offsetTime = showPreStart ? -10 : 0;

@@ -31,6 +31,7 @@ interface TimelineRowProps {
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
     onDamageClick?: (time: number, e: React.MouseEvent) => void;
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
+    phaseColumnCollapsed?: boolean;
 }
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
@@ -95,6 +96,7 @@ export const TimelineRow = memo(({
     onCellClick,
     onDamageClick,
     onMobileDamageClick,
+    phaseColumnCollapsed,
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -137,27 +139,30 @@ export const TimelineRow = memo(({
             style={{ top: `${top}px` }}
         >
             {/* Phase Column — スマホ: 軽減追加 / PC: フェーズ追加 */}
-            <div
-                className={clsx(
-                    "w-[24px] md:w-[100px] border-r h-full relative flex items-center justify-center group-hover:text-app-text",
-                    "border-app-border",
-                    "md:cursor-pointer md:hover:bg-app-surface2"
-                )}
-                onClick={(e) => {
-                    if (window.innerWidth < 768) {
-                        handleMobileTap(e);
-                    } else {
-                        onPhaseAdd(time, e);
-                    }
-                }}
-            >
-                {/* PC専用: フェーズ追加ボタン */}
-                <Tooltip content={t('timeline.end_phase')} position="right">
-                    <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Plus size={16} />
-                    </div>
-                </Tooltip>
-            </div >
+            {!phaseColumnCollapsed ? (
+                <div
+                    className={clsx(
+                        "w-[24px] md:w-[100px] border-r h-full relative flex items-center justify-center group-hover:text-app-text",
+                        "border-app-border",
+                        "md:cursor-pointer md:hover:bg-app-surface2"
+                    )}
+                    onClick={(e) => {
+                        if (window.innerWidth < 768) {
+                            handleMobileTap(e);
+                        } else {
+                            onPhaseAdd(time, e);
+                        }
+                    }}
+                >
+                    <Tooltip content={t('timeline.end_phase')} position="right">
+                        <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Plus size={16} />
+                        </div>
+                    </Tooltip>
+                </div>
+            ) : (
+                <div className="w-[6px] min-w-[6px] max-w-[6px] border-r border-app-border h-full hidden md:block" />
+            )}
 
             {/* Time Column — スマホ: 軽減追加 */}
             <div
