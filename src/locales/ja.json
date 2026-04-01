@@ -1274,6 +1274,8 @@
         "tpl_damage_enrage": "時間切れ",
         "tpl_target_aoe": "全体",
         "tpl_target_mt": "MT",
-        "tpl_target_st": "ST"
+        "tpl_target_st": "ST",
+        "cancel": "キャンセル",
+        "tpl_promote_fetching": "取得中..."
     }
 }
