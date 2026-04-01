@@ -32,6 +32,9 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
+import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
+import { HeaderTimeInput } from './HeaderTimeInput';
+import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -592,6 +595,17 @@ const Timeline: React.FC = () => {
     const [jobPickerPosition, setJobPickerPosition] = useState({ x: 0, y: 0 });
     const [jobPickerMemberId, setJobPickerMemberId] = useState<string | null>(null);
 
+    // ヘッダーナビゲーション
+    const [phaseDropdownOpen, setPhaseDropdownOpen] = useState(false);
+    const [timeInputOpen, setTimeInputOpen] = useState(false);
+    const [mechanicSearchOpen, setMechanicSearchOpen] = useState(false);
+    const [phaseColumnCollapsed, setPhaseColumnCollapsed] = useState(() => {
+        try { return localStorage.getItem('lopo-phase-col-collapsed') === 'true'; } catch { return false; }
+    });
+    const phaseHeaderRef = useRef<HTMLDivElement>(null);
+    const timeHeaderRef = useRef<HTMLDivElement>(null);
+    const mechanicHeaderRef = useRef<HTMLDivElement>(null);
+
     const [migrationConfig, setMigrationConfig] = useState<{
         isOpen: boolean;
         memberId: string;
@@ -601,6 +615,32 @@ const Timeline: React.FC = () => {
 
     const pixelsPerSecond = 50;
     const fightDuration = 1200;
+
+    const handleTogglePhaseCollapse = () => {
+        setPhaseColumnCollapsed(prev => {
+            const next = !prev;
+            try { localStorage.setItem('lopo-phase-col-collapsed', String(next)); } catch {}
+            return next;
+        });
+    };
+
+    const handleNavJump = (time: number) => {
+        if (!scrollContainerRef.current) return;
+        const targetY = timeToYMapRef.current.get(time);
+        if (targetY !== undefined) {
+            scrollContainerRef.current.scrollTo({ top: targetY, behavior: 'smooth' });
+        } else {
+            const offsetTime = showPreStart ? -10 : 0;
+            const y = Math.max(0, (time - offsetTime)) * pixelsPerSecond;
+            scrollContainerRef.current.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    };
+
+    const maxTime = useMemo(() => {
+        let max = 0;
+        timelineEvents.forEach(ev => { if (ev.time > max) max = ev.time; });
+        return max;
+    }, [timelineEvents]);
 
     const handleAutoPlan = useCallback(() => {
         const executePlan = () => {
@@ -1616,12 +1656,49 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            <div className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[8px] md:text-[11px]">
-                                <span className="md:hidden">{t('timeline.header_phase_short')}</span>
-                                <span className="hidden md:inline">{t('timeline.header_phase')}</span>
+                            {!phaseColumnCollapsed ? (
+                                <div
+                                    ref={phaseHeaderRef}
+                                    className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[8px] md:text-[11px] md:cursor-pointer md:hover:text-app-text transition-colors"
+                                    onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
+                                >
+                                    <span className="md:hidden">{t('timeline.header_phase_short')}</span>
+                                    <span className="hidden md:inline md:items-center md:gap-1">
+                                        {t('timeline.header_phase')}
+                                        <ChevronDown size={12} className="inline ml-0.5" />
+                                    </span>
+                                </div>
+                            ) : (
+                                <div
+                                    ref={phaseHeaderRef}
+                                    className="w-[6px] min-w-[6px] max-w-[6px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                    onClick={() => handleTogglePhaseCollapse()}
+                                    title={t('timeline.nav_phase_expand')}
+                                >
+                                    <div className="w-[2px] h-[16px] bg-app-text-muted rounded-full" />
+                                </div>
+                            )}
+                            <div
+                                ref={timeHeaderRef}
+                                className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[8px] md:text-[10px] md:cursor-pointer md:hover:text-app-text transition-colors"
+                                onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
+                            >
+                                <span className="md:hidden">{t('timeline.header_time')}</span>
+                                <span className="hidden md:inline md:items-center md:gap-0.5">
+                                    {t('timeline.header_time')}
+                                    <ChevronDown size={10} className="inline ml-0.5" />
+                                </span>
                             </div>
-                            <div className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[8px] md:text-[10px]">{t('timeline.header_time')}</div>
-                            <div className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-[9px] md:text-[10px] pl-2 justify-start font-black">{t('timeline.header_mechanic')}</div>
+                            <div
+                                ref={mechanicHeaderRef}
+                                className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-[9px] md:text-[10px] pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
+                                onClick={() => setMechanicSearchOpen(!mechanicSearchOpen)}
+                            >
+                                <span className="flex items-center gap-0.5 md:gap-1">
+                                    {t('timeline.header_mechanic')}
+                                    <ChevronDown size={10} className="inline" />
+                                </span>
+                            </div>
                             <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_raw')}</span>
@@ -2076,6 +2153,31 @@ const Timeline: React.FC = () => {
                 onSave={handlePhaseSave}
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
                 position={phaseModalPosition}
+            />
+            <HeaderPhaseDropdown
+                isOpen={phaseDropdownOpen}
+                onClose={() => setPhaseDropdownOpen(false)}
+                onOpen={() => setPhaseDropdownOpen(true)}
+                phases={phases}
+                onJump={handleNavJump}
+                isCollapsed={phaseColumnCollapsed}
+                onToggleCollapse={handleTogglePhaseCollapse}
+                triggerRef={phaseHeaderRef}
+            />
+            <HeaderTimeInput
+                isOpen={timeInputOpen}
+                onClose={() => setTimeInputOpen(false)}
+                onJump={handleNavJump}
+                triggerRef={timeHeaderRef}
+                maxTime={maxTime}
+            />
+            <HeaderMechanicSearch
+                isOpen={mechanicSearchOpen}
+                onClose={() => setMechanicSearchOpen(false)}
+                events={timelineEvents}
+                phases={phases}
+                onJump={handleNavJump}
+                triggerRef={mechanicHeaderRef}
             />
 
             {/* ── モバイル軽減一覧シート: 全メンバーの軽減を一画面で表示 ── */}
