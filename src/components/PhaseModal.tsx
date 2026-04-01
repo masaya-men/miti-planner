@@ -96,7 +96,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                         {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-app-surface2/40 shrink-0">
-                            <h2 className="text-sm font-bold text-app-text">
+                            <h2 className="text-[18px] font-black text-app-text">
                                 {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
                             </h2>
                             <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
@@ -106,13 +106,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             <div>
-                                <label className="block text-xs font-medium text-app-text mb-1.5">{t('phase_modal.name_label')}</label>
+                                <label className="block text-[11px] font-medium text-app-text mb-1.5">{t('phase_modal.name_label')}</label>
                                 <input
                                     type="text"
                                     inputMode="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-sm text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-[13px] text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
                                     placeholder={t('phase_modal.placeholder')}
                                     autoFocus
                                 />
@@ -126,7 +126,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                             onDelete();
                                             onClose();
                                         }}
-                                        className="px-3 py-1.5 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-md flex items-center gap-1.5 transition-colors text-xs cursor-pointer"
+                                        className="px-3 py-1.5 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-md flex items-center gap-1.5 transition-colors text-[11px] cursor-pointer"
                                     >
                                         <Trash2 size={14} />
                                         <span>{t('modal.delete')}</span>
@@ -137,13 +137,13 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 text-xs font-medium cursor-pointer active:scale-95"
+                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 text-[11px] font-medium cursor-pointer active:scale-95"
                                     >
                                         {t('modal.cancel')}
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-1.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-md text-xs font-semibold transition-all uppercase cursor-pointer"
+                                        className="px-4 py-1.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-md text-[13px] font-bold transition-all uppercase cursor-pointer"
                                     >
                                         {t('phase_modal.add_button')}
                                     </button>

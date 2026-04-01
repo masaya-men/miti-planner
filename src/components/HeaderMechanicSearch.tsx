@@ -169,7 +169,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                 <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full" : "w-[240px]")}>
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
-                        <span className="text-xs font-black text-app-text uppercase tracking-wider">
+                        <span className="text-[11px] font-black text-app-text uppercase tracking-wider">
                             {t('timeline.nav_mechanic_jump')}
                         </span>
                         <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
@@ -187,7 +187,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                                 value={query}
                                 onChange={(e) => { setQuery(e.target.value); setSelectedMechanic(null); }}
                                 placeholder={t('timeline.nav_mechanic_search')}
-                                className="w-full bg-transparent text-sm text-app-text placeholder:text-app-text-muted focus:outline-none"
+                                className="w-full bg-transparent text-[13px] text-app-text placeholder:text-app-text-muted focus:outline-none"
                             />
                         </div>
                     </div>
@@ -204,14 +204,14 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                                     key={entry.name}
                                     onClick={() => handleMechanicClick(entry)}
                                     className={clsx(
-                                        "w-full px-3 py-2.5 text-left text-sm border-b border-glass-border last:border-b-0 cursor-pointer transition-colors flex items-center justify-between",
+                                        "w-full px-3 py-2.5 text-left text-[13px] border-b border-glass-border last:border-b-0 cursor-pointer transition-colors flex items-center justify-between",
                                         selectedMechanic === entry.name
                                             ? "bg-glass-active text-app-text"
                                             : "text-app-text hover:bg-glass-hover"
                                     )}
                                 >
                                     <span className="truncate">{entry.name}</span>
-                                    <span className="text-xs text-app-text-muted flex-shrink-0 ml-2">
+                                    <span className="text-[9px] text-app-text-muted flex-shrink-0 ml-2">
                                         {entry.occurrences.length > 1 && (
                                             <>{t('timeline.nav_mechanic_count', { count: entry.occurrences.length })} &#9658;</>
                                         )}
@@ -226,7 +226,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                 {selectedMechanic && (
                     <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full border-t border-glass-border" : "w-[180px] border-l border-glass-border")}>
                         <div className="px-3 py-2 bg-glass-header border-b border-glass-border">
-                            <span className="text-xs font-bold text-app-text truncate block">
+                            <span className="text-[11px] font-bold text-app-text truncate block">
                                 {selectedMechanic}
                             </span>
                         </div>
@@ -235,10 +235,10 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                                 <button
                                     key={i}
                                     onClick={() => handleOccurrenceClick(occ.time)}
-                                    className="w-full px-3 py-2.5 text-left text-sm text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors flex items-center justify-between"
+                                    className="w-full px-3 py-2.5 text-left text-[13px] text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors flex items-center justify-between"
                                 >
-                                    <span className="text-app-text-muted text-xs truncate">{occ.phaseName}</span>
-                                    <span className="font-mono text-xs">{occ.formattedTime}</span>
+                                    <span className="text-app-text-muted text-[9px] truncate">{occ.phaseName}</span>
+                                    <span className="font-mono text-[11px]">{occ.formattedTime}</span>
                                 </button>
                             ))}
                         </div>

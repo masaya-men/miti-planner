@@ -278,7 +278,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
                                         disabled={isPlanDisabled}
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                            "flex-1 text-left text-[13px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                             isPlanSelected
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -299,14 +299,14 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         onChange={e => setEditingTitle(e.target.value)}
                                         onBlur={finishEditing}
                                         onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                        className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
+                                        className="flex-1 text-[13px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
                                     />
                                 ) : (
                                     <div
                                         role="button"
                                         tabIndex={0}
                                         className={clsx(
-                                            "flex-1 min-w-0 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] group/plan",
+                                            "flex-1 min-w-0 text-left text-[13px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] group/plan",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -444,13 +444,13 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     {/* 「+」行 — 同コンテンツに新しいプランを追加 */}
                     {isActive && !multiSelect.isEnabled && (
                         contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT ? (
-                            <div className="flex-1 text-[10px] py-1 px-2 font-medium flex items-center gap-2 text-app-text-muted/40">
+                            <div className="flex-1 text-[13px] py-1 px-2 font-medium flex items-center gap-2 text-app-text-muted/40">
                                 {t('sidebar.plan_limit', { current: contentPlans.length, max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT })}
                             </div>
                         ) : (
                             <button
                                 onClick={() => onSelect(content, true)}
-                                className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
+                                className="flex-1 text-left text-[13px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
                             >
                                 <Plus size={10} className="shrink-0" />
                                 {t('sidebar.add_plan')}
@@ -553,7 +553,7 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
         <div className="mb-1">
             <button
                 onClick={multiSelect.isEnabled && seriesPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
-                className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
+                className="w-full text-[13px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
                 {multiSelect.isEnabled && seriesPlanIds.length > 0 ? (
                     <div className={clsx(
@@ -632,7 +632,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                 className={clsx(
                     "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
                     "text-app-text hover:bg-glass-hover",
-                    "font-bold text-[10px] tracking-widest uppercase"
+                    "font-bold text-[13px] tracking-widest uppercase"
                 )}
                 data-tutorial="sidebar-category"
             >
@@ -705,7 +705,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
     return (
         <div className="mb-2 mt-2">
             <div className="px-2 py-1.5">
-                <span className="font-bold text-[10px] tracking-widest uppercase text-app-text-muted">
+                <span className="font-bold text-[11px] tracking-widest uppercase text-app-text-muted">
                     {label}
                 </span>
             </div>
@@ -721,7 +721,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                 onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
                                 disabled={isPlanDisabled}
                                 className={clsx(
-                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                    "w-full text-left text-[13px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                     isPlanSelected ? "bg-app-text/10 text-app-text font-bold" : "text-app-text hover:bg-glass-hover",
                                     isPlanDisabled && "opacity-40 cursor-not-allowed"
                                 )}
@@ -744,7 +744,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                 onChange={e => setEditingTitle(e.target.value)}
                                 onBlur={finishEditing}
                                 onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
+                                className="flex-1 text-[13px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
                             />
                         );
                     }
@@ -754,7 +754,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                             key={plan.id}
                             onClick={() => onLoadPlan(plan.id)}
                             className={clsx(
-                                "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
+                                "w-full text-left text-[13px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
                                 currentPlanId === plan.id ? "text-app-text font-bold" : "text-app-text hover:bg-glass-hover"
                             )}
                         >
@@ -1191,7 +1191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {!multiSelect.isEnabled && plans.length > 0 && (
                         <div className="pb-2 shrink-0 mt-3">
                             <div className="flex items-center mb-2 px-4">
-                                <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
+                                <span className="text-[11px] font-black text-app-text uppercase tracking-tighter">
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
@@ -1210,11 +1210,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     >
                                         <div className="min-w-0 text-left">
                                             <p className={clsx(
-                                                "text-[9.5px] font-black truncate leading-tight text-app-text"
+                                                "text-[15px] font-bold truncate leading-tight text-app-text"
                                             )}>
                                                 {plan.title}
                                             </p>
-                                            <p className="text-[10px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
+                                            <p className="text-[11px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
                                                 {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
                                             </p>
                                         </div>

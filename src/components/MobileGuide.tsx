@@ -58,7 +58,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                 <div className={clsx(
                     "px-4 pt-4 pb-2 flex items-center justify-between",
                 )}>
-                    <span className="text-[10px] font-black text-app-text-muted uppercase tracking-widest">
+                    <span className="text-[11px] font-black text-app-text-muted uppercase tracking-widest">
                         {t('mobile_guide.title')}
                     </span>
                     <button
@@ -88,7 +88,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                                 <step.Icon size={28} className="text-app-text" />
                             </div>
                             <div>
-                                <h3 className="text-base font-black text-app-text mb-1.5">
+                                <h3 className="text-[18px] font-black text-app-text mb-1.5">
                                     {t(`mobile_guide.${step.titleKey}`)}
                                 </h3>
                                 <p className="text-[13px] text-app-text-muted leading-relaxed">
@@ -120,7 +120,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                         <button
                             onClick={handlePrev}
                             className={clsx(
-                                "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer",
+                                "flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer",
                                 "bg-app-surface2 text-app-text border border-app-border"
                             )}
                         >
@@ -130,7 +130,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                     <button
                         onClick={handleNext}
                         className={clsx(
-                            "flex-1 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer",
+                            "flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all cursor-pointer",
                             "bg-app-text text-app-bg"
                         )}
                     >

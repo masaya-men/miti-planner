@@ -101,7 +101,7 @@ export const HeaderTimeInput: React.FC<HeaderTimeInputProps> = ({
             style={{ top: `${position.top}px`, left: `${position.left}px` }}
         >
             <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
-                <span className="text-xs font-black text-app-text uppercase tracking-wider">
+                <span className="text-[11px] font-black text-app-text uppercase tracking-wider">
                     {t('timeline.nav_time_jump')}
                 </span>
                 <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
@@ -116,12 +116,12 @@ export const HeaderTimeInput: React.FC<HeaderTimeInputProps> = ({
                     onChange={(e) => { setValue(e.target.value); setError(false); }}
                     placeholder={t('timeline.nav_time_placeholder')}
                     className={clsx(
-                        "w-full px-3 py-2 rounded-md bg-app-bg border text-sm text-app-text placeholder:text-app-text-muted focus:outline-none focus:ring-1",
+                        "w-full px-3 py-2 rounded-md bg-app-bg border text-[13px] text-app-text placeholder:text-app-text-muted focus:outline-none focus:ring-1",
                         error ? "border-red-500 focus:ring-red-500" : "border-app-border focus:ring-app-text"
                     )}
                 />
                 {error && (
-                    <p className="mt-1 text-xs text-red-500">{t('timeline.nav_time_invalid')}</p>
+                    <p className="mt-1 text-[9px] text-red-500">{t('timeline.nav_time_invalid')}</p>
                 )}
             </form>
         </div>,

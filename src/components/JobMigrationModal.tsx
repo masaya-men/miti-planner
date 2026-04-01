@@ -56,10 +56,10 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                         <ArrowRightLeft size={20} />
                     </div>
                     <div>
-                        <h2 className="text-sm font-bold text-app-text tracking-wide">
+                        <h2 className="text-[18px] font-black text-app-text tracking-wide">
                             {t('migration.title')}
                         </h2>
-                        <p className="text-[10px] text-app-text mt-0.5">
+                        <p className="text-[13px] text-app-text mt-0.5">
                             {batchTasks && batchTasks.length >= 2
                                 ? t('migration.batch_desc', { count: batchTasks.length })
                                 : t('migration.individual_desc', { 
@@ -73,7 +73,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
 
                 {/* Content */}
                 <div className="p-5 flex flex-col gap-3">
-                    <p className="text-xs text-app-text mb-2 leading-relaxed">
+                    <p className="text-[13px] text-app-text mb-2 leading-relaxed">
                         {t('migration.description', 'すでに配置されているタイムライン上のスキルをどのように処理するか選択してください。')}
                     </p>
 
@@ -93,7 +93,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {selectedMode === 'inherit' && <Check size={10} className="text-app-bg" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-app-text' : 'text-app-text')}>
+                            <div className={clsx("text-[15px] font-bold mb-1 transition-colors", selectedMode === 'inherit' ? 'text-app-text' : 'text-app-text')}>
                                 {t('migration.mode.inherit.title', '互換スキルを引き継ぐ (推奨)')}
                             </div>
                             <div className="text-[10px] text-app-text-muted leading-snug">
@@ -117,7 +117,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                             {selectedMode === 'common_only' && <Check size={10} className="text-app-bg" strokeWidth={3} />}
                         </div>
                         <div>
-                            <div className={clsx("text-sm font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-app-text' : 'text-app-text')}>
+                            <div className={clsx("text-[15px] font-bold mb-1 transition-colors", selectedMode === 'common_only' ? 'text-app-text' : 'text-app-text')}>
                                 {t('migration.mode.common.title', '共通スキル（ロールアクション）のみ残す')}
                             </div>
                             <div className="text-[10px] text-app-text-muted leading-snug">
@@ -157,14 +157,14 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 <div className="px-5 py-3 border-t border-app-border flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-xs font-medium text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-95"
+                        className="px-4 py-2 rounded-lg text-[13px] font-medium text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-95"
                     >
                         {t('common.cancel', 'キャンセル')}
                     </button>
                     <button
                         onClick={() => onConfirm(selectedMode)}
                         className={clsx(
-                            "px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
+                            "px-6 py-2 rounded-lg text-[13px] font-bold transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer",
                             selectedMode === 'inherit' ? "bg-app-text text-app-bg hover:opacity-80" :
                                 selectedMode === 'common_only' ? "bg-app-text text-app-bg hover:opacity-80" :
                                     "bg-red-600 hover:bg-red-500 text-white shadow-red-500/30"

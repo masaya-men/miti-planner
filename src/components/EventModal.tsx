@@ -463,7 +463,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     "border-app-border bg-app-surface2"
                 )}>
                     <h2 className={clsx(
-                        "text-sm font-bold transition-colors",
+                        "text-[18px] font-black transition-colors",
                         "text-app-text"
                     )}>
                         {initialData ? t('modal.edit_event') : t('modal.add_event')}
@@ -509,7 +509,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Common Event Properties */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-app-text mb-1.5">{t('modal.time')}</label>
+                            <label className="block text-[11px] font-medium text-app-text mb-1.5">{t('modal.time')}</label>
                             <input
                                 type="text"
                                 inputMode="decimal"
@@ -517,14 +517,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
-                                    "w-full rounded-lg p-2.5 text-sm transition-all font-barlow border focus:outline-none focus:ring-1",
+                                    "w-full rounded-lg p-2.5 text-[13px] transition-all font-barlow border focus:outline-none focus:ring-1",
                                     "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-app-text mb-1.5">{t('mechanic_modal.name_label')}</label>
+                            <label className="block text-[11px] font-medium text-app-text mb-1.5">{t('mechanic_modal.name_label')}</label>
                             <input
                                 data-tutorial="event-name-input"
                                 type="text"
@@ -532,7 +532,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 value={contentLanguage === 'en' ? name.en : name.ja}
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
-                                    "w-full rounded-lg p-2.5 text-sm transition-all border focus:outline-none focus:ring-1",
+                                    "w-full rounded-lg p-2.5 text-[13px] transition-all border focus:outline-none focus:ring-1",
                                     "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
@@ -545,7 +545,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     <div className="grid grid-cols-2 gap-4">
                         {/* Damage Type */}
                         <div>
-                            <label className="block text-xs font-medium text-app-text mb-2">{t('modal.damage_type')}</label>
+                            <label className="block text-[11px] font-medium text-app-text mb-2">{t('modal.damage_type')}</label>
                             <div className="flex gap-2">
                                 {[
                                     { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
@@ -576,7 +576,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         {/* Target Selection */}
                         <div>
-                            <label className="block text-xs font-medium text-app-text mb-2">{t('modal.target')}</label>
+                            <label className="block text-[11px] font-medium text-app-text mb-2">{t('modal.target')}</label>
                             <div className="flex gap-2 h-[52px] items-center">
                                 {[
                                     { value: 'AoE', label: t('modal.aoe') },
@@ -610,7 +610,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     <div className="space-y-6">
                         {inputMode === 'direct' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <label className="block text-xs font-medium text-app-text mb-1.5">{t('modal.damage_amount')}</label>
+                                <label className="block text-[11px] font-medium text-app-text mb-1.5">{t('modal.damage_amount')}</label>
                                 <input
                                     type="text"
                                     inputMode="numeric"
@@ -631,7 +631,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 )}>
                                     <div className="flex flex-col gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-app-text mb-1.5">{t('mechanic_modal.actual_damage')}</label>
+                                            <label className="block text-[11px] font-medium text-app-text mb-1.5">{t('mechanic_modal.actual_damage')}</label>
                                             <div className="flex gap-2">
                                                 <input
                                                     data-tutorial="event-actual-damage-input"
@@ -652,7 +652,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             "flex items-center justify-between p-3 rounded-lg border transition-colors",
                                             "bg-app-text/5 border-app-border"
                                         )}>
-                                            <span className="text-xs font-bold text-app-text uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
+                                            <span className="text-[11px] font-bold text-app-text uppercase tracking-widest">{t('mechanic_modal.estimated_raw')}</span>
                                             <span className="text-xl font-mono font-bold text-app-text tracking-tight">{damageAmount.toLocaleString()}</span>
                                         </div>
                                     </div>
@@ -660,7 +660,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <label className="block text-xs font-medium text-app-text">{t('mechanic_modal.calc_mitigations')}</label>
+                                        <label className="block text-[11px] font-medium text-app-text">{t('mechanic_modal.calc_mitigations')}</label>
                                         {selectedMitigations.length > 0 && (
                                           <div className="flex items-center gap-0.5">
                                             {selectedMitigations.slice(0, 4).map(mitId => {
@@ -754,7 +754,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         onClose();
                                     }
                                 }}
-                                className="w-full sm:w-auto px-4 py-2 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold cursor-pointer"
+                                className="w-full sm:w-auto px-4 py-2 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-lg flex items-center justify-center gap-1.5 transition-colors text-[11px] font-bold cursor-pointer"
                             >
                                 <Trash2 size={16} />
                                 <span>{t('modal.delete')}</span>
@@ -764,7 +764,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <button
                             data-tutorial="event-save-btn"
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-lg text-sm font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
+                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-lg text-[13px] font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
                         >
                             <Save size={16} />
                             {t('mechanic_modal.add_button')}
