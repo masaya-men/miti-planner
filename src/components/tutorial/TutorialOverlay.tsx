@@ -10,6 +10,7 @@ import { PartyAutoFill } from './animations/PartyAutoFill';
 import { PaletteHint } from './animations/PaletteHint';
 import { PillFly } from './animations/PillFly';
 import { CompletionCard } from './animations/CompletionCard';
+import { TypewriterFill } from './animations/TypewriterFill';
 
 interface TargetRect {
   top: number;
@@ -173,6 +174,15 @@ export function TutorialOverlay() {
         return <CompletionCard onDismiss={() => {
           useTutorialStore.getState().completeEvent('tutorial:dismissed');
         }} />;
+      case 'typewriter-fill':
+        return step.typewriterConfig ? (
+          <TypewriterFill
+            config={step.typewriterConfig}
+            onComplete={() => {
+              useTutorialStore.getState().completeEvent(step.completionEvent);
+            }}
+          />
+        ) : null;
       default:
         return null;
     }
@@ -186,7 +196,7 @@ export function TutorialOverlay() {
         active={!!step.target && !step.animation}
       />
       {/* 自動演出中は全面ブロック（スロット操作防止） */}
-      {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint') && (
+      {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint' || step.animation === 'typewriter-fill') && (
         <TutorialBlocker targetRect={null} active={true} />
       )}
       {/* pill-fly: check/fly中は全面ブロック、land後は飛行先セルだけ穴を開ける */}
