@@ -10,8 +10,9 @@
 
 - **ブランチ**: `feature/tutorial-overhaul`（mainにはまだマージしていない）
 - **今回の作業**: チュートリアルアニメーション全面改善（PartyAutoFill円運動+飛行弧、PillFlyバウンス着地、ブロッカー修正、cursor-pointer修正）
-- **最優先**: feature/tutorial-overhaul を main にマージ → デプロイ
-- **完了済み**: PartyAutoFill（rAF円運動→放物線飛行→WAAPI着地）、PillFly（1.4倍速+横バウンス着地）、STEP11ブロッカー、cursor-pointer漏れ、STEP8/9カード位置、prefers-reduced-motion対応
+- **最優先**: チュートリアル通し確認（add-event / share チュートリアルは未検証）→ 問題なければ feature/tutorial-overhaul を main にマージ → デプロイ
+- **完了済み**: メインチュートリアル(main)のアニメーション改善。add-event / share チュートリアルの定義は存在するが動作未検証
+- **未実装の可能性**: add-event / share チュートリアルの `data-tutorial` 属性やイベント発火がコンポーネント側に実装されているか要確認
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12
 
 ---
