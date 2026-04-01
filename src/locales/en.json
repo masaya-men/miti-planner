@@ -108,7 +108,7 @@
         "settings_desc": "Stats from the content release are automatically applied.\nPlease edit as needed.",
         "comp_short": "Party Comp",
         "configuration_title": "Party Composition",
-        "configuration_desc": "Tap a job icon or select a slot to assign jobs.",
+        "configuration_desc": "Click a job or select a slot to assign.",
         "my_job_instruction": "Tap the star on the top right of a slot to set as My Job",
         "content_level": "Content Level",
         "job_palette": "JOB PALETTE (Tap to Assign)",
@@ -369,8 +369,10 @@
         "current_plan": "Current Plan",
         "cancel": "Cancel",
         "menu": "Menu",
-        "close_menu": "Close Menu",
-        "open_menu": "Open Menu",
+        "close_menu": "Close Menu (S)",
+        "open_menu": "Open Menu (S)",
+        "collapse_header": "Collapse Header (H)",
+        "expand_header": "Expand Header (H)",
         "select_delete": "Delete",
         "name_dialog_title": "Name your mitigation plan",
         "name_dialog_desc": "You can keep the default name if you like.",
@@ -672,6 +674,13 @@
             },
             "complete": {
                 "message": "Tutorial complete!"
+            },
+            "focus_mode": {
+                "message": "Wait — one more thing!",
+                "description": "Press \"F\" to try Focus Mode — it hides everything but the table!"
+            },
+            "real_complete": {
+                "message": "Tutorial complete — for real this time!"
             }
         },
         "create_plan": {
@@ -726,6 +735,11 @@
             "title": "You've got the basics!",
             "menu_hint": "You can revisit tutorials anytime from the tutorial menu.",
             "start_button": "Let's go"
+        },
+        "completion_real": {
+            "title": "Okay, NOW you're done!",
+            "menu_hint": "You can revisit tutorials anytime from the tutorial menu.",
+            "start_button": "Let's really go"
         }
     },
     "phase_modal": {
