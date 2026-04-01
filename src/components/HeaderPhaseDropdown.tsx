@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -9,7 +9,6 @@ import type { Phase } from '../types';
 interface HeaderPhaseDropdownProps {
     isOpen: boolean;
     onClose: () => void;
-    onOpen: () => void;
     phases: Phase[];
     onJump: (time: number) => void;
     isCollapsed: boolean;
@@ -18,7 +17,7 @@ interface HeaderPhaseDropdownProps {
 }
 
 export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
-    isOpen, onClose, onOpen, phases, onJump, isCollapsed, onToggleCollapse, triggerRef
+    isOpen, onClose, phases, onJump, isCollapsed, onToggleCollapse, triggerRef
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
