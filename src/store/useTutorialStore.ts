@@ -212,6 +212,9 @@ export const useTutorialStore = create<TutorialState>()(
           _savedSnapshot: null,
           _savedPlanId: null,
         });
+        // チュートリアル中に開いたモーダルをすべて閉じる
+        window.dispatchEvent(new Event('tutorial:close-all-modals'));
+        window.dispatchEvent(new Event('tutorial:close-new-plan-modal'));
       },
 
       cancelExit: () => {
