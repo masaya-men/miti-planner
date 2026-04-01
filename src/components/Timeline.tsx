@@ -2158,7 +2158,6 @@ const Timeline: React.FC = () => {
             <HeaderPhaseDropdown
                 isOpen={phaseDropdownOpen}
                 onClose={() => setPhaseDropdownOpen(false)}
-                onOpen={() => setPhaseDropdownOpen(true)}
                 phases={phases}
                 onJump={handleNavJump}
                 isCollapsed={phaseColumnCollapsed}

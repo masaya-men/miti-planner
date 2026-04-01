@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { TimelineEvent, Phase } from '../types';
-import { useMitigationStore } from '../store/useMitigationStore';
+import { useThemeStore } from '../store/useThemeStore';
 
 interface MechanicOccurrence {
     time: number;
@@ -54,7 +54,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
     const [selectedMechanic, setSelectedMechanic] = useState<string | null>(null);
     useEscapeClose(isOpen, onClose);
 
-    const contentLanguage = useMitigationStore(s => s.contentLanguage);
+    const { contentLanguage } = useThemeStore();
 
     // オートフォーカス
     useEffect(() => {
