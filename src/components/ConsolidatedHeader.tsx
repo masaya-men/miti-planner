@@ -380,7 +380,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
-                    <Tooltip content={!isHeaderCollapsed ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="bottom" wrapperClassName="w-full h-full">
+                    <Tooltip content={!isHeaderCollapsed ? t('sidebar.collapse_header') : t('sidebar.expand_header')} position="bottom" wrapperClassName="w-full h-full">
                     <button
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                         onMouseEnter={() => setIsHovered(true)}

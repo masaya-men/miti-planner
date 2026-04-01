@@ -42,7 +42,7 @@ export interface TutorialStep {
   /** この文字列のイベントで次ステップへ進む */
   completionEvent: string;
   /** 特殊演出名（省略可） */
-  animation?: 'palette-hint' | 'party-auto-fill' | 'pill-fly' | 'completion-card' | 'typewriter-fill' | 'fake-completion-card' | 'focus-interrupt';
+  animation?: 'palette-hint' | 'party-auto-fill' | 'pill-fly' | 'completion-card' | 'typewriter-fill' | 'fake-completion-card';
   /** ピルの矢印方向（デフォルト: down） */
   pillArrow?: 'down' | 'right';
   /** ピル飛行の定義（省略可） */
@@ -181,20 +181,11 @@ const mainTutorial: TutorialDefinition = {
       target: null,
       pill: 'next',
       messageKey: 'tutorial.main.complete.message',
-      completionEvent: 'tutorial:fake-dismissed',
+      completionEvent: 'focus-mode:entered',
       animation: 'fake-completion-card',
     },
     {
-      id: 'main-14-focus-mode',
-      target: null,
-      pill: 'next',
-      messageKey: 'tutorial.main.focus_mode.message',
-      descriptionKey: 'tutorial.main.focus_mode.description',
-      completionEvent: 'focus-mode:entered',
-      animation: 'focus-interrupt',
-    },
-    {
-      id: 'main-15-real-complete',
+      id: 'main-14-real-complete',
       target: null,
       pill: 'next',
       messageKey: 'tutorial.main.real_complete.message',

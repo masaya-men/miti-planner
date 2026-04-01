@@ -1208,10 +1208,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                                 : "bg-transparent border-transparent hover:bg-glass-active"
                                         )}
                                     >
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 text-left">
                                             <p className={clsx(
-                                                "text-[9.5px] font-black truncate leading-tight",
-                                                currentPlanId === plan.id ? "text-app-text" : "text-app-text"
+                                                "text-[9.5px] font-black truncate leading-tight text-app-text"
                                             )}>
                                                 {plan.title}
                                             </p>
@@ -1511,7 +1510,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         {/* 右端の境界線 */}
                         <div className={clsx(
                             "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
-                            isOpen ? "bg-glass-border" : "bg-app-border"
+                            isOpen ? "bg-glass-border" : "bg-app-border",
+                            "group-hover/btn:bg-app-text-muted"
                         )} />
                     </button>
                     </Tooltip>

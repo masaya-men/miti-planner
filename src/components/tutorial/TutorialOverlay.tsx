@@ -1,6 +1,6 @@
 // src/components/tutorial/TutorialOverlay.tsx
 import { useEffect, useState, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTutorialStore } from '../../store/useTutorialStore';
 import { TutorialPill } from './TutorialPill';
@@ -120,7 +120,6 @@ export function TutorialOverlay() {
   const currentStepIdx = useTutorialStore(s => s.currentStep);
   const tutorial = useTutorialStore(s => s.getActiveTutorial());
 
-  const { t } = useTranslation();
   const step = useTutorialStore(s => s.getCurrentStep());
   const targetRect = useTargetRect(step?.target ?? null);
 
@@ -213,45 +212,12 @@ export function TutorialOverlay() {
           />
         ) : null;
       case 'fake-completion-card':
-        return <FakeCompletionCard onFakeDismissed={() => {
-          useTutorialStore.getState().completeEvent('tutorial:fake-dismissed');
+        return <FakeCompletionCard onComplete={() => {
+          useTutorialStore.getState().completeEvent('focus-mode:entered');
         }} />;
-      case 'focus-interrupt':
-        return (
-          <motion.div
-            className="fixed inset-0 z-[10005] flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="absolute inset-0 bg-black/30" />
-            <motion.div
-              className="relative bg-app-bg border-2 border-[#22c55e]/50 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            >
-              <p className="text-lg font-black text-app-text text-center mb-3">
-                {t('tutorial.main.focus_mode.message')}
-              </p>
-              <p className="text-sm text-app-text-muted text-center mb-4">
-                {t('tutorial.main.focus_mode.description')}
-              </p>
-              <div className="flex items-center justify-center">
-                <motion.div
-                  className="w-12 h-12 rounded-xl border-2 border-app-text/30 flex items-center justify-center text-xl font-black text-app-text"
-                  animate={{ scale: [1, 1.15, 1] }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
-                >
-                  F
-                </motion.div>
-              </div>
-            </motion.div>
-          </motion.div>
-        );
       case 'completion-card':
         return <CompletionCard
-          variant={step.id === 'main-15-real-complete' ? 'real' : 'default'}
+          variant={step.id === 'main-14-real-complete' ? 'real' : 'default'}
           onDismiss={() => {
             useTutorialStore.getState().completeEvent('tutorial:dismissed');
           }}
@@ -282,7 +248,7 @@ export function TutorialOverlay() {
         active={!!step.target && !step.animation}
       />
       {/* 自動演出中は全面ブロック（スロット操作防止） */}
-      {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint' || step.animation === 'typewriter-fill' || step.animation === 'fake-completion-card' || step.animation === 'focus-interrupt') && (
+      {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint' || step.animation === 'typewriter-fill' || step.animation === 'fake-completion-card') && (
         <TutorialBlocker targetRect={null} active={true} />
       )}
       {/* pill-fly: check/fly中は全面ブロック、land後は飛行先セルだけ穴を開ける */}
@@ -310,7 +276,7 @@ export function TutorialOverlay() {
         )}
 
         {/* 吹き出しカード（完了画面・auto-fill は専用演出内で表示） */}
-        {step.animation !== 'completion-card' && step.animation !== 'party-auto-fill' && step.animation !== 'fake-completion-card' && step.animation !== 'focus-interrupt' && (
+        {step.animation !== 'completion-card' && step.animation !== 'party-auto-fill' && step.animation !== 'fake-completion-card' && (
           <TutorialCard
             key={`card-${step.id}`}
             messageKey={step.messageKey}
