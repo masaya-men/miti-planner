@@ -248,7 +248,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                 >
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
-                        <h2 className="text-[18px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
+                        <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
                             <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('new_plan.modal_title')}
                         </h2>
@@ -264,7 +264,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     <div className="p-6 space-y-7 overflow-y-auto no-scrollbar">
                         {/* Level Tabs */}
                         <div className="space-y-3.5">
-                            <label className="text-[11px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.level_label')}
                             </label>
                             <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
@@ -277,7 +277,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             useTutorialStore.getState().completeEvent('create:level-selected');
                                         }}
                                         className={clsx(
-                                            "flex-1 py-2 rounded-lg text-[13px] font-black transition-all duration-300 cursor-pointer",
+                                            "flex-1 py-2 rounded-lg text-[11px] font-black transition-all duration-300 cursor-pointer",
                                             level === l
                                                 ? "bg-app-text text-app-bg shadow-lg scale-[1.02]"
                                                 : "text-app-text hover:bg-glass-hover"
@@ -291,7 +291,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                         {/* Category Tabs */}
                         <div className="space-y-3.5">
-                            <label className="text-[11px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.category_label')}
                             </label>
                             <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -304,7 +304,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             useTutorialStore.getState().completeEvent('create:category-selected');
                                         }}
                                         className={clsx(
-                                            "whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-black transition-all border cursor-pointer",
+                                            "whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black transition-all border cursor-pointer",
                                             category === cat
                                                 ? "bg-app-text text-app-bg border-app-text"
                                                 : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
@@ -319,7 +319,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* 零式・絶: コンテンツ一覧（フラットリスト） */}
                         {hasContentRegistry(category) && (
                             <div className="space-y-3.5">
-                                <label className="text-[11px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.content_label')}
                                 </label>
                                 {level ? (
@@ -330,7 +330,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                                     key={b.id}
                                                     onClick={() => handleBossSelect(b)}
                                                     className={clsx(
-                                                        "w-full px-4 py-3 rounded-xl text-[13px] font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
+                                                        "w-full px-4 py-3 rounded-xl text-[12px] font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
                                                         boss?.id === b.id
                                                             ? "bg-app-text text-app-bg border-app-text"
                                                             : "bg-glass-card/30 text-app-text border-glass-border/40 hover:bg-glass-hover"
@@ -356,7 +356,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* 零式・絶: プラン名入力 */}
                         {hasContentRegistry(category) && boss && (
                             <div className="space-y-3.5">
-                                <label className="text-[11px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.plan_name_label')}
                                 </label>
                                 <input
@@ -374,7 +374,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* ダンジョン・レイド・その他: 名前入力のみ */}
                         {category !== null && !hasContentRegistry(category) && (
                             <div className="space-y-3.5">
-                                <label className="text-[11px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.plan_name_label')}
                                 </label>
                                 <input
@@ -446,7 +446,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         <div className="flex gap-4">
                             <button
                                 onClick={() => onClose()}
-                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[13px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                             >
                                 {t('new_plan.cancel_button')}
                             </button>
@@ -455,7 +455,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 onClick={handleCreate}
                                 disabled={!canCreate || isBlocked}
                                 className={clsx(
-                                    "flex-[2] py-3.5 rounded-2xl text-[13px] font-bold transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
+                                    "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
                                     canCreate && !isBlocked
                                         ? "bg-app-blue text-white hover:bg-app-blue-hover"
                                         : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"

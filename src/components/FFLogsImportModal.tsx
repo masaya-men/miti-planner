@@ -245,7 +245,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
-                                <h2 className="text-[18px] font-black text-app-text flex items-center gap-2">
+                                <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                                     <CloudDownload size={18} />
                                     {t('fflogs.title')}
                                 </h2>
@@ -262,12 +262,12 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                 <h3 className="text-center text-base font-bold text-app-text">
                                     {t('fflogs.login_required_title')}
                                 </h3>
-                                <p className="text-center text-[13px] text-app-text-muted leading-relaxed">
+                                <p className="text-center text-sm text-app-text-muted leading-relaxed">
                                     {t('fflogs.login_required_description')}
                                 </p>
                                 <button
                                     onClick={() => { handleClose(); setShowLoginModal(true); }}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-[13px] font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
+                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
                                 >
                                     <LogIn size={16} />
                                     {t('fflogs.login_button')}
@@ -294,13 +294,13 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     </div>
                     <div className="space-y-4">
                         <div>
-                            <span className="text-app-text-muted block text-[11px] mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
+                            <span className="text-app-text-muted block text-xs mb-1 uppercase tracking-wider">{t('fflogs.fight')}</span>
                             <span className="text-lg font-bold text-app-text">
                                 {status.fight.name}
                             </span>
                         </div>
                         <div>
-                            <span className="text-app-text-muted block text-[11px] mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
+                            <span className="text-app-text-muted block text-xs mb-1 uppercase tracking-wider">{t('fflogs.duration')}</span>
                             <span className="text-app-text font-bold">
                                 {Math.floor((status.fight.endTime - status.fight.startTime) / 1000 / 60)}m{' '}
                                 {Math.floor(((status.fight.endTime - status.fight.startTime) / 1000) % 60)}s
@@ -322,10 +322,10 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     /* ────── URL input + parse info (shared) ────── */
     const renderUrlInput = () => (
         <>
-            <p className="text-[13px] text-app-text-muted mb-1 leading-relaxed">
+            <p className="text-sm text-app-text-muted mb-1 leading-relaxed">
                 {t('fflogs.description')}
             </p>
-            <p className="text-[13px] text-app-text-muted mb-4 font-mono">
+            <p className="text-xs text-app-text-muted mb-4 font-mono">
                 {t('fflogs.url_format')}
             </p>
 
@@ -338,7 +338,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     value={url}
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
-                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-[13px] font-mono text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted disabled:opacity-50"
+                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-sm font-mono text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted disabled:opacity-50"
                     placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />
@@ -401,7 +401,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                         {/* Header */}
                         <div className="px-5 py-3 border-b border-app-border flex items-center justify-between shrink-0">
-                            <h2 className="text-[18px] font-black text-app-text flex items-center gap-2">
+                            <h2 className="text-base font-bold text-app-text flex items-center gap-2">
                                 <CloudDownload size={18} className="text-app-text" />
                                 {t('fflogs.title')}
                             </h2>
@@ -423,14 +423,14 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     <motion.div {...slideUp} key="fetch-actions" className="mt-5 flex flex-col gap-3">
                                         <button
                                             onClick={handleFetch}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[13px] font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CloudDownload size={18} />
                                             {t('fflogs.fetch_button')}
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-[13px] font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -444,7 +444,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                     <motion.div {...slideUp} key="loading-inline" className="mt-5">
                                         <button
                                             disabled
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[13px] font-bold uppercase bg-app-text/50 text-app-bg/70 cursor-wait"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-text/50 text-app-bg/70 cursor-wait"
                                         >
                                             <Loader2 size={18} className="animate-spin" />
                                             {t('fflogs.fetching_button')}
@@ -461,14 +461,14 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                                         <button
                                             onClick={handleImport}
-                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-[13px] font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
+                                            className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold uppercase bg-app-blue text-white hover:bg-app-blue-hover active:scale-[0.98] transition-transform cursor-pointer"
                                         >
                                             <CheckCircle2 size={18} />
                                             {t('fflogs.import_button')}
                                         </button>
                                         <button
                                             onClick={handleClose}
-                                            className="w-full py-3 rounded-xl text-[13px] font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
+                                            className="w-full py-3 rounded-xl text-sm font-bold text-app-text bg-app-surface2 border border-app-border active:bg-app-surface2 transition-colors cursor-pointer"
                                         >
                                             {t('common.cancel', 'キャンセル')}
                                         </button>
@@ -489,7 +489,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 >
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
-                        <h2 className="text-[18px] font-black text-app-text flex items-center gap-2">
+                        <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
                             <CloudDownload size={18} className="text-app-text" />
                             {t('fflogs.title')}
                         </h2>
@@ -516,7 +516,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         <button
                             onClick={handleClose}
                             disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-[13px] font-bold text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>
@@ -526,7 +526,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                 onClick={handleFetch}
                                 disabled={!canFetch}
                                 className={clsx(
-                                    'flex items-center gap-2 px-5 py-2 rounded-lg text-[13px] font-bold uppercase transition-all duration-300 cursor-pointer',
+                                    'flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 cursor-pointer',
                                     canFetch
                                         ? 'bg-app-blue text-white hover:bg-app-blue-hover'
                                         : 'bg-app-surface2 text-app-text-muted cursor-not-allowed'
@@ -541,7 +541,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         ) : (
                             <button
                                 onClick={handleImport}
-                                className="flex items-center gap-2 px-5 py-2 rounded-lg text-[13px] font-bold uppercase transition-all duration-300 bg-app-blue text-white hover:bg-app-blue-hover cursor-pointer"
+                                className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold uppercase transition-all duration-300 bg-app-blue text-white hover:bg-app-blue-hover cursor-pointer"
                             >
                                 <CheckCircle2 size={16} />
                                 {t('fflogs.import_button')}

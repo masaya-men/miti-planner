@@ -327,7 +327,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             )}
                                         </div>
                                         <div className="overflow-hidden">
-                                            <div className={`text-[13px] font-black transition-colors truncate ${!status.available
+                                            <div className={`text-xs font-black transition-colors truncate ${!status.available
                                                 ? 'text-red-600 dark:text-red-400'
                                                 : status.warning
                                                     ? 'text-amber-600 dark:text-amber-300'

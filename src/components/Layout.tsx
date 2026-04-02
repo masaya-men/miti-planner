@@ -365,16 +365,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             </div>
                         )}
                         <div className="text-center">
-                            <h2 className="text-[18px] font-black text-app-text mb-1" style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif" }}>
+                            <h2 className="text-lg font-bold text-app-text mb-1" style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif" }}>
                                 {t('login.success_title')}
                             </h2>
-                            <p className="text-[11px] text-app-text-muted">
+                            <p className="text-sm text-app-text-muted">
                                 {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
                             </p>
                         </div>
                         <button
                             onClick={() => { useAuthStore.getState().clearJustLoggedIn(); }}
-                            className="w-full py-2.5 rounded-xl text-[13px] font-bold bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer"
+                            className="w-full py-2.5 rounded-xl text-sm font-bold bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer"
                         >
                             {t('login.start_button')}
                         </button>
@@ -477,7 +477,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                     <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`text-app-text/50 ${isMobile ? 'empty-burger-top-2' : 'empty-burger-left-2'}`} />
                                     <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`text-app-text/50 ${isMobile ? 'empty-burger-top-3' : 'empty-burger-left-3'}`} />
                                 </svg>
-                                <p className={`${isMobile ? 'text-[15px] font-bold' : 'text-[18px] font-black'} text-app-text tracking-[0.15em]`}>
+                                <p className={`${isMobile ? 'text-sm' : 'text-base'} text-app-text font-medium tracking-[0.15em]`}>
                                     {t(isMobile ? 'app.empty_state_mobile' : 'app.empty_state_pc')}
                                 </p>
                             </div>
@@ -491,7 +491,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "border-app-border",
                     "bg-transparent"
                 )}>
-                    <p className="text-[9px] text-app-text-muted tracking-wide pointer-events-auto">
+                    <p className="text-[8px] text-app-text-muted tracking-wide pointer-events-auto">
                         {t('footer.copyright')} · {t('footer.disclaimer')}
                         {' · '}
                         <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
