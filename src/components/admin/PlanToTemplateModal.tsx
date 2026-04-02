@@ -140,7 +140,7 @@ export function PlanToTemplateModal({
 
   // ─── レンダリング ─────────────────────────
 
-  const btnBase = 'px-3 py-1.5 text-xs rounded cursor-pointer transition-colors border';
+  const btnBase = 'px-3 py-1.5 text-app-lg rounded cursor-pointer transition-colors border';
   const btnBlue = `${btnBase} border-blue-500/40 text-blue-400 hover:bg-blue-500/10`;
   const btnMuted = `${btnBase} border-app-text/20 text-app-text-muted hover:bg-app-text/5`;
 
@@ -154,11 +154,11 @@ export function PlanToTemplateModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* タイトル */}
-        <p className="text-sm font-bold">{t('admin.tpl_promote_title')}</p>
+        <p className="text-app-2xl font-bold">{t('admin.tpl_promote_title')}</p>
 
         {/* URL入力 */}
         <div>
-          <label className="block text-[10px] text-app-text-muted mb-1">
+          <label className="block text-app-base text-app-text-muted mb-1">
             {t('admin.tpl_promote_url_label')}
           </label>
           <div className="flex gap-2">
@@ -171,7 +171,7 @@ export function PlanToTemplateModal({
                 setPreview(null);
               }}
               placeholder={t('admin.tpl_promote_url_placeholder')}
-              className="flex-1 px-2 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+              className="flex-1 px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
             />
             <button
               onClick={handlePreview}
@@ -186,11 +186,11 @@ export function PlanToTemplateModal({
         </div>
 
         {/* エラー */}
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-app-lg text-red-400">{error}</p>}
 
         {/* プレビュー */}
         {preview && (
-          <div className="border border-app-text/10 rounded p-3 space-y-1 text-xs">
+          <div className="border border-app-text/10 rounded p-3 space-y-1 text-app-lg">
             <div className="flex gap-2">
               <span className="text-app-text-muted">{t('admin.tpl_promote_plan_name')}:</span>
               <span className="text-app-text truncate">{preview.title}</span>

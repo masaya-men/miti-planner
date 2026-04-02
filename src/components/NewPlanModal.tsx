@@ -248,7 +248,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                 >
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
-                        <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
+                        <h2 className="text-app-xl font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
                             <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('new_plan.modal_title')}
                         </h2>
@@ -264,7 +264,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     <div className="p-6 space-y-7 overflow-y-auto no-scrollbar">
                         {/* Level Tabs */}
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                            <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.level_label')}
                             </label>
                             <div className="flex gap-1.5 bg-glass-card/50 rounded-xl p-1.5 border border-glass-border/20 shadow-inner">
@@ -277,7 +277,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             useTutorialStore.getState().completeEvent('create:level-selected');
                                         }}
                                         className={clsx(
-                                            "flex-1 py-2 rounded-lg text-[11px] font-black transition-all duration-300 cursor-pointer",
+                                            "flex-1 py-2 rounded-lg text-app-md font-black transition-all duration-300 cursor-pointer",
                                             level === l
                                                 ? "bg-app-text text-app-bg shadow-lg scale-[1.02]"
                                                 : "text-app-text hover:bg-glass-hover"
@@ -291,7 +291,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
                         {/* Category Tabs */}
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                            <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('new_plan.category_label')}
                             </label>
                             <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
@@ -304,7 +304,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             useTutorialStore.getState().completeEvent('create:category-selected');
                                         }}
                                         className={clsx(
-                                            "whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black transition-all border cursor-pointer",
+                                            "whitespace-nowrap px-6 py-2.5 rounded-full text-app-md font-black transition-all border cursor-pointer",
                                             category === cat
                                                 ? "bg-app-text text-app-bg border-app-text"
                                                 : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
@@ -319,7 +319,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* 零式・絶: コンテンツ一覧（フラットリスト） */}
                         {hasContentRegistry(category) && (
                             <div className="space-y-3.5">
-                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.content_label')}
                                 </label>
                                 {level ? (
@@ -330,7 +330,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                                     key={b.id}
                                                     onClick={() => handleBossSelect(b)}
                                                     className={clsx(
-                                                        "w-full px-4 py-3 rounded-xl text-[12px] font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
+                                                        "w-full px-4 py-3 rounded-xl text-app-lg font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
                                                         boss?.id === b.id
                                                             ? "bg-app-text text-app-bg border-app-text"
                                                             : "bg-glass-card/30 text-app-text border-glass-border/40 hover:bg-glass-hover"
@@ -341,12 +341,12 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-[11px] text-app-text-muted text-center py-6 italic opacity-60">
+                                        <p className="text-app-md text-app-text-muted text-center py-6 italic opacity-60">
                                             {t('new_plan.no_matches')}
                                         </p>
                                     )
                                 ) : (
-                                    <p className="text-[11px] text-app-text-muted text-center py-6 italic opacity-60">
+                                    <p className="text-app-md text-app-text-muted text-center py-6 italic opacity-60">
                                         {t('new_plan.select_level_first')}
                                     </p>
                                 )}
@@ -356,7 +356,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* 零式・絶: プラン名入力 */}
                         {hasContentRegistry(category) && boss && (
                             <div className="space-y-3.5">
-                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.plan_name_label')}
                                 </label>
                                 <input
@@ -366,7 +366,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.plan_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
                                 />
                             </div>
                         )}
@@ -374,7 +374,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         {/* ダンジョン・レイド・その他: 名前入力のみ */}
                         {category !== null && !hasContentRegistry(category) && (
                             <div className="space-y-3.5">
-                                <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                                <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                     {t('new_plan.plan_name_label')}
                                 </label>
                                 <input
@@ -386,7 +386,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.free_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
                                 />
                             </div>
                         )}
@@ -396,7 +396,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     {(isBlocked || isArchiveWarning) && (
                         <div className="px-6 pb-2">
                             <div className={clsx(
-                                "flex items-start gap-2 p-3 rounded-xl text-[11px] border",
+                                "flex items-start gap-2 p-3 rounded-xl text-app-md border",
                                 isBlocked
                                     ? "bg-app-red-dim border-app-red-border text-app-red"
                                     : "bg-app-amber-dim border-app-amber-border text-app-amber"
@@ -421,7 +421,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex flex-col gap-3">
                         {/* 非ログイン時のさりげない案内 */}
                         {!user && (
-                            <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                            <p className="text-app-base text-app-text-muted text-center leading-relaxed">
                                 {t('new_plan.guest_hint')
                                     .split(/<\/?login>/)
                                     .map((part, i) =>
@@ -441,12 +441,12 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         )}
                         {/* 未入力項目の案内 */}
                         {missingMessage && !isBlocked && (
-                            <p className="text-[10px] text-app-text-muted text-center">{missingMessage}</p>
+                            <p className="text-app-base text-app-text-muted text-center">{missingMessage}</p>
                         )}
                         <div className="flex gap-4">
                             <button
                                 onClick={() => onClose()}
-                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-app-md font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                             >
                                 {t('new_plan.cancel_button')}
                             </button>
@@ -455,7 +455,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                 onClick={handleCreate}
                                 disabled={!canCreate || isBlocked}
                                 className={clsx(
-                                    "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
+                                    "flex-[2] py-3.5 rounded-2xl text-app-md font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95",
                                     canCreate && !isBlocked
                                         ? "bg-app-blue text-white hover:bg-app-blue-hover"
                                         : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"

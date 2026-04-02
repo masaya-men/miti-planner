@@ -17,7 +17,7 @@ interface TemplateEditorToolbarProps {
 }
 
 const baseButtonClass =
-  'text-xs px-3 py-1.5 rounded border cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+  'text-app-lg px-3 py-1.5 rounded border cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 
 export function TemplateEditorToolbar({
   untranslatedCount,
@@ -77,11 +77,11 @@ export function TemplateEditorToolbar({
 
       {/* 右側: 未翻訳カウンター + フィルタートグル */}
       {untranslatedCount > 0 ? (
-        <span className="text-xs text-amber-400">
+        <span className="text-app-lg text-amber-400">
           {t('admin.tpl_editor_untranslated', { count: untranslatedCount })}
         </span>
       ) : (
-        <span className="text-xs text-emerald-400">
+        <span className="text-app-lg text-emerald-400">
           {t('admin.tpl_editor_translated')}
         </span>
       )}

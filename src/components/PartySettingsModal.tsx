@@ -102,7 +102,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 {/* Left side: Tag and Icon */}
                 <div className="flex items-center gap-3 z-10 pointer-events-none">
                     <div className={clsx(
-                        "text-[10px] font-black tracking-tighter w-6 z-10",
+                        "text-app-base font-black tracking-tighter w-6 z-10",
                         theme === 'dark'
                             ? activeColor === 'blue'
                                 ? "text-blue-200"
@@ -125,7 +125,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         />
                     ) : (
                         <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
-                            <span className="text-[8px] text-app-text-muted font-black uppercase tracking-widest">Select</span>
+                            <span className="text-app-xs text-app-text-muted font-black uppercase tracking-widest">Select</span>
                         </div>
                     )}
                 </div>
@@ -489,7 +489,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     <React.Fragment key={cat.id}>
                         {idx !== 0 && <hr className="border-t border-app-border w-full m-0" />}
                         <div className="flex items-center gap-3">
-                            <div className="w-12 text-right text-[9px] font-black text-app-text uppercase tracking-wider shrink-0 dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                            <div className="w-12 text-right text-app-sm font-black text-app-text uppercase tracking-wider shrink-0 dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                                 {cat.name}
                             </div>
                             <div className="flex flex-wrap gap-1.5">
@@ -568,8 +568,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <User className="text-app-text" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-sm font-black text-app-text tracking-widest dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
-                            <p className="text-[10px] mt-0.5 font-bold">
+                            <h2 className="text-app-2xl font-black text-app-text tracking-widest dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{t('party.configuration_title')}</h2>
+                            <p className="text-app-base mt-0.5 font-bold">
                                 {focusedSlot !== null
                                     ? <span className="flex items-center gap-1.5 font-black animate-pulse" style={{ color: '#22c55e' }}>
                                         <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#22c55e' }} />
@@ -594,7 +594,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {focusedSlot !== null && typeof window !== 'undefined' && window.innerWidth < 768 && (
                             <div className="md:hidden bg-app-surface2/50 rounded-xl p-3 border border-app-border animate-in slide-in-from-bottom-2 duration-200">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[10px] font-black text-app-text-muted uppercase tracking-wider">
+                                    <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
                                         {draftMembers[focusedSlot]?.id} — {t('party.select_job', 'ジョブを選択')}
                                     </span>
                                     <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
@@ -628,9 +628,9 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                             <div className="flex items-center justify-between mb-2 pl-1 pr-2">
                                 <div className="flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
-                                    <h3 className="text-app-text text-[11px] font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">MT Group</h3>
+                                    <h3 className="text-app-text text-app-md font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">MT Group</h3>
                                 </div>
-                                <span className="text-[9px] text-app-text font-bold hidden md:inline-block dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+                                <span className="text-app-sm text-app-text font-bold hidden md:inline-block dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
                                     {t('party.my_job_instruction_new')}
                                 </span>
                             </div>
@@ -660,7 +660,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         <div>
                             <div className="flex items-center gap-2 mb-2 pl-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-app-text"></span>
-                                <h3 className="text-app-text text-[11px] font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">ST Group</h3>
+                                <h3 className="text-app-text text-app-md font-black tracking-widest uppercase dark:drop-shadow-[0_1px_3px_rgba(0,0,0,1)]">ST Group</h3>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                                 {stGroupIndices.map(index => {

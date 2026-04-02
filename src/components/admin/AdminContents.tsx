@@ -114,10 +114,10 @@ export function AdminContents() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-bold">{t('admin.contents_title')}</h1>
+        <h1 className="text-app-3xl font-bold">{t('admin.contents_title')}</h1>
         <button
           onClick={startAdd}
-          className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
+          className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
         >
           + {t('admin.contents_add')}
         </button>
@@ -137,22 +137,22 @@ export function AdminContents() {
 
       {/* エラー */}
       {error && (
-        <p className="text-xs text-app-text-muted mb-4">{error}</p>
+        <p className="text-app-lg text-app-text-muted mb-4">{error}</p>
       )}
 
       {/* ローディング */}
       {loading && (
-        <p className="text-xs text-app-text-muted">...</p>
+        <p className="text-app-lg text-app-text-muted">...</p>
       )}
 
       {/* テーブル */}
       {!loading && contents.length === 0 && (
-        <p className="text-xs text-app-text-muted">{t('admin.no_data')}</p>
+        <p className="text-app-lg text-app-text-muted">{t('admin.no_data')}</p>
       )}
 
       {!loading && contents.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full text-app-lg">
             <thead>
               <tr className="border-b border-app-text/10 text-left text-app-text-muted">
                 <th className="pb-2 pr-4">{t('admin.contents_id')}</th>

@@ -75,7 +75,7 @@ export function FeaturesSection() {
             >
               {t(`portal.features.${key}.title`)}
             </h3>
-            <p className="feat-desc text-sm md:text-base text-white/30 leading-relaxed max-w-sm opacity-0">
+            <p className="feat-desc text-app-2xl md:text-app-2xl-plus text-white/30 leading-relaxed max-w-sm opacity-0">
               {t(`portal.features.${key}.desc`)}
             </p>
           </div>

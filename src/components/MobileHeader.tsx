@@ -73,14 +73,14 @@ export const MobileHeader: React.FC<{
                     onClick={handleTitleTap}
                 >
                     {contentLabel && (
-                        <span className="text-[11px] font-black text-app-text truncate leading-none">
+                        <span className="text-app-md font-black text-app-text truncate leading-none">
                             {contentLabel}
                         </span>
                     )}
                     {hasPlanTitle && (
                         <>
-                            {contentLabel && <span className="text-[9px] text-app-text-muted shrink-0">/</span>}
-                            <span className="text-[10px] text-app-text-muted truncate leading-none">
+                            {contentLabel && <span className="text-app-sm text-app-text-muted shrink-0">/</span>}
+                            <span className="text-app-base text-app-text-muted truncate leading-none">
                                 {currentPlan.title}
                             </span>
                         </>
@@ -119,13 +119,13 @@ export const MobileHeader: React.FC<{
                             "bg-white/95 border-black/8"
                         )} />
                         {contentLabel && (
-                            <p className="text-[13px] font-black text-app-text text-center leading-snug">
+                            <p className="text-app-xl font-black text-app-text text-center leading-snug">
                                 {contentLabel}
                             </p>
                         )}
                         {hasPlanTitle && (
                             <p className={clsx(
-                                "text-[11px] text-app-text/60 text-center leading-snug",
+                                "text-app-md text-app-text/60 text-center leading-snug",
                                 contentLabel && "mt-1"
                             )}>
                                 {currentPlan.title}

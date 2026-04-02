@@ -202,7 +202,7 @@ export function SkillEditWizard() {
     return (
       <div className="max-w-xl mx-auto py-8 px-4">
         <div className="flex flex-col items-center justify-center gap-6 py-16 text-[var(--app-text)]">
-          <div className="text-4xl font-bold">{t('admin.wizard_success')}</div>
+          <div className="text-app-6xl font-bold">{t('admin.wizard_success')}</div>
           <div className="flex gap-4">
             <button
               type="button"
@@ -213,14 +213,14 @@ export function SkillEditWizard() {
                 setOriginalData(null);
                 setError(null);
               }}
-              className="border border-[var(--app-text)] px-6 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+              className="border border-[var(--app-text)] px-6 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
             >
               {t('admin.wizard_add_another')}
             </button>
             <button
               type="button"
               onClick={() => navigate('/admin')}
-              className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity"
+              className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity"
             >
               {t('admin.wizard_back_to_dashboard')}
             </button>
@@ -248,7 +248,7 @@ export function SkillEditWizard() {
         />
 
         {isLoading ? (
-          <div className="text-sm text-[var(--app-text-muted)] py-4">Loading...</div>
+          <div className="text-app-2xl text-[var(--app-text-muted)] py-4">Loading...</div>
         ) : (
           <div className="flex flex-col gap-4">
             {roleOrder.map((role) => {
@@ -256,7 +256,7 @@ export function SkillEditWizard() {
               if (!roleJobs || roleJobs.length === 0) return null;
               return (
                 <div key={role} className="flex flex-col gap-2">
-                  <div className="text-xs text-[var(--app-text-muted)] font-semibold uppercase tracking-wider">
+                  <div className="text-app-lg text-[var(--app-text-muted)] font-semibold uppercase tracking-wider">
                     {role}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -270,10 +270,10 @@ export function SkillEditWizard() {
                         }}
                         className="p-3 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors"
                       >
-                        <div className="text-sm font-medium">
+                        <div className="text-app-2xl font-medium">
                           {isJa ? job.name.ja : job.name.en}
                         </div>
-                        <div className="text-xs text-[var(--app-text-muted)]">{job.id}</div>
+                        <div className="text-app-lg text-[var(--app-text-muted)]">{job.id}</div>
                       </button>
                     ))}
                   </div>
@@ -304,7 +304,7 @@ export function SkillEditWizard() {
 
         <div className="flex flex-col gap-2">
           {jobSkills.length === 0 ? (
-            <p className="text-sm text-[var(--app-text-muted)]">
+            <p className="text-app-2xl text-[var(--app-text-muted)]">
               {isJa ? 'スキルが見つかりません' : 'No skills found'}
             </p>
           ) : (
@@ -315,10 +315,10 @@ export function SkillEditWizard() {
                 onClick={() => handleSelectSkill(skill)}
                 className="p-3 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors"
               >
-                <div className="text-sm font-medium">
+                <div className="text-app-2xl font-medium">
                   {isJa ? skill.name.ja : skill.name.en}
                 </div>
-                <div className="text-xs text-[var(--app-text-muted)]">{skill.id}</div>
+                <div className="text-app-lg text-[var(--app-text-muted)]">{skill.id}</div>
               </button>
             ))
           )}
@@ -336,8 +336,8 @@ export function SkillEditWizard() {
   // 編集フォーム（Step 3）
   if (step === 'edit') {
     const inputClass =
-      'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
-    const labelClass = 'text-xs text-[var(--app-text-muted)]';
+      'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
+    const labelClass = 'text-app-lg text-[var(--app-text-muted)]';
 
     return (
       <div className="max-w-xl mx-auto py-8 px-4">
@@ -437,7 +437,7 @@ export function SkillEditWizard() {
         </div>
 
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm mb-4">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl mb-4">{error}</div>
         )}
 
         <WizardFooter
@@ -469,19 +469,19 @@ export function SkillEditWizard() {
       <div className="max-w-xl mx-auto py-8 px-4">
         <div className="flex flex-col gap-6 text-[var(--app-text)]">
           <div className="border-b border-[var(--app-text)] pb-3">
-            <h2 className="text-xl font-bold">{t('admin.skill_wiz_title')}</h2>
-            <p className="text-sm text-[var(--app-text-muted)] mt-1">
+            <h2 className="text-app-4xl font-bold">{t('admin.skill_wiz_title')}</h2>
+            <p className="text-app-2xl text-[var(--app-text-muted)] mt-1">
               {t('admin.wizard_confirmation')}
             </p>
           </div>
 
           {changedFields.length === 0 ? (
-            <p className="text-sm text-[var(--app-text-muted)]">
+            <p className="text-app-2xl text-[var(--app-text-muted)]">
               {isJa ? '変更はありません' : 'No changes'}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              <p className="text-xs text-[var(--app-text-muted)] font-semibold uppercase tracking-wider mb-1">
+              <p className="text-app-lg text-[var(--app-text-muted)] font-semibold uppercase tracking-wider mb-1">
                 {t('admin.skill_wiz_changes_highlight')}
               </p>
               {changedFields.map((key) => (
@@ -489,10 +489,10 @@ export function SkillEditWizard() {
                   key={key}
                   className="border border-[var(--app-text)] p-3 flex flex-col gap-1"
                 >
-                  <span className="text-xs text-[var(--app-text-muted)]">
+                  <span className="text-app-lg text-[var(--app-text-muted)]">
                     {fieldLabels[key]}
                   </span>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2 text-app-2xl">
                     <span className="opacity-40 line-through">
                       {originalData?.[key] ?? '—'}
                     </span>
@@ -505,14 +505,14 @@ export function SkillEditWizard() {
           )}
 
           {error && (
-            <div className="border border-[var(--app-text)] p-3 text-sm">{error}</div>
+            <div className="border border-[var(--app-text)] p-3 text-app-2xl">{error}</div>
           )}
 
           <div className="flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
             <button
               type="button"
               onClick={() => setStep('edit')}
-              className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+              className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
             >
               {t('admin.wizard_back')}
             </button>
@@ -520,7 +520,7 @@ export function SkillEditWizard() {
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting || changedFields.length === 0}
-              className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+              className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
             >
               {isSubmitting ? t('admin.wizard_saving') : t('admin.wizard_save')}
             </button>
@@ -545,10 +545,10 @@ function WizardHeader({ title, stepLabel, question }: WizardHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6 text-[var(--app-text)]">
       <div className="border-b border-[var(--app-text)] pb-3">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-xs text-[var(--app-text-muted)] mt-1">{stepLabel}</p>
+        <h2 className="text-app-4xl font-bold">{title}</h2>
+        <p className="text-app-lg text-[var(--app-text-muted)] mt-1">{stepLabel}</p>
       </div>
-      <p className="text-sm text-[var(--app-text-muted)]">{question}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{question}</p>
     </div>
   );
 }
@@ -575,7 +575,7 @@ function WizardFooter({
       <button
         type="button"
         onClick={onBack}
-        className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+        className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
       >
         {backLabel}
       </button>
@@ -584,7 +584,7 @@ function WizardFooter({
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
         >
           {nextLabel}
         </button>

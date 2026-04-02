@@ -129,35 +129,35 @@ export function AdminSkills() {
   const skillCount = data?.mitigations.length ?? 0;
 
   const inputClass =
-    'px-2 py-1 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full';
-  const labelClass = 'block text-[10px] text-app-text-muted mb-0.5';
+    'px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full';
+  const labelClass = 'block text-app-base text-app-text-muted mb-0.5';
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-lg font-bold">スキル管理</h1>
-          <p className="text-[10px] text-app-text-muted mt-1">
+          <h1 className="text-app-3xl font-bold">スキル管理</h1>
+          <p className="text-app-base text-app-text-muted mt-1">
             ジョブ: {jobCount} / スキル: {skillCount}
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving || !dirty}
-          className="px-4 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {saving ? '...' : t('admin.save')}
         </button>
       </div>
 
-      {error && <p className="text-xs text-app-text-muted mb-4">{error}</p>}
-      {loading && <p className="text-xs text-app-text-muted">...</p>}
+      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
+      {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
       {!loading && data && (
         <div className="flex gap-4">
           {/* 左パネル: ジョブ一覧 */}
           <div className="w-48 shrink-0 border border-app-text/10 rounded">
-            <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+            <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
               ジョブ一覧
             </div>
             <div className="max-h-[70vh] overflow-y-auto">
@@ -170,7 +170,7 @@ export function AdminSkills() {
                       setSelectedJobId(job.id);
                       setExpandedSkillId(null);
                     }}
-                    className={`w-full text-left px-3 py-2 text-xs border-b border-app-text/5 transition-colors ${
+                    className={`w-full text-left px-3 py-2 text-app-lg border-b border-app-text/5 transition-colors ${
                       selectedJobId === job.id
                         ? 'bg-app-text/10 font-bold'
                         : 'hover:bg-app-text/5'
@@ -186,14 +186,14 @@ export function AdminSkills() {
 
           {/* 右パネル: スキル一覧 */}
           <div className="flex-1 border border-app-text/10 rounded">
-            <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+            <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
               {selectedJobId
                 ? `${data.jobs.find((j) => j.id === selectedJobId)?.name.ja ?? selectedJobId} のスキル (${jobSkills.length})`
                 : 'ジョブを選択してください'}
             </div>
             <div className="max-h-[70vh] overflow-y-auto">
               {jobSkills.length === 0 && (
-                <p className="p-4 text-xs text-app-text-muted">スキルがありません</p>
+                <p className="p-4 text-app-lg text-app-text-muted">スキルがありません</p>
               )}
               {jobSkills.map((skill) => (
                 <div
@@ -205,13 +205,13 @@ export function AdminSkills() {
                     onClick={() =>
                       setExpandedSkillId(expandedSkillId === skill.id ? null : skill.id)
                     }
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-app-text/5 transition-colors flex items-center gap-3"
+                    className="w-full text-left px-3 py-2 text-app-lg hover:bg-app-text/5 transition-colors flex items-center gap-3"
                   >
                     <span className="font-mono text-app-text-muted w-24 truncate">{skill.id}</span>
                     <span className="flex-1">{skill.name.ja}</span>
                     <span className="text-app-text-muted">{skill.value}%</span>
                     <span className="text-app-text-muted">{skill.duration}s</span>
-                    <span className="text-app-text-muted text-[10px]">
+                    <span className="text-app-text-muted text-app-base">
                       {expandedSkillId === skill.id ? '▲' : '▼'}
                     </span>
                   </button>
@@ -226,7 +226,7 @@ export function AdminSkills() {
                           className="w-8 h-8 object-contain"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
-                        <label className="px-3 py-1 text-xs border border-app-text/20 rounded cursor-pointer hover:bg-app-text/10 transition-colors">
+                        <label className="px-3 py-1 text-app-lg border border-app-text/20 rounded cursor-pointer hover:bg-app-text/10 transition-colors">
                           {uploadingIconFor === skill.id ? t('admin.icon_uploading') : t('admin.icon_upload')}
                           <input
                             type="file"
@@ -239,7 +239,7 @@ export function AdminSkills() {
                             }}
                           />
                         </label>
-                        <span className="text-[10px] text-app-text-muted font-mono">{skill.icon}</span>
+                        <span className="text-app-base text-app-text-muted font-mono">{skill.icon}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                         <div>

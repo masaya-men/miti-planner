@@ -58,7 +58,7 @@ export const ToastContainer: React.FC = () => {
                         ? <XCircle size={15} className="text-red-500 shrink-0" />
                         : <CheckCircle size={15} className="text-emerald-500 shrink-0" />
                     }
-                    <span className="text-[12px] font-bold text-app-text whitespace-nowrap">{toast.message}</span>
+                    <span className="text-app-lg font-bold text-app-text whitespace-nowrap">{toast.message}</span>
                 </div>
             ))}
         </div>,

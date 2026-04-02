@@ -124,12 +124,12 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
 
         {/* ヘッダー */}
         <div className="px-5 py-4 border-b border-app-border flex items-center justify-between shrink-0">
-          <h2 className="text-sm font-bold text-app-text">
+          <h2 className="text-app-2xl font-bold text-app-text">
             {t('admin.tpl_csv_title')}
           </h2>
           <button
             onClick={handleClose}
-            className="px-3 py-1 text-xs text-app-text-muted border border-app-text/20 rounded hover:bg-app-text/5 transition-colors cursor-pointer"
+            className="px-3 py-1 text-app-lg text-app-text-muted border border-app-text/20 rounded hover:bg-app-text/5 transition-colors cursor-pointer"
           >
             {t('common.cancel')}
           </button>
@@ -141,7 +141,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           {/* ─── Step 1: 貼り付け ─── */}
           {step === 'paste' && (
             <>
-              <p className="text-xs text-app-text-muted leading-relaxed">
+              <p className="text-app-lg text-app-text-muted leading-relaxed">
                 {t('admin.tpl_csv_paste_label')}
               </p>
               <textarea
@@ -150,10 +150,10 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                 rows={10}
                 placeholder={"時間\t技名\tダメージ\n0:13\tルーイン\t50000\n0:25\tディアスタシス\t80000"}
                 spellCheck={false}
-                className="w-full px-3 py-2 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text font-mono resize-y"
+                className="w-full px-3 py-2 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text font-mono resize-y"
               />
               {error && (
-                <p className="text-xs text-red-400">{t('admin.tpl_csv_error')}</p>
+                <p className="text-app-lg text-red-400">{t('admin.tpl_csv_error')}</p>
               )}
             </>
           )}
@@ -161,13 +161,13 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
           {/* ─── Step 2: 列対応付け ─── */}
           {step === 'mapping' && (
             <>
-              <p className="text-xs text-app-text-muted leading-relaxed">
+              <p className="text-app-lg text-app-text-muted leading-relaxed">
                 {t('admin.tpl_csv_column_label')}
               </p>
 
               {/* ドロップダウン付きプレビューテーブル */}
               <div className="overflow-x-auto border border-app-text/10 rounded">
-                <table className="text-[10px] text-app-text w-full">
+                <table className="text-app-base text-app-text w-full">
                   {/* ドロップダウンヘッダー行 */}
                   <thead>
                     <tr className="bg-app-text/5">
@@ -176,7 +176,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
                           <select
                             value={mappings[colIndex]?.type ?? 'skip'}
                             onChange={e => handleMappingChange(colIndex, e.target.value as ColumnType)}
-                            className="w-full px-1 py-0.5 text-[10px] bg-app-bg border border-app-text/20 rounded text-app-text [&>option]:bg-app-bg cursor-pointer"
+                            className="w-full px-1 py-0.5 text-app-base bg-app-bg border border-app-text/20 rounded text-app-text [&>option]:bg-app-bg cursor-pointer"
                           >
                             {COLUMN_TYPES.map(ct => (
                               <option key={ct} value={ct}>
@@ -209,7 +209,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
               </div>
 
               {error && (
-                <p className="text-xs text-red-400">{t('admin.tpl_csv_error')}</p>
+                <p className="text-app-lg text-red-400">{t('admin.tpl_csv_error')}</p>
               )}
             </>
           )}
@@ -221,7 +221,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             <button
               onClick={handleNext}
               disabled={!rawText.trim()}
-              className="px-4 py-1.5 text-xs font-bold border rounded transition-colors cursor-pointer border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-4 py-1.5 text-app-lg font-bold border rounded transition-colors cursor-pointer border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t('admin.wizard_next')}
             </button>
@@ -230,13 +230,13 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
             <>
               <button
                 onClick={handleBack}
-                className="px-4 py-1.5 text-xs font-medium border rounded transition-colors cursor-pointer border-app-text/20 text-app-text-muted hover:bg-app-text/5"
+                className="px-4 py-1.5 text-app-lg font-medium border rounded transition-colors cursor-pointer border-app-text/20 text-app-text-muted hover:bg-app-text/5"
               >
                 {t('admin.wizard_back')}
               </button>
               <button
                 onClick={handleImport}
-                className="px-4 py-1.5 text-xs font-bold border rounded transition-colors cursor-pointer border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"
+                className="px-4 py-1.5 text-app-lg font-bold border rounded transition-colors cursor-pointer border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"
               >
                 {t('admin.tpl_csv_import')}
               </button>

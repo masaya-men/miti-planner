@@ -18,14 +18,14 @@ function splitItems(value: string): string[] {
 /** セクション: タイトル + 本文 */
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section className="mb-8">
-        <h2 className="text-base font-bold mb-3 border-b border-app-border pb-1">{title}</h2>
+        <h2 className="text-app-2xl-plus font-bold mb-3 border-b border-app-border pb-1">{title}</h2>
         {children}
     </section>
 );
 
 /** 箇条書きリスト */
 const BulletList: React.FC<{ items: string[] }> = ({ items }) => (
-    <ul className="list-disc list-inside space-y-1 text-sm text-app-text-muted">
+    <ul className="list-disc list-inside space-y-1 text-app-2xl text-app-text-muted">
         {items.map((item, i) => (
             <li key={i}>{item}</li>
         ))}
@@ -35,7 +35,7 @@ const BulletList: React.FC<{ items: string[] }> = ({ items }) => (
 /** サブセクション（太字タイトル + リスト） */
 const SubSection: React.FC<{ title: string; items: string[] }> = ({ title, items }) => (
     <div className="mb-3">
-        <h3 className="text-sm font-semibold mb-1">{title}</h3>
+        <h3 className="text-app-2xl font-semibold mb-1">{title}</h3>
         <BulletList items={items} />
     </div>
 );
@@ -48,7 +48,7 @@ const ThreeColumnTable: React.FC<{
     col3: string[];
 }> = ({ headers, col1, col2, col3 }) => (
     <div className="overflow-x-auto mb-3">
-        <table className="w-full text-sm">
+        <table className="w-full text-app-2xl">
             <thead>
                 <tr className="border-b border-app-border">
                     {headers.map((h, i) => (
@@ -71,7 +71,7 @@ const ThreeColumnTable: React.FC<{
 
 /** 注釈テキスト */
 const Note: React.FC<{ text: string }> = ({ text }) => (
-    <p className="text-xs text-app-text-muted mt-2 leading-relaxed">{text}</p>
+    <p className="text-app-lg text-app-text-muted mt-2 leading-relaxed">{text}</p>
 );
 
 // ========================================
@@ -82,13 +82,13 @@ export const PrivacyPolicyPage: React.FC = () => {
     const { t } = useTranslation();
     return (
         <LegalPageLayout>
-            <h1 className="text-xl font-bold mb-1">{t('legal.privacy_title')}</h1>
-            <p className="text-xs text-app-text-muted mb-6">{t('legal.privacy_last_updated')}</p>
-            <p className="text-sm text-app-text-muted mb-8">{t('legal.privacy_intro')}</p>
+            <h1 className="text-app-4xl font-bold mb-1">{t('legal.privacy_title')}</h1>
+            <p className="text-app-lg text-app-text-muted mb-6">{t('legal.privacy_last_updated')}</p>
+            <p className="text-app-2xl text-app-text-muted mb-8">{t('legal.privacy_intro')}</p>
 
             {/* 1. 集める情報 */}
             <Section title={t('legal.privacy_section1_title')}>
-                <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section1_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section1_body')}</p>
                 <SubSection title={t('legal.privacy_section1_auth_title')} items={splitItems(t('legal.privacy_section1_auth_items'))} />
                 <SubSection title={t('legal.privacy_section1_plan_title')} items={splitItems(t('legal.privacy_section1_plan_items'))} />
                 <SubSection title={t('legal.privacy_section1_auto_title')} items={splitItems(t('legal.privacy_section1_auto_items'))} />
@@ -96,7 +96,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             {/* 2. 集めない情報 */}
             <Section title={t('legal.privacy_section2_title')}>
-                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section2_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section2_body')}</p>
                 <BulletList items={splitItems(t('legal.privacy_section2_items'))} />
             </Section>
 
@@ -107,7 +107,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             {/* 4. 利用している外部サービス */}
             <Section title={t('legal.privacy_section4_title')}>
-                <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section4_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section4_body')}</p>
                 <ThreeColumnTable
                     headers={[t('legal.privacy_section4_col_service'), t('legal.privacy_section4_col_provider'), t('legal.privacy_section4_col_purpose')]}
                     col1={splitItems(t('legal.privacy_section4_service_names'))}
@@ -127,7 +127,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             {/* 6. データの保存場所と保持期間 */}
             <Section title={t('legal.privacy_section6_title')}>
-                <p className="text-sm text-app-text-muted mb-3">{t('legal.privacy_section6_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section6_body')}</p>
                 <ThreeColumnTable
                     headers={[t('legal.privacy_section6_col_data'), t('legal.privacy_section6_col_location'), t('legal.privacy_section6_col_period')]}
                     col1={splitItems(t('legal.privacy_section6_data_types'))}
@@ -139,28 +139,28 @@ export const PrivacyPolicyPage: React.FC = () => {
 
             {/* 7. 第三者への情報提供 */}
             <Section title={t('legal.privacy_section7_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section7_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section7_body')}</p>
             </Section>
 
             {/* 8. あなたの権利 */}
             <Section title={t('legal.privacy_section8_title')}>
-                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section8_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section8_body')}</p>
                 <BulletList items={splitItems(t('legal.privacy_section8_items'))} />
             </Section>
 
             {/* 9. お子様について */}
             <Section title={t('legal.privacy_section9_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section9_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section9_body')}</p>
             </Section>
 
             {/* 10. このポリシーの変更 */}
             <Section title={t('legal.privacy_section10_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.privacy_section10_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section10_body')}</p>
             </Section>
 
             {/* 11. お問い合わせ */}
             <Section title={t('legal.privacy_section11_title')}>
-                <p className="text-sm text-app-text-muted mb-2">{t('legal.privacy_section11_body')}</p>
+                <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section11_body')}</p>
                 <BulletList items={splitItems(t('legal.privacy_section11_items'))} />
             </Section>
         </LegalPageLayout>
@@ -175,16 +175,16 @@ export const TermsPage: React.FC = () => {
     const { t } = useTranslation();
     return (
         <LegalPageLayout>
-            <h1 className="text-xl font-bold mb-1">{t('legal.terms_title')}</h1>
-            <p className="text-xs text-app-text-muted mb-6">{t('legal.terms_last_updated')}</p>
-            <p className="text-sm text-app-text-muted mb-8">{t('legal.terms_intro')}</p>
+            <h1 className="text-app-4xl font-bold mb-1">{t('legal.terms_title')}</h1>
+            <p className="text-app-lg text-app-text-muted mb-6">{t('legal.terms_last_updated')}</p>
+            <p className="text-app-2xl text-app-text-muted mb-8">{t('legal.terms_intro')}</p>
 
             <Section title={t('legal.terms_section1_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.terms_section1_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.terms_section1_body')}</p>
             </Section>
 
             <Section title={t('legal.terms_section2_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.terms_section2_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.terms_section2_body')}</p>
             </Section>
 
             <Section title={t('legal.terms_section3_title')}>
@@ -200,11 +200,11 @@ export const TermsPage: React.FC = () => {
             </Section>
 
             <Section title={t('legal.terms_section6_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.terms_section6_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.terms_section6_body')}</p>
             </Section>
 
             <Section title={t('legal.terms_section7_title')}>
-                <p className="text-sm text-app-text-muted">{t('legal.terms_section7_body')}</p>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.terms_section7_body')}</p>
             </Section>
         </LegalPageLayout>
     );
@@ -217,8 +217,8 @@ export const TermsPage: React.FC = () => {
 /** テーブル行 */
 const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
     <tr className="border-b border-app-border">
-        <th className="text-left text-sm font-semibold py-2.5 pr-4 align-top whitespace-nowrap w-[140px]">{label}</th>
-        <td className="text-sm text-app-text-muted py-2.5">{value}</td>
+        <th className="text-left text-app-2xl font-semibold py-2.5 pr-4 align-top whitespace-nowrap w-[140px]">{label}</th>
+        <td className="text-app-2xl text-app-text-muted py-2.5">{value}</td>
     </tr>
 );
 
@@ -241,8 +241,8 @@ export const CommercialDisclosurePage: React.FC = () => {
 
     return (
         <LegalPageLayout>
-            <h1 className="text-xl font-bold mb-1">{t('legal.commercial_title')}</h1>
-            <p className="text-xs text-app-text-muted mb-6">{t('legal.commercial_last_updated')}</p>
+            <h1 className="text-app-4xl font-bold mb-1">{t('legal.commercial_title')}</h1>
+            <p className="text-app-lg text-app-text-muted mb-6">{t('legal.commercial_last_updated')}</p>
 
             <table className="w-full">
                 <tbody>
@@ -278,7 +278,7 @@ const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 <div className="max-w-2xl mx-auto px-4 h-12 flex items-center justify-between">
                     <button
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-1.5 text-sm text-app-text-muted hover:text-app-text transition-colors"
+                        className="flex items-center gap-1.5 text-app-2xl text-app-text-muted hover:text-app-text transition-colors"
                     >
                         <ArrowLeft size={16} />
                         <span>LoPo</span>
@@ -302,7 +302,7 @@ const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
             {/* フッター */}
             <footer className="border-t border-app-border py-4 text-center">
-                <p className="text-[8px] text-app-text-muted">
+                <p className="text-app-xs text-app-text-muted">
                     © SQUARE ENIX CO., LTD. All Rights Reserved.
                 </p>
             </footer>

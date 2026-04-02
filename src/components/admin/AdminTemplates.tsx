@@ -252,11 +252,11 @@ export function AdminTemplates() {
   const hasEvents = editor.visibleEvents.length > 0;
 
   const inputClass =
-    'px-2 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
+    'px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
 
   return (
     <div>
-      <h1 className="text-lg font-bold mb-4">{t('admin.templates_title')}</h1>
+      <h1 className="text-app-3xl font-bold mb-4">{t('admin.templates_title')}</h1>
 
       {/* コンテンツ選択ドロップダウン */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -277,7 +277,7 @@ export function AdminTemplates() {
         </select>
 
         {selectedContentId && (
-          <span className="text-xs text-app-text-muted">
+          <span className="text-app-lg text-app-text-muted">
             {t('admin.tpl_editor_content_summary', {
               events: editor.visibleEvents.length,
               phases: editor.state.currentPhases.length,
@@ -320,7 +320,7 @@ export function AdminTemplates() {
 
       {/* 空状態（コンテンツ選択済みだがイベントなし） */}
       {selectedContentId && !hasEvents && (
-        <p className="text-xs text-app-text-muted mb-3">{t('admin.tpl_editor_empty')}</p>
+        <p className="text-app-lg text-app-text-muted mb-3">{t('admin.tpl_editor_empty')}</p>
       )}
 
       {/* フッター: 元に戻す + 保存（イベントあり時のみ） */}
@@ -330,7 +330,7 @@ export function AdminTemplates() {
             type="button"
             onClick={editor.undo}
             disabled={!editor.hasChanges}
-            className="text-xs px-3 py-1.5 rounded border border-app-text/20 text-app-text-muted hover:bg-app-text/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="text-app-lg px-3 py-1.5 rounded border border-app-text/20 text-app-text-muted hover:bg-app-text/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('admin.tpl_editor_undo')}
           </button>
@@ -338,7 +338,7 @@ export function AdminTemplates() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="text-xs px-3 py-1.5 rounded border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="text-app-lg px-3 py-1.5 rounded border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {saving ? '...' : t('admin.tpl_editor_save')}
           </button>
@@ -347,22 +347,22 @@ export function AdminTemplates() {
 
       {/* エラー */}
       {error && (
-        <p className="text-xs text-app-text-muted mb-4">{error}</p>
+        <p className="text-app-lg text-app-text-muted mb-4">{error}</p>
       )}
 
       {/* ローディング */}
       {loading && (
-        <p className="text-xs text-app-text-muted">...</p>
+        <p className="text-app-lg text-app-text-muted">...</p>
       )}
 
       {/* テンプレート一覧テーブル */}
       {!loading && templates.length === 0 && (
-        <p className="text-xs text-app-text-muted">{t('admin.no_data')}</p>
+        <p className="text-app-lg text-app-text-muted">{t('admin.no_data')}</p>
       )}
 
       {!loading && templates.length > 0 && (
         <div className="overflow-x-auto mb-8">
-          <table className="w-full text-xs">
+          <table className="w-full text-app-lg">
             <thead>
               <tr className="border-b border-app-text/10 text-left text-app-text-muted">
                 <th className="pb-2 pr-4">{t('admin.contents_id')}</th>
@@ -420,15 +420,15 @@ export function AdminTemplates() {
 
       {/* 昇格候補セクション */}
       <div className="mt-8">
-        <h2 className="text-sm font-bold mb-3">{t('admin.promotion_candidates')}</h2>
+        <h2 className="text-app-2xl font-bold mb-3">{t('admin.promotion_candidates')}</h2>
         {candidates.length === 0 ? (
-          <p className="text-xs text-app-text-muted">{t('admin.promotion_empty')}</p>
+          <p className="text-app-lg text-app-text-muted">{t('admin.promotion_empty')}</p>
         ) : (
           <div className="space-y-2">
             {candidates.map((c) => (
               <div
                 key={c.shareId}
-                className="flex items-center gap-3 p-3 border border-app-text/10 rounded text-xs"
+                className="flex items-center gap-3 p-3 border border-app-text/10 rounded text-app-lg"
               >
                 <span className="font-mono">{c.contentId}</span>
                 <span className="flex-1 truncate">{c.title}</span>

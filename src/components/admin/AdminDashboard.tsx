@@ -110,11 +110,11 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-10">
-      <h1 className="text-lg font-bold">{t('admin.dashboard')}</h1>
+      <h1 className="text-app-3xl font-bold">{t('admin.dashboard')}</h1>
 
       {/* セクション 1: アクションカード */}
       <section>
-        <h2 className="text-sm font-semibold mb-4 text-[var(--app-text-muted)] uppercase tracking-wide">
+        <h2 className="text-app-2xl font-semibold mb-4 text-[var(--app-text-muted)] uppercase tracking-wide">
           {t('admin.dash_what_to_do')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -124,8 +124,8 @@ export function AdminDashboard() {
               onClick={() => navigate(card.route)}
               className="border border-[var(--app-text)]/20 p-6 text-left hover:border-[var(--app-text)]/40 hover:bg-[var(--app-text)]/5 transition-colors"
             >
-              <div className="text-sm font-bold">{t(card.titleKey)}</div>
-              <div className="text-xs text-[var(--app-text-muted)] mt-1">{t(card.descKey)}</div>
+              <div className="text-app-2xl font-bold">{t(card.titleKey)}</div>
+              <div className="text-app-lg text-[var(--app-text-muted)] mt-1">{t(card.descKey)}</div>
             </button>
           ))}
         </div>
@@ -134,30 +134,30 @@ export function AdminDashboard() {
       {/* セクション 2: 最近の変更 */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-[var(--app-text-muted)] uppercase tracking-wide">
+          <h2 className="text-app-2xl font-semibold text-[var(--app-text-muted)] uppercase tracking-wide">
             {t('admin.dash_recent_changes')}
           </h2>
           <button
             onClick={() => navigate('/admin/logs')}
-            className="text-xs underline underline-offset-2 hover:opacity-60 transition-opacity"
+            className="text-app-lg underline underline-offset-2 hover:opacity-60 transition-opacity"
           >
             {t('admin.dash_view_all')}
           </button>
         </div>
 
         {logsLoading ? (
-          <p className="text-xs text-[var(--app-text-muted)]">{t('common.loading')}</p>
+          <p className="text-app-lg text-[var(--app-text-muted)]">{t('common.loading')}</p>
         ) : logs.length === 0 ? (
-          <p className="text-xs text-[var(--app-text-muted)]">{t('admin.dash_no_recent')}</p>
+          <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.dash_no_recent')}</p>
         ) : (
           <div className="divide-y divide-[var(--app-text)]/10 border border-[var(--app-text)]/10">
             {logs.map((log) => (
               <div key={log.id} className="flex items-center justify-between px-4 py-3 gap-4">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs font-mono shrink-0 opacity-70">{actionLabel(log.action)}</span>
-                  <span className="text-xs truncate">{parseTarget(log.target, isJa)}</span>
+                  <span className="text-app-lg font-mono shrink-0 opacity-70">{actionLabel(log.action)}</span>
+                  <span className="text-app-lg truncate">{parseTarget(log.target, isJa)}</span>
                 </div>
-                <span className="text-xs text-[var(--app-text-muted)] shrink-0">
+                <span className="text-app-lg text-[var(--app-text-muted)] shrink-0">
                   {log.timestamp ? relativeTime(log.timestamp._seconds, isJa) : '—'}
                 </span>
               </div>
@@ -172,7 +172,7 @@ export function AdminDashboard() {
           onClick={() => navigate('/admin/backups')}
           className="border border-[var(--app-text)]/20 p-4 text-left hover:border-[var(--app-text)]/40 hover:bg-[var(--app-text)]/5 transition-colors w-full"
         >
-          <div className="text-sm font-bold">{t('admin.dash_restore_backup')}</div>
+          <div className="text-app-2xl font-bold">{t('admin.dash_restore_backup')}</div>
         </button>
       </section>
     </div>

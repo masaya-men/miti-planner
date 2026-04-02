@@ -213,7 +213,7 @@ export const SharePage: React.FC = () => {
             <div className="flex items-center justify-center min-h-screen bg-app-bg text-app-text">
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-2 border-app-text border-t-transparent rounded-full animate-spin" />
-                    <p className="text-sm text-app-text-muted">{t('app.share_loading')}</p>
+                    <p className="text-app-2xl text-app-text-muted">{t('app.share_loading')}</p>
                 </div>
             </div>
         );
@@ -223,12 +223,12 @@ export const SharePage: React.FC = () => {
         return (
             <div className="flex items-center justify-center min-h-screen bg-app-bg text-app-text">
                 <div className="flex flex-col items-center gap-4 text-center px-6">
-                    <p className="text-lg font-bold">
+                    <p className="text-app-3xl font-bold">
                         {state === 'not_found' ? t('app.share_not_found') : t('app.share_error')}
                     </p>
                     <button
                         onClick={() => navigate('/')}
-                        className="px-4 py-2 rounded-full border border-app-border text-sm hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-full border border-app-border text-app-2xl hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
                     >
                         {t('app.return_home')}
                     </button>
@@ -244,12 +244,12 @@ export const SharePage: React.FC = () => {
             <div className="flex flex-col h-full relative z-10">
                 {/* 共有バナー */}
                 <div className="shrink-0 flex items-center justify-center gap-3 py-2 px-4 bg-app-surface2 border-b border-app-border">
-                    <span className="text-xs text-app-text-muted tracking-wide uppercase">
+                    <span className="text-app-lg text-app-text-muted tracking-wide uppercase">
                         {t('app.shared_plan')}
                     </span>
                     <button
                         onClick={handleCopyToMine}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
                     >
                         <Copy size={12} />
                         {isBundleView
@@ -269,7 +269,7 @@ export const SharePage: React.FC = () => {
                                     key={idx}
                                     onClick={() => setActiveTab(idx)}
                                     className={clsx(
-                                        "px-3 py-1 rounded-md text-xs font-bold transition-colors cursor-pointer whitespace-nowrap",
+                                        "px-3 py-1 rounded-md text-app-lg font-bold transition-colors cursor-pointer whitespace-nowrap",
                                         idx === activeTab
                                             ? "bg-app-text text-app-bg"
                                             : "text-app-text-muted hover:text-app-text hover:bg-app-text/10"

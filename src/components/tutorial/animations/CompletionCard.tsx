@@ -41,7 +41,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
         animate={{ scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       >
-        <h2 className="text-lg font-bold text-app-text text-center mb-2">
+        <h2 className="text-app-3xl font-bold text-app-text text-center mb-2">
           {t(`${prefix}.title`)}
         </h2>
 
@@ -54,7 +54,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
 
         <button
           onClick={onDismiss}
-          className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80 cursor-pointer"
+          className="w-full py-2.5 rounded-lg text-app-2xl font-semibold transition-opacity hover:opacity-80 cursor-pointer"
           style={{ backgroundColor: '#22c55e', color: 'white' }}
         >
           {t(`${prefix}.start_button`)}
@@ -66,7 +66,7 @@ export function CompletionCard({ onDismiss, variant = 'default' }: CompletionCar
 
 function FeatureHint({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div className="flex items-start gap-2.5 text-xs text-app-text-muted">
+    <div className="flex items-start gap-2.5 text-app-lg text-app-text-muted">
       <span className="mt-0.5 flex-shrink-0 text-[#22c55e]">{icon}</span>
       <span>{text}</span>
     </div>

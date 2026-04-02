@@ -77,7 +77,7 @@ function App() {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
+          <p style={{ fontSize: 'var(--font-size-4xl)', marginBottom: '1rem' }}>
             {i18n.language.startsWith('ja')
               ? '予期しないエラーが発生しました'
               : 'An unexpected error occurred'}
@@ -91,7 +91,7 @@ function App() {
               background: 'transparent',
               color: 'inherit',
               cursor: 'pointer',
-              fontSize: '1rem',
+              fontSize: 'var(--font-size-2xl-plus)',
             }}
           >
             {i18n.language.startsWith('ja') ? 'ページを再読み込み' : 'Reload page'}

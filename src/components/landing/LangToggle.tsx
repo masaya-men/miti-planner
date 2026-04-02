@@ -19,7 +19,7 @@ export function LangToggle() {
     >
       <button
         onClick={() => switchTo('ja')}
-        className={`group relative px-7 py-3.5 text-base font-bold tracking-wider transition-all duration-300 overflow-hidden ${
+        className={`group relative px-7 py-3.5 text-app-2xl-plus font-bold tracking-wider transition-all duration-300 overflow-hidden ${
           current === 'ja'
             ? 'bg-white text-black'
             : 'text-white/40 hover:text-white'
@@ -33,7 +33,7 @@ export function LangToggle() {
       </button>
       <button
         onClick={() => switchTo('en')}
-        className={`group relative px-7 py-3.5 text-base font-bold tracking-wider transition-all duration-300 overflow-hidden ${
+        className={`group relative px-7 py-3.5 text-app-2xl-plus font-bold tracking-wider transition-all duration-300 overflow-hidden ${
           current === 'en'
             ? 'bg-white text-black'
             : 'text-white/40 hover:text-white'

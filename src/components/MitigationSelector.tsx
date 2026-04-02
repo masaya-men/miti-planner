@@ -241,7 +241,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                             {selectedSingleTargetMit ? (
                                 <button
                                     onClick={() => setSelectedSingleTargetMit(null)}
-                                    className="group flex items-center gap-1 text-[10px] font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
+                                    className="group flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
                                 >
                                     <ChevronLeft 
                                         size={12} 
@@ -250,7 +250,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     <span>{t('mitigation.select_target', '対象を選択')}</span>
                                 </button>
                             ) : (
-                                <span className="text-[10px] font-black text-app-text-sec uppercase tracking-tighter leading-none">
+                                <span className="text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none">
                                     {t('mitigation.select')}
                                 </span>
                             )}
@@ -271,7 +271,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                         ref={scrollContainerRef}
                     >
                         {availableMitigations.length === 0 ? (
-                            <div className="text-xs text-app-text-sec p-4 text-center">{t('mitigation.no_mitigations')}</div>
+                            <div className="text-app-lg text-app-text-sec p-4 text-center">{t('mitigation.no_mitigations')}</div>
                         ) : (
                             availableMitigations.map(mitigation => {
                                 const status = getResourceStatus(mitigation);
@@ -316,7 +316,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 )}
                                             />
                                             {status.badge && (
-                                                <span className={`absolute -top-1.5 -right-1.5 text-[8px] font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
+                                                <span className={`absolute -top-1.5 -right-1.5 text-app-xs font-black leading-none px-1 py-0.5 rounded-full shadow-lg ring-1 ${status.badgeColor === 'red'
                                                     ? 'bg-red-600/90 text-red-100 ring-red-400/50'
                                                     : status.badgeColor === 'amber'
                                                         ? 'bg-amber-600/90 text-amber-100 ring-amber-400/50'
@@ -327,26 +327,26 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             )}
                                         </div>
                                         <div className="overflow-hidden">
-                                            <div className={`text-xs font-black transition-colors truncate ${!status.available
+                                            <div className={`text-app-lg font-black transition-colors truncate ${!status.available
                                                 ? 'text-red-600 dark:text-red-400'
                                                 : status.warning
                                                     ? 'text-amber-600 dark:text-amber-300'
                                                     : 'text-app-text'
                                                 }`}>
                                                 {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
-                                                {isAlreadyPlaced && <span className="ml-2 text-[8px] bg-red-600 text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
+                                                {isAlreadyPlaced && <span className="ml-2 text-app-xs bg-red-600 text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
                                                 {mitigation.scope === 'target' && !isAlreadyPlaced && (
-                                                    <span className="ml-2 text-[10px] text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
+                                                    <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
                                                         {isSelectedTargetMit ? '▼' : '▶'}
                                                     </span>
                                                 )}
                                             </div>
                                             {!status.available ? (
-                                                <div className="text-[10px] text-red-600 dark:text-red-400 font-bold">
+                                                <div className="text-app-base text-red-600 dark:text-red-400 font-bold">
                                                     {status.message}
                                                 </div>
                                             ) : status.warning && (
-                                                <div className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                                                <div className="text-app-base text-amber-700 dark:text-amber-400 font-bold">
                                                     ⚠ {status.message}
                                                 </div>
                                             )}
@@ -393,7 +393,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                                 />
                                                             ) : (
                                                                 <span className={clsx(
-                                                                    "text-[14px] font-black tracking-tighter uppercase drop-shadow-sm",
+                                                                    "text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm",
                                                                     member.role === 'tank' ? 'text-blue-500 dark:text-blue-400' : 
                                                                     member.role === 'healer' ? 'text-green-500 dark:text-green-400' : 
                                                                     'text-red-500 dark:text-red-400'

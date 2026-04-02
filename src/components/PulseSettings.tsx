@@ -158,7 +158,7 @@ const SnapSlider: React.FC<{
 
     return (
         <div className="flex items-center gap-2">
-            <span className="text-[8px] text-app-text-muted w-4 text-right shrink-0">{leftLabel}</span>
+            <span className="text-app-xs text-app-text-muted w-4 text-right shrink-0">{leftLabel}</span>
             <div
                 ref={trackRef}
                 className="relative flex-1 h-5 flex items-center cursor-pointer"
@@ -180,7 +180,7 @@ const SnapSlider: React.FC<{
                     style={{ left: `${percent}%` }}
                 />
             </div>
-            <span className="text-[8px] text-app-text-muted w-4 shrink-0">{rightLabel}</span>
+            <span className="text-app-xs text-app-text-muted w-4 shrink-0">{rightLabel}</span>
         </div>
     );
 };
@@ -197,7 +197,7 @@ const PillSelect: React.FC<{
             <button
                 key={opt.id}
                 onClick={() => !disabled && onChange(opt.id)}
-                className={`px-2.5 py-1 rounded-full text-[9px] font-bold tracking-wider transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-full text-app-sm font-bold tracking-wider transition-all cursor-pointer ${
                     value === opt.id
                         ? 'bg-app-text text-app-bg'
                         : 'bg-app-surface2 text-app-text-muted border border-app-border hover:border-app-text-muted'
@@ -212,7 +212,7 @@ const PillSelect: React.FC<{
 // セクション区切り
 const SectionHeader: React.FC<{ label: string; right?: React.ReactNode }> = ({ label, right }) => (
     <div className="flex items-center gap-2 mb-2 mt-1">
-        <span className="text-[9px] font-bold text-app-text uppercase tracking-widest">{label}</span>
+        <span className="text-app-sm font-bold text-app-text uppercase tracking-widest">{label}</span>
         <div className="flex-1 h-px bg-app-border" />
         {right}
     </div>
@@ -338,7 +338,7 @@ export const PulseSettings: React.FC = () => {
                 >
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold text-app-text uppercase tracking-wider">
+                        <span className="text-app-base font-bold text-app-text uppercase tracking-wider">
                             {t('footer.pulse_settings')}
                         </span>
                         <button
@@ -355,7 +355,7 @@ export const PulseSettings: React.FC = () => {
                         right={
                             <button
                                 onClick={() => update.enabled(!enabled)}
-                                className={`px-2 py-0.5 rounded-full text-[8px] font-bold tracking-wider transition-all cursor-pointer ${
+                                className={`px-2 py-0.5 rounded-full text-app-xs font-bold tracking-wider transition-all cursor-pointer ${
                                     enabled
                                         ? 'bg-app-text text-app-bg'
                                         : 'bg-app-surface2 text-app-text-muted border border-app-border'
@@ -368,7 +368,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* 距離 */}
                     <div className={`mb-2.5 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_distance')}
                         </div>
                         <SnapSlider value={distance} onChange={update.distance}
@@ -377,7 +377,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* 速度 */}
                     <div className={`mb-2.5 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_speed')}
                         </div>
                         <SnapSlider value={speed} onChange={update.speed}
@@ -386,7 +386,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* 太さ */}
                     <div className={`mb-2.5 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_line_width')}
                         </div>
                         <SnapSlider value={pulseWidth} onChange={update.pulseWidth}
@@ -396,7 +396,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* 光の強さ */}
                     <div className={`mb-2.5 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_opacity')}
                         </div>
                         <SnapSlider value={pulseOpacity} onChange={update.pulseOpacity}
@@ -406,7 +406,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* 色 */}
                     <div className={`mb-2.5 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1.5">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1.5">
                             {t('footer.pulse_color')}
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -429,7 +429,7 @@ export const PulseSettings: React.FC = () => {
                         {/* カスタムカラーピッカー */}
                         {colorId === 'custom' && enabled && (
                             <div className="mt-2 space-y-1.5">
-                                <div className="text-[8px] text-app-text-muted uppercase tracking-wider">
+                                <div className="text-app-xs text-app-text-muted uppercase tracking-wider">
                                     {t('footer.pulse_color_hue')}
                                 </div>
                                 <GradientSlider
@@ -439,7 +439,7 @@ export const PulseSettings: React.FC = () => {
                                     gradient={hueGradient}
                                     thumbColor={`hsl(${customHue}, 100%, 50%)`}
                                 />
-                                <div className="text-[8px] text-app-text-muted uppercase tracking-wider">
+                                <div className="text-app-xs text-app-text-muted uppercase tracking-wider">
                                     {t('footer.pulse_color_lightness')}
                                 </div>
                                 <GradientSlider
@@ -455,7 +455,7 @@ export const PulseSettings: React.FC = () => {
 
                     {/* グロー */}
                     <div className={`mb-3 transition-opacity ${pulseDisabledClass}`}>
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.pulse_glow')}
                         </div>
                         <SnapSlider value={glow} onChange={update.glow}
@@ -467,7 +467,7 @@ export const PulseSettings: React.FC = () => {
                     <SectionHeader label={t('footer.section_grid')} />
 
                     <div className="mb-3">
-                        <div className="text-[9px] text-app-text-muted uppercase tracking-wider mb-1">
+                        <div className="text-app-sm text-app-text-muted uppercase tracking-wider mb-1">
                             {t('footer.grid_line_width')}
                         </div>
                         <SnapSlider value={gridLineWidth} onChange={update.gridLineWidth}
@@ -479,7 +479,7 @@ export const PulseSettings: React.FC = () => {
                     <button
                         onClick={resetToDefault}
                         disabled={isDefault}
-                        className={`w-full py-1 rounded text-[9px] font-bold tracking-wider transition-all cursor-pointer ${
+                        className={`w-full py-1 rounded text-app-sm font-bold tracking-wider transition-all cursor-pointer ${
                             isDefault
                                 ? 'text-app-text-muted/30 cursor-default'
                                 : 'text-app-text-muted hover:text-app-text border border-app-border hover:border-app-text-muted'

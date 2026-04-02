@@ -118,8 +118,8 @@ export function JobWizard() {
 
   const renderStep = (stepId: string) => {
     const inputClass =
-      'w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]';
-    const questionClass = 'text-sm text-[var(--app-text-muted)] mb-3';
+      'w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]';
+    const questionClass = 'text-app-2xl text-[var(--app-text-muted)] mb-3';
 
     switch (stepId) {
       case 'jobId':
@@ -134,7 +134,7 @@ export function JobWizard() {
               className={inputClass}
               autoFocus
             />
-            <p className="text-xs text-[var(--app-text-muted)]">
+            <p className="text-app-lg text-[var(--app-text-muted)]">
               {isJa
                 ? '半角英数字・アンダースコアのみ使用可。例: pld, war, ast'
                 : 'Alphanumeric and underscores only. e.g. pld, war, ast'}
@@ -202,8 +202,8 @@ export function JobWizard() {
             className="flex items-center justify-between border-b border-[var(--app-text)]/10 pb-2 gap-4"
           >
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-xs text-[var(--app-text-muted)]">{label}</span>
-              <span className="text-sm font-medium truncate">{value || '—'}</span>
+              <span className="text-app-lg text-[var(--app-text-muted)]">{label}</span>
+              <span className="text-app-2xl font-medium truncate">{value || '—'}</span>
             </div>
           </div>
         ))}
@@ -242,7 +242,7 @@ function StepRole({ data, setField, t }: StepBaseProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)] mb-2">{t('admin.job_wiz_role')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)] mb-2">{t('admin.job_wiz_role')}</p>
       <div className="grid grid-cols-3 gap-3">
         {roles.map((role) => (
           <button
@@ -255,7 +255,7 @@ function StepRole({ data, setField, t }: StepBaseProps) {
                 : 'border-[var(--app-text)]/20 hover:border-[var(--app-text)]/40'
             }`}
           >
-            <div className="text-sm">{role.value}</div>
+            <div className="text-app-2xl">{role.value}</div>
           </button>
         ))}
       </div>
@@ -283,12 +283,12 @@ function StepIcon({ data, setField, t }: StepBaseProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.job_wiz_icon')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.job_wiz_icon')}</p>
       <input
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="text-sm text-[var(--app-text)] file:mr-3 file:border file:border-[var(--app-text)]/30 file:bg-transparent file:px-4 file:py-2 file:text-sm file:text-[var(--app-text)] hover:file:border-[var(--app-text)] file:cursor-pointer"
+        className="text-app-2xl text-[var(--app-text)] file:mr-3 file:border file:border-[var(--app-text)]/30 file:bg-transparent file:px-4 file:py-2 file:text-app-2xl file:text-[var(--app-text)] hover:file:border-[var(--app-text)] file:cursor-pointer"
       />
       {preview && (
         <div className="flex items-center gap-3">
@@ -299,7 +299,7 @@ function StepIcon({ data, setField, t }: StepBaseProps) {
               setPreview(null);
               setField('icon', null);
             }}
-            className="text-xs text-[var(--app-text-muted)] underline hover:text-[var(--app-text)] transition-colors"
+            className="text-app-lg text-[var(--app-text-muted)] underline hover:text-[var(--app-text)] transition-colors"
           >
             {t('admin.wizard_skip')}
           </button>

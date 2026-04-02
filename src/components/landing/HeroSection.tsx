@@ -107,7 +107,7 @@ export function HeroSection() {
         className="relative flex flex-col items-center text-center px-4 mix-blend-difference"
         style={{ perspective: '1200px', transformStyle: 'preserve-3d', zIndex: 20 }}
       >
-        <div ref={labelRef} className="text-[10px] md:text-[11px] text-white/40 tracking-[8px] uppercase mb-6 font-mono"
+        <div ref={labelRef} className="text-app-base md:text-app-md text-white/40 tracking-[8px] uppercase mb-6 font-mono"
           style={{ clipPath: 'inset(0 100% 0 0)' }}>{t('portal.hero.label')}</div>
         <div className="text-[clamp(80px,22vw,280px)] font-black tracking-[-0.05em] leading-[0.85]"
           style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
@@ -119,27 +119,27 @@ export function HeroSection() {
             </span>
           ))}
         </div>
-        <div ref={taglineRef} className="text-sm md:text-lg text-white/50 mt-8 max-w-md leading-relaxed opacity-0 tracking-wide">
+        <div ref={taglineRef} className="text-app-2xl md:text-app-3xl text-white/50 mt-8 max-w-md leading-relaxed opacity-0 tracking-wide">
           {t('portal.hero.tagline')}</div>
-        <div ref={taglineSubRef} className="text-xs md:text-sm text-white/25 mt-2 opacity-0">
+        <div ref={taglineSubRef} className="text-app-lg md:text-app-2xl text-white/25 mt-2 opacity-0">
           {t('portal.hero.tagline_sub')}</div>
         <div ref={ctaRef} className="mt-14 opacity-0 flex flex-col sm:flex-row items-center gap-3">
           <button onClick={() => navigate('/miti')}
-            className="group relative px-12 py-4 rounded-full text-sm font-bold overflow-hidden transition-all duration-300 active:scale-95 border border-white/30 hover:border-white/60">
+            className="group relative px-12 py-4 rounded-full text-app-2xl font-bold overflow-hidden transition-all duration-300 active:scale-95 border border-white/30 hover:border-white/60">
             <span className="relative z-10">{t('portal.hero.cta_primary')}</span>
             <div className="absolute inset-0 bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-full" />
           </button>
           <button
             disabled
-            className="relative px-10 py-4 rounded-full text-sm font-bold border border-white/10 text-white/20 cursor-not-allowed"
+            className="relative px-10 py-4 rounded-full text-app-2xl font-bold border border-white/10 text-white/20 cursor-not-allowed"
           >
             {t('portal.hero.cta_housing')}
-            <span className="ml-2 text-[9px] tracking-wider uppercase opacity-60">{t('portal.coming_soon')}</span>
+            <span className="ml-2 text-app-sm tracking-wider uppercase opacity-60">{t('portal.coming_soon')}</span>
           </button>
         </div>
       </div>
       <div ref={scrollHintRef} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-0" style={{ zIndex: 20 }}>
-        <div className="text-[9px] text-white/15 tracking-[5px] uppercase font-mono">{t('portal.hero.scroll_hint')}</div>
+        <div className="text-app-sm text-white/15 tracking-[5px] uppercase font-mono">{t('portal.hero.scroll_hint')}</div>
         <div className="scroll-line w-px h-10 bg-gradient-to-b from-white/20 to-transparent origin-top" />
       </div>
     </section>

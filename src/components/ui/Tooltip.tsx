@@ -140,7 +140,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                                 top: -9999,
                             }}
                             className={clsx(
-                                "glass-tier3 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-[11px] font-semibold tracking-tight text-app-text",
+                                "glass-tier3 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-app-md font-semibold tracking-tight text-app-text",
                                 className
                             )}
                         >

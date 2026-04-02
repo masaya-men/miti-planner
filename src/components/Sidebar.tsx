@@ -98,6 +98,15 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     // プランが存在するコンテンツはデフォルト展開、クリックでトグル
     const [isExpanded, setIsExpanded] = React.useState(contentPlans.length > 0);
 
+    // プランが0→1件になったら自動展開
+    const prevPlanCount = React.useRef(contentPlans.length);
+    React.useEffect(() => {
+        if (prevPlanCount.current === 0 && contentPlans.length > 0) {
+            setIsExpanded(true);
+        }
+        prevPlanCount.current = contentPlans.length;
+    }, [contentPlans.length]);
+
     // プラン名インライン編集
     const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
     const [editingTitle, setEditingTitle] = React.useState('');
@@ -202,7 +211,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     disabled={isDisabled}
                     {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
                     className={clsx(
-                        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
+                        "sidebar-item w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
                         isActive && !multiSelect.isEnabled
                             ? "text-app-text"
                             : "bg-transparent text-app-text hover:bg-glass-hover",
@@ -213,14 +222,14 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
 
                     <div className="shrink-0 flex items-center justify-center">
                         <div className={clsx(
-                            "w-7 h-8 rounded flex flex-col items-center justify-center font-black text-[9px] shrink-0",
+                            "w-7 h-8 rounded flex flex-col items-center justify-center font-black text-app-sm shrink-0",
                             isActive && !multiSelect.isEnabled
                                 ? "bg-app-text text-app-bg"
                                 : "bg-glass-card text-app-text group-hover:bg-glass-hover"
                         )}>
                             <span className="leading-none">{shortName.split('\n')[0]}</span>
                             {shortName.split('\n')[1] && (
-                                <span className="text-[8px] leading-none mt-0.5">{shortName.split('\n')[1]}</span>
+                                <span className="text-app-xs leading-none mt-0.5">{shortName.split('\n')[1]}</span>
                             )}
                         </div>
                     </div>
@@ -236,7 +245,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         : <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
                             ) : (
                                 // 2件以上: 選択数表示
-                                <span className="text-[9px] font-bold text-app-text-muted">
+                                <span className="text-app-sm font-bold text-app-text-muted">
                                     {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
                                         ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
                                         : `${contentPlans.length}件`
@@ -278,7 +287,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
                                         disabled={isPlanDisabled}
                                         className={clsx(
-                                            "flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                            "sidebar-item flex-1 text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                             isPlanSelected
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -299,14 +308,14 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         onChange={e => setEditingTitle(e.target.value)}
                                         onBlur={finishEditing}
                                         onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                        className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
+                                        className="flex-1 text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
                                     />
                                 ) : (
                                     <div
                                         role="button"
                                         tabIndex={0}
                                         className={clsx(
-                                            "flex-1 min-w-0 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] group/plan",
+                                            "sidebar-item flex-1 min-w-0 text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] group/plan",
                                             currentPlanId === plan.id
                                                 ? "bg-app-text/10 text-app-text font-bold"
                                                 : "text-app-text hover:bg-glass-hover",
@@ -394,7 +403,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                     >
                                                         <button
                                                             disabled
-                                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-app-text-muted/40 cursor-not-allowed"
+                                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-app-text-muted/40 cursor-not-allowed"
                                                         >
                                                             <Download size={11} />
                                                             {t('sidebar.export_csv')}
@@ -412,7 +421,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                                         setMenuPlanId(null);
                                                                         setConfirmDeletePlanId(null);
                                                                     }}
-                                                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-white bg-red-500 hover:bg-red-600 transition-colors cursor-pointer rounded-sm"
+                                                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-white bg-red-500 hover:bg-red-600 transition-colors cursor-pointer rounded-sm"
                                                                 >
                                                                     <Trash2 size={11} />
                                                                     {t(isTouchDevice ? 'sidebar.delete_single_confirm_tap' : 'sidebar.delete_single_confirm_click')}
@@ -425,7 +434,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                                     setConfirmDeletePlanId(plan.id);
                                                                     setTimeout(() => setDeleteAnimating(false), 400);
                                                                 }}
-                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-[10px] text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                                                             >
                                                                 <Trash2 size={11} />
                                                                 {t('sidebar.delete_single')}
@@ -444,13 +453,13 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     {/* 「+」行 — 同コンテンツに新しいプランを追加 */}
                     {isActive && !multiSelect.isEnabled && (
                         contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT ? (
-                            <div className="flex-1 text-[10px] py-1 px-2 font-medium flex items-center gap-2 text-app-text-muted/40">
+                            <div className="flex-1 text-app-base py-1 px-2 font-medium flex items-center gap-2 text-app-text-muted/40">
                                 {t('sidebar.plan_limit', { current: contentPlans.length, max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT })}
                             </div>
                         ) : (
                             <button
                                 onClick={() => onSelect(content, true)}
-                                className="flex-1 text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
+                                className="flex-1 text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 text-app-text-muted hover:text-app-text hover:bg-glass-hover cursor-pointer active:scale-[0.98]"
                             >
                                 <Plus size={10} className="shrink-0" />
                                 {t('sidebar.add_plan')}
@@ -553,7 +562,7 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
         <div className="mb-1">
             <button
                 onClick={multiSelect.isEnabled && seriesPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
-                className="w-full text-[10px] text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
+                className="sidebar-item w-full text-app-base text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
                 {multiSelect.isEnabled && seriesPlanIds.length > 0 ? (
                     <div className={clsx(
@@ -630,9 +639,9 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={clsx(
-                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
+                    "sidebar-item w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
                     "text-app-text hover:bg-glass-hover",
-                    "font-bold text-[10px] tracking-widest uppercase"
+                    "font-bold text-app-base tracking-widest uppercase"
                 )}
                 data-tutorial="sidebar-category"
             >
@@ -705,7 +714,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
     return (
         <div className="mb-2 mt-2">
             <div className="px-2 py-1.5">
-                <span className="font-bold text-[10px] tracking-widest uppercase text-app-text-muted">
+                <span className="font-bold text-app-base tracking-widest uppercase text-app-text-muted">
                     {label}
                 </span>
             </div>
@@ -721,7 +730,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                 onClick={() => { if (!isPlanDisabled) onToggleSelect(plan.id); }}
                                 disabled={isPlanDisabled}
                                 className={clsx(
-                                    "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
+                                    "sidebar-item w-full text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98]",
                                     isPlanSelected ? "bg-app-text/10 text-app-text font-bold" : "text-app-text hover:bg-glass-hover",
                                     isPlanDisabled && "opacity-40 cursor-not-allowed"
                                 )}
@@ -744,7 +753,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                 onChange={e => setEditingTitle(e.target.value)}
                                 onBlur={finishEditing}
                                 onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                className="flex-1 text-[10px] py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
+                                className="flex-1 text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
                             />
                         );
                     }
@@ -754,7 +763,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                             key={plan.id}
                             onClick={() => onLoadPlan(plan.id)}
                             className={clsx(
-                                "w-full text-left text-[10px] py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
+                                "sidebar-item w-full text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
                                 currentPlanId === plan.id ? "text-app-text font-bold" : "text-app-text hover:bg-glass-hover"
                             )}
                         >
@@ -1191,7 +1200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {!multiSelect.isEnabled && plans.length > 0 && (
                         <div className="pb-2 shrink-0 mt-3">
                             <div className="flex items-center mb-2 px-4">
-                                <span className="text-[10px] font-black text-app-text uppercase tracking-tighter">
+                                <span className="text-app-base font-black text-app-text uppercase tracking-tighter">
                                     {t('sidebar.recent_activity')}
                                 </span>
                             </div>
@@ -1210,11 +1219,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     >
                                         <div className="min-w-0 text-left">
                                             <p className={clsx(
-                                                "text-[9.5px] font-black truncate leading-tight text-app-text"
+                                                "text-app-sm font-black truncate leading-tight text-app-text"
                                             )}>
                                                 {plan.title}
                                             </p>
-                                            <p className="text-[10px] text-app-text-sec font-medium truncate leading-tight mt-0.5">
+                                            <p className="text-app-base text-app-text-sec font-medium truncate leading-tight mt-0.5">
                                                 {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
                                             </p>
                                         </div>
@@ -1222,7 +1231,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 ))}
                                 {plans.length === 0 && (
                                     <div className="px-2 py-4 border border-dashed border-glass-border rounded-lg text-center">
-                                        <p className="text-[9px] text-white/20 italic">No plans yet</p>
+                                        <p className="text-app-sm text-white/20 italic">No plans yet</p>
                                     </div>
                                 )}
                             </div>
@@ -1230,51 +1239,55 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     )}
 
                     <div className="px-3 space-y-2 shrink-0 mb-3">
-                        <div className="flex gap-1 bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
-                            {LEVEL_TIERS.map(level => (
-                                <button
-                                    key={level}
-                                    onClick={() => {
-                                        setActiveLevel(level);
-                                        useMitigationStore.getState().setCurrentLevel(level);
-                                    }}
-                                    className={clsx(
-                                        "flex-1 py-1.5 rounded-md text-[10px] font-black transition-all duration-200 cursor-pointer active:scale-95",
-                                        activeLevel === level
-                                            ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
-                                            : "text-app-text hover:bg-glass-hover"
-                                    )}
-                                >
-                                    {level}
-                                </button>
+                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
+                            {LEVEL_TIERS.map((level, i) => (
+                                <React.Fragment key={level}>
+                                    {i > 0 && <div className="w-px h-3 bg-app-text/15 shrink-0" />}
+                                    <button
+                                        onClick={() => {
+                                            setActiveLevel(level);
+                                            useMitigationStore.getState().setCurrentLevel(level);
+                                        }}
+                                        className={clsx(
+                                            "flex-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
+                                            activeLevel === level
+                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
+                                                : "text-app-text hover:bg-glass-hover"
+                                        )}
+                                    >
+                                        {level}
+                                    </button>
+                                </React.Fragment>
                             ))}
                         </div>
 
-                        <div className="flex gap-1 overflow-x-auto no-scrollbar scroll-smooth pb-1">
+                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto no-scrollbar scroll-smooth">
                             <button
                                 onClick={() => setActiveCategory('all')}
                                 className={clsx(
-                                    "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
+                                    "whitespace-nowrap px-2.5 py-1 rounded-md text-app-2xs font-black transition-all duration-200 cursor-pointer active:scale-95 shrink-0",
                                     activeCategory === 'all'
-                                        ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                        : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
+                                        ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
+                                        : "text-app-text hover:bg-glass-hover"
                                 )}
                             >
                                 {t('ui.all').toUpperCase()}
                             </button>
                             {availableCategories.map(cat => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={clsx(
-                                        "whitespace-nowrap px-3 py-1.5 rounded-full text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
-                                        activeCategory === cat
-                                            ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                            : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
-                                    )}
-                                >
-                                    {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
-                                </button>
+                                <React.Fragment key={cat}>
+                                    <div className="w-px h-3 bg-app-text/15 shrink-0" />
+                                    <button
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={clsx(
+                                            "whitespace-nowrap px-2.5 py-1 rounded-md text-app-2xs font-black transition-all duration-200 cursor-pointer active:scale-95 shrink-0",
+                                            activeCategory === cat
+                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
+                                                : "text-app-text hover:bg-glass-hover"
+                                        )}
+                                    >
+                                        {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
+                                    </button>
+                                </React.Fragment>
                             ))}
                         </div>
                     </div>
@@ -1290,7 +1303,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 }
                             }}
                             data-tutorial="new-plan-btn"
-                            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
                         >
                             <Plus size={10} />
                             {t('sidebar.new_plan').toUpperCase()}
@@ -1298,7 +1311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => toggleMultiSelectMode('share')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95",
+                                "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                 multiSelect.isEnabled && multiSelect.mode === 'share'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
                                     : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
@@ -1311,7 +1324,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <button
                             onClick={() => toggleMultiSelectMode('delete')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-1 rounded-md text-[9px] font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
+                                "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
                                 multiSelect.isEnabled && multiSelect.mode === 'delete'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
                                     : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
@@ -1388,7 +1401,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         >
                             {/* 選択件数 */}
                             <span className={clsx(
-                                "text-[11px] font-black text-app-text whitespace-nowrap min-w-[72px] text-center",
+                                "text-app-md font-black text-app-text whitespace-nowrap min-w-[72px] text-center",
                                 floatingBarFlash && "animate-[floatingCountBounce_.3s_cubic-bezier(.34,1.56,.64,1)]"
                             )}
                                 key={multiSelect.selectedIds.length}
@@ -1402,7 +1415,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             {/* キャンセル */}
                             <button
                                 onClick={() => setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' })}
-                                className="py-1.5 px-4 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                                className="py-1.5 px-4 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
                             >
                                 {t('sidebar.cancel')}
                             </button>
@@ -1412,7 +1425,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     onClick={handleShareBundle}
                                     disabled={multiSelect.selectedIds.length === 0}
                                     className={clsx(
-                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
+                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-app-md font-black transition-all cursor-pointer whitespace-nowrap",
                                         multiSelect.selectedIds.length > 0
                                             ? "bg-app-blue text-white hover:bg-app-blue-hover active:scale-95"
                                             : "bg-app-blue-dim text-app-text-muted opacity-50 cursor-not-allowed"
@@ -1429,7 +1442,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     }}
                                     disabled={multiSelect.selectedIds.length === 0}
                                     className={clsx(
-                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-[11px] font-black transition-all cursor-pointer whitespace-nowrap",
+                                        "flex items-center gap-2 py-1.5 px-4 rounded-lg text-app-md font-black transition-all cursor-pointer whitespace-nowrap",
                                         multiSelect.selectedIds.length > 0
                                             ? "bg-app-red text-white hover:bg-app-red-hover active:scale-95"
                                             : "bg-app-red-dim text-app-text-muted opacity-50 cursor-not-allowed"
@@ -1450,7 +1463,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 href="https://ko-fi.com/lopoly"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[9px] text-app-text-muted hover:text-app-text transition-colors font-scale-exclude"
+                                className="text-app-sm text-app-text-muted hover:text-app-text transition-colors font-scale-exclude"
                             >
                                 {isOpen ? <>☕ {t('footer.support')}</> : '☕'}
                             </a>
@@ -1553,10 +1566,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="px-5 py-4 border-b border-app-border">
-                            <h3 className="text-sm font-bold text-app-text">
+                            <h3 className="text-app-2xl font-bold text-app-text">
                                 {t('sidebar.name_dialog_title')}
                             </h3>
-                            <p className="text-[11px] text-app-text-muted mt-1">
+                            <p className="text-app-md text-app-text-muted mt-1">
                                 {t('sidebar.name_dialog_desc')}
                             </p>
                         </div>
@@ -1571,12 +1584,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     if (e.key === 'Escape') handleCancelNewPlan();
                                 }}
                                 onFocus={e => e.target.select()}
-                                className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-sm text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
+                                className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-app-2xl text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
                             />
                         </div>
                         <div className="px-5 pb-4 flex flex-col gap-3">
                             {!user && (
-                                <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                                <p className="text-app-base text-app-text-muted text-center leading-relaxed">
                                     {t('new_plan.guest_hint_short')
                                         .split(/<\/?login>/)
                                         .map((part, i) =>
@@ -1597,7 +1610,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             <div className="flex gap-2">
                                 <button
                                     onClick={handleCancelNewPlan}
-                                    className="flex-1 py-2.5 rounded-xl border border-app-border text-xs font-bold text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                    className="flex-1 py-2.5 rounded-xl border border-app-border text-app-lg font-bold text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
                                 >
                                     {t('common.cancel')}
                                 </button>
@@ -1605,7 +1618,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     onClick={handleConfirmNewPlan}
                                     disabled={!pendingPlanName.trim()}
                                     className={clsx(
-                                        "flex-[2] py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                        "flex-[2] py-2.5 rounded-xl text-app-lg font-bold transition-all cursor-pointer",
                                         pendingPlanName.trim()
                                             ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
                                             : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
@@ -1632,7 +1645,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     >
                         {/* ヘッダー */}
                         <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
-                            <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
+                            <h2 className="text-app-xl font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
                                 <span className="w-1.5 h-4 bg-app-text rounded-full" />
                                 {t('sidebar.delete_confirm_title')}
                             </h2>
@@ -1646,10 +1659,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                         {/* 本文 */}
                         <div className="p-6 space-y-3">
-                            <p className="text-[13px] font-bold text-app-text text-center">
+                            <p className="text-app-xl font-bold text-app-text text-center">
                                 {t('sidebar.delete_confirm', { count: multiSelect.selectedIds.length })}
                             </p>
-                            <p className="text-[11px] text-app-text-muted text-center">
+                            <p className="text-app-md text-app-text-muted text-center">
                                 {t('sidebar.delete_warning')}
                             </p>
                         </div>
@@ -1658,7 +1671,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                                className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-app-md font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                             >
                                 {t('common.cancel')}
                             </button>
@@ -1678,7 +1691,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     setMultiSelect({ isEnabled: false, selectedIds: [], mode: 'share' });
                                     setShowDeleteConfirm(false);
                                 }}
-                                className="flex-[2] py-3.5 rounded-2xl text-[11px] font-black bg-app-red text-white hover:bg-app-red-hover transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
+                                className="flex-[2] py-3.5 rounded-2xl text-app-md font-black bg-app-red text-white hover:bg-app-red-hover transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95"
                             >
                                 {t('sidebar.delete')}
                             </button>

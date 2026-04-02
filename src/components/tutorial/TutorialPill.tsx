@@ -60,7 +60,7 @@ export function TutorialPill({ label, top, left, visible, arrow = 'down' }: Tuto
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="text-[10px] font-bold text-white tracking-[0.8px]"
+          className="text-app-base font-bold text-white tracking-[0.8px]"
           style={{ fontFamily: 'system-ui' }}
         >
           {LABEL_TEXT[label]}

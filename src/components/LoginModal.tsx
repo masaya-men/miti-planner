@@ -100,7 +100,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         {/* ヘッダー */}
                         <div className="flex items-center justify-between px-6 pt-6 pb-2">
                             <h2
-                                className="text-[18px] text-app-text tracking-wide"
+                                className="text-app-3xl text-app-text tracking-wide"
                                 style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
                             >
                                 {user ? (user.displayName || 'Account') : t('login.title')}
@@ -121,10 +121,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                         <img src={user.photoURL} alt="" className="w-10 h-10 rounded-full shrink-0" referrerPolicy="no-referrer" />
                                     )}
                                     <div className="min-w-0">
-                                        <div className="text-[13px] font-bold text-app-text truncate">
+                                        <div className="text-app-xl font-bold text-app-text truncate">
                                             {user.displayName || 'User'}
                                         </div>
-                                        <div className="text-[11px] text-app-text-muted truncate flex items-center gap-1">
+                                        <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
                                             {user.providerData[0]?.providerId === 'google.com' ? 'Google'
                                                 : user.providerData[0]?.providerId === 'twitter.com' ? 'X (Twitter)'
                                                     : user.uid.startsWith('discord:') ? 'Discord'
@@ -139,7 +139,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     <button
                                         onClick={() => { navigate('/admin'); onClose(); }}
                                         className={clsx(
-                                            "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
+                                            "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
                                             "text-yellow-400 border border-yellow-400/30 hover:bg-yellow-400/10 hover:border-yellow-400/60"
                                         )}
                                     >
@@ -151,7 +151,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 <button
                                     onClick={() => { signOut(); onClose(); }}
                                     className={clsx(
-                                        "w-full px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
+                                        "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
                                         "text-app-red border border-app-red-border hover:bg-app-red-dim hover:border-app-red"
                                     )}
                                 >
@@ -162,7 +162,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 {/* アカウント削除（控えめ配置） */}
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
-                                    className="mt-3 text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer w-full text-center py-1"
+                                    className="mt-3 text-app-base text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer w-full text-center py-1"
                                 >
                                     {t('nav.deleteAccount')}
                                 </button>
@@ -182,7 +182,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         {/* 未ログイン: プロバイダー選択 */}
                         {!user && (
                             <div className="px-6 pb-6 pt-1">
-                                <p className="text-[11px] text-app-text-muted leading-relaxed mb-4">
+                                <p className="text-app-md text-app-text-muted leading-relaxed mb-4">
                                     {t('login.benefit_message')}
                                 </p>
 
@@ -192,7 +192,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             key={id}
                                             onClick={() => handleSignIn(id)}
                                             className={clsx(
-                                                "w-full px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 flex items-center gap-3 cursor-pointer",
+                                                "w-full px-4 py-3 rounded-xl text-app-xl font-bold transition-all duration-300 flex items-center gap-3 cursor-pointer",
                                                 "text-app-text border border-app-border",
                                                 bgHover,
                                                 "hover:border-app-text/30 active:scale-[0.98]"
@@ -206,7 +206,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
                                 <div className="flex items-start gap-2 px-1">
                                     <Shield size={13} className="text-app-text-muted shrink-0 mt-0.5" />
-                                    <p className="text-[10px] text-app-text-muted leading-relaxed">
+                                    <p className="text-app-base text-app-text-muted leading-relaxed">
                                         {t('login.privacy_message')}
                                     </p>
                                 </div>

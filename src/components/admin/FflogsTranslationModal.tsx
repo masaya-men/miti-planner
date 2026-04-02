@@ -148,12 +148,12 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
 
         {/* ヘッダー */}
         <div className="px-5 py-4 border-b border-app-border flex items-center justify-between shrink-0">
-          <h2 className="text-sm font-bold text-app-text">
+          <h2 className="text-app-2xl font-bold text-app-text">
             {t('admin.tpl_fflogs_title')}
           </h2>
           <button
             onClick={handleClose}
-            className="px-3 py-1 text-xs text-app-text-muted border border-app-text/20 rounded hover:bg-app-text/5 transition-colors cursor-pointer"
+            className="px-3 py-1 text-app-lg text-app-text-muted border border-app-text/20 rounded hover:bg-app-text/5 transition-colors cursor-pointer"
           >
             {t('common.close')}
           </button>
@@ -164,7 +164,7 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
 
           {/* URLラベル */}
           <label className="flex flex-col gap-1.5">
-            <span className="text-[10px] text-app-text-muted">
+            <span className="text-app-base text-app-text-muted">
               {t('admin.tpl_fflogs_url_label')}
             </span>
 
@@ -181,13 +181,13 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
                     void handleFetch();
                   }
                 }}
-                className="flex-1 px-3 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text disabled:opacity-50"
+                className="flex-1 px-3 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text disabled:opacity-50"
               />
               <button
                 type="button"
                 onClick={() => void handleFetch()}
                 disabled={isLoading || !url.trim()}
-                className="shrink-0 px-3 py-1.5 text-xs border rounded transition-colors cursor-pointer border-purple-500/40 text-purple-400 hover:bg-purple-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="shrink-0 px-3 py-1.5 text-app-lg border rounded transition-colors cursor-pointer border-purple-500/40 text-purple-400 hover:bg-purple-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isLoading ? '...' : t('admin.tpl_fflogs_fetch')}
               </button>
@@ -196,17 +196,17 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
 
           {/* ステータスメッセージ */}
           {status.phase === 'error' && (
-            <p className="text-xs text-red-400">
+            <p className="text-app-lg text-red-400">
               {t('admin.tpl_fflogs_error')}
             </p>
           )}
           {status.phase === 'success' && (
-            <p className="text-xs text-emerald-400">
+            <p className="text-app-lg text-emerald-400">
               {t('admin.tpl_fflogs_matched', { count: status.count })}
             </p>
           )}
           {status.phase === 'no_match' && (
-            <p className="text-xs text-amber-400">
+            <p className="text-app-lg text-amber-400">
               {t('admin.tpl_fflogs_no_match')}
             </p>
           )}

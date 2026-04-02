@@ -96,7 +96,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     )}
                     <div>{item.icon}</div>
                     <span className={clsx(
-                        "text-[9px] tracking-tight leading-none",
+                        "text-app-sm tracking-tight leading-none",
                         item.active ? "font-black" : "font-bold"
                     )}>{item.label}</span>
                 </button>

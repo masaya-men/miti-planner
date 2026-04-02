@@ -124,21 +124,21 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
   };
 
   const inputClass =
-    'w-full px-2 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
+    'w-full px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
   const selectClass =
-    'w-full px-2 py-1.5 text-xs bg-app-bg border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text [&>option]:bg-app-bg [&>option]:text-app-text';
-  const labelClass = 'block text-[10px] font-bold text-app-text-muted mb-0.5';
-  const exampleClass = 'text-[9px] text-app-text-muted/50';
+    'w-full px-2 py-1.5 text-app-lg bg-app-bg border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text [&>option]:bg-app-bg [&>option]:text-app-text';
+  const labelClass = 'block text-app-base font-bold text-app-text-muted mb-0.5';
+  const exampleClass = 'text-app-sm text-app-text-muted/50';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="text-sm font-bold">
+      <h2 className="text-app-2xl font-bold">
         {isEdit ? 'コンテンツ編集' : 'コンテンツ追加'}
       </h2>
 
       {/* ── 基本情報 ── */}
       <div className="space-y-3">
-        <div className="text-[10px] font-bold text-app-text-muted border-b border-app-text/10 pb-1">
+        <div className="text-app-base font-bold text-app-text-muted border-b border-app-text/10 pb-1">
           基本情報
         </div>
 
@@ -237,7 +237,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
       {/* ── 零式専用：シリーズ・層 ── */}
       {isSavage && (
         <div className="space-y-3">
-          <div className="text-[10px] font-bold text-app-text-muted border-b border-app-text/10 pb-1">
+          <div className="text-app-base font-bold text-app-text-muted border-b border-app-text/10 pb-1">
             零式の設定
           </div>
 
@@ -282,7 +282,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
                 <button
                   type="button"
                   onClick={() => { setNewSeriesMode(false); setNewSeriesId(''); }}
-                  className="text-[10px] text-app-text-muted hover:text-app-text"
+                  className="text-app-base text-app-text-muted hover:text-app-text"
                 >
                   ← 既存シリーズから選ぶ
                 </button>
@@ -304,7 +304,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
                 </option>
               ))}
             </select>
-            <p className="text-[9px] text-app-text-muted/40 mt-0.5">
+            <p className="text-app-sm text-app-text-muted/40 mt-0.5">
               前半/後半がある場合は別々のコンテンツとして追加してください
             </p>
           </div>
@@ -333,7 +333,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-[10px] text-app-text-muted hover:text-app-text transition-colors"
+          className="text-app-base text-app-text-muted hover:text-app-text transition-colors"
         >
           {showAdvanced ? '▼' : '▶'} 上級者設定（通常は不要）
         </button>
@@ -384,14 +384,14 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {saving ? '...' : '保存'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-3 py-1.5 text-xs text-app-text-muted hover:text-app-text transition-colors"
+          className="px-3 py-1.5 text-app-lg text-app-text-muted hover:text-app-text transition-colors"
         >
           キャンセル
         </button>

@@ -202,8 +202,8 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <Shield className="text-app-text" size={16} />
                         </div>
                         <div>
-                            <h2 className="text-xs font-bold text-app-text tracking-wider">{t('party.settings_title', 'パラメータ設定')}</h2>
-                            <p className="text-[9px] text-app-text-sec mt-0.5 whitespace-pre-line">
+                            <h2 className="text-app-lg font-bold text-app-text tracking-wider">{t('party.settings_title', 'パラメータ設定')}</h2>
+                            <p className="text-app-sm text-app-text-sec mt-0.5 whitespace-pre-line">
                                 {t('party.settings_desc')}
                             </p>
                         </div>
@@ -223,14 +223,14 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                                    <h4 className="text-xs font-bold text-blue-700 dark:text-blue-100 uppercase tracking-wider">TANK</h4>
+                                    <h4 className="text-app-lg font-bold text-blue-700 dark:text-blue-100 uppercase tracking-wider">TANK</h4>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">HP</label>
+                                    <label className="text-app-base uppercase tracking-wider text-app-text font-bold">HP</label>
                                     <FormattedNumberInput
                                         value={tankRep?.stats.hp || 0}
                                         onChange={(val) => updateTankHP(val)}
-                                        className="w-24 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-24 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                             </div>
@@ -240,39 +240,39 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         <div className="bg-glass-card border border-glass-border rounded-xl p-4 shadow-sm">
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <h4 className="text-xs font-bold text-green-700 dark:text-green-100 uppercase tracking-wider">HEALER</h4>
+                                <h4 className="text-app-lg font-bold text-green-700 dark:text-green-100 uppercase tracking-wider">HEALER</h4>
                             </div>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">HP</label>
+                                    <label className="text-app-base uppercase tracking-wider text-app-text font-bold">HP</label>
                                     <FormattedNumberInput
                                         value={healerRep?.stats.hp || 0}
                                         onChange={(val) => updateHealerHP(val)}
-                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">WD</label>
+                                    <label className="text-app-base uppercase tracking-wider text-app-text font-bold">WD</label>
                                     <FormattedNumberInput
                                         value={healerRep?.stats.wd || 0}
                                         onChange={(val) => updateHealerStats({ wd: val })}
-                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">MND</label>
+                                    <label className="text-app-base uppercase tracking-wider text-app-text font-bold">MND</label>
                                     <FormattedNumberInput
                                         value={healerRep?.stats.mainStat || 0}
                                         onChange={(val) => updateHealerStats({ mainStat: val })}
-                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] uppercase tracking-wider text-app-text font-bold">DET</label>
+                                    <label className="text-app-base uppercase tracking-wider text-app-text font-bold">DET</label>
                                     <FormattedNumberInput
                                         value={healerRep?.stats.det || 0}
                                         onChange={(val) => updateHealerStats({ det: val })}
-                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-xs hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
+                                        className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                             </div>
@@ -281,13 +281,13 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
 
                     {/* Skill Value Preview List（useMemoでステータス変更時のみ再計算） */}
                     <div className="pt-2">
-                        <h4 className="text-[10px] uppercase tracking-widest text-app-text font-bold mb-2">{t('settings.shield_preview', 'シールド・ヒール量 プレビュー')}</h4>
+                        <h4 className="text-app-base uppercase tracking-widest text-app-text font-bold mb-2">{t('settings.shield_preview', 'シールド・ヒール量 プレビュー')}</h4>
 
                         <div className="space-y-3">
                             {/* Top Row: Tank (4 cols) and DPS (2 cols) */}
                             <div className="flex gap-2">
                                 <div className="flex-[4]">
-                                    <h5 className="text-[9px] font-extrabold text-blue-700 dark:text-blue-300 mb-1">TANK</h5>
+                                    <h5 className="text-app-sm font-extrabold text-blue-700 dark:text-blue-300 mb-1">TANK</h5>
                                     <div className="grid grid-cols-4 gap-1.5">
                                         {skillPreviews.tank.map((s: any) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
@@ -295,7 +295,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                     </div>
                                 </div>
                                 <div className="flex-[2]">
-                                    <h5 className="text-[9px] font-extrabold text-red-700 dark:text-red-300 mb-1">DPS</h5>
+                                    <h5 className="text-app-sm font-extrabold text-red-700 dark:text-red-300 mb-1">DPS</h5>
                                     <div className="grid grid-cols-2 gap-1.5">
                                         {skillPreviews.dps.map((s: any) => (
                                             <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
@@ -306,7 +306,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
 
                             {/* Bottom Row: Healer (6 cols) */}
                             <div>
-                                <h5 className="text-[9px] font-extrabold text-green-700 dark:text-green-300 mb-1">HEALER</h5>
+                                <h5 className="text-app-sm font-extrabold text-green-700 dark:text-green-300 mb-1">HEALER</h5>
                                 <div className="grid grid-cols-6 gap-1.5 mb-1.5">
                                     {skillPreviews.healerTop.map((s: any) => (
                                         <SkillPreviewItem key={s.key} item={s} contentLanguage={contentLanguage} />
@@ -336,9 +336,9 @@ const SkillPreviewItem: React.FC<{ item: { key: string; value: number; iconUrl: 
                     {item.iconUrl ? (
                         <img src={item.iconUrl} alt={displayName} className="w-6 h-6 rounded-md opacity-100 drop-shadow-sm" />
                     ) : (
-                        <div className="w-6 h-6 bg-app-surface2 rounded-md flex items-center justify-center text-[10px] text-app-text-muted">?</div>
+                        <div className="w-6 h-6 bg-app-surface2 rounded-md flex items-center justify-center text-app-base text-app-text-muted">?</div>
                     )}
-                    <span className="font-mono text-app-text font-bold text-[10px] tracking-tight leading-none">
+                    <span className="font-mono text-app-text font-bold text-app-base tracking-tight leading-none">
                         {item.value.toLocaleString()}
                     </span>
                 </div>

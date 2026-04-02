@@ -45,10 +45,10 @@ function WizardHeader({ title, stepLabel, question }: WizardHeaderProps) {
   return (
     <div className="flex flex-col gap-4 mb-6 text-[var(--app-text)]">
       <div className="border-b border-[var(--app-text)] pb-3">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-xs text-[var(--app-text-muted)] mt-1">{stepLabel}</p>
+        <h2 className="text-app-4xl font-bold">{title}</h2>
+        <p className="text-app-lg text-[var(--app-text-muted)] mt-1">{stepLabel}</p>
       </div>
-      <p className="text-sm text-[var(--app-text-muted)]">{question}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{question}</p>
     </div>
   );
 }
@@ -75,7 +75,7 @@ function WizardFooter({
       <button
         type="button"
         onClick={onBack}
-        className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+        className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
       >
         {backLabel}
       </button>
@@ -84,7 +84,7 @@ function WizardFooter({
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
         >
           {nextLabel}
         </button>
@@ -104,19 +104,19 @@ function DoneScreen({ onReset }: DoneScreenProps) {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-center gap-6 py-16 text-[var(--app-text)]">
-      <div className="text-4xl font-bold">{t('admin.wizard_success')}</div>
+      <div className="text-app-6xl font-bold">{t('admin.wizard_success')}</div>
       <div className="flex gap-4">
         <button
           type="button"
           onClick={onReset}
-          className="border border-[var(--app-text)] px-6 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+          className="border border-[var(--app-text)] px-6 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
         >
           {t('admin.wizard_add_another')}
         </button>
         <button
           type="button"
           onClick={() => navigate('/admin')}
-          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity"
+          className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity"
         >
           {t('admin.wizard_back_to_dashboard')}
         </button>
@@ -272,8 +272,8 @@ function EditBranch({ onBack }: { onBack: () => void }) {
   }, [selectedPatch, editData, t]);
 
   const inputClass =
-    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
-  const labelClass = 'text-xs text-[var(--app-text-muted)]';
+    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
+  const labelClass = 'text-app-lg text-[var(--app-text-muted)]';
 
   const fieldLabels: Record<keyof EditFormState, string> = {
     tankHp: t('admin.stats_wiz_tank_hp'),
@@ -310,7 +310,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
           question={t('admin.stats_wiz_select_patch')}
         />
         {isLoading ? (
-          <div className="text-sm text-[var(--app-text-muted)] py-4">Loading...</div>
+          <div className="text-app-2xl text-[var(--app-text-muted)] py-4">Loading...</div>
         ) : (
           <div className="flex flex-col gap-2">
             {patchList.map((patch) => (
@@ -318,7 +318,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
                 key={patch}
                 type="button"
                 onClick={() => handleSelectPatch(patch)}
-                className="p-3 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors text-sm font-medium text-[var(--app-text)]"
+                className="p-3 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors text-app-2xl font-medium text-[var(--app-text)]"
               >
                 Patch {patch}
               </button>
@@ -326,7 +326,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
           </div>
         )}
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm mt-4">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl mt-4">{error}</div>
         )}
         <WizardFooter onBack={onBack} backLabel={t('admin.wizard_back')} />
       </div>
@@ -342,7 +342,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
           question={`Patch ${selectedPatch}`}
         />
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="col-span-2 text-xs font-semibold uppercase tracking-wider text-[var(--app-text-muted)] pt-2">
+          <div className="col-span-2 text-app-lg font-semibold uppercase tracking-wider text-[var(--app-text-muted)] pt-2">
             Tank
           </div>
           <div className="flex flex-col gap-1">
@@ -385,7 +385,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
               onChange={(e) => updateField('tankWd', e.target.value)}
             />
           </div>
-          <div className="col-span-2 text-xs font-semibold uppercase tracking-wider text-[var(--app-text-muted)] pt-2">
+          <div className="col-span-2 text-app-lg font-semibold uppercase tracking-wider text-[var(--app-text-muted)] pt-2">
             Other
           </div>
           <div className="flex flex-col gap-1">
@@ -430,7 +430,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm mb-4">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl mb-4">{error}</div>
         )}
         <WizardFooter
           onBack={() => setStep('selectPatch')}
@@ -448,13 +448,13 @@ function EditBranch({ onBack }: { onBack: () => void }) {
     <div className="max-w-xl mx-auto py-8 px-4">
       <div className="flex flex-col gap-6 text-[var(--app-text)]">
         <div className="border-b border-[var(--app-text)] pb-3">
-          <h2 className="text-xl font-bold">{t('admin.stats_wiz_title')}</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
+          <h2 className="text-app-4xl font-bold">{t('admin.stats_wiz_title')}</h2>
+          <p className="text-app-2xl text-[var(--app-text-muted)] mt-1">
             {t('admin.wizard_confirmation')}
           </p>
         </div>
         {changedFields.length === 0 ? (
-          <p className="text-sm text-[var(--app-text-muted)]">
+          <p className="text-app-2xl text-[var(--app-text-muted)]">
             {t('admin.skill_wiz_changes_highlight') === t('admin.skill_wiz_changes_highlight') ? (i18n.language.startsWith('ja') ? '変更はありません' : 'No changes') : ''}
           </p>
         ) : (
@@ -464,10 +464,10 @@ function EditBranch({ onBack }: { onBack: () => void }) {
                 key={key}
                 className="border border-[var(--app-text)] p-3 flex flex-col gap-1"
               >
-                <span className="text-xs text-[var(--app-text-muted)]">
+                <span className="text-app-lg text-[var(--app-text-muted)]">
                   {fieldLabels[key]}
                 </span>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-app-2xl">
                   <span className="opacity-40 line-through">
                     {originalData?.[key] ?? '—'}
                   </span>
@@ -479,13 +479,13 @@ function EditBranch({ onBack }: { onBack: () => void }) {
           </div>
         )}
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl">{error}</div>
         )}
         <div className="flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
           <button
             type="button"
             onClick={() => setStep('edit')}
-            className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+            className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
           >
             {t('admin.wizard_back')}
           </button>
@@ -493,7 +493,7 @@ function EditBranch({ onBack }: { onBack: () => void }) {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || changedFields.length === 0}
-            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
           >
             {isSubmitting ? t('admin.wizard_saving') : t('admin.wizard_save')}
           </button>
@@ -580,8 +580,8 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
   }, [editData, t]);
 
   const selectClass =
-    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
-  const labelClass = 'text-xs text-[var(--app-text-muted)]';
+    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
+  const labelClass = 'text-app-lg text-[var(--app-text-muted)]';
 
   if (step === 'done') {
     return (
@@ -606,7 +606,7 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
           question={t('admin.stats_wiz_level')}
         />
         {isLoading ? (
-          <div className="text-sm text-[var(--app-text-muted)] py-4">Loading...</div>
+          <div className="text-app-2xl text-[var(--app-text-muted)] py-4">Loading...</div>
         ) : (
           <div className="flex flex-col gap-4 mb-6">
             {levelKeys.map((lv) => (
@@ -628,7 +628,7 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
           </div>
         )}
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm mb-4">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl mb-4">{error}</div>
         )}
         <WizardFooter
           onBack={onBack}
@@ -646,13 +646,13 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
     <div className="max-w-xl mx-auto py-8 px-4">
       <div className="flex flex-col gap-6 text-[var(--app-text)]">
         <div className="border-b border-[var(--app-text)] pb-3">
-          <h2 className="text-xl font-bold">{t('admin.stats_wiz_title')}</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
+          <h2 className="text-app-4xl font-bold">{t('admin.stats_wiz_title')}</h2>
+          <p className="text-app-2xl text-[var(--app-text-muted)] mt-1">
             {t('admin.wizard_confirmation')}
           </p>
         </div>
         {changedLevels.length === 0 ? (
-          <p className="text-sm text-[var(--app-text-muted)]">
+          <p className="text-app-2xl text-[var(--app-text-muted)]">
             {t('admin.skill_wiz_changes_highlight') === t('admin.skill_wiz_changes_highlight') ? (i18n.language.startsWith('ja') ? '変更はありません' : 'No changes') : ''}
           </p>
         ) : (
@@ -662,8 +662,8 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
                 key={lv}
                 className="border border-[var(--app-text)] p-3 flex flex-col gap-1"
               >
-                <span className="text-xs text-[var(--app-text-muted)]">Lv {lv}</span>
-                <div className="flex items-center gap-2 text-sm">
+                <span className="text-app-lg text-[var(--app-text-muted)]">Lv {lv}</span>
+                <div className="flex items-center gap-2 text-app-2xl">
                   <span className="opacity-40 line-through">
                     {originalData?.[lv] ?? '—'}
                   </span>
@@ -675,13 +675,13 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
           </div>
         )}
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm">{error}</div>
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl">{error}</div>
         )}
         <div className="flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
           <button
             type="button"
             onClick={() => setStep('edit')}
-            className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+            className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
           >
             {t('admin.wizard_back')}
           </button>
@@ -689,7 +689,7 @@ function LevelBranch({ onBack }: { onBack: () => void }) {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || changedLevels.length === 0}
-            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
           >
             {isSubmitting ? t('admin.wizard_saving') : t('admin.wizard_save')}
           </button>
@@ -772,7 +772,7 @@ function AddBranch({ onBack: _onBack }: { onBack: () => void }) {
   );
 
   const inputClass =
-    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
+    'w-full border border-[var(--app-text)]/30 bg-transparent px-3 py-2 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]';
 
   const renderStep = useCallback(
     (stepId: string) => {
@@ -781,7 +781,7 @@ function AddBranch({ onBack: _onBack }: { onBack: () => void }) {
 
       return (
         <div className="flex flex-col gap-4">
-          <p className="text-sm font-medium text-[var(--app-text)]">{label}</p>
+          <p className="text-app-2xl font-medium text-[var(--app-text)]">{label}</p>
           <input
             type={isTextStep ? 'text' : 'number'}
             min={isTextStep ? undefined : 0}
@@ -814,20 +814,20 @@ function AddBranch({ onBack: _onBack }: { onBack: () => void }) {
 
     return (
       <div className="flex flex-col gap-4 text-[var(--app-text)]">
-        <p className="text-sm">
+        <p className="text-app-2xl">
           <span className="text-[var(--app-text-muted)]">Patch: </span>
           <span className="font-bold">{String(data.patch ?? '')}</span>
         </p>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--app-text-muted)] mb-2">
+            <p className="text-app-lg font-semibold uppercase tracking-wider text-[var(--app-text-muted)] mb-2">
               Tank
             </p>
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-app-2xl border-collapse">
               <tbody>
                 {tankRows.map((row) => (
                   <tr key={row.label} className="border-b border-[var(--app-text)]/10">
-                    <td className="py-1.5 pr-2 text-[var(--app-text-muted)] text-xs">{row.label}</td>
+                    <td className="py-1.5 pr-2 text-[var(--app-text-muted)] text-app-lg">{row.label}</td>
                     <td className="py-1.5 font-medium text-right">{String(row.value ?? '—')}</td>
                   </tr>
                 ))}
@@ -835,14 +835,14 @@ function AddBranch({ onBack: _onBack }: { onBack: () => void }) {
             </table>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--app-text-muted)] mb-2">
+            <p className="text-app-lg font-semibold uppercase tracking-wider text-[var(--app-text-muted)] mb-2">
               Other
             </p>
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-app-2xl border-collapse">
               <tbody>
                 {otherRows.map((row) => (
                   <tr key={row.label} className="border-b border-[var(--app-text)]/10">
-                    <td className="py-1.5 pr-2 text-[var(--app-text-muted)] text-xs">{row.label}</td>
+                    <td className="py-1.5 pr-2 text-[var(--app-text-muted)] text-app-lg">{row.label}</td>
                     <td className="py-1.5 font-medium text-right">{String(row.value ?? '—')}</td>
                   </tr>
                 ))}
@@ -889,21 +889,21 @@ export function StatsWizard() {
             onClick={() => setMode('add')}
             className="p-4 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors text-[var(--app-text)]"
           >
-            <div className="text-sm font-medium">{t('admin.stats_wiz_add')}</div>
+            <div className="text-app-2xl font-medium">{t('admin.stats_wiz_add')}</div>
           </button>
           <button
             type="button"
             onClick={() => setMode('edit')}
             className="p-4 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors text-[var(--app-text)]"
           >
-            <div className="text-sm font-medium">{t('admin.stats_wiz_edit')}</div>
+            <div className="text-app-2xl font-medium">{t('admin.stats_wiz_edit')}</div>
           </button>
           <button
             type="button"
             onClick={() => setMode('level')}
             className="p-4 border border-[var(--app-text)]/20 text-left hover:border-[var(--app-text)]/60 transition-colors text-[var(--app-text)]"
           >
-            <div className="text-sm font-medium">{t('admin.stats_wiz_level')}</div>
+            <div className="text-app-2xl font-medium">{t('admin.stats_wiz_level')}</div>
           </button>
         </div>
         <WizardFooter

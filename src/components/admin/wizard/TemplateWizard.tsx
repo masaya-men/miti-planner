@@ -269,13 +269,13 @@ export function TemplateWizard() {
             className="flex items-center justify-between border-b border-[var(--app-text)]/10 pb-2 gap-4"
           >
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-xs text-[var(--app-text-muted)]">{label}</span>
-              <span className="text-sm font-medium truncate">{value || '—'}</span>
+              <span className="text-app-lg text-[var(--app-text-muted)]">{label}</span>
+              <span className="text-app-2xl font-medium truncate">{value || '—'}</span>
             </div>
             <button
               type="button"
               onClick={() => wizard.goToStep(stepId)}
-              className="shrink-0 text-xs border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
+              className="shrink-0 text-app-lg border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
             >
               {t('admin.wizard_edit')}
             </button>
@@ -344,7 +344,7 @@ function StepMethod({ data, setField, t }: StepMethodProps) {
           }`}
         >
           <div className="font-medium">{m.label}</div>
-          <div className="text-xs text-[var(--app-text-muted)] mt-0.5">{m.desc}</div>
+          <div className="text-app-lg text-[var(--app-text-muted)] mt-0.5">{m.desc}</div>
         </button>
       ))}
     </div>
@@ -362,7 +362,7 @@ interface StepContentSelectProps {
 function StepContentSelect({ data, setField, contents, isJa }: StepContentSelectProps) {
   if (contents.length === 0) {
     return (
-      <div className="text-sm text-[var(--app-text-muted)] py-8 text-center">
+      <div className="text-app-2xl text-[var(--app-text-muted)] py-8 text-center">
         {isJa ? '読み込み中...' : 'Loading...'}
       </div>
     );
@@ -382,7 +382,7 @@ function StepContentSelect({ data, setField, contents, isJa }: StepContentSelect
           }`}
         >
           <div className="font-medium">{isJa ? item.name.ja : item.name.en}</div>
-          <div className="text-xs text-[var(--app-text-muted)]">{item.id}</div>
+          <div className="text-app-lg text-[var(--app-text-muted)]">{item.id}</div>
         </button>
       ))}
     </div>
@@ -407,19 +407,19 @@ function StepFFlogsUrl({ data, setField, t }: StepFFlogsUrlProps) {
         value={url}
         onChange={(e) => setField('fflogsUrl', e.target.value)}
         placeholder="https://www.fflogs.com/reports/..."
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">
+      <p className="text-app-lg text-[var(--app-text-muted)]">
         {t('admin.template_wiz_paste_url')}
       </p>
       {url.length > 0 && !isValid && (
-        <p className="text-xs text-[var(--app-text)] opacity-60">
+        <p className="text-app-lg text-[var(--app-text)] opacity-60">
           ✗ {t('admin.template_wiz_fflogs_desc')}
         </p>
       )}
       {isValid && (
-        <p className="text-xs text-[var(--app-text)]">
+        <p className="text-app-lg text-[var(--app-text)]">
           ✓ fflogs.com URL
         </p>
       )}
@@ -439,18 +439,18 @@ function StepFFlogsPreview({ data, t }: StepFFlogsPreviewProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="border border-[var(--app-text)]/20 p-4 flex flex-col gap-2">
-        <div className="text-xs text-[var(--app-text-muted)] break-all">{url}</div>
-        <div className="text-sm font-medium text-[var(--app-text)]">
+        <div className="text-app-lg text-[var(--app-text-muted)] break-all">{url}</div>
+        <div className="text-app-2xl font-medium text-[var(--app-text)]">
           {t('admin.template_wiz_preview')}
         </div>
-        <div className="text-xs text-[var(--app-text-muted)]">
+        <div className="text-app-lg text-[var(--app-text-muted)]">
           {t('admin.template_wiz_events_found', { count: '—' })}
         </div>
-        <div className="text-xs text-[var(--app-text-muted)]">
+        <div className="text-app-lg text-[var(--app-text-muted)]">
           {t('admin.template_wiz_phases_found', { count: '—' })}
         </div>
       </div>
-      <p className="text-xs text-[var(--app-text-muted)]">
+      <p className="text-app-lg text-[var(--app-text-muted)]">
         ※ FFLogs連携は後のフェーズで実装予定
       </p>
     </div>
@@ -466,13 +466,13 @@ function StepPlanNote({ isJa }: StepPlanNoteProps) {
   return (
     <div className="flex flex-col gap-4 py-4">
       <div className="border border-[var(--app-text)]/20 p-4">
-        <p className="text-sm text-[var(--app-text-muted)]">
+        <p className="text-app-2xl text-[var(--app-text-muted)]">
           {isJa
             ? 'この機能は保存済みプランからの選択が必要です。Coming soon.'
             : 'This feature requires selecting from saved plans. Coming soon.'}
         </p>
       </div>
-      <p className="text-xs text-[var(--app-text-muted)]">
+      <p className="text-app-lg text-[var(--app-text-muted)]">
         {isJa
           ? '※ このブランチは現在実装中のため、次へは進めません'
           : '※ This branch is not yet implemented'}
@@ -518,7 +518,7 @@ function StepJsonFile({ parsedTemplate, jsonError, onParsed, onError, t }: StepJ
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--app-text-muted)]">
+      <p className="text-app-2xl text-[var(--app-text-muted)]">
         {t('admin.template_wiz_select_file')}
       </p>
 
@@ -528,7 +528,7 @@ function StepJsonFile({ parsedTemplate, jsonError, onParsed, onError, t }: StepJ
         onClick={() => fileInputRef.current?.click()}
         className="border border-dashed border-[var(--app-text)]/40 p-6 text-center hover:border-[var(--app-text)]/70 transition-colors"
       >
-        <span className="text-sm text-[var(--app-text-muted)]">
+        <span className="text-app-2xl text-[var(--app-text-muted)]">
           {parsedTemplate
             ? '✓ ファイル読み込み完了（クリックで変更）'
             : 'クリックしてJSONファイルを選択'}
@@ -547,12 +547,12 @@ function StepJsonFile({ parsedTemplate, jsonError, onParsed, onError, t }: StepJ
 
       {/* エラー */}
       {jsonError && (
-        <p className="text-xs text-[var(--app-text)] opacity-60">✗ {jsonError}</p>
+        <p className="text-app-lg text-[var(--app-text)] opacity-60">✗ {jsonError}</p>
       )}
 
       {/* 成功 */}
       {parsedTemplate && !jsonError && (
-        <div className="text-xs text-[var(--app-text)] flex flex-col gap-1">
+        <div className="text-app-lg text-[var(--app-text)] flex flex-col gap-1">
           <span>
             ✓ {t('admin.template_wiz_events_found', {
               count: parsedTemplate.timelineEvents.length,
@@ -578,7 +578,7 @@ interface StepJsonPreviewProps {
 function StepJsonPreview({ parsedTemplate, t }: StepJsonPreviewProps) {
   if (!parsedTemplate) {
     return (
-      <p className="text-sm text-[var(--app-text-muted)]">
+      <p className="text-app-2xl text-[var(--app-text-muted)]">
         ファイルが読み込まれていません
       </p>
     );
@@ -587,19 +587,19 @@ function StepJsonPreview({ parsedTemplate, t }: StepJsonPreviewProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="border border-[var(--app-text)]/20 p-4 flex flex-col gap-2">
-        <div className="text-sm font-medium">{t('admin.template_wiz_preview')}</div>
-        <div className="text-sm">
+        <div className="text-app-2xl font-medium">{t('admin.template_wiz_preview')}</div>
+        <div className="text-app-2xl">
           {t('admin.template_wiz_events_found', {
             count: parsedTemplate.timelineEvents.length,
           })}
         </div>
-        <div className="text-sm text-[var(--app-text-muted)]">
+        <div className="text-app-2xl text-[var(--app-text-muted)]">
           {t('admin.template_wiz_phases_found', {
             count: (parsedTemplate.phases ?? []).length,
           })}
         </div>
       </div>
-      <p className="text-xs text-[var(--app-text-muted)]">
+      <p className="text-app-lg text-[var(--app-text-muted)]">
         {t('admin.template_wiz_plan_note')}
       </p>
     </div>

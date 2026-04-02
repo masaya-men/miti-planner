@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
             return this.props.fallback || (
                 <div className="p-4 m-4 bg-red-900/50 border border-red-500 rounded text-red-100">
                     <h2 className="font-bold">{i18next.t('error_boundary.title')}</h2>
-                    <details className="whitespace-pre-wrap mt-2 text-xs opacity-80">
+                    <details className="whitespace-pre-wrap mt-2 text-app-lg opacity-80">
                         {this.state.error && this.state.error.toString()}
                     </details>
                     <button

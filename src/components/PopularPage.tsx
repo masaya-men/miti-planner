@@ -43,7 +43,7 @@ interface PopularApiResponse {
 const showToast = (msg: string) => {
     const el = document.createElement('div');
     el.textContent = msg;
-    el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-text text-app-bg px-4 py-2 rounded-full text-sm font-bold z-50';
+    el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-text text-app-bg px-4 py-2 rounded-full text-app-2xl font-bold z-50';
     document.body.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 1500);
     setTimeout(() => el.remove(), 2000);
@@ -317,28 +317,28 @@ export const PopularPage: React.FC = () => {
             <div className="glass-card-corner glass-card-corner-bl" />
             <div className="glass-card-corner glass-card-corner-br" />
             <div className="glass-card-sheen" />
-            <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
-            <p className="text-xs text-app-text truncate font-semibold">{entry.title}</p>
+            <span className="text-app-md font-bold text-app-text-muted truncate">{label}</span>
+            <p className="text-app-lg text-app-text truncate font-semibold">{entry.title}</p>
             {entry.partyMembers?.length > 0 && renderJobIcons(entry.partyMembers)}
             {/* アクションボタン: 保存 / X / リンク */}
             <div className="mt-auto flex gap-1.5">
                 <button
                     onClick={() => handleCopy(entry)}
-                    className="flex-1 h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                    className="flex-1 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-1"
                 >
                     <Download size={10} />
                     {t('popular.save_to_mine')}
                 </button>
                 <button
                     onClick={() => handleShareX(entry)}
-                    className="h-8 w-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
                     title={t('popular.share_x')}
                 >
                     {t('popular.share_x')}
                 </button>
                 <button
                     onClick={() => handleCopyLink(entry)}
-                    className="h-8 w-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
                     title={t('popular.share_link')}
                 >
                     <Link2 size={12} />
@@ -359,7 +359,7 @@ export const PopularPage: React.FC = () => {
             <div className="glass-card-corner glass-card-corner-bl" />
             <div className="glass-card-corner glass-card-corner-br" />
             <div className="glass-card-sheen" />
-            <span className="text-[11px] font-bold text-app-text-muted truncate">{label}</span>
+            <span className="text-app-md font-bold text-app-text-muted truncate">{label}</span>
             <div className="h-3 w-2/3 rounded bg-app-border" />
             {renderDummyJobIcons()}
             {/* ダミーボタン（実カードと同じ構成） */}
@@ -389,17 +389,17 @@ export const PopularPage: React.FC = () => {
         return (
             <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <h3 className="text-sm font-bold text-app-text">{rankLabel}</h3>
+                    <h3 className="text-app-2xl font-bold text-app-text">{rankLabel}</h3>
                     <div className="flex items-center gap-3">
                         {totalCount > 0 && (
-                            <span className="text-[11px] text-app-text-muted">
+                            <span className="text-app-md text-app-text-muted">
                                 {t('popular.used_by', { count: totalCount })}
                             </span>
                         )}
                         {hasAny && (
                             <button
                                 onClick={() => handleCopyAllRank(rank)}
-                                className="px-3 h-8 rounded-full border border-app-border text-[11px] font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                                className="px-3 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
                             >
                                 {rank === 0 ? t('popular.copy_all_rank1') : t('popular.copy_all_rank2')}
                             </button>
@@ -438,7 +438,7 @@ export const PopularPage: React.FC = () => {
 
         return (
             <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-app-text">{t('popular.pickup_label')}</h3>
+                <h3 className="text-app-2xl font-bold text-app-text">{t('popular.pickup_label')}</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                     {pickups.map(({ contentId, entry }) => {
                         const floorLabel = getFloorLabel(contentId, lang);
@@ -459,10 +459,10 @@ export const PopularPage: React.FC = () => {
             <section id="savage" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
                 <div className="glass-card-sweep" />
                 <div className="glass-card-sheen" />
-                <h2 className="text-lg font-bold text-app-text">{sectionTitle}</h2>
+                <h2 className="text-app-3xl font-bold text-app-text">{sectionTitle}</h2>
 
                 {!savageIds.some(id => data[id]?.plans?.length) && (
-                    <p className="text-sm text-app-text-muted">
+                    <p className="text-app-2xl text-app-text-muted">
                         {t('popular.no_data')} — {t('popular.no_data_desc')}
                     </p>
                 )}
@@ -485,10 +485,10 @@ export const PopularPage: React.FC = () => {
             <section id="ultimate" className="glass-popular-section rounded-none sm:rounded-2xl p-3 sm:p-6 flex flex-col gap-5 sm:gap-6 scroll-mt-24">
                 <div className="glass-card-sweep" />
                 <div className="glass-card-sheen" />
-                <h2 className="text-lg font-bold text-app-text">{t('popular.ultimate_section')}</h2>
+                <h2 className="text-app-3xl font-bold text-app-text">{t('popular.ultimate_section')}</h2>
 
                 {!ultimateIds.some(id => data[id]?.plans?.length) && (
-                    <p className="text-sm text-app-text-muted">
+                    <p className="text-app-2xl text-app-text-muted">
                         {t('popular.no_data')} — {t('popular.no_data_desc')}
                     </p>
                 )}
@@ -508,7 +508,7 @@ export const PopularPage: React.FC = () => {
 
                     return (
                         <div key={contentId} className="flex flex-col gap-3">
-                            <h3 className="text-sm font-bold text-app-text">{contentName}</h3>
+                            <h3 className="text-app-2xl font-bold text-app-text">{contentName}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {/* イチオシ */}
                                 {rank1
@@ -553,13 +553,13 @@ export const PopularPage: React.FC = () => {
                         <nav className="hidden sm:flex items-center gap-1 ml-1">
                             <button
                                 onClick={() => scrollTo('savage')}
-                                className="px-3 h-7 rounded-full text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
+                                className="px-3 h-7 rounded-full text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
                             >
                                 {t('popular.savage_section')}
                             </button>
                             <button
                                 onClick={() => scrollTo('ultimate')}
-                                className="px-3 h-7 rounded-full text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
+                                className="px-3 h-7 rounded-full text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/10 transition-colors duration-200 cursor-pointer"
                             >
                                 {t('popular.ultimate_section')}
                             </button>
@@ -578,7 +578,7 @@ export const PopularPage: React.FC = () => {
                         <div className="w-px h-5 bg-app-border" />
                         <button
                             onClick={() => { window.close(); window.location.href = '/miti'; }}
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 h-9 rounded-full border border-app-border text-xs font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 h-9 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
                         >
                             <ArrowLeft size={12} />
                             <span className="hidden sm:inline">{t('popular.back_to_miti')}</span>
@@ -593,7 +593,7 @@ export const PopularPage: React.FC = () => {
             </main>
 
             {/* フッター */}
-            <footer className="relative z-10 border-t border-app-border px-3 sm:px-5 py-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-[8px] text-app-text-muted tracking-wide">
+            <footer className="relative z-10 border-t border-app-border px-3 sm:px-5 py-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-app-xs text-app-text-muted tracking-wide">
                 <span>{t('footer.copyright')} · {t('footer.disclaimer')}</span>
                 <span className="flex flex-wrap items-center justify-center gap-x-2">
                     <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
