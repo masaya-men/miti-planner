@@ -1242,7 +1242,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             <button
                                 onClick={() => setActiveCategory('all')}
                                 className={clsx(
-                                    "flex-1 min-w-fit whitespace-nowrap px-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
+                                    "flex-1 min-w-fit whitespace-nowrap px-3 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
                                     activeCategory === 'all'
                                         ? "bg-app-text text-app-bg shadow-lg"
                                         : "text-app-text hover:bg-glass-hover"
@@ -1256,7 +1256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     <button
                                         onClick={() => setActiveCategory(cat)}
                                         className={clsx(
-                                            "flex-1 min-w-fit whitespace-nowrap px-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
+                                            "flex-1 min-w-fit whitespace-nowrap px-3 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
                                             activeCategory === cat
                                                 ? "bg-app-text text-app-bg shadow-lg"
                                                 : "text-app-text hover:bg-glass-hover"

@@ -687,14 +687,11 @@ const Timeline: React.FC = () => {
     useEffect(() => {
         const handleAutoPlanEvent = () => handleAutoPlan();
         const handleImportEvent = () => setImportModalOpen(true);
-        const handlePartyShortcut = () => setPartySettingsOpenLocal(prev => !prev);
         window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
         window.addEventListener('timeline:import', handleImportEvent);
-        window.addEventListener('shortcut:party', handlePartyShortcut);
         return () => {
             window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
             window.removeEventListener('timeline:import', handleImportEvent);
-            window.removeEventListener('shortcut:party', handlePartyShortcut);
         };
     }, [handleAutoPlan]);
 
@@ -1059,21 +1056,6 @@ const Timeline: React.FC = () => {
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
     }, []);
 
-    const handleDamageClick = useCallback((time: number, e: React.MouseEvent) => {
-        const currentPartyMembers = useMitigationStore.getState().partyMembers;
-        const isTutorial = useTutorialStore.getState().isActive;
-        const targetId = useMitigationStore.getState().myMemberId || currentPartyMembers.find(m => m.role === 'healer')?.id
-            || (isTutorial ? currentPartyMembers.find(m => m.jobId)?.id : null);
-        if (!targetId) return;
-        const member = currentPartyMembers.find(m => m.id === targetId);
-        if (!member || (!member.jobId && !isTutorial)) return;
-
-        setSelectorPosition({ x: e.clientX, y: e.clientY });
-        setSelectedMemberId(targetId);
-        setSelectedMitigationTime(time);
-        setMitigationSelectorOpen(true);
-    }, []);
-
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
         if (!selectedMemberId) return;
 
@@ -1357,10 +1339,32 @@ const Timeline: React.FC = () => {
                 e.preventDefault();
                 useMitigationStore.getState().redo();
             }
+            // 単独キーショートカット（PCのみ、Shiftは許可）
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+            if (key === 'p' && e.shiftKey) {
+                // Shift+P: フェーズ列の表示/非表示
+                e.preventDefault();
+                if (phaseDropdownOpen) setPhaseDropdownOpen(false);
+                handleTogglePhaseCollapse();
+            } else if (key === 'p' && !e.shiftKey) {
+                // P: フェーズドロップダウン開閉
+                e.preventDefault();
+                setPhaseDropdownOpen(prev => !prev);
+            } else if (key === 't') {
+                e.preventDefault();
+                setTimeInputOpen(prev => !prev);
+            } else if (key === 'l') {
+                e.preventDefault();
+                setGimmickDropdownOpen(prev => !prev);
+            } else if (key === 'a') {
+                e.preventDefault();
+                setMechanicSearchOpen(prev => !prev);
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [phaseDropdownOpen]);
 
     useEffect(() => {
         const handleReset = () => {
@@ -1706,19 +1710,21 @@ const Timeline: React.FC = () => {
                                 return (
                                     <>
                                         {!phaseColumnCollapsed ? (
-                                            <div
-                                                ref={phaseHeaderRef}
-                                                className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
-                                                onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
-                                            >
-                                                <span className="md:hidden">{t('timeline.header_phase_short')}</span>
-                                                <span className="hidden md:inline md:items-center md:gap-1">
-                                                    {t('timeline.header_phase')}
-                                                    <ChevronDown size={12} className="inline ml-0.5" />
-                                                </span>
-                                            </div>
+                                            <Tooltip content={t('timeline.header_phase_tooltip')}>
+                                                <div
+                                                    ref={phaseHeaderRef}
+                                                    className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
+                                                    onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
+                                                >
+                                                    <span className="md:hidden">{t('timeline.header_phase_short')}</span>
+                                                    <span className="hidden md:inline md:items-center md:gap-1">
+                                                        {t('timeline.header_phase')}
+                                                        <ChevronDown size={12} className="inline ml-0.5" />
+                                                    </span>
+                                                </div>
+                                            </Tooltip>
                                         ) : (
-                                            <Tooltip content={t('timeline.nav_phase_expand')}>
+                                            <Tooltip content={`${t('timeline.nav_phase_expand')} (Shift+P)`}>
                                                 <div
                                                     ref={phaseHeaderRef}
                                                     className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
@@ -1740,41 +1746,47 @@ const Timeline: React.FC = () => {
                                         )}
                                         {/* PC: ラベル列ヘッダー */}
                                         {!phaseColumnCollapsed && (
-                                            <div
-                                                ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                className="hidden md:flex w-[50px] min-w-[50px] max-w-[50px] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
-                                                onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
-                                            >
-                                                <span className="flex items-center gap-0.5">
-                                                    {t('timeline.header_gimmick')}
-                                                    <ChevronDown size={10} className="inline" />
-                                                </span>
-                                            </div>
+                                            <Tooltip content={t('timeline.header_gimmick_tooltip')}>
+                                                <div
+                                                    ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
+                                                    className="hidden md:flex w-[50px] min-w-[50px] max-w-[50px] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
+                                                    onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
+                                                >
+                                                    <span className="flex items-center gap-0.5">
+                                                        {t('timeline.header_gimmick')}
+                                                        <ChevronDown size={10} className="inline" />
+                                                    </span>
+                                                </div>
+                                            </Tooltip>
                                         )}
                                     </>
                                 );
                             })()}
-                            <div
-                                ref={timeHeaderRef}
-                                className="w-[36px] min-w-[36px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
-                                onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
-                            >
-                                <span className="md:hidden">{t('timeline.header_time')}</span>
-                                <span className="hidden md:inline md:items-center md:gap-0.5">
-                                    {t('timeline.header_time')}
-                                    <ChevronDown size={10} className="inline ml-0.5" />
-                                </span>
-                            </div>
-                            <div
-                                ref={mechanicHeaderRef}
-                                className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-app-sm md:text-app-base pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
-                                onClick={() => setMechanicSearchOpen(!mechanicSearchOpen)}
-                            >
-                                <span className="flex items-center gap-0.5 md:gap-1">
-                                    {t('timeline.header_mechanic')}
-                                    <ChevronDown size={10} className="inline" />
-                                </span>
-                            </div>
+                            <Tooltip content={t('timeline.header_time_tooltip')}>
+                                <div
+                                    ref={timeHeaderRef}
+                                    className="w-[36px] min-w-[36px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
+                                    onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
+                                >
+                                    <span className="md:hidden">{t('timeline.header_time')}</span>
+                                    <span className="hidden md:inline md:items-center md:gap-0.5">
+                                        {t('timeline.header_time')}
+                                        <ChevronDown size={10} className="inline ml-0.5" />
+                                    </span>
+                                </div>
+                            </Tooltip>
+                            <Tooltip content={t('timeline.header_mechanic_tooltip')} wrapperClassName="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] h-full">
+                                <div
+                                    ref={mechanicHeaderRef}
+                                    className="w-full border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-app-sm md:text-app-base pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
+                                    onClick={() => setMechanicSearchOpen(!mechanicSearchOpen)}
+                                >
+                                    <span className="flex items-center gap-0.5 md:gap-1">
+                                        {t('timeline.header_mechanic')}
+                                        <ChevronDown size={10} className="inline" />
+                                    </span>
+                                </div>
+                            </Tooltip>
                             <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_raw')}</span>
@@ -1802,12 +1814,17 @@ const Timeline: React.FC = () => {
                                         )
                                     )}
                                 >
-                                    <Tooltip content={`${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
+                                    <Tooltip content={member.jobId ? `${member.id} — ${t('ui.change_job_tooltip')}` : `${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
                                         <div
                                             className={clsx(
                                                 "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative"
                                             )}
                                             onClick={(e) => handleJobIconClick(member.id, e)}
+                                            onContextMenu={(e) => {
+                                                e.preventDefault();
+                                                if (!member.jobId) return;
+                                                useMitigationStore.getState().setMemberJob(member.id, null);
+                                            }}
                                         >
                                             {member.jobId ? (
                                                 <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125" />
@@ -1916,7 +1933,6 @@ const Timeline: React.FC = () => {
                                             onAddEventClick={handleAddClick}
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
-                                            onDamageClick={handleDamageClick}
                                             onMobileDamageClick={handleMobileDamageClick}
                                             phaseColumnCollapsed={phaseColumnCollapsed}
                                         />
@@ -2617,14 +2633,16 @@ const Timeline: React.FC = () => {
                                 store.setHideEmptyRows(!store.hideEmptyRows);
                             }}
                             className={clsx(
-                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                useMitigationStore.getState().hideEmptyRows
+                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer",
+                                !useMitigationStore.getState().hideEmptyRows
                                     ? "bg-app-text/15 border-app-text text-app-text"
                                     : "bg-app-surface2 border-app-border text-app-text"
                             )}
                         >
-                            <AlignJustify size={16} />
-                            <span className="text-app-lg font-bold">COMPACT</span>
+                            {useMitigationStore.getState().hideEmptyRows ? <Rows3 size={16} /> : <AlignJustify size={16} />}
+                            <span className="text-app-lg font-bold uppercase">
+                                {useMitigationStore.getState().hideEmptyRows ? t('ui.compact_view') : t('ui.compact_view_on')}
+                            </span>
                         </button>
                         <button
                             onClick={() => useMitigationStore.getState().undo()}

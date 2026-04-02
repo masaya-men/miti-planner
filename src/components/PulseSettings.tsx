@@ -101,13 +101,13 @@ const GradientSlider: React.FC<{
     return (
         <div
             ref={trackRef}
-            className="relative h-5 flex items-center cursor-pointer rounded-full overflow-hidden"
+            className="relative h-5 flex items-center cursor-pointer rounded-full"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
         >
             <div
-                className="absolute left-0 right-0 h-[6px] rounded-full border border-app-border/50"
+                className="absolute left-0 right-0 h-[6px] rounded-full border border-app-border/50 overflow-hidden"
                 style={{ background: gradient }}
             />
             {/* サムの幅(14px)を考慮し、端でもはみ出さないようにclamp */}

@@ -220,10 +220,13 @@
         "sort_role": "Role Order",
         "highlight_my_job": "Highlight My Job",
         "compact_view": "Expand Table",
+        "compact_view_on": "Compact View",
         "no_jobs": "No jobs selected",
         "select_jobs": "Select jobs from the panel above to start planning",
         "seconds": "s",
+        "more_languages_coming": "More languages coming soon",
         "change_job": "Change Job",
+        "change_job_tooltip": "Click: change / Right-click: remove",
         "select_job": "Select Job",
         "empty_slot": "Empty",
         "close": "Close",
@@ -284,6 +287,10 @@
         "clear_mitigations": "Remove mitigations",
         "import_fflogs": "Create Timeline",
         "import_fflogs_desc": "Generate timeline from FF Logs",
+        "header_phase_tooltip": "Jump to phase (P) / Toggle column (Shift+P)",
+        "header_time_tooltip": "Jump to time (T)",
+        "header_gimmick_tooltip": "Jump to label (L)",
+        "header_mechanic_tooltip": "Jump to mechanic (A)",
         "nav_phase_jump": "Jump to phase",
         "nav_phase_collapse": "Hide phase column",
         "nav_phase_expand": "Show phase column",
@@ -445,7 +452,8 @@
         "discord": "Discord (Questions, Feedback & Bugs)",
         "x_official": "X (Twitter)",
         "kofi": "Support on Ko-fi",
-        "commercial": "Commercial Disclosure"
+        "commercial": "Commercial Disclosure",
+        "legal": "Legal"
     },
     "legal": {
         "privacy_title": "Privacy Policy",
@@ -762,6 +770,7 @@
     },
     "phase_modal": {
         "title": "Add Phase",
+        "edit_title": "Edit Phase",
         "name_label": "Phase Name",
         "placeholder": "Enter phase name...",
         "add_button": "Add"

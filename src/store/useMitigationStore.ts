@@ -86,7 +86,7 @@ interface MitigationState {
     addMitigation: (mitigation: AppliedMitigation) => void;
     removeMitigation: (id: string) => void;
     updateMitigationTime: (id: string, newTime: number) => void;
-    setMemberJob: (memberId: string, jobId: string) => void;
+    setMemberJob: (memberId: string, jobId: string | null) => void;
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
     /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */

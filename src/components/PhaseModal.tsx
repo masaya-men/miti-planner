@@ -97,7 +97,7 @@ export const PhaseModal: React.FC<PhaseModalProps> = ({
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-app-surface2/40 shrink-0">
                             <h2 className="text-app-2xl font-bold text-app-text">
-                                {isEdit ? t('timeline.edit_phase') : t('phase_modal.title')}
+                                {isEdit ? t('phase_modal.edit_title') : t('phase_modal.title')}
                             </h2>
                             <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
                                 <X size={16} />
