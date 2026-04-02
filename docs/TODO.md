@@ -18,7 +18,9 @@
   - ビルド成功確認済み
 - **サイドバーの改善は残っている**: sidebar-itemアンダーライン、ホバー濃度アップ(6%→12%)、レベル/カテゴリタブ罫線・デザイン統一、プラン自動展開
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12、Vercel月100ビルド制限
-- **次のタスク**: Phase 2 — デザイントークンの値調整（タイポグラフィ刷新）。CSS変数の値を変えるだけで全UIに反映される
+- **未解決バグ**: フリープランが全レベルに表示される問題（デバッグログ入り、次セッションで調査継続）
+- **デバッグログ**: NewPlanModal.tsx, Sidebar.tsx にconsole.log追加中（修正完了後に削除すること）
+- **次のタスク**: フリープランレベルバグ修正 → デバッグログ削除 → Phase 2（タイポグラフィ値調整）
 - **設計書**: `docs/superpowers/specs/2026-04-02-design-tokens-font-size.md`、`docs/superpowers/specs/2026-04-02-header-navigation-design.md`
 - **実装計画**: `docs/superpowers/plans/2026-04-02-design-tokens-font-size.md`
 - **βフィードバック**: `docs/BETA_FEEDBACK.md` に整理済み
