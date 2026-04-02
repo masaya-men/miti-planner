@@ -1078,9 +1078,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             loadSnapshot(plan.data);
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
-            setActiveLevel(plan.data.currentLevel as ContentLevel);
-            const c = getContentById(plan.contentId ?? '');
-            if (c) setActiveCategory(c.category);
+            const c = plan.contentId ? getContentById(plan.contentId) : undefined;
+            const newLevel = (c?.level ?? plan.data.currentLevel ?? activeLevel) as ContentLevel;
+            const newCategory = c?.category ?? 'custom';
+            setActiveLevel(newLevel);
+            setActiveCategory(newCategory);
+            useMitigationStore.getState().setCurrentLevel(newLevel);
         }, 'plan');
     };
 
@@ -1205,30 +1208,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 </span>
                             </div>
                             <div className="border-b border-glass-border mb-2" />
-                            <div className="space-y-1 max-h-[84px] overflow-y-auto px-3 custom-scrollbar">
-                                {plans.slice(0, 5).map((plan) => (
-                                    <button
-                                        key={plan.id}
-                                        onClick={() => handleLoadPlan(plan.id)}
-                                        className={clsx(
-                                            "w-full flex items-center gap-2 group py-1.5 px-2 rounded-lg transition-colors border cursor-pointer active:scale-[0.98]",
-                                            currentPlanId === plan.id
-                                                ? "bg-transparent border-transparent"
-                                                : "bg-transparent border-transparent hover:bg-glass-active"
-                                        )}
-                                    >
-                                        <div className="min-w-0 text-left">
-                                            <p className={clsx(
-                                                "text-app-sm font-black truncate leading-tight text-app-text"
-                                            )}>
-                                                {plan.title}
+                            <div className="space-y-0.5 max-h-[72px] overflow-y-auto px-3 custom-scrollbar-thin">
+                                {plans.slice(0, 3).map((plan) => {
+                                    const content = plan.contentId ? getContentById(plan.contentId) : undefined;
+                                    const label = content
+                                        ? content.name[lang as ContentLanguage]
+                                        : `Lv.${plan.data.currentLevel ?? '?'}`;
+                                    const isActive = currentPlanId === plan.id;
+                                    return (
+                                        <button
+                                            key={plan.id}
+                                            onClick={() => handleLoadPlan(plan.id)}
+                                            className={clsx(
+                                                "w-full flex items-center gap-1.5 py-1 px-1 rounded-md transition-colors cursor-pointer active:scale-[0.98]",
+                                                isActive ? "bg-glass-hover" : "hover:bg-glass-active"
+                                            )}
+                                        >
+                                            <span className={clsx(
+                                                "shrink-0 w-0.5 self-stretch rounded-full transition-colors",
+                                                isActive ? "bg-app-text" : "bg-transparent"
+                                            )} />
+                                            <p className="min-w-0 text-app-sm text-app-text truncate leading-tight">
+                                                <span className="text-app-text-muted">{label}：</span>{plan.title}
                                             </p>
-                                            <p className="text-app-base text-app-text-sec font-medium truncate leading-tight mt-0.5">
-                                                {plan.contentId && getContentById(plan.contentId)?.name[lang as ContentLanguage]}
-                                            </p>
-                                        </div>
-                                    </button>
-                                ))}
+                                        </button>
+                                    );
+                                })}
                                 {plans.length === 0 && (
                                     <div className="px-2 py-4 border border-dashed border-glass-border rounded-lg text-center">
                                         <p className="text-app-sm text-white/20 italic">No plans yet</p>
@@ -1238,6 +1243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     )}
 
+                    <div className="border-b border-glass-border mx-3 mb-2" />
                     <div className="px-3 space-y-2 shrink-0 mb-3">
                         <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
                             {LEVEL_TIERS.map((level, i) => (
@@ -1335,7 +1341,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-3 pb-20 space-y-1 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
                         {availableCategories
                             .filter(c => activeCategory === 'all' || activeCategory === c)
                             .map(category => (
@@ -1360,7 +1366,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             .map(cat => {
                             // categoryフィールドで振り分け。contentIdがcontents.jsonに存在しないプランも対象
                             const catPlans = plans.filter(p => {
-                                if (p.data.currentLevel !== activeLevel) return false;
+                                // レベルフィルタ: p.level（不変）を優先、なければコンテンツ定義、最後にdata.currentLevel
+                                const planLevel = p.level ?? (p.contentId ? getContentById(p.contentId)?.level : undefined) ?? p.data.currentLevel;
+                                if (cat === 'dungeon') console.log('[Sidebar filter]', p.title, 'p.level:', p.level, 'data.currentLevel:', p.data.currentLevel, 'planLevel:', planLevel, 'activeLevel:', activeLevel);
+                                if (Number(planLevel) !== Number(activeLevel)) return false;
                                 // categoryフィールドがある場合はそれで判定
                                 if (p.category) return p.category === cat;
                                 // 旧プラン互換: contentIdがnullで categoryもない → customに振り分け
@@ -1456,9 +1465,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         document.body
                     )}
 
-                    {/* Ko-fi 支援リンク — サイドバー最下部に控えめ配置 */}
+                    {/* Ko-fi 支援リンク — サイドバー最下部 */}
                     {!multiSelect.isEnabled && (
-                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                        <div className="shrink-0 flex flex-col items-center py-2">
+                            <div className="border-t border-glass-border w-full mb-2" />
                             <a
                                 href="https://ko-fi.com/lopoly"
                                 target="_blank"
@@ -1534,9 +1544,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 setIsNewPlanModalOpen(false);
                 if (created) {
                     setSelectedContentId(created.contentId);
-                    setActiveLevel(created.level);
-                    const c = created.contentId ? getContentById(created.contentId) : undefined;
-                    if (c) setActiveCategory(c.category);
+                    const newLevel = created.level as ContentLevel;
+                    setActiveLevel(newLevel);
+                    useMitigationStore.getState().setCurrentLevel(newLevel);
+                    setActiveCategory(created.category);
                     // 作成されたコンテンツが見える位置までスクロール
                     setTimeout(() => {
                         const el = document.querySelector(`[data-content-id="${created.contentId}"]`);
