@@ -42,21 +42,21 @@
   --animate-ripple: ripple 600ms linear;
 
   /* Font size tokens */
-  --font-size-app-3xs: var(--font-size-3xs);
-  --font-size-app-2xs: var(--font-size-2xs);
-  --font-size-app-xs: var(--font-size-xs);
-  --font-size-app-sm: var(--font-size-sm);
-  --font-size-app-base: var(--font-size-base);
-  --font-size-app-md: var(--font-size-md);
-  --font-size-app-lg: var(--font-size-lg);
-  --font-size-app-xl: var(--font-size-xl);
-  --font-size-app-2xl: var(--font-size-2xl);
-  --font-size-app-2xl-plus: var(--font-size-2xl-plus);
-  --font-size-app-3xl: var(--font-size-3xl);
-  --font-size-app-4xl: var(--font-size-4xl);
-  --font-size-app-4xl-plus: var(--font-size-4xl-plus);
-  --font-size-app-5xl: var(--font-size-5xl);
-  --font-size-app-6xl: var(--font-size-6xl);
+  --text-app-3xs: var(--font-size-3xs);
+  --text-app-2xs: var(--font-size-2xs);
+  --text-app-xs: var(--font-size-xs);
+  --text-app-sm: var(--font-size-sm);
+  --text-app-base: var(--font-size-base);
+  --text-app-md: var(--font-size-md);
+  --text-app-lg: var(--font-size-lg);
+  --text-app-xl: var(--font-size-xl);
+  --text-app-2xl: var(--font-size-2xl);
+  --text-app-2xl-plus: var(--font-size-2xl-plus);
+  --text-app-3xl: var(--font-size-3xl);
+  --text-app-4xl: var(--font-size-4xl);
+  --text-app-4xl-plus: var(--font-size-4xl-plus);
+  --text-app-5xl: var(--font-size-5xl);
+  --text-app-6xl: var(--font-size-6xl);
 }
 
 @keyframes fadeIn {
