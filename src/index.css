@@ -40,6 +40,23 @@
   --shadow-glass: var(--glass-shadow);
 
   --animate-ripple: ripple 600ms linear;
+
+  /* Font size tokens */
+  --font-size-app-3xs: var(--font-size-3xs);
+  --font-size-app-2xs: var(--font-size-2xs);
+  --font-size-app-xs: var(--font-size-xs);
+  --font-size-app-sm: var(--font-size-sm);
+  --font-size-app-base: var(--font-size-base);
+  --font-size-app-md: var(--font-size-md);
+  --font-size-app-lg: var(--font-size-lg);
+  --font-size-app-xl: var(--font-size-xl);
+  --font-size-app-2xl: var(--font-size-2xl);
+  --font-size-app-2xl-plus: var(--font-size-2xl-plus);
+  --font-size-app-3xl: var(--font-size-3xl);
+  --font-size-app-4xl: var(--font-size-4xl);
+  --font-size-app-4xl-plus: var(--font-size-4xl-plus);
+  --font-size-app-5xl: var(--font-size-5xl);
+  --font-size-app-6xl: var(--font-size-6xl);
 }
 
 @keyframes fadeIn {
@@ -77,6 +94,24 @@
     font-family: 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;
     font-weight: 500;
     letter-spacing: 0.02em;
+
+    /* Font size tokens */
+    --font-size-3xs: 6px;
+    --font-size-2xs: 7px;
+    --font-size-xs: 8px;
+    --font-size-sm: 9px;
+    --font-size-base: 10px;
+    --font-size-md: 11px;
+    --font-size-lg: 12px;
+    --font-size-xl: 13px;
+    --font-size-2xl: 14px;
+    --font-size-2xl-plus: 16px;
+    --font-size-3xl: 18px;
+    --font-size-4xl: 20px;
+    --font-size-4xl-plus: 24px;
+    --font-size-5xl: 26px;
+    --font-size-6xl: 36px;
+
     line-height: 1.6;
     color-scheme: dark;
 
@@ -133,7 +168,7 @@
     --glass-bg-panel: transparent;
     --glass-bg-card: transparent;
     --glass-border: rgba(255, 255, 255, 0.22);
-    --glass-hover: rgba(255, 255, 255, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.12);
     --glass-active: rgba(255, 255, 255, 0.1);
     --glass-shadow: none;
 
@@ -145,6 +180,24 @@
 
   .theme-light {
     color-scheme: light;
+
+    /* Font size tokens */
+    --font-size-3xs: 6px;
+    --font-size-2xs: 7px;
+    --font-size-xs: 8px;
+    --font-size-sm: 9px;
+    --font-size-base: 10px;
+    --font-size-md: 11px;
+    --font-size-lg: 12px;
+    --font-size-xl: 13px;
+    --font-size-2xl: 14px;
+    --font-size-2xl-plus: 16px;
+    --font-size-3xl: 18px;
+    --font-size-4xl: 20px;
+    --font-size-4xl-plus: 24px;
+    --font-size-5xl: 26px;
+    --font-size-6xl: 36px;
+
     --color-bg-primary: #ffffff;
     --color-bg-secondary: #ffffff;
     --color-bg-tertiary: #f5f5f5;
@@ -198,7 +251,7 @@
     --glass-bg-panel: transparent;
     --glass-bg-card: transparent;
     --glass-border: rgba(0, 0, 0, 1);
-    --glass-hover: rgba(0, 0, 0, 0.04);
+    --glass-hover: rgba(0, 0, 0, 0.08);
     --glass-active: rgba(0, 0, 0, 0.08);
     --glass-shadow: none;
 
@@ -209,7 +262,7 @@
   }
 
   body {
-    @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] min-h-screen text-[13px] overflow-hidden;
+    @apply bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] min-h-screen text-[length:var(--font-size-xl)] overflow-hidden;
     font-feature-settings: 'kern' 1, 'palt' 1;
     -webkit-font-smoothing: antialiased;
     /* 和欧間スペース: 漢字↔英数字の間に自動スペース（Chrome 120+） */
@@ -219,30 +272,12 @@
 
 /* ── フォントサイズスケーリング ──
    data-font-scale="1" で有効化。glass-panel（表エリア）と footer 内は除外。
-   最低12px、大きいものは比例拡大。 */
+   最低6px保証。6px未満の指定のみ6pxに引き上げる。 */
 [data-font-scale="1"] :not(.glass-panel):not(.glass-panel *):not(footer):not(footer *):not(.font-scale-exclude) {
-  &.text-\[6px\], &.text-\[7px\], &.text-\[8px\], &.text-\[9px\],
-  &.text-\[9\.5px\], &.text-\[10px\], &.text-\[11px\] {
-    font-size: 12px !important;
+  &.text-\[1px\], &.text-\[2px\], &.text-\[3px\], &.text-\[4px\], &.text-\[5px\],
+  &.text-\[5\.5px\] {
+    font-size: var(--font-size-3xs) !important;
   }
-  &.text-\[12px\], &.text-xs {
-    font-size: 13px !important;
-  }
-  &.text-\[13px\] {
-    font-size: 14px !important;
-  }
-  &.text-sm {
-    font-size: 15px !important;
-  }
-  &.text-base {
-    font-size: 17px !important;
-  }
-  &.text-lg {
-    font-size: 20px !important;
-  }
-}
-[data-font-scale="1"] body {
-  font-size: 14px !important;
 }
 
 /* 背景: 単色 */
@@ -258,6 +293,12 @@
 }
 ::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
 ::-webkit-scrollbar-corner { background: transparent; }
+
+/* 細いスクロールバー（横スクロール用） */
+.custom-scrollbar-thin::-webkit-scrollbar { height: 4px; }
+.custom-scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgba(128, 128, 128, 0.3); border-radius: 2px; }
+.custom-scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
 
 .ime-active { ime-mode: active; }
 
@@ -768,6 +809,25 @@
 
 /* hover-shine — 無効化 */
 .hover-shine::after { display: none; }
+
+/* サイドバー項目 — ホバー時に左からアンダーラインが伸びる */
+.sidebar-item {
+  position: relative;
+}
+.sidebar-item::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background-color: var(--color-app-text);
+  opacity: 0.4;
+  transition: width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.sidebar-item:hover::after {
+  width: 100%;
+}
 
 @layer components {
   /* ボタンのタクタイルフィードバック — 最小限 */
