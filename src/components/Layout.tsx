@@ -66,6 +66,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, []);
 
     // Mobile modal triggers — these are read by Timeline.tsx via the store
+    const [footerLegalOpen, setFooterLegalOpen] = React.useState(false);
     const [mobilePartyOpen, setMobilePartyOpen] = React.useState(false);
     const [mobileStatusOpen, setMobileStatusOpen] = React.useState(false);
     const [mobileToolsOpen, setMobileToolsOpen] = React.useState(false);
@@ -131,7 +132,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // F: フォーカスモード（サイドバー+ヘッダー両方非表示/復元）
     // S: サイドバー開閉
     // H: ヘッダー開閉
-    // P: パーティ編成モーダル
+    // P/T/L/A: Timeline.tsx側で処理
     const focusModeRef = React.useRef(false);
     const preFocusSidebarRef = React.useRef(true);
     const preFocusHeaderRef = React.useRef(false);
@@ -149,9 +150,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             } else if (key === 'h') {
                 e.preventDefault();
                 setIsHeaderCollapsed(prev => !prev);
-            } else if (key === 'p') {
-                e.preventDefault();
-                window.dispatchEvent(new CustomEvent('shortcut:party'));
             } else if (key === 'f') {
                 e.preventDefault();
                 if (!focusModeRef.current) {
@@ -491,14 +489,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     "border-app-border",
                     "bg-transparent"
                 )}>
-                    <p className="text-app-xs text-app-text-muted tracking-wide pointer-events-auto">
-                        {t('footer.copyright')} · {t('footer.disclaimer')}
+                    <p className="text-app-xs text-app-text-muted tracking-wide pointer-events-auto flex items-center gap-0">
+                        {t('footer.copyright')}{' · '}{t('footer.disclaimer')}
                         {' · '}
-                        <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>
-                        {' · '}
-                        <a href="/terms" className="underline hover:text-app-text transition-colors">{t('footer.terms')}</a>
-                        {' · '}
-                        <a href="/commercial" className="underline hover:text-app-text transition-colors">{t('footer.commercial')}</a>
+                        <span className="relative inline-block">
+                            <button
+                                onClick={() => setFooterLegalOpen(prev => !prev)}
+                                className="underline hover:text-app-text transition-colors cursor-pointer px-1"
+                            >
+                                {t('footer.legal')}
+                            </button>
+                            {footerLegalOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-[998]" onClick={() => setFooterLegalOpen(false)} />
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[999] bg-app-surface border border-app-border rounded-lg shadow-lg py-2 min-w-[220px]">
+                                        <a href="/privacy" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.privacy_policy')}</a>
+                                        <a href="/terms" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.terms')}</a>
+                                        <a href="/commercial" className="block px-4 py-2.5 text-app-base text-app-text hover:bg-app-surface2 transition-colors" onClick={() => setFooterLegalOpen(false)}>{t('footer.commercial')}</a>
+                                    </div>
+                                </>
+                            )}
+                        </span>
                         {' · '}
                         <a href="https://discord.gg/z7uypbJSnN" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.discord')}</a>
                         {' · '}

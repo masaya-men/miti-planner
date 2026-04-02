@@ -29,7 +29,6 @@ interface TimelineRowProps {
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
     onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
-    onDamageClick?: (time: number, e: React.MouseEvent) => void;
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
     onLabelAdd?: (time: number, e: React.MouseEvent) => void;
     phaseColumnCollapsed?: boolean;
@@ -96,7 +95,6 @@ export const TimelineRow = memo(({
     onAddEventClick,
     onEventClick,
     onCellClick,
-    onDamageClick,
     onMobileDamageClick,
     onLabelAdd,
     phaseColumnCollapsed,
@@ -409,8 +407,6 @@ export const TimelineRow = memo(({
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
-                    } else if (onDamageClick) {
-                        onDamageClick(time, e);
                     }
                 }}
             >
@@ -444,8 +440,6 @@ export const TimelineRow = memo(({
                 onClick={(e) => {
                     if (window.innerWidth < 768 && onMobileDamageClick) {
                         onMobileDamageClick(time, e);
-                    } else if (onDamageClick) {
-                        onDamageClick(time, e);
                     }
                 }}
             >

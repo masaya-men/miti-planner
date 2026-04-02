@@ -224,10 +224,13 @@
         "sort_role": "ロール別",
         "highlight_my_job": "自分のジョブをハイライト",
         "compact_view": "表を展開する",
+        "compact_view_on": "コンパクト表示",
         "no_jobs": "ジョブが選択されていません",
         "select_jobs": "上のパネルからジョブを選択して計画を開始してください",
         "seconds": "秒",
+        "more_languages_coming": "他の言語は準備中です",
         "change_job": "ジョブを変更",
+        "change_job_tooltip": "クリック: 変更 / 右クリック: 削除",
         "select_job": "ジョブを選択",
         "empty_slot": "空き",
         "close": "閉じる",
@@ -288,6 +291,10 @@
         "clear_mitigations": "軽減を削除",
         "import_fflogs": "タイムラインを作成",
         "import_fflogs_desc": "FF Logs からタイムラインを生成",
+        "header_phase_tooltip": "フェーズにジャンプ (P) / 列の表示切替 (Shift+P)",
+        "header_time_tooltip": "時間にジャンプ (T)",
+        "header_gimmick_tooltip": "ラベルにジャンプ (L)",
+        "header_mechanic_tooltip": "攻撃にジャンプ (A)",
         "nav_phase_jump": "フェーズにジャンプ",
         "nav_phase_collapse": "フェーズ列を非表示",
         "nav_phase_expand": "フェーズ列を表示",
@@ -449,7 +456,8 @@
         "discord": "Discord（質問・要望・バグ報告）",
         "x_official": "X（Twitter）",
         "kofi": "Ko-fiで応援",
-        "commercial": "特定商取引法に基づく表記"
+        "commercial": "特定商取引法に基づく表記",
+        "legal": "法的情報"
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",
@@ -766,6 +774,7 @@
     },
     "phase_modal": {
         "title": "フェーズを追加",
+        "edit_title": "フェーズを編集",
         "name_label": "フェーズ名",
         "placeholder": "フェーズ名を入力してください",
         "add_button": "追加"
