@@ -21,7 +21,7 @@ import clsx from 'clsx';
 
 interface NewPlanModalProps {
     isOpen: boolean;
-    onClose: (created?: { contentId: string | null; level: ContentLevel }) => void;
+    onClose: (created?: { contentId: string | null; level: ContentLevel; category: ContentCategory }) => void;
 }
 
 const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
@@ -181,17 +181,20 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
         // 5. プラン保存
         const newPlanId = `plan_${Date.now()}`;
+        const finalSnapshot = store.getSnapshot();
+        console.log('[NewPlanModal] useLevel:', useLevel, 'snapshot.currentLevel:', finalSnapshot.currentLevel, 'level state:', level);
         addPlan({
             id: newPlanId,
             ownerId: 'local',
             ownerDisplayName: 'Guest',
             contentId,
             category: category!,
+            level: useLevel as ContentLevel,
             title: title.trim(),
             isPublic: false,
             copyCount: 0,
             useCount: 0,
-            data: store.getSnapshot(),
+            data: finalSnapshot,
             createdAt: Date.now(),
             updatedAt: Date.now()
         });
@@ -202,7 +205,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         useTutorialStore.getState().completeEvent('create:plan-created');
 
         // サイドバーに作成結果を伝える
-        onClose({ contentId, level: useLevel as ContentLevel });
+        onClose({ contentId, level: useLevel as ContentLevel, category: category! });
     };
 
     // Enterキーで作成

@@ -200,6 +200,8 @@ export interface SavedPlan {
     contentId: string | null;
     /** プランのカテゴリ。未設定の既存プランはcontentIdから逆引きする */
     category?: ContentCategory;
+    /** プラン作成時のレベル。フリープランのレベルフィルタに使用 */
+    level?: ContentLevel;
     isPublic: boolean;
     copyCount: number;
     useCount: number;
