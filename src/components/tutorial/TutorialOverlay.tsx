@@ -307,19 +307,19 @@ function ExitDialog() {
   return (
     <div className="fixed inset-0 z-[10010] flex items-center justify-center bg-black/50">
       <div className="bg-app-bg border border-app-text/15 rounded-xl p-6 max-w-xs text-center shadow-xl">
-        <p className="text-sm text-app-text font-semibold mb-4">
+        <p className="text-app-2xl text-app-text font-semibold mb-4">
           {t('tutorial.exit_confirm')}
         </p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => useTutorialStore.getState().cancelExit()}
-            className="px-4 py-2 text-xs rounded-lg border border-app-text/15 text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
+            className="px-4 py-2 text-app-lg rounded-lg border border-app-text/15 text-app-text hover:bg-app-text/5 transition-colors cursor-pointer"
           >
             {t('common.cancel')}
           </button>
           <button
             onClick={() => useTutorialStore.getState().confirmExit()}
-            className="px-4 py-2 text-xs rounded-lg bg-app-text text-app-bg font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+            className="px-4 py-2 text-app-lg rounded-lg bg-app-text text-app-bg font-semibold hover:opacity-80 transition-opacity cursor-pointer"
           >
             {t('tutorial.exit_yes')}
           </button>

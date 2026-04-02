@@ -281,13 +281,13 @@ export function ContentWizard() {
             className="flex items-center justify-between border-b border-[var(--app-text)]/10 pb-2 gap-4"
           >
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-xs text-[var(--app-text-muted)]">{label}</span>
-              <span className="text-sm font-medium truncate">{value || '—'}</span>
+              <span className="text-app-lg text-[var(--app-text-muted)]">{label}</span>
+              <span className="text-app-2xl font-medium truncate">{value || '—'}</span>
             </div>
             <button
               type="button"
               onClick={() => wizard.goToStep(stepId)}
-              className="shrink-0 text-xs border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
+              className="shrink-0 text-app-lg border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
             >
               {t('admin.wizard_edit')}
             </button>
@@ -334,7 +334,7 @@ function StepCategory({ data, setField, isJa }: StepProps) {
           }`}
         >
           <div className="font-medium">{isJa ? cat.labelJa : cat.labelEn}</div>
-          <div className="text-xs text-[var(--app-text-muted)]">
+          <div className="text-app-lg text-[var(--app-text-muted)]">
             {isJa ? cat.labelEn : cat.labelJa}
           </div>
         </button>
@@ -359,7 +359,7 @@ function StepLevel({ data, setField, isJa }: StepProps) {
           }`}
         >
           <div className="font-medium">{isJa ? lv.labelJa : lv.labelEn}</div>
-          <div className="text-xs text-[var(--app-text-muted)]">
+          <div className="text-app-lg text-[var(--app-text-muted)]">
             {isJa ? lv.labelEn : lv.labelJa}
           </div>
         </button>
@@ -390,17 +390,17 @@ function StepContentId({ data, setField, existingIds, t, isJa }: StepContentIdPr
         value={value}
         onChange={(e) => setField('contentId', e.target.value)}
         placeholder={isJa ? 'e.g. m9s' : 'e.g. m9s'}
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">{t('admin.content_wiz_id_hint')}</p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.content_wiz_id_hint')}</p>
       {isAvailable && (
-        <p className="text-xs text-[var(--app-text)]">
+        <p className="text-app-lg text-[var(--app-text)]">
           ✓ {t('admin.wizard_id_available')}
         </p>
       )}
       {isTaken && (
-        <p className="text-xs text-[var(--app-text)] opacity-60">
+        <p className="text-app-lg text-[var(--app-text)] opacity-60">
           ✗ {t('admin.wizard_id_taken')}
         </p>
       )}
@@ -423,10 +423,10 @@ function StepNameJa({ data, setField, t }: StepNameProps) {
         value={(data.nameJa as string) ?? ''}
         onChange={(e) => setField('nameJa', e.target.value)}
         placeholder="e.g. 煉獄零式 決戦のトラム"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">{t('admin.content_wiz_name_ja')}</p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.content_wiz_name_ja')}</p>
     </div>
   );
 }
@@ -440,10 +440,10 @@ function StepNameEn({ data, setField, t }: StepNameProps) {
         value={(data.nameEn as string) ?? ''}
         onChange={(e) => setField('nameEn', e.target.value)}
         placeholder="e.g. Asphodelos: The Fourth Circle (Savage)"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">{t('admin.content_wiz_name_en')}</p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.content_wiz_name_en')}</p>
     </div>
   );
 }
@@ -501,10 +501,10 @@ function StepSeries({
                 : 'border-[var(--app-text)]/20 hover:border-[var(--app-text)]/40'
             }`}
           >
-            <div className="text-sm font-medium">
+            <div className="text-app-2xl font-medium">
               {isJa ? s.labelJa : s.labelEn}
             </div>
-            <div className="text-xs text-[var(--app-text-muted)]">
+            <div className="text-app-lg text-[var(--app-text-muted)]">
               {isJa ? s.labelEn : s.labelJa}
             </div>
           </button>
@@ -517,7 +517,7 @@ function StepSeries({
           onClick={handleClickNewSeriesMode}
           className="p-3 border border-dashed border-[var(--app-text)]/30 text-left hover:border-[var(--app-text)]/60 transition-colors"
         >
-          <div className="text-sm text-[var(--app-text-muted)]">
+          <div className="text-app-2xl text-[var(--app-text-muted)]">
             {t('admin.content_wiz_new_series')}
           </div>
         </button>
@@ -528,7 +528,7 @@ function StepSeries({
             value={newSeriesInput}
             onChange={(e) => handleNewSeries(e.target.value)}
             placeholder={isJa ? '新しいシリーズID (e.g. arcadion_mw)' : 'New series ID (e.g. arcadion_mw)'}
-            className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+            className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
             autoFocus
           />
           <button
@@ -538,7 +538,7 @@ function StepSeries({
               setField('series', '');
               setNewSeriesInput('');
             }}
-            className="text-xs text-[var(--app-text-muted)] underline self-start hover:text-[var(--app-text)] transition-colors"
+            className="text-app-lg text-[var(--app-text-muted)] underline self-start hover:text-[var(--app-text)] transition-colors"
           >
             {isJa ? '既存から選ぶ' : 'Select from existing'}
           </button>
@@ -557,10 +557,10 @@ function StepPatch({ data, setField, t }: StepNameProps) {
         value={(data.patch as string) ?? ''}
         onChange={(e) => setField('patch', e.target.value)}
         placeholder="e.g. 7.2"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">{t('admin.content_wiz_patch')}</p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.content_wiz_patch')}</p>
     </div>
   );
 }
@@ -574,10 +574,10 @@ function StepFflogs({ data, setField, t }: StepNameProps) {
         value={(data.fflogsId as string) ?? ''}
         onChange={(e) => setField('fflogsId', e.target.value)}
         placeholder="e.g. 93"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
-      <p className="text-xs text-[var(--app-text-muted)]">{t('admin.content_wiz_fflogs')}</p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.content_wiz_fflogs')}</p>
     </div>
   );
 }

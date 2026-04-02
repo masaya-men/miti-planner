@@ -229,7 +229,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             >
                 {/* ヘッダー */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-app-border bg-app-surface2/40">
-                    <h3 className="text-sm font-bold text-app-text">
+                    <h3 className="text-app-2xl font-bold text-app-text">
                         {isBundle
                             ? t('app.share_bundle_title')
                             : t('app.share_modal_title')
@@ -276,7 +276,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         {/* D&Dオーバーレイ（ログインユーザーのみ） */}
                         {user && dragging && (
                             <div className="absolute inset-0 flex items-center justify-center bg-app-bg/60 z-20 pointer-events-none">
-                                <span className="text-xs font-bold text-app-text">
+                                <span className="text-app-lg font-bold text-app-text">
                                     {t('team_logo.upload')}
                                 </span>
                             </div>
@@ -285,7 +285,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         {(!imageLoaded) && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                                 <Loader2 size={24} className="animate-spin text-app-text-muted" />
-                                <span className="text-[11px] text-app-text-muted font-medium">
+                                <span className="text-app-md text-app-text-muted font-medium">
                                     {t('app.generating_preview')}
                                 </span>
                             </div>
@@ -331,7 +331,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                     showPlanTitle ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
                                 )} />
                             </div>
-                            <span className="text-xs text-app-text-muted group-hover:text-app-text transition-colors">
+                            <span className="text-app-lg text-app-text-muted group-hover:text-app-text transition-colors">
                                 {t('app.include_plan_title')}
                             </span>
                         </button>
@@ -341,7 +341,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 {/* 非ログイン時のさりげない案内 */}
                 {!user && (
                     <div className="px-5 pb-2">
-                        <p className="text-[10px] text-app-text-muted text-center leading-relaxed">
+                        <p className="text-app-base text-app-text-muted text-center leading-relaxed">
                             {t('app.share_guest_hint')
                                 .split(/<\/?login>/)
                                 .map((part, i) =>
@@ -379,7 +379,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                         showLogo ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
                                     )} />
                                 </div>
-                                <span className="text-xs text-app-text-muted group-hover:text-app-text transition-colors">
+                                <span className="text-app-lg text-app-text-muted group-hover:text-app-text transition-colors">
                                     {t('team_logo.show_on_ogp')}
                                 </span>
                             </button>
@@ -397,7 +397,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                     <button
                                         onClick={handleLogoDelete}
                                         disabled={uploading}
-                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
+                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer border border-app-border"
                                     >
                                         <Trash2 size={11} />
                                         {t('team_logo.remove')}
@@ -407,7 +407,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                 <button
                                     onClick={() => !uploading && fileInputRef.current?.click()}
                                     disabled={uploading}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-bold border border-app-border text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-app-md font-bold border border-app-border text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
                                 >
                                     {uploading ? (
                                         <Loader2 size={12} className="animate-spin" />
@@ -417,7 +417,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                                     {uploading ? t('team_logo.uploading') : t('team_logo.upload')}
                                 </button>
                             )}
-                            <span className="text-[10px] text-app-text-muted ml-auto">
+                            <span className="text-app-base text-app-text-muted ml-auto">
                                 {t('team_logo.format_hint')}
                             </span>
                         </div>
@@ -437,7 +437,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 <div className="px-5 pb-5 flex flex-col gap-2">
                     {/* 生成中の状態表示 */}
                     {!imageLoaded && shareUrl && (
-                        <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold bg-app-surface2 text-app-text-muted cursor-not-allowed">
+                        <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold bg-app-surface2 text-app-text-muted cursor-not-allowed">
                             <Loader2 size={16} className="animate-spin" />
                             {t('app.share_generating')}
                         </div>
@@ -449,7 +449,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             onClick={handleCopy}
                             disabled={!shareUrl}
                             className={clsx(
-                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all",
+                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold transition-all",
                                 shareUrl
                                     ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] cursor-pointer"
                                     : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
@@ -469,7 +469,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             onClick={handleShareX}
                             disabled={!shareUrl}
                             className={clsx(
-                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-bold transition-all border",
+                                "flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-app-2xl font-bold transition-all border",
                                 shareUrl
                                     ? "border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] cursor-pointer"
                                     : "border-app-border text-app-text-muted cursor-not-allowed"
@@ -487,7 +487,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     {shareUrl && (
                         <button
                             onClick={handleCopy}
-                            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
+                            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg text-app-lg text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer"
                         >
                             <Copy size={12} />
                             {t('app.share_url_only')}

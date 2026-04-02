@@ -54,7 +54,7 @@ export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
         className={btnClassName}
       >
         <HelpCircle size={14} className="group-hover:rotate-12 transition-transform duration-300 shrink-0" />
-        <span className="text-[10px] font-black uppercase tracking-[0.1em]">
+        <span className="text-app-base font-black uppercase tracking-[0.1em]">
           {t('app.view_tutorial')}
         </span>
       </button>
@@ -76,7 +76,7 @@ export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
                   useTutorialStore.getState().startTutorial(id);
                 }}
                 className={clsx(
-                  'w-full flex items-center gap-2 px-3 py-2 text-xs text-left transition-colors cursor-pointer',
+                  'w-full flex items-center gap-2 px-3 py-2 text-app-lg text-left transition-colors cursor-pointer',
                   'hover:bg-app-text/5 text-app-text'
                 )}
               >

@@ -69,7 +69,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
         >
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
-                <span className="text-xs font-black text-app-text uppercase tracking-wider">
+                <span className="text-app-lg font-black text-app-text uppercase tracking-wider">
                     {t('timeline.nav_phase_jump')}
                 </span>
                 <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
@@ -80,7 +80,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
             {/* フェーズリスト */}
             <div className="max-h-[240px] overflow-y-auto">
                 {phases.length === 0 ? (
-                    <div className="px-3 py-4 text-center text-app-text-muted text-xs">
+                    <div className="px-3 py-4 text-center text-app-text-muted text-app-lg">
                         {t('timeline.nav_no_phases')}
                     </div>
                 ) : (
@@ -88,7 +88,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
                         <button
                             key={phase.id}
                             onClick={() => handlePhaseClick(index)}
-                            className="w-full px-3 py-2.5 text-left text-sm text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors"
+                            className="w-full px-3 py-2.5 text-left text-app-2xl text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors"
                         >
                             {phase.name.split('\n').join(' ')}
                         </button>
@@ -100,7 +100,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
             <div className="border-t border-glass-border">
                 <button
                     onClick={() => { onToggleCollapse(); onClose(); }}
-                    className="w-full px-3 py-2.5 text-left text-xs text-app-text-muted hover:bg-glass-hover cursor-pointer transition-colors flex items-center gap-2"
+                    className="w-full px-3 py-2.5 text-left text-app-lg text-app-text-muted hover:bg-glass-hover cursor-pointer transition-colors flex items-center gap-2"
                 >
                     {isCollapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
                     {isCollapsed ? t('timeline.nav_phase_expand') : t('timeline.nav_phase_collapse')}

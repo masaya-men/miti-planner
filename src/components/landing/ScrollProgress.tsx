@@ -50,7 +50,7 @@ export function ScrollProgress() {
 
         {/* セクション名 */}
         <div
-          className="text-[11px] text-white/25 tracking-[3px] uppercase font-mono whitespace-nowrap"
+          className="text-app-md text-white/25 tracking-[3px] uppercase font-mono whitespace-nowrap"
           style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
         >
           {label}

@@ -58,24 +58,24 @@ export function AdminConfig() {
   };
 
   const inputClass =
-    'px-2 py-1.5 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-32';
+    'px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-32';
 
   if (loading) {
     return (
       <div>
-        <h1 className="text-lg font-bold mb-4">{t('admin.config_title')}</h1>
-        <p className="text-xs text-app-text-muted">...</p>
+        <h1 className="text-app-3xl font-bold mb-4">{t('admin.config_title')}</h1>
+        <p className="text-app-lg text-app-text-muted">...</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-lg font-bold mb-4">{t('admin.config_title')}</h1>
+      <h1 className="text-app-3xl font-bold mb-4">{t('admin.config_title')}</h1>
 
       <div className="p-4 border border-app-text/10 rounded space-y-4 max-w-md">
         <div>
-          <label className="block text-xs text-app-text-muted mb-1">
+          <label className="block text-app-lg text-app-text-muted mb-1">
             {t('admin.promotion_threshold')}
           </label>
           <input
@@ -88,7 +88,7 @@ export function AdminConfig() {
         </div>
 
         <div>
-          <label className="block text-xs text-app-text-muted mb-1">
+          <label className="block text-app-lg text-app-text-muted mb-1">
             {t('admin.promotion_multiplier')}
           </label>
           <input
@@ -104,7 +104,7 @@ export function AdminConfig() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {saving ? '...' : t('admin.config_save')}
         </button>

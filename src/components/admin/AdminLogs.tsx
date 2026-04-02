@@ -132,17 +132,17 @@ export function AdminLogs() {
     <div>
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-bold">{t('admin.logs_title')}</h1>
+        <h1 className="text-app-3xl font-bold">{t('admin.logs_title')}</h1>
         <button
           onClick={fetchLogs}
           disabled={loading}
-          className="px-3 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {loading ? '...' : '↺'}
         </button>
       </div>
 
-      {error && <p className="text-xs text-app-text-muted mb-4">{error}</p>}
+      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
 
       {/* フィルターボタン */}
       <div className="flex flex-wrap gap-1 mb-4">
@@ -150,7 +150,7 @@ export function AdminLogs() {
           <button
             key={item.key}
             onClick={() => setFilter(item.key)}
-            className={`px-3 py-1 text-xs rounded border transition-colors ${
+            className={`px-3 py-1 text-app-lg rounded border transition-colors ${
               filter === item.key
                 ? 'border-app-text bg-app-text text-app-bg'
                 : 'border-app-text/20 hover:bg-app-text/10'
@@ -162,10 +162,10 @@ export function AdminLogs() {
       </div>
 
       {/* ログ一覧 */}
-      {loading && <p className="text-xs text-app-text-muted">...</p>}
+      {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
       {!loading && filtered.length === 0 && (
-        <p className="text-xs text-app-text-muted">{t('admin.logs_no_data')}</p>
+        <p className="text-app-lg text-app-text-muted">{t('admin.logs_no_data')}</p>
       )}
 
       {!loading && filtered.length > 0 && (
@@ -181,27 +181,27 @@ export function AdminLogs() {
                 className="px-4 py-3 flex items-center gap-3 hover:bg-app-text/3 transition-colors"
               >
                 {/* アクションアイコン */}
-                <span className="shrink-0 w-6 h-6 flex items-center justify-center text-xs border border-app-text/20 rounded font-mono">
+                <span className="shrink-0 w-6 h-6 flex items-center justify-center text-app-lg border border-app-text/20 rounded font-mono">
                   {actionIcon(entry.action)}
                 </span>
 
                 {/* 情報 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium truncate">
+                    <span className="text-app-lg font-medium truncate">
                       {targetDescription(entry.target, isJa)}
                     </span>
-                    <span className="shrink-0 text-[10px] border border-app-text/20 rounded px-1.5 py-0.5">
+                    <span className="shrink-0 text-app-base border border-app-text/20 rounded px-1.5 py-0.5">
                       {actionLabel(entry.action)}
                     </span>
                   </div>
-                  <div className="text-[10px] text-app-text-muted font-mono truncate mt-0.5">
+                  <div className="text-app-base text-app-text-muted font-mono truncate mt-0.5">
                     {entry.adminUid}
                   </div>
                 </div>
 
                 {/* 日時 */}
-                <span className="shrink-0 text-[10px] text-app-text-muted">{timeStr}</span>
+                <span className="shrink-0 text-app-base text-app-text-muted">{timeStr}</span>
               </div>
             );
           })}

@@ -38,14 +38,14 @@ export const LanguageSwitcher: React.FC = () => {
                 {/* Labels */}
                 <button
                     onClick={() => handleLanguageChange('ja')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-bg' : 'text-app-text'
+                    className={`flex-1 relative z-10 text-app-base font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'ja' ? 'text-app-bg' : 'text-app-text'
                         }`}
                 >
                     JP
                 </button>
                 <button
                     onClick={() => handleLanguageChange('en')}
-                    className={`flex-1 relative z-10 text-[10px] font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-bg' : 'text-app-text'
+                    className={`flex-1 relative z-10 text-app-base font-black transition-colors duration-200 flex items-center justify-center cursor-pointer ${currentLang === 'en' ? 'text-app-bg' : 'text-app-text'
                         }`}
                 >
                     EN

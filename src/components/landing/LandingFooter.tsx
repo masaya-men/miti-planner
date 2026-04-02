@@ -32,16 +32,16 @@ export function LandingFooter() {
           {/* X — 常時表示、一番目立つ */}
           <button
             onClick={shareOnX}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/40 text-xs text-white/50 hover:text-white/80 transition-all duration-200"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/40 text-app-lg text-white/50 hover:text-white/80 transition-all duration-200"
           >
-            <span className="text-sm font-bold">𝕏</span>
+            <span className="text-app-2xl font-bold">𝕏</span>
           </button>
 
           {/* 共有する — URLコピー */}
           <div className="relative group">
             <button
               onClick={copyUrl}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/40 text-xs text-white/50 hover:text-white/80 transition-all duration-200"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/40 text-app-lg text-white/50 hover:text-white/80 transition-all duration-200"
             >
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -50,7 +50,7 @@ export function LandingFooter() {
               {copied ? t('portal.footer.share_copied') : t('portal.footer.share')}
             </button>
             {/* ツールチップ */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-md bg-white/10 text-[10px] text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-md bg-white/10 text-app-base text-white/60 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
               {t('portal.footer.copy_link_tooltip')}
             </div>
           </div>
@@ -58,11 +58,11 @@ export function LandingFooter() {
 
         {/* 下段 */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-[11px] text-white/30 text-center md:text-left">
+          <div className="text-app-md text-white/30 text-center md:text-left">
             <div>{t('portal.footer.copyright')}</div>
-            <div className="text-[10px] mt-0.5">{t('portal.footer.disclaimer')}</div>
+            <div className="text-app-base mt-0.5">{t('portal.footer.disclaimer')}</div>
           </div>
-          <div className="flex flex-wrap justify-center md:justify-end gap-4 text-[11px] text-white/40">
+          <div className="flex flex-wrap justify-center md:justify-end gap-4 text-app-md text-white/40">
             <a href="https://discord.gg/z7uypbJSnN" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.discord')}</a>
             <a href="https://x.com/lopoly_app" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.x_official')}</a>
             <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">{t('footer.kofi')}</a>

@@ -36,8 +36,8 @@ export function AdminLayout() {
       {/* サイドナビ */}
       <nav className="w-56 border-r border-app-text/10 flex flex-col">
         <div className="p-4 border-b border-app-text/10">
-          <div className="text-sm font-bold">LoPo Admin</div>
-          <div className="text-[10px] text-app-text-muted truncate mt-1">
+          <div className="text-app-2xl font-bold">LoPo Admin</div>
+          <div className="text-app-base text-app-text-muted truncate mt-1">
             {user?.displayName || 'Admin'}
           </div>
         </div>
@@ -48,7 +48,7 @@ export function AdminLayout() {
               to={item.path}
               end={item.end}
               className={({ isActive }) =>
-                `px-3 py-2 rounded text-xs transition-colors ${
+                `px-3 py-2 rounded text-app-lg transition-colors ${
                   isActive
                     ? 'bg-app-text/10 font-bold'
                     : 'hover:bg-app-text/5'
@@ -62,7 +62,7 @@ export function AdminLayout() {
         <div className="p-2 border-t border-app-text/10">
           <NavLink
             to="/miti"
-            className="block px-3 py-2 rounded text-xs text-app-text-muted hover:bg-app-text/5 transition-colors"
+            className="block px-3 py-2 rounded text-app-lg text-app-text-muted hover:bg-app-text/5 transition-colors"
           >
             ← {t('admin.back_to_app')}
           </NavLink>

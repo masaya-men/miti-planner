@@ -13,7 +13,7 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-app-bg text-app-text">
-        <div className="text-sm animate-pulse">{t('common.loading')}</div>
+        <div className="text-app-2xl animate-pulse">{t('common.loading')}</div>
       </div>
     );
   }

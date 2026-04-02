@@ -8,14 +8,19 @@
 
 ## 現在の状態（次セッションはここから読む）
 
-- **ブランチ**: main直接 → **未push・未デプロイ**
-- **今回の作業**: 表ヘッダーナビゲーション機能 + タイポグラフィ刷新
-- **完了済み**: ヘッダーナビ実装完了（Phase/Time/Mechanic 3機能）、タイポグラフィ6段階スケール適用済み
-- **タイポグラフィの状態**: 実装済みだがユーザーが好みに合わないと感じている。次セッションで微調整・方向性見直しが必要
+- **ブランチ**: main直接 → **push・デプロイ待ち**
+- **今回の作業**: デザイントークン Phase 1 完了（フォントサイズCSS変数化）
+- **完了した内容**:
+  - CSS変数15個（--font-size-3xs〜6xl）を`:root`と`.theme-light`に定義
+  - Tailwind v4 `@theme`ブロックに`--font-size-app-*`トークンを登録
+  - 全85コンポーネントのハードコード値を`text-app-*`クラスに移行
+  - 見た目は一切変わっていない（値はすべて同一）
+  - ビルド成功確認済み
+- **サイドバーの改善は残っている**: sidebar-itemアンダーライン、ホバー濃度アップ(6%→12%)、レベル/カテゴリタブ罫線・デザイン統一、プラン自動展開
 - **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12、Vercel月100ビルド制限
-- **次のタスク**: タイポグラフィの微調整 → push+デプロイ → 本番動作確認
-- **設計書**: `docs/superpowers/specs/2026-04-02-header-navigation-design.md`、`docs/superpowers/specs/2026-04-02-typography-overhaul-design.md`
-- **実装計画**: `docs/superpowers/plans/2026-04-02-header-navigation.md`
+- **次のタスク**: Phase 2 — デザイントークンの値調整（タイポグラフィ刷新）。CSS変数の値を変えるだけで全UIに反映される
+- **設計書**: `docs/superpowers/specs/2026-04-02-design-tokens-font-size.md`、`docs/superpowers/specs/2026-04-02-header-navigation-design.md`
+- **実装計画**: `docs/superpowers/plans/2026-04-02-design-tokens-font-size.md`
 - **βフィードバック**: `docs/BETA_FEEDBACK.md` に整理済み
 - **既知の制限**: FFLogs翻訳はキルログのみ対応
 
@@ -29,7 +34,8 @@
 
 ## 進行中
 - [x] 表ヘッダーナビゲーション機能（実装完了、動作確認済み）
-- [ ] タイポグラフィ刷新（6段階スケール適用済み、好みの微調整が必要）
+- [x] デザイントークン Phase 1（フォントサイズCSS変数化、全コンポーネント移行）
+- [ ] デザイントークン Phase 2（タイポグラフィ値調整 — CSS変数の値変更のみで全UI反映）
 
 ## 未着手（次にやること）
 - [ ] 本番動作確認（ギミックグループ・フェーズ編集・翻訳伝播・ダメージインポート）

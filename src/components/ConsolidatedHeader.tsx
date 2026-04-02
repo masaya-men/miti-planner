@@ -59,7 +59,7 @@ const SaveIndicator: React.FC = React.memo(() => {
     return (
         <span
             className={clsx(
-                "text-[10px] transition-opacity duration-300",
+                "text-app-base transition-opacity duration-300",
                 saveStatus === 'saving' ? "text-app-text/50 animate-pulse" : "text-app-text"
             )}
             style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
@@ -176,7 +176,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         <span
                                             className={clsx(
                                                 "text-app-text leading-tight whitespace-nowrap shrink-0",
-                                                i18n.language.startsWith('ja') ? "text-[20px]" : "text-[26px]"
+                                                i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
                                             )}
                                             style={{
                                                 fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
@@ -197,12 +197,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 onChange={e => setHeaderTitleDraft(e.target.value)}
                                                 onBlur={finishHeaderEdit}
                                                 onKeyDown={e => { if (e.key === 'Enter') finishHeaderEdit(); if (e.key === 'Escape') setEditingHeaderTitle(false); }}
-                                                className="text-[13px] text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
+                                                className="text-app-xl text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
                                                 style={{ fontFamily: 'inherit', fontWeight: 'inherit', flex: '1 1 0%' }}
                                             />
                                         ) : (
                                             <div
-                                                className="text-[13px] text-app-text tracking-wider uppercase cursor-pointer hover:border-b hover:border-app-text/20"
+                                                className="text-app-xl text-app-text tracking-wider uppercase cursor-pointer hover:border-b hover:border-app-text/20"
                                                 style={{
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
@@ -263,7 +263,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
                                     ) : user ? (
                                         <div className="w-6 h-6 rounded-full bg-app-text/15 flex items-center justify-center">
-                                            <span className="text-[10px] font-black text-app-text">{(user.displayName || 'U').charAt(0).toUpperCase()}</span>
+                                            <span className="text-app-base font-black text-app-text">{(user.displayName || 'U').charAt(0).toUpperCase()}</span>
                                         </div>
                                     ) : (
                                         <LogIn size={16} />
@@ -286,7 +286,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(pillBtnBase, pillBtnDefault)}
                             >
                                 <Users size={14} className="group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
+                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
                             </button>
 
                             {/* Status */}
@@ -298,7 +298,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault)}
                             >
                                 <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "" : "group-hover:scale-110")} />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
+                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
                             </button>
 
                             {/* Auto Plan */}
@@ -307,7 +307,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(pillBtnBase, pillBtnDefault)}
                             >
                                 <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
+                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
                             </button>
 
                             {/* Import（アイコンのみ） */}
@@ -333,7 +333,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(pillBtnBase, pillBtnDefault)}
                             >
                                 <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
+                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
                             </button>
 
                             {/* My Job Highlight */}
@@ -346,20 +346,20 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
                             >
                                 <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
+                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
                             <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
 
                             {/* Sort */}
-                            <span className="text-[10px] font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
+                            <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
                             <div className="flex h-9 rounded-full p-[3px] border border-app-border">
                                 {(['light_party', 'role'] as const).map((order) => (
                                     <button
                                         key={order}
                                         onClick={() => setPartySortOrder(order)}
                                         className={clsx(
-                                            "px-3 h-full rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                                            "px-3 h-full rounded-full text-app-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
                                             partySortOrder === order
                                                 ? "bg-app-text text-app-bg"
                                                 : "text-app-text"

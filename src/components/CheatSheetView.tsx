@@ -242,7 +242,7 @@ export const CheatSheetView: React.FC = () => {
                                         {targetJob ? (
                                             <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
                                         ) : (
-                                            <span className="text-[6px] font-black text-white px-0.5 block scale-90">{m.targetId}</span>
+                                            <span className="text-app-3xs font-black text-white px-0.5 block scale-90">{m.targetId}</span>
                                         )}
                                     </div>
                                 )}
@@ -272,7 +272,7 @@ export const CheatSheetView: React.FC = () => {
                     "bg-app-surface2 border-app-border"
                 )}>
                     {/* 1段目: 時間 */}
-                    <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
+                    <span className="text-app-base font-mono text-cyan-600 dark:text-cyan-300 font-bold tracking-wider leading-none mb-0.5 drop-shadow-md">
                         {formatTime(event.time)}
                     </span>
 
@@ -283,7 +283,7 @@ export const CheatSheetView: React.FC = () => {
                         {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.unique')} />}
                         <span
                             className={clsx(
-                                "text-[10px] leading-tight truncate font-black drop-shadow-md cursor-help",
+                                "text-app-base leading-tight truncate font-black drop-shadow-md cursor-help",
                                 isLethal ? "text-red-600 dark:text-red-400" : hasDamage ? "text-green-600 dark:text-green-400" : "text-app-text"
                             )}
                         >
@@ -293,7 +293,7 @@ export const CheatSheetView: React.FC = () => {
                         {event.hitCount > 1 && (
                             <Tooltip content={t('ui.total_hits', { count: event.hitCount, span: event.span })}>
                                 <span
-                                    className="text-[7px] font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
+                                    className="text-app-2xs font-bold px-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 whitespace-nowrap shadow-sm scale-90 shrink-0"
                                 >
                                     ×{event.hitCount}
                                 </span>
@@ -306,7 +306,7 @@ export const CheatSheetView: React.FC = () => {
                         {/* 最終ダメージ量 */}
                         {hasDamage && dmgInfo && (
                             <span className={clsx(
-                                "text-[10px] font-mono font-black drop-shadow-md shrink-0",
+                                "text-app-base font-mono font-black drop-shadow-md shrink-0",
                                 isLethal ? "text-red-600 dark:text-red-400" : "text-app-text"
                             )}>
                                 {dmgInfo.isInvincible ? t('timeline.invuln') : actualDamage.toLocaleString()}
@@ -315,7 +315,7 @@ export const CheatSheetView: React.FC = () => {
 
                         {/* 軽減率・バリア量（超省略表記） */}
                         {dmgInfo && !dmgInfo.isInvincible && (dmgInfo.mitigationPercent > 0 || dmgInfo.shieldTotal > 0) && (
-                            <span className="text-[8px] text-app-text-sec font-black whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
+                            <span className="text-app-xs text-app-text-sec font-black whitespace-nowrap tracking-tighter scale-90 origin-left shrink-0">
                                 {[
                                     dmgInfo.mitigationPercent > 0 ? `▼-${dmgInfo.mitigationPercent}%` : null,
                                     dmgInfo.shieldTotal > 0 ? `🛡️${Math.floor(dmgInfo.shieldTotal / 1000)}k` : null
@@ -343,7 +343,7 @@ export const CheatSheetView: React.FC = () => {
                                 </div>
                             ) : (
                                 <span className={clsx(
-                                    "text-[7px] font-bold px-1 rounded uppercase tracking-wider whitespace-nowrap scale-90 shrink-0",
+                                    "text-app-2xs font-bold px-1 rounded uppercase tracking-wider whitespace-nowrap scale-90 shrink-0",
                                     event.target === 'MT' ? "text-cyan-400 bg-cyan-400/20" : "text-amber-400 bg-amber-400/20"
                                 )}>
                                     {event.target}
@@ -401,16 +401,16 @@ export const CheatSheetView: React.FC = () => {
                 "bg-app-surface2 border-app-border"
             )}>
                 <div className="flex-1 flex items-center justify-center border-r border-app-border">
-                    <span className="text-[10px] font-black text-app-text uppercase tracking-[0.2em] px-2 text-center">MT Group</span>
+                    <span className="text-app-base font-black text-app-text uppercase tracking-[0.2em] px-2 text-center">MT Group</span>
                 </div>
                 <div className={clsx(
                     "w-[130px] shrink-0 flex flex-col items-center justify-center border-x",
                     "border-app-border bg-app-surface2"
                 )}>
-                    <span className="text-[9px] font-black text-app-text uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
+                    <span className="text-app-sm font-black text-app-text uppercase tracking-[0.15em] drop-shadow-sm">Timeline</span>
                 </div>
                 <div className="flex-1 flex items-center justify-center border-l border-app-border relative">
-                    <span className="text-[10px] font-black text-app-text uppercase tracking-[0.2em] px-2 text-center">ST Group</span>
+                    <span className="text-app-base font-black text-app-text uppercase tracking-[0.2em] px-2 text-center">ST Group</span>
                 </div>
             </div>
 
@@ -418,7 +418,7 @@ export const CheatSheetView: React.FC = () => {
             <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth thin-scrollbar pb-10 [scrollbar-gutter:stable]">
                 <div className="flex-1 flex flex-col">
                     {damageEvents.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-app-text-muted text-sm font-medium">
+                        <div className="flex items-center justify-center h-full text-app-text-muted text-app-2xl font-medium">
                             {t('ui.no_damage_events')}
                         </div>
                     ) : (
@@ -439,7 +439,7 @@ export const CheatSheetView: React.FC = () => {
                             className="bg-app-surface border border-app-border p-4 rounded-2xl shadow-sm animate-in zoom-in-95 fade-in duration-200"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="text-[10px] font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
+                            <div className="text-app-base font-bold text-slate-800 dark:text-white mb-3 text-center uppercase tracking-wider drop-shadow-md">
                                 {t('modal.add_mitigation_to')}
                             </div>
                             <div className="grid grid-cols-4 gap-2">
@@ -457,7 +457,7 @@ export const CheatSheetView: React.FC = () => {
                                             className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-app-border bg-app-surface2 hover:bg-app-surface2 shadow-sm cursor-pointer"
                                         >
                                             <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
-                                            <span className="text-[9px] font-black text-app-text-sec mt-1">{m.id}</span>
+                                            <span className="text-app-sm font-black text-app-text-sec mt-1">{m.id}</span>
                                         </button>
                                     );
                                 })}

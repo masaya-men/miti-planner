@@ -17,7 +17,7 @@ export const ContentLanguageSwitcher: React.FC = () => {
         <Tooltip content={t('ui.switch_lang', contentLanguage === 'ja' ? 'Switch skill names to English' : 'スキル名を日本語に切り替え')}>
             <button
                 onClick={toggleLanguage}
-                className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-app-text hover:text-app-text group relative overflow-hidden water-drop"
+                className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-app-lg font-bold text-app-text hover:text-app-text group relative overflow-hidden water-drop"
             >
                 <BookOpen size={14} className="text-app-text group-hover:text-amber-300 transition-colors duration-300" />
                 <span className="relative z-10 w-4 text-center">

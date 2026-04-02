@@ -371,13 +371,13 @@ export function SkillWizard() {
             className="flex items-center justify-between border-b border-[var(--app-text)]/10 pb-2 gap-4"
           >
             <div className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-xs text-[var(--app-text-muted)]">{label}</span>
-              <span className="text-sm font-medium truncate">{value || '—'}</span>
+              <span className="text-app-lg text-[var(--app-text-muted)]">{label}</span>
+              <span className="text-app-2xl font-medium truncate">{value || '—'}</span>
             </div>
             <button
               type="button"
               onClick={() => wizard.goToStep(stepId)}
-              className="shrink-0 text-xs border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
+              className="shrink-0 text-app-lg border border-[var(--app-text)]/40 px-3 py-1 hover:border-[var(--app-text)] hover:bg-[var(--app-text)]/5 transition-colors"
             >
               {t('admin.wizard_edit')}
             </button>
@@ -422,7 +422,7 @@ function StepMode({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)] mb-2">{t('admin.skill_wiz_mode')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)] mb-2">{t('admin.skill_wiz_mode')}</p>
       {modes.map((m) => (
         <button
           key={m.value}
@@ -449,7 +449,7 @@ interface StepJobIdProps extends StepBasePropsWithLang {
 
 function StepJobId({ data, setField, isJa, jobs, isLoading }: StepJobIdProps) {
   if (isLoading) {
-    return <div className="text-sm text-[var(--app-text-muted)] py-4">Loading...</div>;
+    return <div className="text-app-2xl text-[var(--app-text-muted)] py-4">Loading...</div>;
   }
 
   const grouped: Record<string, JobDef[]> = {};
@@ -467,7 +467,7 @@ function StepJobId({ data, setField, isJa, jobs, isLoading }: StepJobIdProps) {
         if (!roleJobs || roleJobs.length === 0) return null;
         return (
           <div key={role} className="flex flex-col gap-2">
-            <div className="text-xs text-[var(--app-text-muted)] font-semibold uppercase tracking-wider">
+            <div className="text-app-lg text-[var(--app-text-muted)] font-semibold uppercase tracking-wider">
               {role}
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -482,10 +482,10 @@ function StepJobId({ data, setField, isJa, jobs, isLoading }: StepJobIdProps) {
                       : 'border-[var(--app-text)]/20 hover:border-[var(--app-text)]/40'
                   }`}
                 >
-                  <div className="text-sm font-medium">
+                  <div className="text-app-2xl font-medium">
                     {isJa ? job.name.ja : job.name.en}
                   </div>
-                  <div className="text-xs text-[var(--app-text-muted)]">{job.id}</div>
+                  <div className="text-app-lg text-[var(--app-text-muted)]">{job.id}</div>
                 </button>
               ))}
             </div>
@@ -500,13 +500,13 @@ function StepJobId({ data, setField, isJa, jobs, isLoading }: StepJobIdProps) {
 function StepNameJa({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_name_ja')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_name_ja')}</p>
       <input
         type="text"
         value={(data.nameJa as string) ?? ''}
         onChange={(e) => setField('nameJa', e.target.value)}
         placeholder="e.g. シェルトロン"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
     </div>
@@ -517,13 +517,13 @@ function StepNameJa({ data, setField, t }: StepBaseProps) {
 function StepNameEn({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_name_en')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_name_en')}</p>
       <input
         type="text"
         value={(data.nameEn as string) ?? ''}
         onChange={(e) => setField('nameEn', e.target.value)}
         placeholder="e.g. Sheltron"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
     </div>
@@ -534,7 +534,7 @@ function StepNameEn({ data, setField, t }: StepBaseProps) {
 function StepValue({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_value')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_value')}</p>
       <div className="flex items-center gap-3">
         <input
           type="number"
@@ -544,10 +544,10 @@ function StepValue({ data, setField, t }: StepBaseProps) {
           value={(data.value as string) ?? ''}
           onChange={(e) => setField('value', e.target.value)}
           placeholder="10"
-          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
           autoFocus
         />
-        <span className="text-sm text-[var(--app-text-muted)] shrink-0">%</span>
+        <span className="text-app-2xl text-[var(--app-text-muted)] shrink-0">%</span>
       </div>
     </div>
   );
@@ -557,7 +557,7 @@ function StepValue({ data, setField, t }: StepBaseProps) {
 function StepHasBurst({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst')}</p>
       <div className="flex gap-3">
         {(['yes', 'no'] as const).map((v) => (
           <button
@@ -579,7 +579,7 @@ function StepHasBurst({ data, setField, t }: StepBaseProps) {
       {data.hasBurst === 'yes' && (
         <div className="flex flex-col gap-3 border border-[var(--app-text)]/20 p-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst_value')}</p>
+            <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst_value')}</p>
             <div className="flex items-center gap-3">
               <input
                 type="number"
@@ -589,13 +589,13 @@ function StepHasBurst({ data, setField, t }: StepBaseProps) {
                 value={(data.burstValue as string) ?? ''}
                 onChange={(e) => setField('burstValue', e.target.value)}
                 placeholder="20"
-                className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+                className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
               />
-              <span className="text-sm text-[var(--app-text-muted)] shrink-0">%</span>
+              <span className="text-app-2xl text-[var(--app-text-muted)] shrink-0">%</span>
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst_duration')}</p>
+            <p className="text-app-lg text-[var(--app-text-muted)]">{t('admin.skill_wiz_burst_duration')}</p>
             <div className="flex items-center gap-3">
               <input
                 type="number"
@@ -604,9 +604,9 @@ function StepHasBurst({ data, setField, t }: StepBaseProps) {
                 value={(data.burstDuration as string) ?? ''}
                 onChange={(e) => setField('burstDuration', e.target.value)}
                 placeholder="8"
-                className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+                className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
               />
-              <span className="text-sm text-[var(--app-text-muted)] shrink-0">s</span>
+              <span className="text-app-2xl text-[var(--app-text-muted)] shrink-0">s</span>
             </div>
           </div>
         </div>
@@ -619,7 +619,7 @@ function StepHasBurst({ data, setField, t }: StepBaseProps) {
 function StepDuration({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_duration')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_duration')}</p>
       <div className="flex items-center gap-3">
         <input
           type="number"
@@ -629,10 +629,10 @@ function StepDuration({ data, setField, t }: StepBaseProps) {
           value={(data.duration as string) ?? ''}
           onChange={(e) => setField('duration', e.target.value)}
           placeholder="15"
-          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
           autoFocus
         />
-        <span className="text-sm text-[var(--app-text-muted)] shrink-0">s</span>
+        <span className="text-app-2xl text-[var(--app-text-muted)] shrink-0">s</span>
       </div>
     </div>
   );
@@ -642,7 +642,7 @@ function StepDuration({ data, setField, t }: StepBaseProps) {
 function StepRecast({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_recast')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_recast')}</p>
       <div className="flex items-center gap-3">
         <input
           type="number"
@@ -652,10 +652,10 @@ function StepRecast({ data, setField, t }: StepBaseProps) {
           value={(data.recast as string) ?? ''}
           onChange={(e) => setField('recast', e.target.value)}
           placeholder="60"
-          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+          className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
           autoFocus
         />
-        <span className="text-sm text-[var(--app-text-muted)] shrink-0">s</span>
+        <span className="text-app-2xl text-[var(--app-text-muted)] shrink-0">s</span>
       </div>
     </div>
   );
@@ -672,7 +672,7 @@ function StepType({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_type')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_type')}</p>
 
       {/* 分割チェックボックス */}
       <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -685,7 +685,7 @@ function StepType({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
           }}
           className="w-4 h-4 border border-[var(--app-text)]/30 bg-transparent"
         />
-        <span className="text-sm">{t('admin.skill_wiz_type_split')}</span>
+        <span className="text-app-2xl">{t('admin.skill_wiz_type_split')}</span>
       </label>
 
       {!isSplit && (
@@ -710,7 +710,7 @@ function StepType({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
       {isSplit && (
         <div className="flex flex-col gap-3 border border-[var(--app-text)]/20 p-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[var(--app-text-muted)]">
+            <p className="text-app-lg text-[var(--app-text-muted)]">
               {t('admin.skill_wiz_type_magical')} %
             </p>
             <input
@@ -721,11 +721,11 @@ function StepType({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
               value={(data.valueMagical as string) ?? ''}
               onChange={(e) => setField('valueMagical', e.target.value)}
               placeholder="10"
-              className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+              className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[var(--app-text-muted)]">
+            <p className="text-app-lg text-[var(--app-text-muted)]">
               {t('admin.skill_wiz_type_physical')} %
             </p>
             <input
@@ -736,7 +736,7 @@ function StepType({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
               value={(data.valuePhysical as string) ?? ''}
               onChange={(e) => setField('valuePhysical', e.target.value)}
               placeholder="10"
-              className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+              className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
             />
           </div>
         </div>
@@ -755,7 +755,7 @@ function StepScope({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_scope')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_scope')}</p>
       {scopeOptions.map((opt) => (
         <button
           key={opt.value}
@@ -778,7 +778,7 @@ function StepScope({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
 function StepCannotTargetSelf({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_target_self')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_target_self')}</p>
       <div className="flex gap-3">
         {(['yes', 'no'] as const).map((v) => (
           <button
@@ -803,7 +803,7 @@ function StepCannotTargetSelf({ data, setField, t, isJa: _isJa }: StepBasePropsW
 function StepMinLevel({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_min_level')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_min_level')}</p>
       <input
         type="number"
         min={1}
@@ -812,7 +812,7 @@ function StepMinLevel({ data, setField, t }: StepBaseProps) {
         value={(data.minLevel as string) ?? ''}
         onChange={(e) => setField('minLevel', e.target.value)}
         placeholder="50"
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)]"
         autoFocus
       />
     </div>
@@ -823,13 +823,13 @@ function StepMinLevel({ data, setField, t }: StepBaseProps) {
 function StepIcon({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_icon')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_icon')}</p>
       <input
         type="text"
         value={(data.icon as string) ?? ''}
         onChange={(e) => setField('icon', e.target.value)}
         placeholder="https://..."
-        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
       />
     </div>
@@ -858,7 +858,7 @@ function StepSpecials({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang)
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--app-text-muted)]">{t('admin.skill_wiz_special')}</p>
+      <p className="text-app-2xl text-[var(--app-text-muted)]">{t('admin.skill_wiz_special')}</p>
       {SPECIAL_FLAGS.map((flag) => (
         <label
           key={flag.id}
@@ -874,7 +874,7 @@ function StepSpecials({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang)
             onChange={() => toggle(flag.id)}
             className="w-4 h-4 border border-[var(--app-text)]/30 bg-transparent shrink-0"
           />
-          <span className="text-sm">{t(flag.labelKey)}</span>
+          <span className="text-app-2xl">{t(flag.labelKey)}</span>
         </label>
       ))}
     </div>

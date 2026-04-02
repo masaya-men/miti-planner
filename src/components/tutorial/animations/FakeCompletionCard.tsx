@@ -95,18 +95,18 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
               if (phase === 'blow') handleBlowComplete();
             }}
           >
-            <h2 className="text-lg font-bold text-app-text text-center mb-2">
+            <h2 className="text-app-3xl font-bold text-app-text text-center mb-2">
               {t('tutorial.completion.title')}
             </h2>
             <div className="space-y-3 mb-5">
-              <div className="flex items-start gap-2.5 text-xs text-app-text-muted">
+              <div className="flex items-start gap-2.5 text-app-lg text-app-text-muted">
                 <span className="mt-0.5 flex-shrink-0 text-[#22c55e]"><HelpCircle size={14} /></span>
                 <span>{t('tutorial.completion.menu_hint')}</span>
               </div>
             </div>
             <button
               disabled
-              className="w-full py-2.5 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed"
+              className="w-full py-2.5 rounded-lg text-app-2xl font-semibold opacity-50 cursor-not-allowed"
               style={{ backgroundColor: '#22c55e', color: 'white' }}
             >
               {t('tutorial.completion.start_button')}
@@ -127,13 +127,13 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
           <div className="rounded-xl overflow-hidden shadow-xl bg-app-bg border border-app-text/10">
             <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
             <div className="px-4 pt-3 pb-3">
-              <p className="text-[13px] font-bold text-app-text leading-snug">
+              <p className="text-app-xl font-bold text-app-text leading-snug">
                 {phase !== 'pressed'
                   ? t('tutorial.main.focus_mode.message')
                   : t('tutorial.main.focus_done.message')
                 }
               </p>
-              <p className="text-[11px] text-app-text-muted mt-1 leading-relaxed">
+              <p className="text-app-md text-app-text-muted mt-1 leading-relaxed">
                 {phase !== 'pressed'
                   ? t('tutorial.main.focus_mode.description')
                   : t('tutorial.main.focus_done.description')
@@ -143,7 +143,7 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
               {phase !== 'pressed' && (
                 <div className="flex items-center justify-center mt-3">
                   <motion.div
-                    className="w-10 h-10 rounded-lg border-2 border-app-text/30 flex items-center justify-center text-base font-black text-app-text"
+                    className="w-10 h-10 rounded-lg border-2 border-app-text/30 flex items-center justify-center text-app-2xl-plus font-black text-app-text"
                     animate={phase === 'prompt' ? { scale: [1, 1.15, 1] } : {}}
                     transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
                   >

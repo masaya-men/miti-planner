@@ -116,7 +116,7 @@ export function AdminStats() {
   };
 
   const inputClass =
-    'px-2 py-1 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full text-right';
+    'px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full text-right';
   const thClass = 'pb-2 pr-3 text-left text-app-text-muted font-normal';
   const tdClass = 'py-1.5 pr-3';
 
@@ -133,29 +133,29 @@ export function AdminStats() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-bold">ステータス管理</h1>
+        <h1 className="text-app-3xl font-bold">ステータス管理</h1>
         <button
           onClick={handleSave}
           disabled={saving || !dirty}
-          className="px-4 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {saving ? '...' : t('admin.save')}
         </button>
       </div>
 
-      {error && <p className="text-xs text-app-text-muted mb-4">{error}</p>}
-      {loading && <p className="text-xs text-app-text-muted">...</p>}
+      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
+      {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
       {!loading && data && (
         <div className="space-y-8">
           {/* Section 1: レベル補正値 */}
           <section>
-            <h2 className="text-sm font-bold mb-3">レベル補正値 (LevelModifiers)</h2>
-            <p className="text-[10px] text-app-text-muted mb-3">
+            <h2 className="text-app-2xl font-bold mb-3">レベル補正値 (LevelModifiers)</h2>
+            <p className="text-app-base text-app-text-muted mb-3">
               各レベルのメインステータス・サブステータス・除算・HP補正値
             </p>
             <div className="overflow-x-auto">
-              <table className="text-xs">
+              <table className="text-app-lg">
                 <thead>
                   <tr className="border-b border-app-text/10">
                     <th className={thClass}>Lv</th>
@@ -213,8 +213,8 @@ export function AdminStats() {
 
           {/* Section 2: パッチステータス */}
           <section>
-            <h2 className="text-sm font-bold mb-3">パッチステータス (PatchStats)</h2>
-            <p className="text-[10px] text-app-text-muted mb-3">
+            <h2 className="text-app-2xl font-bold mb-3">パッチステータス (PatchStats)</h2>
+            <p className="text-app-base text-app-text-muted mb-3">
               パッチごとのタンク/その他ロールのデフォルトステータス値
             </p>
             <div className="space-y-4">
@@ -222,9 +222,9 @@ export function AdminStats() {
                 const ps = data.patchStats[patch];
                 return (
                   <div key={patch} className="border border-app-text/10 rounded p-3">
-                    <div className="text-xs font-bold mb-2">Patch {patch}</div>
+                    <div className="text-app-lg font-bold mb-2">Patch {patch}</div>
                     <div className="overflow-x-auto">
-                      <table className="text-xs w-full">
+                      <table className="text-app-lg w-full">
                         <thead>
                           <tr className="border-b border-app-text/10">
                             <th className={thClass}>ロール</th>
@@ -293,12 +293,12 @@ export function AdminStats() {
 
           {/* Section 3: デフォルトステータス対応 */}
           <section>
-            <h2 className="text-sm font-bold mb-3">デフォルトステータス対応 (defaultStatsByLevel)</h2>
-            <p className="text-[10px] text-app-text-muted mb-3">
+            <h2 className="text-app-2xl font-bold mb-3">デフォルトステータス対応 (defaultStatsByLevel)</h2>
+            <p className="text-app-base text-app-text-muted mb-3">
               各レベルで使用するデフォルトパッチバージョン
             </p>
             <div className="overflow-x-auto">
-              <table className="text-xs">
+              <table className="text-app-lg">
                 <thead>
                   <tr className="border-b border-app-text/10">
                     <th className={thClass}>レベル</th>
@@ -313,7 +313,7 @@ export function AdminStats() {
                         <td className={`${tdClass} font-mono font-bold`}>Lv{lv}</td>
                         <td className={tdClass}>
                           <input
-                            className="px-2 py-1 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                            className="px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
                             value={data.defaultStatsByLevel[lv]}
                             onChange={(e) => {
                               setData({

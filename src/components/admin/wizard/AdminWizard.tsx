@@ -45,19 +45,19 @@ export function AdminWizard({
   if (isComplete) {
     return (
       <div className="flex flex-col items-center justify-center gap-6 py-16 text-[var(--app-text)]">
-        <div className="text-4xl font-bold">{t('admin.wizard_success')}</div>
+        <div className="text-app-6xl font-bold">{t('admin.wizard_success')}</div>
         <div className="flex gap-4">
           <button
             type="button"
             onClick={reset}
-            className="border border-[var(--app-text)] px-6 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+            className="border border-[var(--app-text)] px-6 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
           >
             {t('admin.wizard_add_another')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin')}
-            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity"
+            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity"
           >
             {t('admin.wizard_back_to_dashboard')}
           </button>
@@ -72,8 +72,8 @@ export function AdminWizard({
       <div className="flex flex-col gap-6 text-[var(--app-text)]">
         {/* タイトル */}
         <div className="border-b border-[var(--app-text)] pb-3">
-          <h2 className="text-xl font-bold">{title}</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
+          <h2 className="text-app-4xl font-bold">{title}</h2>
+          <p className="text-app-2xl text-[var(--app-text-muted)] mt-1">
             {t('admin.wizard_confirmation')}
           </p>
         </div>
@@ -83,7 +83,7 @@ export function AdminWizard({
 
         {/* エラー表示 */}
         {error && (
-          <div className="border border-[var(--app-text)] p-3 text-sm">
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl">
             {error}
           </div>
         )}
@@ -93,7 +93,7 @@ export function AdminWizard({
           <button
             type="button"
             onClick={back}
-            className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+            className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
           >
             {t('admin.wizard_back')}
           </button>
@@ -101,7 +101,7 @@ export function AdminWizard({
             type="button"
             onClick={submit}
             disabled={isSubmitting}
-            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
           >
             {isSubmitting
               ? t('admin.wizard_submitting')
@@ -123,13 +123,13 @@ export function AdminWizard({
     <div className="flex flex-col gap-6 text-[var(--app-text)]">
       {/* タイトル */}
       <div className="border-b border-[var(--app-text)] pb-3">
-        <h2 className="text-xl font-bold">{title}</h2>
+        <h2 className="text-app-4xl font-bold">{title}</h2>
       </div>
 
       {/* プログレスバー */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
-          <span className="text-xs text-[var(--app-text-muted)]">
+          <span className="text-app-lg text-[var(--app-text-muted)]">
             {t('admin.wizard_step', {
               current: currentIndex + 1,
               total: totalSteps,
@@ -166,7 +166,7 @@ export function AdminWizard({
 
       {/* エラー表示 */}
       {error && (
-        <div className="border border-[var(--app-text)] p-3 text-sm">
+        <div className="border border-[var(--app-text)] p-3 text-app-2xl">
           {error}
         </div>
       )}
@@ -178,7 +178,7 @@ export function AdminWizard({
           <button
             type="button"
             onClick={back}
-            className="border border-[var(--app-text)] px-5 py-2 text-sm font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
+            className="border border-[var(--app-text)] px-5 py-2 text-app-2xl font-medium hover:bg-[var(--app-text)] hover:text-[var(--app-bg)] transition-colors"
           >
             {t('admin.wizard_back')}
           </button>
@@ -193,7 +193,7 @@ export function AdminWizard({
             <button
               type="button"
               onClick={next}
-              className="text-sm text-[var(--app-text-muted)] underline hover:text-[var(--app-text)] transition-colors"
+              className="text-app-2xl text-[var(--app-text-muted)] underline hover:text-[var(--app-text)] transition-colors"
             >
               {t('admin.wizard_skip')}
             </button>
@@ -203,7 +203,7 @@ export function AdminWizard({
             type="button"
             onClick={next}
             disabled={currentStep.required && !stepValid}
-            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
+            className="bg-[var(--app-text)] text-[var(--app-bg)] px-6 py-2 text-app-2xl font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
           >
             {t('admin.wizard_next')}
           </button>

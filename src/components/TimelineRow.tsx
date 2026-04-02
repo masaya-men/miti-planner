@@ -45,7 +45,7 @@ const MobileTargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMem
     }
     return (
         <span className={clsx(
-            "text-[7px] font-black px-0.5 rounded flex-shrink-0",
+            "text-app-2xs font-black px-0.5 rounded flex-shrink-0",
             event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
         )}>
             {event.target}
@@ -167,7 +167,7 @@ export const TimelineRow = memo(({
             {/* Time Column — スマホ: 軽減追加 */}
             <div
                 className={clsx(
-                    "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-[9px] md:text-sm group-hover:text-app-text group-hover:font-black",
+                    "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
                     "border-app-border text-app-text-sec hover:bg-app-surface2"
                 )}
                 onClick={handleMobileTap}
@@ -223,7 +223,7 @@ export const TimelineRow = memo(({
 
                             {/* 攻撃名（スマホ: truncate + 長押しで全文、PC: 通常表示） */}
                             <span
-                                className="text-[11px] md:text-xs font-black text-app-text truncate leading-none pt-0.5 min-w-0"
+                                className="text-app-md md:text-app-lg font-black text-app-text truncate leading-none pt-0.5 min-w-0"
                                 title={getEventName(events[0])}
                             >
                                 {getEventName(events[0])}
@@ -259,7 +259,7 @@ export const TimelineRow = memo(({
                             <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
                                 {(events[0].target === 'MT' || events[0].target === 'ST') && (
                                     <>
-                                        <span className="text-[10px] text-app-text-muted font-mono">on</span>
+                                        <span className="text-app-base text-app-text-muted font-mono">on</span>
                                         {(() => {
                                             const member = partyMembers.find(m => m.id === events[0].target);
                                             const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -267,7 +267,7 @@ export const TimelineRow = memo(({
                                                 <img src={job.icon} className="w-5 h-5 rounded-sm" alt={events[0].target} />
                                             ) : (
                                                 <span className={clsx(
-                                                    "text-[10px] font-bold px-1 rounded",
+                                                    "text-app-base font-bold px-1 rounded",
                                                     events[0].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
                                                 )}>
                                                     {events[0].target}
@@ -312,7 +312,7 @@ export const TimelineRow = memo(({
 
                                     {/* 攻撃名 */}
                                     <span
-                                        className="text-[10px] md:text-xs font-black text-app-text truncate leading-none pt-0.5 min-w-0"
+                                        className="text-app-base md:text-app-lg font-black text-app-text truncate leading-none pt-0.5 min-w-0"
                                         title={getEventName(events[idx])}
                                     >
                                         {getEventName(events[idx])}
@@ -349,7 +349,7 @@ export const TimelineRow = memo(({
                                     <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
                                         {(events[idx].target === 'MT' || events[idx].target === 'ST') && (
                                             <>
-                                                <span className="text-[10px] text-app-text-muted font-mono">on</span>
+                                                <span className="text-app-base text-app-text-muted font-mono">on</span>
                                                 {(() => {
                                                     const member = partyMembers.find(m => m.id === events[idx].target);
                                                     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
@@ -357,7 +357,7 @@ export const TimelineRow = memo(({
                                                         <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[idx].target} />
                                                     ) : (
                                                         <span className={clsx(
-                                                            "text-[9px] font-bold px-1 rounded",
+                                                            "text-app-sm font-bold px-1 rounded",
                                                             events[idx].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
                                                         )}>
                                                             {events[idx].target}
@@ -377,7 +377,7 @@ export const TimelineRow = memo(({
             {/* U.Dmg Column */}
             <div
                 className={clsx(
-                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-sec"
                 )}
                 onClick={(e) => {
@@ -412,7 +412,7 @@ export const TimelineRow = memo(({
                             undefined
                 }
                 className={clsx(
-                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-[10px] md:text-sm font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-primary"
                 )}
                 onClick={(e) => {
@@ -453,11 +453,11 @@ export const TimelineRow = memo(({
                                     {formatDmg(damages[0].mitigated)}
                                 </span>
                                 {damages[0].isInvincible ? (
-                                    <div className="text-[9px] text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap">
+                                    <div className="text-app-sm text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap">
                                         {t('timeline.invuln', 'Invuln')}
                                     </div>
                                 ) : (damages[0].mitigationPercent > 0 || damages[0].shieldTotal > 0) ? (
-                                    <div className="text-[9px] text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                    <div className="text-app-sm text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                         {damages[0].mitigationPercent > 0 && <span>▼ {damages[0].mitigationPercent}%</span>}
                                         {damages[0].mitigationPercent > 0 && damages[0].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                         {damages[0].shieldTotal > 0 && (
@@ -505,11 +505,11 @@ export const TimelineRow = memo(({
                                             {formatDmg(damages[idx].mitigated)}
                                         </span>
                                         {damages[idx].isInvincible ? (
-                                            <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
+                                            <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
                                                 {t('timeline.invuln', 'Invuln')}
                                             </div>
                                         ) : (damages[idx].mitigationPercent > 0 || damages[idx].shieldTotal > 0) ? (
-                                            <div className="text-[9px] text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
+                                            <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap hidden md:flex flex-row items-center justify-center gap-1 w-full px-1 truncate leading-none">
                                                 {damages[idx].mitigationPercent > 0 && <span>▼ {damages[idx].mitigationPercent}%</span>}
                                                 {damages[idx].mitigationPercent > 0 && damages[idx].shieldTotal > 0 && <span className="opacity-50">|</span>}
                                                 {damages[idx].shieldTotal > 0 && (

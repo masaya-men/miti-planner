@@ -62,7 +62,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                 >
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
-                        <h2 className="text-lg font-bold text-app-text flex items-center gap-2">
+                        <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
                             <Download size={18} className="text-app-text" />
                             {t('csv_import.title')}
                         </h2>
@@ -77,14 +77,14 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     {/* Content */}
                     <div className="p-5 flex-1 overflow-y-auto">
                         <div className="mb-4">
-                            <p className="text-sm text-app-text mb-2 leading-relaxed">
+                            <p className="text-app-2xl text-app-text mb-2 leading-relaxed">
                                 {t('csv_import.description')}
                                 <br />
                                 <code className="bg-black/50 px-2 py-1 rounded mt-1 block w-fit border border-app-border text-cyan-300">
                                     {t('csv_import.format')}
                                 </code>
                             </p>
-                            <p className="text-xs text-app-text mb-2">
+                            <p className="text-app-lg text-app-text mb-2">
                                 {t('csv_import.example')}<br />
                                 {t('csv_import.note')}
                             </p>
@@ -93,13 +93,13 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                         <textarea
                             value={csvText}
                             onChange={(e) => setCsvText(e.target.value)}
-                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-sm font-mono text-app-text focus:outline-none focus:border-app-text resize-none placeholder:text-app-text-muted"
+                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text resize-none placeholder:text-app-text-muted"
                             placeholder="0:00, Start&#10;0:15, First AOE, 100000, magical, PT"
                             spellCheck={false}
                         />
 
                         {error && (
-                            <div className="mt-3 flex items-start gap-2 text-rose-400 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20 text-sm">
+                            <div className="mt-3 flex items-start gap-2 text-rose-400 bg-rose-500/10 p-3 rounded-lg border border-rose-500/20 text-app-2xl">
                                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                                 <p>{error}</p>
                             </div>
@@ -110,7 +110,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                     <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex justify-end gap-3 shrink-0">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-lg text-sm font-bold text-app-text hover:text-app-text hover:bg-app-surface2 transition-colors"
+                            className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text hover:text-app-text hover:bg-app-surface2 transition-colors"
                         >
                             {t('common.cancel')}
                         </button>
@@ -118,7 +118,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                             onClick={handleImport}
                             disabled={!csvText.trim()}
                             className={clsx(
-                                "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all duration-300",
+                                "flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold transition-all duration-300",
                                 csvText.trim()
                                     ? "bg-app-text text-app-bg hover:opacity-80 uppercase"
                                     : "bg-app-surface2 text-app-text-muted cursor-not-allowed uppercase"

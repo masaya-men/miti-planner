@@ -66,7 +66,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     className="relative w-full max-w-[400px] glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
                 >
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
-                        <h2 className="text-[13px] font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
+                        <h2 className="text-app-xl font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
                             <span className="w-1.5 h-4 bg-app-text rounded-full" />
                             {t('save_dialog.title', 'Save Plan')}
                         </h2>
@@ -80,7 +80,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
 
                     <div className="p-6 space-y-6">
                         <div className="space-y-3.5">
-                            <label className="text-[10px] font-black text-app-text uppercase tracking-[0.25em] pl-1">
+                            <label className="text-app-base font-black text-app-text uppercase tracking-[0.25em] pl-1">
                                 {t('save_dialog.plan_name_label', 'Plan Name')}
                             </label>
                             <input
@@ -93,7 +93,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                                     if (e.key === 'Escape') onClose();
                                 }}
                                 placeholder={t('save_dialog.plan_name_placeholder', 'Enter plan name...')}
-                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[13px] focus:outline-none focus:border-app-text transition-all font-black text-app-text placeholder:text-app-text-muted/50"
+                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text transition-all font-black text-app-text placeholder:text-app-text-muted/50"
                             />
                         </div>
                     </div>
@@ -101,7 +101,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                     <div className="p-6 bg-glass-card/10 border-t border-glass-border/20 flex gap-4">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-[11px] font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
+                            className="flex-1 py-3.5 rounded-2xl border border-glass-border/40 text-app-md font-black text-app-text hover:bg-glass-hover transition-all cursor-pointer uppercase tracking-widest active:scale-95"
                         >
                             {t('common.cancel', 'Cancel')}
                         </button>
@@ -109,7 +109,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                             onClick={handleSave}
                             disabled={!title.trim()}
                             className={clsx(
-                                "flex-[2] py-3.5 rounded-2xl text-[11px] font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95 flex items-center justify-center gap-2",
+                                "flex-[2] py-3.5 rounded-2xl text-app-md font-black transition-all cursor-pointer uppercase tracking-[0.3em] active:scale-95 flex items-center justify-center gap-2",
                                 title.trim()
                                     ? "bg-app-blue text-white hover:bg-app-blue-hover"
                                     : "bg-glass-card/40 text-app-text-muted cursor-not-allowed opacity-40 grayscale"

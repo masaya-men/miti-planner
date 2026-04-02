@@ -73,7 +73,7 @@ const MobilePartySettings: React.FC = () => {
             <button
                 onClick={() => { setMyJobMode(!myJobMode); setFocusedSlot(null); }}
                 className={clsx(
-                    "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer",
+                    "flex items-center gap-2 px-3 py-2 rounded-xl border text-app-2xl font-bold transition-all cursor-pointer",
                     myJobMode
                         ? "bg-yellow-500 text-black border-yellow-500"
                         : "bg-app-surface2 border-app-border text-app-text"
@@ -82,14 +82,14 @@ const MobilePartySettings: React.FC = () => {
                 <Star size={14} />
                 {t('party.set_my_job', '自分のジョブを設定')}
                 {myMemberId && !myJobMode && (
-                    <span className="ml-auto text-[10px] text-app-text-muted">
+                    <span className="ml-auto text-app-base text-app-text-muted">
                         {myMemberId}
                     </span>
                 )}
             </button>
 
             {myJobMode && (
-                <p className="text-[11px] text-app-text-muted px-1">
+                <p className="text-app-md text-app-text-muted px-1">
                     {t('party.my_job_tap_slot', '自分のスロットをタップしてください')}
                 </p>
             )}
@@ -125,10 +125,10 @@ const MobilePartySettings: React.FC = () => {
                                 <img src={job.icon} className="w-8 h-8 object-contain" />
                             ) : (
                                 <div className="w-8 h-8 rounded-full border border-dashed border-app-border flex items-center justify-center">
-                                    <span className="text-[10px] text-app-text-muted">+</span>
+                                    <span className="text-app-base text-app-text-muted">+</span>
                                 </div>
                             )}
-                            <span className="text-[10px] font-black text-app-text">{member.id}</span>
+                            <span className="text-app-base font-black text-app-text">{member.id}</span>
                             {isMyJob && (
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
                                     <Star size={8} className="text-black fill-black" />
@@ -143,7 +143,7 @@ const MobilePartySettings: React.FC = () => {
             {focusedSlot && !myJobMode && (
                 <div className="bg-app-surface2/50 rounded-xl p-3 border border-app-border">
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black text-app-text-muted uppercase tracking-wider">
+                        <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
                             {focusedSlot} — {t('party.select_job')}
                         </span>
                         <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
@@ -211,8 +211,8 @@ const MobileStatusView: React.FC = () => {
                         ) : (
                             <div className="w-6 h-6 rounded-full border border-dashed border-app-border shrink-0" />
                         )}
-                        <span className="text-[11px] font-black text-app-text w-6">{member.id}</span>
-                        <div className="flex-1 flex items-center gap-3 text-[10px] text-app-text-muted font-mono">
+                        <span className="text-app-md font-black text-app-text w-6">{member.id}</span>
+                        <div className="flex-1 flex items-center gap-3 text-app-base text-app-text-muted font-mono">
                             <span>{t('party.hp_label', 'HP')} {member.stats?.hp?.toLocaleString() || '—'}</span>
                         </div>
                         {isMyJob && <Star size={12} className="text-yellow-500 fill-yellow-500 shrink-0" />}
@@ -235,7 +235,7 @@ export const MobilePartyWithTabs: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('party')}
                     className={clsx(
-                        "flex-1 py-2 text-xs font-black tracking-wide rounded-lg transition-all cursor-pointer",
+                        "flex-1 py-2 text-app-lg font-black tracking-wide rounded-lg transition-all cursor-pointer",
                         activeTab === 'party'
                             ? "bg-app-text text-app-bg"
                             : "text-app-text-muted"
@@ -246,7 +246,7 @@ export const MobilePartyWithTabs: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('status')}
                     className={clsx(
-                        "flex-1 py-2 text-xs font-black tracking-wide rounded-lg transition-all cursor-pointer",
+                        "flex-1 py-2 text-app-lg font-black tracking-wide rounded-lg transition-all cursor-pointer",
                         activeTab === 'status'
                             ? "bg-app-text text-app-bg"
                             : "text-app-text-muted"
@@ -304,13 +304,13 @@ export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }
                     />
                 ) : (
                     <div className="w-10 h-10 rounded-full bg-app-surface2 border border-app-border flex items-center justify-center">
-                        <span className="text-sm font-bold text-app-text">
+                        <span className="text-app-2xl font-bold text-app-text">
                             {(user.displayName || '?')[0]}
                         </span>
                     </div>
                 )}
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-app-text truncate">
+                    <p className="text-app-2xl font-bold text-app-text truncate">
                         {user.displayName || t('nav.account')}
                     </p>
                 </div>
@@ -319,7 +319,7 @@ export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }
             {/* ログアウトボタン */}
             <button
                 onClick={handleLogout}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-app-border text-sm font-bold text-app-text bg-app-surface2 active:bg-app-text/10 transition-colors cursor-pointer"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-app-border text-app-2xl font-bold text-app-text bg-app-surface2 active:bg-app-text/10 transition-colors cursor-pointer"
             >
                 <LogOut size={16} />
                 {t('nav.logout')}
@@ -328,7 +328,7 @@ export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }
             {/* アカウント削除（控えめ配置） */}
             <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer py-1"
+                className="text-app-base text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer py-1"
             >
                 {t('nav.deleteAccount')}
             </button>

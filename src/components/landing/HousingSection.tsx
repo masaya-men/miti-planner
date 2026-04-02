@@ -54,17 +54,17 @@ export function HousingSection() {
         style={{ clipPath: 'circle(0% at 50% 50%)' }} />
       <div className="relative w-full h-full" style={{ zIndex: 20 }}>
         <div className="absolute top-[8vh] left-6 md:left-16 right-6 md:right-16">
-          <div ref={labelRef} className="text-[10px] md:text-[11px] text-white/25 tracking-[3px] uppercase mb-3 font-mono opacity-0">
+          <div ref={labelRef} className="text-app-base md:text-app-md text-white/25 tracking-[3px] uppercase mb-3 font-mono opacity-0">
             {t('portal.housing.label')}</div>
           <h2 ref={headingRef} className="text-[clamp(32px,7vw,80px)] font-black leading-[1.0] mb-4 opacity-0">
             {t('portal.housing.heading')}</h2>
           <div ref={descRef} className="flex items-center gap-6 opacity-0">
-            <div className="text-sm md:text-base text-white/30 leading-relaxed max-w-md">
+            <div className="text-app-2xl md:text-app-2xl-plus text-white/30 leading-relaxed max-w-md">
               <p>{t('portal.housing.desc_1')}</p>
               <p>{t('portal.housing.desc_2')}</p>
             </div>
             <div ref={badgeRef}
-              className="shrink-0 px-5 py-2 border border-white/[0.1] rounded-full text-[10px] text-white/25 tracking-[3px] uppercase font-mono opacity-0">
+              className="shrink-0 px-5 py-2 border border-white/[0.1] rounded-full text-app-base text-white/25 tracking-[3px] uppercase font-mono opacity-0">
               {t('portal.housing.badge')}</div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function HousingSection() {
                 ))}
               </div>
             </div>
-            <div className="absolute bottom-4 right-4 text-[9px] text-white/10 font-mono tracking-wider">VIDEO PLACEHOLDER</div>
+            <div className="absolute bottom-4 right-4 text-app-sm text-white/10 font-mono tracking-wider">VIDEO PLACEHOLDER</div>
           </div>
         </div>
       </div>

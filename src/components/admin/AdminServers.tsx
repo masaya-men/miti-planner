@@ -93,8 +93,8 @@ export function AdminServers() {
     : 0;
 
   const inputClass =
-    'px-2 py-1 text-xs bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full';
-  const labelClass = 'block text-[10px] text-app-text-muted mb-0.5';
+    'px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-full';
+  const labelClass = 'block text-app-base text-app-text-muted mb-0.5';
 
   const tabs: { key: TabKey; labelKey: string }[] = [
     { key: 'dc', labelKey: 'admin.servers_dc' },
@@ -194,22 +194,22 @@ export function AdminServers() {
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-lg font-bold">{t('admin.servers')}</h1>
-          <p className="text-[10px] text-app-text-muted mt-1">
+          <h1 className="text-app-3xl font-bold">{t('admin.servers')}</h1>
+          <p className="text-app-base text-app-text-muted mt-1">
             DC: {dcCount} / {t('admin.servers_server_count')}: {serverCount}
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving || !dirty}
-          className="px-4 py-1.5 text-xs border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+          className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
         >
           {saving ? '...' : t('admin.save')}
         </button>
       </div>
 
-      {error && <p className="text-xs text-app-text-muted mb-4">{error}</p>}
-      {loading && <p className="text-xs text-app-text-muted">...</p>}
+      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
+      {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
       {!loading && data && (
         <>
@@ -219,7 +219,7 @@ export function AdminServers() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 text-xs transition-colors border-b-2 ${
+                className={`px-4 py-2 text-app-lg transition-colors border-b-2 ${
                   activeTab === tab.key
                     ? 'border-app-text font-bold'
                     : 'border-transparent hover:bg-app-text/5 text-app-text-muted'
@@ -235,7 +235,7 @@ export function AdminServers() {
             <div className="flex gap-4">
               {/* 左パネル: DC一覧 */}
               <div className="w-48 shrink-0 border border-app-text/10 rounded">
-                <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+                <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                   {t('admin.servers_dc')}
                 </div>
                 <div className="max-h-[70vh] overflow-y-auto">
@@ -248,7 +248,7 @@ export function AdminServers() {
                           setSelectedDc(dcKey);
                           setExpandedServer(null);
                         }}
-                        className={`w-full text-left px-3 py-2 text-xs border-b border-app-text/5 transition-colors ${
+                        className={`w-full text-left px-3 py-2 text-app-lg border-b border-app-text/5 transition-colors ${
                           selectedDc === dcKey
                             ? 'bg-app-text/10 font-bold'
                             : 'hover:bg-app-text/5'
@@ -264,7 +264,7 @@ export function AdminServers() {
 
               {/* 右パネル: 選択DCのサーバー一覧 */}
               <div className="flex-1 border border-app-text/10 rounded">
-                <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+                <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                   {selectedDc
                     ? `${selectedDc} (${Object.keys(data.datacenters[selectedDc]?.servers ?? {}).length})`
                     : 'DCを選択してください'}
@@ -290,7 +290,7 @@ export function AdminServers() {
                     {/* サーバーリスト */}
                     <div className="max-h-[60vh] overflow-y-auto">
                       {Object.entries(data.datacenters[selectedDc].servers).length === 0 && (
-                        <p className="p-4 text-xs text-app-text-muted">
+                        <p className="p-4 text-app-lg text-app-text-muted">
                           {t('admin.no_data')}
                         </p>
                       )}
@@ -303,13 +303,13 @@ export function AdminServers() {
                                   expandedServer === serverKey ? null : serverKey,
                                 )
                               }
-                              className="w-full text-left px-3 py-2 text-xs hover:bg-app-text/5 transition-colors flex items-center gap-3"
+                              className="w-full text-left px-3 py-2 text-app-lg hover:bg-app-text/5 transition-colors flex items-center gap-3"
                             >
                               <span className="flex-1">{serverKey}</span>
-                              <span className="text-app-text-muted text-[10px]">
+                              <span className="text-app-text-muted text-app-base">
                                 {t('admin.servers_aliases')}: {aliases.length}
                               </span>
-                              <span className="text-app-text-muted text-[10px]">
+                              <span className="text-app-text-muted text-app-base">
                                 {expandedServer === serverKey ? '▲' : '▼'}
                               </span>
                             </button>
@@ -346,7 +346,7 @@ export function AdminServers() {
           {/* ハウジングエリア タブ */}
           {activeTab === 'housing' && (
             <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_housing')} ({Object.keys(data.housingAreas).length})
               </div>
               <div className="max-h-[70vh] overflow-y-auto">
@@ -355,7 +355,7 @@ export function AdminServers() {
                     key={areaKey}
                     className="px-3 py-3 border-b border-app-text/5"
                   >
-                    <div className="text-xs font-bold mb-2">{areaKey}</div>
+                    <div className="text-app-lg font-bold mb-2">{areaKey}</div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                       <div>
                         <label className={labelClass}>name_jp</label>
@@ -402,7 +402,7 @@ export function AdminServers() {
           {/* サイズ タブ */}
           {activeTab === 'sizes' && (
             <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_sizes')} ({data.housingSizes.length})
               </div>
               <div className="max-h-[70vh] overflow-y-auto">
@@ -411,7 +411,7 @@ export function AdminServers() {
                     key={size.id}
                     className="px-3 py-3 border-b border-app-text/5"
                   >
-                    <div className="text-xs font-bold mb-2 font-mono text-app-text-muted">
+                    <div className="text-app-lg font-bold mb-2 font-mono text-app-text-muted">
                       {size.id}
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -450,7 +450,7 @@ export function AdminServers() {
           {/* タグ タブ */}
           {activeTab === 'tags' && (
             <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-[10px] text-app-text-muted font-bold">
+              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_tags')} ({Object.keys(data.tags).length})
               </div>
               <div className="max-h-[70vh] overflow-y-auto">
@@ -459,7 +459,7 @@ export function AdminServers() {
                     key={category}
                     className="px-3 py-3 border-b border-app-text/5"
                   >
-                    <div className="text-xs font-bold mb-2">{category}</div>
+                    <div className="text-app-lg font-bold mb-2">{category}</div>
                     <div>
                       <label className={labelClass}>{t('admin.servers_tags')}</label>
                       <input

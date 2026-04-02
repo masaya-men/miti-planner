@@ -98,7 +98,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                             },
                         });
                     }}
-                    className="flex-1 text-left px-4 py-2.5 text-[11px] font-black text-app-red hover:bg-app-red-dim rounded-xl cursor-pointer transition-colors flex items-center gap-3 group/btn"
+                    className="flex-1 text-left px-4 py-2.5 text-app-md font-black text-app-red hover:bg-app-red-dim rounded-xl cursor-pointer transition-colors flex items-center gap-3 group/btn"
                 >
                     <Trash2 size={14} className="group-hover/btn:scale-110 transition-transform" />
                     <span className="uppercase tracking-wider font-black">{t('timeline.all_mitigations')}</span>
@@ -116,7 +116,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
             <div className="h-[1px] bg-glass-border mx-2 my-1" />
 
             {/* Member Section Header */}
-            <div className="px-4 py-2 text-[9px] text-app-text-muted font-black uppercase tracking-[0.15em]">
+            <div className="px-4 py-2 text-app-sm text-app-text-muted font-black uppercase tracking-[0.15em]">
                 {t('timeline.member_mitigations')}
             </div>
 
@@ -159,7 +159,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                         <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
                                     ) : (
                                         <span className={clsx(
-                                            "text-[10px] font-black tracking-tighter uppercase",
+                                            "text-app-base font-black tracking-tighter uppercase",
                                             m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
                                                 m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
                                                     'text-red-500 dark:text-red-400'
@@ -173,7 +173,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                     <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
                                 ) : (
                                     <span className={clsx(
-                                        "text-[10px] font-black tracking-tighter uppercase",
+                                        "text-app-base font-black tracking-tighter uppercase",
                                         m.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
                                             m.role === 'healer' ? 'text-green-500 dark:text-green-400' :
                                                 'text-red-500 dark:text-red-400'

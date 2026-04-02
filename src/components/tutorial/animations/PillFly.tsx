@@ -175,7 +175,7 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
           <motion.span
             animate={{ opacity: phase === 'check' ? 1 : 0 }}
             transition={{ duration: 0.3 }}
-            className="text-[10px] font-bold text-white tracking-[0.8px] text-center"
+            className="text-app-base font-bold text-white tracking-[0.8px] text-center"
             style={{ fontFamily: 'system-ui' }}
           >
             {LABEL_TEXT[fromLabel]}
@@ -183,7 +183,7 @@ export function PillFly({ fromRect, toSelector, fromLabel, toLabel, onPhaseChang
           <motion.span
             animate={{ opacity: phase === 'check' ? 0 : 1 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white tracking-[0.8px]"
+            className="absolute inset-0 flex items-center justify-center text-app-base font-bold text-white tracking-[0.8px]"
             style={{ fontFamily: 'system-ui' }}
           >
             {LABEL_TEXT[toLabel]}

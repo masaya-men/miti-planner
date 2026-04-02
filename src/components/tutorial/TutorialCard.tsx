@@ -57,7 +57,7 @@ export function TutorialCard({
         <div className="px-4 pt-3 pb-3">
           {/* ステップカウンター */}
           {stepLabel && (
-            <div className="text-[9px] font-bold tracking-widest uppercase text-app-text-muted mb-1.5" style={{ color: '#22c55e' }}>
+            <div className="text-app-sm font-bold tracking-widest uppercase text-app-text-muted mb-1.5" style={{ color: '#22c55e' }}>
               STEP {stepLabel}
             </div>
           )}
@@ -71,11 +71,11 @@ export function TutorialCard({
             />
           )}
 
-          <p className="text-[13px] font-bold text-app-text leading-snug">
+          <p className="text-app-xl font-bold text-app-text leading-snug">
             {t(messageKey)}
           </p>
           {descriptionKey && (
-            <p className="text-[11px] text-app-text-muted mt-1 leading-relaxed">
+            <p className="text-app-md text-app-text-muted mt-1 leading-relaxed">
               {t(descriptionKey)}
             </p>
           )}
@@ -83,7 +83,7 @@ export function TutorialCard({
           {onNext && (
             <button
               onClick={onNext}
-              className="mt-3 w-full py-2 rounded-lg text-[11px] font-bold text-white transition-all hover:opacity-80 active:scale-95 cursor-pointer"
+              className="mt-3 w-full py-2 rounded-lg text-app-md font-bold text-white transition-all hover:opacity-80 active:scale-95 cursor-pointer"
               style={{ backgroundColor: '#22c55e' }}
             >
               {t('tutorial.got_it')}
@@ -93,7 +93,7 @@ export function TutorialCard({
           {onSkip && !onNext && (
             <button
               onClick={onSkip}
-              className="text-[10px] text-app-text-muted mt-2 underline underline-offset-2 hover:text-app-text transition-colors cursor-pointer"
+              className="text-app-base text-app-text-muted mt-2 underline underline-offset-2 hover:text-app-text transition-colors cursor-pointer"
             >
               {t('tutorial.skip')}
             </button>

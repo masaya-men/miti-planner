@@ -134,7 +134,7 @@ function EditableCell({
         onChange={(e) => setDraft(e.target.value)}
         onBlur={handleCommit}
         onKeyDown={handleKeyDown}
-        className="w-full bg-transparent border-b border-app-text/40 text-xs text-app-text focus:outline-none py-0.5"
+        className="w-full bg-transparent border-b border-app-text/40 text-app-lg text-app-text focus:outline-none py-0.5"
       />
     );
   }
@@ -143,7 +143,7 @@ function EditableCell({
     return (
       <span
         onClick={() => setEditing(true)}
-        className="block w-full text-xs text-app-text-muted/60 border-b border-dashed border-app-text/20 cursor-pointer py-0.5 select-none"
+        className="block w-full text-app-lg text-app-text-muted/60 border-b border-dashed border-app-text/20 cursor-pointer py-0.5 select-none"
       >
         {t('admin.tpl_editor_untranslated_placeholder')}
       </span>
@@ -153,11 +153,11 @@ function EditableCell({
   return (
     <span
       onClick={() => setEditing(true)}
-      className={`block w-full text-xs cursor-pointer py-0.5 select-none ${highlightTextClass(highlight)}`}
+      className={`block w-full text-app-lg cursor-pointer py-0.5 select-none ${highlightTextClass(highlight)}`}
     >
       {value || <span className="text-app-text-muted/40">—</span>}
       {showAutoLabel && (
-        <span className="ml-1 text-[9px] text-blue-400 opacity-70">{t('admin.tpl_editor_auto_label')}</span>
+        <span className="ml-1 text-app-sm text-blue-400 opacity-70">{t('admin.tpl_editor_auto_label')}</span>
       )}
     </span>
   );
@@ -203,7 +203,7 @@ function DropdownCell({ value, options, highlight, onCommit }: DropdownCellProps
         value={value}
         onChange={handleChange}
         onBlur={() => setOpen(false)}
-        className="w-full bg-app-bg text-xs text-app-text border border-app-text/30 rounded focus:outline-none [&>option]:bg-app-bg [&>option]:text-app-text"
+        className="w-full bg-app-bg text-app-lg text-app-text border border-app-text/30 rounded focus:outline-none [&>option]:bg-app-bg [&>option]:text-app-text"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -217,7 +217,7 @@ function DropdownCell({ value, options, highlight, onCommit }: DropdownCellProps
   return (
     <span
       onClick={() => setOpen(true)}
-      className={`block w-full text-xs cursor-pointer py-0.5 select-none ${highlightTextClass(highlight)}`}
+      className={`block w-full text-app-lg cursor-pointer py-0.5 select-none ${highlightTextClass(highlight)}`}
     >
       {label}
     </span>
@@ -291,7 +291,7 @@ export function TemplateEditor({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-xs border-collapse">
+      <table className="w-full text-app-lg border-collapse">
         <colgroup>
           <col style={{ width: '60px' }} />
           <col style={{ width: '80px' }} />
@@ -321,7 +321,7 @@ export function TemplateEditor({
             if (row.type === 'phase-separator') {
               return (
                 <tr key={`phase-${row.phaseId}-${index}`} className="bg-blue-500/[0.08]">
-                  <td colSpan={8} className="py-1 px-2 font-bold text-blue-400 text-[11px]">
+                  <td colSpan={8} className="py-1 px-2 font-bold text-blue-400 text-app-md">
                     {row.phaseName}
                   </td>
                 </tr>
@@ -347,7 +347,7 @@ export function TemplateEditor({
                           onUpdatePhaseForGroup(row.mechanicGroup, pid, existing?.name ?? `P${pid}`);
                         }
                       }}
-                      className="px-1 py-0.5 text-[10px] bg-transparent border border-app-text/20 rounded text-app-text cursor-pointer [&>option]:bg-app-bg [&>option]:text-app-text"
+                      className="px-1 py-0.5 text-app-base bg-transparent border border-app-text/20 rounded text-app-text cursor-pointer [&>option]:bg-app-bg [&>option]:text-app-text"
                     >
                       {phases.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -357,7 +357,7 @@ export function TemplateEditor({
                       <option value="__new__">{t('admin.tpl_editor_new_phase')}</option>
                     </select>
                   </td>
-                  <td colSpan={6} className="py-0.5 px-2 text-[10px] text-app-text-muted font-medium">
+                  <td colSpan={6} className="py-0.5 px-2 text-app-base text-app-text-muted font-medium">
                     {row.mechanicGroup}
                   </td>
                 </tr>
@@ -459,7 +459,7 @@ export function TemplateEditor({
                   <button
                     type="button"
                     onClick={() => onDeleteEvent(evId)}
-                    className="text-app-text-muted/50 hover:text-red-400 transition-colors cursor-pointer text-sm leading-none"
+                    className="text-app-text-muted/50 hover:text-red-400 transition-colors cursor-pointer text-app-2xl leading-none"
                     aria-label={t('admin.tpl_editor_delete')}
                   >
                     x

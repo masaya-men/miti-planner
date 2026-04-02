@@ -293,7 +293,7 @@ export function PartyAutoFill({ onComplete }: PartyAutoFillProps) {
             <div className="rounded-xl overflow-hidden shadow-xl bg-app-bg border border-app-text/10">
               <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
               <div className="px-4 pt-3 pb-3">
-                <p className="text-[13px] font-bold text-app-text leading-snug">
+                <p className="text-app-xl font-bold text-app-text leading-snug">
                   {t('tutorial.main.auto_fill.message')}
                 </p>
               </div>

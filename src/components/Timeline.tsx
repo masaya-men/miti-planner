@@ -407,7 +407,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         <>
             {toastMessage && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[5000] bg-red-600 text-white px-5 py-2.5 rounded-full shadow-sm flex items-center gap-2 animate-in slide-in-from-bottom-5 fade-in duration-200 pointer-events-none">
-                    <span className="text-sm font-bold">{toastMessage}</span>
+                    <span className="text-app-2xl font-bold">{toastMessage}</span>
                 </div>
             )}
 
@@ -423,7 +423,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                 />
                 <div
                     ref={timeLabelRef}
-                    className="absolute pointer-events-none text-[10px] font-mono text-sky-300 bg-black/70 px-1 rounded"
+                    className="absolute pointer-events-none text-app-base font-mono text-sky-300 bg-black/70 px-1 rounded"
                     style={{ display: 'none', left: '28px', zIndex: 100 }}
                 />
                 <div
@@ -478,7 +478,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                                 {targetJob ? (
                                     <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-[20px] h-[20px] object-contain rounded-sm" />
                                 ) : (
-                                    <div className="bg-black/90 rounded px-1 py-0.5 text-[8px] font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
+                                    <div className="bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
                                         {mitigation.targetId}
                                     </div>
                                 )}
@@ -1437,7 +1437,7 @@ const Timeline: React.FC = () => {
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
-                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-[10px] font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
+                                        "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-app-base font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
                                         !hideEmptyRows
                                             ? "bg-app-text text-app-bg"
                                             : "text-app-text"
@@ -1479,7 +1479,7 @@ const Timeline: React.FC = () => {
                                         )}
                                     >
                                         <Sword size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
-                                        <span className="font-black text-[10px] uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
+                                        <span className="font-black text-app-base uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
                                     </button>
                                 </div>
                                 <AASettingsPopover
@@ -1616,7 +1616,7 @@ const Timeline: React.FC = () => {
                                                     "bg-app-surface border-app-border hover:border-app-text hover:bg-app-surface2"
                                                 )}
                                             >
-                                                <span className="text-[10px] font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
+                                                <span className="text-app-base font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
                                                 <div className="flex items-center gap-0.5">
                                                     <div className={clsx(
                                                         "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
@@ -1652,14 +1652,14 @@ const Timeline: React.FC = () => {
                     <div
                         ref={headerRef}
                         className={clsx(
-                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-[11px] font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden"
+                            "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden"
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
                             {!phaseColumnCollapsed ? (
                                 <div
                                     ref={phaseHeaderRef}
-                                    className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-[8px] md:text-[11px] md:cursor-pointer md:hover:text-app-text transition-colors"
+                                    className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors"
                                     onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
                                 >
                                     <span className="md:hidden">{t('timeline.header_phase_short')}</span>
@@ -1681,7 +1681,7 @@ const Timeline: React.FC = () => {
                             )}
                             <div
                                 ref={timeHeaderRef}
-                                className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-[8px] md:text-[10px] md:cursor-pointer md:hover:text-app-text transition-colors"
+                                className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
                                 onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
                             >
                                 <span className="md:hidden">{t('timeline.header_time')}</span>
@@ -1692,7 +1692,7 @@ const Timeline: React.FC = () => {
                             </div>
                             <div
                                 ref={mechanicHeaderRef}
-                                className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-[9px] md:text-[10px] pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
+                                className="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-app-sm md:text-app-base pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
                                 onClick={() => setMechanicSearchOpen(!mechanicSearchOpen)}
                             >
                                 <span className="flex items-center gap-0.5 md:gap-1">
@@ -1700,11 +1700,11 @@ const Timeline: React.FC = () => {
                                     <ChevronDown size={10} className="inline" />
                                 </span>
                             </div>
-                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
+                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_raw')}</span>
                             </div>
-                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-[8px] md:text-[10px] font-black">
+                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
@@ -1881,16 +1881,16 @@ const Timeline: React.FC = () => {
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
                                                                 {/* PC: 2行表示 */}
-                                                                <span className="hidden md:block whitespace-nowrap text-sm font-bold text-app-text leading-none">
+                                                                <span className="hidden md:block whitespace-nowrap text-app-2xl font-bold text-app-text leading-none">
                                                                     {phase.name.split('\n')[0]}
                                                                 </span>
                                                                 {phase.name.split('\n')[1] && (
-                                                                    <span className="hidden md:block whitespace-nowrap text-[10px] font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
+                                                                    <span className="hidden md:block whitespace-nowrap text-app-base font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
                                                                         {phase.name.split('\n')[1]}
                                                                     </span>
                                                                 )}
                                                                 {/* スマホ: 1行に結合 */}
-                                                                <span className="md:hidden whitespace-nowrap text-[10px] font-bold text-app-text leading-none">
+                                                                <span className="md:hidden whitespace-nowrap text-app-base font-bold text-app-text leading-none">
                                                                     {phase.name.split('\n').join(' ')}
                                                                 </span>
                                                             </div>
@@ -2114,12 +2114,12 @@ const Timeline: React.FC = () => {
             {clipboardEvent && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5 bg-app-bg border border-app-text/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,.6)] transition-all duration-300 pointer-events-auto">
                     <div className="flex items-center gap-2">
-                        <span className="text-xl drop-shadow-md">📋</span>
+                        <span className="text-app-4xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm leading-tight drop-shadow-md text-app-text">
+                            <span className="font-bold text-app-2xl leading-tight drop-shadow-md text-app-text">
                                 {t('timeline.copying', { name: clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : t('timeline.event') })}
                             </span>
-                            <span className="text-[10px] text-app-text-muted leading-tight">
+                            <span className="text-app-base text-app-text-muted leading-tight">
                                 {t('timeline.paste_hint')}
                             </span>
                         </div>
@@ -2202,8 +2202,8 @@ const Timeline: React.FC = () => {
                         {/* ヘッダー: 時間 + イベント名 */}
                         <div className="px-4 pb-2 flex items-center justify-between">
                             <div>
-                                <span className="text-[10px] font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
-                                <div className="text-[11px] text-app-text font-mono">
+                                <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
+                                <div className="text-app-md text-app-text font-mono">
                                     {(() => {
                                         const flowTime = mobileMitiFlow.time;
                                         const eventsAtTime = timelineEvents.filter(e => e.time === flowTime);
@@ -2442,7 +2442,7 @@ const Timeline: React.FC = () => {
                             )}
                         >
                             <AlignJustify size={16} />
-                            <span className="text-xs font-bold">COMPACT</span>
+                            <span className="text-app-lg font-bold">COMPACT</span>
                         </button>
                         <button
                             onClick={() => useMitigationStore.getState().undo()}
@@ -2480,8 +2480,8 @@ const Timeline: React.FC = () => {
                     >
                         <CloudDownload size={20} />
                         <div className="text-left">
-                            <div className="text-sm font-bold">FFLogs Import</div>
-                            <div className="text-[10px] text-app-text-muted">{t('mobile.fflogs_desc')}</div>
+                            <div className="text-app-2xl font-bold">FFLogs Import</div>
+                            <div className="text-app-base text-app-text-muted">{t('mobile.fflogs_desc')}</div>
                         </div>
                     </button>
                     <button
@@ -2493,8 +2493,8 @@ const Timeline: React.FC = () => {
                     >
                         <Sparkles size={20} />
                         <div className="text-left">
-                            <div className="text-sm font-bold">Auto Plan</div>
-                            <div className="text-[10px] text-app-text-muted">{t('mobile.autoplan_desc')}</div>
+                            <div className="text-app-2xl font-bold">Auto Plan</div>
+                            <div className="text-app-base text-app-text-muted">{t('mobile.autoplan_desc')}</div>
                         </div>
                     </button>
                     {/* Popular Plans */}
@@ -2507,8 +2507,8 @@ const Timeline: React.FC = () => {
                     >
                         <Crown size={18} className="text-app-text shrink-0" />
                         <div>
-                            <p className="text-sm font-bold text-app-text">{t('popular.open_popular')}</p>
-                            <p className="text-xs text-app-text-muted">{t('popular.subtitle')}</p>
+                            <p className="text-app-2xl font-bold text-app-text">{t('popular.open_popular')}</p>
+                            <p className="text-app-lg text-app-text-muted">{t('popular.subtitle')}</p>
                         </div>
                     </button>
                 </div>
@@ -2540,7 +2540,7 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={handlePopoverEdit}
                             className={clsx(
-                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer",
                                 "text-app-text hover:bg-app-surface2"
                             )}
                         >
@@ -2550,7 +2550,7 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={handlePopoverAdd}
                             className={clsx(
-                                "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                "w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer",
                                 "text-app-text hover:bg-app-surface2"
                             )}
                         >
@@ -2566,7 +2566,7 @@ const Timeline: React.FC = () => {
                                     setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
                                 }}
                                 className={clsx(
-                                    "w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer",
+                                    "w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer",
                                     "text-app-text hover:bg-app-surface2"
                                 )}
                             >
@@ -2578,7 +2578,7 @@ const Timeline: React.FC = () => {
                         <button
                             onClick={handlePopoverDelete}
                             className={clsx(
-                                "flex items-center gap-3 mx-1.5 px-3 py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg",
+                                "flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg",
                                 "text-red-500 hover:bg-red-500/10"
                             )}
                         >
@@ -2602,7 +2602,7 @@ const Timeline: React.FC = () => {
                         : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
                 )}>
                     {/* 現在の設定ラベル */}
-                    <span className="text-[11px] font-black text-app-text whitespace-nowrap">
+                    <span className="text-app-md font-black text-app-text whitespace-nowrap">
                         <Sword size={12} className="inline mr-1.5 -mt-0.5" />
                         {t('aa_settings.floating_label', {
                             damage: aaSettings.damage.toLocaleString(),
@@ -2614,7 +2614,7 @@ const Timeline: React.FC = () => {
                     {/* 設定変更ボタン */}
                     <button
                         onClick={() => setAaSettingsOpen(true)}
-                        className="py-1.5 px-3 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
                     >
                         <Settings size={12} className="inline mr-1 -mt-0.5" />
                         {t('aa_settings.change_settings')}
@@ -2623,7 +2623,7 @@ const Timeline: React.FC = () => {
                     {/* 終了ボタン */}
                     <button
                         onClick={() => setIsAaModeEnabled(false)}
-                        className="py-1.5 px-3 rounded-lg text-[11px] font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
                     >
                         <X size={12} className="inline mr-1 -mt-0.5" />
                         {t('aa_settings.end_mode')}
