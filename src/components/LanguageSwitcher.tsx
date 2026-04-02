@@ -22,7 +22,7 @@ export const LanguageSwitcher: React.FC = () => {
         <div data-tutorial-always className="flex items-center bg-transparent rounded-full pl-2 pr-1 py-1 border border-app-border relative h-[32px] select-none group transition-colors hover:border-app-text">
             {/* Globe Icon - Left */}
             <div className="pr-2 border-r border-app-border flex items-center justify-center text-app-text-muted group-hover:text-app-text transition-colors mr-1">
-                <Globe size={14} />
+                <Globe size={14} className="globe-icon transition-transform" />
             </div>
 
             {/* Toggle Container - Right */}

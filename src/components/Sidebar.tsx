@@ -190,83 +190,83 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
             {/* コンテンツ名行 */}
             <div className="w-full flex items-center group/content">
                 <Tooltip content={floorName} position="right" wrapperClassName="flex-1 min-w-0">
-                <button
-                    onClick={() => {
-                        if (multiSelect.isEnabled) {
-                            if (contentPlans.length === 1 && !isDisabled) {
-                                onToggleSelect(contentPlans[0].id);
-                            } else if (contentPlans.length === 0) {
-                                // プラン0件 → 選択不可
-                            } else {
+                    <button
+                        onClick={() => {
+                            if (multiSelect.isEnabled) {
+                                if (contentPlans.length === 1 && !isDisabled) {
+                                    onToggleSelect(contentPlans[0].id);
+                                } else if (contentPlans.length === 0) {
+                                    // プラン0件 → 選択不可
+                                } else {
+                                    setIsExpanded(v => !v);
+                                }
+                            } else if (contentPlans.length > 0) {
+                                // プランあり → サブアイテムをトグル展開
                                 setIsExpanded(v => !v);
+                            } else {
+                                // プランなし → 新規プラン作成
+                                onSelect(content);
                             }
-                        } else if (contentPlans.length > 0) {
-                            // プランあり → サブアイテムをトグル展開
-                            setIsExpanded(v => !v);
-                        } else {
-                            // プランなし → 新規プラン作成
-                            onSelect(content);
-                        }
-                    }}
-                    disabled={isDisabled}
-                    {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
-                    className={clsx(
-                        "sidebar-item w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
-                        isActive && !multiSelect.isEnabled
-                            ? "text-app-text"
-                            : "bg-transparent text-app-text hover:bg-glass-hover",
-                        isDisabled && "opacity-40 cursor-not-allowed grayscale",
-                        isUnavailable && "opacity-20 pointer-events-none"
-                    )}
-                >
-
-                    <div className="shrink-0 flex items-center justify-center">
-                        <div className={clsx(
-                            "w-7 h-8 rounded flex flex-col items-center justify-center font-black text-app-sm shrink-0",
+                        }}
+                        disabled={isDisabled}
+                        {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
+                        className={clsx(
+                            "sidebar-item w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
                             isActive && !multiSelect.isEnabled
-                                ? "bg-app-text text-app-bg"
-                                : "bg-glass-card text-app-text group-hover:bg-glass-hover"
-                        )}>
-                            <span className="leading-none">{shortName.split('\n')[0]}</span>
-                            {shortName.split('\n')[1] && (
-                                <span className="text-app-xs leading-none mt-0.5">{shortName.split('\n')[1]}</span>
-                            )}
+                                ? "text-app-text"
+                                : "bg-transparent text-app-text hover:bg-glass-hover",
+                            isDisabled && "opacity-40 cursor-not-allowed grayscale",
+                            isUnavailable && "opacity-20 pointer-events-none"
+                        )}
+                    >
+
+                        <div className="shrink-0 flex items-center justify-center">
+                            <div className={clsx(
+                                "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
+                                isActive && !multiSelect.isEnabled
+                                    ? "bg-app-text text-app-bg"
+                                    : "bg-glass-card text-app-text group-hover:bg-glass-hover"
+                            )}>
+                                <span className="leading-none">{shortName.split('\n')[0]}</span>
+                                {shortName.split('\n')[1] && (
+                                    <span className="text-app-sm leading-none mt-0.5">{shortName.split('\n')[1]}</span>
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    {multiSelect.isEnabled && (
-                        <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
-                            {contentPlans.length <= 1 ? (
-                                // 0〜1件: コンテンツ行にチェックボックス
-                                contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id)
-                                    ? <CheckSquare size={16} className="text-app-text" />
-                                    : contentPlans.length === 0
-                                        ? <Square size={16} className="text-app-text-muted/20" />
-                                        : <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
-                            ) : (
-                                // 2件以上: 選択数表示
-                                <span className="text-app-sm font-bold text-app-text-muted">
-                                    {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
-                                        ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
-                                        : `${contentPlans.length}件`
-                                    }
-                                </span>
-                            )}
-                        </div>
-                    )}
+                        {multiSelect.isEnabled && (
+                            <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
+                                {contentPlans.length <= 1 ? (
+                                    // 0〜1件: コンテンツ行にチェックボックス
+                                    contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id)
+                                        ? <CheckSquare size={16} className="text-app-text" />
+                                        : contentPlans.length === 0
+                                            ? <Square size={16} className="text-app-text-muted/20" />
+                                            : <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                                ) : (
+                                    // 2件以上: 選択数表示
+                                    <span className="text-app-sm font-bold text-app-text-muted">
+                                        {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
+                                            ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
+                                            : `${contentPlans.length}件`
+                                        }
+                                    </span>
+                                )}
+                            </div>
+                        )}
 
-                    {/* プランありシェブロン（展開インジケーター兼プラン存在表示） */}
-                    {contentPlans.length > 0 && !multiSelect.isEnabled && (
-                        <ChevronRight
-                            size={12}
-                            className="shrink-0 text-app-text-muted transition-transform duration-200"
-                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-                        />
-                    )}
+                        {/* プランありシェブロン（展開インジケーター兼プラン存在表示） */}
+                        {contentPlans.length > 0 && !multiSelect.isEnabled && (
+                            <ChevronRight
+                                size={12}
+                                className="shrink-0 text-app-text-muted transition-transform duration-200"
+                                style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                            />
+                        )}
 
-                    {/* クリック領域を維持するための flex-1 スペーサー */}
-                    <div className="flex-1 min-w-0" />
-                </button>
+                        {/* クリック領域を維持するための flex-1 スペーサー */}
+                        <div className="flex-1 min-w-0" />
+                    </button>
                 </Tooltip>
 
                 {/* ホバーの+ボタンは廃止 → サブアイテム末尾の+行に移動 */}
@@ -417,7 +417,13 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                             ) : (
                                                                 <button
                                                                     onClick={() => {
-                                                                        usePlanStore.getState().deletePlan(plan.id);
+                                                                        const ps = usePlanStore.getState();
+                                                                        const authUser = useAuthStore.getState().user;
+                                                                        if (authUser) {
+                                                                            ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
+                                                                        } else {
+                                                                            ps.deletePlan(plan.id);
+                                                                        }
                                                                         setMenuPlanId(null);
                                                                         setConfirmDeletePlanId(null);
                                                                     }}
@@ -524,7 +530,7 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
     // シリーズ内の選択状態: 全選択/一部/なし
     const selectedCount = React.useMemo(() =>
         seriesPlanIds.filter(id => multiSelect.selectedIds.includes(id)).length
-    , [seriesPlanIds, multiSelect.selectedIds]);
+        , [seriesPlanIds, multiSelect.selectedIds]);
     const isAllSelected = seriesPlanIds.length > 0 && selectedCount === seriesPlanIds.length;
     const isSomeSelected = selectedCount > 0 && !isAllSelected;
 
@@ -562,7 +568,7 @@ const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
         <div className="mb-1">
             <button
                 onClick={multiSelect.isEnabled && seriesPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
-                className="sidebar-item w-full text-app-base text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
+                className="sidebar-item w-full text-app-lg text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
             >
                 {multiSelect.isEnabled && seriesPlanIds.length > 0 ? (
                     <div className={clsx(
@@ -623,6 +629,7 @@ interface CategoryAccordionProps {
     defaultExpanded?: boolean;
 }
 
+
 const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
     level, category, selectedContentId, multiSelect, onToggleSelect, onToggleSeriesSelect, onSelectContent, highlightFirst, lang, defaultExpanded = false
 }) => {
@@ -641,7 +648,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                 className={clsx(
                     "sidebar-item w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
                     "text-app-text hover:bg-glass-hover",
-                    "font-bold text-app-base tracking-widest uppercase"
+                    "font-bold text-app-lg tracking-widest uppercase"
                 )}
                 data-tutorial="sidebar-category"
             >
@@ -666,7 +673,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                             lang={lang}
                             highlightFirst={highlightFirst}
                             showLabel={seriesList.length > 1 || category === 'ultimate'}
-                            defaultExpanded={idx === 0}
+                            defaultExpanded={category === 'ultimate' || idx === 0}
                         />
                     ))}
                 </div>
@@ -899,12 +906,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const { getSnapshot, loadSnapshot } = useMitigationStore();
 
     // currentPlanIdが変わったらselectedContentIdも追従する（タブ復帰・プラン切替時）
+    // プラン未選択時（全削除後・初回起動）はデフォルト状態にリセット
     React.useEffect(() => {
         if (currentPlanId) {
             const plan = plans.find(p => p.id === currentPlanId);
             if (plan?.contentId) {
                 setSelectedContentId(plan.contentId);
             }
+        } else {
+            setActiveLevel(LEVEL_TIERS[0]);
+            setActiveCategory('all');
+            setSelectedContentId(null);
         }
     }, [currentPlanId, plans]);
 
@@ -1079,7 +1091,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
             const c = plan.contentId ? getContentById(plan.contentId) : undefined;
-            const newLevel = (c?.level ?? plan.data.currentLevel ?? activeLevel) as ContentLevel;
+            const newLevel = (c?.level ?? plan.level ?? plan.data.currentLevel ?? activeLevel) as ContentLevel;
             const newCategory = c?.category ?? 'custom';
             setActiveLevel(newLevel);
             setActiveCategory(newCategory);
@@ -1200,51 +1212,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {/* Header Controls area with save button instead of big new plan */}
                     <div className="p-2 border-b border-glass-border" />
 
-                    {!multiSelect.isEnabled && plans.length > 0 && (
-                        <div className="pb-2 shrink-0 mt-3">
-                            <div className="flex items-center mb-2 px-4">
-                                <span className="text-app-base font-black text-app-text uppercase tracking-tighter">
-                                    {t('sidebar.recent_activity')}
-                                </span>
-                            </div>
-                            <div className="border-b border-glass-border mb-2" />
-                            <div className="space-y-0.5 max-h-[72px] overflow-y-auto px-3 custom-scrollbar-thin">
-                                {plans.slice(0, 3).map((plan) => {
-                                    const content = plan.contentId ? getContentById(plan.contentId) : undefined;
-                                    const label = content
-                                        ? content.name[lang as ContentLanguage]
-                                        : `Lv.${plan.data.currentLevel ?? '?'}`;
-                                    const isActive = currentPlanId === plan.id;
-                                    return (
-                                        <button
-                                            key={plan.id}
-                                            onClick={() => handleLoadPlan(plan.id)}
-                                            className={clsx(
-                                                "w-full flex items-center gap-1.5 py-1 px-1 rounded-md transition-colors cursor-pointer active:scale-[0.98]",
-                                                isActive ? "bg-glass-hover" : "hover:bg-glass-active"
-                                            )}
-                                        >
-                                            <span className={clsx(
-                                                "shrink-0 w-0.5 self-stretch rounded-full transition-colors",
-                                                isActive ? "bg-app-text" : "bg-transparent"
-                                            )} />
-                                            <p className="min-w-0 text-app-sm text-app-text truncate leading-tight">
-                                                <span className="text-app-text-muted">{label}：</span>{plan.title}
-                                            </p>
-                                        </button>
-                                    );
-                                })}
-                                {plans.length === 0 && (
-                                    <div className="px-2 py-4 border border-dashed border-glass-border rounded-lg text-center">
-                                        <p className="text-app-sm text-white/20 italic">No plans yet</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="border-b border-glass-border mx-3 mb-2" />
-                    <div className="px-3 space-y-2 shrink-0 mb-3">
+                    <div className="border-b border-glass-border mx-3 mb-2 mt-3" />
+                    <div className="px-3 shrink-0 mb-3">
                         <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
                             {LEVEL_TIERS.map((level, i) => (
                                 <React.Fragment key={level}>
@@ -1267,13 +1236,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             ))}
                         </div>
 
-                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto no-scrollbar scroll-smooth">
+                        <div className="border-b border-glass-border my-2" />
+
+                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto custom-scrollbar-thin">
                             <button
                                 onClick={() => setActiveCategory('all')}
                                 className={clsx(
-                                    "whitespace-nowrap px-2.5 py-1 rounded-md text-app-2xs font-black transition-all duration-200 cursor-pointer active:scale-95 shrink-0",
+                                    "flex-1 min-w-fit whitespace-nowrap px-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
                                     activeCategory === 'all'
-                                        ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
+                                        ? "bg-app-text text-app-bg shadow-lg"
                                         : "text-app-text hover:bg-glass-hover"
                                 )}
                             >
@@ -1285,9 +1256,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     <button
                                         onClick={() => setActiveCategory(cat)}
                                         className={clsx(
-                                            "whitespace-nowrap px-2.5 py-1 rounded-md text-app-2xs font-black transition-all duration-200 cursor-pointer active:scale-95 shrink-0",
+                                            "flex-1 min-w-fit whitespace-nowrap px-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
                                             activeCategory === cat
-                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
+                                                ? "bg-app-text text-app-bg shadow-lg"
                                                 : "text-app-text hover:bg-glass-hover"
                                         )}
                                     >
@@ -1296,9 +1267,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 </React.Fragment>
                             ))}
                         </div>
-                    </div>
 
-                    <div className="px-3 flex items-center gap-1 mb-2 shrink-0 flex-wrap">
+                        <div className="border-b border-glass-border my-2" />
+
+                        <div className="flex items-center gap-1 flex-wrap">
                         <button
                             onClick={() => {
                                 setIsNewPlanModalOpen(true);
@@ -1309,36 +1281,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 }
                             }}
                             data-tutorial="new-plan-btn"
-                            className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
                         >
-                            <Plus size={10} />
+                            <Plus size={12} />
                             {t('sidebar.new_plan').toUpperCase()}
                         </button>
                         <button
                             onClick={() => toggleMultiSelectMode('share')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer active:scale-95",
+                                "flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                 multiSelect.isEnabled && multiSelect.mode === 'share'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
                                     : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
                             )}
                         >
-                            {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={10} /> : <Square size={10} />}
+                            {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={12} /> : <Square size={12} />}
                             {t('sidebar.multi_select_mode').toUpperCase()}
                         </button>
                         {/* 選択削除ボタン — 押すと削除用選択モードに入る */}
                         <button
                             onClick={() => toggleMultiSelectMode('delete')}
                             className={clsx(
-                                "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-app-sm font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
+                                "flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
                                 multiSelect.isEnabled && multiSelect.mode === 'delete'
                                     ? "bg-app-text text-app-bg border-app-text shadow-md"
                                     : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
                             )}
                         >
-                            <Trash2 size={10} />
+                            <Trash2 size={12} />
                             {t('sidebar.select_delete').toUpperCase()}
                         </button>
+                        </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
@@ -1364,35 +1337,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         {(['dungeon', 'raid', 'custom'] as const)
                             .filter(cat => activeCategory === 'all' || activeCategory === cat)
                             .map(cat => {
-                            // categoryフィールドで振り分け。contentIdがcontents.jsonに存在しないプランも対象
-                            const catPlans = plans.filter(p => {
-                                // レベルフィルタ: p.level（不変）を優先、なければコンテンツ定義、最後にdata.currentLevel
-                                const planLevel = p.level ?? (p.contentId ? getContentById(p.contentId)?.level : undefined) ?? p.data.currentLevel;
-                                if (cat === 'dungeon') console.log('[Sidebar filter]', p.title, 'p.level:', p.level, 'data.currentLevel:', p.data.currentLevel, 'planLevel:', planLevel, 'activeLevel:', activeLevel);
-                                if (Number(planLevel) !== Number(activeLevel)) return false;
-                                // categoryフィールドがある場合はそれで判定
-                                if (p.category) return p.category === cat;
-                                // 旧プラン互換: contentIdがnullで categoryもない → customに振り分け
-                                if (p.contentId === null && cat === 'custom') return true;
-                                // contentIdがあるがcontents.jsonに未登録 → customに振り分け
-                                if (p.contentId && !getContentById(p.contentId) && cat === 'custom') return true;
-                                return false;
-                            });
-                            if (catPlans.length === 0) return null;
-                            const catLabel = CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja;
-                            return (
-                                <FreePlanSection
-                                    key={cat}
-                                    label={catLabel}
-                                    plans={catPlans}
-                                    currentPlanId={currentPlanId}
-                                    multiSelect={multiSelect}
-                                    onToggleSelect={toggleItemId}
-                                    onLoadPlan={handleLoadPlan}
-                                    onUpdatePlan={updatePlan}
-                                />
-                            );
-                        })}
+                                // categoryフィールドで振り分け。contentIdがcontents.jsonに存在しないプランも対象
+                                const catPlans = plans.filter(p => {
+                                    // レベルフィルタ: p.level（不変）を優先、なければコンテンツ定義、最後にdata.currentLevel
+                                    const planLevel = p.level ?? (p.contentId ? getContentById(p.contentId)?.level : undefined) ?? p.data.currentLevel;
+                                    if (Number(planLevel) !== Number(activeLevel)) return false;
+                                    // categoryフィールドがある場合はそれで判定
+                                    if (p.category) return p.category === cat;
+                                    // 旧プラン互換: contentIdがnullで categoryもない → customに振り分け
+                                    if (p.contentId === null && cat === 'custom') return true;
+                                    // contentIdがあるがcontents.jsonに未登録 → customに振り分け
+                                    if (p.contentId && !getContentById(p.contentId) && cat === 'custom') return true;
+                                    return false;
+                                });
+                                if (catPlans.length === 0) return null;
+                                const catLabel = CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja;
+                                return (
+                                    <FreePlanSection
+                                        key={cat}
+                                        label={catLabel}
+                                        plans={catPlans}
+                                        currentPlanId={currentPlanId}
+                                        multiSelect={multiSelect}
+                                        onToggleSelect={toggleItemId}
+                                        onLoadPlan={handleLoadPlan}
+                                        onUpdatePlan={updatePlan}
+                                    />
+                                );
+                            })}
                     </div>
 
                     {/* フローティングアクションバー — 画面下部中央（createPortalでbody直下） */}
@@ -1493,50 +1465,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     )}
                 >
                     <Tooltip content={isOpen ? t('sidebar.close_menu') : t('sidebar.open_menu')} position="right" wrapperClassName="w-full h-full">
-                    <button
-                        onClick={() => onToggle?.()}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        className={clsx(
-                            "relative w-full h-full cursor-pointer overflow-hidden group/btn",
-                            "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
-                        )}
-                    >
-                        {/* 左端の固定ライン（右端はサイドバーのglass-tier3 borderが担当） */}
-                        <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
+                        <button
+                            onClick={() => onToggle?.()}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            className={clsx(
+                                "relative w-full h-full cursor-pointer overflow-hidden group/btn",
+                                "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
+                            )}
+                        >
+                            {/* 左端の固定ライン（右端はサイドバーのglass-tier3 borderが担当） */}
+                            <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 
-                        <div className="relative flex items-center justify-center h-full">
-                            <motion.div
-                                className="flex items-center justify-center"
-                                animate={{
-                                    rotate: isOpen ? 0 : 180,
-                                    x: isHovered ? (isOpen ? [-2, 2, -2] : [2, -2, 2]) : 0,
-                                    scale: isHovered ? 1.8 : 1
-                                }}
-                                transition={{
-                                    rotate: { type: "spring", stiffness: 260, damping: 20 },
-                                    x: isHovered ? { repeat: Infinity, duration: 1.2, ease: "easeInOut" } : { duration: 0.2 },
-                                    scale: { duration: 0.2 }
-                                }}
-                            >
-                                <ChevronLeft
-                                    size={18}
-                                    className={clsx(
-                                        "transition-all duration-200",
-                                        "text-app-text-muted group-hover/btn:text-app-text-sec",
-                                        isHovered && "text-app-text-sec"
-                                    )}
-                                />
-                            </motion.div>
-                        </div>
+                            <div className="relative flex items-center justify-center h-full">
+                                <motion.div
+                                    className="flex items-center justify-center"
+                                    animate={{
+                                        rotate: isOpen ? 0 : 180,
+                                        x: isHovered ? (isOpen ? [-2, 2, -2] : [2, -2, 2]) : 0,
+                                        scale: isHovered ? 1.8 : 1
+                                    }}
+                                    transition={{
+                                        rotate: { type: "spring", stiffness: 260, damping: 20 },
+                                        x: isHovered ? { repeat: Infinity, duration: 1.2, ease: "easeInOut" } : { duration: 0.2 },
+                                        scale: { duration: 0.2 }
+                                    }}
+                                >
+                                    <ChevronLeft
+                                        size={18}
+                                        className={clsx(
+                                            "transition-all duration-200",
+                                            "text-app-text-muted group-hover/btn:text-app-text-sec",
+                                            isHovered && "text-app-text-sec"
+                                        )}
+                                    />
+                                </motion.div>
+                            </div>
 
-                        {/* 右端の境界線 */}
-                        <div className={clsx(
-                            "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
-                            isOpen ? "bg-glass-border" : "bg-app-border",
-                            "group-hover/btn:bg-app-text-muted"
-                        )} />
-                    </button>
+                            {/* 右端の境界線 */}
+                            <div className={clsx(
+                                "absolute right-0 top-0 bottom-0 w-[1px] transition-all duration-200",
+                                isOpen ? "bg-glass-border" : "bg-app-border",
+                                "group-hover/btn:bg-app-text-muted"
+                            )} />
+                        </button>
                     </Tooltip>
                 </div>
             </div>}
