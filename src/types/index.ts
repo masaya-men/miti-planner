@@ -1,6 +1,8 @@
 export type LocalizedString = {
     ja: string;
     en: string;
+    zh?: string;
+    ko?: string;
 };
 
 /** Firestore旧データ(string)をLocalizedStringに正規化 */

@@ -15,6 +15,7 @@ interface JobPickerProps {
 
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
+import type { ContentLanguage } from '../store/useThemeStore';
 
 export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect, position, currentJobId }) => {
     const { t } = useTranslation();
@@ -96,7 +97,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
     );
 };
 
-const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: 'ja' | 'en', theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage }) => (
+const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () => void, contentLanguage: ContentLanguage, theme: 'light' | 'dark' }> = ({ job, currentJobId, onSelect, contentLanguage }) => (
     <button
         onClick={onSelect}
         className={clsx(
