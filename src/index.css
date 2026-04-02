@@ -300,6 +300,16 @@
 .custom-scrollbar-thin::-webkit-scrollbar-thumb { background-color: rgba(128, 128, 128, 0.3); border-radius: 2px; }
 .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
 
+/* スクロールバー非表示 */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 地球儀アイコン回転アニメーション */
+.group:hover .globe-icon {
+  transition: transform 2s ease-in-out;
+  transform: rotate(360deg);
+}
+
 .ime-active { ime-mode: active; }
 
 /* ── LoPoボタン カプセル描画 + インク塗りつぶしアニメーション ── */

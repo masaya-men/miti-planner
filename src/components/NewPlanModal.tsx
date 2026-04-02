@@ -182,7 +182,6 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         // 5. プラン保存
         const newPlanId = `plan_${Date.now()}`;
         const finalSnapshot = store.getSnapshot();
-        console.log('[NewPlanModal] useLevel:', useLevel, 'snapshot.currentLevel:', finalSnapshot.currentLevel, 'level state:', level);
         addPlan({
             id: newPlanId,
             ownerId: 'local',

@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { SavedPlan } from '../types';
+import type { SavedPlan, ContentLevel } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 import type { PlanData } from '../types';
 import { useMitigationStore } from './useMitigationStore';
 import { planService } from '../lib/planService';
 import { PLAN_LIMITS } from '../types/firebase';
+import { getContentById } from '../data/contentRegistry';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -79,32 +80,20 @@ export const usePlanStore = create<PlanState>()(
                     const newDirty = new Set(state._dirtyPlanIds);
                     newDirty.delete(id);
                     const remaining = state.plans.filter((p) => p.id !== id);
-                    // 削除したのが現在のプランなら、最新の残りプランに切り替え
-                    const nextPlanId = wasCurrent
-                        ? (remaining.length > 0 ? remaining.sort((a, b) => b.updatedAt - a.updatedAt)[0].id : null)
-                        : state.currentPlanId;
                     return {
                         plans: remaining,
-                        currentPlanId: nextPlanId,
-                        lastActivePlanId: state.lastActivePlanId === id ? nextPlanId : state.lastActivePlanId,
+                        // 削除したのが現在のプランなら無選択状態に戻す
+                        currentPlanId: wasCurrent ? null : state.currentPlanId,
+                        lastActivePlanId: state.lastActivePlanId === id ? null : state.lastActivePlanId,
                         _dirtyPlanIds: newDirty,
                         _deletedPlanIds: plan
                             ? new Set([...state._deletedPlanIds, id])
                             : state._deletedPlanIds,
                     };
                 });
-                // 削除したのが現在のプランなら、useMitigationStoreのデータも切り替え
+                // 削除したのが現在のプランなら、ストアをクリア
                 if (wasCurrent) {
-                    const nextId = get().currentPlanId;
-                    if (nextId) {
-                        const nextPlan = get().plans.find((p) => p.id === nextId);
-                        if (nextPlan?.data) {
-                            useMitigationStore.getState().loadSnapshot(nextPlan.data);
-                        }
-                    } else {
-                        // プランが0件 → ストアをクリア
-                        useMitigationStore.getState().resetForTutorial();
-                    }
+                    useMitigationStore.getState().resetForTutorial();
                 }
             },
 
@@ -375,13 +364,32 @@ export const usePlanStore = create<PlanState>()(
         }),
         {
             name: 'plan-storage',
-            version: 1,
+            version: 2,
             // Firestore同期用の内部状態はlocalStorageに保存しない
             partialize: (state) => ({
                 plans: state.plans,
                 currentPlanId: state.currentPlanId,
                 lastActivePlanId: state.lastActivePlanId,
             }),
+            migrate: (persisted: any, version: number) => {
+                if (version < 2) {
+                    // v1→v2: levelフィールドをバックフィル
+                    // 古いプランはp.levelがなく、data.currentLevelがレベルタブ操作で汚染されるバグがあった
+                    const VALID_LEVELS = [70, 80, 90, 100];
+                    const state = persisted as { plans?: SavedPlan[] };
+                    if (state.plans) {
+                        state.plans = state.plans.map(plan => {
+                            if (plan.level) return plan;
+                            // コンテンツ定義 → data.currentLevel の順でレベルを推定
+                            const contentLevel = plan.contentId ? getContentById(plan.contentId)?.level : undefined;
+                            const inferred = contentLevel ?? plan.data?.currentLevel;
+                            const level = (VALID_LEVELS.includes(Number(inferred)) ? Number(inferred) : 100) as ContentLevel;
+                            return { ...plan, level };
+                        });
+                    }
+                }
+                return persisted;
+            },
         }
     )
 );
