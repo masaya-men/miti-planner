@@ -73,14 +73,14 @@ export const MobileHeader: React.FC<{
                     onClick={handleTitleTap}
                 >
                     {contentLabel && (
-                        <span className="text-[15px] font-bold text-app-text truncate leading-none">
+                        <span className="text-[11px] font-black text-app-text truncate leading-none">
                             {contentLabel}
                         </span>
                     )}
                     {hasPlanTitle && (
                         <>
                             {contentLabel && <span className="text-[9px] text-app-text-muted shrink-0">/</span>}
-                            <span className="text-[11px] text-app-text-muted truncate leading-none">
+                            <span className="text-[10px] text-app-text-muted truncate leading-none">
                                 {currentPlan.title}
                             </span>
                         </>
@@ -119,7 +119,7 @@ export const MobileHeader: React.FC<{
                             "bg-white/95 border-black/8"
                         )} />
                         {contentLabel && (
-                            <p className="text-[18px] font-black text-app-text text-center leading-snug">
+                            <p className="text-[13px] font-black text-app-text text-center leading-snug">
                                 {contentLabel}
                             </p>
                         )}

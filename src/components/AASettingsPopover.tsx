@@ -90,7 +90,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
             <div className="flex items-center justify-between px-4 py-3 bg-glass-header border-b border-glass-border">
                 <div className="flex items-center gap-2">
                     <Settings size={14} className="text-app-text-sec" />
-                    <span className="text-[11px] font-black text-app-text uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
+                    <span className="text-xs font-black text-app-text uppercase tracking-wider">{t('aa_settings.popover_header')}</span>
                 </div>
                 <button
                     onClick={onClose}
@@ -105,13 +105,13 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Target */}
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.target')}</label>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.target')}</label>
                     <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
                         {['MT', 'ST'].map((target) => (
                             <button
                                 key={target}
                                 className={clsx(
-                                    "flex-1 py-1 px-2 text-[13px] font-black rounded transition-colors cursor-pointer",
+                                    "flex-1 py-1 px-2 text-xs font-black rounded transition-colors cursor-pointer",
                                     settings.target === target
                                         ? "bg-app-text text-app-bg border border-app-text"
                                         : "text-app-text hover:bg-glass-hover"
@@ -126,20 +126,20 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
 
                 {/* Damage Amount */}
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
 
                     <input
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-[13px] font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
+                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-sm font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>
 
                 {/* Damage Type */}
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.type')}</label>
+                    <label className="text-[10px] font-black text-app-text uppercase tracking-wider block">{t('aa_settings.type')}</label>
                     <div className="flex gap-2">
                         {[
                             { id: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png', color: 'text-cyan-300' },
@@ -177,7 +177,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         }}
                         disabled={settings.damage <= 0}
                         className={clsx(
-                            "w-full py-2 rounded-md text-[13px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer border",
+                            "w-full py-2 rounded-md text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer border",
                             settings.damage > 0
                                 ? "border-app-text text-app-text bg-transparent hover:bg-app-text hover:text-app-bg active:scale-[0.98]"
                                 : "border-app-text/20 text-app-text/40 bg-transparent cursor-not-allowed"
