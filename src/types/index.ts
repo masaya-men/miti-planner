@@ -3,6 +3,13 @@ export type LocalizedString = {
     en: string;
 };
 
+/** Firestore旧データ(string)をLocalizedStringに正規化 */
+export function normalizeLocalizedString(v: string | LocalizedString | undefined): LocalizedString | undefined {
+    if (v === undefined || v === null) return undefined;
+    if (typeof v === 'string') return v ? { ja: v, en: '' } : undefined;
+    return v;
+}
+
 export interface Job {
     id: string;
     name: LocalizedString;
@@ -63,7 +70,7 @@ export interface TimelineEvent {
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
     warning?: boolean; // Indicates mitigation is insufficient
-    mechanicGroup?: string; // ギミックグループ名（例: "開幕", "蒼天の陣：雷槍"）
+    mechanicGroup?: LocalizedString; // ギミックグループ名（例: { ja: "開幕", en: "Opener" }）
 }
 
 export interface Phase {

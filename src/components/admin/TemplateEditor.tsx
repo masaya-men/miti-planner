@@ -20,12 +20,13 @@ interface TemplateEditorProps {
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdatePhaseForGroup: (mechanicGroup: string, phaseId: number, phaseName: string) => void;
+  onUpdatePhaseForGroup: (mechanicGroupJa: string, phaseId: number, phaseName: string) => void;
+  onUpdateLabelEn: (mechanicGroupJa: string, enValue: string) => void;
 }
 
 type RowItem =
   | { type: 'phase-separator'; phaseId: number; phaseName: string }
-  | { type: 'mechanic-separator'; mechanicGroup: string; phaseId: number }
+  | { type: 'mechanic-separator'; mechanicGroupJa: string; mechanicGroupEn: string; phaseId: number }
   | { type: 'event'; event: TimelineEvent; phaseId: number };
 
 // ─────────────────────────────────────────────
@@ -236,6 +237,7 @@ export function TemplateEditor({
   onUpdateCell,
   onDeleteEvent,
   onUpdatePhaseForGroup,
+  onUpdateLabelEn,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
 
@@ -247,7 +249,7 @@ export function TemplateEditor({
   // フェーズ区切り・ギミックグループ区切りを含むフラット行リストを構築
   const rows: RowItem[] = [];
   let lastPhaseId: number | null = null;
-  let lastMechanicGroup: string | null = null;
+  let lastMechanicGroupJa: string | null = null;
 
   for (const event of filteredEvents) {
     const phase = getPhaseForTime(event.time, phases);
@@ -259,14 +261,16 @@ export function TemplateEditor({
         phaseName: phase.name,
       });
       lastPhaseId = phase.id;
-      lastMechanicGroup = null; // フェーズが変わったらギミックグループもリセット
+      lastMechanicGroupJa = null; // フェーズが変わったらギミックグループもリセット
     }
 
-    if (event.mechanicGroup && event.mechanicGroup !== lastMechanicGroup) {
-      lastMechanicGroup = event.mechanicGroup;
+    const mgJa = event.mechanicGroup?.ja || '';
+    if (mgJa && mgJa !== lastMechanicGroupJa) {
+      lastMechanicGroupJa = mgJa;
       rows.push({
         type: 'mechanic-separator',
-        mechanicGroup: event.mechanicGroup,
+        mechanicGroupJa: mgJa,
+        mechanicGroupEn: event.mechanicGroup?.en || '',
         phaseId: phase.id,
       });
     }
@@ -332,7 +336,7 @@ export function TemplateEditor({
               const nextPhaseId = Math.max(...phases.map((p) => p.id), 0) + 1;
 
               return (
-                <tr key={`mechanic-${row.mechanicGroup}-${index}`} className="bg-app-text/[0.04]">
+                <tr key={`mechanic-${row.mechanicGroupJa}-${index}`} className="bg-app-text/[0.04]">
                   <td className="py-0.5 px-2" colSpan={2}>
                     <select
                       value={row.phaseId}
@@ -340,11 +344,11 @@ export function TemplateEditor({
                         const val = e.target.value;
                         if (val === '__new__') {
                           const name = `P${nextPhaseId}`;
-                          onUpdatePhaseForGroup(row.mechanicGroup, nextPhaseId, name);
+                          onUpdatePhaseForGroup(row.mechanicGroupJa, nextPhaseId, name);
                         } else {
                           const pid = parseInt(val, 10);
                           const existing = phases.find((p) => p.id === pid);
-                          onUpdatePhaseForGroup(row.mechanicGroup, pid, existing?.name ?? `P${pid}`);
+                          onUpdatePhaseForGroup(row.mechanicGroupJa, pid, existing?.name ?? `P${pid}`);
                         }
                       }}
                       className="px-1 py-0.5 text-app-base bg-transparent border border-app-text/20 rounded text-app-text cursor-pointer [&>option]:bg-app-bg [&>option]:text-app-text"
@@ -357,8 +361,17 @@ export function TemplateEditor({
                       <option value="__new__">{t('admin.tpl_editor_new_phase')}</option>
                     </select>
                   </td>
-                  <td colSpan={6} className="py-0.5 px-2 text-app-base text-app-text-muted font-medium">
-                    {row.mechanicGroup}
+                  <td colSpan={3} className="py-0.5 px-2 text-app-base text-app-text-muted font-medium">
+                    {row.mechanicGroupJa}
+                  </td>
+                  <td colSpan={3} className="py-0.5 px-2">
+                    <input
+                      type="text"
+                      defaultValue={row.mechanicGroupEn}
+                      placeholder="English..."
+                      onBlur={(e) => onUpdateLabelEn(row.mechanicGroupJa, e.target.value)}
+                      className="w-full px-1 py-0.5 text-app-base bg-transparent border border-app-text/10 rounded text-app-text placeholder-app-text-muted/40 focus:border-app-text/30 focus:outline-none"
+                    />
                   </td>
                 </tr>
               );

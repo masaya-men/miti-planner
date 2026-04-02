@@ -266,6 +266,8 @@
         "header_phase": "PHASE",
         "header_phase_short": "Ph",
         "header_time": "TIME",
+        "header_gimmick": "LABEL",
+        "header_gimmick_short": "Lb",
         "header_mechanic": "MECHANIC",
         "header_raw": "RAW DAMAGE",
         "header_raw_short": "Raw",
@@ -292,6 +294,8 @@
         "nav_mechanic_jump": "Jump to mechanic",
         "nav_mechanic_count": "×{{count}}",
         "nav_no_phases": "No phases",
+        "nav_label_jump": "Jump to label",
+        "nav_no_labels": "No labels",
         "nav_no_results": "No results",
         "end_phase": "Add phase name up to here",
         "add_event": "Add Mechanic"
@@ -760,6 +764,15 @@
         "title": "Add Phase",
         "name_label": "Phase Name",
         "placeholder": "Enter phase name...",
+        "add_button": "Add"
+    },
+    "label_modal": {
+        "title": "Add Label",
+        "edit_title": "Edit Label",
+        "name_ja_label": "Label Name (Japanese)",
+        "name_en_label": "Label Name (English)",
+        "placeholder_ja": "e.g. Opener",
+        "placeholder_en": "e.g. Opener",
         "add_button": "Add"
     },
     "mechanic_modal": {

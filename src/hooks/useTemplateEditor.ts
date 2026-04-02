@@ -197,11 +197,11 @@ export function useTemplateEditor() {
 
   // ギミックグループのフェーズを変更
   const updatePhaseForGroup = useCallback(
-    (mechanicGroup: string, phaseId: number, phaseName: string) => {
+    (mechanicGroupJa: string, phaseId: number, phaseName: string) => {
       setState((prev) => {
         // このギミックグループの最初のイベントの時刻を取得
         const firstEvent = prev.current.find(
-          (ev) => ev.mechanicGroup === mechanicGroup && !prev.deleted.has(ev.id),
+          (ev) => ev.mechanicGroup?.ja === mechanicGroupJa && !prev.deleted.has(ev.id),
         );
         if (!firstEvent) return prev;
 
@@ -220,6 +220,27 @@ export function useTemplateEditor() {
         }
 
         return { ...prev, currentPhases: newPhases, modified: new Set([...prev.modified, '__phases__']) };
+      });
+    },
+    [],
+  );
+
+  // ラベル英語名を更新
+  const updateLabelEn = useCallback(
+    (mechanicGroupJa: string, enValue: string) => {
+      setState((prev) => {
+        const updated = prev.current.map((ev) => {
+          if (ev.mechanicGroup?.ja === mechanicGroupJa && !prev.deleted.has(ev.id)) {
+            return { ...ev, mechanicGroup: { ...ev.mechanicGroup, en: enValue } };
+          }
+          return ev;
+        });
+        // modified に該当イベントIDを追加
+        const modifiedIds = new Set(prev.modified);
+        updated.forEach((ev, i) => {
+          if (ev !== prev.current[i]) modifiedIds.add(ev.id);
+        });
+        return { ...prev, current: updated, modified: modifiedIds };
       });
     },
     [],
@@ -246,6 +267,7 @@ export function useTemplateEditor() {
     replaceAll,
     getSaveData,
     updatePhaseForGroup,
+    updateLabelEn,
     autoPropagate,
     setAutoPropagate,
   };
