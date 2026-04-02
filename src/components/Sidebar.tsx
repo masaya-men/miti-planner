@@ -665,7 +665,7 @@ const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
                             onSelectContent={onSelectContent}
                             lang={lang}
                             highlightFirst={highlightFirst}
-                            showLabel={seriesList.length > 1}
+                            showLabel={seriesList.length > 1 || category === 'ultimate'}
                             defaultExpanded={idx === 0}
                         />
                     ))}
