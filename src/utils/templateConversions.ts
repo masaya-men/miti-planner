@@ -227,7 +227,7 @@ export function convertCsvToEvents(
     };
 
     if (currentMechanicGroup) {
-      event.mechanicGroup = currentMechanicGroup;
+      event.mechanicGroup = { ja: currentMechanicGroup, en: '' };
     }
 
     if (damageAmount !== undefined && !isNaN(damageAmount)) {

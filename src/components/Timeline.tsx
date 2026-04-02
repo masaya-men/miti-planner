@@ -33,6 +33,8 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
 import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
+import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
+import { LabelModal } from './LabelModal';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 
@@ -565,6 +567,9 @@ const Timeline: React.FC = () => {
     const addPhase = useMitigationStore(s => s.addPhase);
     const updatePhase = useMitigationStore(s => s.updatePhase);
     const removePhase = useMitigationStore(s => s.removePhase);
+    const setLabelFromTime = useMitigationStore(s => s.setLabelFromTime);
+    const updateLabelSection = useMitigationStore(s => s.updateLabelSection);
+    const removeLabelSection = useMitigationStore(s => s.removeLabelSection);
     const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
 
@@ -578,6 +583,11 @@ const Timeline: React.FC = () => {
     const [selectedPhase, setSelectedPhase] = useState<{ id: string, name: string } | null>(null);
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
+
+    const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+    const [selectedLabel, setSelectedLabel] = useState<{ startTime: number; label: { ja: string; en: string } } | null>(null);
+    const [labelModalTime, setLabelModalTime] = useState<number>(0);
+    const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
 
     const [mobileMitiFlow, setMobileMitiFlow] = useState<{
         isOpen: boolean;
@@ -597,12 +607,14 @@ const Timeline: React.FC = () => {
 
     // ヘッダーナビゲーション
     const [phaseDropdownOpen, setPhaseDropdownOpen] = useState(false);
+    const [gimmickDropdownOpen, setGimmickDropdownOpen] = useState(false);
     const [timeInputOpen, setTimeInputOpen] = useState(false);
     const [mechanicSearchOpen, setMechanicSearchOpen] = useState(false);
     const [phaseColumnCollapsed, setPhaseColumnCollapsed] = useState(() => {
         try { return localStorage.getItem('lopo-phase-col-collapsed') === 'true'; } catch { return false; }
     });
     const phaseHeaderRef = useRef<HTMLDivElement>(null);
+    const gimmickHeaderRef = useRef<HTMLDivElement>(null);
     const timeHeaderRef = useRef<HTMLDivElement>(null);
     const mechanicHeaderRef = useRef<HTMLDivElement>(null);
 
@@ -903,6 +915,37 @@ const Timeline: React.FC = () => {
         if (selectedPhase) {
             removePhase(selectedPhase.id);
             setIsPhaseModalOpen(false);
+        }
+    };
+
+    // ラベル追加・編集・削除
+    const handleLabelAdd = useCallback((time: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setLabelModalPosition({ x: e.clientX, y: e.clientY });
+        setLabelModalTime(time);
+        setSelectedLabel(null);
+        setIsLabelModalOpen(true);
+    }, []);
+
+    const handleLabelEdit = (startTime: number, label: { ja: string; en: string }, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setLabelModalPosition({ x: e.clientX, y: e.clientY });
+        setSelectedLabel({ startTime, label });
+        setIsLabelModalOpen(true);
+    };
+
+    const handleLabelSave = (label: { ja: string; en: string }) => {
+        if (selectedLabel) {
+            updateLabelSection(selectedLabel.startTime, label);
+        } else {
+            setLabelFromTime(labelModalTime, label);
+        }
+    };
+
+    const handleLabelDelete = () => {
+        if (selectedLabel) {
+            removeLabelSection(selectedLabel.startTime);
+            setIsLabelModalOpen(false);
         }
     };
 
@@ -1656,32 +1699,64 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {!phaseColumnCollapsed ? (
-                                <div
-                                    ref={phaseHeaderRef}
-                                    className="w-[24px] min-w-[24px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors"
-                                    onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
-                                >
-                                    <span className="md:hidden">{t('timeline.header_phase_short')}</span>
-                                    <span className="hidden md:inline md:items-center md:gap-1">
-                                        {t('timeline.header_phase')}
-                                        <ChevronDown size={12} className="inline ml-0.5" />
-                                    </span>
-                                </div>
-                            ) : (
-                                <Tooltip content={t('timeline.nav_phase_expand')}>
-                                    <div
-                                        ref={phaseHeaderRef}
-                                        className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
-                                        onClick={() => handleTogglePhaseCollapse()}
-                                    >
-                                        <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
-                                    </div>
-                                </Tooltip>
-                            )}
+                            {/* モバイル: フェーズなし → ラベルをフェーズ位置に表示 */}
+                            {(() => {
+                                const hasPhases = phases.length > 0;
+                                const mobileLabelInPhaseSlot = !hasPhases;
+                                return (
+                                    <>
+                                        {!phaseColumnCollapsed ? (
+                                            <div
+                                                ref={phaseHeaderRef}
+                                                className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
+                                                onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
+                                            >
+                                                <span className="md:hidden">{t('timeline.header_phase_short')}</span>
+                                                <span className="hidden md:inline md:items-center md:gap-1">
+                                                    {t('timeline.header_phase')}
+                                                    <ChevronDown size={12} className="inline ml-0.5" />
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <Tooltip content={t('timeline.nav_phase_expand')}>
+                                                <div
+                                                    ref={phaseHeaderRef}
+                                                    className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                                    onClick={() => handleTogglePhaseCollapse()}
+                                                >
+                                                    <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
+                                                </div>
+                                            </Tooltip>
+                                        )}
+                                        {/* モバイル: フェーズなし → ラベルヘッダーをフェーズ位置に */}
+                                        {mobileLabelInPhaseSlot && !phaseColumnCollapsed && (
+                                            <div
+                                                ref={gimmickHeaderRef}
+                                                className="w-[24px] min-w-[24px] md:hidden flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black text-app-xs"
+                                                onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
+                                            >
+                                                {t('timeline.header_gimmick_short')}
+                                            </div>
+                                        )}
+                                        {/* PC: ラベル列ヘッダー */}
+                                        {!phaseColumnCollapsed && (
+                                            <div
+                                                ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
+                                                className="hidden md:flex w-[50px] min-w-[50px] max-w-[50px] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
+                                                onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
+                                            >
+                                                <span className="flex items-center gap-0.5">
+                                                    {t('timeline.header_gimmick')}
+                                                    <ChevronDown size={10} className="inline" />
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                );
+                            })()}
                             <div
                                 ref={timeHeaderRef}
-                                className="w-[36px] min-w-[36px] md:w-[70px] md:min-w-[70px] md:max-w-[70px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
+                                className="w-[36px] min-w-[36px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
                                 onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
                             >
                                 <span className="md:hidden">{t('timeline.header_time')}</span>
@@ -1836,6 +1911,8 @@ const Timeline: React.FC = () => {
                                             partyMembers={sortedPartyMembers}
                                             activeMitigations={activeMitigationsForRow} // 👈 Added prop
                                             onPhaseAdd={handlePhaseAdd}
+                                            onLabelAdd={handleLabelAdd}
+                                            hasPhases={phases.length > 0}
                                             onAddEventClick={handleAddClick}
                                             onEventClick={handleEventClick}
                                             onCellClick={handleCellClick}
@@ -1854,6 +1931,7 @@ const Timeline: React.FC = () => {
                                     <>
                                         {renderItems}
 
+                                        {/* フェーズオーバーレイ */}
                                         {!phaseColumnCollapsed && phases.map((phase, index) => {
                                             if (!showPreStart && phase.endTime <= 0) return null;
 
@@ -1873,7 +1951,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[30px] md:w-[100px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
+                                                    className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                     onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
                                                 >
@@ -1881,11 +1959,11 @@ const Timeline: React.FC = () => {
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
                                                                 {/* PC: 2行表示 */}
-                                                                <span className="hidden md:block whitespace-nowrap text-app-2xl font-bold text-app-text leading-none">
+                                                                <span className="hidden md:block whitespace-nowrap text-app-xl font-bold text-app-text leading-none">
                                                                     {phase.name.split('\n')[0]}
                                                                 </span>
                                                                 {phase.name.split('\n')[1] && (
-                                                                    <span className="hidden md:block whitespace-nowrap text-app-base font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
+                                                                    <span className="hidden md:block whitespace-nowrap text-app-sm font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
                                                                         {phase.name.split('\n')[1]}
                                                                     </span>
                                                                 )}
@@ -1899,6 +1977,93 @@ const Timeline: React.FC = () => {
                                                 </div>
                                             );
                                         })}
+
+                                        {/* ギミック区間オーバーレイ（PC only） */}
+                                        {!phaseColumnCollapsed && (() => {
+                                            const offsetTime = showPreStart ? -10 : 0;
+                                            const allSorted = [...timelineEvents].sort((a, b) => a.time - b.time);
+                                            if (!allSorted.some(e => e.mechanicGroup)) return null;
+
+                                            // フェーズ境界の時刻リストを作成
+                                            const phaseBoundaries = phases.map(p => p.endTime);
+
+                                            const groups: { ja: string; en: string; startTime: number; endTime: number }[] = [];
+                                            let currentGroupJa: string | null = null;
+                                            let currentGroupEn = '';
+                                            let groupStart = 0;
+
+                                            const flushGroup = (endTime: number) => {
+                                                if (currentGroupJa) {
+                                                    groups.push({ ja: currentGroupJa, en: currentGroupEn, startTime: groupStart, endTime });
+                                                }
+                                                currentGroupJa = null;
+                                                currentGroupEn = '';
+                                            };
+
+                                            allSorted.forEach((ev, i) => {
+                                                // フェーズ境界を超えたらグループを閉じる
+                                                for (const boundary of phaseBoundaries) {
+                                                    if (groupStart < boundary && ev.time >= boundary) {
+                                                        flushGroup(boundary);
+                                                        break;
+                                                    }
+                                                }
+
+                                                const mgJa = ev.mechanicGroup?.ja || '';
+                                                if (mgJa !== (currentGroupJa || '')) {
+                                                    flushGroup(ev.time);
+                                                    if (mgJa) {
+                                                        currentGroupJa = mgJa;
+                                                        currentGroupEn = ev.mechanicGroup?.en || '';
+                                                        groupStart = ev.time;
+                                                    }
+                                                }
+                                                // 最後のイベント
+                                                if (i === allSorted.length - 1) {
+                                                    flushGroup(ev.time + 1);
+                                                }
+                                            });
+
+                                            return groups.map((group, gi) => {
+                                                const effectiveStart = Math.max(group.startTime, offsetTime);
+                                                const effectiveEnd = Math.max(group.endTime, offsetTime);
+                                                if (!showPreStart && effectiveEnd <= 0) return null;
+
+                                                const startY = timeToYMap.get(effectiveStart) ?? (Math.max(0, effectiveStart - offsetTime) * pixelsPerSecond);
+                                                const endY = timeToYMap.get(effectiveEnd) ?? (Math.max(0, effectiveEnd - offsetTime) * pixelsPerSecond);
+                                                const top = startY;
+                                                const height = Math.max(0, endY - startY);
+                                                if (height <= 0) return null;
+
+                                                const label = contentLanguage === 'en' && group.en ? group.en : group.ja;
+
+                                                const hasPhases = phases.length > 0;
+                                                return (
+                                                    <div
+                                                        key={`gimmick-${gi}`}
+                                                        className={clsx(
+                                                            "absolute border-r border-b border-app-border/50 bg-app-surface2/50 pointer-events-auto z-10 cursor-pointer hover:bg-app-surface2/80",
+                                                            hasPhases
+                                                                ? "hidden md:block left-[60px] w-[50px]"
+                                                                : "left-0 w-[24px] md:left-[60px] md:w-[50px]"
+                                                        )}
+                                                        style={{ top: `${top}px`, height: `${height}px` }}
+                                                        onClick={(e) => handleLabelEdit(group.startTime, { ja: group.ja, en: group.en }, e)}
+                                                    >
+                                                        <div className="sticky top-0 w-full h-[100px] flex items-center justify-center pt-4">
+                                                            <div className="transform -rotate-90 overflow-visible drop-shadow-sm origin-center">
+                                                                <span className={clsx(
+                                                                    "whitespace-nowrap font-medium text-app-text leading-none",
+                                                                    hasPhases ? "text-app-base" : "text-app-xs md:text-app-base"
+                                                                )}>
+                                                                    {label}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
 
                                         {(() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
@@ -2156,6 +2321,15 @@ const Timeline: React.FC = () => {
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
                 position={phaseModalPosition}
             />
+            <LabelModal
+                isOpen={isLabelModalOpen}
+                isEdit={!!selectedLabel}
+                initialLabel={selectedLabel?.label || { ja: '', en: '' }}
+                onClose={() => setIsLabelModalOpen(false)}
+                onSave={handleLabelSave}
+                onDelete={selectedLabel ? handleLabelDelete : undefined}
+                position={labelModalPosition}
+            />
             <HeaderPhaseDropdown
                 isOpen={phaseDropdownOpen}
                 onClose={() => setPhaseDropdownOpen(false)}
@@ -2164,6 +2338,14 @@ const Timeline: React.FC = () => {
                 isCollapsed={phaseColumnCollapsed}
                 onToggleCollapse={handleTogglePhaseCollapse}
                 triggerRef={phaseHeaderRef}
+            />
+            <HeaderGimmickDropdown
+                isOpen={gimmickDropdownOpen}
+                onClose={() => setGimmickDropdownOpen(false)}
+                events={timelineEvents}
+                phases={phases}
+                onJump={handleNavJump}
+                triggerRef={gimmickHeaderRef}
             />
             <HeaderTimeInput
                 isOpen={timeInputOpen}

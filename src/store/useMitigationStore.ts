@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData } from '../types';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData, LocalizedString } from '../types';
+import { normalizeLocalizedString } from '../types';
+
+/** Firestore旧データ(mechanicGroup: string)をLocalizedStringに正規化 */
+const normalizeEvents = (events: TimelineEvent[]): TimelineEvent[] =>
+    events.map(e => e.mechanicGroup ? { ...e, mechanicGroup: normalizeLocalizedString(e.mechanicGroup as any) } : e);
 import { calculateMemberValues } from '../utils/calculator';
 import {
   getJobsFromStore,
@@ -72,6 +77,12 @@ interface MitigationState {
     addPhase: (endTime: number, name?: string) => void;
     updatePhase: (id: string, name: string) => void;
     removePhase: (id: string) => void;
+    /** ラベル（mechanicGroup）を指定時刻から次の境界まで設定 */
+    setLabelFromTime: (time: number, label: LocalizedString) => void;
+    /** 指定時刻のラベルセクションを更新 */
+    updateLabelSection: (sectionStartTime: number, label: LocalizedString) => void;
+    /** 指定時刻のラベルセクションを削除 */
+    removeLabelSection: (sectionStartTime: number) => void;
     addMitigation: (mitigation: AppliedMitigation) => void;
     removeMitigation: (id: string) => void;
     updateMitigationTime: (id: string, newTime: number) => void;
@@ -221,7 +232,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                     set({
                         currentLevel: snapshot.currentLevel,
-                        timelineEvents: snapshot.timelineEvents,
+                        timelineEvents: normalizeEvents(snapshot.timelineEvents),
                         timelineMitigations: snapshot.timelineMitigations,
                         phases: snapshot.phases,
                         partyMembers: membersWithComputed,
@@ -374,7 +385,7 @@ export const useMitigationStore = create<MitigationState>()(
                 importTimelineEvents: (events) => {
                     pushHistory();
                     set({
-                        timelineEvents: [...events].sort((a, b) => a.time - b.time),
+                        timelineEvents: normalizeEvents([...events]).sort((a, b) => a.time - b.time),
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
                     });
                     // Tutorial: notify that timeline content has been loaded
@@ -424,6 +435,102 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         phases: state.phases.filter(p => p.id !== id)
                     }));
+                },
+
+                setLabelFromTime: (time, label) => {
+                    pushHistory();
+                    set((state) => {
+                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
+                        // フェーズ開始時刻を算出（クリック地点が属するフェーズの先頭）
+                        const phaseBoundaries = state.phases.map(p => p.endTime).sort((a, b) => a - b);
+                        // このtimeより前のフェーズ境界 = フェーズ開始
+                        const phaseStart = [...phaseBoundaries].reverse().find(t => t <= time) ?? 0;
+
+                        // 下から遡って最初に別ラベルに当たったらそこで止める
+                        const eventsInRange = sorted.filter(ev => ev.time >= phaseStart && ev.time <= time);
+                        let stopTime = phaseStart;
+                        for (let i = eventsInRange.length - 1; i >= 0; i--) {
+                            const ev = eventsInRange[i];
+                            if (ev.mechanicGroup?.ja && ev.mechanicGroup.ja !== label.ja) {
+                                stopTime = ev.time + 1; // この時刻のイベントは含めない
+                                break;
+                            }
+                        }
+
+                        const finalUpdated = sorted.map(ev => {
+                            if (ev.time > time) return ev;
+                            if (ev.time < stopTime) return ev;
+                            return { ...ev, mechanicGroup: label };
+                        });
+                        return { timelineEvents: finalUpdated };
+                    });
+                },
+
+                updateLabelSection: (sectionStartTime, label) => {
+                    pushHistory();
+                    set((state) => {
+                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
+                        // セクションの元ラベルを取得
+                        const origin = sorted.find(ev => ev.time >= sectionStartTime && ev.mechanicGroup?.ja);
+                        if (!origin?.mechanicGroup) return {};
+                        const oldJa = origin.mechanicGroup.ja;
+
+                        const phaseEnd = state.phases
+                            .map(p => p.endTime)
+                            .sort((a, b) => a - b)
+                            .find(t => t > sectionStartTime) ?? Infinity;
+
+                        let inSection = false;
+                        const updated = sorted.map(ev => {
+                            if (ev.time >= phaseEnd) { inSection = false; return ev; }
+                            if (ev.mechanicGroup?.ja === oldJa && ev.time >= sectionStartTime) {
+                                inSection = true;
+                                return { ...ev, mechanicGroup: label };
+                            }
+                            if (inSection && !ev.mechanicGroup?.ja) {
+                                return { ...ev, mechanicGroup: label };
+                            }
+                            if (inSection && ev.mechanicGroup?.ja !== oldJa) {
+                                inSection = false;
+                            }
+                            return ev;
+                        });
+                        return { timelineEvents: updated };
+                    });
+                },
+
+                removeLabelSection: (sectionStartTime) => {
+                    pushHistory();
+                    set((state) => {
+                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
+                        const origin = sorted.find(ev => ev.time >= sectionStartTime && ev.mechanicGroup?.ja);
+                        if (!origin?.mechanicGroup) return {};
+                        const oldJa = origin.mechanicGroup.ja;
+
+                        const phaseEnd = state.phases
+                            .map(p => p.endTime)
+                            .sort((a, b) => a - b)
+                            .find(t => t > sectionStartTime) ?? Infinity;
+
+                        let inSection = false;
+                        const updated = sorted.map(ev => {
+                            if (ev.time >= phaseEnd) { inSection = false; return ev; }
+                            if (ev.mechanicGroup?.ja === oldJa && ev.time >= sectionStartTime) {
+                                inSection = true;
+                                const { mechanicGroup, ...rest } = ev;
+                                return rest as TimelineEvent;
+                            }
+                            if (inSection && !ev.mechanicGroup?.ja) {
+                                const { mechanicGroup, ...rest } = ev;
+                                return rest as TimelineEvent;
+                            }
+                            if (inSection && ev.mechanicGroup?.ja !== oldJa) {
+                                inSection = false;
+                            }
+                            return ev;
+                        });
+                        return { timelineEvents: updated };
+                    });
                 },
 
                 addMitigation: (mitigation) => {
@@ -791,7 +898,7 @@ export const useMitigationStore = create<MitigationState>()(
                         computedValues: calculateMemberValues(m, currentLevel)
                     }));
                     set({
-                        timelineEvents: snapshot.timelineEvents,
+                        timelineEvents: normalizeEvents(snapshot.timelineEvents),
                         timelineMitigations: snapshot.timelineMitigations,
                         phases: snapshot.phases,
                         partyMembers: membersWithComputed,

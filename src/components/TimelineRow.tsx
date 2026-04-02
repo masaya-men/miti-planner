@@ -31,7 +31,9 @@ interface TimelineRowProps {
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
     onDamageClick?: (time: number, e: React.MouseEvent) => void;
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
+    onLabelAdd?: (time: number, e: React.MouseEvent) => void;
     phaseColumnCollapsed?: boolean;
+    hasPhases?: boolean;
 }
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
@@ -96,7 +98,9 @@ export const TimelineRow = memo(({
     onCellClick,
     onDamageClick,
     onMobileDamageClick,
+    onLabelAdd,
     phaseColumnCollapsed,
+    hasPhases = true,
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -138,13 +142,14 @@ export const TimelineRow = memo(({
             )}
             style={{ top: `${top}px` }}
         >
-            {/* Phase Column — スマホ: 軽減追加 / PC: フェーズ追加 */}
+            {/* Phase Column — スマホ: フェーズなし→非表示 / PC: フェーズ追加 */}
             {!phaseColumnCollapsed ? (
                 <div
                     className={clsx(
-                        "w-[24px] md:w-[100px] border-r h-full relative flex items-center justify-center group-hover:text-app-text",
+                        "md:w-[60px] border-r h-full relative items-center justify-center group-hover:text-app-text",
                         "border-app-border",
-                        "md:cursor-pointer md:hover:bg-app-surface2"
+                        "md:cursor-pointer md:hover:bg-app-surface2",
+                        hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex"
                     )}
                     onClick={(e) => {
                         if (window.innerWidth < 768) {
@@ -164,16 +169,37 @@ export const TimelineRow = memo(({
                 <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
             )}
 
+            {/* Label Column — スマホ: フェーズなし→フェーズ位置に表示 / PC: 常に表示 */}
+            {!phaseColumnCollapsed && (
+                <div
+                    className={clsx(
+                        "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
+                        hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]"
+                    )}
+                    onClick={(e) => {
+                        if (window.innerWidth < 768) {
+                            handleMobileTap(e);
+                        } else {
+                            onLabelAdd?.(time, e);
+                        }
+                    }}
+                >
+                    <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Plus size={14} />
+                    </div>
+                </div>
+            )}
+
             {/* Time Column — スマホ: 軽減追加 */}
             <div
                 className={clsx(
-                    "w-[36px] md:w-[70px] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
+                    "w-[36px] md:w-[60px] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
                     "border-app-border text-app-text-sec hover:bg-app-surface2"
                 )}
                 onClick={handleMobileTap}
             >
                 {formattedTime}
-            </div >
+            </div>
 
             {/* Event Column */}
             <div className={clsx(

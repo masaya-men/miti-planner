@@ -270,6 +270,8 @@
         "header_phase": "フェーズ",
         "header_phase_short": "Ph",
         "header_time": "時間",
+        "header_gimmick": "ラベル",
+        "header_gimmick_short": "Lb",
         "header_mechanic": "敵の攻撃",
         "header_raw": "元のダメージ",
         "header_raw_short": "Raw",
@@ -296,6 +298,8 @@
         "nav_mechanic_jump": "攻撃にジャンプ",
         "nav_mechanic_count": "×{{count}}",
         "nav_no_phases": "フェーズなし",
+        "nav_label_jump": "ラベルにジャンプ",
+        "nav_no_labels": "ラベルなし",
         "nav_no_results": "該当なし",
         "end_phase": "ここまでのフェーズ名を追加",
         "add_event": "敵の攻撃を追加"
@@ -764,6 +768,15 @@
         "title": "フェーズを追加",
         "name_label": "フェーズ名",
         "placeholder": "フェーズ名を入力してください",
+        "add_button": "追加"
+    },
+    "label_modal": {
+        "title": "ラベルを追加",
+        "edit_title": "ラベルを編集",
+        "name_ja_label": "ラベル名（日本語）",
+        "name_en_label": "ラベル名（英語）",
+        "placeholder_ja": "例: 開幕",
+        "placeholder_en": "例: Opener",
         "add_button": "追加"
     },
     "mechanic_modal": {
