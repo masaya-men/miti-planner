@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
+import type { ContentLanguage } from '../store/useThemeStore';
 import { SKILL_DATA, calculateHpValue, calculatePotencyValue, calculateCriticalValue } from '../utils/calculator';
 import { useLevelModifiers } from '../hooks/useSkillsData';
 import { Shield, X } from 'lucide-react';
@@ -327,7 +328,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
     );
 };
 
-const SkillPreviewItem: React.FC<{ item: { key: string; value: number; iconUrl: string | null; nameJa: string; nameEn: string }; contentLanguage: 'ja' | 'en' }> = ({ item, contentLanguage }) => {
+const SkillPreviewItem: React.FC<{ item: { key: string; value: number; iconUrl: string | null; nameJa: string; nameEn: string }; contentLanguage: ContentLanguage }> = ({ item, contentLanguage }) => {
     const displayName = contentLanguage === 'en' ? item.nameEn : item.nameJa;
     return (
         <div className="flex flex-col items-center justify-center bg-glass-card hover:bg-glass-hover border border-glass-border rounded-lg p-1.5 transition-colors gap-1 min-w-0">
