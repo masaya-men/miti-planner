@@ -1316,7 +1316,7 @@
         "backup_button": "Backup",
         "restore_button": "Restore",
         "export_title": "Backup Mitigation Plans",
-        "export_description": "Copy the text below or download the file and keep it in a safe place. Pasting it into a notepad or spreadsheet is recommended.",
+        "export_description": "Download the file and keep it in a safe place. You can also copy the text and paste it into a notepad.",
         "export_syncing": "Syncing data...",
         "export_plan_count": "{{count}} plan(s)",
         "copy_button": "Copy",

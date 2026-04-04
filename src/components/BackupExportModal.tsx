@@ -74,9 +74,9 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const date = new Date().toISOString().slice(0, 10);
-    downloadBackupFile(json, `lopo-backup-${date}.json`);
+    await downloadBackupFile(json, `lopo-backup-${date}.json`);
     showToast(t('backup.download_success'));
   };
 

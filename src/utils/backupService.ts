@@ -11,7 +11,7 @@ export interface BackupData {
 }
 
 /**
- * SavedPlan[] からバックアップJSON文字列を生成
+ * SavedPlan[] からバックアップJSON文字列を生成（整形なし=コンパクト）
  */
 export function createBackupJson(plans: SavedPlan[]): string {
   const data: BackupData = {
@@ -20,7 +20,7 @@ export function createBackupJson(plans: SavedPlan[]): string {
     planCount: plans.length,
     plans,
   };
-  return JSON.stringify(data, null, 2);
+  return JSON.stringify(data);
 }
 
 /**
@@ -86,14 +86,49 @@ export function mergePlans(
 }
 
 /**
- * JSONファイルをダウンロードする
+ * JSON文字列をgzip圧縮してダウンロードする
  */
-export function downloadBackupFile(json: string, filename: string): void {
-  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+export async function downloadBackupFile(json: string, filename: string): Promise<void> {
+  const encoder = new TextEncoder();
+  const inputStream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(json));
+      controller.close();
+    },
+  });
+  const compressedStream = inputStream.pipeThrough(new CompressionStream('gzip'));
+  const reader = compressedStream.getReader();
+  const chunks: Uint8Array[] = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const blob = new Blob(chunks as BlobPart[], { type: 'application/gzip' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = filename + '.gz';
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * ファイルを読み込んでJSON文字列を返す。
+ * .gz ファイルはgzip解凍、それ以外はそのままテキストとして読む。
+ */
+export async function readBackupFile(file: File): Promise<string> {
+  if (file.name.endsWith('.gz')) {
+    const decompressedStream = file.stream().pipeThrough(new DecompressionStream('gzip'));
+    const reader = decompressedStream.getReader();
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const decoder = new TextDecoder();
+    return chunks.map((c) => decoder.decode(c, { stream: true })).join('') + decoder.decode();
+  }
+  return file.text();
 }
