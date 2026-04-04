@@ -251,12 +251,18 @@ export const usePlanStore = create<PlanState>()(
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
-                // クールダウン: 自動同期（デバウンス後）のみ適用
-                // force=true（タブ切替・ページ離脱）ではスキップ
+                // クールダウン判定
+                // force=true（タブ切替・ページ離脱）→ 常にスキップ
+                // 初回push（前回sync以降に新しい編集がある）→ スキップ
+                // それ以外 → 5分クールダウン適用
                 if (!force) {
                     const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
                     const now = Date.now();
-                    if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
+                    const hasNewEdits = [...state._dirtyPlanIds].some(id => {
+                        const plan = state.plans.find(p => p.id === id);
+                        return plan && plan.updatedAt > state._lastSyncAt;
+                    });
+                    if (!hasNewEdits && state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
                 }
 
                 // 同期開始時点のdirty/deletedをスナップショット（同期中に追加された分を保持するため）
@@ -275,8 +281,8 @@ export const usePlanStore = create<PlanState>()(
                         }
                     }
 
-                    // dirtyプランの同期（リモート削除検出付き）
-                    const deletedRemotely = await planService.syncDirtyPlans(
+                    // dirtyプランの同期（リモート削除検出・競合検出付き）
+                    const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
                         syncingDirtyIds,
                         state.plans,
                         uid,
@@ -291,6 +297,23 @@ export const usePlanStore = create<PlanState>()(
                         const { showToast } = await import('../components/Toast');
                         const i18next = (await import('i18next')).default;
                         showToast(i18next.t('app.plan_deleted_remotely'));
+                    }
+
+                    // 競合が発生したプランをコピーとして保存
+                    if (conflicted.length > 0) {
+                        for (const plan of conflicted) {
+                            const copyPlan: SavedPlan = {
+                                ...structuredClone(plan),
+                                id: `plan_${Date.now()}_conflict`,
+                                title: `${plan.title} (競合コピー)`,
+                                createdAt: Date.now(),
+                                updatedAt: Date.now(),
+                            };
+                            get().addPlan(copyPlan);
+                        }
+                        const { showToast } = await import('../components/Toast');
+                        const i18next = (await import('i18next')).default;
+                        showToast(i18next.t('app.plan_conflict_detected'));
                     }
 
                     // 同期完了 → 同期した分のみをdirty/deletedから除去（同期中に追加された分は残す）
@@ -333,13 +356,14 @@ export const usePlanStore = create<PlanState>()(
                         }
                     }
                     // dirtyプランのみ同期（盲目的に全プランをpushしない）
+                    // ログアウト時なので競合コピーは作らない（次回ログイン時にmigrateOnLoginが処理）
                     if (state._dirtyPlanIds.size > 0) {
                         await planService.syncDirtyPlans(
                             state._dirtyPlanIds,
                             state.plans,
                             uid,
                             displayName,
-                        );
+                        ).catch(err => console.error('Firestore強制同期エラー:', err));
                     }
                 };
 
@@ -428,12 +452,32 @@ export const usePlanStore = create<PlanState>()(
                                 console.error('手動同期: 削除エラー:', planId, err);
                             }
                         }
-                        await planService.syncDirtyPlans(
+                        const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
                             pushState._dirtyPlanIds,
                             pushState.plans,
                             uid,
                             displayName,
                         );
+                        // 競合コピー保存
+                        if (conflicted.length > 0) {
+                            for (const plan of conflicted) {
+                                const copyPlan: SavedPlan = {
+                                    ...structuredClone(plan),
+                                    id: `plan_${Date.now()}_conflict`,
+                                    title: `${plan.title} (競合コピー)`,
+                                    createdAt: Date.now(),
+                                    updatedAt: Date.now(),
+                                };
+                                get().addPlan(copyPlan);
+                            }
+                            const { showToast } = await import('../components/Toast');
+                            const i18next = (await import('i18next')).default;
+                            showToast(i18next.t('app.plan_conflict_detected'));
+                        }
+                        // リモート削除
+                        for (const planId of deletedRemotely) {
+                            get().deletePlan(planId);
+                        }
                         set({
                             _dirtyPlanIds: new Set<string>(),
                             _deletedPlanIds: new Set<string>(),

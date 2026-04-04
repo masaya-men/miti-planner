@@ -29,6 +29,7 @@
         "link_copied": "링크가 복사되었습니다",
         "share_failed": "공유 링크 생성에 실패했습니다",
         "plan_deleted_remotely": "동기화됨: 다른 기기에서 테이블이 삭제되었습니다",
+        "plan_conflict_detected": "다른 기기에서 변경 사항이 감지되었습니다. 두 버전이 모두 저장되었습니다.",
         "share_modal_title": "공유",
         "share_bundle_title": "선택 항목 공유",
         "share_on_x": "공유",

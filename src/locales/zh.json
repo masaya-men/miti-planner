@@ -29,6 +29,7 @@
         "link_copied": "链接已复制",
         "share_failed": "生成分享链接失败",
         "plan_deleted_remotely": "已同步：一张表格在其他设备上被删除",
+        "plan_conflict_detected": "在其他设备上检测到更改。两个版本均已保存。",
         "share_modal_title": "分享",
         "share_bundle_title": "分享所选",
         "share_on_x": "分享",
