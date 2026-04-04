@@ -23,6 +23,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [showCropModal, setShowCropModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     if (!user) return null;
 
@@ -74,6 +75,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
             onComplete?.();
         } catch (err) {
             console.error('[WelcomeSetup] 登録エラー:', err);
+            setError(String(err));
         } finally {
             setIsSubmitting(false);
         }
@@ -175,6 +177,11 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                 >
                     {isSubmitting ? '...' : t('welcome.start_button')}
                 </button>
+
+                {/* エラー表示 */}
+                {error && (
+                    <p className="text-app-base text-red-400 text-center break-all">{error}</p>
+                )}
 
                 {/* ヒント */}
                 <p className="text-app-base text-app-text-muted/60 text-center">

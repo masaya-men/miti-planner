@@ -79,9 +79,9 @@
     "welcome": {
         "title": "Welcome to LoPo",
         "subtitle": "Choose your display name",
-        "name_label": "Display Name",
-        "name_placeholder": "Enter your name",
-        "start": "Get Started",
+        "display_name_label": "Display Name",
+        "display_name_placeholder": "Enter your name",
+        "start_button": "Get Started",
         "avatar_hint": "You can set an icon later too"
     },
     "avatar": {
