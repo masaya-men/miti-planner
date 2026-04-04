@@ -141,24 +141,17 @@ export default async function handler(req: any, res: any) {
             return res.status(400).json({ error: 'Failed to fetch Discord user' });
         }
 
-        const discordUser = await userRes.json();
+        // idのみ取り出し、他の個人情報は即破棄
+        const { id: discordUserId } = await userRes.json();
 
         // ステップ5: Firebase カスタムトークン生成
-        const firebaseUid = `discord:${discordUser.id}`;
+        const firebaseUid = `discord:${discordUserId}`;
         const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'discord',
-            discordId: discordUser.id,
-            avatar: discordUser.avatar
-                ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
-                : null,
         });
+        // ↑ discordId, avatar を Custom Claims から削除
 
         // ステップ6: トークンをlocalStorageに保存してアプリにリダイレクト
-        const displayName = discordUser.global_name || discordUser.username;
-        const avatarUrl = discordUser.avatar
-            ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
-            : null;
-
         res.setHeader('Content-Type', 'text/html');
         return res.send(`
             <!DOCTYPE html>
@@ -168,9 +161,7 @@ export default async function handler(req: any, res: any) {
                 <script>
                     localStorage.setItem('lopo_auth_pending', JSON.stringify({
                         provider: 'discord',
-                        token: ${JSON.stringify(customToken)},
-                        displayName: ${JSON.stringify(displayName)},
-                        photoURL: ${JSON.stringify(avatarUrl)}
+                        token: ${JSON.stringify(customToken)}
                     }));
                     var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
                     localStorage.removeItem('lopo_auth_return_url');
