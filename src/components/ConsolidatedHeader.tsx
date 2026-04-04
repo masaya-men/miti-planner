@@ -59,7 +59,6 @@ const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 const SyncButton: React.FC = React.memo(() => {
     const currentPlanId = usePlanStore(s => s.currentPlanId);
     const cloudStatus = usePlanStore(s => s._cloudStatus);
-    const hasDirty = usePlanStore(s => s._dirtyPlanIds.size > 0 || s._deletedPlanIds.size > 0);
     const user = useAuthStore(s => s.user);
 
     if (!currentPlanId || !user) return null;
@@ -84,15 +83,13 @@ const SyncButton: React.FC = React.memo(() => {
 
     if (cloudStatus === 'syncing') {
         Icon = CloudUpload;
-        iconClass = 'text-blue-400';
+        iconClass = 'text-app-text/40';
         animate = 'animate-spin';
     } else if (cloudStatus === 'error') {
         Icon = CloudAlert;
         iconClass = 'text-red-400';
-    } else if (hasDirty) {
-        Icon = CloudUpload;
-        iconClass = 'text-yellow-400 animate-pulse';
-    } else if (cloudStatus === 'synced') {
+    } else {
+        // 同期済み or 未同期 → 常に青チェック（未同期でもデータはlocalStorageに安全）
         Icon = CloudCheck;
         iconClass = 'text-blue-400';
     }

@@ -433,9 +433,10 @@ async function syncDirtyPlans(
   plans: SavedPlan[],
   uid: string,
   displayName: string,
-): Promise<string[]> {
+): Promise<{ deletedRemotely: string[]; conflicted: SavedPlan[] }> {
   const deletedRemotely: string[] = [];
-  if (dirtyPlanIds.size === 0) return deletedRemotely;
+  const conflicted: SavedPlan[] = []; // 競合が発生したローカルプラン
+  if (dirtyPlanIds.size === 0) return { deletedRemotely, conflicted };
 
   const plansToSync = plans.filter((p) => dirtyPlanIds.has(p.id));
 
@@ -446,12 +447,11 @@ async function syncDirtyPlans(
         try {
           const result = await updatePlan(plan, uid);
           if (result === 'skipped_newer_remote') {
-            return; // リモートが新しい → pushせずにスキップ
+            // 競合: リモートの方が新しい → ローカル版を競合コピーとして保存
+            conflicted.push(plan);
+            return;
           }
         } catch {
-          // updateが失敗 → 新規作成を試行
-          // ただし ownerId が uid（以前存在したプラン）の場合は
-          // リモートで削除された可能性をチェック
           if (plan.ownerId === uid) {
             const exists = await checkPlanExists(plan.id);
             if (!exists) {
@@ -465,14 +465,13 @@ async function syncDirtyPlans(
     }),
   );
 
-  // 失敗したプランのエラーをログ出力（1つの失敗が他に影響しない）
   for (const [i, result] of results.entries()) {
     if (result.status === 'rejected') {
       console.error('Firestore同期エラー:', plansToSync[i].id, result.reason);
     }
   }
 
-  return deletedRemotely;
+  return { deletedRemotely, conflicted };
 }
 
 // ========================================
