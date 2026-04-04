@@ -266,6 +266,8 @@ export const MobilePartyWithTabs: React.FC = () => {
 export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
+    const profileDisplayName = useAuthStore(s => s.profileDisplayName);
+    const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const signOut = useAuthStore((s) => s.signOut);
     const deleteAccount = useAuthStore((s) => s.deleteAccount);
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
@@ -295,9 +297,9 @@ export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }
         <div className="flex flex-col gap-4">
             {/* ユーザー情報 */}
             <div className="flex items-center gap-3 px-1">
-                {user.photoURL ? (
+                {profileAvatarUrl ? (
                     <img
-                        src={user.photoURL}
+                        src={profileAvatarUrl}
                         alt=""
                         className="w-10 h-10 rounded-full object-cover border border-app-border"
                         referrerPolicy="no-referrer"
@@ -305,13 +307,13 @@ export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }
                 ) : (
                     <div className="w-10 h-10 rounded-full bg-app-surface2 border border-app-border flex items-center justify-center">
                         <span className="text-app-2xl font-bold text-app-text">
-                            {(user.displayName || '?')[0]}
+                            {(profileDisplayName || '?')[0]}
                         </span>
                     </div>
                 )}
                 <div className="flex-1 min-w-0">
                     <p className="text-app-2xl font-bold text-app-text truncate">
-                        {user.displayName || t('nav.account')}
+                        {profileDisplayName || t('nav.account')}
                     </p>
                 </div>
             </div>

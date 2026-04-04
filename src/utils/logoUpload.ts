@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, storage, db } from '../lib/firebase';
 import { COLLECTIONS } from '../types/firebase';
+import { useAuthStore } from '../store/useAuthStore';
 
 /** ロゴファイルの最大サイズ（2MB） */
 const MAX_SIZE = 2 * 1024 * 1024;
@@ -78,12 +79,13 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
         const user = auth.currentUser;
         const provider = user?.uid.startsWith('discord:') ? 'discord' : 'twitter';
         await setDoc(userRef, {
-            displayName: user?.displayName || 'User',
+            displayName: useAuthStore.getState().profileDisplayName || 'User',
             provider,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             settings: {},
             teamLogoUrl: url,
+            avatarUrl: null,
         });
     }
 }

@@ -22,7 +22,7 @@ const NAV_ITEMS = [
 
 export function AdminLayout() {
   const { t } = useTranslation();
-  const user = useAuthStore((s) => s.user);
+  const profileDisplayName = useAuthStore((s) => s.profileDisplayName);
 
   // タブタイトルを「管理者│LoPo」に設定
   useEffect(() => {
@@ -38,7 +38,7 @@ export function AdminLayout() {
         <div className="p-4 border-b border-app-text/10">
           <div className="text-app-2xl font-bold">LoPo Admin</div>
           <div className="text-app-base text-app-text-muted truncate mt-1">
-            {user?.displayName || 'Admin'}
+            {profileDisplayName || 'Admin'}
           </div>
         </div>
         <div className="flex-1 p-2 flex flex-col gap-0.5">

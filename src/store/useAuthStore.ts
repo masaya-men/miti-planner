@@ -19,6 +19,7 @@ import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
+import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
 
 type AuthProvider = 'discord' | 'twitter';
@@ -155,11 +156,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         const uid = currentUser.uid;
 
-        // ① Firebase Storageのチームロゴを削除
+        // ① Firebase Storageのチームロゴ・アバターを削除
         try {
             await deleteTeamLogo(uid);
         } catch {
             // ロゴが存在しない場合は無視
+        }
+        try {
+            await deleteAvatar(uid);
+        } catch {
+            // アバターが存在しない場合は無視
         }
 
         // ② Firestoreからユーザーデータを全削除（バッチ）
@@ -243,6 +249,8 @@ async function processPendingAuth() {
     try {
         const pending = JSON.parse(pendingRaw);
         await signInWithCustomToken(auth, pending.token);
+        // ログイン成功 → LoginModal自動クローズ用フラグをセット
+        useAuthStore.setState({ justLoggedInUser: { displayName: null, photoURL: null } });
         // リダイレクトフラグ削除
         localStorage.removeItem('lopo_auth_redirecting');
     } catch (err) {
