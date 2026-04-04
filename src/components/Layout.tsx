@@ -212,6 +212,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         };
 
+        /** Firestoreから最新データを取得（ログイン中のみ） */
+        const pullFromCloud = () => {
+            const authState = useAuthStore.getState();
+            if (authState.user) {
+                usePlanStore.getState().pullFromFirestore(
+                    authState.user.uid,
+                ).catch((err) => {
+                    console.error('[LoPo] Firestore PULL エラー:', err);
+                });
+            }
+        };
+
         let localDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
         // useMitigationStoreの変更を監視 → localStorageへ500msデバウンス保存
@@ -237,6 +249,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 if (currentId !== planIdAtChange) return;
                 saveSilently();
                 usePlanStore.getState().setSaveStatus('saved');
+                // クラウド同期も試行（3分クールダウンで自動的に間引かれる）
+                syncToCloud();
             }, 500);
         });
 
@@ -254,13 +268,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         };
 
-        /** タブ切替時: 非表示になったらlocalStorage保存 + Firestore同期 */
+        /** タブ切替時:
+         * 非表示 → localStorage保存 + Firestore PUSH
+         * 再表示 → Firestore PULL（他端末の変更を取得）
+         */
         const onVisibilityChange = () => {
             if (document.hidden) {
                 if (localDebounceTimer) clearTimeout(localDebounceTimer);
                 saveSilently();
                 syncToCloud();
                 usePlanStore.getState().setSaveStatus('saved');
+            } else {
+                // タブ再表示 → PULL（他端末の変更を取得）
+                pullFromCloud();
             }
         };
 
@@ -279,9 +299,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         });
 
-        // 5分ごとの定期バックアップ同期（beforeunload/visibilitychangeが効かないケースの保険）
+        // 5分ごとの定期同期（PUSH + PULL）
         const periodicSyncInterval = setInterval(() => {
             syncToCloud();
+            pullFromCloud();
         }, 5 * 60 * 1000);
 
         return () => {
