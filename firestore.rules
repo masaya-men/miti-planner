@@ -33,7 +33,7 @@ service cloud.firestore {
                     && isValidString(request.resource.data.displayName, 30)
                     && request.resource.data.keys().hasAll(['displayName', 'provider', 'createdAt', 'updatedAt', 'settings'])
                     && !('email' in request.resource.data)
-                    && request.resource.data.provider in ['google', 'discord', 'twitter'];
+                    && request.resource.data.provider in ['discord', 'twitter'];
 
       allow update: if isOwner(uid)
                     && isValidString(request.resource.data.displayName, 30)
