@@ -79,9 +79,9 @@
     "welcome": {
         "title": "ようこそ LoPo へ",
         "subtitle": "あなたの名前を決めてください",
-        "name_label": "表示名",
-        "name_placeholder": "好きな名前を入力",
-        "start": "はじめる",
+        "display_name_label": "表示名",
+        "display_name_placeholder": "好きな名前を入力",
+        "start_button": "はじめる",
         "avatar_hint": "アイコンはあとからでも設定できます"
     },
     "avatar": {
