@@ -215,7 +215,7 @@ async function createPlan(
 async function updatePlan(
   plan: SavedPlan,
   uid: string,
-): Promise<void> {
+): Promise<'updated' | 'skipped_newer_remote'> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
   // セキュリティルールの制約で、自分のドキュメントしかreadできないため
   // try/catchで読み取りエラーも含めてハンドリング
@@ -229,7 +229,15 @@ async function updatePlan(
     if (current.ownerId !== uid) {
       throw new Error('NOT_OWNER');
     }
+    // タイムスタンプ比較: リモートがローカルより新しければスキップ
+    const remoteUpdatedAt = current.updatedAt instanceof Timestamp
+      ? current.updatedAt.toMillis()
+      : 0;
+    if (remoteUpdatedAt > plan.updatedAt) {
+      return 'skipped_newer_remote';
+    }
     await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });
+    return 'updated';
   } catch (err) {
     // getDocのpermission errorや存在しないエラー → createにフォールバック
     throw err;
@@ -265,6 +273,56 @@ async function deletePlan(
 // ========================================
 // 同期ロジック
 // ========================================
+
+/**
+ * Firestoreから最新データを取得し、ローカルデータとマージする（PULL操作）
+ *
+ * マージ戦略（Last Writer Wins）:
+ * - 両方に存在: updatedAt が新しい方を採用
+ * - リモートのみ: ローカルに追加（他端末で作成されたプラン）
+ * - ローカルのみ + ownerId='local': 未アップロード → 残す
+ * - ローカルのみ + ownerId=uid: リモートで削除された → ローカルからも除去
+ */
+async function fetchAndMerge(
+  localPlans: SavedPlan[],
+  uid: string,
+): Promise<{ merged: SavedPlan[]; changed: boolean }> {
+  const remotePlans = await fetchUserPlans(uid);
+  const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
+  const localMap = new Map(localPlans.map((p) => [p.id, p]));
+
+  const merged: SavedPlan[] = [];
+  let changed = false;
+
+  // ローカルプランを処理
+  for (const local of localPlans) {
+    const remote = remoteMap.get(local.id);
+    if (remote) {
+      if (remote.updatedAt > local.updatedAt) {
+        merged.push(remote);
+        changed = true;
+      } else {
+        merged.push(local);
+      }
+    } else if (local.ownerId === 'local') {
+      merged.push(local);
+    } else {
+      // リモートで削除された → ローカルからも除去
+      changed = true;
+    }
+  }
+
+  // リモートのみのプラン（他端末で作成）
+  for (const remote of remotePlans) {
+    if (!localMap.has(remote.id)) {
+      merged.push(remote);
+      changed = true;
+    }
+  }
+
+  merged.sort((a, b) => b.updatedAt - a.updatedAt);
+  return { merged, changed };
+}
 
 /**
  * ログイン時のデータマイグレーション
@@ -386,7 +444,10 @@ async function syncDirtyPlans(
     plansToSync.map(async (plan) => {
       if (plan.ownerId === 'local' || plan.ownerId === uid) {
         try {
-          await updatePlan(plan, uid);
+          const result = await updatePlan(plan, uid);
+          if (result === 'skipped_newer_remote') {
+            return; // リモートが新しい → pushせずにスキップ
+          }
         } catch {
           // updateが失敗 → 新規作成を試行
           // ただし ownerId が uid（以前存在したプラン）の場合は
@@ -420,6 +481,7 @@ async function syncDirtyPlans(
 
 export const planService = {
   fetchUserPlans,
+  fetchAndMerge,
   createPlan,
   updatePlan,
   deletePlan,
