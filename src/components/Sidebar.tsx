@@ -39,13 +39,14 @@ import {
     X,
     Pencil,
     Copy,
-    MoreVertical,
-    Download,
+    HardDrive,
+    Upload,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
 import { showToast } from './Toast';
-import { exportPlanToCSV } from '../utils/csvExporter';
+import { BackupExportModal } from './BackupExportModal';
+import { BackupRestoreModal } from './BackupRestoreModal';
 
 // ─────────────────────────────────────────────
 // Props
@@ -112,17 +113,8 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     const [editingTitle, setEditingTitle] = React.useState('');
     const editInputRef = React.useRef<HTMLInputElement>(null);
 
-    // ⋮メニュー
-    const [menuPlanId, setMenuPlanId] = React.useState<string | null>(null);
-    const menuRef = React.useRef<HTMLDivElement>(null);
-    const [menuPos, setMenuPos] = React.useState<{ top: number; right: number } | null>(null);
-
     // 削除確認ステート
     const [confirmDeletePlanId, setConfirmDeletePlanId] = React.useState<string | null>(null);
-    const [deleteAnimating, setDeleteAnimating] = React.useState(false);
-
-    // タッチデバイス判定（クリック/タップの文言切り替え用）
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     const startEditing = (planId: string, title: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -138,50 +130,6 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
         setEditingPlanId(null);
     };
 
-    // ⋮メニュー外クリックで閉じる（Portal対応: menuRef + data属性で除外判定）
-    React.useEffect(() => {
-        if (!menuPlanId) return;
-        const handler = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (menuRef.current?.contains(target)) return;
-            if (target.closest?.('[data-menu-trigger]')) return;
-            setMenuPlanId(null);
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, [menuPlanId]);
-
-    // ⋮メニュー: Escapeで閉じる
-    React.useEffect(() => {
-        if (!menuPlanId) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setMenuPlanId(null);
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [menuPlanId]);
-
-    // メニューが閉じたら削除確認もリセット
-    React.useEffect(() => {
-        if (!menuPlanId) { setConfirmDeletePlanId(null); setMenuPos(null); setDeleteAnimating(false); }
-    }, [menuPlanId]);
-
-    // CSV機能が有効になったら `_` を外して復活させる
-    const _handleCSVExport = (plan: SavedPlan) => {
-        const lang = (i18n.language?.startsWith('ja') ? 'ja' : 'en') as 'ja' | 'en';
-        exportPlanToCSV(
-            plan.title,
-            plan.data.timelineEvents || [],
-            plan.data.timelineMitigations || [],
-            plan.data.partyMembers || [],
-            lang,
-        );
-        setMenuPlanId(null);
-        showToast(t('sidebar.csv_exported', 'CSV をダウンロードしました'));
-    };
-    void _handleCSVExport; // TypeScript unused抑制
 
 
 
@@ -375,81 +323,33 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                     <Pencil size={9} />
                                                 </button>
                                             </Tooltip>
-                                            {/* ⋮ メニュー */}
-                                            <div>
-                                                <button
-                                                    data-menu-trigger
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (menuPlanId === plan.id) {
-                                                            setMenuPlanId(null);
+                                            {/* 削除ボタン */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (confirmDeletePlanId === plan.id) {
+                                                        const ps = usePlanStore.getState();
+                                                        const authUser = useAuthStore.getState().user;
+                                                        if (authUser) {
+                                                            ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
                                                         } else {
-                                                            const rect = e.currentTarget.getBoundingClientRect();
-                                                            setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
-                                                            setMenuPlanId(plan.id);
+                                                            ps.deletePlan(plan.id);
                                                         }
-                                                    }}
-                                                    className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                >
-                                                    <MoreVertical size={9} />
-                                                </button>
-                                                {menuPlanId === plan.id && menuPos && createPortal(
-                                                    <div
-                                                        ref={menuRef}
-                                                        className="fixed z-[99999] min-w-[140px] py-1 bg-app-bg border border-app-border rounded-lg shadow-lg"
-                                                        style={{ top: menuPos.top, right: menuPos.right }}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        onMouseDown={(e) => e.stopPropagation()}
-                                                    >
-                                                        <button
-                                                            disabled
-                                                            className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-app-text-muted/40 cursor-not-allowed"
-                                                        >
-                                                            <Download size={11} />
-                                                            {t('sidebar.export_csv')}
-                                                        </button>
-                                                        <div className="border-t border-app-border my-1" />
-                                                        {confirmDeletePlanId === plan.id ? (
-                                                            deleteAnimating ? (
-                                                                <div className="w-full flex items-center justify-center py-1.5">
-                                                                    <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                                                                </div>
-                                                            ) : (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        const ps = usePlanStore.getState();
-                                                                        const authUser = useAuthStore.getState().user;
-                                                                        if (authUser) {
-                                                                            ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
-                                                                        } else {
-                                                                            ps.deletePlan(plan.id);
-                                                                        }
-                                                                        setMenuPlanId(null);
-                                                                        setConfirmDeletePlanId(null);
-                                                                    }}
-                                                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-white bg-red-500 hover:bg-red-600 transition-colors cursor-pointer rounded-sm"
-                                                                >
-                                                                    <Trash2 size={11} />
-                                                                    {t(isTouchDevice ? 'sidebar.delete_single_confirm_tap' : 'sidebar.delete_single_confirm_click')}
-                                                                </button>
-                                                            )
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => {
-                                                                    setDeleteAnimating(true);
-                                                                    setConfirmDeletePlanId(plan.id);
-                                                                    setTimeout(() => setDeleteAnimating(false), 400);
-                                                                }}
-                                                                className="w-full flex items-center gap-2 px-3 py-1.5 text-app-base text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                                                            >
-                                                                <Trash2 size={11} />
-                                                                {t('sidebar.delete_single')}
-                                                            </button>
-                                                        )}
-                                                    </div>,
-                                                    document.body
+                                                        setConfirmDeletePlanId(null);
+                                                    } else {
+                                                        setConfirmDeletePlanId(plan.id);
+                                                        setTimeout(() => setConfirmDeletePlanId(null), 3000);
+                                                    }
+                                                }}
+                                                className={clsx(
+                                                    "shrink-0 w-5 h-5 rounded flex items-center justify-center transition-colors cursor-pointer",
+                                                    confirmDeletePlanId === plan.id
+                                                        ? "text-red-500 bg-red-500/10"
+                                                        : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10"
                                                 )}
-                                            </div>
+                                            >
+                                                <Trash2 size={9} />
+                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -832,6 +732,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         return 'all';
     });
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
+    const [backupExportOpen, setBackupExportOpen] = useState(false);
+    const [backupRestoreOpen, setBackupRestoreOpen] = useState(false);
     // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
     React.useEffect(() => {
         const handleClose = () => setIsNewPlanModalOpen(false);
@@ -1437,6 +1339,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         document.body
                     )}
 
+                    {/* バックアップ/復元ボタン */}
+                    {!multiSelect.isEnabled && (
+                        <div className="shrink-0 flex flex-col gap-1.5 px-3 py-2">
+                            <div className="border-t border-glass-border w-full mb-1" />
+                            <button
+                                onClick={() => setBackupExportOpen(true)}
+                                className="w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                            >
+                                <HardDrive size={12} />
+                                {isOpen ? t('backup.backup_button') : null}
+                            </button>
+                            <button
+                                onClick={() => setBackupRestoreOpen(true)}
+                                className="w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                            >
+                                <Upload size={12} />
+                                {isOpen ? t('backup.restore_button') : null}
+                            </button>
+                        </div>
+                    )}
+
                     {/* Ko-fi 支援リンク — サイドバー最下部 */}
                     {!multiSelect.isEnabled && (
                         <div className="shrink-0 flex flex-col items-center py-2">
@@ -1684,5 +1607,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 document.body
             )}
         </motion.aside>
+            <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
+            <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
     </>);
 };
