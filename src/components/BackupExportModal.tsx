@@ -40,7 +40,8 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
       if (user) {
         setSyncing(true);
         try {
-          await planStore.manualSync(user.uid, user.displayName || 'Guest');
+          const profileName = useAuthStore.getState().profileDisplayName || 'User';
+          await planStore.manualSync(user.uid, profileName);
         } catch (err) {
           console.error('バックアップ前の同期エラー:', err);
         }

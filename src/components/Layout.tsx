@@ -16,6 +16,7 @@ import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { Loader2 } from 'lucide-react';
 import { LoginModal } from './LoginModal';
+import { WelcomeSetup } from './WelcomeSetup';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
@@ -205,9 +206,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             const authState = useAuthStore.getState();
             const planStore = usePlanStore.getState();
             if (authState.user && planStore.hasDirtyPlans()) {
+                const profileName = useAuthStore.getState().profileDisplayName || 'User';
                 planStore.syncToFirestore(
                     authState.user.uid,
-                    authState.user.displayName || 'Guest',
+                    profileName,
                     force,
                 ).catch((err) => {
                     console.error('[LoPo] Firestore同期エラー:', err);
@@ -332,9 +334,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         if (authLoading || !authUser || hasMigrated) return;
         setHasMigrated(true);
         const planStore = usePlanStore.getState();
+        const profileName = useAuthStore.getState().profileDisplayName || 'User';
         planStore.migrateOnLogin(
             authUser.uid,
-            authUser.displayName || 'Guest',
+            profileName,
         ).then(() => {
             // マイグレーション後、プランがあれば最新を開く
             const { plans, currentPlanId } = usePlanStore.getState();
@@ -351,6 +354,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // ベースの背景色（テーマ変数を参照するように変更）
     const bgClass = "bg-app-bg";
 
+    // 初回ログイン判定
+    const isNewUser = useAuthStore((s) => s.isNewUser);
+
     // ログイン成功時: 表が見える前にオーバーレイを表示（チラつき防止）
     const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
     // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
@@ -366,6 +372,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
+
+            {/* 初回ログイン: ウェルカムセットアップ画面 */}
+            {isNewUser && <WelcomeSetup />}
 
             {/* リダイレクト認証中オーバーレイ — Discord/Twitterからの戻り時、processPendingAuth完了前に表示 */}
             {isAuthRedirecting && !justLoggedInUser && (

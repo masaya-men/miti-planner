@@ -42,6 +42,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { user, signInWith, signOut, deleteAccount, isAdmin } = useAuthStore();
+    const profileDisplayName = useAuthStore(s => s.profileDisplayName);
+    const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
     const [isDeleting, setIsDeleting] = React.useState(false);
@@ -90,7 +92,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 className="text-app-3xl text-app-text tracking-wide"
                                 style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif", fontWeight: 700 }}
                             >
-                                {user ? (user.displayName || 'Account') : t('login.title')}
+                                {user ? (profileDisplayName || 'Account') : t('login.title')}
                             </h2>
                             <button
                                 onClick={onClose}
@@ -104,12 +106,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         {user && (
                             <div className="px-6 pb-6 pt-2">
                                 <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-app-surface2/50 border border-app-border">
-                                    {user.photoURL && (
-                                        <img src={user.photoURL} alt="" className="w-10 h-10 rounded-full shrink-0" referrerPolicy="no-referrer" />
+                                    {profileAvatarUrl ? (
+                                        <img src={profileAvatarUrl} alt="" className="w-10 h-10 rounded-full shrink-0" />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-app-surface2 flex items-center justify-center shrink-0">
+                                            <span className="text-app-xl font-bold text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>
+                                        </div>
                                     )}
                                     <div className="min-w-0">
                                         <div className="text-app-xl font-bold text-app-text truncate">
-                                            {user.displayName || 'User'}
+                                            {profileDisplayName || 'User'}
                                         </div>
                                         <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
                                             {user.providerData[0]?.providerId === 'google.com' ? 'Google'

@@ -63,7 +63,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       const backup = parseBackupJson(text)!;
       const planStore = usePlanStore.getState();
       const ownerId = user?.uid ?? 'local';
-      const displayName = user?.displayName || 'Guest';
+      const displayName = useAuthStore.getState().profileDisplayName || 'User';
 
       // マージ実行
       const merged = mergePlans(planStore.plans, backup.plans, ownerId, displayName);
@@ -86,7 +86,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       // ログイン中は即時Firestore同期
       if (user) {
-        await planStore.forceSyncAll(user.uid, user.displayName || 'Guest');
+        await planStore.forceSyncAll(user.uid, useAuthStore.getState().profileDisplayName || 'User');
       }
 
       showToast(t('backup.restore_success', { count: backup.planCount }));
