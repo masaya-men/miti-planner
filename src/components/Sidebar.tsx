@@ -13,7 +13,7 @@ import {
     getProjectLabel,
     getContentById,
 } from '../data/contentRegistry';
-import type { ContentLevel, ContentCategory, ContentDefinition, SavedPlan } from '../types';
+import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
