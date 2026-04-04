@@ -41,6 +41,8 @@ interface PlanState {
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
     migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
+    /** 手動同期ボタン用: クールダウン無視で即座にPUSH + PULL */
+    manualSync: (uid: string, displayName: string) => Promise<void>;
     hasDirtyPlans: () => boolean;
     setPlans: (plans: SavedPlan[]) => void;
     /** プランを複製して直下に挿入。件数制限超過時はnullを返す */
@@ -249,9 +251,9 @@ export const usePlanStore = create<PlanState>()(
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
-                // 10秒クールダウン: 高速連続編集時の過剰な書き込みを防止
-                // （500msデバウンス + 10秒クールダウン = 最大10.5秒でFirestoreに到達）
-                const SYNC_COOLDOWN_MS = 10 * 1000;
+                // 5分クールダウン: コスト抑制（DAU約600人まで無料枠内）
+                // タブ閉じ/切替時は即座にpush、手動同期ボタンでクールダウン無視可能
+                const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
                 const now = Date.now();
                 if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
 
@@ -403,6 +405,62 @@ export const usePlanStore = create<PlanState>()(
                 } catch (err) {
                     console.error('Firestore削除エラー:', planId, err);
                     // 失敗しても _deletedPlanIds に残っているので次回の同期で再試行
+                }
+            },
+
+            /**
+             * 手動同期ボタン用: クールダウン無視で即座にPUSH + PULL
+             */
+            manualSync: async (uid, displayName) => {
+                const state = get();
+                if (state._isSyncing) return;
+
+                set({ _isSyncing: true, _cloudStatus: 'syncing' });
+                try {
+                    // PUSH: dirtyプランがあれば送信
+                    if (state._dirtyPlanIds.size > 0 || state._deletedPlanIds.size > 0) {
+                        for (const planId of state._deletedPlanIds) {
+                            try {
+                                await planService.deletePlan(planId, uid, null);
+                            } catch (err) {
+                                console.error('手動同期: 削除エラー:', planId, err);
+                            }
+                        }
+                        await planService.syncDirtyPlans(
+                            state._dirtyPlanIds,
+                            state.plans,
+                            uid,
+                            displayName,
+                        );
+                        set({
+                            _dirtyPlanIds: new Set<string>(),
+                            _deletedPlanIds: new Set<string>(),
+                        });
+                    }
+
+                    // PULL: Firestoreから最新を取得
+                    const { merged, changed } = await planService.fetchAndMerge(
+                        get().plans,
+                        uid,
+                    );
+                    if (changed) {
+                        set({ plans: merged });
+                        const currentPlanId = get().currentPlanId;
+                        if (currentPlanId) {
+                            const updatedPlan = merged.find(p => p.id === currentPlanId);
+                            if (updatedPlan?.data) {
+                                const localPlan = state.plans.find(p => p.id === currentPlanId);
+                                if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
+                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data);
+                                }
+                            }
+                        }
+                    }
+
+                    set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: Date.now() });
+                } catch (err) {
+                    console.error('手動同期エラー:', err);
+                    set({ _isSyncing: false, _cloudStatus: 'error' });
                 }
             },
         }),

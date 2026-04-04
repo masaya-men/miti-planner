@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import {
     Sun, Moon, CloudDownload,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn, Crown
+    Users, Activity, Wand2, Star, LogIn, Crown,
+    CloudCheck, CloudUpload, CloudAlert,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -46,53 +47,72 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
-// 保存状態インジケータ（3段階: ローカル保存 → クラウド同期中 → 同期完了）
-const SaveIndicator: React.FC = React.memo(() => {
-    const { t } = useTranslation();
+/**
+ * クラウド同期アイコンボタン
+ * - CloudCheck: 同期済み
+ * - CloudUpload: 未同期の変更あり（点滅）
+ * - 回転アニメーション: 同期中
+ * - CloudAlert: エラー（赤）
+ * - タップで即時同期（クールダウン無視）
+ * - 未ログイン時は非表示
+ */
+const SyncButton: React.FC = React.memo(() => {
     const currentPlanId = usePlanStore(s => s.currentPlanId);
-    const saveStatus = usePlanStore(s => s._saveStatus);
     const cloudStatus = usePlanStore(s => s._cloudStatus);
+    const hasDirty = usePlanStore(s => s._dirtyPlanIds.size > 0 || s._deletedPlanIds.size > 0);
     const user = useAuthStore(s => s.user);
 
-    if (!currentPlanId) return null;
-    if (saveStatus === 'idle' && cloudStatus === 'idle') return null;
+    if (!currentPlanId || !user) return null;
 
-    // 表示優先度: saving > cloud_syncing > cloud_error > cloud_synced > saved
-    let text: string;
-    let className: string;
+    const handleSync = () => {
+        const planStore = usePlanStore.getState();
+        // 現在の編集をlocalStorageに保存してからmanualSync
+        if (planStore.currentPlanId) {
+            const { useMitigationStore } = require('../store/useMitigationStore');
+            planStore.updatePlan(planStore.currentPlanId, {
+                data: useMitigationStore.getState().getSnapshot(),
+            });
+        }
+        planStore.manualSync(
+            user.uid,
+            user.displayName || 'Guest',
+        );
+    };
 
-    if (saveStatus === 'saving') {
-        text = t('app.saving');
-        className = 'text-app-text/50 animate-pulse';
-    } else if (cloudStatus === 'syncing') {
-        text = t('app.cloud_syncing');
-        className = 'text-app-text/50 animate-pulse';
+    let Icon = CloudCheck;
+    let iconClass = 'text-app-text/40';
+    let animate = '';
+
+    if (cloudStatus === 'syncing') {
+        Icon = CloudUpload;
+        iconClass = 'text-app-text/50';
+        animate = 'animate-spin';
     } else if (cloudStatus === 'error') {
-        text = t('app.cloud_error');
-        className = 'text-red-400';
-    } else if (user && cloudStatus === 'synced') {
-        text = t('app.cloud_synced');
-        className = 'text-app-text';
-    } else if (saveStatus === 'saved') {
-        text = t('app.saved');
-        className = 'text-app-text';
-    } else {
-        return null;
+        Icon = CloudAlert;
+        iconClass = 'text-red-400';
+    } else if (hasDirty) {
+        Icon = CloudUpload;
+        iconClass = 'text-app-text/60 animate-pulse';
+    } else if (cloudStatus === 'synced') {
+        Icon = CloudCheck;
+        iconClass = 'text-app-text/60';
     }
 
     return (
-        <span
+        <button
+            onClick={handleSync}
+            disabled={cloudStatus === 'syncing'}
             className={clsx(
-                "text-app-base transition-opacity duration-300",
-                className,
+                "p-1 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
+                iconClass,
             )}
-            style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+            style={{ flexShrink: 0 }}
         >
-            {text}
-        </span>
+            <Icon size={16} className={animate} />
+        </button>
     );
 });
-SaveIndicator.displayName = 'SaveIndicator';
+SyncButton.displayName = 'SyncButton';
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
@@ -238,7 +258,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                         )
                                     )}
                                     {/* 保存インジケータ — プラン名の直後に常に表示 */}
-                                    <SaveIndicator />
+                                    <SyncButton />
                                 </div>
                             )}
                         </div>
