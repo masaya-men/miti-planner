@@ -19,7 +19,7 @@ export interface FirestoreUser {
   /** アバター画像URL */
   avatarUrl: string | null;
   /** 認証プロバイダ */
-  provider: 'google' | 'discord' | 'twitter';
+  provider: 'discord' | 'twitter';
   /** アカウント作成日時 */
   createdAt: Timestamp;
   /** 最終更新日時 */

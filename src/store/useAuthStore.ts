@@ -1,19 +1,13 @@
 /**
  * 認証状態管理ストア
  * Firebase Authのログイン状態をZustandで管理
- * 対応プロバイダー: Google, Discord, Twitter(X)
+ * 対応プロバイダー: Discord, Twitter(X)
  *
- * Google: signInWithPopup（標準的なポップアップで問題が少ない）
  * Discord/Twitter: ページ遷移（リダイレクト）方式（ポップアップブロック回避）
  */
 import { create } from 'zustand';
 import {
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
     signInWithCustomToken,
-    updateProfile,
     signOut as firebaseSignOut,
     deleteUser,
     onAuthStateChanged,
@@ -27,7 +21,7 @@ import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { apiFetch } from '../lib/apiClient';
 
-type AuthProvider = 'google' | 'discord' | 'twitter';
+type AuthProvider = 'discord' | 'twitter';
 
 /** リダイレクト前に現在のURLを保存（Discord/Twitter用） */
 function saveReturnUrl() {
@@ -46,6 +40,9 @@ interface AuthState {
     isAdmin: boolean;
     justLoggedInUser: JustLoggedInUser | null;
     teamLogoUrl: string | null;      // チームロゴの Firebase Storage ダウンロード URL
+    profileDisplayName: string | null;  // Firestoreの表示名
+    profileAvatarUrl: string | null;    // Firestoreのアバター
+    isNewUser: boolean;                 // 初回ログイン判定（Firestoreにドキュメントなし）
     signInWith: (provider: AuthProvider) => void;
     signOut: () => Promise<void>;
     deleteAccount: () => Promise<void>;
@@ -59,37 +56,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     isAdmin: false,
     justLoggedInUser: null,
     teamLogoUrl: null,
+    profileDisplayName: null,
+    profileAvatarUrl: null,
+    isNewUser: false,
 
     signInWith: (provider: AuthProvider) => {
         switch (provider) {
-            case 'google': {
-                const googleProvider = new GoogleAuthProvider();
-                googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-                // PWA（ホーム画面から起動）時はリダイレクト方式に切り替え
-                const isPWA = window.matchMedia('(display-mode: standalone)').matches;
-                if (isPWA) {
-                    saveReturnUrl();
-                    localStorage.setItem('lopo_auth_redirecting', 'true');
-                    signInWithRedirect(auth, googleProvider);
-                } else {
-                    signInWithPopup(auth, googleProvider)
-                        .then((result) => {
-                            set({
-                                justLoggedInUser: {
-                                    displayName: result.user.displayName,
-                                    photoURL: result.user.photoURL,
-                                }
-                            });
-                        })
-                        .catch((err) => {
-                            if (err.code !== 'auth/popup-closed-by-user') {
-                                console.error('Google login error:', err);
-                            }
-                        });
-                }
-                break;
-            }
             case 'discord':
                 saveReturnUrl();
                 localStorage.setItem('lopo_auth_redirecting', 'true');
@@ -143,9 +115,10 @@ export const useAuthStore = create<AuthState>((set) => ({
                     planState.markDirty(planState.currentPlanId);
                 }
                 // 全プランをFirestoreに強制同期（_isSyncingバイパス）
+                const profileName = useAuthStore.getState().profileDisplayName || 'User';
                 await planState.forceSyncAll(
                     currentUser.uid,
-                    currentUser.displayName || 'Guest',
+                    profileName,
                 );
             } catch (err) {
                 console.error('ログアウト前の同期エラー:', err);
@@ -154,7 +127,14 @@ export const useAuthStore = create<AuthState>((set) => ({
 
         // ② Firebase Auth ログアウト
         await firebaseSignOut(auth);
-        set({ user: null, isAdmin: false, teamLogoUrl: null });
+        set({
+            user: null,
+            isAdmin: false,
+            teamLogoUrl: null,
+            profileDisplayName: null,
+            profileAvatarUrl: null,
+            isNewUser: false,
+        });
 
         // ③ localStorageとZustandストアをクリア
         localStorage.removeItem('plan-storage');
@@ -223,7 +203,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
 
         // ④ ローカルストレージとストアをクリア
-        set({ user: null, isAdmin: false, teamLogoUrl: null });
+        set({
+            user: null,
+            isAdmin: false,
+            teamLogoUrl: null,
+            profileDisplayName: null,
+            profileAvatarUrl: null,
+            isNewUser: false,
+        });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
         usePlanStore.setState({
@@ -255,21 +242,9 @@ async function processPendingAuth() {
     localStorage.removeItem('lopo_auth_pending');
     try {
         const pending = JSON.parse(pendingRaw);
-        const cred = await signInWithCustomToken(auth, pending.token);
-        if (cred.user && (pending.displayName || pending.photoURL)) {
-            await updateProfile(cred.user, {
-                displayName: pending.displayName || cred.user.displayName,
-                photoURL: pending.photoURL || cred.user.photoURL,
-            });
-        }
-        // リダイレクトフラグ削除 + オーバーレイ表示用にフラグを立てる
+        await signInWithCustomToken(auth, pending.token);
+        // リダイレクトフラグ削除
         localStorage.removeItem('lopo_auth_redirecting');
-        useAuthStore.setState({
-            justLoggedInUser: {
-                displayName: pending.displayName || cred.user.displayName,
-                photoURL: pending.photoURL || cred.user.photoURL,
-            }
-        });
     } catch (err) {
         console.error('Auth restore error:', err);
         localStorage.removeItem('lopo_auth_redirecting');
@@ -286,35 +261,35 @@ onAuthStateChanged(auth, async (user) => {
         // 認証完了 → loading: false を先に設定（画面表示をブロックしない）
         useAuthStore.setState({ user, loading: false, isAdmin });
 
-        // チームロゴURLはバックグラウンドで取得（画面表示をブロックしない）
-        getDoc(doc(db, COLLECTIONS.USERS, user.uid))
-            .then((userDoc) => {
-                if (userDoc.exists()) {
-                    const logoUrl = userDoc.data().teamLogoUrl || null;
-                    useAuthStore.setState({ teamLogoUrl: logoUrl });
-                }
-            })
-            .catch(() => {
-                // ロゴ読み込み失敗は無視（ログインには影響させない）
-            });
+        // Firestoreからプロフィール読み込み（バックグラウンド）
+        try {
+            const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                useAuthStore.setState({
+                    profileDisplayName: data.displayName || null,
+                    profileAvatarUrl: data.avatarUrl || null,
+                    teamLogoUrl: data.teamLogoUrl || null,
+                    isNewUser: false,
+                });
+            } else {
+                useAuthStore.setState({ isNewUser: true });
+            }
+        } catch {
+            // Firestore読み込み失敗は無視
+        }
     } else {
-        useAuthStore.setState({ user: null, loading: false, isAdmin: false, teamLogoUrl: null });
+        useAuthStore.setState({
+            user: null,
+            loading: false,
+            isAdmin: false,
+            profileDisplayName: null,
+            profileAvatarUrl: null,
+            teamLogoUrl: null,
+            isNewUser: false,
+        });
     }
 });
 
 // リダイレクト認証の結果を処理
 processPendingAuth();
-
-// PWA Google リダイレクト結果を処理
-getRedirectResult(auth).then((result) => {
-    if (result?.user) {
-        useAuthStore.setState({
-            justLoggedInUser: {
-                displayName: result.user.displayName,
-                photoURL: result.user.photoURL,
-            }
-        });
-    }
-}).catch((err) => {
-    console.error('Google redirect result error:', err);
-});

@@ -76,9 +76,7 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
     } else {
         // ドキュメントが存在しない場合は必須フィールド付きで作成
         const user = auth.currentUser;
-        const provider = user?.providerData[0]?.providerId === 'google.com' ? 'google'
-            : user?.providerData[0]?.providerId === 'discord' ? 'discord'
-            : 'twitter';
+        const provider = user?.uid.startsWith('discord:') ? 'discord' : 'twitter';
         await setDoc(userRef, {
             displayName: user?.displayName || 'User',
             provider,
