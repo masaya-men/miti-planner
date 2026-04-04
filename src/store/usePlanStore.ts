@@ -34,7 +34,7 @@ interface PlanState {
 
     // Firestore同期アクション
     markDirty: (planId: string) => void;
-    syncToFirestore: (uid: string, displayName: string) => Promise<void>;
+    syncToFirestore: (uid: string, displayName: string, force?: boolean) => Promise<void>;
     /** Firestoreから最新データを取得してローカルとマージ（PULL操作） */
     pullFromFirestore: (uid: string) => Promise<void>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
@@ -246,16 +246,18 @@ export const usePlanStore = create<PlanState>()(
              * dirtyなプランをFirestoreに同期する
              * 3分以上のインターバルを強制（コスト抑制）
              */
-            syncToFirestore: async (uid, displayName) => {
+            syncToFirestore: async (uid, displayName, force = false) => {
                 const state = get();
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
-                // 5分クールダウン: コスト抑制（DAU約600人まで無料枠内）
-                // タブ閉じ/切替時は即座にpush、手動同期ボタンでクールダウン無視可能
-                const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
-                const now = Date.now();
-                if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
+                // クールダウン: 自動同期（デバウンス後）のみ適用
+                // force=true（タブ切替・ページ離脱）ではスキップ
+                if (!force) {
+                    const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
+                    const now = Date.now();
+                    if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
+                }
 
                 // 同期開始時点のdirty/deletedをスナップショット（同期中に追加された分を保持するため）
                 const syncingDirtyIds = new Set(state._dirtyPlanIds);

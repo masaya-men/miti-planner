@@ -102,7 +102,7 @@ const SyncButton: React.FC = React.memo(() => {
             onClick={handleSync}
             disabled={cloudStatus === 'syncing'}
             className={clsx(
-                "flex items-center justify-center w-8 h-8 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
+                "flex items-center justify-center w-6 h-6 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
                 iconClass,
             )}
             style={{ flexShrink: 0 }}
@@ -420,9 +420,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
-                    {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示 */}
+                    {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示（スマホ対応） */}
                     {isHeaderCollapsed && (
-                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10">
+                        <div className="absolute left-1.5 top-0 bottom-0 flex items-center z-10 pointer-events-auto">
                             <SyncButton />
                         </div>
                     )}
