@@ -6,6 +6,7 @@ import { LoPoButton } from './LoPoButton';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Sun, Moon } from 'lucide-react';
 import clsx from 'clsx';
+import { SyncButton } from './SyncButton';
 
 // ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
 export const MobileHeader: React.FC<{
@@ -135,7 +136,7 @@ export const MobileHeader: React.FC<{
                 </>
             )}
 
-            {/* 右: テーマ + 言語 */}
+            {/* 右: テーマ + 同期 + 言語 */}
             <div className="flex items-center gap-1 shrink-0">
                 <button
                     data-tutorial-always
@@ -144,6 +145,7 @@ export const MobileHeader: React.FC<{
                 >
                     {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
                 </button>
+                <SyncButton size={14} className="w-7 h-7" />
                 <LanguageSwitcher />
             </div>
         </header>

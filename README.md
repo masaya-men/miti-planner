@@ -1,65 +1,115 @@
-# LoPo — FF14 軽減プランナー
+<p align="center">
+  <img src="docs/images/banner.jpg" alt="LoPo" width="600">
+</p>
 
-FF14のレイドにおける軽減計画を、スプレッドシートよりもサクサク動くウェブアプリで。
-タイムラインベースで軽減を視覚的に配置し、パーティ全体の生存をシミュレートします。
+<p align="center">
+  <b>A collection of handy tools for FFXIV</b><br>
+  Built solo, driven by "I wish this existed!"
+</p>
 
-## ✨ 主な機能
+<p align="center">
+  <a href="https://lopoly.app">App</a> &middot;
+  <a href="https://discord.gg/z7uypbJSnN">Discord</a> &middot;
+  <a href="https://x.com/lopoly_app">X (Twitter)</a> &middot;
+  <a href="README.ja.md">日本語</a>
+</p>
 
-- **タイムラインビュー** — 時系列でダメージと軽減を一覧。致死判定をリアルタイム計算
-- **FFLogs インポート** — ログ URL を貼るだけでタイムラインを自動生成
-- **オートプランナー** — 1 クリックでリキャストを考慮した軽減を自動配置
-- **早見表（Cheat Sheet）** — プレイ中に横目で見れるシンプルビュー
-- **パーティ編成** — 8 人のジョブ・ステータスを自由に設定
-- **i18n 対応** — 日本語 / English 切替対応
-- **PWA 対応** — モバイルでもオフラインでも快適に
-- **チュートリアル** — 初めてでも操作を学べるインタラクティブガイド
+---
 
-## 🚀 セットアップ
+## Tools
+
+### Mitigation Planner
+
+Plan raid mitigations faster than spreadsheets. Place mitigations on an interactive timeline and simulate party survival in real time.
+
+<p align="center">
+  <img src="docs/images/timeline-dark.png" alt="Timeline (Dark Mode)" width="720"><br>
+  <img src="docs/images/timeline-light.png" alt="Timeline (Light Mode)" width="720">
+</p>
+
+- **Timeline View** — Visualize damage and mitigations chronologically with real-time lethal checks
+- **FFLogs Import** — Paste a log URL to auto-generate a timeline
+- **Auto Planner** — One-click mitigation placement with recast awareness
+- **Party Composition** — Freely configure 8 jobs and stats
+- **Dark / Light / Focus modes** — Choose the view that suits you
+- **i18n** — Japanese / English / Chinese / Korean
+- **PWA** — Works on mobile and offline
+- **Tutorial** — Interactive guide for first-time users
+
+<p align="center">
+  <img src="docs/images/mobile.png" alt="Mobile View" width="240">
+</p>
+
+### Housing Tour Planner
+
+Coming soon.
+
+---
+
+## Feedback & Bug Reports
+
+Join the [Discord server](https://discord.gg/z7uypbJSnN) — all feedback and bug reports are welcome!
+
+---
+
+<details>
+<summary><b>Developer Setup</b></summary>
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Getting Started
 
 ```bash
-# 依存パッケージのインストール
+# Install dependencies
 npm install
 
-# FFLogs API の設定（任意）
+# (Optional) Set up FFLogs API
 cp .env.local.example .env.local
-# .env.local に FFLogs の Client ID / Secret を記入
+# Add your FFLogs Client ID / Secret to .env.local
 
-# 開発サーバーの起動
+# Start dev server
 npm run dev
 ```
 
-## 📦 ビルド
+### Build
 
 ```bash
 npm run build
-npm run preview  # ビルド結果のプレビュー
+npm run preview  # Preview the build
 ```
 
-## 🌐 デプロイ
+### Deployment
 
-Vercel へのデプロイを想定しています。
+Designed for [Vercel](https://vercel.com). Import the repo and set `FFLOGS_CLIENT_ID` and `FFLOGS_CLIENT_SECRET` as environment variables.
 
-1. リポジトリを GitHub に push
-2. [Vercel](https://vercel.com) でインポート
-3. 環境変数に `FFLOGS_CLIENT_ID` と `FFLOGS_CLIENT_SECRET` を設定
+</details>
 
-## 🛠️ 技術スタック
+<details>
+<summary><b>Tech Stack</b></summary>
 
-| カテゴリ | 技術 |
+| Category | Technology |
 |---|---|
-| フレームワーク | React 19 + TypeScript |
-| ビルドツール | Vite 7 |
-| 状態管理 | Zustand |
-| スタイリング | Tailwind CSS 4 |
-| アニメーション | Framer Motion |
-| ドラッグ&ドロップ | dnd-kit |
-| 国際化 | react-i18next |
-| 3D 背景 | Three.js |
+| Framework | React 19 + TypeScript |
+| Build | Vite 7 |
+| State | Zustand |
+| Styling | Tailwind CSS 4 |
+| Animation | Framer Motion |
+| Drag & Drop | dnd-kit |
+| i18n | react-i18next |
+| 3D Background | Three.js |
 | PWA | vite-plugin-pwa |
 
-## 📄 著作権表記
+</details>
 
-当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。
+---
 
-© SQUARE ENIX CO., LTD. All Rights Reserved.  
-FINAL FANTASY は株式会社スクウェア・エニックスの登録商標です。
+## Copyright
+
+This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.
+
+FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.
+
+© SQUARE ENIX CO., LTD. All Rights Reserved.
