@@ -63,6 +63,7 @@
         "empty_state_mobile": "메뉴에서 콘텐츠를 선택하세요",
         "toggle_theme_light": "라이트 테마로 전환",
         "toggle_theme_dark": "다크 테마로 전환",
+        "switch_language": "언어 전환",
         "page_title_planner": "LoPo | 경감 플래너",
         "page_title_landing": "LoPo — FFXIV 도구 포털"
     },
