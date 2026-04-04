@@ -412,14 +412,14 @@ export const usePlanStore = create<PlanState>()(
              * 手動同期ボタン用: クールダウン無視で即座にPUSH + PULL
              */
             manualSync: async (uid, displayName) => {
-                const state = get();
-                if (state._isSyncing) return;
+                if (get()._isSyncing) return;
 
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
-                    // PUSH: dirtyプランがあれば送信
-                    if (state._dirtyPlanIds.size > 0 || state._deletedPlanIds.size > 0) {
-                        for (const planId of state._deletedPlanIds) {
+                    // PUSH: dirtyプランがあれば送信（最新のstateを使う）
+                    const pushState = get();
+                    if (pushState._dirtyPlanIds.size > 0 || pushState._deletedPlanIds.size > 0) {
+                        for (const planId of pushState._deletedPlanIds) {
                             try {
                                 await planService.deletePlan(planId, uid, null);
                             } catch (err) {
@@ -427,8 +427,8 @@ export const usePlanStore = create<PlanState>()(
                             }
                         }
                         await planService.syncDirtyPlans(
-                            state._dirtyPlanIds,
-                            state.plans,
+                            pushState._dirtyPlanIds,
+                            pushState.plans,
                             uid,
                             displayName,
                         );
@@ -439,8 +439,9 @@ export const usePlanStore = create<PlanState>()(
                     }
 
                     // PULL: Firestoreから最新を取得
+                    const currentPlans = get().plans;
                     const { merged, changed } = await planService.fetchAndMerge(
-                        get().plans,
+                        currentPlans,
                         uid,
                     );
                     if (changed) {
@@ -449,7 +450,7 @@ export const usePlanStore = create<PlanState>()(
                         if (currentPlanId) {
                             const updatedPlan = merged.find(p => p.id === currentPlanId);
                             if (updatedPlan?.data) {
-                                const localPlan = state.plans.find(p => p.id === currentPlanId);
+                                const localPlan = currentPlans.find(p => p.id === currentPlanId);
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
                                     useMitigationStore.getState().loadSnapshot(updatedPlan.data);
                                 }

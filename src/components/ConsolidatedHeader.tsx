@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Sun, Moon, CloudDownload,
+    Sun, Moon, FileDown,
     ChevronUp, ChevronDown,
     Users, Activity, Wand2, Star, LogIn, Crown,
     CloudCheck, CloudUpload, CloudAlert,
@@ -66,12 +66,11 @@ const SyncButton: React.FC = React.memo(() => {
 
     const handleSync = () => {
         const planStore = usePlanStore.getState();
-        // 現在の編集をlocalStorageに保存してからmanualSync
+        // 現在の編集をlocalStorageに保存（dirty追加なし）
         if (planStore.currentPlanId) {
-            const { useMitigationStore } = require('../store/useMitigationStore');
-            planStore.updatePlan(planStore.currentPlanId, {
-                data: useMitigationStore.getState().getSnapshot(),
-            });
+            const snapshot = useMitigationStore.getState().getSnapshot();
+            // updatePlanはdirtyフラグを立てるので、直接plansを更新してからmanualSyncに任せる
+            planStore.updatePlan(planStore.currentPlanId, { data: snapshot });
         }
         planStore.manualSync(
             user.uid,
@@ -80,22 +79,22 @@ const SyncButton: React.FC = React.memo(() => {
     };
 
     let Icon = CloudCheck;
-    let iconClass = 'text-app-text/40';
+    let iconClass = 'text-blue-400';
     let animate = '';
 
     if (cloudStatus === 'syncing') {
         Icon = CloudUpload;
-        iconClass = 'text-app-text/50';
+        iconClass = 'text-blue-400';
         animate = 'animate-spin';
     } else if (cloudStatus === 'error') {
         Icon = CloudAlert;
         iconClass = 'text-red-400';
     } else if (hasDirty) {
         Icon = CloudUpload;
-        iconClass = 'text-app-text/60 animate-pulse';
+        iconClass = 'text-yellow-400 animate-pulse';
     } else if (cloudStatus === 'synced') {
         Icon = CloudCheck;
-        iconClass = 'text-app-text/60';
+        iconClass = 'text-blue-400';
     }
 
     return (
@@ -103,7 +102,7 @@ const SyncButton: React.FC = React.memo(() => {
             onClick={handleSync}
             disabled={cloudStatus === 'syncing'}
             className={clsx(
-                "p-1 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
+                "flex items-center justify-center w-8 h-8 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
                 iconClass,
             )}
             style={{ flexShrink: 0 }}
@@ -362,7 +361,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             : iconBtnDefault
                                     )}
                                 >
-                                    <CloudDownload size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                                    <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
                         </div>
@@ -421,6 +420,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
+                    {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示 */}
+                    {isHeaderCollapsed && (
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10">
+                            <SyncButton />
+                        </div>
+                    )}
                     <Tooltip content={!isHeaderCollapsed ? t('sidebar.collapse_header') : t('sidebar.expand_header')} position="bottom" wrapperClassName="w-full h-full">
                     <button
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
