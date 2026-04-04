@@ -40,7 +40,7 @@ import {
     Pencil,
     Copy,
     HardDrive,
-    Upload,
+    Download,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -323,7 +323,8 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                     <Pencil size={9} />
                                                 </button>
                                             </Tooltip>
-                                            {/* 削除ボタン */}
+                                            {/* 削除ボタン（2段階確認） */}
+                                            <Tooltip content={confirmDeletePlanId === plan.id ? t('sidebar.delete_single_confirm_click') : t('sidebar.delete_single')}>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -342,14 +343,18 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                     }
                                                 }}
                                                 className={clsx(
-                                                    "shrink-0 w-5 h-5 rounded flex items-center justify-center transition-colors cursor-pointer",
+                                                    "shrink-0 rounded flex items-center justify-center transition-colors cursor-pointer",
                                                     confirmDeletePlanId === plan.id
-                                                        ? "text-red-500 bg-red-500/10"
-                                                        : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10"
+                                                        ? "text-red-500 bg-red-500/10 px-2 py-0.5 gap-1"
+                                                        : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10 w-5 h-5"
                                                 )}
                                             >
                                                 <Trash2 size={9} />
+                                                {confirmDeletePlanId === plan.id && (
+                                                    <span className="text-[10px] font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
+                                                )}
                                             </button>
+                                            </Tooltip>
                                         </div>
                                     </div>
                                 )}
@@ -1341,22 +1346,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* バックアップ/復元ボタン */}
                     {!multiSelect.isEnabled && (
-                        <div className="shrink-0 flex flex-col gap-1.5 px-3 py-2">
-                            <div className="border-t border-glass-border w-full mb-1" />
-                            <button
-                                onClick={() => setBackupExportOpen(true)}
-                                className="w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                            >
-                                <HardDrive size={12} />
-                                {isOpen ? t('backup.backup_button') : null}
-                            </button>
-                            <button
-                                onClick={() => setBackupRestoreOpen(true)}
-                                className="w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                            >
-                                <Upload size={12} />
-                                {isOpen ? t('backup.restore_button') : null}
-                            </button>
+                        <div className="shrink-0 px-3 py-2">
+                            <div className="border-t border-glass-border w-full mb-2" />
+                            <div className="flex gap-1.5">
+                                <button
+                                    onClick={() => setBackupExportOpen(true)}
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                >
+                                    <HardDrive size={12} />
+                                    {isOpen ? t('backup.backup_button') : null}
+                                </button>
+                                <button
+                                    onClick={() => setBackupRestoreOpen(true)}
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                >
+                                    <Download size={12} />
+                                    {isOpen ? t('backup.restore_button') : null}
+                                </button>
+                            </div>
                         </div>
                     )}
 

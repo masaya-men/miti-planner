@@ -1316,7 +1316,7 @@
         "backup_button": "备份",
         "restore_button": "恢复",
         "export_title": "备份减伤表",
-        "export_description": "复制下方文本或下载文件，保存到安全的地方。建议粘贴到记事本或电子表格中。",
+        "export_description": "请下载文件并保存到安全的地方。也可以复制文本粘贴到记事本中保管。",
         "export_syncing": "正在同步数据...",
         "export_plan_count": "{{count}}个减伤表",
         "copy_button": "复制",

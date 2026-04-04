@@ -5,7 +5,7 @@ import { X, Upload, FileUp, Loader, AlertTriangle } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { parseBackupJson, mergePlans } from '../utils/backupService';
+import { parseBackupJson, mergePlans, readBackupFile } from '../utils/backupService';
 import { showToast } from './Toast';
 
 interface Props {
@@ -33,15 +33,16 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setText(reader.result as string);
+    try {
+      const content = await readBackupFile(file);
+      setText(content);
       setError('');
-    };
-    reader.readAsText(file);
+    } catch {
+      setError(t('backup.restore_invalid_json'));
+    }
     // input をリセットして同じファイルを再選択可能にする
     e.target.value = '';
   };
@@ -136,7 +137,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <input
               ref={fileRef}
               type="file"
-              accept=".json"
+              accept=".json,.gz"
               onChange={handleFileSelect}
               className="hidden"
             />

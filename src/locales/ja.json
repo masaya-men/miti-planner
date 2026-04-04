@@ -1320,7 +1320,7 @@
         "backup_button": "バックアップ",
         "restore_button": "復元",
         "export_title": "軽減表をバックアップ",
-        "export_description": "下のテキストをコピーするか、ファイルをダウンロードして安全な場所に保管してください。メモ帳やスプレッドシートに貼り付けておくと便利です。",
+        "export_description": "ファイルをダウンロードして安全な場所に保管してください。テキストをコピーしてメモ帳に貼り付ける方法でも保管できます。",
         "export_syncing": "データを同期中...",
         "export_plan_count": "{{count}}件の軽減表",
         "copy_button": "コピー",
