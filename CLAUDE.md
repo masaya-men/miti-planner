@@ -24,6 +24,25 @@
 - `docs/GRAPL_PROJECT_PLAN.md` — 全体ロードマップ
 - 他の設計書は `docs/` 内を検索
 
+## セキュリティ（パブリックリポジトリ — 違反厳禁）
+このリポジトリは公開されている。以下を絶対に守ること。
+
+### コミット禁止
+- APIキー、トークン、シークレット、Webhook URL、秘密鍵の実値
+- Firebase UID、Discord UID 等の管理者識別子
+- メールアドレス、電話番号、その他個人情報
+- `.env*` ファイル（.gitignoreで除外済みだが二重確認）
+
+### 安全な参照方法
+- 環境変数名のみ記載OK（例: `process.env.DISCORD_CLIENT_SECRET`）
+- プレースホルダー使用OK（例: `WEBHOOK_URL=（Discord Webhook URL）`）
+- 実値が必要な場合は `.env.local` または `ADMIN_REFERENCE.md`（gitignore済み）に記載
+
+### 新規ファイル・ドキュメント作成時
+- 設計書・計画書にシークレットの実値を書かない
+- コード例には必ず環境変数参照またはプレースホルダーを使う
+- コミット前に `git diff --cached` でシークレット混入がないか確認
+
 ## ルール（自動適用）
 CSS・UIデザイン・i18nのルールは `.claude/rules/` に定義済み。
 該当ファイルを編集すると自動的にロードされる。

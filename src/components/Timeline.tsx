@@ -5,6 +5,7 @@ import { TimelineRow } from './TimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
+import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
@@ -756,6 +757,14 @@ const Timeline: React.FC = () => {
             window.removeEventListener('timeline:party-settings', handlePartySettings);
         };
     }, []);
+
+    // プラン切替時にスクロール位置をトップにリセット
+    const currentPlanId = usePlanStore(s => s.currentPlanId);
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0 });
+        }
+    }, [currentPlanId]);
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);

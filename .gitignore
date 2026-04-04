@@ -11,6 +11,15 @@ ADMIN_REFERENCE.md
 .env*
 !.env.local.example
 
+# Private keys & certificates (絶対にコミットしない)
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*service-account*.json
+*serviceAccount*.json
+
 # Logs
 logs
 *.log

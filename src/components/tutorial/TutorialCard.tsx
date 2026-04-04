@@ -1,6 +1,17 @@
 // src/components/tutorial/TutorialCard.tsx
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Globe } from 'lucide-react';
+import { useThemeStore } from '../../store/useThemeStore';
+import type { ContentLanguage } from '../../store/useThemeStore';
+
+const LANGUAGES: { code: ContentLanguage; label: string }[] = [
+  { code: 'ja', label: '日本語' },
+  { code: 'en', label: 'English' },
+  { code: 'zh', label: '中文' },
+  { code: 'ko', label: '한국어' },
+];
 
 interface TutorialCardProps {
   messageKey: string;
@@ -14,6 +25,8 @@ interface TutorialCardProps {
   onNext?: () => void;
   /** ステップ進捗 "3 / 12" 等 */
   stepLabel?: string;
+  /** 言語切替ボタンを表示 */
+  showLanguageSwitcher?: boolean;
 }
 
 /**
@@ -31,10 +44,30 @@ export function TutorialCard({
   onSkip,
   onNext,
   stepLabel,
+  showLanguageSwitcher,
 }: TutorialCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { setContentLanguage } = useThemeStore();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  // クリック外で閉じる
+  useEffect(() => {
+    if (!langOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [langOpen]);
 
   if (!visible) return null;
+
+  const handleLangChange = (code: ContentLanguage) => {
+    i18n.changeLanguage(code);
+    setContentLanguage(code);
+    setLangOpen(false);
+  };
 
   return (
     <motion.div
@@ -55,10 +88,40 @@ export function TutorialCard({
         <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
 
         <div className="px-4 pt-3 pb-3">
-          {/* ステップカウンター */}
+          {/* ステップカウンター + 言語切替 */}
           {stepLabel && (
-            <div className="text-app-sm font-bold tracking-widest uppercase text-app-text-muted mb-1.5" style={{ color: '#22c55e' }}>
-              STEP {stepLabel}
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="text-app-sm font-bold tracking-widest uppercase text-app-text-muted" style={{ color: '#22c55e' }}>
+                STEP {stepLabel}
+              </div>
+              {showLanguageSwitcher && (
+                <div ref={langRef} className="relative">
+                  <button
+                    onClick={() => setLangOpen(v => !v)}
+                    className="flex items-center gap-1 text-app-text-muted hover:text-app-text transition-colors cursor-pointer p-0.5 rounded"
+                  >
+                    <Globe size={13} />
+                    <span className="text-app-sm font-bold uppercase">{i18n.language}</span>
+                  </button>
+                  {langOpen && (
+                    <div className="absolute right-0 top-full mt-1 bg-app-bg border border-app-text/15 rounded-lg shadow-xl py-1 min-w-[110px] z-[10010]">
+                      {LANGUAGES.map(({ code, label }) => (
+                        <button
+                          key={code}
+                          onClick={() => handleLangChange(code)}
+                          className={`w-full text-left px-3 py-1.5 text-app-base transition-colors cursor-pointer ${
+                            i18n.language === code
+                              ? 'bg-app-text text-app-bg font-black'
+                              : 'text-app-text hover:bg-app-text/5 font-medium'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
