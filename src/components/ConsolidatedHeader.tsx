@@ -46,28 +46,49 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
-// 保存状態インジケータ（実際の保存完了を反映）
+// 保存状態インジケータ（3段階: ローカル保存 → クラウド同期中 → 同期完了）
 const SaveIndicator: React.FC = React.memo(() => {
     const { t } = useTranslation();
     const currentPlanId = usePlanStore(s => s.currentPlanId);
     const saveStatus = usePlanStore(s => s._saveStatus);
+    const cloudStatus = usePlanStore(s => s._cloudStatus);
+    const user = useAuthStore(s => s.user);
 
     if (!currentPlanId) return null;
-    // idle（変更なし）の場合は何も表示しない
-    if (saveStatus === 'idle') return null;
+    if (saveStatus === 'idle' && cloudStatus === 'idle') return null;
+
+    // 表示優先度: saving > cloud_syncing > cloud_error > cloud_synced > saved
+    let text: string;
+    let className: string;
+
+    if (saveStatus === 'saving') {
+        text = t('app.saving');
+        className = 'text-app-text/50 animate-pulse';
+    } else if (cloudStatus === 'syncing') {
+        text = t('app.cloud_syncing');
+        className = 'text-app-text/50 animate-pulse';
+    } else if (cloudStatus === 'error') {
+        text = t('app.cloud_error');
+        className = 'text-red-400';
+    } else if (user && cloudStatus === 'synced') {
+        text = t('app.cloud_synced');
+        className = 'text-app-text';
+    } else if (saveStatus === 'saved') {
+        text = t('app.saved');
+        className = 'text-app-text';
+    } else {
+        return null;
+    }
 
     return (
         <span
             className={clsx(
                 "text-app-base transition-opacity duration-300",
-                saveStatus === 'saving' ? "text-app-text/50 animate-pulse" : "text-app-text"
+                className,
             )}
             style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
         >
-            {saveStatus === 'saving'
-                ? t('app.saving')
-                : t('app.saved')
-            }
+            {text}
         </span>
     );
 });
