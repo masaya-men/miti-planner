@@ -21,6 +21,7 @@ interface PlanState {
 
     // 保存インジケーター用（UIに実際の保存状態を反映）
     _saveStatus: 'idle' | 'saving' | 'saved';
+    _cloudStatus: 'idle' | 'syncing' | 'synced' | 'error';
     setSaveStatus: (status: 'idle' | 'saving' | 'saved') => void;
 
     // Actions
@@ -34,7 +35,9 @@ interface PlanState {
     // Firestore同期アクション
     markDirty: (planId: string) => void;
     syncToFirestore: (uid: string, displayName: string) => Promise<void>;
-    /** ログアウト前に全プランを強制同期（_isSyncingチェックをバイパス） */
+    /** Firestoreから最新データを取得してローカルとマージ（PULL操作） */
+    pullFromFirestore: (uid: string) => Promise<void>;
+    /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
     migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
@@ -57,6 +60,7 @@ export const usePlanStore = create<PlanState>()(
             _isSyncing: false,
             _lastSyncAt: 0,
             _saveStatus: 'idle' as const,
+            _cloudStatus: 'idle' as const,
             setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
@@ -141,6 +145,42 @@ export const usePlanStore = create<PlanState>()(
 
             // Firestore同期メソッド
 
+            /**
+             * Firestoreから最新データを取得してローカルとマージ（PULL操作）
+             * アプリ復帰時・タブ復帰時に呼ぶ
+             */
+            pullFromFirestore: async (uid) => {
+                const state = get();
+                if (state._isSyncing) return;
+
+                set({ _cloudStatus: 'syncing' });
+                try {
+                    const { merged, changed } = await planService.fetchAndMerge(
+                        state.plans,
+                        uid,
+                    );
+                    if (changed) {
+                        set({ plans: merged });
+                        // 現在開いているプランが更新された場合、MitigationStoreも更新
+                        const currentPlanId = get().currentPlanId;
+                        if (currentPlanId) {
+                            const updatedPlan = merged.find(p => p.id === currentPlanId);
+                            if (updatedPlan?.data) {
+                                const localPlan = state.plans.find(p => p.id === currentPlanId);
+                                // リモートの方が新しい場合のみMitigationStoreを更新
+                                if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
+                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data);
+                                }
+                            }
+                        }
+                    }
+                    set({ _cloudStatus: 'synced' });
+                } catch (err) {
+                    console.error('Firestore PULL エラー:', err);
+                    set({ _cloudStatus: 'error' });
+                }
+            },
+
             markDirty: (planId) => set((state) => ({
                 _dirtyPlanIds: new Set([...state._dirtyPlanIds, planId]),
             })),
@@ -218,7 +258,7 @@ export const usePlanStore = create<PlanState>()(
                 const syncingDirtyIds = new Set(state._dirtyPlanIds);
                 const syncingDeletedIds = new Set(state._deletedPlanIds);
 
-                set({ _isSyncing: true });
+                set({ _isSyncing: true, _cloudStatus: 'syncing' });
 
                 try {
                     // 削除されたプランの処理
@@ -258,10 +298,12 @@ export const usePlanStore = create<PlanState>()(
                             _dirtyPlanIds: remainingDirty,
                             _deletedPlanIds: remainingDeleted,
                             _lastSyncAt: Date.now(),
+                            _cloudStatus: 'synced' as const,
                         };
                     });
                 } catch (err) {
                     console.error('Firestore同期エラー:', err);
+                    set({ _cloudStatus: 'error' });
                 } finally {
                     set({ _isSyncing: false });
                 }
@@ -277,7 +319,6 @@ export const usePlanStore = create<PlanState>()(
 
                 const syncWork = async () => {
                     const state = get();
-                    const allPlanIds = new Set(state.plans.map(p => p.id));
                     // 削除の処理
                     for (const planId of state._deletedPlanIds) {
                         try {
@@ -286,13 +327,15 @@ export const usePlanStore = create<PlanState>()(
                             console.error('Firestore強制削除エラー:', planId, err);
                         }
                     }
-                    // 全プランを同期
-                    await planService.syncDirtyPlans(
-                        allPlanIds,
-                        state.plans,
-                        uid,
-                        displayName,
-                    );
+                    // dirtyプランのみ同期（盲目的に全プランをpushしない）
+                    if (state._dirtyPlanIds.size > 0) {
+                        await planService.syncDirtyPlans(
+                            state._dirtyPlanIds,
+                            state.plans,
+                            uid,
+                            displayName,
+                        );
+                    }
                 };
 
                 try {
