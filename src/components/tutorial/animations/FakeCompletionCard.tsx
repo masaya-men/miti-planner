@@ -55,7 +55,7 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
     window.addEventListener('keydown', blockKeys, true);
     const timer = setTimeout(() => {
       onComplete();
-    }, 2000);
+    }, 4000);
     return () => {
       window.removeEventListener('keydown', blockKeys, true);
       clearTimeout(timer);

@@ -184,6 +184,23 @@ export function TutorialOverlay() {
   const totalSteps = tutorial?.steps.length ?? 0;
   const stepLabel = totalSteps > 0 ? `${currentStepIdx + 1} / ${totalSteps}` : undefined;
 
+  // チュートリアル中はユーザーのスクロールを禁止（scrollIntoViewは影響なし）
+  useEffect(() => {
+    if (!isActive) return;
+
+    const prevent = (e: Event) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('wheel', prevent, { passive: false });
+    document.addEventListener('touchmove', prevent, { passive: false });
+
+    return () => {
+      document.removeEventListener('wheel', prevent);
+      document.removeEventListener('touchmove', prevent);
+    };
+  }, [isActive]);
+
   const handleSkip = useCallback(() => {
     useTutorialStore.getState().requestExit();
   }, []);
@@ -287,6 +304,7 @@ export function TutorialOverlay() {
             visible={true}
             onSkip={handleSkip}
             stepLabel={stepLabel}
+            showLanguageSwitcher={currentStepIdx === 0}
             onNext={step.pill === 'next' ? () => {
               useTutorialStore.getState().completeEvent(step.completionEvent);
             } : undefined}

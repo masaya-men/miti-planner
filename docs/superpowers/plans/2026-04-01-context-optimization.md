@@ -269,7 +269,7 @@ TODO.mdの以下のセクションを移動:
 - **最優先**: PartyAutoFill.tsx の自動埋めアニメーション修正
 - **次**: PillFly.tsx のピル飛行演出ブラッシュアップ
 - **その後**: feature/tutorial-overhaul を main にマージ → デプロイ
-- **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （旧管理者UID）、Vercel関数7/12
+- **注意**: ENFORCE_APP_CHECK=true が本番有効、管理者UID: （.env.local参照）、Vercel関数7/12
 
 ---
 
