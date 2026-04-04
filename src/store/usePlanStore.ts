@@ -153,7 +153,7 @@ export const usePlanStore = create<PlanState>()(
                 const state = get();
                 if (state._isSyncing) return;
 
-                set({ _cloudStatus: 'syncing' });
+                set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
                     const { merged, changed } = await planService.fetchAndMerge(
                         state.plans,
@@ -174,10 +174,10 @@ export const usePlanStore = create<PlanState>()(
                             }
                         }
                     }
-                    set({ _cloudStatus: 'synced' });
+                    set({ _isSyncing: false, _cloudStatus: 'synced' });
                 } catch (err) {
                     console.error('Firestore PULL エラー:', err);
-                    set({ _cloudStatus: 'error' });
+                    set({ _isSyncing: false, _cloudStatus: 'error' });
                 }
             },
 

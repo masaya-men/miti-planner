@@ -301,6 +301,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         // 5分ごとの定期同期（PUSH + PULL）
         const periodicSyncInterval = setInterval(() => {
+            // PULLの前にローカル編集をflush（未保存の編集が上書きされるのを防止）
+            saveSilently();
             syncToCloud();
             pullFromCloud();
         }, 5 * 60 * 1000);
