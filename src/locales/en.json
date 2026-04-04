@@ -86,7 +86,7 @@
     },
     "avatar": {
         "crop_title": "Set Icon",
-        "select_image": "Click to select an image",
+        "select_image": "Select an image",
         "max_size": "PNG / JPEG / WebP (up to 50MB)",
         "confirm": "Use this image",
         "change": "Change icon",
