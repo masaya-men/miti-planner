@@ -198,14 +198,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         };
 
-        /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ） */
-        const syncToCloud = () => {
+        /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ）
+         * @param force trueならクールダウン無視（タブ切替・ページ離脱時）
+         */
+        const syncToCloud = (force = false) => {
             const authState = useAuthStore.getState();
             const planStore = usePlanStore.getState();
             if (authState.user && planStore.hasDirtyPlans()) {
                 planStore.syncToFirestore(
                     authState.user.uid,
                     authState.user.displayName || 'Guest',
+                    force,
                 ).catch((err) => {
                     console.error('[LoPo] Firestore同期エラー:', err);
                 });
@@ -254,11 +257,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }, 500);
         });
 
-        /** ページ離脱時: localStorage即時保存 + Firestore同期 + 未保存警告 */
+        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視） + 未保存警告 */
         const onBeforeUnload = (e: BeforeUnloadEvent) => {
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
-            syncToCloud();
+            syncToCloud(true);
             const authState = useAuthStore.getState();
             const planState = usePlanStore.getState();
             // 未ログインでプランがある、またはログイン中で未同期の変更がある場合に警告
@@ -276,7 +279,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             if (document.hidden) {
                 if (localDebounceTimer) clearTimeout(localDebounceTimer);
                 saveSilently();
-                syncToCloud();
+                syncToCloud(true);  // タブ切替 = ユーザーの意図的操作 → クールダウン無視
                 usePlanStore.getState().setSaveStatus('saved');
             } else {
                 // タブ再表示 → PULL（他端末の変更を取得）
@@ -295,7 +298,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             prevPlanId = newId; // 再入防止: saveSilently→updatePlan→subscribe再発火時にスキップさせる
             if (oldId && oldId !== newId) {
                 saveSilently();
-                syncToCloud();
+                syncToCloud(true);  // プラン切替 = 意図的操作 → クールダウン無視
             }
         });
 
