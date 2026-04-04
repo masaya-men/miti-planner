@@ -83,9 +83,9 @@ export function TutorialCard({
       }}
       style={{ top, left, maxWidth: 280 }}
     >
-      <div className="rounded-xl overflow-hidden shadow-xl bg-app-bg border border-app-text/10">
+      <div className="rounded-xl shadow-xl bg-app-bg border border-app-text/10">
         {/* 緑アクセントバー */}
-        <div className="h-[3px] w-full" style={{ backgroundColor: '#22c55e' }} />
+        <div className="h-[3px] w-full rounded-t-xl" style={{ backgroundColor: '#22c55e' }} />
 
         <div className="px-4 pt-3 pb-3">
           {/* ステップカウンター + 言語切替 */}
