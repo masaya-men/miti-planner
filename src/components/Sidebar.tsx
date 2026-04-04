@@ -1346,21 +1346,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* バックアップ/復元ボタン */}
                     {!multiSelect.isEnabled && (
-                        <div className="shrink-0 px-3 py-2">
-                            <div className="border-t border-glass-border w-full mb-2" />
-                            <div className="flex gap-1.5">
+                        <div className="shrink-0 px-3 pt-1 pb-0">
+                            <div className="border-t border-glass-border w-full mb-1" />
+                            <div className="flex gap-1">
                                 <button
                                     onClick={() => setBackupExportOpen(true)}
-                                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
                                 >
-                                    <HardDrive size={12} />
+                                    <HardDrive size={11} />
                                     {isOpen ? t('backup.backup_button') : null}
                                 </button>
                                 <button
                                     onClick={() => setBackupRestoreOpen(true)}
-                                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-md text-app-sm text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
                                 >
-                                    <Download size={12} />
+                                    <Download size={11} />
                                     {isOpen ? t('backup.restore_button') : null}
                                 </button>
                             </div>
