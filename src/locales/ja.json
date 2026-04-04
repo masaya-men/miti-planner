@@ -69,12 +69,29 @@
     "login": {
         "title": "ログイン",
         "benefit_message": "ログインなしでも軽減表の作成・編集・共有ができます。ログインすると、軽減表の保存やチームロゴの設定ができるようになります。",
-        "privacy_message": "メールアドレスなどの個人情報は収集しません。表示名とアイコンのみ使用します。",
+        "privacy_message": "ログインにはDiscordまたはXアカウントを使用します。メールアドレスなどの個人情報はサーバーに保存されません。",
         "success_toast": "ログインしました",
         "success_title": "ログイン成功！",
         "welcome": "ようこそ、{{name}}さん！",
         "start_button": "はじめる",
         "authenticating": "ログイン中..."
+    },
+    "welcome": {
+        "title": "ようこそ LoPo へ",
+        "subtitle": "あなたの名前を決めてください",
+        "name_label": "表示名",
+        "name_placeholder": "好きな名前を入力",
+        "start": "はじめる",
+        "avatar_hint": "アイコンはあとからでも設定できます"
+    },
+    "avatar": {
+        "crop_title": "アイコンを設定",
+        "select_image": "画像を選んでタップ",
+        "max_size": "PNG / JPEG / WebP（50MBまで）",
+        "confirm": "この画像にする",
+        "change": "アイコンを変更",
+        "error_invalid_type": "PNG・JPEG・WebP画像のみ対応しています",
+        "error_too_large": "50MB以下の画像を選んでください"
     },
     "aa_settings": {
         "title": "AA追加モード",
@@ -464,21 +481,24 @@
     },
     "legal": {
         "privacy_title": "プライバシーポリシー",
-        "privacy_last_updated": "最終更新日: 2026年3月30日",
+        "privacy_last_updated": "最終更新日: 2026年4月4日",
         "privacy_intro": "LoPo（以下「本サービス」）は、ファイナルファンタジーXIVのファン向けツールを提供する非公式のWebサービスです。スクウェア・エニックスとは一切関係ありません。このページでは、本サービスがどんな情報を扱い、どのように守っているかをわかりやすく説明します。",
 
         "privacy_section1_title": "1. 集める情報",
         "privacy_section1_body": "本サービスが扱う情報は、大きく3種類あります。",
         "privacy_section1_auth_title": "ログインしたときに受け取る情報",
-        "privacy_section1_auth_items": "あなたの表示名（ニックネーム）,プロフィール画像のURL,ログイン方法の種類（Google・Discord・Xのいずれか）",
+        "privacy_section1_auth_items": "あなたが自分で設定した表示名,あなたが自分でアップロードしたアイコン画像,ログイン方法の種類（Discord・Xのいずれか）",
         "privacy_section1_plan_title": "あなたが作るデータ",
         "privacy_section1_plan_items": "軽減プランの内容（タイムライン・パーティ構成・軽減の配置など）,プランのタイトルや作成した日時,チームロゴの画像（自分でアップロードした場合のみ）",
         "privacy_section1_auto_title": "自動的に取得する情報",
         "privacy_section1_auto_items": "共有プランが何人に見られたかを正しく数えるため、閲覧時のIPアドレスを元に戻せない形に変換して記録します（元のIPアドレスを復元することはできません）,不正アクセスを防ぐため、IPアドレスを一時的に記録します（最大1分で自動的に消えます）",
 
+        "privacy_section1b_title": "ログイン時に外部サービスから届く情報について",
+        "privacy_section1b_body": "DiscordやXでログインする際、認証の仕組み上、外部サービスのAPIからあなたのアカウント情報（ユーザーID・表示名・アイコン画像URLなど）がサーバーに一時的に届きます。しかし、本サービスではユーザーIDのみを取り出し、それ以外の情報は一切保存・記録せず即座に破棄します。表示名やアイコンは、あなたが自分で設定したものだけを使用します。",
+
         "privacy_section2_title": "2. 集めない情報",
         "privacy_section2_body": "本サービスは、以下の情報を一切集めていません。",
-        "privacy_section2_items": "メールアドレス（ログインの仕組みの内部にだけ存在し、本サービスのデータベースには保存されません）,本名・住所・電話番号などの個人情報,お支払い情報（支援はKo-fiというサービスを通じて行われ、本サービスが決済情報を扱うことはありません）,ゲーム内のキャラクター名やプレイデータ",
+        "privacy_section2_items": "メールアドレス（DiscordやXでのログイン時にもサーバーには届きません）,本名・住所・電話番号などの個人情報,お支払い情報（支援はKo-fiというサービスを通じて行われ、本サービスが決済情報を扱うことはありません）,ゲーム内のキャラクター名やプレイデータ,外部サービス（Discord・X）の表示名やアイコン画像（APIから届いても即座に破棄します）",
 
         "privacy_section3_title": "3. 情報の使いみち",
         "privacy_section3_items": "ログインとアカウントの管理,軽減プランの保存・端末間の同期・他の人との共有,不正アクセスや悪用の防止,サービスの利用状況の把握と改善",

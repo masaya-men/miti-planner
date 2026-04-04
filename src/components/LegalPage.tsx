@@ -94,6 +94,11 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <SubSection title={t('legal.privacy_section1_auto_title')} items={splitItems(t('legal.privacy_section1_auto_items'))} />
             </Section>
 
+            {/* 1b. 外部サービスから届く情報について */}
+            <Section title={t('legal.privacy_section1b_title')}>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section1b_body')}</p>
+            </Section>
+
             {/* 2. 集めない情報 */}
             <Section title={t('legal.privacy_section2_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section2_body')}</p>
