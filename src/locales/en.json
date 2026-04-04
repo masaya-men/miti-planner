@@ -63,6 +63,7 @@
         "empty_state_mobile": "Select content from the menu",
         "toggle_theme_light": "Switch to Light Theme",
         "toggle_theme_dark": "Switch to Dark Theme",
+        "switch_language": "Language",
         "page_title_planner": "LoPo | Mitigation Planner",
         "page_title_landing": "LoPo — FFXIV Tool Portal"
     },
