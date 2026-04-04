@@ -6,7 +6,6 @@ import {
     Sun, Moon, FileDown,
     ChevronUp, ChevronDown,
     Users, Activity, Wand2, Star, LogIn, Crown,
-    CloudCheck, CloudUpload, CloudAlert,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -24,6 +23,7 @@ import { PartyStatusPopover } from './PartyStatusPopover';
 import { LoginModal } from './LoginModal';
 import { Tooltip } from './ui/Tooltip';
 import { ShareButtons } from './ShareButtons';
+import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 
 interface ConsolidatedHeaderProps {
@@ -47,68 +47,7 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
 
-/**
- * クラウド同期アイコンボタン
- * - CloudCheck: 同期済み
- * - CloudUpload: 未同期の変更あり（点滅）
- * - 回転アニメーション: 同期中
- * - CloudAlert: エラー（赤）
- * - タップで即時同期（クールダウン無視）
- * - 未ログイン時は非表示
- */
-const SyncButton: React.FC = React.memo(() => {
-    const currentPlanId = usePlanStore(s => s.currentPlanId);
-    const cloudStatus = usePlanStore(s => s._cloudStatus);
-    const user = useAuthStore(s => s.user);
-
-    if (!currentPlanId || !user) return null;
-
-    const handleSync = () => {
-        const planStore = usePlanStore.getState();
-        // 現在の編集をlocalStorageに保存（dirty追加なし）
-        if (planStore.currentPlanId) {
-            const snapshot = useMitigationStore.getState().getSnapshot();
-            // updatePlanはdirtyフラグを立てるので、直接plansを更新してからmanualSyncに任せる
-            planStore.updatePlan(planStore.currentPlanId, { data: snapshot });
-        }
-        planStore.manualSync(
-            user.uid,
-            user.displayName || 'Guest',
-        );
-    };
-
-    let Icon = CloudCheck;
-    let iconClass = 'text-blue-400';
-    let animate = '';
-
-    if (cloudStatus === 'syncing') {
-        Icon = CloudUpload;
-        iconClass = 'text-app-text/40';
-        animate = 'animate-spin';
-    } else if (cloudStatus === 'error') {
-        Icon = CloudAlert;
-        iconClass = 'text-red-400';
-    } else {
-        // 同期済み or 未同期 → 常に青チェック（未同期でもデータはlocalStorageに安全）
-        Icon = CloudCheck;
-        iconClass = 'text-blue-400';
-    }
-
-    return (
-        <button
-            onClick={handleSync}
-            disabled={cloudStatus === 'syncing'}
-            className={clsx(
-                "flex items-center justify-center w-6 h-6 rounded transition-all duration-200 hover:bg-app-text/10 active:scale-90 disabled:pointer-events-none",
-                iconClass,
-            )}
-            style={{ flexShrink: 0 }}
-        >
-            <Icon size={16} className={animate} />
-        </button>
-    );
-});
-SyncButton.displayName = 'SyncButton';
+// SyncButton は ./SyncButton.tsx に共有コンポーネントとして切り出し済み
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     onAutoPlan,
@@ -152,6 +91,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     // 認証状態
     const { user } = useAuthStore();
+    const profileDisplayName = useAuthStore(s => s.profileDisplayName);
+    const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const [showLoginModal, setShowLoginModal] = React.useState(false);
 
     // ログイン成功時: LoginModalを自動で閉じる（ウェルカム表示はLayout.tsxで一括管理）
@@ -291,16 +232,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <LanguageSwitcher />
 
                             {/* ログイン */}
-                            <Tooltip content={user ? (user.displayName || 'Account') : t('app.sign_in') || 'Sign In'}>
+                            <Tooltip content={user ? (profileDisplayName || 'Account') : t('app.sign_in') || 'Sign In'}>
                                 <button
                                     onClick={() => setShowLoginModal(true)}
                                     className={clsx(iconBtnBase, iconBtnDefault)}
                                 >
-                                    {user?.photoURL ? (
-                                        <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
+                                    {profileAvatarUrl ? (
+                                        <img src={profileAvatarUrl} alt="" className="w-6 h-6 rounded-full" />
                                     ) : user ? (
                                         <div className="w-6 h-6 rounded-full bg-app-text/15 flex items-center justify-center">
-                                            <span className="text-app-base font-black text-app-text">{(user.displayName || 'U').charAt(0).toUpperCase()}</span>
+                                            <span className="text-app-base font-black text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>
                                         </div>
                                     ) : (
                                         <LogIn size={16} />

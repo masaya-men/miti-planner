@@ -20,6 +20,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
+    const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
 
     const items = [
         {
@@ -52,12 +53,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         },
         {
             id: 'login',
-            icon: user?.photoURL ? (
+            icon: profileAvatarUrl ? (
                 <img
-                    src={user.photoURL}
+                    src={profileAvatarUrl}
                     alt=""
                     className="w-5 h-5 rounded-full object-cover"
-                    referrerPolicy="no-referrer"
                 />
             ) : (
                 <LogIn size={20} />
