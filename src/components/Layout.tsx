@@ -357,9 +357,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 初回ログイン判定
     const isNewUser = useAuthStore((s) => s.isNewUser);
 
-    // ログイン成功時: 表が見える前にオーバーレイを表示（チラつき防止）
-    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
     // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
+    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
     const [isAuthRedirecting, setIsAuthRedirecting] = React.useState(() =>
         localStorage.getItem('lopo_auth_redirecting') === 'true'
     );
@@ -382,35 +381,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 size={28} className="animate-spin text-app-text-muted" />
                         <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
-                    </div>
-                </div>
-            )}
-
-            {/* ログイン成功オーバーレイ — 表の描画より先にウェルカム画面を全面表示（チラつき防止） */}
-            {justLoggedInUser && (
-                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-[2px]">
-                    <div className="flex flex-col items-center gap-5 animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)] bg-app-bg border border-app-border rounded-2xl px-10 py-8 shadow-2xl max-w-[380px]">
-                        {justLoggedInUser.photoURL ? (
-                            <img src={justLoggedInUser.photoURL} alt="" className="w-16 h-16 rounded-full ring-2 ring-app-border shadow-lg" referrerPolicy="no-referrer" />
-                        ) : (
-                            <div className="w-16 h-16 rounded-full bg-app-surface2 flex items-center justify-center ring-2 ring-app-border">
-                                <span className="text-app-4xl-plus font-bold text-app-text">{(justLoggedInUser.displayName || 'U').charAt(0).toUpperCase()}</span>
-                            </div>
-                        )}
-                        <div className="text-center">
-                            <h2 className="text-app-3xl font-bold text-app-text mb-1" style={{ fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif" }}>
-                                {t('login.success_title')}
-                            </h2>
-                            <p className="text-app-2xl text-app-text-muted">
-                                {t('login.welcome', { name: justLoggedInUser.displayName || 'User' })}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => { useAuthStore.getState().clearJustLoggedIn(); }}
-                            className="w-full py-2.5 rounded-xl text-app-2xl font-bold bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98] transition-all cursor-pointer"
-                        >
-                            {t('login.start_button')}
-                        </button>
                     </div>
                 </div>
             )}

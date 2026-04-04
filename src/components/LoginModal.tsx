@@ -118,11 +118,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             {profileDisplayName || 'User'}
                                         </div>
                                         <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
-                                            {user.providerData[0]?.providerId === 'google.com' ? 'Google'
-                                                : user.providerData[0]?.providerId === 'twitter.com' ? 'X (Twitter)'
-                                                    : user.uid.startsWith('discord:') ? 'Discord'
-                                                        : user.uid.startsWith('twitter:') ? 'X (Twitter)'
-                                                            : (user.providerData[0]?.providerId || '')}
+                                            {user.uid.startsWith('discord:') ? 'Discord'
+                                                : user.uid.startsWith('twitter:') ? 'X (Twitter)'
+                                                    : ''}
                                             {t('app.sign_in_via')}
                                         </div>
                                     </div>
