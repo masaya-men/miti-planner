@@ -160,21 +160,18 @@ export default async function handler(req: any, res: any) {
 
         const { access_token } = await tokenRes.json();
 
-        // ステップ4: Twitter ユーザー情報取得
+        // ステップ4: Twitter ユーザーID取得（displayName/photoURLは取得しない）
         let twitterUserId: string;
-        let displayName: string | null = null;
-        let photoURL: string | null = null;
 
         try {
-            const userRes = await fetch(`${TWITTER_USER_URL}?user.fields=profile_image_url,name,username`, {
+            const userRes = await fetch(TWITTER_USER_URL, {
                 headers: { Authorization: `Bearer ${access_token}` },
             });
 
             if (userRes.ok) {
                 const { data } = await userRes.json();
                 twitterUserId = data.id;
-                displayName = data.name || data.username || null;
-                photoURL = data.profile_image_url || null;
+                // displayName, photoURL は取得しない
             } else {
                 twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
             }
@@ -197,9 +194,7 @@ export default async function handler(req: any, res: any) {
                 <script>
                     localStorage.setItem('lopo_auth_pending', JSON.stringify({
                         provider: 'twitter',
-                        token: ${JSON.stringify(customToken)},
-                        displayName: ${JSON.stringify(displayName)},
-                        photoURL: ${JSON.stringify(photoURL)}
+                        token: ${JSON.stringify(customToken)}
                     }));
                     var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
                     localStorage.removeItem('lopo_auth_return_url');
