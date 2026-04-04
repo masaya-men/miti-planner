@@ -5,7 +5,7 @@ import { X, Upload, FileUp, Loader, AlertTriangle } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { parseBackupJson, mergePlans, readBackupFile } from '../utils/backupService';
+import { parseBackupJson, mergePlans } from '../utils/backupService';
 import { showToast } from './Toast';
 
 interface Props {
@@ -33,16 +33,15 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const content = await readBackupFile(file);
-      setText(content);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setText(reader.result as string);
       setError('');
-    } catch {
-      setError(t('backup.restore_invalid_json'));
-    }
+    };
+    reader.readAsText(file);
     // input をリセットして同じファイルを再選択可能にする
     e.target.value = '';
   };
@@ -64,9 +63,10 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       const backup = parseBackupJson(text)!;
       const planStore = usePlanStore.getState();
       const ownerId = user?.uid ?? 'local';
+      const displayName = user?.displayName || 'Guest';
 
       // マージ実行
-      const merged = mergePlans(planStore.plans, backup.plans, ownerId);
+      const merged = mergePlans(planStore.plans, backup.plans, ownerId, displayName);
 
       // Zustand store更新
       planStore.setPlans(merged);
@@ -137,7 +137,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <input
               ref={fileRef}
               type="file"
-              accept=".json,.gz"
+              accept=".json"
               onChange={handleFileSelect}
               className="hidden"
             />

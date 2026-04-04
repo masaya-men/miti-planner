@@ -10,15 +10,26 @@ export interface BackupData {
   plans: SavedPlan[];
 }
 
+/** エクスポート時に除外するフィールド（個人情報保護） */
+const STRIP_FIELDS: (keyof SavedPlan)[] = ['ownerId', 'ownerDisplayName'];
+
 /**
- * SavedPlan[] からバックアップJSON文字列を生成（整形なし=コンパクト）
+ * SavedPlan[] からバックアップJSON文字列を生成。
+ * ownerId / ownerDisplayName を除外して個人情報を含めない。
  */
 export function createBackupJson(plans: SavedPlan[]): string {
+  const sanitized = plans.map((plan) => {
+    const copy = { ...plan };
+    for (const field of STRIP_FIELDS) {
+      delete (copy as Record<string, unknown>)[field];
+    }
+    return copy;
+  });
   const data: BackupData = {
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
-    planCount: plans.length,
-    plans,
+    planCount: sanitized.length,
+    plans: sanitized,
   };
   return JSON.stringify(data);
 }
@@ -62,6 +73,7 @@ export function mergePlans(
   existingPlans: SavedPlan[],
   backupPlans: SavedPlan[],
   currentOwnerId: string,
+  currentDisplayName: string,
 ): SavedPlan[] {
   const backupMap = new Map(backupPlans.map((p) => [p.id, p]));
   const merged: SavedPlan[] = [];
@@ -70,7 +82,7 @@ export function mergePlans(
   for (const existing of existingPlans) {
     const fromBackup = backupMap.get(existing.id);
     if (fromBackup) {
-      merged.push({ ...fromBackup, ownerId: currentOwnerId });
+      merged.push({ ...fromBackup, ownerId: currentOwnerId, ownerDisplayName: currentDisplayName });
       backupMap.delete(existing.id);
     } else {
       merged.push(existing);
@@ -79,56 +91,21 @@ export function mergePlans(
 
   // バックアップにしかないプランを追加
   for (const newPlan of backupMap.values()) {
-    merged.push({ ...newPlan, ownerId: currentOwnerId });
+    merged.push({ ...newPlan, ownerId: currentOwnerId, ownerDisplayName: currentDisplayName });
   }
 
   return merged;
 }
 
 /**
- * JSON文字列をgzip圧縮してダウンロードする
+ * JSONファイルをダウンロードする（平文JSON、透明性のため圧縮しない）
  */
-export async function downloadBackupFile(json: string, filename: string): Promise<void> {
-  const encoder = new TextEncoder();
-  const inputStream = new ReadableStream({
-    start(controller) {
-      controller.enqueue(encoder.encode(json));
-      controller.close();
-    },
-  });
-  const compressedStream = inputStream.pipeThrough(new CompressionStream('gzip'));
-  const reader = compressedStream.getReader();
-  const chunks: Uint8Array[] = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-  }
-  const blob = new Blob(chunks as BlobPart[], { type: 'application/gzip' });
+export function downloadBackupFile(json: string, filename: string): void {
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename + '.gz';
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-}
-
-/**
- * ファイルを読み込んでJSON文字列を返す。
- * .gz ファイルはgzip解凍、それ以外はそのままテキストとして読む。
- */
-export async function readBackupFile(file: File): Promise<string> {
-  if (file.name.endsWith('.gz')) {
-    const decompressedStream = file.stream().pipeThrough(new DecompressionStream('gzip'));
-    const reader = decompressedStream.getReader();
-    const chunks: Uint8Array[] = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-    }
-    const decoder = new TextDecoder();
-    return chunks.map((c) => decoder.decode(c, { stream: true })).join('') + decoder.decode();
-  }
-  return file.text();
 }
