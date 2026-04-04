@@ -249,8 +249,9 @@ export const usePlanStore = create<PlanState>()(
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
 
-                // 3分クールダウン: 前回の同期から3分以内なら実行しない
-                const SYNC_COOLDOWN_MS = 3 * 60 * 1000;
+                // 10秒クールダウン: 高速連続編集時の過剰な書き込みを防止
+                // （500msデバウンス + 10秒クールダウン = 最大10.5秒でFirestoreに到達）
+                const SYNC_COOLDOWN_MS = 10 * 1000;
                 const now = Date.now();
                 if (state._lastSyncAt > 0 && now - state._lastSyncAt < SYNC_COOLDOWN_MS) return;
 
