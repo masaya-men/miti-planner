@@ -194,6 +194,7 @@
         "cd_remaining": "CD残{{seconds}}s",
         "cd_overlap": "{{seconds}}秒後に同じ軽減が配置済みです。取り除くかずらしてください",
         "next_at": "{{gap}}s後に配置済。ずらすか除去してください。",
+        "next_at_short": "{{gap}}秒後に使用中",
         "select_target": "対象を選択",
         "no_skills": "このジョブの軽減スキルはありません。",
         "remove": "削除",
@@ -332,7 +333,8 @@
         "nav_no_labels": "ラベルなし",
         "nav_no_results": "該当なし",
         "end_phase": "ここまでのフェーズ名を追加",
-        "add_event": "敵の攻撃を追加"
+        "add_event": "敵の攻撃を追加",
+        "add_label": "ここまでのギミックを追加"
     },
     "migration": {
         "title": "ジョブ変更に伴うスキル引き継ぎ",

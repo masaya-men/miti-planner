@@ -250,7 +250,7 @@ export function validateMitigationPlacement(
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string
-): { available: boolean; warning?: boolean; message?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string } {
+): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string } {
 
     // Filter out the instance being moved if dragging
     const relevantMitigations = ignoreInstanceId
@@ -419,6 +419,7 @@ export function validateMitigationPlacement(
                 // If just selecting, show warning
                 const gap = Math.floor(firstNext.time - selectedTime);
                 const label = t('mitigation.next_at', { time: firstNext.time, gap, defaultValue: `Next at ${firstNext.time}s (${gap}s gap)` });
+                const shortLabel = t('mitigation.next_at_short', { gap, defaultValue: `In use ${gap}s later` });
                 // Get resource badge if applicable
                 const resourceBadge = m.resourceCost ? (() => {
                     let stacks = 0;
@@ -426,7 +427,7 @@ export function validateMitigationPlacement(
                     else if (m.resourceCost!.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
                     return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
                 })() : {};
-                return { available: true, warning: true, message: label, conflictInstanceId: firstNext.id, ...resourceBadge };
+                return { available: true, warning: true, message: label, shortMessage: shortLabel, conflictInstanceId: firstNext.id, ...resourceBadge };
             }
         }
     }

@@ -68,8 +68,10 @@ export default async function handler(req: any, res: any) {
     }
 
     // timelineEventsの各要素を検証（最低限の型チェック）
+    // name は LocalizedString（{ ja, en }）またはレガシーの string
     const isValidEvent = (e: any) =>
-      e && typeof e === 'object' && typeof e.time === 'number' && typeof e.name === 'string';
+      e && typeof e === 'object' && typeof e.time === 'number'
+      && (typeof e.name === 'string' || (e.name && typeof e.name === 'object'));
     if (!body.timelineEvents.every(isValidEvent)) {
       return res.status(400).json({ error: 'Invalid timelineEvents format' });
     }

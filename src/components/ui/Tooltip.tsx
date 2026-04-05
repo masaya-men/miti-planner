@@ -125,7 +125,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
             {children}
             {createPortal(
                 <AnimatePresence>
-                    {isVisible && (
+                    {isVisible && content && (
                         <motion.div
                             ref={popupRef}
                             initial={{ opacity: 0, scale: 0.97 }}

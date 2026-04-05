@@ -173,6 +173,7 @@
         "seraph_cancels_dissipation": "效果期间放置将移除转化。",
         "cd_overlap": "相同减伤在 {{seconds}} 秒后放置。请移除或调整。",
         "next_at": "在 {{gap}} 秒后放置。请移除或调整。",
+        "next_at_short": "{{gap}}秒后使用中",
         "select_target": "选择目标",
         "no_skills": "该职业没有可用的减伤技能。",
         "remove": "移除",
@@ -311,7 +312,8 @@
         "nav_no_labels": "无标签",
         "nav_no_results": "无结果",
         "end_phase": "添加到此处的阶段名称",
-        "add_event": "添加机制"
+        "add_event": "添加机制",
+        "add_label": "添加到此处的机制标签"
     },
     "migration": {
         "title": "职业变更技能迁移",

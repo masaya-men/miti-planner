@@ -337,16 +337,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             authUser.uid,
             profileName,
         ).then(() => {
-            // マイグレーション後、プランがあれば最新を開く
-            const { plans, currentPlanId } = usePlanStore.getState();
-            if (plans.length > 0 && !currentPlanId) {
-                const latest = plans.sort((a, b) => b.updatedAt - a.updatedAt)[0];
-                usePlanStore.getState().setCurrentPlanId(latest.id);
-                if (latest.data) {
-                    useMitigationStore.getState().loadSnapshot(latest.data);
-                }
-            }
-            // プラン読み込み完了後にフラグを立てる（チュートリアル自動起動のガードに使用）
+            // プラン自動読み込みは廃止（チュートリアルによるデータ消失防止）
+            // ユーザーはサイドバーからプランを選んで開く
             usePlanStore.setState({ _migrationDone: true });
         }).catch(() => {
             usePlanStore.setState({ _migrationDone: true });
@@ -533,28 +525,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onMenuToggle={() => {
                     const next = !mobileMenuOpen;
                     setMobileMenuOpen(next);
-                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
+                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                 }}
                 onPartyOpen={() => {
                     const next = !mobilePartyOpen;
                     setMobilePartyOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); }
+                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                 }}
                 onToolsOpen={() => {
                     const next = !mobileToolsOpen;
                     setMobileToolsOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileAccountOpen(false); }
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                 }}
                 onLoginOpen={() => {
                     const authUser = useAuthStore.getState().user;
                     if (authUser) {
-                        // ログイン済み → アカウントシート
                         const next = !mobileAccountOpen;
                         setMobileAccountOpen(next);
-                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); }
+                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                     } else {
-                        // 未ログイン → ログインモーダル
                         setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false);
+                        window.dispatchEvent(new Event('mobile:close-miti-flow'));
                         setMobileLoginModalOpen(true);
                     }
                 }}

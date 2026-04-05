@@ -224,43 +224,9 @@ const MobileStatusView: React.FC = () => {
 };
 
 // ── モバイル用パーティ＋ステータスタブ ──
-export const MobilePartyWithTabs: React.FC = () => {
-    const { t } = useTranslation();
-    const [activeTab, setActiveTab] = React.useState<'party' | 'status'>('party');
-
-    return (
-        <div className="flex flex-col gap-3">
-            {/* タブ切り替え */}
-            <div className="flex rounded-xl bg-app-surface2 border border-app-border p-0.5">
-                <button
-                    onClick={() => setActiveTab('party')}
-                    className={clsx(
-                        "flex-1 py-2 text-app-lg font-black tracking-wide rounded-lg transition-all cursor-pointer",
-                        activeTab === 'party'
-                            ? "bg-app-text text-app-bg"
-                            : "text-app-text-muted"
-                    )}
-                >
-                    {t('nav.tab_party')}
-                </button>
-                <button
-                    onClick={() => setActiveTab('status')}
-                    className={clsx(
-                        "flex-1 py-2 text-app-lg font-black tracking-wide rounded-lg transition-all cursor-pointer",
-                        activeTab === 'status'
-                            ? "bg-app-text text-app-bg"
-                            : "text-app-text-muted"
-                    )}
-                >
-                    {t('nav.tab_status')}
-                </button>
-            </div>
-
-            {/* タブの中身 */}
-            {activeTab === 'party' ? <MobilePartySettings /> : <MobileStatusView />}
-        </div>
-    );
-};
+export const MobilePartyWithTabs: React.FC = () => (
+    <MobilePartySettings />
+);
 
 // ── モバイル用アカウントメニュー（ログイン済み時） ──
 export const MobileAccountMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => {

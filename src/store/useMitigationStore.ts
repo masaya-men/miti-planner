@@ -914,6 +914,21 @@ export const useMitigationStore = create<MitigationState>()(
         {
             name: 'mitigation-storage',
             version: 4,
+            // チュートリアル中はlocalStorageへの書き込みを停止（壊れたデータの永続化を防止）
+            storage: {
+                getItem: (name: string) => {
+                    const str = localStorage.getItem(name);
+                    return str ? JSON.parse(str) : null;
+                },
+                setItem: (name: string, value: unknown) => {
+                    // チュートリアル中は書き込みスキップ
+                    if (useTutorialStore.getState().isActive) return;
+                    localStorage.setItem(name, JSON.stringify(value));
+                },
+                removeItem: (name: string) => {
+                    localStorage.removeItem(name);
+                },
+            },
             partialize: (state: MitigationState) => ({
                 currentLevel: state.currentLevel,
                 timelineEvents: state.timelineEvents,
