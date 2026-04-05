@@ -9,14 +9,35 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **今回の作業**: FFLogsインポートv2ダメージ精度改善
-- **前回完了**: FFLogsインポートv2本番動作確認 + 複数バグ修正
-- **デプロイ済み**: a1f71c2（AoEタンク除外+両タンクTB扱い）
-- **次のタスク**: FFLogsダメージ精度の継続改善（下記「進行中」参照）
+- **今回の作業**: チュートリアルデータ消失バグ修正 + ダメージ精度改善 + スプシ取込改善
+- **デプロイ済み**: 33f60b2（_migrationDoneフラグ方式 — まだ不完全、下記で根本修正予定）
+- **最優先タスク**: チュートリアルによるプランデータ消失の根本修正（下記「緊急」参照）
 - **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、Vercel月100ビルド制限（今日だけで8ビルド消費）
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、Vercel月100ビルド制限
 - **既知の制限**: FFLogs翻訳はキルログのみ対応、中韓は手動入力
 - **デバッグログ**: 除去済み
+
+---
+
+## 緊急: チュートリアルによるプランデータ消失の根本修正
+
+**問題**: ログアウト→ログイン→チュートリアル自動起動でプランデータが消える
+**原因**: migrateOnLogin（非同期）完了前にチュートリアルがresetForTutorial()を呼ぶ
+**暫定修正（不完全）**: _migrationDoneフラグ — タイミング問題が解消しきれない
+
+### 確定方針（3点セット）
+1. **ログイン後のプラン自動読み込みを廃止** → mitigationStoreを空のままにする → チュートリアルが消すデータがない → プランデータ保護100%
+   - Layout.tsxの`.then()`内のloadSnapshot呼び出しを削除
+   - ユーザーはサイドバーからプランを選んで開く（1クリック増）
+2. **スナップショットをsessionStorageに保存** → ページリロード時にチュートリアル中の作業を復元可能に
+   - useTutorialStore.tsのstartTutorial()でsessionStorage.setItem
+   - リロード時にsessionStorageから復元
+3. **チュートリアル中はmitigationStoreのlocalStorage永続化を停止** → 壊れたデータがlocalStorageに書き込まれない
+
+### 変更対象ファイル
+- `src/components/Layout.tsx` — 自動loadSnapshot削除
+- `src/store/useTutorialStore.ts` — sessionStorage保存・復元
+- `src/store/useMitigationStore.ts` — チュートリアル中のpersist停止
 
 ---
 
