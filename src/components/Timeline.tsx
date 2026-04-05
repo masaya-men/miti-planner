@@ -533,7 +533,7 @@ const Timeline: React.FC = () => {
     const {
         mobilePartyOpen, setMobilePartyOpen,
         mobileToolsOpen, setMobileToolsOpen,
-        mobileMenuOpen, setMobileMenuOpen,
+        setMobileMenuOpen,
     } = useContext(MobileTriggersContext);
 
     // データ（useShallowで浅い比較 → 値が変わったときだけ再レンダー）
