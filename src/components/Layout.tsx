@@ -556,7 +556,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             </button>
                         )},
                         { key: 'sync', delay: 0.9, render: () => (
-                            <SyncButton size={14} />
+                            <SyncButton size={14} className="w-6 h-6" />
                         )},
                     ].map(({ key, delay, render }) => (
                         <motion.div
