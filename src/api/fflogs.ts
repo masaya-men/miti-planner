@@ -458,7 +458,18 @@ export async function fetchPlayerDetails(
         reportCode,
         fightIDs: [fightId],
     });
-    return data.reportData.report.playerDetails;
+    const raw = data.reportData.report.playerDetails;
+    // DEBUG: playerDetails の実際の構造をログ出力
+    console.log('[DEBUG playerDetails] raw response:', JSON.stringify(raw, null, 2));
+
+    // FFLogs playerDetails は {data: {playerDetails: {tanks, healers, dps}}} の場合がある
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const details = (raw as any)?.data?.playerDetails ?? raw;
+    return {
+        tanks: details?.tanks ?? [],
+        healers: details?.healers ?? [],
+        dps: details?.dps ?? [],
+    };
 }
 
 // ─────────────────────────────────────────────────────────────

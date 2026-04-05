@@ -232,56 +232,55 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     /* ────── ログイン必須ガード ────── */
     if (!isLoggedIn) {
-        return (
-            <>
-                <AnimatePresence>
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center" onClick={handleClose}>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            className="relative w-full max-w-md mx-4 glass-tier3 shadow-sm rounded-2xl overflow-hidden"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
-                                <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
-                                    <CloudDownload size={18} />
-                                    {t('fflogs.title')}
-                                </h2>
-                                <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                            <div className="p-6 space-y-4">
-                                <div className="flex items-center justify-center">
-                                    <div className="w-12 h-12 rounded-full bg-app-text/10 flex items-center justify-center">
-                                        <LogIn size={24} className="text-app-text" />
-                                    </div>
+        return createPortal(
+            <AnimatePresence>
+                <div className="fixed inset-0 z-[200] flex items-center justify-center" onClick={handleClose}>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="relative w-full max-w-md mx-4 glass-tier3 shadow-sm rounded-2xl overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
+                            <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
+                                <CloudDownload size={18} />
+                                {t('fflogs.title')}
+                            </h2>
+                            <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-app-text/10 flex items-center justify-center">
+                                    <LogIn size={24} className="text-app-text" />
                                 </div>
-                                <h3 className="text-center text-app-2xl-plus font-bold text-app-text">
-                                    {t('fflogs.login_required_title')}
-                                </h3>
-                                <p className="text-center text-app-2xl text-app-text-muted leading-relaxed">
-                                    {t('fflogs.login_required_description')}
-                                </p>
-                                <button
-                                    onClick={() => { handleClose(); setShowLoginModal(true); }}
-                                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-app-2xl font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
-                                >
-                                    <LogIn size={16} />
-                                    {t('fflogs.login_button')}
-                                </button>
                             </div>
-                        </motion.div>
-                    </div>
-                </AnimatePresence>
-            </>
+                            <h3 className="text-center text-app-2xl-plus font-bold text-app-text">
+                                {t('fflogs.login_required_title')}
+                            </h3>
+                            <p className="text-center text-app-2xl text-app-text-muted leading-relaxed">
+                                {t('fflogs.login_required_description')}
+                            </p>
+                            <button
+                                onClick={() => { handleClose(); setShowLoginModal(true); }}
+                                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-app-2xl font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
+                            >
+                                <LogIn size={16} />
+                                {t('fflogs.login_button')}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            </AnimatePresence>,
+            document.body,
         );
     }
 
