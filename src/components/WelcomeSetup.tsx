@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Camera } from 'lucide-react';
+import { Camera, X } from 'lucide-react';
 import clsx from 'clsx';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -26,6 +26,11 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
     const [error, setError] = useState<string | null>(null);
 
     if (!user) return null;
+
+    const handleCancel = async () => {
+        if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+        await useAuthStore.getState().signOut();
+    };
 
     const handleAvatarComplete = (blob: Blob) => {
         setAvatarBlob(blob);
@@ -86,10 +91,19 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
     return createPortal(
         <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg/95">
             <div className={clsx(
-                "w-full max-w-[380px] mx-4 rounded-2xl glass-tier3",
+                "relative w-full max-w-[380px] mx-4 rounded-2xl glass-tier3",
                 "animate-[dialogIn_300ms_cubic-bezier(0.2,0.8,0.2,1)]",
                 "px-8 py-8 flex flex-col items-center gap-6"
             )}>
+                {/* ×ボタン */}
+                <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                >
+                    <X size={18} />
+                </button>
+
                 {/* タイトル */}
                 <div className="text-center">
                     <h1
@@ -187,6 +201,15 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                 <p className="text-app-base text-app-text-muted/60 text-center">
                     {t('welcome.avatar_hint')}
                 </p>
+
+                {/* キャンセルリンク */}
+                <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="text-app-base text-app-text-muted/50 hover:text-app-text transition-colors cursor-pointer"
+                >
+                    {t('common.cancel')}
+                </button>
             </div>
 
             {/* アバタークロップモーダル */}
