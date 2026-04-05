@@ -152,12 +152,13 @@ export function LandingScene() {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
     let animId: number;
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      uniforms.uTime.value = clock.getElapsedTime();
+      timer.update();
+      uniforms.uTime.value = timer.getElapsed();
       renderer.render(scene, camera);
     };
     animate();

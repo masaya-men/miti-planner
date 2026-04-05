@@ -13,7 +13,6 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { getTemplate } from '../data/templateLoader';
 import { PLAN_LIMITS } from '../types/firebase';
 import { LoginModal } from './LoginModal';
 import { X, AlertTriangle } from 'lucide-react';
@@ -120,7 +119,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const isContentLimitReached = boss ? contentPlanCount >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT : false;
     const isBlocked = isTotalLimitReached || isContentLimitReached;
 
-    const handleCreate = async () => {
+    const handleCreate = () => {
         if (!canCreate || isBlocked || !level) return;
 
         // 1. 現在のプランを保存
@@ -136,44 +135,14 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         store.applyDefaultStats(useLevel, boss?.patch);
         store.clearAllMitigations();
 
-        // 3. テンプレート読み込み（零式・絶でコンテンツ選択時のみ）
-        if (boss) {
-            const tpl = await getTemplate(boss.id);
-            if (tpl) {
-                const snap = store.getSnapshot();
-                store.loadSnapshot({
-                    ...snap,
-                    timelineMitigations: [],
-                    timelineEvents: tpl.timelineEvents,
-                    phases: tpl.phases ? tpl.phases
-                        .filter(p => p.startTimeSec >= 0)
-                        .map((p, i, arr) => {
-                            const nextStart = arr[i + 1]?.startTimeSec;
-                            const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
-                            return {
-                                id: `phase_${p.id}`,
-                                name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
-                                endTime: nextStart !== undefined ? nextStart : maxTime + 10
-                            };
-                        }) : []
-                });
-            } else {
-                store.loadSnapshot({
-                    ...store.getSnapshot(),
-                    timelineEvents: [],
-                    timelineMitigations: [],
-                    phases: []
-                });
-            }
-        } else {
-            // コンテンツなし → 完全に空のプラン
-            store.loadSnapshot({
-                ...store.getSnapshot(),
-                timelineEvents: [],
-                timelineMitigations: [],
-                phases: []
-            });
-        }
+        // 3. 空のタイムラインで開始（テンプレートは読み込まない）
+        store.loadSnapshot({
+            ...store.getSnapshot(),
+            timelineEvents: [],
+            timelineMitigations: [],
+            phases: [],
+        });
+        store.setHideEmptyRows(false);
 
         // 4. contentId の決定
         // 零式・絶: 既存のコンテンツID / それ以外: ユーザー入力名をそのまま使う
