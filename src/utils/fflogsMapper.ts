@@ -485,6 +485,29 @@ function detectDamageWaves(damages: DamageEntry[]): DamageWave[] {
     }
     waves.push({ timeMs: currentWaveStart, damages: currentWave });
 
+    return mergeAoEWaves(waves);
+}
+
+/**
+ * パケット到着順のずれで分かれたAoE波をマージする。
+ * 例: タンクだけ先にダメージパケットが到着 → 小波(1-2人) + 大波(残り) に分かれる
+ * → 全波の合計ユニークターゲットが3人以上なら1つのAoE波にマージ
+ */
+function mergeAoEWaves(waves: DamageWave[]): DamageWave[] {
+    if (waves.length <= 1) return waves;
+
+    // 全波を通じたユニークプレイヤー数
+    const allTargets = new Set<number>();
+    for (const w of waves) {
+        for (const d of w.damages) allTargets.add(d.tgtID);
+    }
+
+    // 3人以上なら全体がAoEの一部 → 1つにマージ
+    if (allTargets.size >= 3) {
+        const allDamages = waves.flatMap(w => w.damages);
+        return [{ timeMs: waves[0].timeMs, damages: allDamages }];
+    }
+
     return waves;
 }
 
