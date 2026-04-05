@@ -190,6 +190,38 @@ export function mapFFLogsToTimeline(
     }
     const castDamageMap = matchDamageToCasts(casts, damageEntries, aaGuids);
 
+    // DEBUG: キャストに紐付かなかったダメージイベントを集計
+    const matchedSet = new Set<DamageEntry>();
+    for (const entries of castDamageMap.values()) {
+        for (const e of entries) matchedSet.add(e);
+    }
+    const unmatchedDamage = damageEntries.filter(d =>
+        !matchedSet.has(d) && !aaGuids.has(d.guid) && d.rawDmg > 0
+    );
+    if (unmatchedDamage.length > 0) {
+        const summary = new Map<string, { count: number; maxDmg: number; minTime: number; guids: Set<number> }>();
+        for (const d of unmatchedDamage) {
+            const name = jpNameMap.get(d.guid) ?? enNameMap.get(d.guid) ?? `GUID:${d.guid}`;
+            if (!summary.has(name)) summary.set(name, { count: 0, maxDmg: 0, minTime: Infinity, guids: new Set() });
+            const s = summary.get(name)!;
+            s.count++;
+            s.maxDmg = Math.max(s.maxDmg, d.rawDmg);
+            s.minTime = Math.min(s.minTime, d.timeMs);
+            s.guids.add(d.guid);
+        }
+        console.log(`[DEBUG UNMATCHED] キャストに紐付かなかったダメージ (${unmatchedDamage.length}件):`);
+        for (const [name, s] of summary) {
+            console.log(
+                `  ${name} | count=${s.count} | maxDmg=${s.maxDmg} | firstAt=${Math.floor(s.minTime / 1000)}s | GUIDs=${[...s.guids].join(',')}`,
+            );
+        }
+    }
+
+    // DEBUG: begincast以外のキャストイベント数
+    const castOnlyCount = castEn.filter(ev => ev.type === 'cast').length;
+    const beginCastCount = castEn.filter(ev => ev.type === 'begincast').length;
+    console.log(`[DEBUG CAST] begincast=${beginCastCount}, cast(即発動)=${castOnlyCount}, total=${castEn.length}`);
+
     // ── Step 3: MT/ST判定（AA被弾パターン） ──
     const aaDamage = damageEntries.filter(d => {
         const en = enNameMap.get(d.guid) ?? '';
