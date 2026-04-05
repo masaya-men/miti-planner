@@ -24,6 +24,9 @@ interface PlanState {
     _cloudStatus: 'idle' | 'syncing' | 'synced' | 'error';
     setSaveStatus: (status: 'idle' | 'saving' | 'saved') => void;
 
+    /** ログイン時のmigrateOnLoginが完了したかどうか */
+    _migrationDone: boolean;
+
     // Actions
     addPlan: (plan: SavedPlan) => void;
     updatePlan: (id: string, data: Partial<SavedPlan>) => void;
@@ -63,6 +66,7 @@ export const usePlanStore = create<PlanState>()(
             _lastSyncAt: 0,
             _saveStatus: 'idle' as const,
             _cloudStatus: 'idle' as const,
+            _migrationDone: false,
             setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
@@ -407,9 +411,11 @@ export const usePlanStore = create<PlanState>()(
                         _dirtyPlanIds: new Set<string>(dirtyIds),
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
+                        _migrationDone: true,
                     });
                 } catch (err) {
                     console.error('マイグレーションエラー:', err);
+                    set({ _migrationDone: true });
                 }
             },
 

@@ -7,6 +7,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { MobileGuide } from './MobileGuide';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
@@ -29,7 +30,13 @@ export const MitiPlannerPage: React.FC = () => {
     // チュートリアル / モバイルガイドの自動起動
     // モバイル: 簡易ガイド（スワイプカード式）を表示
     // PC: 従来の25ステップチュートリアルを起動
+    // ※ ログイン中はmigrateOnLogin完了後まで待つ（プランデータ消失防止）
+    const authUser = useAuthStore((s) => s.user);
+    const migrationDone = usePlanStore((s) => s._migrationDone);
     useEffect(() => {
+        // ログイン中だがマイグレーション未完了 → まだチェックしない
+        if (authUser && !migrationDone) return;
+
         const isMobile = window.innerWidth < 768;
         const { isActive, hasCompleted, hasVisitedShare } = useTutorialStore.getState();
         const mitiState = useMitigationStore.getState();
@@ -68,7 +75,7 @@ export const MitiPlannerPage: React.FC = () => {
                 return () => clearTimeout(timer);
             }
         }
-    }, []);
+    }, [authUser, migrationDone]);
 
     const handleMobileGuideClose = () => {
         setMobileGuideOpen(false);

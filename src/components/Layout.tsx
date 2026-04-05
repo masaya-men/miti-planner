@@ -323,7 +323,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [hasMigrated, setHasMigrated] = React.useState(false);
     // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
     React.useEffect(() => {
-        if (!authUser) setHasMigrated(false);
+        if (!authUser) {
+            setHasMigrated(false);
+            usePlanStore.getState()._migrationDone && usePlanStore.setState({ _migrationDone: false });
+        }
     }, [authUser]);
     React.useEffect(() => {
         if (authLoading || !authUser || hasMigrated) return;
