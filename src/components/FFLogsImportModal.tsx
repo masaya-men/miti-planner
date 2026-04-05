@@ -5,7 +5,7 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { resolveFight, fetchFightEvents, fetchDeathEvents, fetchCastEvents } from '../api/fflogs';
+import { resolveFight, fetchFightEvents, fetchDeathEvents, fetchCastEvents, fetchPlayerDetails } from '../api/fflogs';
 import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
 import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
@@ -99,7 +99,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     const handleFetch = async () => {
         if (!parsedData || !isLoggedIn) return;
 
-        // クライアント側レート制限チェック
         if (getRemainingImports() <= 0) {
             setStatus({ phase: 'error', message: t('fflogs.rate_limit_exceeded', { max: IMPORT_RATE_LIMIT }) });
             return;
@@ -109,15 +108,16 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             recordImport();
             setStatus({ phase: 'loading', message: t('fflogs.resolving') });
             const fight = await resolveFight(
-                parsedData.reportId, 
+                parsedData.reportId,
                 parsedData.fightId
             );
 
-            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP', name: fight.name }) });
-            const eventsJp = await fetchFightEvents(parsedData.reportId, fight, false);
+            setStatus({ phase: 'loading', message: t('fflogs.fetching_players') });
+            const players = await fetchPlayerDetails(parsedData.reportId, fight.id);
 
-            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'EN', name: fight.name }) });
-            const [eventsEn, deaths, castEn, castJp] = await Promise.all([
+            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP+EN', name: fight.name }) });
+            const [eventsJp, eventsEn, deaths, castEn, castJp] = await Promise.all([
+                fetchFightEvents(parsedData.reportId, fight, false),
                 fetchFightEvents(parsedData.reportId, fight, true),
                 fetchDeathEvents(parsedData.reportId, fight),
                 fetchCastEvents(parsedData.reportId, fight, true),
@@ -125,7 +125,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
             ]);
 
             setStatus({ phase: 'loading', message: t('fflogs.mapping') });
-            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp);
+            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp, players);
 
             setStatus({ phase: 'preview', fight, events: eventsEn, mapped });
         } catch (err) {
@@ -160,7 +160,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     contentId,
                     category,
                     timelineEvents: mapped.events,
-                    phases: [],
+                    phases: mapped.phases,
                     kill: fight.kill === true,
                     deathCount: 0,
                     sourceReport: reportId,
@@ -315,6 +315,11 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     <AlertCircle size={13} className="shrink-0 mt-0.5" />
                     <span>{t('fflogs.warning_overwrite')}</span>
                 </div>
+                {status.mapped.stats.isEnglishOnly && (
+                    <p className="text-app-lg text-amber-400">
+                        {t('fflogs.english_only_warning')}
+                    </p>
+                )}
             </div>
         );
     };

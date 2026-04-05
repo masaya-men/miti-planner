@@ -385,7 +385,9 @@
         "login_required_title": "Login Required",
         "login_required_description": "FFLogs Import is limited to logged-in users due to API usage limits. Login to use this feature for free.",
         "login_button": "Login to Import",
-        "rate_limit_exceeded": "You've reached the usage limit. Please wait and try again later (up to {{max}} times per hour)."
+        "rate_limit_exceeded": "You've reached the usage limit. Please wait and try again later (up to {{max}} times per hour).",
+        "fetching_players": "Fetching player info...",
+        "english_only_warning": "This log was uploaded from an English client. Japanese ability names are not available. You can add translations later in the template editor."
     },
     "sidebar": {
         "new_plan": "New",
@@ -1270,6 +1272,9 @@
         "tpl_editor_phase": "Phase",
         "tpl_editor_name_ja": "Name (JA)",
         "tpl_editor_name_en": "Name (EN)",
+        "tpl_editor_name_zh": "Name (ZH)",
+        "tpl_editor_name_ko": "Name (KO)",
+        "tpl_editor_label": "Label",
         "tpl_editor_damage": "Damage",
         "tpl_editor_damage_type": "Type",
         "tpl_editor_target": "Target",
@@ -1310,7 +1315,7 @@
         "tpl_csv_column_type": "Type",
         "tpl_csv_column_target": "Target",
         "tpl_csv_column_phase": "Phase",
-        "tpl_csv_column_mechanic": "Mechanic",
+        "tpl_csv_column_mechanic": "Label",
         "tpl_csv_column_skip": "Skip",
         "tpl_csv_import": "Import",
         "tpl_csv_error": "Could not parse the pasted data. Make sure it's copied from a spreadsheet",

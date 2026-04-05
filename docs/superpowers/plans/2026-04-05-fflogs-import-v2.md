@@ -1,3 +1,112 @@
+# FFLogsインポート v2 実装計画
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** FFLogsインポートを「ダメージ起点」から「キャスト起点」に刷新し、タンク判定・TB判定・連続ダメージの精度を大幅に向上させる。
+
+**Architecture:** `fflogs.ts` に `fetchPlayerDetails` を追加。`fflogsMapper.ts` を全面書き換え（キャスト骨格 → ダメージ紐付け → 波検出）。`FFLogsImportModal.tsx` で呼び出しフロー更新と英語ログ警告追加。
+
+**Tech Stack:** TypeScript, React, FFLogs GraphQL API v2
+
+**設計書:** `docs/superpowers/specs/2026-04-05-fflogs-import-v2.md`
+
+---
+
+## ファイル構成
+
+| ファイル | 変更種別 | 責務 |
+|---------|---------|------|
+| `src/api/fflogs.ts` | 修正 | `fetchPlayerDetails()` 追加、`PlayerDetails` 型追加 |
+| `src/utils/fflogsMapper.ts` | 全面書き換え | キャスト起点マッピングロジック |
+| `src/components/FFLogsImportModal.tsx` | 修正 | playerDetails呼び出し、英語ログ警告、フェーズ受け渡し |
+| `src/locales/ja.json` | 修正 | 英語ログ警告メッセージ追加 |
+| `src/locales/en.json` | 修正 | 同上 |
+| `src/locales/zh.json` | 修正 | 同上 |
+| `src/locales/ko.json` | 修正 | 同上 |
+
+---
+
+### Task 1: fetchPlayerDetails API追加
+
+**Files:**
+- Modify: `src/api/fflogs.ts:360-420` (DeathEvents セクションの後に追加)
+
+- [ ] **Step 1: PlayerDetails 型と GraphQL クエリを追加**
+
+`src/api/fflogs.ts` の末尾（`resolveFight` 関数の前、行422付近）に以下を追加:
+
+```typescript
+// ─────────────────────────────────────────────────────────────
+// Player details query (role identification)
+// ─────────────────────────────────────────────────────────────
+
+export interface PlayerInfo {
+    id: number;      // イベントの sourceID/targetID と一致
+    name: string;
+    type: string;    // ジョブ名 (e.g. "Warrior", "WhiteMage")
+}
+
+export interface PlayerDetails {
+    tanks: PlayerInfo[];
+    healers: PlayerInfo[];
+    dps: PlayerInfo[];
+}
+
+const PLAYER_DETAILS_QUERY = /* graphql */`
+  query GetPlayerDetails($reportCode: String!, $fightIDs: [Int]!) {
+    reportData {
+      report(code: $reportCode) {
+        playerDetails(fightIDs: $fightIDs)
+      }
+    }
+  }
+`;
+
+interface PlayerDetailsQueryResult {
+    reportData: { report: { playerDetails: PlayerDetails } };
+}
+
+/**
+ * Fetch player details (roles + jobs) for a specific fight.
+ * Returns players grouped by role: tanks, healers, dps.
+ */
+export async function fetchPlayerDetails(
+    reportCode: string,
+    fightId: number
+): Promise<PlayerDetails> {
+    const token = await getAccessToken();
+    const data = await gql<PlayerDetailsQueryResult>(token, PLAYER_DETAILS_QUERY, {
+        reportCode,
+        fightIDs: [fightId],
+    });
+    return data.reportData.report.playerDetails;
+}
+```
+
+- [ ] **Step 2: ビルド確認**
+
+Run: `npx tsc --noEmit`
+Expected: エラーなし
+
+- [ ] **Step 3: コミット**
+
+```bash
+git add src/api/fflogs.ts
+git commit -m "feat: add fetchPlayerDetails API for role identification"
+```
+
+---
+
+### Task 2: fflogsMapper.ts 全面書き換え
+
+**Files:**
+- Rewrite: `src/utils/fflogsMapper.ts`
+
+- [ ] **Step 1: 新しい fflogsMapper.ts を書く**
+
+`src/utils/fflogsMapper.ts` を以下の内容で全面置換:
+
+```typescript
 /**
  * src/utils/fflogsMapper.ts — V5.0
  *
@@ -176,13 +285,7 @@ export function mapFFLogsToTimeline(
         tgtID: ev.targetID ?? -1,
         aType: ev.ability?.type,
     }));
-
-    const aaGuids = new Set<number>();
-    for (const d of damageEntries) {
-        const en = enNameMap.get(d.guid) ?? '';
-        if (isAutoAttackName(en)) aaGuids.add(d.guid);
-    }
-    const castDamageMap = matchDamageToCasts(casts, damageEntries, aaGuids);
+    const castDamageMap = matchDamageToCasts(casts, damageEntries);
 
     // ── Step 3: MT/ST判定（AA被弾パターン） ──
     const aaDamage = damageEntries.filter(d => {
@@ -230,7 +333,7 @@ export function mapFFLogsToTimeline(
     }
 
     // ── Step 5: AA処理 ──
-    const aaCount = generateAAEvents(tl, aaDamage, tankIds, mtId, stId, isEnglishOnly);
+    const aaCount = generateAAEvents(tl, aaDamage, tankIds, mtId, stId, enNameMap, jpNameMap, isEnglishOnly);
 
     // ── Step 6: ソート ──
     tl.sort((a, b) => a.time - b.time);
@@ -342,7 +445,6 @@ function buildCastList(
 function matchDamageToCasts(
     casts: CastEntry[],
     damages: DamageEntry[],
-    aaGuids: Set<number>,
 ): Map<CastEntry, DamageEntry[]> {
     const result = new Map<CastEntry, DamageEntry[]>();
     for (const c of casts) result.set(c, []);
@@ -357,7 +459,7 @@ function matchDamageToCasts(
     const MAX_WINDOW_MS = 10000; // キャスト後最大10秒
 
     for (const d of damages) {
-        if (aaGuids.has(d.guid)) continue; // AAは別処理
+        if (isAutoAttackName(/* check by guid */'' )) continue; // AAは別処理
         const guidCasts = castsByGuid.get(d.guid);
         if (!guidCasts) continue; // キャストのないダメージ（稀）はスキップ
 
@@ -404,8 +506,8 @@ function resolveWaveTarget(
     allPlayerIds: Set<number>,
     mtId: number | null,
     stId: number | null,
-): NonNullable<TimelineEvent['target']> {
-    if (damages.length === 0) return castTarget ?? 'AoE';
+): TimelineEvent['target'] {
+    if (damages.length === 0) return castTarget;
 
     const uniqueTargets = new Set(damages.map(d => d.tgtID));
     const playerTargets = new Set([...uniqueTargets].filter(id => allPlayerIds.has(id)));
@@ -421,7 +523,7 @@ function resolveWaveTarget(
             return tid === stId ? 'ST' : 'MT';
         }
         // 両タンクに当たっている場合はキャスト対象で判定
-        return castTarget ?? 'AoE';
+        return castTarget;
     }
 
     // キャスト対象がTBだがダメージが広範囲 → AoE部分
@@ -512,6 +614,8 @@ function generateAAEvents(
     tankIds: Set<number>,
     mtId: number | null,
     stId: number | null,
+    enNameMap: Map<number, string>,
+    jpNameMap: Map<number, string>,
     isEnglishOnly: boolean,
 ): number {
     // 500ms以内のAAを同一キャストとして統一
@@ -639,3 +743,237 @@ function buildPhases(fight: FFLogsFight): { id: number; startTimeSec: number; na
         name: `P${pt.id}`,
     }));
 }
+```
+
+**注意**: `matchDamageToCasts` 内の `isAutoAttackName('')` 部分は、ダメージのGUIDからAA判定するように修正が必要。以下の修正を適用:
+
+`matchDamageToCasts` 関数のダメージループ内を修正:
+
+```typescript
+    for (const d of damages) {
+        // AAのダメージは別処理（generateAAEvents）なのでスキップ
+        const en = enNameMap?.get(d.guid) ?? '';
+        if (isAutoAttackName(en)) continue;
+```
+
+ただしこの関数は `enNameMap` にアクセスできない。解決策: `matchDamageToCasts` に `aaGuid` を渡す:
+
+```typescript
+function matchDamageToCasts(
+    casts: CastEntry[],
+    damages: DamageEntry[],
+    aaGuids: Set<number>,
+): Map<CastEntry, DamageEntry[]> {
+```
+
+呼び出し側:
+```typescript
+    const aaGuids = new Set<number>();
+    for (const d of damageEntries) {
+        const en = enNameMap.get(d.guid) ?? '';
+        if (isAutoAttackName(en)) aaGuids.add(d.guid);
+    }
+    const castDamageMap = matchDamageToCasts(casts, damageEntries, aaGuids);
+```
+
+関数内:
+```typescript
+    for (const d of damages) {
+        if (aaGuids.has(d.guid)) continue;
+```
+
+- [ ] **Step 2: ビルド確認**
+
+Run: `npx tsc --noEmit`
+Expected: エラーなし
+
+- [ ] **Step 3: コミット**
+
+```bash
+git add src/utils/fflogsMapper.ts
+git commit -m "feat: rewrite fflogsMapper to cast-first approach (V5.0)"
+```
+
+---
+
+### Task 3: FFLogsImportModal 更新
+
+**Files:**
+- Modify: `src/components/FFLogsImportModal.tsx:99-135`
+
+- [ ] **Step 1: インポート文に PlayerDetails を追加**
+
+`FFLogsImportModal.tsx` 冒頭のインポート文を修正:
+
+```typescript
+// 既存:
+import { fetchFightEvents, fetchDeathEvents, fetchCastEvents, resolveFight } from '../api/fflogs';
+import type { MapperResult } from '../utils/fflogsMapper';
+
+// 変更後:
+import { fetchFightEvents, fetchDeathEvents, fetchCastEvents, fetchPlayerDetails, resolveFight } from '../api/fflogs';
+import type { MapperResult } from '../utils/fflogsMapper';
+```
+
+- [ ] **Step 2: handleFetch を更新**
+
+`handleFetch` 関数（行99-135）を以下に置換:
+
+```typescript
+    const handleFetch = async () => {
+        if (!parsedData || !isLoggedIn) return;
+
+        if (getRemainingImports() <= 0) {
+            setStatus({ phase: 'error', message: t('fflogs.rate_limit_exceeded', { max: IMPORT_RATE_LIMIT }) });
+            return;
+        }
+
+        try {
+            recordImport();
+            setStatus({ phase: 'loading', message: t('fflogs.resolving') });
+            const fight = await resolveFight(
+                parsedData.reportId,
+                parsedData.fightId
+            );
+
+            // プレイヤー情報取得（タンク/ヒーラー/DPS判定用）
+            setStatus({ phase: 'loading', message: t('fflogs.fetching_players') });
+            const players = await fetchPlayerDetails(parsedData.reportId, fight.id);
+
+            // 全イベント並行取得
+            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP+EN', name: fight.name }) });
+            const [eventsJp, eventsEn, deaths, castEn, castJp] = await Promise.all([
+                fetchFightEvents(parsedData.reportId, fight, false),
+                fetchFightEvents(parsedData.reportId, fight, true),
+                fetchDeathEvents(parsedData.reportId, fight),
+                fetchCastEvents(parsedData.reportId, fight, true),
+                fetchCastEvents(parsedData.reportId, fight, false),
+            ]);
+
+            setStatus({ phase: 'loading', message: t('fflogs.mapping') });
+            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp, players);
+
+            setStatus({ phase: 'preview', fight, events: eventsEn, mapped });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            setStatus({ phase: 'error', message });
+        }
+    };
+```
+
+- [ ] **Step 3: 英語ログ警告をプレビューUIに追加**
+
+`FFLogsImportModal.tsx` のプレビュー表示部分（`status.phase === 'preview'` の中）に、既存の `warning_overwrite` メッセージの後に追加:
+
+```tsx
+{status.mapped.stats.isEnglishOnly && (
+    <p className="text-app-lg text-amber-400">
+        {t('fflogs.english_only_warning')}
+    </p>
+)}
+```
+
+- [ ] **Step 4: tryAutoRegisterTemplate にフェーズを渡す**
+
+`tryAutoRegisterTemplate` 内の `body` で `phases: []` を `phases: mapped.phases` に変更:
+
+```typescript
+body: JSON.stringify({
+    contentId,
+    category,
+    timelineEvents: mapped.events,
+    phases: mapped.phases,  // ← 変更
+    kill: fight.kill === true,
+    deathCount: 0,
+    sourceReport: reportId,
+}),
+```
+
+- [ ] **Step 5: ビルド確認**
+
+Run: `npx tsc --noEmit`
+Expected: エラーなし
+
+- [ ] **Step 6: コミット**
+
+```bash
+git add src/components/FFLogsImportModal.tsx
+git commit -m "feat: update FFLogsImportModal for cast-first mapper + english log warning"
+```
+
+---
+
+### Task 4: i18n メッセージ追加
+
+**Files:**
+- Modify: `src/locales/ja.json`, `src/locales/en.json`, `src/locales/zh.json`, `src/locales/ko.json`
+
+- [ ] **Step 1: 4言語に新メッセージを追加**
+
+各ファイルの `"fflogs"` セクション内に追加:
+
+**ja.json** (`"rate_limit_exceeded"` の後):
+```json
+"fetching_players": "プレイヤー情報を取得中...",
+"english_only_warning": "英語でアップロードされたログのため、日本語の技名を取得できません。テンプレートエディターで後から翻訳を追加できます。"
+```
+
+**en.json**:
+```json
+"fetching_players": "Fetching player info...",
+"english_only_warning": "This log was uploaded from an English client. Japanese ability names are not available. You can add translations later in the template editor."
+```
+
+**zh.json**:
+```json
+"fetching_players": "获取玩家信息...",
+"english_only_warning": "此日志来自英语客户端，无法获取日语技能名称。您可以稍后在模板编辑器中添加翻译。"
+```
+
+**ko.json**:
+```json
+"fetching_players": "플레이어 정보 가져오는 중...",
+"english_only_warning": "영어 클라이언트에서 업로드된 로그입니다. 일본어 스킬 이름을 가져올 수 없습니다. 나중에 템플릿 편집기에서 번역을 추가할 수 있습니다."
+```
+
+- [ ] **Step 2: ビルド確認**
+
+Run: `npx vite build 2>&1 | tail -5`
+Expected: `✓ built in` が表示される
+
+- [ ] **Step 3: コミット**
+
+```bash
+git add src/locales/ja.json src/locales/en.json src/locales/zh.json src/locales/ko.json
+git commit -m "feat: add i18n messages for player details + english log warning"
+```
+
+---
+
+### Task 5: 統合テスト・動作確認
+
+- [ ] **Step 1: TypeScript型チェック**
+
+Run: `npx tsc --noEmit`
+Expected: エラーなし
+
+- [ ] **Step 2: Vite ビルド**
+
+Run: `npx vite build`
+Expected: ビルド成功
+
+- [ ] **Step 3: 本番動作確認（手動）**
+
+以下のケースを確認:
+1. M3S ログ: キングオブアルカディアが開幕1行のみ
+2. 連続ダメージ技: 波ごとに複数行になること
+3. TB判定: タンク対象技が MT/ST で表示されること
+4. DSR: フェーズが正しく分割されること
+5. 英語ログ: 警告メッセージが表示されること
+
+- [ ] **Step 4: 最終コミット（必要に応じて修正）**
+
+```bash
+git add -A
+git commit -m "fix: post-integration adjustments for fflogs import v2"
+```

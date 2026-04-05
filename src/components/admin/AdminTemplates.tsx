@@ -313,7 +313,6 @@ export function AdminTemplates() {
             showUntranslatedOnly={showUntranslatedOnly}
             onUpdateCell={editor.updateCell}
             onDeleteEvent={editor.deleteEvent}
-            onUpdatePhaseForGroup={editor.updatePhaseForGroup}
             onUpdateLabelEn={editor.updateLabelEn}
           />
         </div>

@@ -420,6 +420,48 @@ export async function fetchDeathEvents(
 }
 
 // ─────────────────────────────────────────────────────────────
+// Player Details (role breakdown: tanks / healers / dps)
+// ─────────────────────────────────────────────────────────────
+
+export interface PlayerInfo {
+    id: number;
+    name: string;
+    type: string;
+}
+
+export interface PlayerDetails {
+    tanks: PlayerInfo[];
+    healers: PlayerInfo[];
+    dps: PlayerInfo[];
+}
+
+const PLAYER_DETAILS_QUERY = /* graphql */`
+  query GetPlayerDetails($reportCode: String!, $fightIDs: [Int]!) {
+    reportData {
+      report(code: $reportCode) {
+        playerDetails(fightIDs: $fightIDs)
+      }
+    }
+  }
+`;
+
+interface PlayerDetailsQueryResult {
+    reportData: { report: { playerDetails: PlayerDetails } };
+}
+
+export async function fetchPlayerDetails(
+    reportCode: string,
+    fightId: number
+): Promise<PlayerDetails> {
+    const token = await getAccessToken();
+    const data = await gql<PlayerDetailsQueryResult>(token, PLAYER_DETAILS_QUERY, {
+        reportCode,
+        fightIDs: [fightId],
+    });
+    return data.reportData.report.playerDetails;
+}
+
+// ─────────────────────────────────────────────────────────────
 // Convenience: resolve fightId string → FFLogsFight
 // ─────────────────────────────────────────────────────────────
 
