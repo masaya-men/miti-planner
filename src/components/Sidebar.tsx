@@ -912,10 +912,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     phases: [],
                 });
             } else {
-                // 通常: テンプレートを裏で読み込み → 自動でプランとして保存
+                // テンプレートを裏で読み込み → 自動でプランとして保存
                 const tpl = await getTemplate(content.id);
                 if (tpl) {
-                    // リセットされた初期状態にテンプレートのイベントを合成
                     const snap = store.getSnapshot();
                     store.loadSnapshot({
                         ...snap,
@@ -934,7 +933,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             }) : []
                     });
                 } else {
-                    // テンプレートなし → 空のプランで即開始
                     store.loadSnapshot({
                         ...store.getSnapshot(),
                         timelineEvents: [],
@@ -1145,7 +1143,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                         <div className="border-b border-glass-border my-2" />
 
-                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto custom-scrollbar-thin">
+                        <div
+                            className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto custom-scrollbar-thin"
+                            onWheel={(e) => {
+                                if (e.deltaY !== 0) {
+                                    e.currentTarget.scrollLeft += e.deltaY;
+                                    e.preventDefault();
+                                }
+                            }}
+                        >
                             <button
                                 onClick={() => setActiveCategory('all')}
                                 className={clsx(

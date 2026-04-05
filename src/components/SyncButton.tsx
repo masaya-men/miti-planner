@@ -40,7 +40,7 @@ export const SyncButton: React.FC<{ size?: number; className?: string }> = React
     if (cloudStatus === 'syncing') {
         Icon = CloudUpload;
         iconClass = 'text-app-text/40';
-        animate = 'animate-spin';
+        animate = 'animate-pulse';
     } else if (cloudStatus === 'error') {
         Icon = CloudAlert;
         iconClass = 'text-red-400';

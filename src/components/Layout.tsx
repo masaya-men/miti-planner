@@ -14,8 +14,9 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sun, Moon, Star } from 'lucide-react';
 import { LoginModal } from './LoginModal';
+import { SyncButton } from './SyncButton';
 import { WelcomeSetup } from './WelcomeSetup';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -455,7 +456,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <motion.main
                     className={clsx("flex-1 flex flex-col relative overflow-hidden pb-16 md:pb-0", !currentPlanId && "no-plan")}
                     initial={false}
-                    animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 36 : 124) }}
+                    animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 23 : 124) }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     {children}
@@ -519,6 +520,64 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </footer>
                 </MobileTriggersContext.Provider>
             </div>
+
+            {/* 右罫線 — サイドバー左ハンドルと対称（PC only, フォーカスモード時のみ表示） */}
+            <motion.div
+                className="hidden md:flex flex-col h-full shrink-0 relative z-40 glass-tier3 glass-frame glass-border-t-0 glass-border-l-0 glass-shadow-none overflow-hidden"
+                initial={false}
+                animate={{ width: isHeaderCollapsed && !isSidebarOpen ? 24 : 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+                {/* 左端ライン（コンテンツとの境界） */}
+                <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border" />
+                {/* 右端ライン（画面端から1px内側 — 左側と同じ太さに2px） */}
+                <div className="absolute inset-y-0 right-[1px] w-[2px] bg-app-border" />
+
+                {/* フォーカスモード用ボタン — 狭い空間からんーーっぽん！と飛び出すアニメーション */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-1 w-6">
+                    {[
+                        { key: 'theme', delay: 0.6, render: () => (
+                            <button
+                                onClick={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
+                                className="w-6 h-6 flex items-center justify-center text-app-text-muted hover:text-app-text transition-colors cursor-pointer rounded hover:bg-app-text/10 active:scale-90 focus:outline-none"
+                            >
+                                {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                            </button>
+                        )},
+                        { key: 'highlight', delay: 0.75, render: () => (
+                            <button
+                                onClick={() => {
+                                    const current = useMitigationStore.getState().myJobHighlight;
+                                    setMyJobHighlight(!current);
+                                }}
+                                className="w-6 h-6 flex items-center justify-center text-app-text-muted hover:text-app-text transition-colors cursor-pointer rounded hover:bg-app-text/10 active:scale-90 focus:outline-none"
+                            >
+                                <Star size={14} className={myJobHighlight ? "fill-current text-app-text" : ""} />
+                            </button>
+                        )},
+                        { key: 'sync', delay: 0.9, render: () => (
+                            <SyncButton size={14} />
+                        )},
+                    ].map(({ key, delay, render }) => (
+                        <motion.div
+                            key={key}
+                            initial={{ scaleX: 0.3, scaleY: 0.1, opacity: 0 }}
+                            animate={isHeaderCollapsed && !isSidebarOpen
+                                ? { scaleX: 1, scaleY: 1, opacity: 1 }
+                                : { scaleX: 0.3, scaleY: 0.1, opacity: 0 }
+                            }
+                            transition={{
+                                type: "spring",
+                                stiffness: 800,
+                                damping: 8,
+                                delay: isHeaderCollapsed && !isSidebarOpen ? delay : 0,
+                            }}
+                        >
+                            {render()}
+                        </motion.div>
+                    ))}
+                </div>
+            </motion.div>
 
             {/* Mobile Bottom Nav — 排他制御付きトグル（チュートリアル中は非表示） */}
             {!isTutorialActive && <MobileBottomNav
