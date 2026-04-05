@@ -169,13 +169,19 @@ export function mapFFLogsToTimeline(
     const casts = buildCastList(castEn, castJp, jpNameMap, enNameMap, ref);
 
     // ── Step 2: ダメージをキャストに紐付け ──
-    const damageEntries: DamageEntry[] = filteredDamage.map(ev => ({
-        timeMs: ev.timestamp - ref,
-        guid: ev.ability?.guid ?? ev.abilityGameID ?? -1,
-        rawDmg: getRawDamage(ev),
-        tgtID: ev.targetID ?? -1,
-        aType: ev.ability?.type,
-    }));
+    // DEBUG: 各ダメージイベントのFFLogs生値を記録
+    const _debugRawMap = new Map<string, FFLogsRawEvent>();
+    const damageEntries: DamageEntry[] = filteredDamage.map(ev => {
+        const entry = {
+            timeMs: ev.timestamp - ref,
+            guid: ev.ability?.guid ?? ev.abilityGameID ?? -1,
+            rawDmg: getRawDamage(ev),
+            tgtID: ev.targetID ?? -1,
+            aType: ev.ability?.type,
+        };
+        _debugRawMap.set(`${entry.timeMs}:${entry.guid}:${entry.tgtID}`, ev);
+        return entry;
+    });
 
     const aaGuids = new Set<number>();
     for (const d of damageEntries) {
@@ -217,13 +223,35 @@ export function mapFFLogsToTimeline(
             const waveTimeSec = Math.floor(wave.timeMs / 1000);
             const waveTarget = resolveWaveTarget(wave.damages, target, tankIds, allPlayerIds, mtId, stId);
             const dmgValue = computeDamageValue(wave.damages, waveTarget, tankIds);
+            const rounded = dmgValue > 0 ? roundDamageCeil(dmgValue) : undefined;
+
+            // DEBUG: ダメージ算出過程をログ出力
+            if (wave.damages.length > 0) {
+                const debugDetails = wave.damages.map(d => {
+                    const raw = _debugRawMap.get(`${d.timeMs}:${d.guid}:${d.tgtID}`);
+                    return {
+                        tgtID: d.tgtID,
+                        rawDmg: d.rawDmg,
+                        fflogs_amount: raw?.amount,
+                        fflogs_unmitigated: raw?.unmitigatedAmount,
+                        fflogs_absorbed: raw?.absorbed,
+                        fflogs_mitigated: raw?.mitigated,
+                        fflogs_multiplier: raw?.multiplier,
+                        fflogs_hitType: raw?.hitType,
+                    };
+                });
+                console.log(
+                    `[DEBUG DMG] ${cast.jpName} @${waveTimeSec}s | target=${waveTarget} | max=${dmgValue} → rounded=${rounded}`,
+                );
+                console.table(debugDetails);
+            }
 
             tl.push({
                 id: genId(),
                 time: waveTimeSec,
                 name: buildName(cast, isEnglishOnly, waveTarget === 'MT' || waveTarget === 'ST' ? ' (TB)' : ''),
                 damageType: mapDamageType(cast.aType),
-                damageAmount: dmgValue > 0 ? roundDamageCeil(dmgValue) : undefined,
+                damageAmount: rounded,
                 target: waveTarget,
             });
         }
