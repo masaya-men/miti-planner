@@ -320,7 +320,7 @@ function buildCastList(
     castEn: FFLogsRawEvent[],
     castJp: FFLogsRawEvent[],
     jpNameMap: Map<number, string>,
-    enNameMap: Map<number, string>,
+    _enNameMap: Map<number, string>,
     ref: number,
 ): CastEntry[] {
     const castJpMap = new Map<number, string>();
@@ -414,7 +414,7 @@ function matchDamageToCasts(
 function determineCastTarget(
     targetID: number,
     tankIds: Set<number>,
-    mtId: number | null,
+    _mtId: number | null,
     stId: number | null,
 ): TimelineEvent['target'] {
     if (targetID === 0) return 'AoE';
@@ -430,7 +430,7 @@ function resolveWaveTarget(
     castTarget: TimelineEvent['target'],
     tankIds: Set<number>,
     allPlayerIds: Set<number>,
-    mtId: number | null,
+    _mtId: number | null,
     stId: number | null,
 ): NonNullable<TimelineEvent['target']> {
     if (damages.length === 0) return castTarget ?? 'AoE';
@@ -538,9 +538,9 @@ function generateAAEvents(
     tl: TimelineEvent[],
     aaDamage: DamageEntry[],
     tankIds: Set<number>,
-    mtId: number | null,
+    _mtId: number | null,
     stId: number | null,
-    isEnglishOnly: boolean,
+    _isEnglishOnly: boolean,
 ): number {
     // 500ms以内のAAを同一キャストとして統一
     const sorted = [...aaDamage].sort((a, b) => a.timeMs - b.timeMs);
