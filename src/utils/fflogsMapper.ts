@@ -350,7 +350,7 @@ function detectEnglishOnly(castEn: FFLogsRawEvent[], castJp: FFLogsRawEvent[]): 
     return checkCount >= 3 && matchCount === checkCount;
 }
 
-/** キャストイベントからキャスト一覧を構築（AA除外、begincastのみ） */
+/** キャストイベントからキャスト一覧を構築（AA除外、begincast優先＋cast補完） */
 function buildCastList(
     castEn: FFLogsRawEvent[],
     castJp: FFLogsRawEvent[],
@@ -368,19 +368,18 @@ function buildCastList(
     const casts: CastEntry[] = [];
     const seen = new Set<string>();
 
-    for (const ev of castEn) {
-        if (ev.type !== 'begincast') continue;
+    const addCast = (ev: FFLogsRawEvent) => {
         const g = ev.ability?.guid ?? ev.abilityGameID ?? -1;
         const enName = ev.ability?.name?.trim() ?? '';
-        if (!enName || isAutoAttackName(enName)) continue;
+        if (!enName || isAutoAttackName(enName)) return;
 
         const ms = ev.timestamp - ref;
-        if (ms < 0) continue;
+        if (ms < 0) return;
         const timeSec = Math.floor(ms / 1000);
 
         // 同GUID・同秒の重複キャストを除外
         const key = `${g}:${timeSec}`;
-        if (seen.has(key)) continue;
+        if (seen.has(key)) return;
         seen.add(key);
 
         const jpName = castJpMap.get(g) ?? jpNameMap.get(g) ?? enName;
@@ -395,6 +394,16 @@ function buildCastList(
             targetID: ev.targetID ?? 0,
             sourceID: ev.sourceID ?? 0,
         });
+    };
+
+    // Pass 1: begincast を優先登録（詠唱開始時刻が正確）
+    for (const ev of castEn) {
+        if (ev.type === 'begincast') addCast(ev);
+    }
+
+    // Pass 2: cast（即発動）を補完登録（begincastがないGUID・秒のみ追加）
+    for (const ev of castEn) {
+        if (ev.type === 'cast') addCast(ev);
     }
 
     casts.sort((a, b) => a.timeMs - b.timeMs);
