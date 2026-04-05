@@ -228,7 +228,7 @@ export function TemplateEditor({
   showUntranslatedOnly,
   onUpdateCell,
   onDeleteEvent,
-  onUpdateLabelEn,
+  // onUpdateLabelEn is defined in props but not yet used in this component
 }: TemplateEditorProps) {
   const { t } = useTranslation();
 
