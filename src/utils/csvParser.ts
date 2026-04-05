@@ -11,9 +11,11 @@ export const parseCSVToEvents = (csvString: string): TimelineEvent[] => {
     const lines = csvString.split('\n');
     const events: TimelineEvent[] = [];
 
-    // Helper to parse time string (e.g., "1:15" -> 75, "0:10" -> 10, "-0:10" -> -10)
+    // Auto-detect delimiter: tab (spreadsheet paste) or comma
+    const hasTab = lines.some(l => l.includes('\t'));
+
     const parseTime = (timeStr: string): number | null => {
-        const match = timeStr.trim().match(/^(-?)(\d+):(\d{2})$/);
+        const match = timeStr.trim().match(/^(-?)(\d+):(\d{1,2})(?:\.\d+)?$/);
         if (!match) return null;
 
         const isNegative = match[1] === '-';
@@ -24,19 +26,26 @@ export const parseCSVToEvents = (csvString: string): TimelineEvent[] => {
         return isNegative ? -totalSeconds : totalSeconds;
     };
 
+    const isHeaderRow = (s: string): boolean => {
+        const lower = s.toLowerCase();
+        return /^(time|時間|タイム)[\t,]/.test(lower);
+    };
+
     lines.forEach((line) => {
         const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('Time,')) return; // Skip empty, comments, or headers
+        if (!trimmed || trimmed.startsWith('#') || isHeaderRow(trimmed)) return;
 
-        // Split by comma, handling potential quotes (simplified)
-        const parts = trimmed.split(',').map(p => p.trim());
-        if (parts.length < 2) return; // Need at least time and name
+        const parts = hasTab
+            ? trimmed.split('\t').map(p => p.trim())
+            : trimmed.split(',').map(p => p.trim());
+        if (parts.length < 2) return;
 
         const time = parseTime(parts[0]);
-        if (time === null) return; // Invalid time format
+        if (time === null) return;
 
         const name = parts[1];
-        const damageAmount = parts.length > 2 && parts[2] ? parseInt(parts[2], 10) : undefined;
+        const rawDamage = parts.length > 2 && parts[2] ? parts[2].replace(/,/g, '') : '';
+        const damageAmount = rawDamage ? parseInt(rawDamage, 10) : undefined;
 
         let damageType: 'physical' | 'magical' | 'unavoidable' | 'enrage' | undefined = undefined;
         if (parts.length > 3) {
@@ -59,7 +68,7 @@ export const parseCSVToEvents = (csvString: string): TimelineEvent[] => {
             time,
             name: { ja: name, en: name },
             damageAmount: isNaN(damageAmount as number) ? undefined : damageAmount,
-            damageType: damageType as any, // Cast to any to bypass strict optional check since interface doesn't allow undefined but it exists in dataset 
+            damageType: damageType as any,
             target
         });
     });

@@ -356,13 +356,13 @@
         "confirm": "変更を実行"
     },
     "csv_import": {
-        "title": "タイムラインのインポート (CSV)",
-        "description": "CSVテキストを貼り付けてタイムラインイベントをインポートします。想定フォーマット:",
-        "format": "Time, Name, DamageAmount, DamageType, Target",
+        "title": "タイムラインのインポート",
+        "description": "スプレッドシートやCSVテキストを貼り付けてインポートします。想定フォーマット:",
+        "format": "時間, 技名, ダメージ, 種別, 対象",
         "example": "例: 0:15, 全体攻撃, 120000, magical, PT",
-        "note": "※ TimeとNameのみ必須です。",
+        "note": "※ 時間と技名のみ必須。スプレッドシートからの直接コピペもOK。",
         "no_events": "有効なイベントが見つかりませんでした。",
-        "parse_error": "CSVの解析に失敗しました。フォーマットを確認してください。",
+        "parse_error": "解析に失敗しました。フォーマットを確認してください。",
         "import_button": "インポート"
     },
     "error_boundary": {

@@ -352,13 +352,13 @@
         "confirm": "Execute Changes"
     },
     "csv_import": {
-        "title": "Import Timeline (CSV)",
-        "description": "Paste CSV text to import timeline events. The expected format is:",
+        "title": "Import Timeline",
+        "description": "Paste spreadsheet data or CSV text to import timeline events. Expected format:",
         "format": "Time, Name, DamageAmount, DamageType, Target",
         "example": "Example: 0:15, Raidwide, 120000, magical, PT",
-        "note": "Note: Only Time and Name are strictly required.",
-        "no_events": "No valid events found in the CSV text.",
-        "parse_error": "Failed to parse CSV. Please check the format.",
+        "note": "Note: Only Time and Name are required. Direct paste from spreadsheets works too.",
+        "no_events": "No valid events found.",
+        "parse_error": "Failed to parse. Please check the format.",
         "import_button": "Import"
     },
     "error_boundary": {

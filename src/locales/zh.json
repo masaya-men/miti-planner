@@ -335,13 +335,13 @@
         "confirm": "执行变更"
     },
     "csv_import": {
-        "title": "导入时间轴（CSV）",
-        "description": "粘贴 CSV 文本以导入时间轴事件。预期格式为：",
+        "title": "导入时间轴",
+        "description": "粘贴电子表格数据或 CSV 文本以导入时间轴事件。预期格式：",
         "format": "时间, 名称, 伤害数值, 伤害类型, 目标",
         "example": "示例：0:15, 全体攻击, 120000, magical, PT",
-        "note": "注意：仅时间和名称为必填项。",
-        "no_events": "CSV 文本中未找到有效事件。",
-        "parse_error": "CSV 解析失败，请检查格式。",
+        "note": "注意：仅时间和名称为必填项。支持从电子表格直接粘贴。",
+        "no_events": "未找到有效事件。",
+        "parse_error": "解析失败，请检查格式。",
         "import_button": "导入"
     },
     "error_boundary": {
