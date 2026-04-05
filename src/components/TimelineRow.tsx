@@ -9,6 +9,27 @@ import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Tooltip } from './ui/Tooltip';
 
+/** 攻撃名スパン — 省略時にスタイル付きツールチップ表示 */
+const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
+    const ref = React.useRef<HTMLSpanElement>(null);
+    const [truncated, setTruncated] = React.useState(false);
+    const checkTruncation = React.useCallback(() => {
+        const el = ref.current;
+        if (el) setTruncated(el.scrollWidth > el.clientWidth);
+    }, []);
+    return (
+        <Tooltip content={truncated ? name : ''} wrapperClassName="!w-auto min-w-0">
+            <span
+                ref={ref}
+                className={clsx(className, "font-black text-app-text truncate leading-none pt-0.5 min-w-0 block")}
+                onMouseEnter={checkTruncation}
+            >
+                {name}
+            </span>
+        </Tooltip>
+    );
+};
+
 interface DamageInfo {
     unmitigated: number;
     mitigated: number;
@@ -42,7 +63,7 @@ const MobileTargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMem
     const member = partyMembers.find(m => m.id === event.target);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
     if (job) {
-        return <img src={job.icon} className="w-3 h-3 rounded-sm flex-shrink-0" alt={event.target} />;
+        return <img src={job.icon} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" alt={event.target} />;
     }
     return (
         <span className={clsx(
@@ -64,7 +85,7 @@ const MobileMitiIcons: React.FC<{
 }> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId, size = 'w-3 h-3' }) => {
     const MITIGATIONS = useMitigations();
     return (
-    <div className="flex md:hidden items-center gap-px flex-shrink-0">
+    <div className="flex md:hidden items-center gap-px flex-shrink-0 ml-auto">
         {mitigations.map(mit => {
             const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
             if (!def) return null;
@@ -182,9 +203,11 @@ export const TimelineRow = memo(({
                         }
                     }}
                 >
-                    <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Plus size={14} />
-                    </div>
+                    <Tooltip content={t('timeline.add_label')} position="top">
+                        <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Plus size={14} />
+                        </div>
+                    </Tooltip>
                 </div>
             )}
 
@@ -245,13 +268,8 @@ export const TimelineRow = memo(({
                             {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
                             {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
 
-                            {/* 攻撃名（スマホ: truncate + 長押しで全文、PC: 通常表示） */}
-                            <span
-                                className="text-app-md md:text-app-lg font-black text-app-text truncate leading-none pt-0.5 min-w-0"
-                                title={getEventName(events[0])}
-                            >
-                                {getEventName(events[0])}
-                            </span>
+                            {/* 攻撃名（省略時にネイティブツールチップ表示） */}
+                            <EventNameSpan name={getEventName(events[0])} className="text-app-md md:text-app-lg" />
 
                             {/* PC専用: コピーボタン */}
                             <Tooltip content={t('timeline.copy_event_hint')} position="top">
@@ -288,7 +306,7 @@ export const TimelineRow = memo(({
                                             const member = partyMembers.find(m => m.id === events[0].target);
                                             const job = member ? JOBS.find(j => j.id === member.jobId) : null;
                                             return job ? (
-                                                <img src={job.icon} className="w-5 h-5 rounded-sm" alt={events[0].target} />
+                                                <img src={job.icon} className="w-6 h-6 rounded-sm" alt={events[0].target} />
                                             ) : (
                                                 <span className={clsx(
                                                     "text-app-base font-bold px-1 rounded",
@@ -334,13 +352,8 @@ export const TimelineRow = memo(({
                                     {events[idx].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
                                     {events[idx].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
 
-                                    {/* 攻撃名 */}
-                                    <span
-                                        className="text-app-base md:text-app-lg font-black text-app-text truncate leading-none pt-0.5 min-w-0"
-                                        title={getEventName(events[idx])}
-                                    >
-                                        {getEventName(events[idx])}
-                                    </span>
+                                    {/* 攻撃名（省略時にネイティブツールチップ表示） */}
+                                    <EventNameSpan name={getEventName(events[idx])} className="text-app-base md:text-app-lg" />
 
                                     {/* PC専用: コピーボタン */}
                                     <Tooltip content={t('timeline.copy_event_hint')} position="top">
@@ -378,7 +391,7 @@ export const TimelineRow = memo(({
                                                     const member = partyMembers.find(m => m.id === events[idx].target);
                                                     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
                                                     return job ? (
-                                                        <img src={job.icon} className="w-4 h-4 rounded-sm" alt={events[idx].target} />
+                                                        <img src={job.icon} className="w-6 h-6 rounded-sm" alt={events[idx].target} />
                                                     ) : (
                                                         <span className={clsx(
                                                             "text-app-sm font-bold px-1 rounded",

@@ -661,12 +661,16 @@ function generateAAEvents(
 function unifyDamageForSameAbility(tl: TimelineEvent[]): void {
     const DEVIATION_THRESHOLD = 0.20; // 中央値から20%以上離れたら個別値を維持
 
-    // 同名+同target でグループ化（AAは除外）
+    // 同名でグループ化（AAは除外）
+    // TB（MT/ST）は target を区別しない（同じ攻撃なのに防御力差でダメージが異なるため）
     const groups = new Map<string, number[]>();
     for (let i = 0; i < tl.length; i++) {
         const ev = tl[i];
         if (!ev.damageAmount || ev.name.ja === 'AA' || ev.name.en === 'AA') continue;
-        const key = `${ev.name.ja}::${ev.target ?? 'AoE'}`;
+        const isTB = ev.target === 'MT' || ev.target === 'ST';
+        const key = isTB
+            ? `${ev.name.ja}::TB`    // MT/STを同一グループに
+            : `${ev.name.ja}::${ev.target ?? 'AoE'}`;
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key)!.push(i);
     }
@@ -675,10 +679,21 @@ function unifyDamageForSameAbility(tl: TimelineEvent[]): void {
         if (indices.length < 2) continue;
 
         const values = indices.map(i => tl[i].damageAmount!);
+        const maxVal = Math.max(...values);
         const med = median(values);
         if (med === 0) continue;
 
-        // 全イベントが中央値から20%以内なら統一
+        // TB同名技: 最大値で統一（防御力差によるダメージ差を吸収）
+        const hasTB = indices.some(i => tl[i].target === 'MT' || tl[i].target === 'ST');
+        if (hasTB) {
+            const unified = roundDamageCeil(maxVal);
+            for (const i of indices) {
+                tl[i].damageAmount = unified;
+            }
+            continue;
+        }
+
+        // AoE等: 全イベントが中央値から20%以内なら統一
         const allClose = values.every(v => Math.abs(v - med) / med <= DEVIATION_THRESHOLD);
         if (allClose) {
             const unified = roundDamageCeil(med);

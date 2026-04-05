@@ -190,6 +190,7 @@
         "seraph_cancels_dissipation": "Dissipation during the effect will be removed upon placement.",
         "cd_overlap": "Same mitigation is placed {{seconds}}s later. Remove or adjust it.",
         "next_at": "Placed {{gap}}s later. Remove or adjust it.",
+        "next_at_short": "In use {{gap}}s later",
         "select_target": "Select Target",
         "no_skills": "No mitigation skills available for this job.",
         "remove": "Remove",
@@ -328,7 +329,8 @@
         "nav_no_labels": "No labels",
         "nav_no_results": "No results",
         "end_phase": "Add phase name up to here",
-        "add_event": "Add Mechanic"
+        "add_event": "Add Mechanic",
+        "add_label": "Add mechanic label up to here"
     },
     "migration": {
         "title": "Job Change Skill Migration",

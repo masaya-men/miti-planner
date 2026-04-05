@@ -55,6 +55,41 @@ interface TutorialState {
 }
 
 // ─────────────────────────────────────────────
+// sessionStorage キー（リロード時にスナップショットを復元するため）
+// ─────────────────────────────────────────────
+const SS_SNAPSHOT_KEY = 'lopo_tutorial_snapshot';
+const SS_PLAN_ID_KEY = 'lopo_tutorial_planId';
+
+function saveSnapshotToSession(snapshot: TutorialSnapshot | null, planId: string | null) {
+  try {
+    if (snapshot) {
+      sessionStorage.setItem(SS_SNAPSHOT_KEY, JSON.stringify(snapshot));
+    }
+    if (planId) {
+      sessionStorage.setItem(SS_PLAN_ID_KEY, planId);
+    }
+  } catch { /* sessionStorage full — ignore */ }
+}
+
+function clearSnapshotFromSession() {
+  sessionStorage.removeItem(SS_SNAPSHOT_KEY);
+  sessionStorage.removeItem(SS_PLAN_ID_KEY);
+}
+
+function loadSnapshotFromSession(): { snapshot: TutorialSnapshot | null; planId: string | null } {
+  try {
+    const raw = sessionStorage.getItem(SS_SNAPSHOT_KEY);
+    const planId = sessionStorage.getItem(SS_PLAN_ID_KEY);
+    return {
+      snapshot: raw ? JSON.parse(raw) : null,
+      planId: planId || null,
+    };
+  } catch {
+    return { snapshot: null, planId: null };
+  }
+}
+
+// ─────────────────────────────────────────────
 // ヘルパー: チュートリアル終了時の状態復元
 // ─────────────────────────────────────────────
 function restoreUserState(state: TutorialState) {
@@ -69,20 +104,32 @@ function restoreUserState(state: TutorialState) {
     planStore.deletePlan(tutorialPlan.id);
   }
 
+  // zustand state → sessionStorage の順にフォールバック
+  let savedPlanId = state._savedPlanId;
+  let savedSnapshot = state._savedSnapshot;
+  if (!savedPlanId && !savedSnapshot) {
+    const fromSession = loadSnapshotFromSession();
+    savedPlanId = fromSession.planId;
+    savedSnapshot = fromSession.snapshot;
+  }
+
   // 元のプランに復元
   let restoredContentId: string | null = null;
-  if (state._savedPlanId) {
-    const savedPlan = planStore.getPlan(state._savedPlanId);
+  if (savedPlanId) {
+    const savedPlan = planStore.getPlan(savedPlanId);
     if (savedPlan) {
       mitiState.loadSnapshot(savedPlan.data);
-      planStore.setCurrentPlanId(state._savedPlanId);
+      planStore.setCurrentPlanId(savedPlanId);
       restoredContentId = savedPlan.contentId;
-    } else if (state._savedSnapshot) {
-      mitiState.restoreFromSnapshot(state._savedSnapshot);
+    } else if (savedSnapshot) {
+      mitiState.restoreFromSnapshot(savedSnapshot);
     }
-  } else if (state._savedSnapshot) {
-    mitiState.restoreFromSnapshot(state._savedSnapshot);
+  } else if (savedSnapshot) {
+    mitiState.restoreFromSnapshot(savedSnapshot);
   }
+
+  // sessionStorageをクリーンアップ
+  clearSnapshotFromSession();
 
   // サイドバーにレベル・カテゴリの同期を通知
   window.dispatchEvent(new CustomEvent('tutorial:plan-restored', {
@@ -140,6 +187,9 @@ export const useTutorialStore = create<TutorialState>()(
             // ヘッダーに古いコンテンツ名が残らないよう currentPlanId をクリア
             planStore.setCurrentPlanId(null);
           }
+
+          // sessionStorageにも保存（リロード時の復元用）
+          saveSnapshotToSession(snapshot, savedPlanId);
         }
 
         set({
@@ -186,6 +236,8 @@ export const useTutorialStore = create<TutorialState>()(
           restoreUserState(get());
         }
 
+        clearSnapshotFromSession();
+
         set(state => ({
           activeTutorialId: null,
           currentStep: 0,
@@ -212,6 +264,7 @@ export const useTutorialStore = create<TutorialState>()(
         if (activeTutorialId === 'main' || activeTutorialId === 'create-plan') {
           restoreUserState(get());
         }
+        clearSnapshotFromSession();
         set({
           activeTutorialId: null,
           currentStep: 0,

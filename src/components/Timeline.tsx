@@ -533,6 +533,7 @@ const Timeline: React.FC = () => {
     const {
         mobilePartyOpen, setMobilePartyOpen,
         mobileToolsOpen, setMobileToolsOpen,
+        mobileMenuOpen, setMobileMenuOpen,
     } = useContext(MobileTriggersContext);
 
     // データ（useShallowで浅い比較 → 値が変わったときだけ再レンダー）
@@ -1062,7 +1063,18 @@ const Timeline: React.FC = () => {
 
     const handleMobileDamageClick = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
+        // 他のボトムメニューを閉じてから軽減シートを開く
+        setMobilePartyOpen(false);
+        setMobileToolsOpen(false);
+        setMobileMenuOpen(false);
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
+    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
+
+    // 他のボトムメニューが開いたら軽減追加シートを閉じる
+    useEffect(() => {
+        const close = () => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }));
+        window.addEventListener('mobile:close-miti-flow', close);
+        return () => window.removeEventListener('mobile:close-miti-flow', close);
     }, []);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
@@ -2043,9 +2055,10 @@ const Timeline: React.FC = () => {
                                                         groupStart = ev.time;
                                                     }
                                                 }
-                                                // 最後のイベント
-                                                if (i === allSorted.length - 1) {
-                                                    flushGroup(ev.time + 1);
+                                                // 最後のイベント — ラベルをタイムライン末尾まで伸ばす
+                                                if (i === allSorted.length - 1 && currentGroupJa) {
+                                                    const lastGridTime = gridLines[gridLines.length - 1] ?? ev.time;
+                                                    flushGroup(Math.max(ev.time + 1, lastGridTime));
                                                 }
                                             });
 
@@ -2422,9 +2435,19 @@ const Timeline: React.FC = () => {
                                     })()}
                                 </div>
                             </div>
-                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer">
-                                <X size={16} />
-                            </button>
+                            <div className="flex items-center gap-1">
+                                {/* この時間に配置済みの軽減アイコン */}
+                                {timelineMitigations
+                                    .filter(am => am.time === mobileMitiFlow.time)
+                                    .map(am => {
+                                        const def = MITIGATIONS.find(m => m.id === am.mitigationId);
+                                        if (!def) return null;
+                                        return <img key={am.id} src={def.icon} className="w-5 h-5 rounded-sm object-contain opacity-80" />;
+                                    })}
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer ml-1">
+                                    <X size={16} />
+                                </button>
+                            </div>
                         </div>
                         {/* 全メンバーの軽減を5列でフラット表示（MT→D4の順） */}
                         <div className="flex-1 overflow-y-auto px-2 pb-4">
@@ -2516,7 +2539,8 @@ const Timeline: React.FC = () => {
                                             mit, mobileMitiFlow.time, memberMitis,
                                             schAetherflowPatterns[member.id] ?? 1, t
                                         );
-                                        const isClickable = status.available || isAlreadyPlaced;
+                                        // スマホ: 競合警告時も配置不可にする（PCではwarningでも配置可能）
+                                        const isClickable = (status.available && !status.warning) || isAlreadyPlaced;
                                         // 同名スキルが複数メンバーにある場合のみジョブバッジ表示
                                         const isDuplicate = (skillNameCount.get(mit.name?.ja || '') || 0) > 1;
 
@@ -2543,22 +2567,40 @@ const Timeline: React.FC = () => {
                                                     "aspect-square rounded-xl border flex items-center justify-center relative transition-all active:scale-90",
                                                     isAlreadyPlaced
                                                         ? "bg-app-text/20 border-app-text"
-                                                        : status.available
-                                                            ? "bg-app-surface2 border-app-border"
-                                                            : "bg-black/20 border-transparent opacity-30"
+                                                        : status.warning
+                                                            ? "bg-amber-400/10 border-amber-400 opacity-60"
+                                                            : status.available
+                                                                ? "bg-app-surface2 border-app-border"
+                                                                : "bg-black/20 border-red-500/60 opacity-60"
                                                 )}
                                             >
                                                 <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
+                                                {/* リキャスト/使用不可メッセージ — アイコン中央にオーバーレイ */}
+                                                {!status.available && !isAlreadyPlaced && status.message && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
+                                                        <span className="text-[10px] leading-tight font-bold text-red-400 text-center px-0.5">
+                                                            {status.message}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {/* リキャスト競合警告 — 配置可能だが将来の配置と被る */}
+                                                {status.warning && (status.shortMessage || status.message) && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
+                                                        <span className="text-[10px] leading-tight font-bold text-amber-400 text-center px-0.5">
+                                                            {status.shortMessage || status.message}
+                                                        </span>
+                                                    </div>
+                                                )}
                                                 {/* 同名スキルが複数メンバーにある場合のみジョブバッジ */}
                                                 {isDuplicate && (
                                                     <img
                                                         src={job.icon}
-                                                        className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-app-bg object-contain"
+                                                        className="absolute -bottom-2 -right-2 w-9 h-9 rounded-full object-contain"
                                                     />
                                                 )}
                                                 {isAlreadyPlaced && (
-                                                    <div className="absolute -top-1 -left-1 w-4 h-4 bg-app-text rounded-full flex items-center justify-center">
-                                                        <X size={10} className="text-app-bg" />
+                                                    <div className="absolute top-1 right-1">
+                                                        <X size={12} className="text-app-text drop-shadow-sm" />
                                                     </div>
                                                 )}
                                             </button>
@@ -2772,6 +2814,9 @@ const Timeline: React.FC = () => {
                                 onClick={() => {
                                     const time = eventPopover.event.time;
                                     setEventPopover(null);
+                                    setMobilePartyOpen(false);
+                                    setMobileToolsOpen(false);
+                                    setMobileMenuOpen(false);
                                     setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
                                 }}
                                 className={clsx(

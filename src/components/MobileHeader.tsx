@@ -55,10 +55,13 @@ export const MobileHeader: React.FC<{
     const hasPlanTitle = currentPlan?.title && currentPlan.title !== contentLabel;
 
     return (
-        <header className={clsx(
-            "h-9 shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
-            "bg-app-bg/95 backdrop-blur-md border-app-border"
-        )}>
+        <header
+            className={clsx(
+                "shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
+                "bg-app-bg/95 backdrop-blur-md border-app-border"
+            )}
+            style={{ minHeight: '2.25rem', paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        >
             {/* 左: LoPoロゴ（Homeリンク兼用） */}
             <button
                 onClick={onHome}
