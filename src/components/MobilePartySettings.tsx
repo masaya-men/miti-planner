@@ -187,42 +187,6 @@ const MobilePartySettings: React.FC = () => {
     );
 };
 
-// ── モバイル用ステータス表示 ──
-const MobileStatusView: React.FC = () => {
-    const { t } = useTranslation();
-    const JOBS = useJobs();
-    const partyMembers = useMitigationStore(s => s.partyMembers);
-    const myMemberId = useMitigationStore(s => s.myMemberId);
-
-    const sortedMembers = PARTY_MEMBER_IDS.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
-
-    return (
-        <div className="flex flex-col gap-2">
-            {sortedMembers.map(member => {
-                const job = member.jobId ? JOBS.find(j => j.id === member.jobId) : null;
-                const isMyJob = myMemberId === member.id;
-                return (
-                    <div key={member.id} className={clsx(
-                        "flex items-center gap-3 px-3 py-2 rounded-xl border",
-                        isMyJob ? "border-app-text/50 bg-app-text/5" : "border-app-border bg-app-surface2"
-                    )}>
-                        {job ? (
-                            <img src={job.icon} className="w-6 h-6 object-contain shrink-0" />
-                        ) : (
-                            <div className="w-6 h-6 rounded-full border border-dashed border-app-border shrink-0" />
-                        )}
-                        <span className="text-app-md font-black text-app-text w-6">{member.id}</span>
-                        <div className="flex-1 flex items-center gap-3 text-app-base text-app-text-muted font-mono">
-                            <span>{t('party.hp_label', 'HP')} {member.stats?.hp?.toLocaleString() || '—'}</span>
-                        </div>
-                        {isMyJob && <Star size={12} className="text-yellow-500 fill-yellow-500 shrink-0" />}
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
-
 // ── モバイル用パーティ＋ステータスタブ ──
 export const MobilePartyWithTabs: React.FC = () => (
     <MobilePartySettings />
