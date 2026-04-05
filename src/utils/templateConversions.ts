@@ -79,7 +79,7 @@ export function formatTime(seconds: number): string {
 export function parseTsv(text: string): ParsedRow[] {
   return text
     .split('\n')
-    .map(line => line.trim())
+    .map(line => line.replace(/\r$/, ''))   // タブを残して改行のみ除去
     .filter(line => line.length > 0)
     .map(line => ({
       cells: line.split('\t').map(cell => cell.trim()),
