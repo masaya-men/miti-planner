@@ -1,6 +1,6 @@
 /**
  * テンプレートエディター スプレッドシート型テーブル
- * インライン編集・フェーズ区切り・ハイライト・削除ボタンを備えた編集テーブル
+ * フラットテーブル形式 — フェーズ・ラベル・技名(JA/EN/ZH/KO)・種別・対象・ダメージ
  */
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,14 +20,8 @@ interface TemplateEditorProps {
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdatePhaseForGroup: (mechanicGroupJa: string, phaseId: number, phaseName: string) => void;
   onUpdateLabelEn: (mechanicGroupJa: string, enValue: string) => void;
 }
-
-type RowItem =
-  | { type: 'phase-separator'; phaseId: number; phaseName: string }
-  | { type: 'mechanic-separator'; mechanicGroupJa: string; mechanicGroupEn: string; phaseId: number }
-  | { type: 'event'; event: TimelineEvent; phaseId: number };
 
 // ─────────────────────────────────────────────
 // ユーティリティ
@@ -37,7 +31,6 @@ function getPhaseForTime(
   time: number,
   phases: TemplateData['phases'],
 ): { id: number; name: string } {
-  // startTimeSec <= time となる最後のフェーズを選択
   let result = phases[0] ?? { id: 1, startTimeSec: 0, name: undefined };
   for (const phase of phases) {
     if (phase.startTimeSec <= time) {
@@ -105,7 +98,6 @@ function EditableCell({
     }
   }, [editing]);
 
-  // 外部からの値変化に追従（編集中は無視）
   useEffect(() => {
     if (!editing) setDraft(value);
   }, [value, editing]);
@@ -236,7 +228,6 @@ export function TemplateEditor({
   showUntranslatedOnly,
   onUpdateCell,
   onDeleteEvent,
-  onUpdatePhaseForGroup,
   onUpdateLabelEn,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
@@ -246,37 +237,13 @@ export function TemplateEditor({
     ? events.filter((ev) => !ev.name.en.trim())
     : events;
 
-  // フェーズ区切り・ギミックグループ区切りを含むフラット行リストを構築
-  const rows: RowItem[] = [];
-  let lastPhaseId: number | null = null;
-  let lastMechanicGroupJa: string | null = null;
-
-  for (const event of filteredEvents) {
-    const phase = getPhaseForTime(event.time, phases);
-
-    if (phase.id !== lastPhaseId) {
-      rows.push({
-        type: 'phase-separator',
-        phaseId: phase.id,
-        phaseName: phase.name,
-      });
-      lastPhaseId = phase.id;
-      lastMechanicGroupJa = null; // フェーズが変わったらギミックグループもリセット
-    }
-
-    const mgJa = event.mechanicGroup?.ja || '';
-    if (mgJa && mgJa !== lastMechanicGroupJa) {
-      lastMechanicGroupJa = mgJa;
-      rows.push({
-        type: 'mechanic-separator',
-        mechanicGroupJa: mgJa,
-        mechanicGroupEn: event.mechanicGroup?.en || '',
-        phaseId: phase.id,
-      });
-    }
-
-    rows.push({ type: 'event', event, phaseId: phase.id });
-  }
+  // ラベルグループの先頭行を判定するため、前の行のmechanicGroup.jaを追跡
+  const isFirstInGroup = (index: number): boolean => {
+    if (index === 0) return true;
+    const current = filteredEvents[index]?.mechanicGroup?.ja || '';
+    const prev = filteredEvents[index - 1]?.mechanicGroup?.ja || '';
+    return current !== prev;
+  };
 
   // ダメージ種別の選択肢
   const damageTypeOptions: DropdownOption[] = [
@@ -297,104 +264,75 @@ export function TemplateEditor({
     <div className="overflow-x-auto">
       <table className="w-full text-app-lg border-collapse">
         <colgroup>
-          <col style={{ width: '60px' }} />
-          <col style={{ width: '80px' }} />
-          <col style={{ width: '1fr' }} className="min-w-[120px]" />
-          <col style={{ width: '1fr' }} className="min-w-[120px]" />
-          <col style={{ width: '80px' }} />
-          <col style={{ width: '70px' }} />
-          <col style={{ width: '60px' }} />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '70px' }} />  {/* フェーズ */}
+          <col style={{ width: '120px' }} /> {/* ラベル */}
+          <col style={{ width: '55px' }} />  {/* 時間 */}
+          <col className="min-w-[100px]" />  {/* 技名JA */}
+          <col className="min-w-[100px]" />  {/* 技名EN */}
+          <col className="min-w-[100px]" />  {/* 技名ZH */}
+          <col className="min-w-[100px]" />  {/* 技名KO */}
+          <col style={{ width: '70px' }} />  {/* 種別 */}
+          <col style={{ width: '60px' }} />  {/* 対象 */}
+          <col style={{ width: '80px' }} />  {/* ダメージ */}
+          <col style={{ width: '40px' }} />  {/* 削除 */}
         </colgroup>
 
         <thead>
           <tr className="border-b border-app-text/10 text-left text-app-text-muted">
-            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_time')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_phase')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_label')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_time')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ja')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_en')}</th>
-            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_zh')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ko')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage_type')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_target')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage')}</th>
             <th className="pb-2 font-normal">{t('admin.tpl_editor_delete')}</th>
           </tr>
         </thead>
 
         <tbody>
-          {rows.map((row, index) => {
-            if (row.type === 'phase-separator') {
-              return (
-                <tr key={`phase-${row.phaseId}-${index}`} className="bg-blue-500/[0.08]">
-                  <td colSpan={8} className="py-1 px-2 font-bold text-blue-400 text-app-md">
-                    {row.phaseName}
-                  </td>
-                </tr>
-              );
-            }
-
-            if (row.type === 'mechanic-separator') {
-              const nextPhaseId = Math.max(...phases.map((p) => p.id), 0) + 1;
-
-              return (
-                <tr key={`mechanic-${row.mechanicGroupJa}-${index}`} className="bg-app-text/[0.04]">
-                  <td className="py-0.5 px-2" colSpan={2}>
-                    <select
-                      value={row.phaseId}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === '__new__') {
-                          const name = `P${nextPhaseId}`;
-                          onUpdatePhaseForGroup(row.mechanicGroupJa, nextPhaseId, name);
-                        } else {
-                          const pid = parseInt(val, 10);
-                          const existing = phases.find((p) => p.id === pid);
-                          onUpdatePhaseForGroup(row.mechanicGroupJa, pid, existing?.name ?? `P${pid}`);
-                        }
-                      }}
-                      className="px-1 py-0.5 text-app-base bg-transparent border border-app-text/20 rounded text-app-text cursor-pointer [&>option]:bg-app-bg [&>option]:text-app-text"
-                    >
-                      {phases.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name ?? `P${p.id}`}
-                        </option>
-                      ))}
-                      <option value="__new__">{t('admin.tpl_editor_new_phase')}</option>
-                    </select>
-                  </td>
-                  <td colSpan={3} className="py-0.5 px-2 text-app-base text-app-text-muted font-medium">
-                    {row.mechanicGroupJa}
-                  </td>
-                  <td colSpan={3} className="py-0.5 px-2">
-                    <input
-                      type="text"
-                      defaultValue={row.mechanicGroupEn}
-                      placeholder="English..."
-                      onBlur={(e) => onUpdateLabelEn(row.mechanicGroupJa, e.target.value)}
-                      className="w-full px-1 py-0.5 text-app-base bg-transparent border border-app-text/10 rounded text-app-text placeholder-app-text-muted/40 focus:border-app-text/30 focus:outline-none"
-                    />
-                  </td>
-                </tr>
-              );
-            }
-
-            const { event } = row;
+          {filteredEvents.map((event, index) => {
             const evId = event.id;
+            const phase = getPhaseForTime(event.time, phases);
+            const firstInGroup = isFirstInGroup(index);
+            const labelJa = event.mechanicGroup?.ja || '';
 
             const timeHighlight = getCellHighlight(evId, 'time', editState);
             const nameJaHighlight = getCellHighlight(evId, 'name.ja', editState);
             const nameEnHighlight = getCellHighlight(evId, 'name.en', editState);
+            const nameZhHighlight = getCellHighlight(evId, 'name.zh', editState);
+            const nameKoHighlight = getCellHighlight(evId, 'name.ko', editState);
             const damageHighlight = getCellHighlight(evId, 'damageAmount', editState);
             const damageTypeHighlight = getCellHighlight(evId, 'damageType', editState);
             const targetHighlight = getCellHighlight(evId, 'target', editState);
 
             const isEnUntranslated = !event.name.en.trim();
             const isEnAutoFilled = editState.autoFilled.has(`${evId}:name.en`);
+            const isZhUntranslated = !(event.name.zh ?? '').trim();
+            const isZhAutoFilled = editState.autoFilled.has(`${evId}:name.zh`);
+            const isKoUntranslated = !(event.name.ko ?? '').trim();
+            const isKoAutoFilled = editState.autoFilled.has(`${evId}:name.ko`);
 
             return (
               <tr
                 key={evId}
                 className="border-b border-app-text/5 hover:bg-white/[0.03] transition-colors"
               >
+                {/* フェーズ */}
+                <td className="py-1 pr-2 text-app-text-muted text-app-base">
+                  {phase.name}
+                </td>
+
+                {/* ラベル（グループ先頭行のみ表示） */}
+                <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
+                  {firstInGroup && labelJa ? (
+                    <span className="text-app-text">{labelJa}</span>
+                  ) : null}
+                </td>
+
                 {/* 時間 */}
                 <td className={`py-1 pr-2 ${highlightClass(timeHighlight)}`}>
                   <EditableCell
@@ -407,11 +345,6 @@ export function TemplateEditor({
                       }
                     }}
                   />
-                </td>
-
-                {/* フェーズ（読み取り専用） */}
-                <td className="py-1 pr-2 text-app-text-muted">
-                  {getPhaseForTime(event.time, phases).name}
                 </td>
 
                 {/* 技名(JA) */}
@@ -434,16 +367,25 @@ export function TemplateEditor({
                   />
                 </td>
 
-                {/* ダメージ */}
-                <td className={`py-1 pr-2 ${highlightClass(damageHighlight)}`}>
+                {/* 技名(ZH) */}
+                <td className={`py-1 pr-2 ${highlightClass(nameZhHighlight)}`}>
                   <EditableCell
-                    value={event.damageAmount !== undefined ? String(event.damageAmount) : ''}
-                    highlight={damageHighlight}
-                    inputType="number"
-                    onCommit={(val) => {
-                      const num = val === '' ? undefined : parseInt(val, 10);
-                      onUpdateCell(evId, 'damageAmount', isNaN(num as number) ? undefined : num);
-                    }}
+                    value={event.name.zh ?? ''}
+                    highlight={nameZhHighlight}
+                    showAutoLabel={isZhAutoFilled && !isZhUntranslated}
+                    isUntranslatedPlaceholder={isZhUntranslated && !isZhAutoFilled}
+                    onCommit={(val) => onUpdateCell(evId, 'name.zh', val)}
+                  />
+                </td>
+
+                {/* 技名(KO) */}
+                <td className={`py-1 pr-2 ${highlightClass(nameKoHighlight)}`}>
+                  <EditableCell
+                    value={event.name.ko ?? ''}
+                    highlight={nameKoHighlight}
+                    showAutoLabel={isKoAutoFilled && !isKoUntranslated}
+                    isUntranslatedPlaceholder={isKoUntranslated && !isKoAutoFilled}
+                    onCommit={(val) => onUpdateCell(evId, 'name.ko', val)}
                   />
                 </td>
 
@@ -464,6 +406,19 @@ export function TemplateEditor({
                     options={targetOptions}
                     highlight={targetHighlight}
                     onCommit={(val) => onUpdateCell(evId, 'target', val)}
+                  />
+                </td>
+
+                {/* ダメージ */}
+                <td className={`py-1 pr-2 ${highlightClass(damageHighlight)}`}>
+                  <EditableCell
+                    value={event.damageAmount !== undefined ? String(event.damageAmount) : ''}
+                    highlight={damageHighlight}
+                    inputType="number"
+                    onCommit={(val) => {
+                      const num = val === '' ? undefined : parseInt(val, 10);
+                      onUpdateCell(evId, 'damageAmount', isNaN(num as number) ? undefined : num);
+                    }}
                   />
                 </td>
 

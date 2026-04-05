@@ -83,6 +83,12 @@ export function useTemplateEditor() {
           case 'name.en':
             ev.name.en = value as string;
             break;
+          case 'name.zh':
+            ev.name.zh = value as string;
+            break;
+          case 'name.ko':
+            ev.name.ko = value as string;
+            break;
           case 'damageAmount':
             ev.damageAmount = value as number | undefined;
             break;
@@ -104,21 +110,33 @@ export function useTemplateEditor() {
         newAutoFilled.delete(key);
 
         // 翻訳自動伝播
-        if (autoPropagate && (field === 'name.en' || field === 'name.ja')) {
+        const translationFields = ['name.en', 'name.ja', 'name.zh', 'name.ko'] as const;
+        if (autoPropagate && translationFields.includes(field as typeof translationFields[number])) {
+          const oldZh = ev.name.zh ?? '';
+          const oldKo = ev.name.ko ?? '';
+
           for (const other of newCurrent) {
             if (other.id === eventId || prev.deleted.has(other.id)) continue;
 
             if (field === 'name.en') {
-              // EN変更 → 同じJA名を持つ他の行に伝播
               if (other.name.ja === oldJa && (other.name.en === '' || other.name.en === oldEn)) {
                 other.name.en = value as string;
                 newAutoFilled.add(`${other.id}:name.en`);
               }
             } else if (field === 'name.ja') {
-              // JA変更 → 同じEN名を持つ他の行に伝播
               if (other.name.en === oldEn && oldEn !== '' && (other.name.ja === '' || other.name.ja === oldJa)) {
                 other.name.ja = value as string;
                 newAutoFilled.add(`${other.id}:name.ja`);
+              }
+            } else if (field === 'name.zh') {
+              if (other.name.ja === oldJa && ((other.name.zh ?? '') === '' || (other.name.zh ?? '') === oldZh)) {
+                other.name.zh = value as string;
+                newAutoFilled.add(`${other.id}:name.zh`);
+              }
+            } else if (field === 'name.ko') {
+              if (other.name.ja === oldJa && ((other.name.ko ?? '') === '' || (other.name.ko ?? '') === oldKo)) {
+                other.name.ko = value as string;
+                newAutoFilled.add(`${other.id}:name.ko`);
               }
             }
           }

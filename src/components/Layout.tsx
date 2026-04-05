@@ -259,18 +259,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }, 500);
         });
 
-        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視） + 未保存警告 */
-        const onBeforeUnload = (e: BeforeUnloadEvent) => {
+        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視） */
+        const onBeforeUnload = () => {
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
             syncToCloud(true);
-            const authState = useAuthStore.getState();
-            const planState = usePlanStore.getState();
-            // 未ログインでプランがある、またはログイン中で未同期の変更がある場合に警告
-            if ((!authState.user && planState.plans.length > 0) ||
-                (authState.user && planState.hasDirtyPlans())) {
-                e.preventDefault();
-            }
+            // saveSilently() でlocalStorageに同期保存済みのため、
+            // ブラウザの「変更が保存されない場合があります」警告は不要
         };
 
         /** タブ切替時:

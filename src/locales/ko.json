@@ -368,7 +368,9 @@
         "login_required_title": "로그인 필요",
         "login_required_description": "FFLogs 가져오기는 API 사용량 제한으로 인해 로그인한 사용자만 이용할 수 있습니다. 무료로 사용하려면 로그인하세요.",
         "login_button": "로그인하여 가져오기",
-        "rate_limit_exceeded": "사용 한도에 도달했습니다. 잠시 후 다시 시도해 주세요 (시간당 최대 {{max}}회)."
+        "rate_limit_exceeded": "사용 한도에 도달했습니다. 잠시 후 다시 시도해 주세요 (시간당 최대 {{max}}회).",
+        "fetching_players": "플레이어 정보 가져오는 중...",
+        "english_only_warning": "영어 클라이언트에서 업로드된 로그입니다. 일본어 스킬 이름을 가져올 수 없습니다. 나중에 템플릿 편집기에서 번역을 추가할 수 있습니다."
     },
     "sidebar": {
         "new_plan": "새로 만들기",
@@ -1250,6 +1252,9 @@
         "tpl_editor_phase": "페이즈",
         "tpl_editor_name_ja": "이름 (일본어)",
         "tpl_editor_name_en": "이름 (영어)",
+        "tpl_editor_name_zh": "이름 (중국어)",
+        "tpl_editor_name_ko": "이름 (한국어)",
+        "tpl_editor_label": "라벨",
         "tpl_editor_damage": "데미지",
         "tpl_editor_damage_type": "유형",
         "tpl_editor_target": "대상",
@@ -1290,7 +1295,7 @@
         "tpl_csv_column_type": "유형",
         "tpl_csv_column_target": "대상",
         "tpl_csv_column_phase": "페이즈",
-        "tpl_csv_column_mechanic": "기믹",
+        "tpl_csv_column_mechanic": "라벨",
         "tpl_csv_column_skip": "건너뛰기",
         "tpl_csv_import": "가져오기",
         "tpl_csv_error": "붙여넣은 데이터를 파싱할 수 없습니다. 스프레드시트에서 복사한 것인지 확인하세요",
