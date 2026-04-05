@@ -221,6 +221,7 @@ export const useMitigationStore = create<MitigationState>()(
                         partyMembers: state.partyMembers,
                         aaSettings: state.aaSettings,
                         schAetherflowPatterns: state.schAetherflowPatterns,
+                        myMemberId: state.myMemberId,
                     };
                 },
 
@@ -238,6 +239,7 @@ export const useMitigationStore = create<MitigationState>()(
                         partyMembers: membersWithComputed,
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,
+                        myMemberId: snapshot.myMemberId ?? null,
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],

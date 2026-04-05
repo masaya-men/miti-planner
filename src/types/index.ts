@@ -180,6 +180,7 @@ export interface PlanData {
         target: 'MT' | 'ST';
     };
     schAetherflowPatterns: Record<string, 1 | 2>;
+    myMemberId?: string | null;
 }
 
 /** DC/サーバーマスターデータ */
