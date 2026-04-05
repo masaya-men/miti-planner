@@ -485,15 +485,15 @@ function resolveWaveTarget(
     // 8人 or 3人以上 → AoE
     if (playerTargets.size >= 3) return 'AoE';
 
-    // タンクのみに当たっている
+    // タンクのみに当たっている → TB扱い
     const tankOnly = [...playerTargets].every(id => tankIds.has(id));
     if (tankOnly && playerTargets.size > 0) {
         if (playerTargets.size === 1) {
             const [tid] = playerTargets;
             return tid === stId ? 'ST' : 'MT';
         }
-        // 両タンクに当たっている場合はキャスト対象で判定
-        return castTarget ?? 'AoE';
+        // 両タンクに当たっている → MT（共有TB）
+        return 'MT';
     }
 
     // キャスト対象がTBだがダメージが広範囲 → AoE部分
@@ -578,7 +578,10 @@ function computeDamageValue(
         if (tankDmg.length > 0) return Math.max(...tankDmg);
     }
 
-    // AoE: 中央値（デバフ持ちの異常値を自動排除）
+    // AoE: タンクを除外した中央値（タンクは防御力が高くダメージが低い）
+    const nonTankDmg = damages.filter(d => !tankIds.has(d.tgtID)).map(d => d.rawDmg);
+    if (nonTankDmg.length > 0) return median(nonTankDmg);
+    // 全員タンクの場合はフォールバック
     return median(damages.map(d => d.rawDmg));
 }
 
