@@ -223,7 +223,12 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         }
     }, []);
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        // FFLogsモーダルが閉じていてもLoginModalは表示し続ける
+        return showLoginModal
+            ? <LoginModal isOpen onClose={() => setShowLoginModal(false)} />
+            : null;
+    }
 
     /* ────── ログイン必須ガード ────── */
     if (!isLoggedIn) {
@@ -276,7 +281,6 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         </motion.div>
                     </div>
                 </AnimatePresence>
-                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
             </>
         );
     }
