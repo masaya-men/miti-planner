@@ -51,7 +51,7 @@ const ACTION_CARDS = [
   {
     titleKey: 'admin.dash_edit_skills' as const,
     descKey: 'admin.dash_edit_skills_desc' as const,
-    route: '/admin/skill-wizard',
+    route: '/admin/skills',
   },
   {
     titleKey: 'admin.dash_edit_stats' as const,

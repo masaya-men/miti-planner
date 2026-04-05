@@ -194,8 +194,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                             </div>
                                         )
                                     )}
-                                    {/* 保存インジケータ — プラン名の直後に常に表示 */}
-                                    <SyncButton />
+                                    {/* 保存インジケータ — プラン名の直後に表示（フォーカスモード時は右パネルに移動するため非表示） */}
+                                    {!isHeaderCollapsed && <SyncButton />}
                                 </div>
                             )}
                         </div>
