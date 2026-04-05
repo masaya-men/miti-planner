@@ -77,6 +77,7 @@ interface DamageEntry {
     rawDmg: number;
     tgtID: number;
     aType: number | undefined;
+    multiplier: number;
 }
 
 /** 1つの波（同一キャストから生じたダメージの1グループ） */
@@ -169,19 +170,14 @@ export function mapFFLogsToTimeline(
     const casts = buildCastList(castEn, castJp, jpNameMap, enNameMap, ref);
 
     // ── Step 2: ダメージをキャストに紐付け ──
-    // DEBUG: 各ダメージイベントのFFLogs生値を記録
-    const _debugRawMap = new Map<string, FFLogsRawEvent>();
-    const damageEntries: DamageEntry[] = filteredDamage.map(ev => {
-        const entry = {
-            timeMs: ev.timestamp - ref,
-            guid: ev.ability?.guid ?? ev.abilityGameID ?? -1,
-            rawDmg: getRawDamage(ev),
-            tgtID: ev.targetID ?? -1,
-            aType: ev.ability?.type,
-        };
-        _debugRawMap.set(`${entry.timeMs}:${entry.guid}:${entry.tgtID}`, ev);
-        return entry;
-    });
+    const damageEntries: DamageEntry[] = filteredDamage.map(ev => ({
+        timeMs: ev.timestamp - ref,
+        guid: ev.ability?.guid ?? ev.abilityGameID ?? -1,
+        rawDmg: getRawDamage(ev),
+        tgtID: ev.targetID ?? -1,
+        aType: ev.ability?.type,
+        multiplier: ev.multiplier ?? 1,
+    }));
 
     const aaGuids = new Set<number>();
     for (const d of damageEntries) {
@@ -209,18 +205,7 @@ export function mapFFLogsToTimeline(
             s.minTime = Math.min(s.minTime, d.timeMs);
             s.guids.add(d.guid);
         }
-        console.log(`[DEBUG UNMATCHED] キャストに紐付かなかったダメージ (${unmatchedDamage.length}件):`);
-        for (const [name, s] of summary) {
-            console.log(
-                `  ${name} | count=${s.count} | maxDmg=${s.maxDmg} | firstAt=${Math.floor(s.minTime / 1000)}s | GUIDs=${[...s.guids].join(',')}`,
-            );
-        }
     }
-
-    // DEBUG: begincast以外のキャストイベント数
-    const castOnlyCount = castEn.filter(ev => ev.type === 'cast').length;
-    const beginCastCount = castEn.filter(ev => ev.type === 'begincast').length;
-    console.log(`[DEBUG CAST] begincast=${beginCastCount}, cast(即発動)=${castOnlyCount}, total=${castEn.length}`);
 
     // ── Step 3: MT/ST判定（AA被弾パターン） ──
     const aaDamage = damageEntries.filter(d => {
@@ -256,27 +241,6 @@ export function mapFFLogsToTimeline(
             const waveTarget = resolveWaveTarget(wave.damages, target, tankIds, allPlayerIds, mtId, stId);
             const dmgValue = computeDamageValue(wave.damages, waveTarget, tankIds);
             const rounded = dmgValue > 0 ? roundDamageCeil(dmgValue) : undefined;
-
-            // DEBUG: ダメージ算出過程をログ出力
-            if (wave.damages.length > 0) {
-                const debugDetails = wave.damages.map(d => {
-                    const raw = _debugRawMap.get(`${d.timeMs}:${d.guid}:${d.tgtID}`);
-                    return {
-                        tgtID: d.tgtID,
-                        rawDmg: d.rawDmg,
-                        fflogs_amount: raw?.amount,
-                        fflogs_unmitigated: raw?.unmitigatedAmount,
-                        fflogs_absorbed: raw?.absorbed,
-                        fflogs_mitigated: raw?.mitigated,
-                        fflogs_multiplier: raw?.multiplier,
-                        fflogs_hitType: raw?.hitType,
-                    };
-                });
-                console.log(
-                    `[DEBUG DMG] ${cast.jpName} @${waveTimeSec}s | target=${waveTarget} | median=${dmgValue} → rounded=${rounded}`,
-                );
-                console.table(debugDetails);
-            }
 
             tl.push({
                 id: genId(),
@@ -562,6 +526,26 @@ function median(values: number[]): number {
         : sorted[mid];
 }
 
+/** multiplierの最頻値を返す（同率なら最大＝軽減が最も少ない方） */
+function majorityMultiplier(entries: DamageEntry[]): number {
+    const counts = new Map<number, number>();
+    for (const e of entries) {
+        counts.set(e.multiplier, (counts.get(e.multiplier) || 0) + 1);
+    }
+    let best = entries[0].multiplier;
+    let bestCount = 0;
+    for (const [mult, count] of counts) {
+        if (count > bestCount || (count === bestCount && mult > best)) {
+            best = mult;
+            bestCount = count;
+        }
+    }
+    return best;
+}
+
+/** 乱数バッファ: +5%（FF14のダメージ乱数±5%の下振れを補正） */
+const DAMAGE_VARIANCE_BUFFER = 1.05;
+
 /** 波のダメージ基準値を算出 */
 function computeDamageValue(
     damages: DamageEntry[],
@@ -575,14 +559,23 @@ function computeDamageValue(
         const tankDmg = damages
             .filter(d => tankIds.has(d.tgtID))
             .map(d => d.rawDmg);
-        if (tankDmg.length > 0) return Math.max(...tankDmg);
+        if (tankDmg.length > 0) return Math.floor(Math.max(...tankDmg) * DAMAGE_VARIANCE_BUFFER);
     }
 
-    // AoE: タンクを除外した中央値（タンクは防御力が高くダメージが低い）
-    const nonTankDmg = damages.filter(d => !tankIds.has(d.tgtID)).map(d => d.rawDmg);
-    if (nonTankDmg.length > 0) return median(nonTankDmg);
-    // 全員タンクの場合はフォールバック
-    return median(damages.map(d => d.rawDmg));
+    // AoE: タンクを除外
+    const nonTank = damages.filter(d => !tankIds.has(d.tgtID));
+    if (nonTank.length === 0) {
+        // 全員タンクの場合はフォールバック
+        return Math.floor(Math.max(...damages.map(d => d.rawDmg)) * DAMAGE_VARIANCE_BUFFER);
+    }
+
+    // multiplierの多数派を特定し、それ以外（追加バフ/デバフ持ち）を除外
+    const majorMult = majorityMultiplier(nonTank);
+    const normal = nonTank.filter(d => d.multiplier === majorMult);
+    const pool = normal.length > 0 ? normal : nonTank;
+
+    // max × 1.05（乱数下振れ補正）
+    return Math.floor(Math.max(...pool.map(d => d.rawDmg)) * DAMAGE_VARIANCE_BUFFER);
 }
 
 /** イベント名を構築 */

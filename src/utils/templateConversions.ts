@@ -36,16 +36,17 @@ export function parseTimeString(input: string): number | null {
 
   const trimmed = input.trim();
 
-  // M:SS または M:SS.x 形式
-  const colonMatch = trimmed.match(/^(\d+):(\d{1,2})(?:\.\d+)?$/);
+  // M:SS または M:SS.x 形式（負の時間にも対応）
+  const colonMatch = trimmed.match(/^(-?)(\d+):(\d{1,2})(?:\.\d+)?$/);
   if (colonMatch) {
-    const minutes = parseInt(colonMatch[1], 10);
-    const seconds = parseInt(colonMatch[2], 10);
-    return minutes * 60 + seconds;
+    const sign = colonMatch[1] === '-' ? -1 : 1;
+    const minutes = parseInt(colonMatch[2], 10);
+    const seconds = parseInt(colonMatch[3], 10);
+    return sign * (minutes * 60 + seconds);
   }
 
-  // 裸の数値（小数可）
-  const numMatch = trimmed.match(/^(\d+(?:\.\d+)?)$/);
+  // 裸の数値（小数可、負も可）
+  const numMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)$/);
   if (numMatch) {
     return Math.floor(parseFloat(numMatch[1]));
   }
@@ -96,13 +97,13 @@ export function parseTsv(text: string): ParsedRow[] {
 export function guessColumnType(header: string): ColumnType {
   const h = header.toLowerCase().trim();
 
-  if (/時間|time/.test(h)) return 'time';
+  if (/時間|time|タイム/.test(h)) return 'time';
   if (/技名|name|ability/.test(h)) return 'name';
   if (/ダメージ|damage/.test(h)) return 'damage';
-  if (/種別|type/.test(h)) return 'type';
+  if (/攻撃種別|種別|type/.test(h)) return 'type';
   if (/対象|target/.test(h)) return 'target';
   if (/フェーズ|phase/.test(h)) return 'phase';
-  if (/ギミック|mechanic|group/.test(h)) return 'mechanic';
+  if (/ラベル|ギミック|mechanic|group|label/.test(h)) return 'mechanic';
 
   return 'skip';
 }
