@@ -346,6 +346,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     useMitigationStore.getState().loadSnapshot(latest.data);
                 }
             }
+            // プラン読み込み完了後にフラグを立てる（チュートリアル自動起動のガードに使用）
+            usePlanStore.setState({ _migrationDone: true });
+        }).catch(() => {
+            usePlanStore.setState({ _migrationDone: true });
         });
     }, [authUser, authLoading, hasMigrated]);
 

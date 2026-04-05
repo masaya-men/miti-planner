@@ -411,11 +411,9 @@ export const usePlanStore = create<PlanState>()(
                         _dirtyPlanIds: new Set<string>(dirtyIds),
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
-                        _migrationDone: true,
                     });
                 } catch (err) {
                     console.error('マイグレーションエラー:', err);
-                    set({ _migrationDone: true });
                 }
             },
 
