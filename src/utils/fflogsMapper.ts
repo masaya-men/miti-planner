@@ -241,7 +241,7 @@ export function mapFFLogsToTimeline(
                     };
                 });
                 console.log(
-                    `[DEBUG DMG] ${cast.jpName} @${waveTimeSec}s | target=${waveTarget} | max=${dmgValue} → rounded=${rounded}`,
+                    `[DEBUG DMG] ${cast.jpName} @${waveTimeSec}s | target=${waveTarget} | median=${dmgValue} → rounded=${rounded}`,
                 );
                 console.table(debugDetails);
             }
@@ -259,6 +259,9 @@ export function mapFFLogsToTimeline(
 
     // ── Step 5: AA処理 ──
     const aaCount = generateAAEvents(tl, aaDamage, tankIds, mtId, stId, isEnglishOnly);
+
+    // ── Step 5.5: 同名技のダメージ統一 ──
+    unifyDamageForSameAbility(tl);
 
     // ── Step 6: ソート ──
     tl.sort((a, b) => a.time - b.time);
@@ -485,6 +488,16 @@ function detectDamageWaves(damages: DamageEntry[]): DamageWave[] {
     return waves;
 }
 
+/** 中央値を算出 */
+function median(values: number[]): number {
+    if (values.length === 0) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0
+        ? Math.floor((sorted[mid - 1] + sorted[mid]) / 2)
+        : sorted[mid];
+}
+
 /** 波のダメージ基準値を算出 */
 function computeDamageValue(
     damages: DamageEntry[],
@@ -494,15 +507,15 @@ function computeDamageValue(
     if (damages.length === 0) return 0;
 
     if (target === 'MT' || target === 'ST') {
-        // TB: タンクへのダメージの最大値
+        // TB: タンクへのダメージの最大値（対象1-2人なので中央値不適）
         const tankDmg = damages
             .filter(d => tankIds.has(d.tgtID))
             .map(d => d.rawDmg);
         if (tankDmg.length > 0) return Math.max(...tankDmg);
     }
 
-    // AoE: 全ダメージの最大値
-    return Math.max(...damages.map(d => d.rawDmg));
+    // AoE: 中央値（デバフ持ちの異常値を自動排除）
+    return median(damages.map(d => d.rawDmg));
 }
 
 /** イベント名を構築 */
@@ -582,6 +595,39 @@ function generateAAEvents(
     }
 
     return aaCount;
+}
+
+/** 同名技のダメージを統一（エンレージ等の大幅差異は維持） */
+function unifyDamageForSameAbility(tl: TimelineEvent[]): void {
+    const DEVIATION_THRESHOLD = 0.20; // 中央値から20%以上離れたら個別値を維持
+
+    // 同名+同target でグループ化（AAは除外）
+    const groups = new Map<string, number[]>();
+    for (let i = 0; i < tl.length; i++) {
+        const ev = tl[i];
+        if (!ev.damageAmount || ev.name.ja === 'AA' || ev.name.en === 'AA') continue;
+        const key = `${ev.name.ja}::${ev.target ?? 'AoE'}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(i);
+    }
+
+    for (const [, indices] of groups) {
+        if (indices.length < 2) continue;
+
+        const values = indices.map(i => tl[i].damageAmount!);
+        const med = median(values);
+        if (med === 0) continue;
+
+        // 全イベントが中央値から20%以内なら統一
+        const allClose = values.every(v => Math.abs(v - med) / med <= DEVIATION_THRESHOLD);
+        if (allClose) {
+            const unified = roundDamageCeil(med);
+            for (const i of indices) {
+                tl[i].damageAmount = unified;
+            }
+        }
+        // 20%超の差異がある場合は各値をそのまま維持
+    }
 }
 
 /** 同秒競合を解消 */
