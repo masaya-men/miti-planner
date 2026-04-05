@@ -9,15 +9,39 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **今回の作業**: FFLogsインポートv2（キャスト起点）、テンプレートエディター改修、beforeunloadバグ修正
-- **前回完了**: TODO整理 + バグ修正（スプシインポート・WelcomeSetupキャンセル）
-- **デプロイ済み**: 未push（本番動作確認待ち）
-- **次のタスク**: FFLogsインポートv2の本番動作確認（M3S開幕、連続ダメージ技、DSRフェーズ、英語ログ警告）
+- **今回の作業**: FFLogsインポートv2ダメージ精度改善
+- **前回完了**: FFLogsインポートv2本番動作確認 + 複数バグ修正
+- **デプロイ済み**: a1f71c2（AoEタンク除外+両タンクTB扱い）
+- **次のタスク**: FFLogsダメージ精度の継続改善（下記「進行中」参照）
 - **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、Vercel月100ビルド制限
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、Vercel月100ビルド制限（今日だけで8ビルド消費）
 - **既知の制限**: FFLogs翻訳はキルログのみ対応、中韓は手動入力
+- **デバッグログ残存**: fflogsMapper.ts/fflogs.tsにconsole.log多数あり。精度改善完了後に除去すること
 
 ---
+
+## 進行中: FFLogsダメージ精度改善
+
+**参照データ**: `docs/reference-m3s-damage.tsv`（有志スプシM3Sタイムライン）
+**テストログ**: `Mypg2dzkfJHj3wPQ` fight=4
+
+### 今回完了した改善
+- [x] cast（即発動）イベントの取得（begincastのみ→begincast+cast 2パス方式）
+- [x] AoEダメージを中央値方式に変更（max→median）
+- [x] AoE中央値からタンクを除外（防御力差による低ダメージ排除）
+- [x] 同名技のダメージ統一（中央値から20%以内なら統一）
+- [x] AoE波のパケット分離マージ（タンク先行到着問題）
+- [x] 両タンク被弾をTB扱い（ウェポンバスター等）
+- [x] playerDetailsレスポンスのdata.playerDetailsネスト対応
+- [x] 未ログイン時FFLogsモーダルのz-index修正（createPortal化）
+- [x] ログインボタンでLoginModalが開かない問題修正
+
+### 残課題
+- [ ] ダメージ値がスプシより全体的に低い（unmitigatedAmountが基準ダメージではない）
+- [ ] DSRフェーズ: フェーズ区切り・ボス名が正しくない
+- [ ] 英語ログ警告: 未確認
+- [ ] デバッグログの除去（精度改善完了後）
+- [ ] `POST /api/template?action=auto-register 400` エラーの調査
 
 ## バグ・不具合（要修正）
 
