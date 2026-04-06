@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { TranslationRow } from '../../lib/translationDataLoaders';
 
 interface Props {

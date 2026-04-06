@@ -9,6 +9,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
+import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
 import { PhaseModal } from './PhaseModal';
@@ -1990,23 +1991,23 @@ const Timeline: React.FC = () => {
                                                     key={phase.id}
                                                     className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
-                                                    onClick={(e) => handlePhaseEdit(phase.id, phase.name, e)}
+                                                    onClick={(e) => handlePhaseEdit(phase.id, getPhaseName(phase.name), e)}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
                                                                 {/* PC: 2行表示 */}
                                                                 <span className="hidden md:block whitespace-nowrap text-app-xl font-bold text-app-text leading-none">
-                                                                    {phase.name.split('\n')[0]}
+                                                                    {getPhaseName(phase.name).split('\n')[0]}
                                                                 </span>
-                                                                {phase.name.split('\n')[1] && (
+                                                                {getPhaseName(phase.name).split('\n')[1] && (
                                                                     <span className="hidden md:block whitespace-nowrap text-app-sm font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
-                                                                        {phase.name.split('\n')[1]}
+                                                                        {getPhaseName(phase.name).split('\n')[1]}
                                                                     </span>
                                                                 )}
                                                                 {/* スマホ: 1行に結合 */}
                                                                 <span className="md:hidden whitespace-nowrap text-app-base font-bold text-app-text leading-none">
-                                                                    {phase.name.split('\n').join(' ')}
+                                                                    {getPhaseName(phase.name).split('\n').join(' ')}
                                                                 </span>
                                                             </div>
                                                         </div>

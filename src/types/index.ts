@@ -5,6 +5,14 @@ export type LocalizedString = {
     ko?: string;
 };
 
+/** Phase.nameの表示用文字列を取得（string | LocalizedString対応） */
+export function getPhaseName(name: string | LocalizedString, lang?: string): string {
+    if (typeof name === 'string') return name;
+    if (lang === 'ja' && name.ja) return name.ja;
+    if (lang === 'en' && name.en) return name.en;
+    return name.ja || name.en || '';
+}
+
 /** Firestore旧データ(string)をLocalizedStringに正規化 */
 export function normalizeLocalizedString(v: string | LocalizedString | undefined): LocalizedString | undefined {
     if (v === undefined || v === null) return undefined;

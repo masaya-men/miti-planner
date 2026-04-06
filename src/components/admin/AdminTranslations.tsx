@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TranslationTable } from './TranslationTable';
 import { TranslationCsvTools } from './TranslationCsvTools';
+import type { TranslationCategory, TranslationRow, TranslationDataSet } from '../../lib/translationDataLoaders';
 import {
-  TranslationCategory, TranslationRow, TranslationDataSet,
   loadSkillTranslations, loadContentTranslations,
   loadAttackTranslations, loadPhaseTranslations,
   loadOtherTranslations, loadTemplateList,

@@ -172,11 +172,11 @@ export async function loadAttackTranslations(contentId: string): Promise<Transla
 /**
  * 4. テンプレート一覧の取得（コンテンツ選択ドロップダウン用）
  */
-export async function loadTemplateList(): Promise<{ contentId: string; eventCount: number }[]> {
+export async function loadTemplateList(): Promise<{ value: string; label: string }[]> {
   const res = await apiFetch('/api/admin?resource=templates');
   if (!res.ok) throw new Error(`テンプレート一覧取得失敗: ${res.status}`);
   const data = await res.json() as { templates: { contentId: string; eventCount: number }[] };
-  return data.templates ?? [];
+  return (data.templates ?? []).map(t => ({ value: t.contentId, label: t.contentId }));
 }
 
 /**

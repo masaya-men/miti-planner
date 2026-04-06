@@ -6,6 +6,7 @@
  */
 
 import type { TimelineEvent, Phase } from '../types';
+import { getPhaseName } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
 // ─────────────────────────────────────────────
@@ -272,7 +273,7 @@ export function convertPlanToTemplate(
     const startTimeSec = index === 0 ? 0 : planData.phases[index - 1].endTime;
 
     // name: 最後の改行以降の部分を使う
-    const rawName = phase.name ?? '';
+    const rawName = getPhaseName(phase.name);
     const lastNewline = rawName.lastIndexOf('\n');
     const name = lastNewline >= 0 ? rawName.substring(lastNewline + 1) : rawName;
 

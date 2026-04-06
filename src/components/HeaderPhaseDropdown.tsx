@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { Phase } from '../types';
+import { getPhaseName } from '../types';
 
 interface HeaderPhaseDropdownProps {
     isOpen: boolean;
@@ -90,7 +91,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
                             onClick={() => handlePhaseClick(index)}
                             className="w-full px-3 py-2.5 text-left text-app-2xl text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors"
                         >
-                            {phase.name.split('\n').join(' ')}
+                            {getPhaseName(phase.name).split('\n').join(' ')}
                         </button>
                     ))
                 )}
