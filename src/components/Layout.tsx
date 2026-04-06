@@ -261,15 +261,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         });
 
         /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視）
-         *  未保存の変更がある場合はブラウザ標準の離脱確認ダイアログを表示 */
+         *  プラン編集中はブラウザ標準の離脱確認ダイアログを表示 */
         const onBeforeUnload = (e: BeforeUnloadEvent) => {
+            // プラン編集中なら離脱確認を表示
+            if (usePlanStore.getState().currentPlanId) {
+                e.preventDefault();
+                e.returnValue = '';  // Chrome/Edge互換
+            }
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
             syncToCloud(true);
-            // 未保存の変更がある場合、ブラウザの離脱確認ダイアログを表示
-            if (usePlanStore.getState().hasDirtyPlans()) {
-                e.preventDefault();
-            }
         };
 
         /** タブ切替時:

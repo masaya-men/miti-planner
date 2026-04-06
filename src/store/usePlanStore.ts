@@ -138,12 +138,12 @@ export const usePlanStore = create<PlanState>()(
                                 id: `phase_${p.id}`,
                                 name: p.name
                                     ? (typeof p.name === 'string'
-                                        ? `Phase ${i + 1}\n${p.name}`
+                                        ? p.name
                                         : {
-                                            ja: p.name.ja ? `Phase ${i + 1}\n${p.name.ja}` : `Phase ${i + 1}`,
-                                            en: p.name.en ? `Phase ${i + 1}\n${p.name.en}` : `Phase ${i + 1}`,
-                                            ...(p.name.zh ? { zh: `Phase ${i + 1}\n${p.name.zh}` } : {}),
-                                            ...(p.name.ko ? { ko: `Phase ${i + 1}\n${p.name.ko}` } : {}),
+                                            ja: p.name.ja || `Phase ${i + 1}`,
+                                            en: p.name.en || `Phase ${i + 1}`,
+                                            ...(p.name.zh ? { zh: p.name.zh } : {}),
+                                            ...(p.name.ko ? { ko: p.name.ko } : {}),
                                         })
                                     : `Phase ${i + 1}`,
                                 endTime: nextStart !== undefined ? nextStart : maxTime + 10
