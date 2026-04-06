@@ -260,13 +260,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }, 500);
         });
 
-        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視） */
-        const onBeforeUnload = () => {
+        /** ページ離脱時: localStorage即時保存 + Firestore同期（クールダウン無視）
+         *  未保存の変更がある場合はブラウザ標準の離脱確認ダイアログを表示 */
+        const onBeforeUnload = (e: BeforeUnloadEvent) => {
             if (localDebounceTimer) clearTimeout(localDebounceTimer);
             saveSilently();
             syncToCloud(true);
-            // saveSilently() でlocalStorageに同期保存済みのため、
-            // ブラウザの「変更が保存されない場合があります」警告は不要
+            // 未保存の変更がある場合、ブラウザの離脱確認ダイアログを表示
+            if (usePlanStore.getState().hasDirtyPlans()) {
+                e.preventDefault();
+            }
         };
 
         /** タブ切替時:
