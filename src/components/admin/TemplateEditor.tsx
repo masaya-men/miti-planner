@@ -34,7 +34,7 @@ interface TemplateEditorProps {
 function getPhaseForTime(
   time: number,
   phases: TemplateData['phases'],
-): { id: number; name: string; nameObj?: LocalizedString } {
+): { id: number; name: string; nameObj?: LocalizedString; startTimeSec: number } {
   let result = phases[0] ?? { id: 1, startTimeSec: 0, name: undefined };
   for (const phase of phases) {
     if (phase.startTimeSec <= time) {
@@ -44,8 +44,8 @@ function getPhaseForTime(
   const nameObj = result.name
     ? (typeof result.name === 'string' ? { ja: '', en: result.name } : result.name as LocalizedString)
     : undefined;
-  const displayName = nameObj ? (nameObj.en || nameObj.ja || `P${result.id}`) : `P${result.id}`;
-  return { id: result.id, name: displayName, nameObj };
+  const displayName = nameObj ? (nameObj.ja || nameObj.en || `P${result.id}`) : `P${result.id}`;
+  return { id: result.id, name: displayName, nameObj, startTimeSec: result.startTimeSec ?? 0 };
 }
 
 type CellHighlight = 'autofilled' | 'modified' | 'none';
