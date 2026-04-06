@@ -10,10 +10,10 @@
 
 - **ブランチ**: main直接
 - **デプロイ済み**: テンプレート保護 + エディタ一括編集 + ツールチップ言語対応 + zh/ko表示全対応 + キャッシュ自動無効化 + フェーズ・ラベル編集UI + チュートリアル修正 + フェーズ編集バグ修正
-- **今回の修正**: Phase Xプレフィックスバグ修正（usePlanStore）、ラベル分裂修正、離脱確認改善、FFLogsフェーズ名自動取得（report.phases API）、Timeline 2行表示（Phase番号+ボス名）
-- **完了**: テスト基盤構築（98テスト、6ファイル — damageRounding/templateConversions/calculator/fflogsMapper/useTemplateEditor/ogpHelpers）
+- **今回の修正**: Phase Xプレフィックスバグ修正、ラベル分裂根本修正（空ラベルイベントskip）、離脱確認改善、FFLogsフェーズ名自動取得（report.phases API）、Timeline 2行表示（Phase番号+ボス名）、テンプレートエディタ空ラベル編集対応
+- **完了**: テスト基盤構築（98テスト、6ファイル）
 - **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、Vercel月100ビルド制限
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12
 - **既知の制限**: FFLogs翻訳はキルログのみ対応、中韓は手動入力
 - **未確認**: フェーズ編集（管理画面で境界追加/削除/JA表示 → テンプレ保存 → 新規プラン作成で反映されるか）
 - **確認済み**: チュートリアル OK
