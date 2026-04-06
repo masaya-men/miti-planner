@@ -15,6 +15,7 @@ export const MobileTriggersContext = createContext<{
     setIsHeaderCollapsed: (v: boolean) => void;
     isHeaderNear: boolean;
     setIsHeaderNear: (v: boolean) => void;
+    isSidebarOpen: boolean;
 }>({
     mobilePartyOpen: false,
     setMobilePartyOpen: () => { },
@@ -28,4 +29,5 @@ export const MobileTriggersContext = createContext<{
     setIsHeaderCollapsed: () => { },
     isHeaderNear: false,
     setIsHeaderNear: () => { },
+    isSidebarOpen: false,
 });
