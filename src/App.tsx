@@ -15,6 +15,7 @@ import { AdminContents } from './components/admin/AdminContents';
 import { AdminTemplates } from './components/admin/AdminTemplates';
 import { AdminConfig } from './components/admin/AdminConfig';
 import { AdminSkills } from './components/admin/AdminSkills';
+import { AdminTranslations } from './components/admin/AdminTranslations';
 import { AdminStats } from './components/admin/AdminStats';
 import { AdminServers } from './components/admin/AdminServers';
 import { ContentWizard } from './components/admin/wizard/ContentWizard';
@@ -115,6 +116,7 @@ function App() {
               <Route path="contents" element={<AdminContents />} />
               <Route path="templates" element={<AdminTemplates />} />
               <Route path="skills" element={<AdminSkills />} />
+              <Route path="translations" element={<AdminTranslations />} />
               <Route path="stats" element={<AdminStats />} />
               <Route path="servers" element={<AdminServers />} />
               <Route path="config" element={<AdminConfig />} />
