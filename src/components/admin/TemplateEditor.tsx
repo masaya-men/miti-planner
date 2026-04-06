@@ -21,7 +21,7 @@ interface TemplateEditorProps {
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
   onUpdateLabel: (mechanicGroupJa: string, newLabel: LocalizedString) => void;
-  onUpdatePhaseName: (phaseId: number, phaseName: LocalizedString) => void;
+  onSetPhaseAtTime: (timeSec: number, phaseName: LocalizedString | null) => void;
   selectedIds: Set<string>;
   onToggleSelect: (eventId: string) => void;
   onToggleSelectAll: () => void;
@@ -330,7 +330,7 @@ export function TemplateEditor({
   onUpdateCell,
   onDeleteEvent,
   onUpdateLabel,
-  onUpdatePhaseName,
+  onSetPhaseAtTime,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
@@ -338,7 +338,7 @@ export function TemplateEditor({
   const { t } = useTranslation();
 
   // フェーズ・ラベル編集ポップオーバーの状態
-  const [editingPhase, setEditingPhase] = useState<{ phaseId: number; eventId: string; pos: { x: number; y: number } } | null>(null);
+  const [editingPhase, setEditingPhase] = useState<{ timeSec: number; eventId: string; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
   const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string; pos: { x: number; y: number } } | null>(null);
 
   // フィルタリング
@@ -453,7 +453,12 @@ export function TemplateEditor({
                 {/* フェーズ */}
                 <td className="py-1 pr-2 text-app-text-muted text-app-base">
                   <span
-                    onClick={(e) => setEditingPhase({ phaseId: phase.id, eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
+                    onClick={(e) => setEditingPhase({
+                      timeSec: event.time,
+                      eventId: evId,
+                      pos: { x: e.clientX, y: e.clientY },
+                      nameObj: phase.nameObj ?? { ja: '', en: '' },
+                    })}
                     className="cursor-pointer hover:text-app-text transition-colors"
                   >
                     {phase.name}
@@ -580,15 +585,10 @@ export function TemplateEditor({
     </div>
 
     {/* フェーズ編集ポップオーバー（テーブル外にfixed表示） */}
-    {editingPhase && (() => {
-      const phaseData = phases.find((p) => p.id === editingPhase.phaseId);
-      const nameObj = phaseData?.name
-        ? (typeof phaseData.name === 'string' ? { ja: '', en: phaseData.name } : phaseData.name as LocalizedString)
-        : { ja: '', en: '' };
-      return (
+    {editingPhase && (
       <LocalizedEditPopover
         title={t('admin.tpl_phase_edit_title')}
-        initial={nameObj}
+        initial={editingPhase.nameObj}
         position={editingPhase.pos}
         labels={{
           ja: t('admin.tpl_phase_name_ja'),
@@ -597,13 +597,13 @@ export function TemplateEditor({
           ko: t('admin.tpl_phase_name_ko'),
         }}
         onApply={(value) => {
-          onUpdatePhaseName(editingPhase.phaseId, value);
+          const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;
+          onSetPhaseAtTime(editingPhase.timeSec, isEmpty ? null : value);
           setEditingPhase(null);
         }}
         onCancel={() => setEditingPhase(null)}
       />
-      );
-    })()}
+    )}
 
     {/* ラベル編集ポップオーバー（テーブル外にfixed表示） */}
     {editingLabel && (

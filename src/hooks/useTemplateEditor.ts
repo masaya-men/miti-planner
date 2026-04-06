@@ -243,14 +243,36 @@ export function useTemplateEditor() {
     [],
   );
 
-  // フェーズ名を直接更新（エディタのインライン編集用）
-  const updatePhaseName = useCallback(
-    (phaseId: number, phaseName: LocalizedString) => {
+  // クリックした行の時刻でフェーズ境界を追加/更新/削除
+  // phaseName が null または全言語空 → そのフェーズ境界を削除
+  // phaseName に値あり → その時刻にフェーズ境界を設定
+  const setPhaseAtTime = useCallback(
+    (timeSec: number, phaseName: LocalizedString | null) => {
       setState((prev) => {
-        const newPhases = structuredClone(prev.currentPhases);
-        const existing = newPhases.find((p) => p.id === phaseId);
-        if (!existing) return prev;
-        existing.name = phaseName;
+        let newPhases = structuredClone(prev.currentPhases);
+        const isEmpty = !phaseName || (!phaseName.ja && !phaseName.en && !phaseName.zh && !phaseName.ko);
+
+        // この時刻に既存のフェーズ境界があるか
+        const existingIdx = newPhases.findIndex((p) => p.startTimeSec === timeSec);
+
+        if (isEmpty) {
+          // 削除: 時刻0のフェーズ（最初のフェーズ）も削除可能
+          if (existingIdx >= 0) {
+            newPhases.splice(existingIdx, 1);
+          }
+          // フェーズが0件になってもOK（フェーズなし状態）
+        } else {
+          if (existingIdx >= 0) {
+            // 既存フェーズの名前を更新
+            newPhases[existingIdx].name = phaseName;
+          } else {
+            // 新しいフェーズ境界を追加
+            const maxId = newPhases.reduce((max, p) => Math.max(max, p.id), 0);
+            newPhases.push({ id: maxId + 1, startTimeSec: timeSec, name: phaseName });
+            newPhases.sort((a, b) => a.startTimeSec - b.startTimeSec);
+          }
+        }
+
         return { ...prev, currentPhases: newPhases, modified: new Set([...prev.modified, '__phases__']) };
       });
     },
@@ -336,7 +358,7 @@ export function useTemplateEditor() {
     replaceAll,
     getSaveData,
     updatePhaseForGroup,
-    updatePhaseName,
+    setPhaseAtTime,
     updateLabel,
     bulkUpdate,
     autoPropagate,
