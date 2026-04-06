@@ -264,6 +264,44 @@ export function useTemplateEditor() {
     [],
   );
 
+  // 複数イベントのフィールドを一括更新
+  const bulkUpdate = useCallback(
+    (eventIds: Set<string>, changes: Record<string, unknown>) => {
+      setState((prev) => {
+        const newCurrent = structuredClone(prev.current);
+        const newModified = new Set(prev.modified);
+
+        for (const ev of newCurrent) {
+          if (!eventIds.has(ev.id) || prev.deleted.has(ev.id)) continue;
+
+          for (const [field, value] of Object.entries(changes)) {
+            switch (field) {
+              case 'name.ja':
+                ev.name.ja = value as string;
+                break;
+              case 'name.en':
+                ev.name.en = value as string;
+                break;
+              case 'target':
+                ev.target = value as TimelineEvent['target'];
+                break;
+              case 'damageAmount':
+                ev.damageAmount = value as number | undefined;
+                break;
+              case 'damageType':
+                ev.damageType = value as TimelineEvent['damageType'];
+                break;
+            }
+            newModified.add(`${ev.id}:${field}`);
+          }
+        }
+
+        return { ...prev, current: newCurrent, modified: newModified };
+      });
+    },
+    [],
+  );
+
   // 保存用データを返す
   const getSaveData = useCallback(() => {
     return {
@@ -286,6 +324,7 @@ export function useTemplateEditor() {
     getSaveData,
     updatePhaseForGroup,
     updateLabelEn,
+    bulkUpdate,
     autoPropagate,
     setAutoPropagate,
   };

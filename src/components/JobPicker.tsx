@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip } from './ui/Tooltip';
+import { getPhaseName } from '../types';
 
 interface JobPickerProps {
     isOpen: boolean;
@@ -107,8 +108,8 @@ const JobButton: React.FC<{ job: any, currentJobId: string | null, onSelect: () 
                 : "bg-transparent border-app-border hover:scale-110 hover:border-app-text-muted"
         )}
     >
-        <Tooltip content={contentLanguage === 'en' ? job.name.en : job.name.ja}>
-            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md z-10" />
+        <Tooltip content={getPhaseName(job.name, contentLanguage)}>
+            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-6 h-6 object-contain drop-shadow-md z-10" />
         </Tooltip>
     </button>
 );

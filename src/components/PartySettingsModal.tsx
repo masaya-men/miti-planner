@@ -13,6 +13,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
+import { getPhaseName } from '../types';
 import { Tooltip } from './ui/Tooltip';
 
 interface PartySettingsModalProps {
@@ -23,7 +24,7 @@ interface PartySettingsModalProps {
 export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
-    const { theme } = useThemeStore();
+    const { theme, contentLanguage } = useThemeStore();
     const JOBS = useJobs();
     const partyMembers = useMitigationStore(state => state.partyMembers);
     const updatePartyBulk = useMitigationStore(state => state.updatePartyBulk);
@@ -506,8 +507,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             )}
                                         >
                                             <Ripple />
-                                            <Tooltip content={job.name?.ja || ''}>
-                                                <img src={job.icon} alt={job.name?.ja} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
+                                            <Tooltip content={getPhaseName(job.name, contentLanguage)}>
+                                                <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
                                             </Tooltip>
                                         </button>
                                     );

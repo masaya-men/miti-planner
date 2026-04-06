@@ -14,6 +14,11 @@ interface TemplateEditorToolbarProps {
   hasEvents: boolean;
   autoPropagate: boolean;
   onToggleAutoPropagate: () => void;
+  // NEW:
+  showAaOnly: boolean;
+  onToggleAaOnly: () => void;
+  selectedCount: number;
+  onOpenBulkEdit: () => void;
 }
 
 const baseButtonClass =
@@ -29,6 +34,10 @@ export function TemplateEditorToolbar({
   hasEvents,
   autoPropagate,
   onToggleAutoPropagate,
+  showAaOnly,
+  onToggleAaOnly,
+  selectedCount,
+  onOpenBulkEdit,
 }: TemplateEditorToolbarProps) {
   const { t } = useTranslation();
 
@@ -72,8 +81,37 @@ export function TemplateEditorToolbar({
         {t('admin.tpl_editor_auto_propagate')}
       </button>
 
+      {/* 選択数表示 + 一括変更ボタン（選択時のみ） */}
+      {selectedCount > 0 && (
+        <>
+          <span className="text-app-lg text-blue-400">
+            {t('admin.tpl_bulk_selected', { count: selectedCount })}
+          </span>
+          <button
+            type="button"
+            onClick={onOpenBulkEdit}
+            className={`${baseButtonClass} border-blue-500/40 text-blue-400 hover:bg-blue-500/10`}
+          >
+            {t('admin.tpl_bulk_edit_btn')}
+          </button>
+        </>
+      )}
+
       {/* スペーサー */}
       <div className="flex-1" />
+
+      {/* AAのみフィルターボタン */}
+      <button
+        type="button"
+        onClick={onToggleAaOnly}
+        className={`${baseButtonClass} ${
+          showAaOnly
+            ? 'border-amber-500/60 bg-amber-500/15 text-amber-400'
+            : 'border-app-text/20 text-app-text-muted hover:bg-app-text/10'
+        }`}
+      >
+        {t('admin.tpl_filter_aa_only')}
+      </button>
 
       {/* 右側: 未翻訳カウンター + フィルタートグル */}
       {untranslatedCount > 0 ? (

@@ -10,6 +10,8 @@ export function getPhaseName(name: string | LocalizedString, lang?: string): str
     if (typeof name === 'string') return name;
     if (lang === 'ja' && name.ja) return name.ja;
     if (lang === 'en' && name.en) return name.en;
+    if (lang === 'zh' && name.zh) return name.zh;
+    if (lang === 'ko' && name.ko) return name.ko;
     return name.ja || name.en || '';
 }
 

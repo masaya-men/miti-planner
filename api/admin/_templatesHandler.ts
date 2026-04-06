@@ -198,7 +198,7 @@ export default async function handler(req: any, res: any) {
         source: source || 'admin_manual',
         timelineEvents,
         phases: phases || [],
-        lockedAt: null,
+        lockedAt: FieldValue.serverTimestamp(),
         lastUpdatedAt: FieldValue.serverTimestamp(),
         lastUpdatedBy: adminUid,
       };
