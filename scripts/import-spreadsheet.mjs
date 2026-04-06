@@ -595,8 +595,11 @@ async function main() {
 
                 // フェーズ名をcontents.jsonの定義で上書き
                 for (const p of phases) {
-                    if (phaseNames[String(p.id)]) {
-                        p.name = phaseNames[String(p.id)];
+                    const phaseName = phaseNames[String(p.id)];
+                    if (phaseName) {
+                        p.name = typeof phaseName === 'string'
+                            ? { ja: '', en: phaseName }
+                            : phaseName;
                     }
                 }
 
@@ -673,7 +676,11 @@ async function main() {
                             ...ev,
                         })),
                         phases: phaseNames['1']
-                            ? Object.entries(phaseNames).map(([id, name]) => ({ id: parseInt(id), startTimeSec: 0, name }))
+                            ? Object.entries(phaseNames).map(([id, name]) => ({
+                                id: parseInt(id),
+                                startTimeSec: 0,
+                                name: typeof name === 'string' ? { ja: '', en: name } : name,
+                            }))
                             : [],
                     };
 

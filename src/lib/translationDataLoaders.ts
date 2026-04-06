@@ -472,7 +472,7 @@ export async function savePhaseTranslations(
 
     return {
       ...phase,
-      name: newName as unknown as string, // TemplateData.phases.name は string 型だが実際はLocalizedString
+      name: newName,
     };
   });
 
