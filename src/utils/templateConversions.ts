@@ -254,7 +254,7 @@ export function convertCsvToEvents(
  * PlanData の timelineEvents と phases を TemplateData 形式に変換する。
  *
  * - Phase id: "phase_2" → 2
- * - Phase name: "Phase 1\nP1" → "P1"（最後の改行以降）
+ * - Phase name: そのまま使用（旧形式 "Phase 1\nP1" があれば改行以降を抽出）
  * - Phase 1 の startTimeSec = 0、Phase N の startTimeSec = Phase N-1 の endTime
  * - timelineEvents は標準フィールドのみコピー
  */

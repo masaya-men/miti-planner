@@ -39,7 +39,7 @@ function getPhaseName(time: number, phases: Phase[]): string {
     for (let i = 0; i < phases.length; i++) {
         const start = i === 0 ? 0 : phases[i - 1].endTime;
         if (time >= start && time < phases[i].endTime) {
-            return getPhaseNameStr(phases[i].name).split('\n')[0];
+            return getPhaseNameStr(phases[i].name);
         }
     }
     return '';
