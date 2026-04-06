@@ -5,6 +5,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useMitigations, useJobs } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
+import { getPhaseName } from '../types';
 import { MitigationSelector } from './MitigationSelector';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
@@ -456,7 +457,7 @@ export const CheatSheetView: React.FC = () => {
                                             }}
                                             className="w-12 h-12 flex flex-col items-center justify-center rounded-xl border border-app-border bg-app-surface2 hover:bg-app-surface2 shadow-sm cursor-pointer"
                                         >
-                                            <img src={job.icon} alt={contentLanguage === 'en' ? job.name.en : job.name.ja} className="w-6 h-6 object-contain drop-shadow-md" />
+                                            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-6 h-6 object-contain drop-shadow-md" />
                                             <span className="text-app-sm font-black text-app-text-sec mt-1">{m.id}</span>
                                         </button>
                                     );

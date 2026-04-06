@@ -13,6 +13,7 @@ import { TemplateEditorToolbar } from './TemplateEditorToolbar';
 import { PlanToTemplateModal } from './PlanToTemplateModal';
 import { CsvImportModal } from './CsvImportModal';
 import { FflogsTranslationModal } from './FflogsTranslationModal';
+import { BulkEditPopover } from './BulkEditPopover';
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
 
@@ -57,6 +58,11 @@ export function AdminTemplates() {
   const [showPromoteModal, setShowPromoteModal] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [showFflogsModal, setShowFflogsModal] = useState(false);
+
+  // 一括編集用ステート
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showAaOnly, setShowAaOnly] = useState(false);
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
 
   // データソース追跡（保存時に使用）
   const [dataSource, setDataSource] = useState<string>('admin_editor');
@@ -121,6 +127,9 @@ export function AdminTemplates() {
     }
     setSelectedContentId(contentId);
     setShowUntranslatedOnly(false);
+    setSelectedIds(new Set());
+    setShowAaOnly(false);
+    setShowBulkEdit(false);
     setDataSource('admin_editor');
 
     if (!contentId) return;
@@ -235,6 +244,37 @@ export function AdminTemplates() {
     }
   };
 
+  // チェックボックスのトグル
+  const handleToggleSelect = useCallback((eventId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
+  }, []);
+
+  // 全選択/全解除（表示中のイベントのみ対象）
+  const handleToggleSelectAll = useCallback(() => {
+    const filtered = showAaOnly
+      ? editor.visibleEvents.filter((ev) => ev.name.ja === 'AA' && ev.name.en === 'AA')
+      : showUntranslatedOnly
+        ? editor.visibleEvents.filter((ev) => !ev.name.en.trim())
+        : editor.visibleEvents;
+    setSelectedIds((prev) => {
+      const allSelected = filtered.every((ev) => prev.has(ev.id));
+      if (allSelected) return new Set();
+      return new Set(filtered.map((ev) => ev.id));
+    });
+  }, [editor.visibleEvents, showAaOnly, showUntranslatedOnly]);
+
+  // 一括変更の適用
+  const handleBulkApply = useCallback((changes: Record<string, unknown>) => {
+    editor.bulkUpdate(selectedIds, changes);
+    setSelectedIds(new Set());
+    setShowBulkEdit(false);
+  }, [editor, selectedIds]);
+
   // モーダルコールバック
   const handlePromoteImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
     editor.replaceAll(events, phases);
@@ -250,6 +290,11 @@ export function AdminTemplates() {
 
   const hasExistingTemplate = templates.some((t) => t.contentId === selectedContentId);
   const hasEvents = editor.visibleEvents.length > 0;
+
+  // AAフィルタを適用したイベント
+  const filteredVisibleEvents = showAaOnly
+    ? editor.visibleEvents.filter((ev) => ev.name.ja === 'AA' && ev.name.en === 'AA')
+    : editor.visibleEvents;
 
   const inputClass =
     'px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
@@ -288,7 +333,7 @@ export function AdminTemplates() {
 
       {/* ツールバー（コンテンツ選択時のみ） */}
       {selectedContentId && (
-        <div className="mb-3">
+        <div className="mb-3 relative">
           <TemplateEditorToolbar
             untranslatedCount={editor.untranslatedCount}
             showUntranslatedOnly={showUntranslatedOnly}
@@ -299,7 +344,18 @@ export function AdminTemplates() {
             hasEvents={hasEvents}
             autoPropagate={editor.autoPropagate}
             onToggleAutoPropagate={() => editor.setAutoPropagate((v) => !v)}
+            showAaOnly={showAaOnly}
+            onToggleAaOnly={() => { setShowAaOnly((v) => !v); setSelectedIds(new Set()); }}
+            selectedCount={selectedIds.size}
+            onOpenBulkEdit={() => setShowBulkEdit(true)}
           />
+          {showBulkEdit && selectedIds.size > 0 && (
+            <BulkEditPopover
+              selectedCount={selectedIds.size}
+              onApply={handleBulkApply}
+              onClose={() => setShowBulkEdit(false)}
+            />
+          )}
         </div>
       )}
 
@@ -307,13 +363,16 @@ export function AdminTemplates() {
       {selectedContentId && hasEvents && (
         <div className="mb-3">
           <TemplateEditor
-            events={editor.visibleEvents}
+            events={filteredVisibleEvents}
             phases={editor.state.currentPhases}
             editState={editor.state}
             showUntranslatedOnly={showUntranslatedOnly}
             onUpdateCell={editor.updateCell}
             onDeleteEvent={editor.deleteEvent}
             onUpdateLabelEn={editor.updateLabelEn}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
           />
         </div>
       )}

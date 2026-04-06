@@ -21,6 +21,10 @@ interface TemplateEditorProps {
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
   onUpdateLabelEn: (mechanicGroupJa: string, enValue: string) => void;
+  // チェックボックス選択
+  selectedIds: Set<string>;
+  onToggleSelect: (eventId: string) => void;
+  onToggleSelectAll: () => void;
 }
 
 // ─────────────────────────────────────────────
@@ -229,6 +233,9 @@ export function TemplateEditor({
   onUpdateCell,
   onDeleteEvent,
   // onUpdateLabelEn is defined in props but not yet used in this component
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
 
@@ -264,6 +271,7 @@ export function TemplateEditor({
     <div className="overflow-x-auto">
       <table className="w-full text-app-lg border-collapse">
         <colgroup>
+          <col style={{ width: '32px' }} />  {/* チェックボックス */}
           <col style={{ width: '70px' }} />  {/* フェーズ */}
           <col style={{ width: '120px' }} /> {/* ラベル */}
           <col style={{ width: '55px' }} />  {/* 時間 */}
@@ -279,6 +287,14 @@ export function TemplateEditor({
 
         <thead>
           <tr className="border-b border-app-text/10 text-left text-app-text-muted">
+            <th className="pb-2 pr-1">
+              <input
+                type="checkbox"
+                checked={filteredEvents.length > 0 && filteredEvents.every((ev) => selectedIds.has(ev.id))}
+                onChange={onToggleSelectAll}
+                className="cursor-pointer accent-blue-500"
+              />
+            </th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_phase')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_label')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_time')}</th>
@@ -321,6 +337,16 @@ export function TemplateEditor({
                 key={evId}
                 className="border-b border-app-text/5 hover:bg-white/[0.03] transition-colors"
               >
+                {/* チェックボックス */}
+                <td className="py-1 pr-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(evId)}
+                    onChange={() => onToggleSelect(evId)}
+                    className="cursor-pointer accent-blue-500"
+                  />
+                </td>
+
                 {/* フェーズ */}
                 <td className="py-1 pr-2 text-app-text-muted text-app-base">
                   {phase.name}
