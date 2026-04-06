@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { TimelineEvent, Phase } from '../types';
+import { getPhaseName as getPhaseNameStr } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 
 interface MechanicOccurrence {
@@ -38,7 +39,7 @@ function getPhaseName(time: number, phases: Phase[]): string {
     for (let i = 0; i < phases.length; i++) {
         const start = i === 0 ? 0 : phases[i - 1].endTime;
         if (time >= start && time < phases[i].endTime) {
-            return phases[i].name.split('\n')[0];
+            return getPhaseNameStr(phases[i].name).split('\n')[0];
         }
     }
     return '';
