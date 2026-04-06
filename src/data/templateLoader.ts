@@ -6,7 +6,7 @@
  * 静的ファイル（Vite glob import）はフォールバック用に維持。
  */
 
-import type { TimelineEvent } from '../types';
+import type { TimelineEvent, LocalizedString } from '../types';
 import { fetchTemplate as fetchFromFirestore } from '../hooks/useMasterData';
 
 export interface TemplateData {
@@ -14,7 +14,7 @@ export interface TemplateData {
   generatedAt: string;
   sourceLogsCount: number;
   timelineEvents: TimelineEvent[];
-  phases: { id: number; startTimeSec: number; name?: string; }[];
+  phases: { id: number; startTimeSec: number; name?: string | LocalizedString; }[];
   _warning?: string;
 }
 

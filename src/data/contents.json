@@ -62,7 +62,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級2",
     "en": "AAC Cruiserweight M2 (Savage)",
-    "phaseNames": { "1": "Phase One", "2": "Phase Two", "3": "Phase Three" },
+    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" }, "3": { "ja": "", "en": "Phase Three" } },
     "fflogsEncounterId": 98
   },
   {
@@ -72,7 +72,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級3",
     "en": "AAC Cruiserweight M3 (Savage)",
-    "phaseNames": { "1": "Phase One", "2": "Phase Two", "3": "Phase Three" },
+    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" }, "3": { "ja": "", "en": "Phase Three" } },
     "fflogsEncounterId": 99
   },
   {
@@ -82,7 +82,7 @@
     "patch": "7.20",
     "ja": "至天の座アルカディア零式：クルーザー級4",
     "en": "AAC Cruiserweight M4 (Savage)",
-    "phaseNames": { "1": "Phase One", "2": "Phase Two" },
+    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" } },
     "fflogsEncounterId": 100
   },
   {
@@ -94,7 +94,7 @@
     "en": "Futures Rewritten (Ultimate)",
     "shortNameJa": "FRU",
     "fflogsEncounterId": 1079,
-    "phaseNames": { "1": "Fatebreaker", "2": "Usurper of Frost", "3": "Oracle of Darkness", "4": "Enter the Dragon", "5": "Pandora" }
+    "phaseNames": { "1": { "ja": "", "en": "Fatebreaker" }, "2": { "ja": "", "en": "Usurper of Frost" }, "3": { "ja": "", "en": "Oracle of Darkness" }, "4": { "ja": "", "en": "Enter the Dragon" }, "5": { "ja": "", "en": "Pandora" } }
   },
   {
     "id": "m1s",
@@ -188,7 +188,7 @@
     "en": "The Omega Protocol (Ultimate)",
     "shortNameJa": "TOP",
     "fflogsEncounterId": 1077,
-    "phaseNames": { "1": "Omega", "2": "Omega-M/F", "3": "Omega Reconfigured", "4": "Blue Screen", "5": "Run: Dynamis", "6": "Alpha Omega" }
+    "phaseNames": { "1": { "ja": "", "en": "Omega" }, "2": { "ja": "", "en": "Omega-M/F" }, "3": { "ja": "", "en": "Omega Reconfigured" }, "4": { "ja": "", "en": "Blue Screen" }, "5": { "ja": "", "en": "Run: Dynamis" }, "6": { "ja": "", "en": "Alpha Omega" } }
   },
   {
     "id": "p5s",
@@ -246,7 +246,7 @@
     "en": "Dragonsong's Reprise P1",
     "hasCheckpoint": true,
     "fflogsEncounterId": 1076,
-    "phaseNames": { "1": "Adelphel, Grinnaux and Charibert" }
+    "phaseNames": { "1": { "ja": "", "en": "Adelphel, Grinnaux and Charibert" } }
   },
   {
     "id": "dsr",
@@ -258,7 +258,7 @@
     "shortNameJa": "DSR",
     "hasCheckpoint": true,
     "fflogsEncounterId": 1076,
-    "phaseNames": { "1": "King Thordan", "2": "Nidhogg", "3": "The Eyes", "4": "Rewind!", "5": "King Thordan II", "6": "Nidhogg and Hraesvelgr", "7": "The Dragon King" }
+    "phaseNames": { "1": { "ja": "", "en": "King Thordan" }, "2": { "ja": "", "en": "Nidhogg" }, "3": { "ja": "", "en": "The Eyes" }, "4": { "ja": "", "en": "Rewind!" }, "5": { "ja": "", "en": "King Thordan II" }, "6": { "ja": "", "en": "Nidhogg and Hraesvelgr" }, "7": { "ja": "", "en": "The Dragon King" } }
   },
   {
     "id": "p1s",
@@ -399,7 +399,7 @@
     "en": "The Epic of Alexander (Ultimate)",
     "shortNameJa": "TEA",
     "fflogsEncounterId": 1075,
-    "phaseNames": { "1": "Living Liquid", "2": "Limit Cut", "3": "Brute Justice and Cruise Chaser", "4": "Temporal Stasis", "5": "Alexander Prime", "6": "Perfect Alexander" }
+    "phaseNames": { "1": { "ja": "", "en": "Living Liquid" }, "2": { "ja": "", "en": "Limit Cut" }, "3": { "ja": "", "en": "Brute Justice and Cruise Chaser" }, "4": { "ja": "", "en": "Temporal Stasis" }, "5": { "ja": "", "en": "Alexander Prime" }, "6": { "ja": "", "en": "Perfect Alexander" } }
   },
   {
     "id": "e1s",
@@ -493,7 +493,7 @@
     "en": "The Weapon's Refrain (Ultimate)",
     "shortNameJa": "UWU",
     "fflogsEncounterId": 1074,
-    "phaseNames": { "1": "Garuda", "2": "Ifrit", "3": "Titan", "4": "Magitek Bits", "5": "The Ultima Weapon" }
+    "phaseNames": { "1": { "ja": "", "en": "Garuda" }, "2": { "ja": "", "en": "Ifrit" }, "3": { "ja": "", "en": "Titan" }, "4": { "ja": "", "en": "Magitek Bits" }, "5": { "ja": "", "en": "The Ultima Weapon" } }
   },
   {
     "id": "o5s",
@@ -551,7 +551,7 @@
     "en": "The Unending Coil of Bahamut (Ultimate)",
     "shortNameJa": "UCOB",
     "fflogsEncounterId": 1073,
-    "phaseNames": { "1": "Twintania", "2": "Nael deus Darnus", "3": "Bahamut Prime", "4": "Triple Threat", "5": "Reborn!" }
+    "phaseNames": { "1": { "ja": "", "en": "Twintania" }, "2": { "ja": "", "en": "Nael deus Darnus" }, "3": { "ja": "", "en": "Bahamut Prime" }, "4": { "ja": "", "en": "Triple Threat" }, "5": { "ja": "", "en": "Reborn!" } }
   },
   {
     "id": "o1s",

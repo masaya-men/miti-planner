@@ -5,8 +5,7 @@
  * モーダル・フックから使われる純粋関数群。
  */
 
-import type { TimelineEvent, Phase } from '../types';
-import { getPhaseName } from '../types';
+import type { TimelineEvent, Phase, LocalizedString } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
 // ─────────────────────────────────────────────
@@ -204,7 +203,7 @@ export function convertCsvToEvents(
       phases.push({
         id: phaseCounter,
         startTimeSec,
-        name: phaseVal,
+        name: { ja: '', en: phaseVal },
       });
     }
 
@@ -265,21 +264,32 @@ export function convertPlanToTemplate(
 ): Omit<TemplateData, '_warning'> {
   // フェーズ変換
   const templatePhases: TemplateData['phases'] = planData.phases.map((phase, index) => {
-    // id: "phase_2" → 2（数字部分を抽出）
     const idMatch = phase.id.match(/\d+/);
     const numericId = idMatch ? parseInt(idMatch[0], 10) : index + 1;
-
-    // startTimeSec: Phase 1 = 0、それ以降 = 前のフェーズの endTime
     const startTimeSec = index === 0 ? 0 : planData.phases[index - 1].endTime;
 
-    // name: 最後の改行以降の部分を使う
-    const rawName = getPhaseName(phase.name);
-    const lastNewline = rawName.lastIndexOf('\n');
-    const name = lastNewline >= 0 ? rawName.substring(lastNewline + 1) : rawName;
+    // フェーズ名: LocalizedStringならそのまま、stringなら最後の改行以降を使う
+    let name: string | LocalizedString | undefined;
+    if (typeof phase.name === 'object') {
+        const strip = (s: string) => {
+            const idx = s.lastIndexOf('\n');
+            return idx >= 0 ? s.substring(idx + 1) : s;
+        };
+        name = {
+            ja: strip(phase.name.ja),
+            en: strip(phase.name.en),
+            ...(phase.name.zh ? { zh: strip(phase.name.zh) } : {}),
+            ...(phase.name.ko ? { ko: strip(phase.name.ko) } : {}),
+        };
+    } else {
+        const rawName = phase.name ?? '';
+        const lastNewline = rawName.lastIndexOf('\n');
+        const stripped = lastNewline >= 0 ? rawName.substring(lastNewline + 1) : rawName;
+        if (stripped) name = stripped;
+    }
 
     const result: TemplateData['phases'][number] = { id: numericId, startTimeSec };
     if (name) result.name = name;
-
     return result;
   });
 

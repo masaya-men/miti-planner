@@ -939,11 +939,20 @@ function extractPhases(fight, phaseNames = {}) {
     if (!fight.phaseTransitions || fight.phaseTransitions.length === 0) return [];
 
     const ref = fight.startTime;
-    const raw = fight.phaseTransitions.map(pt => ({
-        id: pt.id,
-        startTimeSec: Math.floor((pt.startTime - ref) / 1000),
-        ...(phaseNames[String(pt.id)] ? { name: phaseNames[String(pt.id)] } : {}),
-    }));
+    const raw = fight.phaseTransitions.map(pt => {
+        const phaseName = phaseNames[String(pt.id)];
+        let name;
+        if (phaseName) {
+            name = typeof phaseName === 'string'
+                ? { ja: '', en: phaseName }
+                : phaseName;
+        }
+        return {
+            id: pt.id,
+            startTimeSec: Math.floor((pt.startTime - ref) / 1000),
+            ...(name ? { name } : {}),
+        };
+    });
 
     // 同じstartTimeSecが連続するフェーズを修正（例: DSRのP1/P2が両方0s）
     // 後続フェーズのstartTimeSecから区間を按分して境界を推定する
