@@ -101,14 +101,27 @@ export async function loadSkillTranslations(): Promise<TranslationDataSet> {
   // ジョブIDとジョブ名のマップを作成
   const jobNameMap = new Map(jobs.map(j => [j.id, j.name.ja || j.id]));
 
-  const rows: TranslationRow[] = mitigations.map(m => ({
+  // ジョブ名の翻訳行
+  const jobRows: TranslationRow[] = jobs.map(j => ({
+    id: `job:${j.id}`,
+    ...localizedToFields(j.name),
+    group: '__jobs__',
+    groupLabel: 'ジョブ名',
+  }));
+
+  const skillRows: TranslationRow[] = mitigations.map(m => ({
     id: m.id,
     ...localizedToFields(m.name),
     group: m.jobId,
     groupLabel: jobNameMap.get(m.jobId) ?? m.jobId,
   }));
 
-  const groups = jobs.map(j => ({ value: j.id, label: j.name.ja || j.id }));
+  const rows = [...jobRows, ...skillRows];
+
+  const groups = [
+    { value: '__jobs__', label: 'ジョブ名' },
+    ...jobs.map(j => ({ value: j.id, label: j.name.ja || j.id })),
+  ];
 
   return { category: 'skills', rows, groups };
 }
@@ -287,6 +300,21 @@ export async function saveSkillTranslations(
 
   const changedMap = new Map(changed.map(r => [r.id, r]));
 
+  // 変更を jobs にマージ（job:xxx 形式のID）
+  const updatedJobs = data.jobs.map((j: Job) => {
+    const changedRow = changedMap.get(`job:${j.id}`);
+    if (!changedRow) return j;
+    return {
+      ...j,
+      name: {
+        ja: changedRow.ja || j.name.ja,
+        en: emptyToUndefined(changedRow.en) ?? j.name.en,
+        zh: emptyToUndefined(changedRow.zh),
+        ko: emptyToUndefined(changedRow.ko),
+      } as LocalizedString,
+    };
+  });
+
   // 変更を mitigations にマージ
   const updatedMitigations = data.mitigations.map((m: Mitigation) => {
     const changedRow = changedMap.get(m.id);
@@ -307,7 +335,7 @@ export async function saveSkillTranslations(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       type: 'skills',
-      jobs: data.jobs,
+      jobs: updatedJobs,
       mitigations: updatedMitigations,
       displayOrder: data.displayOrder,
     }),
