@@ -16,7 +16,7 @@ export const MobileHeader: React.FC<{
     theme: string;
     onToggleTheme: () => void;
 }> = ({ onHome, theme, onToggleTheme }) => {
-    const { i18n } = useTranslation();
+    useTranslation();
     const { contentLanguage } = useThemeStore();
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
     const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;

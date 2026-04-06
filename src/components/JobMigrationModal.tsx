@@ -28,7 +28,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
     onConfirm,
     onCancel
 }) => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const [selectedMode, setSelectedMode] = React.useState<MigrationMode>('inherit');
     useEscapeClose(isOpen, onCancel);
