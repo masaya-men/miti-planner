@@ -424,7 +424,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     mobileToolsOpen, setMobileToolsOpen,
                     mobileMenuOpen, setMobileMenuOpen,
                     isHeaderCollapsed, setIsHeaderCollapsed,
-                    isHeaderNear, setIsHeaderNear
+                    isHeaderNear, setIsHeaderNear,
+                    isSidebarOpen
                 }}>
                     {/* ── PC Header ── */}
                     {/* ── Consolidated Floating Header (on PC) ── */}

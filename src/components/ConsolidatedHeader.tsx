@@ -64,7 +64,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
-        isHeaderCollapsed, setIsHeaderCollapsed
+        isHeaderCollapsed, setIsHeaderCollapsed, isSidebarOpen
     } = useContext(MobileTriggersContext);
 
     const timelineEvents = useMitigationStore(state => state.timelineEvents);
@@ -358,9 +358,13 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
-                    {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示（スマホ対応） */}
+                    {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示
+                         PCフォーカスモード時（header collapsed + sidebar closed）は右パネルに表示するため非表示 */}
                     {isHeaderCollapsed && (
-                        <div className="absolute left-1.5 top-0 bottom-0 flex items-center z-10 pointer-events-auto">
+                        <div className={clsx(
+                            "absolute left-1.5 top-0 bottom-0 flex items-center z-10 pointer-events-auto",
+                            !isSidebarOpen && "md:hidden"
+                        )}>
                             <SyncButton />
                         </div>
                     )}
