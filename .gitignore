@@ -4,8 +4,9 @@ ADMIN_REFERENCE.md
 # Superpowers brainstorm files
 .superpowers/
 
-# Claude worktrees
+# Claude worktrees & local settings
 .claude/worktrees/
+.claude/settings.local.json
 
 # Environment files (secrets)
 .env*
