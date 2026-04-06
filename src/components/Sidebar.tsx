@@ -140,6 +140,11 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                 <Tooltip content={floorName} position="right" wrapperClassName="flex-1 min-w-0">
                     <button
                         onClick={() => {
+                            // チュートリアル中はプラン有無に関わらず新規作成フローへ
+                            if (useTutorialStore.getState().isActive) {
+                                onSelect(content);
+                                return;
+                            }
                             if (multiSelect.isEnabled) {
                                 if (contentPlans.length === 1 && !isDisabled) {
                                     onToggleSelect(contentPlans[0].id);
