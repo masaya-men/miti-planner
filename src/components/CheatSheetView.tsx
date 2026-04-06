@@ -135,7 +135,7 @@ export const CheatSheetView: React.FC = () => {
                         }
                     });
 
-                    const localizedName = contentLanguage === 'en' ? def.name.en : def.name.ja;
+                    const localizedName = getPhaseName(def.name, contentLanguage);
                     let maxValBase = member.computedValues[localizedName] || 0;
 
                     if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
@@ -234,14 +234,14 @@ export const CheatSheetView: React.FC = () => {
                                     !isMyJob && useMitigationStore.getState().myJobHighlight && useMitigationStore.getState().myMemberId ? "opacity-50 grayscale" : ""
                                 )}
                             >
-                                <Tooltip content={`${contentLanguage === 'en' ? def.name.en : def.name.ja} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}>
-                                    <img src={def.icon} alt={contentLanguage === 'en' ? def.name.en : def.name.ja} className="w-full h-full object-cover" />
+                                <Tooltip content={`${getPhaseName(def.name, contentLanguage)} (${m.ownerId}${m.targetId ? ` ➔ ${m.targetId}` : ''})`}>
+                                    <img src={def.icon} alt={getPhaseName(def.name, contentLanguage)} className="w-full h-full object-cover" />
                                 </Tooltip>
 
                                 {m.targetId && (
                                     <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-slate-900/90 rounded-tl-[3px] p-[1px] shadow-sm ring-[0.5px] ring-white/30 flex items-center justify-center">
                                         {targetJob ? (
-                                            <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
+                                            <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className="w-2.5 h-2.5 object-contain drop-shadow-md" />
                                         ) : (
                                             <span className="text-app-3xs font-black text-white px-0.5 block scale-90">{m.targetId}</span>
                                         )}
@@ -288,7 +288,7 @@ export const CheatSheetView: React.FC = () => {
                                 isLethal ? "text-red-600 dark:text-red-400" : hasDamage ? "text-green-600 dark:text-green-400" : "text-app-text"
                             )}
                         >
-                            {contentLanguage === 'en' && event.name.en ? event.name.en : event.name.ja}
+                            {getPhaseName(event.name, contentLanguage)}
                         </span>
                         {/* 連続ヒットバッジ */}
                         {event.hitCount > 1 && (
@@ -338,8 +338,8 @@ export const CheatSheetView: React.FC = () => {
                                             : "bg-amber-500/20 border-amber-500/30"
                                     )}
                                 >
-                                    <Tooltip content={`${event.target} (${contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja})`}>
-                                        <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
+                                    <Tooltip content={`${event.target} (${getPhaseName(targetJob.name, contentLanguage)})`}>
+                                        <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
                                     </Tooltip>
                                 </div>
                             ) : (

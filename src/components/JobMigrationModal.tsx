@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import type { MigrationMode } from '../utils/jobMigration';
 import { ArrowRightLeft, ShieldAlert, Check } from 'lucide-react';
 import type { Job } from '../types';
+import { getPhaseName } from '../types';
+import { useThemeStore } from '../store/useThemeStore';
 
 interface JobMigrationModalProps {
     isOpen: boolean;
@@ -27,6 +29,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
     onCancel
 }) => {
     const { t, i18n } = useTranslation();
+    const { contentLanguage } = useThemeStore();
     const [selectedMode, setSelectedMode] = React.useState<MigrationMode>('inherit');
     useEscapeClose(isOpen, onCancel);
 
@@ -64,8 +67,8 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                                 ? t('migration.batch_desc', { count: batchTasks.length })
                                 : t('migration.individual_desc', { 
                                     member: memberName, 
-                                    oldJob: oldJob ? (i18n.language === 'en' ? oldJob.name.en : oldJob.name.ja) : t('common.unassigned', '未設定'),
-                                    newJob: newJob ? (i18n.language === 'en' ? newJob.name.en : newJob.name.ja) : ''
+                                    oldJob: oldJob ? getPhaseName(oldJob.name, contentLanguage) : t('common.unassigned', '未設定'),
+                                    newJob: newJob ? getPhaseName(newJob.name, contentLanguage) : ''
                                   })}
                         </p>
                     </div>

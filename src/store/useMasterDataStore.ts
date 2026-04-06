@@ -158,3 +158,30 @@ export function loadTemplateCache(contentId: string): TemplateData | null {
     return null;
   }
 }
+
+/**
+ * すべてのテンプレートキャッシュを削除する
+ * dataVersionが変わったときに呼び出してキャッシュを無効化する
+ * ユーザーデータ（プラン・認証等）には一切触れない
+ */
+export function clearAllTemplateCaches(): void {
+  // localStorageのテンプレートキャッシュを削除
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(TEMPLATE_CACHE_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    if (keysToRemove.length > 0) {
+      console.info(`[MasterData] テンプレートキャッシュを${keysToRemove.length}件削除しました`);
+    }
+  } catch (e) {
+    console.warn('[MasterData] テンプレートキャッシュ削除失敗:', e);
+  }
+
+  // メモリキャッシュ（Zustandストア）もクリア
+  useMasterDataStore.setState({ templateCache: {} });
+}

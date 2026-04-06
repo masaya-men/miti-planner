@@ -405,7 +405,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     };
 
     const iconUrl = getEffectiveIcon();
-    const nameStr = def ? (contentLanguage === 'en' ? def.name.en : def.name.ja) : '';
+    const nameStr = def ? getPhaseName(def.name, contentLanguage) : '';
 
     return (
         <>
@@ -480,7 +480,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         return (
                             <div className="absolute -bottom-2 -right-2 z-30 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
                                 {targetJob ? (
-                                    <img src={targetJob.icon} alt={contentLanguage === 'en' ? targetJob.name.en : targetJob.name.ja} className="w-[20px] h-[20px] object-contain rounded-sm" />
+                                    <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className="w-[20px] h-[20px] object-contain rounded-sm" />
                                 ) : (
                                     <div className="bg-black/90 rounded px-1 py-0.5 text-app-xs font-black text-slate-800 dark:text-white ring-1 ring-white/20 origin-bottom-right">
                                         {mitigation.targetId}
@@ -1284,7 +1284,7 @@ const Timeline: React.FC = () => {
                         }
                     });
 
-                    const localizedName = contentLanguage === 'en' ? def.name.en : def.name.ja;
+                    const localizedName = getPhaseName(def.name, contentLanguage);
                     let maxValBase = member.computedValues[localizedName] || 0;
 
                     if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
@@ -2074,7 +2074,7 @@ const Timeline: React.FC = () => {
                                                 const height = Math.max(0, endY - startY);
                                                 if (height <= 0) return null;
 
-                                                const label = contentLanguage === 'en' && group.en ? group.en : group.ja;
+                                                const label = getPhaseName(group, contentLanguage);
 
                                                 const hasPhases = phases.length > 0;
                                                 return (
@@ -2321,7 +2321,7 @@ const Timeline: React.FC = () => {
                         <span className="text-app-4xl drop-shadow-md">📋</span>
                         <div className="flex flex-col">
                             <span className="font-bold text-app-2xl leading-tight drop-shadow-md text-app-text">
-                                {t('timeline.copying', { name: clipboardEvent.name ? (contentLanguage === 'en' ? clipboardEvent.name.en : clipboardEvent.name.ja) : t('timeline.event') })}
+                                {t('timeline.copying', { name: clipboardEvent.name ? getPhaseName(clipboardEvent.name, contentLanguage) : t('timeline.event') })}
                             </span>
                             <span className="text-app-base text-app-text-muted leading-tight">
                                 {t('timeline.paste_hint')}
@@ -2430,7 +2430,7 @@ const Timeline: React.FC = () => {
                                         const eventsAtTime = timelineEvents.filter(e => e.time === flowTime);
                                         const timeStr = Math.floor(Math.abs(flowTime) / 60) + ':' + (Math.abs(flowTime) % 60).toString().padStart(2, '0');
                                         const eventName = eventsAtTime.length > 0
-                                            ? (contentLanguage === 'en' && eventsAtTime[0].name?.en ? eventsAtTime[0].name.en : eventsAtTime[0].name?.ja)
+                                            ? (eventsAtTime[0].name ? getPhaseName(eventsAtTime[0].name, contentLanguage) : null)
                                             : null;
                                         return <>{timeStr}{eventName ? ` — ${eventName}` : ''}</>;
                                     })()}

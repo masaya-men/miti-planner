@@ -2,6 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlanStore } from '../store/usePlanStore';
 import { getContentById } from '../data/contentRegistry';
+import { getPhaseName } from '../types';
+import { useThemeStore } from '../store/useThemeStore';
 import { LoPoButton } from './LoPoButton';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Sun, Moon } from 'lucide-react';
@@ -15,10 +17,11 @@ export const MobileHeader: React.FC<{
     onToggleTheme: () => void;
 }> = ({ onHome, theme, onToggleTheme }) => {
     const { i18n } = useTranslation();
+    const { contentLanguage } = useThemeStore();
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
     const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
     const contentLabel = contentDef
-        ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
+        ? getPhaseName(contentDef.name, contentLanguage)
         : null;
 
     // タップでポップアップ表示（3秒後に自動で閉じる）

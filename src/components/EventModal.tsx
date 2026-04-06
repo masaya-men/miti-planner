@@ -5,6 +5,7 @@ import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
+import { getPhaseName } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
 import { useMitigations, useJobs, useLevelModifiers } from '../hooks/useSkillsData';
 import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
@@ -253,7 +254,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 let shieldVal = 0;
 
                 if (member && member.computedValues) {
-                    shieldVal = member.computedValues[contentLanguage === 'en' ? def.name.en : def.name.ja] || 0;
+                    shieldVal = member.computedValues[getPhaseName(def.name, contentLanguage)] || 0;
                 } else {
                     // Fallback to average calculation if member not found in computedValues
                     let stats = DEFAULT_HEALER_STATS;
@@ -316,7 +317,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         // 9B: Name Input
         if (currentStep?.id === 'add-1-name') {
             setInputMode('reverse');
-            const val = (contentLanguage === 'en' ? name.en : name.ja).toLowerCase();
+            const val = getPhaseName(name, contentLanguage).toLowerCase();
             if (val.includes('アルテマ') || val.includes('ultima')) {
                 const tId = setTimeout(() => tutorialState.completeEvent('event:name-entered'), 500);
                 return () => clearTimeout(tId);
@@ -393,7 +394,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     }, [name, contentLanguage, calcActualDamage, selectedMitigations, isTutorialActive, currentStep?.id, targetActualDamage, tutorialState]);
 
     const getTooltipText = (mit: typeof MITIGATIONS[0]) => {
-        return contentLanguage === 'en' ? mit.name.en : mit.name.ja;
+        return getPhaseName(mit.name, contentLanguage);
     };
 
     if (!isOpen) return null;
@@ -718,7 +719,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     )}
                                                 >
                                                     <Tooltip content={getTooltipText(mit)}>
-                                                        <img src={mit.icon} alt={contentLanguage === 'en' ? mit.name.en : mit.name.ja} className="w-7 h-7 object-contain drop-shadow" />
+                                                        <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
                                                     </Tooltip>
                                                 </button>
                                             );
