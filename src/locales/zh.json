@@ -253,6 +253,7 @@
         "dissipation_to_post": "转化前 → 转化后",
         "post_to_dissipation": "转化后 → 转化前",
         "click_rename": "点击重命名",
+        "phase_prefix": "Phase {{index}}",
         "copying": "正在复制：{{name}}",
         "paste_hint": "点击空行连续粘贴",
         "event": "事件",
