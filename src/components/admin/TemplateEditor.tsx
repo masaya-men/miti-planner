@@ -42,7 +42,7 @@ function getPhaseForTime(
     }
   }
   const nameObj = result.name
-    ? (typeof result.name === 'string' ? { ja: result.name, en: '' } : result.name as LocalizedString)
+    ? (typeof result.name === 'string' ? { ja: '', en: result.name } : result.name as LocalizedString)
     : undefined;
   const displayName = nameObj ? (nameObj.en || nameObj.ja || `P${result.id}`) : `P${result.id}`;
   return { id: result.id, name: displayName, nameObj };
