@@ -121,7 +121,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     {job ? (
                         <img
                             src={job.icon}
-                            alt={job.name?.ja}
+                            alt={getPhaseName(job.name, contentLanguage)}
                             className="w-8 h-8 object-contain"
                         />
                     ) : (
@@ -617,7 +617,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                                     : "bg-app-surface2 border-app-border"
                                             )}
                                         >
-                                            <img src={job.icon} alt={job.name?.ja} className="w-7 h-7 object-contain" />
+                                            <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-7 h-7 object-contain" />
                                         </button>
                                     ))}
                                 </div>
