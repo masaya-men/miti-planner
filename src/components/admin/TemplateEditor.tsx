@@ -469,14 +469,14 @@ export function TemplateEditor({
                   </span>
                 </td>
 
-                {/* ラベル（グループ先頭行のみ表示・編集可能） */}
+                {/* ラベル（グループ先頭行のみ表示・編集可能、空でもクリックで追加可能） */}
                 <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
-                  {firstInGroup && labelJa ? (
+                  {firstInGroup ? (
                     <span
-                      onClick={(e) => setEditingLabel({ mechanicGroupJa: labelJa, eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
-                      className="text-app-text cursor-pointer hover:text-blue-400 transition-colors"
+                      onClick={(e) => setEditingLabel({ mechanicGroupJa: labelJa || '', eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
+                      className={`cursor-pointer transition-colors ${labelJa ? 'text-app-text hover:text-blue-400' : 'text-app-text-muted/40 hover:text-blue-400'}`}
                     >
-                      {labelJa}
+                      {labelJa || '＋'}
                     </span>
                   ) : null}
                 </td>
