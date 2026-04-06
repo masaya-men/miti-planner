@@ -274,6 +274,7 @@
         "dissipation_to_post": "転化先 → 転化後に切替",
         "post_to_dissipation": "転化後 → 転化先に切替",
         "click_rename": "クリックして名前を変更",
+        "phase_prefix": "Phase {{index}}",
         "copying": "「{{name}}」をコピー中",
         "paste_hint": "空行をクリックで連続ペースト",
         "event": "イベント",

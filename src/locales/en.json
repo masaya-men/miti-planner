@@ -270,6 +270,7 @@
         "dissipation_to_post": "Pre-Dissipation → Post-Dissipation",
         "post_to_dissipation": "Post-Dissipation → Pre-Dissipation",
         "click_rename": "Click to rename",
+        "phase_prefix": "Phase {{index}}",
         "copying": "Copying: {{name}}",
         "paste_hint": "Click on an empty row to paste continuously",
         "event": "Event",

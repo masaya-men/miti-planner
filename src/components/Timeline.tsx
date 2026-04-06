@@ -1996,18 +1996,18 @@ const Timeline: React.FC = () => {
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
-                                                                {/* PC: 2行表示 */}
+                                                                {/* PC: Phase番号 + ボス名の2行表示 */}
                                                                 <span className="hidden md:block whitespace-nowrap text-app-xl font-bold text-app-text leading-none">
-                                                                    {getPhaseName(phase.name, contentLanguage).split('\n')[0]}
+                                                                    {t('timeline.phase_prefix', { index: index + 1 })}
                                                                 </span>
-                                                                {getPhaseName(phase.name, contentLanguage).split('\n')[1] && (
-                                                                    <span className="hidden md:block whitespace-nowrap text-app-sm font-medium text-blue-700/70 dark:text-app-text/70 leading-none">
-                                                                        {getPhaseName(phase.name, contentLanguage).split('\n')[1]}
+                                                                {getPhaseName(phase.name, contentLanguage) !== t('timeline.phase_prefix', { index: index + 1 }) && (
+                                                                    <span className="hidden md:block whitespace-nowrap text-app-sm font-medium text-app-text/70 leading-none">
+                                                                        {getPhaseName(phase.name, contentLanguage)}
                                                                     </span>
                                                                 )}
-                                                                {/* スマホ: 1行に結合 */}
+                                                                {/* スマホ: 1行表示（ボス名のみ） */}
                                                                 <span className="md:hidden whitespace-nowrap text-app-base font-bold text-app-text leading-none">
-                                                                    {getPhaseName(phase.name, contentLanguage).split('\n').join(' ')}
+                                                                    {getPhaseName(phase.name, contentLanguage)}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -2023,7 +2023,7 @@ const Timeline: React.FC = () => {
                                             if (!allSorted.some(e => e.mechanicGroup)) return null;
 
                                             // フェーズ境界の時刻リストを作成
-                                            const phaseBoundaries = phases.map(p => p.endTime);
+
 
                                             const groups: { ja: string; en: string; startTime: number; endTime: number }[] = [];
                                             let currentGroupJa: string | null = null;
@@ -2041,16 +2041,7 @@ const Timeline: React.FC = () => {
                                             allSorted.forEach((ev, i) => {
                                                 const mgJa = ev.mechanicGroup?.ja || '';
 
-                                                // フェーズ境界を超えたらグループを閉じる（ラベルが変わる場合のみ）
-                                                for (const boundary of phaseBoundaries) {
-                                                    if (groupStart < boundary && ev.time >= boundary) {
-                                                        if (mgJa !== (currentGroupJa || '')) {
-                                                            flushGroup(boundary);
-                                                        }
-                                                        break;
-                                                    }
-                                                }
-
+                                                // ラベルが変わったらグループを閉じる（フェーズ境界は無視）
                                                 if (mgJa !== (currentGroupJa || '')) {
                                                     flushGroup(ev.time);
                                                     if (mgJa) {

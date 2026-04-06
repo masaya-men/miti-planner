@@ -253,6 +253,7 @@
         "dissipation_to_post": "전개 전 → 전개 후",
         "post_to_dissipation": "전개 후 → 전개 전",
         "click_rename": "클릭하여 이름 변경",
+        "phase_prefix": "Phase {{index}}",
         "copying": "복사 중: {{name}}",
         "paste_hint": "빈 행을 클릭하면 계속 붙여넣기됩니다",
         "event": "이벤트",
