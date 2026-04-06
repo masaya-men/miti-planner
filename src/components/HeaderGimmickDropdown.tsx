@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Phase } from '../types';
+import { getPhaseName } from '../types';
 
 export interface GimmickGroup {
     ja: string;
@@ -127,7 +128,7 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
                     </div>
                 ) : (
                     groups.map((group, index) => {
-                        const label = contentLanguage === 'en' && group.en ? group.en : group.ja;
+                        const label = getPhaseName(group, contentLanguage);
                         const subLabel = contentLanguage === 'en' ? group.ja : group.en;
                         return (
                             <button

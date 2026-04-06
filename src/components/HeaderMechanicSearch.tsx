@@ -106,7 +106,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
     const mechanics: MechanicEntry[] = useMemo(() => {
         const map = new Map<string, MechanicOccurrence[]>();
         const getEventName = (ev: TimelineEvent) =>
-            contentLanguage === 'en' && ev.name?.en ? ev.name.en : ev.name?.ja;
+            ev.name ? getPhaseNameStr(ev.name, contentLanguage) : ev.name;
 
         events
             .filter(ev => {

@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
+import { getPhaseName } from '../types';
 import { getColumnWidth } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -94,7 +95,7 @@ const MobileMitiIcons: React.FC<{
                 <img
                     key={mit.id}
                     src={def.icon}
-                    alt={contentLanguage === 'en' ? def.name?.en : def.name?.ja}
+                    alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
                     className={clsx(
                         size, "object-cover rounded-sm",
                         isDimmed ? "opacity-40 grayscale" : "opacity-90"
@@ -129,7 +130,7 @@ export const TimelineRow = memo(({
     const myMemberId = useMitigationStore(state => state.myMemberId);
 
     const getEventName = (ev: TimelineEvent) =>
-        contentLanguage === 'en' && ev.name?.en ? ev.name?.en : ev.name?.ja;
+        ev.name ? getPhaseName(ev.name, contentLanguage) : ev.name;
 
     const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
     const formatDmg = (val: number) => {

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useMitigations, useJobs, getMitigationPriority } from '../hooks/useSkillsData';
 import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
+import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -305,7 +306,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         <div className="relative flex-shrink-0">
                                             <img
                                                 src={mitigation.icon}
-                                                alt={contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                                alt={getPhaseName(mitigation.name, contentLanguage)}
                                                 className={clsx(
                                                     "w-8 h-8 object-contain rounded border transition-opacity",
                                                     !status.available
@@ -333,7 +334,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                     ? 'text-amber-600 dark:text-amber-300'
                                                     : 'text-app-text'
                                                 }`}>
-                                                {contentLanguage === 'en' ? mitigation.name.en : mitigation.name.ja}
+                                                {getPhaseName(mitigation.name, contentLanguage)}
                                                 {isAlreadyPlaced && <span className="ml-2 text-app-xs bg-red-600 text-white px-1 rounded uppercase tracking-tighter shrink-0">{t('mitigation.remove')}</span>}
                                                 {mitigation.scope === 'target' && !isAlreadyPlaced && (
                                                     <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">

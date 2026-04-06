@@ -11,6 +11,7 @@ import {
   loadMasterCache,
   saveTemplateCache,
   loadTemplateCache,
+  clearAllTemplateCaches,
 } from '../store/useMasterDataStore';
 import type { MasterConfig, MasterContents, MasterSkills, MasterStats } from '../store/useMasterDataStore';
 import type { MasterServers } from '../types';
@@ -107,6 +108,9 @@ export function useMasterDataInit(): void {
             setData(cached.config, cached.contents, cached.skills ?? buildStaticSkills(), cached.stats ?? buildStaticStats(), cached.servers ?? buildStaticServers());
             return;
           }
+
+          // バージョン不一致 → テンプレートキャッシュを無効化してから再取得
+          clearAllTemplateCaches();
 
           // バージョン不一致 → contents/skills/stats/serversも並列取得（4 more reads）
           const [contentsSnap, skillsSnap, statsSnap, serversSnap] = await Promise.all([

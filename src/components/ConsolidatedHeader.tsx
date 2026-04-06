@@ -17,6 +17,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { getContentById } from '../data/contentRegistry';
+import { getPhaseName } from '../types';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PartyStatusPopover } from './PartyStatusPopover';
@@ -58,7 +59,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     setStatusOpen,
 }) => {
     const { t } = useTranslation();
-    const { theme, setTheme } = useThemeStore();
+    const { theme, setTheme, contentLanguage } = useThemeStore();
     const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
     const setMyJobHighlight = useMitigationStore(s => s.setMyJobHighlight);
     const { runTransition } = useTransitionOverlay();
@@ -111,9 +112,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             .replace(/([A-Za-z0-9])([\u3000-\u9FFF\uF900-\uFAFF])/g, '$1 $2');
 
     const rawContentLabel = contentDef
-        ? (i18n.language.startsWith('ja') ? contentDef.name.ja : contentDef.name.en)
+        ? getPhaseName(contentDef.name, contentLanguage)
         : null;
-    const contentLabel = rawContentLabel && i18n.language.startsWith('ja')
+    const contentLabel = rawContentLabel && contentLanguage === 'ja'
         ? addWaEiSpace(rawContentLabel)
         : rawContentLabel;
 

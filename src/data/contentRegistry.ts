@@ -13,25 +13,25 @@ import { useMasterDataStore } from '../store/useMasterDataStore';
 // ==========================================
 
 const STATIC_CATEGORY_LABELS: Record<ContentCategory, LocalizedString> = {
-    savage: { ja: '零式', en: 'Savage' },
-    ultimate: { ja: '絶', en: 'Ultimate' },
-    dungeon: { ja: 'ダンジョン', en: 'Dungeon' },
-    raid: { ja: 'レイド', en: 'Raid' },
-    custom: { ja: 'その他', en: 'Misc' },
+    savage: { ja: '零式', en: 'Savage', zh: '零式', ko: '영식' },
+    ultimate: { ja: '絶', en: 'Ultimate', zh: '绝境战', ko: '절' },
+    dungeon: { ja: 'ダンジョン', en: 'Dungeon', zh: '迷宫挑战', ko: '던전' },
+    raid: { ja: 'レイド', en: 'Raid', zh: '大型任务', ko: '레이드' },
+    custom: { ja: 'その他', en: 'Misc', zh: '其他', ko: '기타' },
 };
 
 const STATIC_LEVEL_LABELS: Record<ContentLevel, LocalizedString> = {
-    70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)' },
-    80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)' },
-    90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)' },
-    100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)' },
+    70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)', zh: 'Lv70 (红莲)', ko: 'Lv70 (홍련)' },
+    80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)', zh: 'Lv80 (暗影)', ko: 'Lv80 (칠흑)' },
+    90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)', zh: 'Lv90 (晓月)', ko: 'Lv90 (효월)' },
+    100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)', zh: 'Lv100 (金曦)', ko: 'Lv100 (황금)' },
 };
 
 const STATIC_PROJECT_LABELS: Record<string, LocalizedString> = {
-    'aac': { ja: '至天の座アルカディア零式', en: 'AAC' },
-    'pandaemonium': { ja: '万魔殿パンデモニウム零式', en: 'Pandaemonium' },
-    'eden': { ja: '希望の園エデン零式', en: 'Eden' },
-    'omega': { ja: '次元の狭間オメガ零式', en: 'Omega' },
+    'aac': { ja: '至天の座アルカディア零式', en: 'AAC', zh: '至天之座零式', ko: '지천의 좌 아르카디아 영식' },
+    'pandaemonium': { ja: '万魔殿パンデモニウム零式', en: 'Pandaemonium', zh: '万魔殿零式', ko: '만마전 판데모니움 영식' },
+    'eden': { ja: '希望の園エデン零式', en: 'Eden', zh: '伊甸零式', ko: '희망의 동산 에덴 영식' },
+    'omega': { ja: '次元の狭間オメガ零式', en: 'Omega', zh: '欧米茄零式', ko: '차원의 틈 오메가 영식' },
 };
 
 // ==========================================
