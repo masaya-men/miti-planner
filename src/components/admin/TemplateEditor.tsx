@@ -233,11 +233,12 @@ interface LocalizedEditPopoverProps {
   title: string;
   initial: LocalizedString;
   labels: { ja: string; en: string; zh: string; ko: string };
+  position: { x: number; y: number };
   onApply: (value: LocalizedString) => void;
   onCancel: () => void;
 }
 
-function LocalizedEditPopover({ title, initial, labels, onApply, onCancel }: LocalizedEditPopoverProps) {
+function LocalizedEditPopover({ title, initial, labels, position, onApply, onCancel }: LocalizedEditPopoverProps) {
   const { t } = useTranslation();
   const [ja, setJa] = useState(initial.ja);
   const [en, setEn] = useState(initial.en);
@@ -275,8 +276,8 @@ function LocalizedEditPopover({ title, initial, labels, onApply, onCancel }: Loc
     <div
       ref={popoverRef}
       onKeyDown={handleKeyDown}
-      className="absolute z-50 bg-app-bg border border-app-text/20 rounded-lg p-3 shadow-lg min-w-[240px]"
-      style={{ top: '100%', left: 0, marginTop: '2px' }}
+      className="fixed z-[99999] bg-app-bg border border-app-text/20 rounded-lg p-3 shadow-lg min-w-[240px]"
+      style={{ top: position.y, left: position.x }}
     >
       <h4 className="text-app-lg font-medium mb-2">{title}</h4>
       <div className="space-y-1.5">
@@ -337,8 +338,8 @@ export function TemplateEditor({
   const { t } = useTranslation();
 
   // フェーズ・ラベル編集ポップオーバーの状態
-  const [editingPhase, setEditingPhase] = useState<{ phaseId: number; eventId: string } | null>(null);
-  const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string } | null>(null);
+  const [editingPhase, setEditingPhase] = useState<{ phaseId: number; eventId: string; pos: { x: number; y: number } } | null>(null);
+  const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string; pos: { x: number; y: number } } | null>(null);
 
   // フィルタリング
   const filteredEvents = showUntranslatedOnly
@@ -369,6 +370,7 @@ export function TemplateEditor({
   ];
 
   return (
+    <>
     <div className="overflow-x-auto">
       <table className="w-full text-app-lg border-collapse">
         <colgroup>
@@ -449,60 +451,24 @@ export function TemplateEditor({
                 </td>
 
                 {/* フェーズ */}
-                <td className="py-1 pr-2 text-app-text-muted text-app-base relative">
+                <td className="py-1 pr-2 text-app-text-muted text-app-base">
                   <span
-                    onClick={() => setEditingPhase({ phaseId: phase.id, eventId: evId })}
+                    onClick={(e) => setEditingPhase({ phaseId: phase.id, eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
                     className="cursor-pointer hover:text-app-text transition-colors"
                   >
                     {phase.name}
                   </span>
-                  {editingPhase?.eventId === evId && (
-                    <LocalizedEditPopover
-                      title={t('admin.tpl_phase_edit_title')}
-                      initial={phase.nameObj ?? { ja: '', en: '' }}
-                      labels={{
-                        ja: t('admin.tpl_phase_name_ja'),
-                        en: t('admin.tpl_phase_name_en'),
-                        zh: t('admin.tpl_phase_name_zh'),
-                        ko: t('admin.tpl_phase_name_ko'),
-                      }}
-                      onApply={(value) => {
-                        onUpdatePhaseName(editingPhase.phaseId, value);
-                        setEditingPhase(null);
-                      }}
-                      onCancel={() => setEditingPhase(null)}
-                    />
-                  )}
                 </td>
 
                 {/* ラベル（グループ先頭行のみ表示・編集可能） */}
-                <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted relative">
+                <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
                   {firstInGroup && labelJa ? (
-                    <>
-                      <span
-                        onClick={() => setEditingLabel({ mechanicGroupJa: labelJa, eventId: evId })}
-                        className="text-app-text cursor-pointer hover:text-blue-400 transition-colors"
-                      >
-                        {labelJa}
-                      </span>
-                      {editingLabel?.eventId === evId && (
-                        <LocalizedEditPopover
-                          title={t('admin.tpl_label_edit_title')}
-                          initial={event.mechanicGroup ?? { ja: '', en: '' }}
-                          labels={{
-                            ja: t('admin.tpl_label_name_ja'),
-                            en: t('admin.tpl_label_name_en'),
-                            zh: t('admin.tpl_label_name_zh'),
-                            ko: t('admin.tpl_label_name_ko'),
-                          }}
-                          onApply={(value) => {
-                            onUpdateLabel(editingLabel.mechanicGroupJa, value);
-                            setEditingLabel(null);
-                          }}
-                          onCancel={() => setEditingLabel(null)}
-                        />
-                      )}
-                    </>
+                    <span
+                      onClick={(e) => setEditingLabel({ mechanicGroupJa: labelJa, eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
+                      className="text-app-text cursor-pointer hover:text-blue-400 transition-colors"
+                    >
+                      {labelJa}
+                    </span>
                   ) : null}
                 </td>
 
@@ -612,5 +578,55 @@ export function TemplateEditor({
         </tbody>
       </table>
     </div>
+
+    {/* フェーズ編集ポップオーバー（テーブル外にfixed表示） */}
+    {editingPhase && (() => {
+      const phaseData = phases.find((p) => p.id === editingPhase.phaseId);
+      const nameObj = phaseData?.name
+        ? (typeof phaseData.name === 'string' ? { ja: '', en: phaseData.name } : phaseData.name as LocalizedString)
+        : { ja: '', en: '' };
+      return (
+      <LocalizedEditPopover
+        title={t('admin.tpl_phase_edit_title')}
+        initial={nameObj}
+        position={editingPhase.pos}
+        labels={{
+          ja: t('admin.tpl_phase_name_ja'),
+          en: t('admin.tpl_phase_name_en'),
+          zh: t('admin.tpl_phase_name_zh'),
+          ko: t('admin.tpl_phase_name_ko'),
+        }}
+        onApply={(value) => {
+          onUpdatePhaseName(editingPhase.phaseId, value);
+          setEditingPhase(null);
+        }}
+        onCancel={() => setEditingPhase(null)}
+      />
+      );
+    })()}
+
+    {/* ラベル編集ポップオーバー（テーブル外にfixed表示） */}
+    {editingLabel && (
+      <LocalizedEditPopover
+        title={t('admin.tpl_label_edit_title')}
+        initial={
+          events.find((ev) => ev.mechanicGroup?.ja === editingLabel.mechanicGroupJa)?.mechanicGroup ?? { ja: '', en: '' }
+        }
+        position={editingLabel.pos}
+        labels={{
+          ja: t('admin.tpl_label_name_ja'),
+          en: t('admin.tpl_label_name_en'),
+          zh: t('admin.tpl_label_name_zh'),
+          ko: t('admin.tpl_label_name_ko'),
+        }}
+        onApply={(value) => {
+          onUpdateLabel(editingLabel.mechanicGroupJa, value);
+          setEditingLabel(null);
+        }}
+        onCancel={() => setEditingLabel(null)}
+      />
+    )}
+
+    </>
   );
 }
