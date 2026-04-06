@@ -369,7 +369,8 @@ export function AdminTemplates() {
             showUntranslatedOnly={showUntranslatedOnly}
             onUpdateCell={editor.updateCell}
             onDeleteEvent={editor.deleteEvent}
-            onUpdateLabelEn={editor.updateLabelEn}
+            onUpdateLabel={editor.updateLabel}
+            onUpdatePhaseName={editor.updatePhaseName}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import type { TimelineEvent } from '../types';
+import type { TimelineEvent, LocalizedString } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
 export interface EditState {
@@ -215,7 +215,7 @@ export function useTemplateEditor() {
 
   // ギミックグループのフェーズを変更
   const updatePhaseForGroup = useCallback(
-    (mechanicGroupJa: string, phaseId: number, phaseName: string) => {
+    (mechanicGroupJa: string, phaseId: number, phaseName: LocalizedString) => {
       setState((prev) => {
         // このギミックグループの最初のイベントの時刻を取得
         const firstEvent = prev.current.find(
@@ -230,7 +230,7 @@ export function useTemplateEditor() {
         const existing = newPhases.find((p) => p.id === phaseId);
         if (existing) {
           existing.startTimeSec = startTimeSec;
-          if (phaseName) existing.name = phaseName;
+          existing.name = phaseName;
         } else {
           // 新しいフェーズを追加
           newPhases.push({ id: phaseId, startTimeSec, name: phaseName });
@@ -243,17 +243,30 @@ export function useTemplateEditor() {
     [],
   );
 
-  // ラベル英語名を更新
-  const updateLabelEn = useCallback(
-    (mechanicGroupJa: string, enValue: string) => {
+  // フェーズ名を直接更新（エディタのインライン編集用）
+  const updatePhaseName = useCallback(
+    (phaseId: number, phaseName: LocalizedString) => {
+      setState((prev) => {
+        const newPhases = structuredClone(prev.currentPhases);
+        const existing = newPhases.find((p) => p.id === phaseId);
+        if (!existing) return prev;
+        existing.name = phaseName;
+        return { ...prev, currentPhases: newPhases, modified: new Set([...prev.modified, '__phases__']) };
+      });
+    },
+    [],
+  );
+
+  // ラベル名を更新（4言語対応）
+  const updateLabel = useCallback(
+    (mechanicGroupJa: string, newLabel: LocalizedString) => {
       setState((prev) => {
         const updated = prev.current.map((ev) => {
           if (ev.mechanicGroup?.ja === mechanicGroupJa && !prev.deleted.has(ev.id)) {
-            return { ...ev, mechanicGroup: { ...ev.mechanicGroup, en: enValue } };
+            return { ...ev, mechanicGroup: { ...newLabel } };
           }
           return ev;
         });
-        // modified に該当イベントIDを追加
         const modifiedIds = new Set(prev.modified);
         updated.forEach((ev, i) => {
           if (ev !== prev.current[i]) modifiedIds.add(ev.id);
@@ -323,7 +336,8 @@ export function useTemplateEditor() {
     replaceAll,
     getSaveData,
     updatePhaseForGroup,
-    updateLabelEn,
+    updatePhaseName,
+    updateLabel,
     bulkUpdate,
     autoPropagate,
     setAutoPropagate,
