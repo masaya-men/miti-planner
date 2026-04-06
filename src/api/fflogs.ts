@@ -64,7 +64,10 @@ export interface FFLogsFight {
     name: string;
     difficulty?: number;
     kill?: boolean;
+    encounterID?: number;
     phaseTransitions?: { id: number; startTime: number }[];
+    /** report.phasesから紐付けたフェーズ名 */
+    phaseNames?: { id: number; name: string }[];
 }
 
 /** Paginated events result from GraphQL */
@@ -175,9 +178,17 @@ const FIGHTS_QUERY = /* graphql */`
           name
           difficulty
           kill
+          encounterID
           phaseTransitions {
             id
             startTime
+          }
+        }
+        phases {
+          encounterID
+          phases {
+            id
+            name
           }
         }
       }
@@ -186,7 +197,12 @@ const FIGHTS_QUERY = /* graphql */`
 `;
 
 interface FightsQueryResult {
-    reportData: { report: { fights: FFLogsFight[] } };
+    reportData: {
+        report: {
+            fights: FFLogsFight[];
+            phases?: { encounterID: number; phases: { id: number; name: string }[] }[];
+        };
+    };
 }
 
 /**
@@ -196,7 +212,20 @@ interface FightsQueryResult {
 export async function fetchFights(reportCode: string): Promise<FFLogsFight[]> {
     const token = await getAccessToken();
     const data = await gql<FightsQueryResult>(token, FIGHTS_QUERY, { reportCode });
-    return data.reportData.report.fights;
+    const fights = data.reportData.report.fights;
+    const phaseInfos = data.reportData.report.phases ?? [];
+
+    // encounterIDでフェーズ名を紐付け
+    for (const fight of fights) {
+        if (fight.encounterID) {
+            const info = phaseInfos.find(p => p.encounterID === fight.encounterID);
+            if (info?.phases.length) {
+                fight.phaseNames = info.phases;
+            }
+        }
+    }
+
+    return fights;
 }
 
 // ─────────────────────────────────────────────────────────────
