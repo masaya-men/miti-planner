@@ -17,7 +17,6 @@ export interface GimmickGroup {
 /** timelineEvents + phases からギミック区間リストを算出 */
 export function computeGimmickGroups(events: TimelineEvent[], phases: Phase[]): GimmickGroup[] {
     const sorted = [...events].sort((a, b) => a.time - b.time);
-    const phaseBoundaries = phases.map(p => p.endTime);
     const groups: GimmickGroup[] = [];
     let currentJa: string | null = null;
     let groupStart = 0;
@@ -30,22 +29,17 @@ export function computeGimmickGroups(events: TimelineEvent[], phases: Phase[]): 
     };
 
     sorted.forEach((ev) => {
-        // フェーズ境界を超えたらグループを閉じる
-        for (const boundary of phaseBoundaries) {
-            if (groupStart < boundary && ev.time >= boundary) {
-                flush();
-                break;
-            }
-        }
-
         const mgJa = ev.mechanicGroup?.ja || '';
-        if (mgJa !== (currentJa || '')) {
+
+        // ラベルなしのイベントはスキップ
+        if (!mgJa) return;
+
+        // 異なるラベルが来たらグループを閉じる
+        if (mgJa !== currentJa) {
             flush();
-            if (mgJa) {
-                currentJa = mgJa;
-                groupStart = ev.time;
-                groups.push({ ja: mgJa, en: ev.mechanicGroup?.en || '', startTime: ev.time });
-            }
+            currentJa = mgJa;
+            groupStart = ev.time;
+            groups.push({ ja: mgJa, en: ev.mechanicGroup?.en || '', startTime: ev.time });
         }
     });
 

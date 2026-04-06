@@ -2041,14 +2041,21 @@ const Timeline: React.FC = () => {
                                             allSorted.forEach((ev, i) => {
                                                 const mgJa = ev.mechanicGroup?.ja || '';
 
-                                                // ラベルが変わったらグループを閉じる（フェーズ境界は無視）
-                                                if (mgJa !== (currentGroupJa || '')) {
-                                                    flushGroup(ev.time);
-                                                    if (mgJa) {
-                                                        currentGroupJa = mgJa;
-                                                        currentGroupEn = ev.mechanicGroup?.en || '';
-                                                        groupStart = ev.time;
+                                                // ラベルなしのイベントはスキップ（グループを分割しない）
+                                                if (!mgJa) {
+                                                    if (i === allSorted.length - 1 && currentGroupJa) {
+                                                        const lastGridTime = gridLines[gridLines.length - 1] ?? ev.time;
+                                                        flushGroup(Math.max(ev.time + 1, lastGridTime));
                                                     }
+                                                    return;
+                                                }
+
+                                                // 異なるラベルが来たらグループを閉じる
+                                                if (mgJa !== currentGroupJa) {
+                                                    flushGroup(ev.time);
+                                                    currentGroupJa = mgJa;
+                                                    currentGroupEn = ev.mechanicGroup?.en || '';
+                                                    groupStart = ev.time;
                                                 }
                                                 // 最後のイベント — ラベルをタイムライン末尾まで伸ばす
                                                 if (i === allSorted.length - 1 && currentGroupJa) {
