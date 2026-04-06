@@ -338,7 +338,7 @@ export function TemplateEditor({
   const { t } = useTranslation();
 
   // フェーズ・ラベル編集ポップオーバーの状態
-  const [editingPhase, setEditingPhase] = useState<{ timeSec: number; eventId: string; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
+  const [editingPhase, setEditingPhase] = useState<{ timeSec: number; phaseStartTimeSec: number; eventId: string; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
   const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string; pos: { x: number; y: number } } | null>(null);
 
   // フィルタリング
@@ -453,12 +453,16 @@ export function TemplateEditor({
                 {/* フェーズ */}
                 <td className="py-1 pr-2 text-app-text-muted text-app-base">
                   <span
-                    onClick={(e) => setEditingPhase({
-                      timeSec: event.time,
-                      eventId: evId,
-                      pos: { x: e.clientX, y: e.clientY },
-                      nameObj: phase.nameObj ?? { ja: '', en: '' },
-                    })}
+                    onClick={(e) => {
+                      const isAtBoundary = phases.some(p => p.startTimeSec === event.time);
+                      setEditingPhase({
+                        timeSec: event.time,
+                        phaseStartTimeSec: phase.startTimeSec,
+                        eventId: evId,
+                        pos: { x: e.clientX, y: e.clientY },
+                        nameObj: isAtBoundary ? (phase.nameObj ?? { ja: '', en: '' }) : { ja: '', en: '' },
+                      });
+                    }}
                     className="cursor-pointer hover:text-app-text transition-colors"
                   >
                     {phase.name}
@@ -598,7 +602,13 @@ export function TemplateEditor({
         }}
         onApply={(value) => {
           const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;
-          onSetPhaseAtTime(editingPhase.timeSec, isEmpty ? null : value);
+          if (isEmpty) {
+            // 削除: 囲んでいるフェーズの境界を削除
+            onSetPhaseAtTime(editingPhase.phaseStartTimeSec, null);
+          } else {
+            // 追加/更新: クリックした行の時刻に境界を設定
+            onSetPhaseAtTime(editingPhase.timeSec, value);
+          }
           setEditingPhase(null);
         }}
         onCancel={() => setEditingPhase(null)}
