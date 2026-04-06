@@ -4,7 +4,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TimelineEvent } from '../../types';
+import type { TimelineEvent, LocalizedString } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
 import type { EditState } from '../../hooks/useTemplateEditor';
 import { formatTime, parseTimeString } from '../../utils/templateConversions';
@@ -20,8 +20,8 @@ interface TemplateEditorProps {
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdateLabelEn: (mechanicGroupJa: string, enValue: string) => void;
-  // チェックボックス選択
+  onUpdateLabel: (mechanicGroupJa: string, newLabel: LocalizedString) => void;
+  onUpdatePhaseName: (phaseId: number, phaseName: LocalizedString) => void;
   selectedIds: Set<string>;
   onToggleSelect: (eventId: string) => void;
   onToggleSelectAll: () => void;
@@ -34,14 +34,18 @@ interface TemplateEditorProps {
 function getPhaseForTime(
   time: number,
   phases: TemplateData['phases'],
-): { id: number; name: string } {
+): { id: number; name: string; nameObj?: LocalizedString } {
   let result = phases[0] ?? { id: 1, startTimeSec: 0, name: undefined };
   for (const phase of phases) {
     if (phase.startTimeSec <= time) {
       result = phase;
     }
   }
-  return { id: result.id, name: result.name ?? `P${result.id}` };
+  const nameObj = result.name
+    ? (typeof result.name === 'string' ? { ja: result.name, en: '' } : result.name as LocalizedString)
+    : undefined;
+  const displayName = nameObj ? (nameObj.en || nameObj.ja || `P${result.id}`) : `P${result.id}`;
+  return { id: result.id, name: displayName, nameObj };
 }
 
 type CellHighlight = 'autofilled' | 'modified' | 'none';
@@ -222,6 +226,98 @@ function DropdownCell({ value, options, highlight, onCommit }: DropdownCellProps
 }
 
 // ─────────────────────────────────────────────
+// LocalizedEditPopover — 4言語編集ポップオーバー
+// ─────────────────────────────────────────────
+
+interface LocalizedEditPopoverProps {
+  title: string;
+  initial: LocalizedString;
+  labels: { ja: string; en: string; zh: string; ko: string };
+  onApply: (value: LocalizedString) => void;
+  onCancel: () => void;
+}
+
+function LocalizedEditPopover({ title, initial, labels, onApply, onCancel }: LocalizedEditPopoverProps) {
+  const { t } = useTranslation();
+  const [ja, setJa] = useState(initial.ja);
+  const [en, setEn] = useState(initial.en);
+  const [zh, setZh] = useState(initial.zh ?? '');
+  const [ko, setKo] = useState(initial.ko ?? '');
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        onCancel();
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onCancel]);
+
+  function handleApply() {
+    onApply({
+      ja,
+      en,
+      ...(zh ? { zh } : {}),
+      ...(ko ? { ko } : {}),
+    });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') onCancel();
+  }
+
+  const inputClass = 'w-full px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
+  const labelClass = 'text-app-base text-app-text-muted';
+
+  return (
+    <div
+      ref={popoverRef}
+      onKeyDown={handleKeyDown}
+      className="absolute z-50 bg-app-bg border border-app-text/20 rounded-lg p-3 shadow-lg min-w-[240px]"
+      style={{ top: '100%', left: 0, marginTop: '2px' }}
+    >
+      <h4 className="text-app-lg font-medium mb-2">{title}</h4>
+      <div className="space-y-1.5">
+        <div>
+          <label className={labelClass}>{labels.ja}</label>
+          <input type="text" value={ja} onChange={(e) => setJa(e.target.value)} className={inputClass} autoFocus />
+        </div>
+        <div>
+          <label className={labelClass}>{labels.en}</label>
+          <input type="text" value={en} onChange={(e) => setEn(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass}>{labels.zh}</label>
+          <input type="text" value={zh} onChange={(e) => setZh(e.target.value)} className={inputClass} placeholder={en || 'EN fallback'} />
+        </div>
+        <div>
+          <label className={labelClass}>{labels.ko}</label>
+          <input type="text" value={ko} onChange={(e) => setKo(e.target.value)} className={inputClass} placeholder={en || 'EN fallback'} />
+        </div>
+      </div>
+      <div className="flex justify-end gap-2 mt-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-app-lg px-3 py-1 rounded border border-app-text/20 text-app-text-muted hover:bg-app-text/10 transition-colors cursor-pointer"
+        >
+          {t('admin.tpl_phase_edit_cancel')}
+        </button>
+        <button
+          type="button"
+          onClick={handleApply}
+          className="text-app-lg px-3 py-1 rounded border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer"
+        >
+          {t('admin.tpl_phase_edit_apply')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // メインコンポーネント
 // ─────────────────────────────────────────────
 
@@ -232,12 +328,17 @@ export function TemplateEditor({
   showUntranslatedOnly,
   onUpdateCell,
   onDeleteEvent,
-  // onUpdateLabelEn is defined in props but not yet used in this component
+  onUpdateLabel,
+  onUpdatePhaseName,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
+
+  // フェーズ・ラベル編集ポップオーバーの状態
+  const [editingPhase, setEditingPhase] = useState<{ phaseId: number; eventId: string } | null>(null);
+  const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string } | null>(null);
 
   // フィルタリング
   const filteredEvents = showUntranslatedOnly
@@ -348,14 +449,60 @@ export function TemplateEditor({
                 </td>
 
                 {/* フェーズ */}
-                <td className="py-1 pr-2 text-app-text-muted text-app-base">
-                  {phase.name}
+                <td className="py-1 pr-2 text-app-text-muted text-app-base relative">
+                  <span
+                    onClick={() => setEditingPhase({ phaseId: phase.id, eventId: evId })}
+                    className="cursor-pointer hover:text-app-text transition-colors"
+                  >
+                    {phase.name}
+                  </span>
+                  {editingPhase?.eventId === evId && (
+                    <LocalizedEditPopover
+                      title={t('admin.tpl_phase_edit_title')}
+                      initial={phase.nameObj ?? { ja: '', en: '' }}
+                      labels={{
+                        ja: t('admin.tpl_phase_name_ja'),
+                        en: t('admin.tpl_phase_name_en'),
+                        zh: t('admin.tpl_phase_name_zh'),
+                        ko: t('admin.tpl_phase_name_ko'),
+                      }}
+                      onApply={(value) => {
+                        onUpdatePhaseName(editingPhase.phaseId, value);
+                        setEditingPhase(null);
+                      }}
+                      onCancel={() => setEditingPhase(null)}
+                    />
+                  )}
                 </td>
 
-                {/* ラベル（グループ先頭行のみ表示） */}
-                <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
+                {/* ラベル（グループ先頭行のみ表示・編集可能） */}
+                <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted relative">
                   {firstInGroup && labelJa ? (
-                    <span className="text-app-text">{labelJa}</span>
+                    <>
+                      <span
+                        onClick={() => setEditingLabel({ mechanicGroupJa: labelJa, eventId: evId })}
+                        className="text-app-text cursor-pointer hover:text-blue-400 transition-colors"
+                      >
+                        {labelJa}
+                      </span>
+                      {editingLabel?.eventId === evId && (
+                        <LocalizedEditPopover
+                          title={t('admin.tpl_label_edit_title')}
+                          initial={event.mechanicGroup ?? { ja: '', en: '' }}
+                          labels={{
+                            ja: t('admin.tpl_label_name_ja'),
+                            en: t('admin.tpl_label_name_en'),
+                            zh: t('admin.tpl_label_name_zh'),
+                            ko: t('admin.tpl_label_name_ko'),
+                          }}
+                          onApply={(value) => {
+                            onUpdateLabel(editingLabel.mechanicGroupJa, value);
+                            setEditingLabel(null);
+                          }}
+                          onCancel={() => setEditingLabel(null)}
+                        />
+                      )}
+                    </>
                   ) : null}
                 </td>
 
