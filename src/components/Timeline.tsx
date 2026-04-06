@@ -2039,15 +2039,18 @@ const Timeline: React.FC = () => {
                                             };
 
                                             allSorted.forEach((ev, i) => {
-                                                // フェーズ境界を超えたらグループを閉じる
+                                                const mgJa = ev.mechanicGroup?.ja || '';
+
+                                                // フェーズ境界を超えたらグループを閉じる（ラベルが変わる場合のみ）
                                                 for (const boundary of phaseBoundaries) {
                                                     if (groupStart < boundary && ev.time >= boundary) {
-                                                        flushGroup(boundary);
+                                                        if (mgJa !== (currentGroupJa || '')) {
+                                                            flushGroup(boundary);
+                                                        }
                                                         break;
                                                     }
                                                 }
 
-                                                const mgJa = ev.mechanicGroup?.ja || '';
                                                 if (mgJa !== (currentGroupJa || '')) {
                                                     flushGroup(ev.time);
                                                     if (mgJa) {

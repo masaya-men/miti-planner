@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { roundDamageCeil } from '../damageRounding';
 
 describe('roundDamageCeil', () => {
