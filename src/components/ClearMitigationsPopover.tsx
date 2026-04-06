@@ -7,6 +7,7 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { Tooltip } from './ui/Tooltip';
+import { getPhaseName } from '../types';
 
 interface ClearMitigationsPopoverProps {
     isOpen: boolean;
@@ -135,7 +136,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                                 onClose();
                                 setConfirmDialog({
                                     title: t('timeline.clear_member', { member: m.id }).replace('{{member}}', m.id),
-                                    message: t('timeline.clear_member_confirm', { member: m.id, job: contentLanguage === 'en' ? job?.name.en : job?.name.ja }).replace('{{member}}', m.id).replace('{{job}}', (contentLanguage === 'en' ? job?.name.en : job?.name.ja) || m.id),
+                                    message: t('timeline.clear_member_confirm', { member: m.id, job: job ? getPhaseName(job.name, contentLanguage) : m.id }).replace('{{member}}', m.id).replace('{{job}}', (job ? getPhaseName(job.name, contentLanguage) : m.id) || m.id),
                                     variant: 'danger',
                                     onConfirm: () => {
                                         useMitigationStore.getState().clearMitigationsByMember(m.id);
@@ -154,7 +155,7 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                             )}
                         >
                             {hasMitigations ? (
-                                <Tooltip content={`${m.id} (${contentLanguage === 'en' ? job?.name.en : job?.name.ja})`}>
+                                <Tooltip content={`${m.id} (${job ? getPhaseName(job.name, contentLanguage) : m.id})`}>
                                     {job ? (
                                         <img src={job.icon} alt="" className="w-6 h-6 object-contain drop-shadow-md" />
                                     ) : (
