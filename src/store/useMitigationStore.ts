@@ -6,6 +6,15 @@ import { normalizeLocalizedString } from '../types';
 /** Firestore旧データ(mechanicGroup: string)をLocalizedStringに正規化 */
 const normalizeEvents = (events: TimelineEvent[]): TimelineEvent[] =>
     events.map(e => e.mechanicGroup ? { ...e, mechanicGroup: normalizeLocalizedString(e.mechanicGroup as any) } : e);
+
+/** フェーズ名に "[object Object]" が混入した壊れたデータを修復 */
+const normalizePhases = (phases: Phase[]): Phase[] =>
+    phases.map(p => {
+        if (typeof p.name === 'string' && p.name.includes('[object Object]')) {
+            return { ...p, name: p.name.replace(/\n?\[object Object\]/g, '') };
+        }
+        return p;
+    });
 import { calculateMemberValues } from '../utils/calculator';
 import {
   getJobsFromStore,
@@ -235,7 +244,7 @@ export const useMitigationStore = create<MitigationState>()(
                         currentLevel: snapshot.currentLevel,
                         timelineEvents: normalizeEvents(snapshot.timelineEvents),
                         timelineMitigations: snapshot.timelineMitigations,
-                        phases: snapshot.phases,
+                        phases: normalizePhases(snapshot.phases),
                         partyMembers: membersWithComputed,
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,
