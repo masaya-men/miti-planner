@@ -15,11 +15,10 @@ export interface GimmickGroup {
 }
 
 /** timelineEvents + phases からギミック区間リストを算出 */
-export function computeGimmickGroups(events: TimelineEvent[], phases: Phase[]): GimmickGroup[] {
+export function computeGimmickGroups(events: TimelineEvent[], _phases: Phase[]): GimmickGroup[] {
     const sorted = [...events].sort((a, b) => a.time - b.time);
     const groups: GimmickGroup[] = [];
     let currentJa: string | null = null;
-    let groupStart = 0;
 
     const flush = () => {
         if (currentJa) {

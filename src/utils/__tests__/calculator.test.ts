@@ -48,7 +48,7 @@ import {
   CRIT_MULTIPLIER,
 } from '../calculator';
 
-const LV100_MODS = { level: 100, main: 440, sub: 420, div: 2780 };
+const LV100_MODS = { level: 100, main: 440, sub: 420, div: 2780, hp: 5000 };
 
 const healerStats = {
   mainStat: 4800, det: 2200, crt: 2800, ten: 420, ss: 650, wd: 141,
