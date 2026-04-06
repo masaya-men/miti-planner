@@ -1,5 +1,4 @@
 // src/lib/__tests__/ogpHelpers.test.ts
-import { describe, it, expect } from 'vitest';
 import {
     CONTENT_META,
     getContentName,
@@ -126,7 +125,7 @@ describe('trySeriesSummary', () => {
         expect(result).not.toBeNull();
         expect(result!.seriesName).toBe('至天の座アルカディア零式');
         expect(result!.tierName).toBe('ヘビー級');
-        expect(result!.summary).toBe('ヘビー級 1 ｜ 2 ｜ 3');
+        expect(result!.summary).toBe('ヘビー級 1 / 2 / 3');
         expect(result!.categoryTag).toBe('Savage — Lv.100');
     });
 
@@ -137,7 +136,7 @@ describe('trySeriesSummary', () => {
         ];
         const result = trySeriesSummary(plans);
         expect(result).not.toBeNull();
-        expect(result!.summary).toBe('ヘビー級 4前半 ｜ 4後半');
+        expect(result!.summary).toBe('ヘビー級 4前半 / 4後半');
     });
 
     it('異なるシリーズのバンドルでnullを返す', () => {
@@ -235,7 +234,7 @@ describe('trySeriesSummary（多言語）', () => {
         const result = trySeriesSummary(plans, 'ja');
         expect(result).not.toBeNull();
         expect(result!.seriesName).toBe('至天の座アルカディア零式');
-        expect(result!.summary).toBe('ヘビー級 1 ｜ 2');
+        expect(result!.summary).toBe('ヘビー級 1 / 2');
     });
 
     it('lang="en"ではnullを返す（英語名はparseTier非対応）', () => {
