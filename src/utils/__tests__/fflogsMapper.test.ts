@@ -166,4 +166,44 @@ describe('mapFFLogsToTimeline', () => {
     expect(r.stats.totalRawEvents).toBe(3);
     expect(r.stats.timelineEventCount).toBeGreaterThan(0);
   });
+
+  it('phaseNamesがある場合、ボス名をフェーズ名として使用する', () => {
+    const fight = makeFight({
+      phaseTransitions: [
+        { id: 1, startTime: 1000000 },
+        { id: 2, startTime: 1165000 },
+      ],
+      encounterID: 1079,
+      phaseNames: [
+        { id: 1, name: 'P1: Fatebreaker' },
+        { id: 2, name: 'P2: Usurper of Frost' },
+      ],
+    });
+    const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
+    expect(r.phases).toHaveLength(2);
+    expect(r.phases[0].name).toBe('Fatebreaker');
+    expect(r.phases[1].name).toBe('Usurper of Frost');
+  });
+
+  it('phaseNamesにプレフィックスがない場合はそのまま使用する', () => {
+    const fight = makeFight({
+      phaseTransitions: [{ id: 1, startTime: 1000000 }],
+      phaseNames: [{ id: 1, name: 'Phase One' }],
+    });
+    const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
+    expect(r.phases[0].name).toBe('Phase One');
+  });
+
+  it('phaseNamesが空の場合、P1/P2にフォールバックする', () => {
+    const fight = makeFight({
+      phaseTransitions: [
+        { id: 1, startTime: 1000000 },
+        { id: 2, startTime: 1060000 },
+      ],
+      phaseNames: [],
+    });
+    const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
+    expect(r.phases[0].name).toBe('P1');
+    expect(r.phases[1].name).toBe('P2');
+  });
 });
