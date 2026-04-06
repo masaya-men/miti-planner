@@ -134,6 +134,38 @@ export default async function handler(req: any, res: any) {
 
     // --- PUT: コンテンツ更新 ---
     if (req.method === 'PUT') {
+      // シリーズ名の一括更新（翻訳管理画面用）
+      if (req.body?.type === 'series_bulk_update') {
+        const { updates } = req.body;
+        if (!updates || typeof updates !== 'object') {
+          return res.status(400).json({ error: 'updates object is required' });
+        }
+
+        const snap = await contentsRef.get();
+        if (!snap.exists) return res.status(404).json({ error: 'Contents document not found' });
+
+        const current = snap.data()!;
+        await createBackup(db, current);
+
+        const seriesList: any[] = current.series || [];
+        for (const s of seriesList) {
+          if (updates[s.id]) {
+            s.name = { ...s.name, ...updates[s.id] };
+          }
+        }
+
+        await contentsRef.set({ ...current, series: seriesList });
+        await bumpDataVersion(db);
+        await writeAuditLog({
+          action: 'update',
+          target: 'contents.series',
+          adminUid,
+          changes: { after: { updatedSeriesCount: Object.keys(updates).length } },
+        });
+
+        return res.status(200).json({ success: true });
+      }
+
       const { item } = req.body || {};
       if (!item?.id) return res.status(400).json({ error: 'item.id is required' });
 

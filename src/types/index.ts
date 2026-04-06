@@ -77,7 +77,7 @@ export interface TimelineEvent {
 
 export interface Phase {
     id: string;
-    name: string;
+    name: string | LocalizedString;
     endTime: number;
 }
 
