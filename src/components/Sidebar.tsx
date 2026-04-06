@@ -932,7 +932,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
                                 return {
                                     id: `phase_${p.id}`,
-                                    name: p.name ? `Phase ${i + 1}\n${p.name}` : `Phase ${i + 1}`,
+                                    name: p.name
+                                        ? (typeof p.name === 'string'
+                                            ? `Phase ${i + 1}\n${p.name}`
+                                            : {
+                                                ja: p.name.ja ? `Phase ${i + 1}\n${p.name.ja}` : `Phase ${i + 1}`,
+                                                en: p.name.en ? `Phase ${i + 1}\n${p.name.en}` : `Phase ${i + 1}`,
+                                                ...(p.name.zh ? { zh: `Phase ${i + 1}\n${p.name.zh}` } : {}),
+                                                ...(p.name.ko ? { ko: `Phase ${i + 1}\n${p.name.ko}` } : {}),
+                                            })
+                                        : `Phase ${i + 1}`,
                                     endTime: nextStart !== undefined ? nextStart : maxTime + 10
                                 };
                             }) : []
