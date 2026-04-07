@@ -17,6 +17,7 @@ import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { Loader2, Sun, Moon, Star } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { SyncButton } from './SyncButton';
+import { showToast } from './Toast';
 import { WelcomeSetup } from './WelcomeSetup';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
@@ -223,15 +224,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         };
 
         /** Firestoreから最新データを取得（ログイン中のみ）
-         *  isRemoteLoadingRefでsubscriptionのdirty markingを抑制 */
-        const pullFromCloud = () => {
+         *  isRemoteLoadingRefでsubscriptionのdirty markingを抑制
+         *  notifyUser=true のときのみトーストを表示（手動 / タブ復帰時のみ） */
+        const pullFromCloud = (notifyUser = false) => {
             const authState = useAuthStore.getState();
             if (authState.user) {
                 isRemoteLoadingRef.current = true;
                 usePlanStore.getState().pullFromFirestore(
                     authState.user.uid,
-                ).catch((err) => {
+                ).then(() => {
+                    if (notifyUser) showToast(t('app.sync_pull_success'), 'info');
+                }).catch((err) => {
                     console.error('[LoPo] Firestore PULL エラー:', err);
+                    if (notifyUser) showToast(t('app.sync_pull_error'), 'error');
                 }).finally(() => {
                     isRemoteLoadingRef.current = false;
                 });
@@ -294,8 +299,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 syncToCloud(true);  // タブ切替 = ユーザーの意図的操作 → クールダウン無視
                 usePlanStore.getState().setSaveStatus('saved');
             } else {
-                // タブ再表示 → PULL（他端末の変更を取得）
-                pullFromCloud();
+                // タブ再表示 → PULL（他端末の変更を取得）/ ユーザーに通知
+                pullFromCloud(true);
             }
         };
 

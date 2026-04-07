@@ -526,6 +526,7 @@ export const usePlanStore = create<PlanState>()(
                 } catch (err) {
                     console.error('手動同期エラー:', err);
                     set({ _isSyncing: false, _cloudStatus: 'error' });
+                    throw err;
                 }
             },
         }),
