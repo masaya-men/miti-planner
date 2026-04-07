@@ -11,28 +11,23 @@
 - **ブランチ**: main直接
 - **最優先**: Phase/Label startTime統一リファクタリング（段階2: ラベル Label[]化）
 - **設計書**: `docs/superpowers/specs/2026-04-07-phase-label-starttime-design.md`
-- **段階1完了**: フェーズstartTime化（11タスク全完了、ビルド・105テスト通過）
-- **未push**: 前セッション4件 + 今セッション11件（計15件のコミット）
+- **段階2計画**: `docs/superpowers/plans/2026-04-07-label-boundary-migration.md`
+- **段階1完了**: フェーズstartTime化 + バグ修正 + UX改善（デプロイ済み）
+- **未push**: 2件（TL選択バナー修正 + 段階2計画書）
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、月100ビルド制限
 - **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
 
-### 今回の作業内容（段階1完了）
-- Phase型を `{ id, name: LocalizedString, startTime, endTime? }` に変更
-- 旧Phase→新Phase変換関数 `migratePhases` 実装（テスト9件）
-- useMitigationStoreのPhase操作をstartTimeベースに更新
-- BoundaryEditModal新規作成（多言語入力+終端時間変更+TL選択、フェーズ・ラベル共用）
-- Timeline.tsx/TimelineRow.tsxのフェーズ描画・操作をstartTimeベースに更新
-- TL選択モード（ハイライト付き終端時間選択）実装
-- HeaderPhaseDropdownをstartTimeベースに更新
-- FFLogsMapper・テンプレート変換をstartTime+LocalizedStringに更新
-- 既存テスト全更新（105テスト全パス）
-- PhaseModal.tsx削除、デバッグログ削除、AdminGuardバイパス削除
+### 段階1フィードバック（段階2に反映済み）
+- モーダルは現在言語の1入力欄のみ（管理画面だけ多言語入力）
+- 開発者用語を使わない
+- コンテキストメニューパターン（編集/追加/削除）をラベルにも適用
+- TL選択バナーは下部フローティングバー（AAモードと同じ位置）
+- ハイライトはフェーズ/ラベル列の枠のみ（行全体は重い）
 
 ### 次セッションでやること
-1. まとめてpush（ビルド1回で済ませる）
-2. 本番動作確認（フェーズ表示・編集・FFLogsインポート）
-3. 段階2（ラベル Label[]化）の実装計画作成
-4. 段階2実装
+1. push（2件）
+2. `superpowers:subagent-driven-development` スキルで段階2計画のTask 1から実行
+3. 全完了後にまとめてpush（ビルド1回で済ませる）
 
 ---
 
@@ -62,7 +57,8 @@
 - [x] 設計書作成・承認
 - [x] 段階1（フェーズ）実装計画作成
 - [x] 段階1 実装（11タスク完了、ビルド・テスト通過）
-- [ ] 段階2（ラベル）計画作成・実装
+- [x] 段階2（ラベル）計画作成
+- [ ] 段階2 実装（12タスク）
 
 ### 多言語
 - [ ] コンテンツ名・軽減モーダル等のデータ系zh/ko対応（LocalizedString拡張）
