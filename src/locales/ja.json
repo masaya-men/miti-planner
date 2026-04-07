@@ -1422,5 +1422,22 @@
         "restore_confirm_2_cancel": "やめる",
         "restore_success": "{{count}}件の軽減表を復元しました",
         "restore_syncing": "Firestoreに同期中..."
+    },
+    "boundary_modal": {
+        "add_phase": "フェーズを追加",
+        "edit_phase": "フェーズを編集",
+        "add_label": "ラベルを追加",
+        "edit_label": "ラベルを編集",
+        "name_ja": "日本語",
+        "name_en": "English",
+        "name_zh": "中文",
+        "name_ko": "한국어",
+        "name_ja_placeholder": "フェーズ名",
+        "name_en_placeholder": "Phase name",
+        "name_zh_placeholder": "阶段名称",
+        "name_ko_placeholder": "페이즈 이름",
+        "end_time": "終端時間",
+        "select_on_timeline": "TL選択",
+        "select_banner": "終端位置を選択してください（Escでキャンセル）"
     }
 }

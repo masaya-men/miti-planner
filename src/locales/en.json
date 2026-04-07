@@ -1418,5 +1418,22 @@
         "restore_confirm_2_cancel": "Cancel",
         "restore_success": "Restored {{count}} plan(s)",
         "restore_syncing": "Syncing to cloud..."
+    },
+    "boundary_modal": {
+        "add_phase": "Add Phase",
+        "edit_phase": "Edit Phase",
+        "add_label": "Add Label",
+        "edit_label": "Edit Label",
+        "name_ja": "Japanese",
+        "name_en": "English",
+        "name_zh": "Chinese",
+        "name_ko": "Korean",
+        "name_ja_placeholder": "Phase name",
+        "name_en_placeholder": "Phase name",
+        "name_zh_placeholder": "Phase name",
+        "name_ko_placeholder": "Phase name",
+        "end_time": "End Time",
+        "select_on_timeline": "Select on TL",
+        "select_banner": "Select end position (Esc to cancel)"
     }
 }

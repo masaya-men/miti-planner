@@ -1373,5 +1373,22 @@
         "restore_confirm_2_cancel": "取消",
         "restore_success": "已恢复{{count}}个减伤表",
         "restore_syncing": "正在同步到云端..."
+    },
+    "boundary_modal": {
+        "add_phase": "添加阶段",
+        "edit_phase": "编辑阶段",
+        "add_label": "添加标签",
+        "edit_label": "编辑标签",
+        "name_ja": "日语",
+        "name_en": "英语",
+        "name_zh": "中文",
+        "name_ko": "韩语",
+        "name_ja_placeholder": "Phase name",
+        "name_en_placeholder": "Phase name",
+        "name_zh_placeholder": "阶段名称",
+        "name_ko_placeholder": "Phase name",
+        "end_time": "结束时间",
+        "select_on_timeline": "时间轴选择",
+        "select_banner": "请选择结束位置（Esc取消）"
     }
 }
