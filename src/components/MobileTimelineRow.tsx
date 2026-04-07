@@ -106,7 +106,7 @@ export const MobileTimelineRow = memo(({
     partyMembers,
     activeMitigations,
     onMobileDamageClick,
-    hasPhases = true,
+    hasPhases: _hasPhases = true,
     phaseColumnCollapsed,
     timelineSelectMode,
     labelSelectMode,
@@ -184,14 +184,9 @@ export const MobileTimelineRow = memo(({
                 }
             }}
         >
-            {/* 左: フェーズ/ラベル列 (24px) */}
+            {/* 左: フェーズ/ラベル列 (24px) — 常に表示 */}
             {!phaseColumnCollapsed && (
-                <div
-                    className={clsx(
-                        "border-r border-app-border/40 h-full flex items-center justify-center",
-                        hasPhases ? "w-[24px]" : "w-[24px] hidden"
-                    )}
-                />
+                <div className="w-[24px] min-w-[24px] border-r border-app-border/40 h-full flex items-center justify-center" />
             )}
 
             {/* 右: 2行カード */}
@@ -203,7 +198,7 @@ export const MobileTimelineRow = memo(({
                         "font-mono text-[15px] leading-none flex-shrink-0",
                         isSecondEvent ? "text-app-text-muted opacity-50" : "text-app-text opacity-50"
                     )}>
-                        {isSecondEvent ? t('mobile_same_time') : formattedTime}
+                        {isSecondEvent ? t('app.mobile_same_time') : formattedTime}
                     </span>
 
                     {/* 種別アイコン (角丸四角) */}
@@ -254,7 +249,7 @@ export const MobileTimelineRow = memo(({
                             {/* 致死バッジ */}
                             {isLethal && (
                                 <span className="text-[9px] font-black text-red-500 bg-red-500/10 px-1 py-px rounded-md flex-shrink-0">
-                                    {t('mobile_lethal')}
+                                    {t('app.mobile_lethal')}
                                 </span>
                             )}
 
