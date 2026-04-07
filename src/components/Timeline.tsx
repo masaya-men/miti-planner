@@ -21,7 +21,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, List
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, List, Crosshair
 } from 'lucide-react';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
@@ -589,7 +589,7 @@ const Timeline: React.FC = () => {
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
     const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number } | null>(null);
     const [previewEndTime, setPreviewEndTime] = useState<number | null>(null);
-    const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number } } | null>(null);
+    const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<{ startTime: number; label: { ja: string; en: string } } | null>(null);
@@ -899,11 +899,20 @@ const Timeline: React.FC = () => {
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
-        setPhaseModalPosition({ x: e.clientX, y: e.clientY });
-        setSelectedPhaseTime(time);
-        setSelectedPhase(null);
-        setIsPhaseModalOpen(true);
-    }, []);
+        // このtimeがどのフェーズに属するか判定
+        const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+        const ownerPhase = sorted.slice().reverse().find(p => p.startTime <= time);
+        if (ownerPhase) {
+            // 既存フェーズ内クリック → コンテキストメニュー
+            setPhasePopover({ phase: ownerPhase, position: { x: e.clientX, y: e.clientY }, clickTime: time });
+        } else {
+            // フェーズなし → 直接追加モーダル
+            setPhaseModalPosition({ x: e.clientX, y: e.clientY });
+            setSelectedPhaseTime(time);
+            setSelectedPhase(null);
+            setIsPhaseModalOpen(true);
+        }
+    }, [phases]);
 
     const handlePhaseEdit = (phase: Phase, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -2013,11 +2022,6 @@ const Timeline: React.FC = () => {
                                     <>
                                         {renderItems}
 
-                                        {timelineSelectMode && (
-                                            <div className="fixed top-0 left-0 right-0 z-[9998] bg-app-blue/90 text-white text-center py-2 text-app-lg font-medium">
-                                                {t('boundary_modal.select_banner')}
-                                            </div>
-                                        )}
 
                                         {/* フェーズオーバーレイ */}
                                         {!phaseColumnCollapsed && (() => {
@@ -2040,12 +2044,8 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
+                                                    className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setPhasePopover({ phase, position: { x: e.clientX, y: e.clientY } });
-                                                    }}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
@@ -2858,9 +2858,10 @@ const Timeline: React.FC = () => {
                         </button>
                         <button
                             onClick={() => {
+                                const clickTime = phasePopover.clickTime;
                                 setPhasePopover(null);
                                 setPhaseModalPosition(phasePopover.position);
-                                setSelectedPhaseTime(phasePopover.phase.startTime);
+                                setSelectedPhaseTime(clickTime);
                                 setSelectedPhase(null);
                                 setIsPhaseModalOpen(true);
                             }}
@@ -3001,6 +3002,37 @@ const Timeline: React.FC = () => {
                     >
                         <X size={12} className="inline mr-1 -mt-0.5" />
                         {t('aa_settings.end_mode')}
+                    </button>
+                </div>,
+                document.body
+            )}
+
+            {/* TL選択モード フローティングバー */}
+            {createPortal(
+                <div className={clsx(
+                    "fixed bottom-6 left-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5",
+                    "bg-app-bg border border-app-blue/30 rounded-2xl",
+                    "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
+                    "transition-all duration-300",
+                    timelineSelectMode
+                        ? "opacity-100 -translate-x-1/2 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
+                )}>
+                    <Crosshair size={14} className="text-app-blue shrink-0" />
+                    <span className="text-app-md font-black text-app-text whitespace-nowrap">
+                        {t('boundary_modal.select_banner')}
+                    </span>
+                    <div className="w-px h-5 bg-app-text/10 shrink-0" />
+                    <button
+                        onClick={() => {
+                            setTimelineSelectMode(null);
+                            setPreviewEndTime(null);
+                            setIsPhaseModalOpen(true);
+                        }}
+                        className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                    >
+                        <X size={12} className="inline mr-1 -mt-0.5" />
+                        {t('modal.cancel')}
                     </button>
                 </div>,
                 document.body
