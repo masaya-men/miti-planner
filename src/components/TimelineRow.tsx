@@ -179,8 +179,7 @@ export const TimelineRow = memo(({
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
                 useMitigationStore.getState().showRowBorders && "border-b border-app-border",
-                (timelineSelectMode || labelSelectMode) && "cursor-pointer",
-                (isHighlighted || isLabelHighlighted) && "bg-app-blue/5"
+                (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px` }}
             onMouseEnter={() => {
@@ -203,7 +202,7 @@ export const TimelineRow = memo(({
                         "border-app-border",
                         "md:cursor-pointer md:hover:bg-app-surface2",
                         hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex",
-                        isHighlighted && "ring-2 ring-inset ring-app-blue bg-app-blue/5"
+                        isHighlighted && "border-l-2 border-r-2 border-app-blue bg-app-blue/5"
                     )}
                     onClick={(e) => {
                         if (timelineSelectMode) {
@@ -238,7 +237,7 @@ export const TimelineRow = memo(({
                     className={clsx(
                         "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
                         hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]",
-                        isLabelHighlighted && "ring-2 ring-inset ring-app-blue bg-app-blue/5"
+                        isLabelHighlighted && "border-l-2 border-r-2 border-app-blue bg-app-blue/5"
                     )}
                     onClick={(e) => {
                         if (labelSelectMode) {

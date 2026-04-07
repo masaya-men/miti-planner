@@ -2069,7 +2069,10 @@ const Timeline: React.FC = () => {
                                             const offsetTime = showPreStart ? -10 : 0;
                                             const startTime = phase.startTime;
                                             const nextPhase = sorted[index + 1];
-                                            const endTime = phase.endTime ?? nextPhase?.startTime ?? (Math.max(...timelineEvents.map(e => e.time), 0) + 10);
+                                            // endTimeは「その行を含む」（inclusive）→ 描画時は+1して次行の先頭まで伸ばす
+                                            const endTime = phase.endTime !== undefined
+                                                ? Math.min(phase.endTime + 1, nextPhase?.startTime ?? Infinity)
+                                                : nextPhase?.startTime ?? (Math.max(...timelineEvents.map(e => e.time), 0) + 10);
 
                                             if (!showPreStart && endTime <= 0) return null;
 
@@ -2115,7 +2118,10 @@ const Timeline: React.FC = () => {
 
                                             return sortedLabels.map((label, li) => {
                                                 const nextLabel = sortedLabels[li + 1];
-                                                const effectiveEndTime = label.endTime ?? nextLabel?.startTime ?? (gridLines[gridLines.length - 1] ?? label.startTime + 1);
+                                                // endTimeは inclusive → 描画時は+1
+                                                const effectiveEndTime = label.endTime !== undefined
+                                                    ? Math.min(label.endTime + 1, nextLabel?.startTime ?? Infinity)
+                                                    : nextLabel?.startTime ?? (gridLines[gridLines.length - 1] ?? label.startTime + 1);
 
                                                 const effectiveStart = Math.max(label.startTime, offsetTime);
                                                 const effectiveEnd = Math.max(effectiveEndTime, offsetTime);

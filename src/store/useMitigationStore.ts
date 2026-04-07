@@ -446,7 +446,14 @@ export const useMitigationStore = create<MitigationState>()(
                             name,
                             startTime
                         };
-                        return { phases: [...state.phases, newPhase].sort((a, b) => a.startTime - b.startTime) };
+                        // 新フェーズの開始時刻より後にendTimeを持つフェーズをクリップ
+                        const clippedPhases = state.phases.map(p => {
+                            if (p.endTime && p.endTime > startTime && p.startTime < startTime) {
+                                return { ...p, endTime: undefined };
+                            }
+                            return p;
+                        });
+                        return { phases: [...clippedPhases, newPhase].sort((a, b) => a.startTime - b.startTime) };
                     });
                 },
 
@@ -485,7 +492,14 @@ export const useMitigationStore = create<MitigationState>()(
                     pushHistory();
                     set((state) => {
                         const newLabel: Label = { id: crypto.randomUUID(), name, startTime };
-                        return { labels: [...state.labels, newLabel].sort((a, b) => a.startTime - b.startTime) };
+                        // 新ラベルの開始時刻より後にendTimeを持つラベルをクリップ
+                        const clippedLabels = state.labels.map(l => {
+                            if (l.endTime && l.endTime > startTime && l.startTime < startTime) {
+                                return { ...l, endTime: undefined };
+                            }
+                            return l;
+                        });
+                        return { labels: [...clippedLabels, newLabel].sort((a, b) => a.startTime - b.startTime) };
                     });
                 },
 
