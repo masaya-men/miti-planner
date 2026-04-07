@@ -179,20 +179,6 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                         )}
                     >
 
-                        <div className="shrink-0 flex items-center justify-center">
-                            <div className={clsx(
-                                "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
-                                isActive && !multiSelect.isEnabled
-                                    ? "bg-app-text text-app-bg"
-                                    : "bg-glass-card text-app-text group-hover:bg-glass-hover"
-                            )}>
-                                <span className="leading-none">{shortName.split('\n')[0]}</span>
-                                {shortName.split('\n')[1] && (
-                                    <span className="text-app-sm leading-none mt-0.5">{shortName.split('\n')[1]}</span>
-                                )}
-                            </div>
-                        </div>
-
                         {multiSelect.isEnabled && (
                             <div className="flex items-center gap-1.5 shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
                                 {(() => {
@@ -220,6 +206,20 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                 })()}
                             </div>
                         )}
+
+                        <div className="shrink-0 flex items-center justify-center">
+                            <div className={clsx(
+                                "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
+                                isActive && !multiSelect.isEnabled
+                                    ? "bg-app-text text-app-bg"
+                                    : "bg-glass-card text-app-text group-hover:bg-glass-hover"
+                            )}>
+                                <span className="leading-none">{shortName.split('\n')[0]}</span>
+                                {shortName.split('\n')[1] && (
+                                    <span className="text-app-sm leading-none mt-0.5">{shortName.split('\n')[1]}</span>
+                                )}
+                            </div>
+                        </div>
 
                         {/* プランありシェブロン（展開インジケーター兼プラン存在表示） */}
                         {contentPlans.length > 0 && !multiSelect.isEnabled && (
