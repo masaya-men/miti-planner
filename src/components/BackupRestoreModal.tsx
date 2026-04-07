@@ -132,7 +132,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
               value={text}
               onChange={(e) => { setText(e.target.value); setError(''); }}
               placeholder={t('backup.restore_paste_placeholder')}
-              className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-app-xs text-app-text font-mono resize-none focus:outline-none focus:border-app-text-muted transition-colors"
+              className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text font-mono resize-none focus:outline-none focus:border-app-text-muted transition-colors"
             />
             <input
               ref={fileRef}

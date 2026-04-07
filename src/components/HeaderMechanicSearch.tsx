@@ -188,7 +188,7 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                                 value={query}
                                 onChange={(e) => { setQuery(e.target.value); setSelectedMechanic(null); }}
                                 placeholder={t('timeline.nav_mechanic_search')}
-                                className="w-full bg-transparent text-app-2xl text-app-text placeholder:text-app-text-muted focus:outline-none"
+                                className="w-full bg-transparent text-[16px] md:text-app-2xl text-app-text placeholder:text-app-text-muted focus:outline-none"
                             />
                         </div>
                     </div>

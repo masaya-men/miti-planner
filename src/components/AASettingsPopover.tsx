@@ -132,7 +132,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         type="number"
                         value={settings.damage}
                         onChange={(e) => handleChange('damage', Number(e.target.value))}
-                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-app-2xl font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
+                        className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-[16px] md:text-app-2xl font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
                         onFocus={(e) => e.target.select()}
                     />
                 </div>

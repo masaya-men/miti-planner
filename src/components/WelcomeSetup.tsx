@@ -162,7 +162,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                             placeholder={t('welcome.display_name_placeholder')}
                             maxLength={30}
                             className={clsx(
-                                "w-full px-4 py-2.5 rounded-xl text-app-lg text-app-text",
+                                "w-full px-4 py-2.5 rounded-xl text-[16px] md:text-app-lg text-app-text",
                                 "bg-transparent border border-app-border",
                                 "focus:outline-none focus:border-app-text/40 transition-colors",
                                 "placeholder:text-app-text-muted/50"

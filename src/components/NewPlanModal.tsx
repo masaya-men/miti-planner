@@ -337,7 +337,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.plan_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[16px] md:text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
                                 />
                             </div>
                         )}
@@ -357,7 +357,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                     onChange={(e) => setTitle(e.target.value)}
                                     onFocus={(e) => e.target.select()}
                                     placeholder={t('new_plan.free_name_placeholder')}
-                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
+                                    className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[16px] md:text-app-xl focus:outline-none focus:border-app-text focus:ring-4 ring-app-text/10 transition-all font-black placeholder:text-app-text-muted/30"
                                 />
                             </div>
                         )}

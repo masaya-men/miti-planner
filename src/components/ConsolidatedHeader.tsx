@@ -176,7 +176,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 onChange={e => setHeaderTitleDraft(e.target.value)}
                                                 onBlur={finishHeaderEdit}
                                                 onKeyDown={e => { if (e.key === 'Enter') finishHeaderEdit(); if (e.key === 'Escape') setEditingHeaderTitle(false); }}
-                                                className="text-app-xl text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
+                                                className="text-[16px] md:text-app-xl text-app-text tracking-wider uppercase min-w-0 bg-transparent border-b border-app-text/30 outline-none font-inherit"
                                                 style={{ fontFamily: 'inherit', fontWeight: 'inherit', flex: '1 1 0%' }}
                                             />
                                         ) : (

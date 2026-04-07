@@ -123,7 +123,7 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 data-backup-json
                 readOnly
                 value={json}
-                className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
+                className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
               />
             </>
           )}
