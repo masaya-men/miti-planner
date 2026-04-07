@@ -5,17 +5,14 @@ import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { LoPoButton } from './LoPoButton';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { Sun, Moon } from 'lucide-react';
 import clsx from 'clsx';
-import { SyncButton } from './SyncButton';
 
 // ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
 export const MobileHeader: React.FC<{
     onHome: () => void;
     theme: string;
     onToggleTheme: () => void;
-}> = ({ onHome, theme, onToggleTheme }) => {
+}> = ({ onHome, theme: _theme, onToggleTheme: _onToggleTheme }) => {
     useTranslation();
     const { contentLanguage } = useThemeStore();
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
@@ -142,18 +139,8 @@ export const MobileHeader: React.FC<{
                 </>
             )}
 
-            {/* 右: テーマ + 同期 + 言語 */}
-            <div className="flex items-center gap-1 shrink-0">
-                <button
-                    data-tutorial-always
-                    onClick={onToggleTheme}
-                    className="p-1 w-7 h-7 rounded-md text-app-text hover:bg-app-surface2 flex items-center justify-center cursor-pointer"
-                >
-                    {theme === 'dark' ? <Sun size={13} /> : <Moon size={13} />}
-                </button>
-                <SyncButton size={14} className="w-7 h-7" />
-                <LanguageSwitcher />
-            </div>
+            {/* 右: スペーサー（ボタン類はMobileFABに移行） */}
+            <div className="w-8 shrink-0" />
         </header>
     );
 };
