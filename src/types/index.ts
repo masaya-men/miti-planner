@@ -87,8 +87,9 @@ export interface TimelineEvent {
 
 export interface Phase {
     id: string;
-    name: string | LocalizedString;
-    endTime: number;
+    name: LocalizedString;
+    startTime: number;
+    endTime?: number;  // 未指定なら次のPhaseのstartTimeまで
 }
 
 // ─────────────────────────────────────────────
