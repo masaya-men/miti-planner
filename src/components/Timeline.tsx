@@ -2446,8 +2446,7 @@ const Timeline: React.FC = () => {
             <HeaderGimmickDropdown
                 isOpen={gimmickDropdownOpen}
                 onClose={() => setGimmickDropdownOpen(false)}
-                events={timelineEvents}
-                phases={phases}
+                labels={labels}
                 onJump={handleNavJump}
                 triggerRef={gimmickHeaderRef}
             />
