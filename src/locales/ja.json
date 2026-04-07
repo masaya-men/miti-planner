@@ -308,6 +308,9 @@
         "event_edit": "イベントを編集",
         "event_add_here": "この時間にイベントを追加",
         "event_delete": "イベントを削除",
+        "phase_edit": "フェーズを編集",
+        "phase_add_here": "ここにフェーズを追加",
+        "phase_delete": "フェーズを削除",
         "add_mitigation_here": "軽減を追加",
         "row_borders": "罫線の表示/非表示",
         "secret_feature": "もうちょっと待ってね",
@@ -1428,16 +1431,10 @@
         "edit_phase": "フェーズを編集",
         "add_label": "ラベルを追加",
         "edit_label": "ラベルを編集",
-        "name_ja": "日本語",
-        "name_en": "English",
-        "name_zh": "中文",
-        "name_ko": "한국어",
-        "name_ja_placeholder": "フェーズ名",
-        "name_en_placeholder": "Phase name",
-        "name_zh_placeholder": "阶段名称",
-        "name_ko_placeholder": "페이즈 이름",
-        "end_time": "終端時間",
-        "select_on_timeline": "TL選択",
-        "select_banner": "終端位置を選択してください（Escでキャンセル）"
+        "name_label": "フェーズ名",
+        "name_placeholder": "名前を入力",
+        "end_time": "フェーズの終了時間",
+        "select_on_timeline": "タイムラインで選択",
+        "select_banner": "終了位置をクリックで選択（Escでキャンセル）"
     }
 }

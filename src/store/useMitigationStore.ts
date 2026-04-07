@@ -94,7 +94,7 @@ interface MitigationState {
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
     /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */
-    importTimelineEvents: (events: TimelineEvent[]) => void;
+    importTimelineEvents: (events: TimelineEvent[], importPhases?: { id: number; startTimeSec: number; name: LocalizedString }[]) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
     /** 👇追加：複数のメンバーのジョブ変更を一括で適用する（履歴は1回だけ保存） */
@@ -388,12 +388,22 @@ export const useMitigationStore = create<MitigationState>()(
                     useTutorialStore.getState().completeEvent('event:saved');
                 },
 
-                importTimelineEvents: (events) => {
+                importTimelineEvents: (events, importPhases) => {
                     pushHistory();
-                    set({
+                    const update: Partial<ReturnType<typeof get>> = {
                         timelineEvents: normalizeEvents([...events]).sort((a, b) => a.time - b.time),
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
-                    });
+                    };
+                    if (importPhases) {
+                        update.phases = importPhases
+                            .filter(p => p.startTimeSec >= 0)
+                            .map(p => ({
+                                id: `phase_${p.id}`,
+                                name: p.name,
+                                startTime: p.startTimeSec,
+                            }));
+                    }
+                    set(update as any);
                     // Tutorial: notify that timeline content has been loaded
                     if (events.length > 0) {
                         useTutorialStore.getState().completeEvent('content:selected');

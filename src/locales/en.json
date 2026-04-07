@@ -304,6 +304,9 @@
         "event_edit": "Edit Event",
         "event_add_here": "Add Event Here",
         "event_delete": "Delete Event",
+        "phase_edit": "Edit Phase",
+        "phase_add_here": "Add Phase Here",
+        "phase_delete": "Delete Phase",
         "add_mitigation_here": "Add Mitigation",
         "row_borders": "Toggle row borders",
         "secret_feature": "Maybe someday",
@@ -1424,16 +1427,10 @@
         "edit_phase": "Edit Phase",
         "add_label": "Add Label",
         "edit_label": "Edit Label",
-        "name_ja": "Japanese",
-        "name_en": "English",
-        "name_zh": "Chinese",
-        "name_ko": "Korean",
-        "name_ja_placeholder": "Phase name",
-        "name_en_placeholder": "Phase name",
-        "name_zh_placeholder": "Phase name",
-        "name_ko_placeholder": "Phase name",
-        "end_time": "End Time",
-        "select_on_timeline": "Select on TL",
-        "select_banner": "Select end position (Esc to cancel)"
+        "name_label": "Phase name",
+        "name_placeholder": "Enter name",
+        "end_time": "Phase end time",
+        "select_on_timeline": "Select on timeline",
+        "select_banner": "Click to select end position (Esc to cancel)"
     }
 }
