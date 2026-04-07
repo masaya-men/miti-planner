@@ -171,7 +171,6 @@ export const TimelineRow = memo(({
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
-                isHighlighted && "bg-app-blue/10",
                 useMitigationStore.getState().showRowBorders && "border-b border-app-border"
             )}
             style={{ top: `${top}px` }}
@@ -183,7 +182,8 @@ export const TimelineRow = memo(({
                         "md:w-[60px] border-r h-full relative items-center justify-center group-hover:text-app-text",
                         "border-app-border",
                         "md:cursor-pointer md:hover:bg-app-surface2",
-                        hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex"
+                        hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex",
+                        isHighlighted && "ring-2 ring-inset ring-app-blue bg-app-blue/5"
                     )}
                     onClick={(e) => {
                         if (timelineSelectMode) {
