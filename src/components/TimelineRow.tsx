@@ -56,6 +56,7 @@ interface TimelineRowProps {
     phaseColumnCollapsed?: boolean;
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
+    labelSelectMode?: { labelId: string; startTime: number } | null;
     previewEndTime?: number | null;
     onTimelineSelect?: (time: number) => void;
     onTimelineSelectHover?: (time: number) => void;
@@ -126,6 +127,7 @@ export const TimelineRow = memo(({
     phaseColumnCollapsed,
     hasPhases = true,
     timelineSelectMode,
+    labelSelectMode,
     previewEndTime,
     onTimelineSelect,
     onTimelineSelectHover,
@@ -163,6 +165,11 @@ export const TimelineRow = memo(({
     const isHighlighted = timelineSelectMode
         && previewEndTime !== null
         && time >= timelineSelectMode.startTime
+        && time <= (previewEndTime ?? 0);
+
+    const isLabelHighlighted = labelSelectMode
+        && previewEndTime !== null
+        && time >= labelSelectMode.startTime
         && time <= (previewEndTime ?? 0);
 
     return (
@@ -217,13 +224,23 @@ export const TimelineRow = memo(({
                 <div
                     className={clsx(
                         "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
-                        hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]"
+                        hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]",
+                        isLabelHighlighted && "ring-2 ring-inset ring-app-blue bg-app-blue/5"
                     )}
                     onClick={(e) => {
+                        if (labelSelectMode) {
+                            onTimelineSelect?.(time);
+                            return;
+                        }
                         if (window.innerWidth < 768) {
                             handleMobileTap(e);
                         } else {
                             onLabelAdd?.(time, e);
+                        }
+                    }}
+                    onMouseEnter={() => {
+                        if (labelSelectMode) {
+                            onTimelineSelectHover?.(time);
                         }
                     }}
                 >
