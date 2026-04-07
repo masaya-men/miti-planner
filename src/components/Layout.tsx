@@ -22,6 +22,7 @@ import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
 import { MobileHeader } from './MobileHeader';
+import { MobileFAB } from './MobileFAB';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 
@@ -603,6 +604,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     ))}
                 </div>
             </motion.div>
+
+            {/* Mobile FAB — テーマ/同期/言語/ナビ（チュートリアル中は非表示） */}
+            {!isTutorialActive && isMobile && (
+                <MobileFAB
+                    onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
+                    theme={theme}
+                />
+            )}
 
             {/* Mobile Bottom Nav — 排他制御付きトグル（チュートリアル中は非表示） */}
             {!isTutorialActive && <MobileBottomNav
