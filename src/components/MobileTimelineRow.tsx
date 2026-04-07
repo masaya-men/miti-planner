@@ -171,7 +171,9 @@ export const MobileTimelineRow = memo(({
         <div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full h-[80px] px-2",
+                "absolute left-0 w-full h-[80px]",
+                "active:bg-app-text/[0.03] transition-colors duration-100",
+                (isHighlighted || isLabelHighlighted) && "bg-app-blue/10",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px` }}
@@ -182,22 +184,18 @@ export const MobileTimelineRow = memo(({
                 }
             }}
         >
-            {/* カード本体 — Apple風の角丸カード */}
-            <div className={clsx(
-                "h-full flex rounded-xl transition-colors duration-100",
-                "active:bg-app-text/5",
-                isSecondEvent
-                    ? "bg-app-text/[0.02]"
-                    : "",
-                (isHighlighted || isLabelHighlighted) && "bg-app-blue/10"
-            )}>
+            <div className="h-full flex">
                 {/* 左: フェーズ/ラベル列 (24px) — 常に表示 */}
                 {!phaseColumnCollapsed && (
                     <div className="w-[24px] min-w-[24px] h-full flex items-center justify-center opacity-40" />
                 )}
 
-                {/* 右: 2行カード */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center px-2 gap-0.5">
+                {/* 右: コンテンツエリア + Apple風インセット区切り線 */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center px-3 gap-0.5 relative">
+                    {/* インセット区切り線 — 2つ目のイベント行は表示しない（連続感） */}
+                    {!isSecondEvent && (
+                        <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
+                    )}
                 {/* 上段: 時間 + 種別アイコン + 攻撃名 + 対象バッジ */}
                 <div className="flex items-center gap-1.5 min-w-0">
                     {/* 時間 or 〃 */}
