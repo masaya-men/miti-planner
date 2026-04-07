@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } 
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
+import { MobileTimelineRow } from './MobileTimelineRow';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -635,7 +636,8 @@ const Timeline: React.FC = () => {
         newJobId: string;
     } | null>(null);
 
-    const pixelsPerSecond = 50;
+    const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
+    const pixelsPerSecond = isMobileTimeline ? 80 : 50;
     const fightDuration = 1200;
 
     const handleTogglePhaseCollapse = () => {
@@ -1997,46 +1999,133 @@ const Timeline: React.FC = () => {
 
                                     timeToYMap.set(time, currentY);
 
-                                    renderItems.push(
-                                        <TimelineRow
-                                            key={time}
-                                            time={time}
-                                            top={currentY}
-                                            damages={rowDamages}
-                                            events={rowEvents}
-                                            partyMembers={sortedPartyMembers}
-                                            activeMitigations={activeMitigationsForRow} // 👈 Added prop
-                                            onPhaseAdd={handlePhaseAdd}
-                                            onLabelAdd={handleLabelAdd}
-                                            hasPhases={phases.length > 0}
-                                            onAddEventClick={handleAddClick}
-                                            onEventClick={handleEventClick}
-                                            onCellClick={handleCellClick}
-                                            onMobileDamageClick={handleMobileDamageClick}
-                                            phaseColumnCollapsed={phaseColumnCollapsed}
-                                            timelineSelectMode={timelineSelectMode}
-                                            labelSelectMode={labelSelectMode}
-                                            previewEndTime={previewEndTime}
-                                            onTimelineSelect={(time) => {
-                                                if (labelSelectMode) {
-                                                    updateLabelEndTime(labelSelectMode.labelId, time);
-                                                    setLabelSelectMode(null);
-                                                    setPreviewEndTime(null);
-                                                    return;
-                                                }
-                                                if (timelineSelectMode) {
-                                                    updatePhaseEndTime(timelineSelectMode.phaseId, time);
-                                                    setTimelineSelectMode(null);
-                                                    setPreviewEndTime(null);
-                                                }
-                                            }}
-                                            onTimelineSelectHover={(time) => {
-                                                if (timelineSelectMode || labelSelectMode) {
-                                                    setPreviewEndTime(time);
-                                                }
-                                            }}
-                                        />
-                                    );
+                                    if (isMobileTimeline) {
+                                        // Mobile: MobileTimelineRow を使用
+                                        const mobileSelectHandler = (time: number) => {
+                                            if (labelSelectMode) {
+                                                updateLabelEndTime(labelSelectMode.labelId, time);
+                                                setLabelSelectMode(null);
+                                                setPreviewEndTime(null);
+                                                return;
+                                            }
+                                            if (timelineSelectMode) {
+                                                updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                setTimelineSelectMode(null);
+                                                setPreviewEndTime(null);
+                                            }
+                                        };
+                                        const mobileHoverHandler = (time: number) => {
+                                            if (timelineSelectMode || labelSelectMode) setPreviewEndTime(time);
+                                        };
+
+                                        if (rowEvents.length >= 2) {
+                                            // 2イベント: 別々のカードに分割
+                                            renderItems.push(
+                                                <MobileTimelineRow
+                                                    key={`${time}-0`}
+                                                    time={time}
+                                                    top={currentY}
+                                                    damages={rowDamages}
+                                                    events={rowEvents}
+                                                    partyMembers={sortedPartyMembers}
+                                                    activeMitigations={activeMitigationsForRow}
+                                                    onMobileDamageClick={handleMobileDamageClick}
+                                                    phaseColumnCollapsed={phaseColumnCollapsed}
+                                                    hasPhases={phases.length > 0}
+                                                    timelineSelectMode={timelineSelectMode}
+                                                    labelSelectMode={labelSelectMode}
+                                                    previewEndTime={previewEndTime}
+                                                    onTimelineSelect={mobileSelectHandler}
+                                                    onTimelineSelectHover={mobileHoverHandler}
+                                                    eventIndex={0}
+                                                />
+                                            );
+                                            currentY += pixelsPerSecond;
+                                            renderItems.push(
+                                                <MobileTimelineRow
+                                                    key={`${time}-1`}
+                                                    time={time}
+                                                    top={currentY}
+                                                    damages={rowDamages}
+                                                    events={rowEvents}
+                                                    partyMembers={sortedPartyMembers}
+                                                    activeMitigations={activeMitigationsForRow}
+                                                    onMobileDamageClick={handleMobileDamageClick}
+                                                    phaseColumnCollapsed={phaseColumnCollapsed}
+                                                    hasPhases={phases.length > 0}
+                                                    timelineSelectMode={timelineSelectMode}
+                                                    labelSelectMode={labelSelectMode}
+                                                    previewEndTime={previewEndTime}
+                                                    onTimelineSelect={mobileSelectHandler}
+                                                    onTimelineSelectHover={mobileHoverHandler}
+                                                    eventIndex={1}
+                                                    isSecondEvent
+                                                />
+                                            );
+                                        } else {
+                                            renderItems.push(
+                                                <MobileTimelineRow
+                                                    key={time}
+                                                    time={time}
+                                                    top={currentY}
+                                                    damages={rowDamages}
+                                                    events={rowEvents}
+                                                    partyMembers={sortedPartyMembers}
+                                                    activeMitigations={activeMitigationsForRow}
+                                                    onMobileDamageClick={handleMobileDamageClick}
+                                                    phaseColumnCollapsed={phaseColumnCollapsed}
+                                                    hasPhases={phases.length > 0}
+                                                    timelineSelectMode={timelineSelectMode}
+                                                    labelSelectMode={labelSelectMode}
+                                                    previewEndTime={previewEndTime}
+                                                    onTimelineSelect={mobileSelectHandler}
+                                                    onTimelineSelectHover={mobileHoverHandler}
+                                                />
+                                            );
+                                        }
+                                    } else {
+                                        // PC: 既存の TimelineRow — 変更禁止
+                                        renderItems.push(
+                                            <TimelineRow
+                                                key={time}
+                                                time={time}
+                                                top={currentY}
+                                                damages={rowDamages}
+                                                events={rowEvents}
+                                                partyMembers={sortedPartyMembers}
+                                                activeMitigations={activeMitigationsForRow}
+                                                onPhaseAdd={handlePhaseAdd}
+                                                onLabelAdd={handleLabelAdd}
+                                                hasPhases={phases.length > 0}
+                                                onAddEventClick={handleAddClick}
+                                                onEventClick={handleEventClick}
+                                                onCellClick={handleCellClick}
+                                                onMobileDamageClick={handleMobileDamageClick}
+                                                phaseColumnCollapsed={phaseColumnCollapsed}
+                                                timelineSelectMode={timelineSelectMode}
+                                                labelSelectMode={labelSelectMode}
+                                                previewEndTime={previewEndTime}
+                                                onTimelineSelect={(time) => {
+                                                    if (labelSelectMode) {
+                                                        updateLabelEndTime(labelSelectMode.labelId, time);
+                                                        setLabelSelectMode(null);
+                                                        setPreviewEndTime(null);
+                                                        return;
+                                                    }
+                                                    if (timelineSelectMode) {
+                                                        updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                        setTimelineSelectMode(null);
+                                                        setPreviewEndTime(null);
+                                                    }
+                                                }}
+                                                onTimelineSelectHover={(time) => {
+                                                    if (timelineSelectMode || labelSelectMode) {
+                                                        setPreviewEndTime(time);
+                                                    }
+                                                }}
+                                            />
+                                        );
+                                    }
 
                                     currentY += pixelsPerSecond;
                                 });
