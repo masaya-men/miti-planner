@@ -176,6 +176,7 @@ export const useTutorialStore = create<TutorialState>()(
             timelineEvents: JSON.parse(JSON.stringify(mitiState.timelineEvents)),
             timelineMitigations: JSON.parse(JSON.stringify(mitiState.timelineMitigations)),
             phases: JSON.parse(JSON.stringify(mitiState.phases)),
+            labels: JSON.parse(JSON.stringify(mitiState.labels)),
             partyMembers: JSON.parse(JSON.stringify(mitiState.partyMembers)),
             myMemberId: mitiState.myMemberId,
             myJobHighlight: mitiState.myJobHighlight,
