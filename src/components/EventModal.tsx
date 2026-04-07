@@ -459,32 +459,52 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 {/* Mobile Drag Handle Indicator */}
                 {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
 
-                <div className={clsx(
-                    "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
-                    "border-app-border bg-app-surface2"
-                )}>
-                    <h2 className={clsx(
-                        "text-app-2xl font-bold transition-colors",
-                        "text-app-text"
+                {isMobile ? (
+                    /* Mobile Title Row: タイトル + 時間バッジ + 閉じるボタン */
+                    <div className="flex justify-between items-center px-5 py-3 border-b flex-shrink-0 transition-colors border-app-border bg-app-surface2">
+                        <div className="flex items-center gap-2.5">
+                            <h2 className="text-app-2xl font-bold text-app-text">
+                                {initialData ? t('app.context_edit_event') : t('app.context_add_event')}
+                            </h2>
+                            <span className="px-2 py-0.5 rounded-md bg-app-text/10 text-app-text-muted text-app-base font-mono tabular-nums">
+                                {initialData?.time ?? initialTime ?? 0}s
+                            </span>
+                        </div>
+                        <button onClick={onClose} className="text-app-text p-1.5 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                            <X size={18} />
+                        </button>
+                    </div>
+                ) : (
+                    /* PC Title Row */
+                    <div className={clsx(
+                        "flex justify-between items-center px-6 py-4 border-b flex-shrink-0 transition-colors",
+                        "border-app-border bg-app-surface2"
                     )}>
-                        {initialData ? t('modal.edit_event') : t('modal.add_event')}
-                    </h2>
-                    <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
-                        <X size={16} />
-                    </button>
-                </div>
+                        <h2 className={clsx(
+                            "text-app-2xl font-bold transition-colors",
+                            "text-app-text"
+                        )}>
+                            {initialData ? t('modal.edit_event') : t('modal.add_event')}
+                        </h2>
+                        <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                            <X size={16} />
+                        </button>
+                    </div>
+                )}
 
-                <form id="event-modal-form" onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[75vh] custom-scrollbar">
+                <form id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", isMobile ? "p-4 space-y-4 max-h-[75vh]" : "p-6 space-y-6 max-h-[75vh]")}>
                     {/* Input Mode Toggle (Segmented Control) */}
                     <div className={clsx(
-                        "flex p-1 rounded-lg border mb-6 transition-colors",
+                        "flex p-1 rounded-lg border transition-colors",
+                        isMobile ? "mb-3" : "mb-6",
                         "bg-app-surface2 border-app-border"
                     )}>
                         <button
                             type="button"
                             onClick={() => setInputMode('reverse')}
                             className={clsx(
-                                "flex-1 py-2 px-4 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
+                                "flex-1 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
+                                isMobile ? "py-1.5 px-3" : "py-2 px-4",
                                 inputMode === 'reverse'
                                     ? "bg-app-text text-app-bg border border-app-text"
                                     : "text-app-text border border-transparent"
@@ -497,7 +517,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             type="button"
                             onClick={() => setInputMode('direct')}
                             className={clsx(
-                                "flex-1 py-2 px-4 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
+                                "flex-1 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
+                                isMobile ? "py-1.5 px-3" : "py-2 px-4",
                                 inputMode === 'direct'
                                     ? "bg-app-text text-app-bg border border-app-text"
                                     : "text-app-text border border-transparent"
@@ -508,7 +529,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
 
                     {/* Common Event Properties */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className={clsx("grid grid-cols-2", isMobile ? "gap-3" : "gap-4")}>
                         <div>
                             <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('modal.time')}</label>
                             <input
@@ -543,11 +564,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
 
                     {/* Type & Target Row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className={clsx("grid grid-cols-2", isMobile ? "gap-3" : "gap-4")}>
                         {/* Damage Type */}
                         <div>
-                            <label className="block text-app-lg font-medium text-app-text mb-2">{t('modal.damage_type')}</label>
-                            <div className="flex gap-2">
+                            <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.damage_type')}</label>
+                            <div className={clsx("flex", isMobile ? "gap-1.5" : "gap-2")}>
                                 {[
                                     { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
                                     { type: 'physical', icon: '/icons/type_phys.png', label: t('modal.physical') },
@@ -557,17 +578,18 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         key={item.type}
                                         type="button"
                                         onClick={() => setDamageType(item.type as any)}
-                                        className={`
-                                            relative group p-1.5 rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all h-[52px] cursor-pointer
-                                            ${damageType === item.type
+                                        className={clsx(
+                                            "relative group rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all cursor-pointer",
+                                            isMobile ? "p-1 h-[44px]" : "p-1.5 h-[52px]",
+                                            damageType === item.type
                                                 ? 'border-app-text bg-app-text/10'
-                                                : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'}
-                                        `}
+                                                : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'
+                                        )}
                                     >
                                         <Tooltip content={item.label}>
-                                            <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
+                                            <img src={item.icon} alt={item.label} className={clsx("object-contain opacity-90 group-hover:opacity-100 transition-opacity", isMobile ? "w-4 h-4" : "w-5 h-5")} />
                                         </Tooltip>
-                                        <span className={`text-app-sm font-bold ${damageType === item.type ? 'text-app-text' : 'text-app-text group-hover:text-app-text'}`}>
+                                        <span className={clsx("font-bold", isMobile ? "text-app-xs" : "text-app-sm", damageType === item.type ? 'text-app-text' : 'text-app-text group-hover:text-app-text')}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -577,8 +599,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                         {/* Target Selection */}
                         <div>
-                            <label className="block text-app-lg font-medium text-app-text mb-2">{t('modal.target')}</label>
-                            <div className="flex gap-2 h-[52px] items-center">
+                            <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.target')}</label>
+                            <div className={clsx("flex items-center", isMobile ? "gap-1.5 h-[44px]" : "gap-2 h-[52px]")}>
                                 {[
                                     { value: 'AoE', label: t('modal.aoe') },
                                     { value: 'MT', label: t('modal.mt') },
@@ -588,12 +610,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         key={t.value}
                                         type="button"
                                         onClick={() => setTarget(t.value as any)}
-                                        className={`
-                                            h-full flex-1 rounded text-app-lg font-medium transition-all border flex items-center justify-center cursor-pointer
-                                            ${target === t.value
+                                        className={clsx(
+                                            "h-full flex-1 rounded font-medium transition-all border flex items-center justify-center cursor-pointer",
+                                            isMobile ? "text-app-base" : "text-app-lg",
+                                            target === t.value
                                                 ? 'bg-app-text text-app-bg border-app-text'
-                                                : 'bg-app-surface2 border-app-border text-app-text hover:bg-app-surface2'}
-                                        `}
+                                                : 'bg-app-surface2 border-app-border text-app-text hover:bg-app-surface2'
+                                        )}
                                     >
                                         {t.label}
                                     </button>
@@ -603,12 +626,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
 
                     <div className={clsx(
-                        "w-full h-px my-6 transition-colors",
+                        "w-full h-px transition-colors",
+                        isMobile ? "my-3" : "my-6",
                         "bg-app-surface2"
                     )} />
 
                     {/* Dynamic Inputs Area */}
-                    <div className="space-y-6">
+                    <div className={isMobile ? "space-y-4" : "space-y-6"}>
                         {inputMode === 'direct' ? (
                             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                                 <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('modal.damage_amount')}</label>
@@ -625,12 +649,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 />
                             </div>
                         ) : (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className={clsx("animate-in fade-in slide-in-from-bottom-2 duration-300", isMobile ? "space-y-4" : "space-y-6")}>
                                 <div className={clsx(
-                                    "p-5 rounded-xl border shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] transition-colors",
+                                    "rounded-xl border shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] transition-colors",
+                                    isMobile ? "p-3" : "p-5",
                                     "bg-app-surface2 border-app-border"
                                 )}>
-                                    <div className="flex flex-col gap-4">
+                                    <div className={clsx("flex flex-col", isMobile ? "gap-3" : "gap-4")}>
                                         <div>
                                             <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('mechanic_modal.actual_damage')}</label>
                                             <div className="flex gap-2">
@@ -743,7 +768,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
                     {/* Actions */}
                     <div className={clsx(
-                        "flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-6 border-t transition-colors",
+                        "flex justify-between items-center border-t transition-colors",
+                        isMobile ? "flex-col gap-3 pt-3 mt-3" : "flex-col sm:flex-row gap-4 pt-4 mt-6",
                         "border-app-border"
                     )}>
                         {onDelete && initialData ? (
@@ -755,7 +781,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         onClose();
                                     }
                                 }}
-                                className="w-full sm:w-auto px-4 py-2 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-lg flex items-center justify-center gap-1.5 transition-colors text-app-lg font-bold cursor-pointer"
+                                className={clsx(
+                                    "px-4 py-2 text-app-red hover:text-app-red-hover hover:bg-app-red-dim rounded-lg flex items-center justify-center gap-1.5 transition-colors text-app-lg font-bold cursor-pointer",
+                                    isMobile ? "w-full" : "w-full sm:w-auto"
+                                )}
                             >
                                 <Trash2 size={16} />
                                 <span>{t('modal.delete')}</span>
@@ -765,9 +794,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         <button
                             data-tutorial="event-save-btn"
                             type="submit"
-                            className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 bg-app-blue text-white hover:bg-app-blue-hover rounded-lg text-app-2xl font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer"
+                            className={clsx(
+                                "flex items-center justify-center gap-2 bg-app-blue text-white hover:bg-app-blue-hover font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer",
+                                isMobile
+                                    ? "w-full py-3.5 rounded-xl text-app-2xl"
+                                    : "w-full sm:w-auto flex-1 sm:flex-none px-8 py-2.5 rounded-lg text-app-2xl"
+                            )}
                         >
-                            <Save size={16} />
+                            <Save size={isMobile ? 18 : 16} />
                             {t('mechanic_modal.add_button')}
                         </button>
                     </div>
