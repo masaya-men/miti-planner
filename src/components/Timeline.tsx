@@ -2162,6 +2162,37 @@ const Timeline: React.FC = () => {
                                             });
                                         })()}
 
+                                        {/* TL選択モード ハイライトオーバーレイ */}
+                                        {(timelineSelectMode || labelSelectMode) && previewEndTime !== null && (() => {
+                                            const mode = timelineSelectMode || labelSelectMode!;
+                                            const isLabel = !!labelSelectMode;
+                                            const offsetTime = showPreStart ? -10 : 0;
+                                            const startTime = mode.startTime;
+                                            const endTime = previewEndTime + 1; // inclusive: include hovered row
+
+                                            const effectiveStart = Math.max(Math.min(startTime, endTime - 1), offsetTime);
+                                            const effectiveEnd = Math.max(Math.max(startTime + 1, endTime), offsetTime);
+
+                                            const startY = timeToYMap.get(effectiveStart) ?? (Math.max(0, effectiveStart - offsetTime) * pixelsPerSecond);
+                                            const endY = timeToYMap.get(effectiveEnd) ?? (Math.max(0, effectiveEnd - offsetTime) * pixelsPerSecond);
+                                            const top = startY;
+                                            const height = Math.max(0, endY - startY);
+                                            if (height <= 0) return null;
+
+                                            const hasPhases = phases.length > 0;
+                                            return (
+                                                <div
+                                                    className={clsx(
+                                                        "absolute pointer-events-none z-20 border-2 border-app-blue bg-app-blue/10 rounded-sm",
+                                                        isLabel
+                                                            ? (hasPhases ? "hidden md:block left-[60px] w-[50px]" : "left-0 w-[24px] md:left-[60px] md:w-[50px]")
+                                                            : "left-0 w-[24px] md:w-[60px]"
+                                                    )}
+                                                    style={{ top: `${top}px`, height: `${height}px` }}
+                                                />
+                                            );
+                                        })()}
+
                                         {(() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
                                                 showPreStart || (m.time + m.duration > 0)
