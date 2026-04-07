@@ -1,14 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
-import { normalizeLocalizedString } from '../types';
 import { migratePhases } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat } from '../utils/labelMigration';
-
-/** Firestore旧データ(mechanicGroup: string)をLocalizedStringに正規化 */
-const normalizeEvents = (events: TimelineEvent[]): TimelineEvent[] =>
-    events.map(e => e.mechanicGroup ? { ...e, mechanicGroup: normalizeLocalizedString(e.mechanicGroup as any) } : e);
-
 
 import { calculateMemberValues } from '../utils/calculator';
 import {
@@ -241,9 +235,8 @@ export const useMitigationStore = create<MitigationState>()(
                     }));
 
                     const migratedPhases = migratePhases(snapshot.phases ?? []);
-                    const normalizedEvents = normalizeEvents(snapshot.timelineEvents);
                     const labels: Label[] = isLegacyLabelFormat(snapshot as any)
-                        ? migrateLabels(normalizedEvents, migratedPhases)
+                        ? migrateLabels(snapshot.timelineEvents, migratedPhases)
                         : ((snapshot as any).labels ?? []);
 
                     set({
@@ -407,7 +400,7 @@ export const useMitigationStore = create<MitigationState>()(
                 importTimelineEvents: (events, importPhases, importLabels) => {
                     pushHistory();
                     const update: Partial<ReturnType<typeof get>> = {
-                        timelineEvents: normalizeEvents([...events]).sort((a, b) => a.time - b.time),
+                        timelineEvents: [...events].sort((a, b) => a.time - b.time),
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
                     };
                     if (importPhases) {
@@ -883,7 +876,7 @@ export const useMitigationStore = create<MitigationState>()(
                         computedValues: calculateMemberValues(m, currentLevel)
                     }));
                     set({
-                        timelineEvents: normalizeEvents(snapshot.timelineEvents),
+                        timelineEvents: snapshot.timelineEvents,
                         timelineMitigations: snapshot.timelineMitigations,
                         phases: snapshot.phases,
                         labels: snapshot.labels,

@@ -270,36 +270,6 @@ export function useTemplateEditor() {
     [],
   );
 
-  // ギミックグループのフェーズを変更
-  const updatePhaseForGroup = useCallback(
-    (mechanicGroupJa: string, phaseId: number, phaseName: LocalizedString) => {
-      setState((prev) => {
-        // このギミックグループの最初のイベントの時刻を取得
-        const firstEvent = prev.current.find(
-          (ev) => ev.mechanicGroup?.ja === mechanicGroupJa && !prev.deleted.has(ev.id),
-        );
-        if (!firstEvent) return prev;
-
-        const startTimeSec = firstEvent.time;
-        const newPhases = structuredClone(prev.currentPhases);
-
-        // 既存フェーズを探す
-        const existing = newPhases.find((p) => p.id === phaseId);
-        if (existing) {
-          existing.startTimeSec = startTimeSec;
-          existing.name = phaseName;
-        } else {
-          // 新しいフェーズを追加
-          newPhases.push({ id: phaseId, startTimeSec, name: phaseName });
-          newPhases.sort((a, b) => a.startTimeSec - b.startTimeSec);
-        }
-
-        return { ...prev, currentPhases: newPhases, modified: new Set([...prev.modified, '__phases__']) };
-      });
-    },
-    [],
-  );
-
   // クリックした行の時刻でフェーズ境界を追加/更新/削除
   // phaseName が null または全言語空 → そのフェーズ境界を削除
   // phaseName に値あり → その時刻にフェーズ境界を設定
@@ -467,7 +437,6 @@ export function useTemplateEditor() {
     autoFillEnNames,
     replaceAll,
     getSaveData,
-    updatePhaseForGroup,
     setPhaseAtTime,
     addLabel,
     updateLabel,

@@ -171,7 +171,7 @@ describe('convertCsvToEvents', () => {
     expect(phases[0].startTimeSec).toBe(0);
   });
 
-  it('ギミックグループを継承する', () => {
+  it('ギミックグループをlabelsとして生成する', () => {
     const mappings: ColumnMapping[] = [
       { index: 0, type: 'time' },
       { index: 1, type: 'name' },
@@ -182,10 +182,15 @@ describe('convertCsvToEvents', () => {
       { cells: ['0:20', '攻撃2', ''] },
       { cells: ['0:30', '攻撃3', '頭割り'] },
     ];
-    const { events } = convertCsvToEvents(rows, mappings);
-    expect(events[0].mechanicGroup?.ja).toBe('散開');
-    expect(events[1].mechanicGroup?.ja).toBe('散開');
-    expect(events[2].mechanicGroup?.ja).toBe('頭割り');
+    const { events, labels } = convertCsvToEvents(rows, mappings);
+    // mechanicGroupはイベントに設定されない
+    expect(events[0].mechanicGroup).toBeUndefined();
+    expect(events[1].mechanicGroup).toBeUndefined();
+    expect(events[2].mechanicGroup).toBeUndefined();
+    // labelsとして生成される
+    expect(labels).toHaveLength(2);
+    expect(labels[0].name.ja).toBe('散開');
+    expect(labels[1].name.ja).toBe('頭割り');
   });
 });
 
@@ -238,7 +243,6 @@ describe('convertPlanToTemplate', () => {
           damageType: 'magical' as const,
           damageAmount: 50000,
           target: 'AoE' as const,
-          mechanicGroup: { ja: '散開', en: 'Spread' },
         },
       ],
       phases: [{ id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 }],
@@ -247,6 +251,7 @@ describe('convertPlanToTemplate', () => {
     const ev = result.timelineEvents[0];
     expect(ev.name.ja).toBe('テスト');
     expect(ev.damageAmount).toBe(50000);
-    expect(ev.mechanicGroup?.ja).toBe('散開');
+    // mechanicGroupはコピーされない
+    expect(ev.mechanicGroup).toBeUndefined();
   });
 });
