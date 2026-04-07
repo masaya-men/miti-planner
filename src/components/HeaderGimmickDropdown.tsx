@@ -5,56 +5,19 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useThemeStore } from '../store/useThemeStore';
-import type { TimelineEvent, Phase } from '../types';
+import type { Label } from '../types';
 import { getPhaseName } from '../types';
-
-export interface GimmickGroup {
-    ja: string;
-    en: string;
-    startTime: number;
-}
-
-/** timelineEvents + phases からギミック区間リストを算出 */
-export function computeGimmickGroups(events: TimelineEvent[], _phases: Phase[]): GimmickGroup[] {
-    const sorted = [...events].sort((a, b) => a.time - b.time);
-    const groups: GimmickGroup[] = [];
-    let currentJa: string | null = null;
-
-    const flush = () => {
-        if (currentJa) {
-            // en は最初に見つけたイベントのものを保持（computeで別途取得）
-        }
-        currentJa = null;
-    };
-
-    sorted.forEach((ev) => {
-        const mgJa = ev.mechanicGroup?.ja || '';
-
-        // ラベルなしのイベントはスキップ
-        if (!mgJa) return;
-
-        // 異なるラベルが来たらグループを閉じる
-        if (mgJa !== currentJa) {
-            flush();
-            currentJa = mgJa;
-            groups.push({ ja: mgJa, en: ev.mechanicGroup?.en || '', startTime: ev.time });
-        }
-    });
-
-    return groups;
-}
 
 interface HeaderGimmickDropdownProps {
     isOpen: boolean;
     onClose: () => void;
-    events: TimelineEvent[];
-    phases: Phase[];
+    labels: Label[];
     onJump: (time: number) => void;
     triggerRef: React.RefObject<HTMLElement | null>;
 }
 
 export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
-    isOpen, onClose, events, phases, onJump, triggerRef
+    isOpen, onClose, labels, onJump, triggerRef
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
@@ -88,10 +51,10 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
 
     if (!isOpen) return null;
 
-    const groups = computeGimmickGroups(events, phases);
+    const sortedLabels = [...labels].sort((a, b) => a.startTime - b.startTime);
 
-    const handleClick = (group: GimmickGroup) => {
-        onJump(group.startTime);
+    const handleClick = (label: Label) => {
+        onJump(label.startTime);
         onClose();
     };
 
@@ -114,21 +77,21 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
             </div>
 
             <div className="max-h-[300px] overflow-y-auto">
-                {groups.length === 0 ? (
+                {sortedLabels.length === 0 ? (
                     <div className="px-3 py-4 text-center text-app-text-muted text-app-lg">
                         {t('timeline.nav_no_labels')}
                     </div>
                 ) : (
-                    groups.map((group, index) => {
-                        const label = getPhaseName(group, contentLanguage);
-                        const subLabel = contentLanguage === 'en' ? group.ja : group.en;
+                    sortedLabels.map((label) => {
+                        const displayName = getPhaseName(label.name, contentLanguage);
+                        const subLabel = contentLanguage === 'en' ? label.name.ja : label.name.en;
                         return (
                             <button
-                                key={`${group.ja}-${index}`}
-                                onClick={() => handleClick(group)}
+                                key={label.id}
+                                onClick={() => handleClick(label)}
                                 className="w-full px-3 py-2 text-left hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors"
                             >
-                                <div className="text-app-xl text-app-text">{label}</div>
+                                <div className="text-app-xl text-app-text">{displayName}</div>
                                 {subLabel && (
                                     <div className="text-app-sm text-app-text-muted">{subLabel}</div>
                                 )}
