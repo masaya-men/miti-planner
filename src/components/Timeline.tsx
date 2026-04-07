@@ -1466,11 +1466,10 @@ const Timeline: React.FC = () => {
                 if (timelineSelectMode) {
                     setTimelineSelectMode(null);
                     setPreviewEndTime(null);
-                    setIsPhaseModalOpen(true);
                 }
                 if (labelSelectMode) {
                     setLabelSelectMode(null);
-                    setIsLabelModalOpen(true);
+                    setPreviewEndTime(null);
                 }
             }
         };
@@ -2021,27 +2020,14 @@ const Timeline: React.FC = () => {
                                             onTimelineSelect={(time) => {
                                                 if (labelSelectMode) {
                                                     updateLabelEndTime(labelSelectMode.labelId, time);
-                                                    const label = labels.find(l => l.id === labelSelectMode.labelId);
-                                                    if (label) {
-                                                        const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
-                                                        const idx = sorted.findIndex(l => l.id === label.id);
-                                                        const nextLabel = sorted[idx + 1];
-                                                        const effectiveEndTime = time ?? nextLabel?.startTime;
-                                                        setSelectedLabel({ id: label.id, name: label.name, endTime: effectiveEndTime });
-                                                        setIsLabelModalOpen(true);
-                                                    }
                                                     setLabelSelectMode(null);
+                                                    setPreviewEndTime(null);
                                                     return;
                                                 }
                                                 if (timelineSelectMode) {
                                                     updatePhaseEndTime(timelineSelectMode.phaseId, time);
                                                     setTimelineSelectMode(null);
                                                     setPreviewEndTime(null);
-                                                    const phase = phases.find(p => p.id === timelineSelectMode.phaseId);
-                                                    if (phase) {
-                                                        setSelectedPhase({ id: phase.id, name: phase.name, endTime: time });
-                                                        setIsPhaseModalOpen(true);
-                                                    }
                                                 }
                                             }}
                                             onTimelineSelectHover={(time) => {
@@ -2140,7 +2126,7 @@ const Timeline: React.FC = () => {
                                                     <div
                                                         key={`label-${label.id}`}
                                                         className={clsx(
-                                                            "absolute border-r border-b border-app-border/50 bg-app-surface2/50 pointer-events-none z-10",
+                                                            "absolute border-r border-b border-app-border/50 bg-app-surface2 pointer-events-none z-10",
                                                             hasPhases
                                                                 ? "hidden md:block left-[60px] w-[50px]"
                                                                 : "left-0 w-[24px] md:left-[60px] md:w-[50px]"
@@ -3127,11 +3113,10 @@ const Timeline: React.FC = () => {
                             if (timelineSelectMode) {
                                 setTimelineSelectMode(null);
                                 setPreviewEndTime(null);
-                                setIsPhaseModalOpen(true);
                             }
                             if (labelSelectMode) {
                                 setLabelSelectMode(null);
-                                setIsLabelModalOpen(true);
+                                setPreviewEndTime(null);
                             }
                         }}
                         className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
