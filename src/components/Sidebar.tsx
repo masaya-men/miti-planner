@@ -146,12 +146,18 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                 return;
                             }
                             if (multiSelect.isEnabled) {
-                                if (contentPlans.length === 1 && !isDisabled) {
-                                    onToggleSelect(contentPlans[0].id);
-                                } else if (contentPlans.length === 0) {
+                                if (contentPlans.length === 0) {
                                     // プラン0件 → 選択不可
                                 } else {
-                                    setIsExpanded(v => !v);
+                                    // コンテンツ内の全プランをトグル
+                                    const planIds = contentPlans.map(p => p.id);
+                                    const allSelected = planIds.every(id => multiSelect.selectedIds.includes(id));
+                                    if (allSelected) {
+                                        planIds.forEach(id => onToggleSelect(id));
+                                    } else {
+                                        planIds.filter(id => !multiSelect.selectedIds.includes(id)).forEach(id => onToggleSelect(id));
+                                    }
+                                    if (!allSelected) setIsExpanded(true);
                                 }
                             } else if (contentPlans.length > 0) {
                                 // プランあり → サブアイテムをトグル展開
@@ -188,23 +194,30 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                         </div>
 
                         {multiSelect.isEnabled && (
-                            <div className="flex items-center justify-center shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
-                                {contentPlans.length <= 1 ? (
-                                    // 0〜1件: コンテンツ行にチェックボックス
-                                    contentPlans.length === 1 && multiSelect.selectedIds.includes(contentPlans[0].id)
-                                        ? <CheckSquare size={16} className="text-app-text" />
-                                        : contentPlans.length === 0
-                                            ? <Square size={16} className="text-app-text-muted/20" />
-                                            : <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
-                                ) : (
-                                    // 2件以上: 選択数表示
-                                    <span className="text-app-sm font-bold text-app-text-muted">
-                                        {contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length > 0
-                                            ? `${contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length}/${contentPlans.length}`
-                                            : `${contentPlans.length}件`
-                                        }
-                                    </span>
-                                )}
+                            <div className="flex items-center gap-1.5 shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-left-2 self-center">
+                                {(() => {
+                                    if (contentPlans.length === 0) {
+                                        return <Square size={16} className="text-app-text-muted/20" />;
+                                    }
+                                    const selectedCount = contentPlans.filter(p => multiSelect.selectedIds.includes(p.id)).length;
+                                    const allSelected = selectedCount === contentPlans.length;
+                                    return (
+                                        <>
+                                            {allSelected ? (
+                                                <CheckSquare size={16} className="text-app-text" />
+                                            ) : selectedCount > 0 ? (
+                                                <CheckSquare size={16} className="text-app-text opacity-50" />
+                                            ) : (
+                                                <Square size={16} className="text-app-text-muted/40 group-hover:text-app-text-muted" />
+                                            )}
+                                            {contentPlans.length > 1 && selectedCount > 0 && (
+                                                <span className="text-app-xs font-bold text-app-text-muted">
+                                                    {selectedCount}/{contentPlans.length}
+                                                </span>
+                                            )}
+                                        </>
+                                    );
+                                })()}
                             </div>
                         )}
 
