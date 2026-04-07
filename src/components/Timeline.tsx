@@ -589,6 +589,7 @@ const Timeline: React.FC = () => {
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
     const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number } | null>(null);
     const [previewEndTime, setPreviewEndTime] = useState<number | null>(null);
+    const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number } } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<{ startTime: number; label: { ja: string; en: string } } | null>(null);
@@ -2019,9 +2020,10 @@ const Timeline: React.FC = () => {
                                         )}
 
                                         {/* フェーズオーバーレイ */}
-                                        {!phaseColumnCollapsed && phases.map((phase, index) => {
-                                            const offsetTime = showPreStart ? -10 : 0;
+                                        {!phaseColumnCollapsed && (() => {
                                             const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+                                            return sorted.map((phase, index) => {
+                                            const offsetTime = showPreStart ? -10 : 0;
                                             const startTime = phase.startTime;
                                             const nextPhase = sorted[index + 1];
                                             const endTime = phase.endTime ?? nextPhase?.startTime ?? (Math.max(...timelineEvents.map(e => e.time), 0) + 10);
@@ -2040,7 +2042,10 @@ const Timeline: React.FC = () => {
                                                     key={phase.id}
                                                     className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
-                                                    onClick={(e) => handlePhaseEdit(phase, e)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setPhasePopover({ phase, position: { x: e.clientX, y: e.clientY } });
+                                                    }}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
@@ -2061,7 +2066,8 @@ const Timeline: React.FC = () => {
                                                     </Tooltip>
                                                 </div>
                                             );
-                                        })}
+                                        });
+                                        })()}
 
                                         {/* ギミック区間オーバーレイ（PC only） */}
                                         {!phaseColumnCollapsed && (() => {
@@ -2818,6 +2824,66 @@ const Timeline: React.FC = () => {
                     </button>
                 </div>
             </MobileBottomSheet>
+            {phasePopover && createPortal(
+                <div
+                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    onClick={() => setPhasePopover(null)}
+                >
+                    <div
+                        className={clsx(
+                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
+                            "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
+                            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
+                            "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
+                        )}
+                        style={{
+                            ...(window.innerWidth >= 768 ? {
+                                left: Math.min(phasePopover.position.x, window.innerWidth - 220),
+                                top: Math.min(phasePopover.position.y, window.innerHeight - 200),
+                                transform: 'none',
+                                position: 'absolute',
+                            } : {})
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => {
+                                handlePhaseEdit(phasePopover.phase, { stopPropagation: () => {}, clientX: phasePopover.position.x, clientY: phasePopover.position.y } as React.MouseEvent);
+                                setPhasePopover(null);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer text-app-text hover:bg-app-surface2"
+                        >
+                            <Pencil size={15} className="text-app-text shrink-0" />
+                            <span>{t('timeline.phase_edit')}</span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                setPhasePopover(null);
+                                setPhaseModalPosition(phasePopover.position);
+                                setSelectedPhaseTime(phasePopover.phase.startTime);
+                                setSelectedPhase(null);
+                                setIsPhaseModalOpen(true);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer text-app-text hover:bg-app-surface2"
+                        >
+                            <Plus size={15} className="text-app-text shrink-0" />
+                            <span>{t('timeline.phase_add_here')}</span>
+                        </button>
+                        <div className="h-px mx-3 my-1 bg-app-border" />
+                        <button
+                            onClick={() => {
+                                removePhase(phasePopover.phase.id);
+                                setPhasePopover(null);
+                            }}
+                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-red-500 hover:bg-red-500/10"
+                        >
+                            <Trash2 size={15} className="shrink-0" />
+                            <span>{t('timeline.phase_delete')}</span>
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
             {eventPopover && createPortal(
                 <div
                     className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"

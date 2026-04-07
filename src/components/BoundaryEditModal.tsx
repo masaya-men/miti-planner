@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Trash2, Crosshair } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useThemeStore } from '../store/useThemeStore';
 import type { LocalizedString } from '../types';
 
 interface BoundaryEditModalProps {
@@ -39,11 +40,10 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 }) => {
     const { t } = useTranslation();
     useEscapeClose(isOpen, onClose);
+    const { contentLanguage } = useThemeStore();
 
-    const [nameJa, setNameJa] = useState('');
-    const [nameEn, setNameEn] = useState('');
-    const [nameZh, setNameZh] = useState('');
-    const [nameKo, setNameKo] = useState('');
+    const [nameInput, setNameInput] = useState('');
+    const [preservedName, setPreservedName] = useState<LocalizedString>({ ja: '', en: '' });
     const [endTimeInput, setEndTimeInput] = useState('');
     const [isMobile, setIsMobile] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -59,40 +59,40 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     useEffect(() => {
         if (isOpen && initial) {
-            setNameJa(initial.name.ja || '');
-            setNameEn(initial.name.en || '');
-            setNameZh(initial.name.zh || '');
-            setNameKo(initial.name.ko || '');
+            setPreservedName(initial.name);
+            const langValue = initial.name[contentLanguage as keyof LocalizedString] || initial.name.ja || initial.name.en || '';
+            setNameInput(langValue);
             setEndTimeInput(initial.endTime !== undefined ? formatTime(initial.endTime) : '');
         } else if (isOpen) {
-            setNameJa(''); setNameEn(''); setNameZh(''); setNameKo('');
+            setPreservedName({ ja: '', en: '' });
+            setNameInput('');
             setEndTimeInput('');
         }
-    }, [isOpen, initial]);
+    }, [isOpen, initial, contentLanguage]);
 
     if (!mounted) return null;
 
+    const buildName = (): LocalizedString => {
+        const name = { ...preservedName };
+        const lang = contentLanguage as keyof LocalizedString;
+        (name as any)[lang] = nameInput.trim();
+        // Ensure ja and en always exist
+        if (!name.ja) name.ja = '';
+        if (!name.en) name.en = '';
+        return name;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const name: LocalizedString = {
-            ja: nameJa.trim(), en: nameEn.trim(),
-            ...(nameZh.trim() ? { zh: nameZh.trim() } : {}),
-            ...(nameKo.trim() ? { ko: nameKo.trim() } : {}),
-        };
         const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-        onSave(name, endTime);
+        onSave(buildName(), endTime);
         onClose();
     };
 
     const handleBackdropClick = () => {
-        if (nameJa.trim() || nameEn.trim()) {
-            const name: LocalizedString = {
-                ja: nameJa.trim(), en: nameEn.trim(),
-                ...(nameZh.trim() ? { zh: nameZh.trim() } : {}),
-                ...(nameKo.trim() ? { ko: nameKo.trim() } : {}),
-            };
+        if (nameInput.trim()) {
             const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-            onSave(name, endTime);
+            onSave(buildName(), endTime);
         }
         onClose();
     };
@@ -134,31 +134,11 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div className="space-y-2">
-                                <div>
-                                    <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_ja')}</label>
-                                    <input type="text" value={nameJa} onChange={(e) => setNameJa(e.target.value)}
-                                        className="w-full bg-app-surface2 border border-app-border rounded-lg p-2 text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
-                                        placeholder={t('boundary_modal.name_ja_placeholder')} autoFocus />
-                                </div>
-                                <div>
-                                    <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_en')}</label>
-                                    <input type="text" value={nameEn} onChange={(e) => setNameEn(e.target.value)}
-                                        className="w-full bg-app-surface2 border border-app-border rounded-lg p-2 text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
-                                        placeholder={t('boundary_modal.name_en_placeholder')} />
-                                </div>
-                                <div>
-                                    <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_zh')}</label>
-                                    <input type="text" value={nameZh} onChange={(e) => setNameZh(e.target.value)}
-                                        className="w-full bg-app-surface2 border border-app-border rounded-lg p-2 text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
-                                        placeholder={t('boundary_modal.name_zh_placeholder')} />
-                                </div>
-                                <div>
-                                    <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_ko')}</label>
-                                    <input type="text" value={nameKo} onChange={(e) => setNameKo(e.target.value)}
-                                        className="w-full bg-app-surface2 border border-app-border rounded-lg p-2 text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
-                                        placeholder={t('boundary_modal.name_ko_placeholder')} />
-                                </div>
+                            <div>
+                                <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.name_label')}</label>
+                                <input type="text" value={nameInput} onChange={(e) => setNameInput(e.target.value)}
+                                    className="w-full bg-app-surface2 border border-app-border rounded-lg p-2.5 text-app-2xl text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                    placeholder={t('boundary_modal.name_placeholder')} autoFocus />
                             </div>
 
                             {isEdit && (
