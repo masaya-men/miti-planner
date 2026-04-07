@@ -40,6 +40,7 @@ import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
+import { showToast } from './Toast';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -774,6 +775,21 @@ const Timeline: React.FC = () => {
             window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
             window.removeEventListener('timeline:party-settings', handlePartySettings);
         };
+    }, []);
+
+    // スマホ初回表示時に長押しヒントを表示（一度だけ）
+    useEffect(() => {
+        const HINT_KEY = 'lopo-mobile-longpress-hint-shown';
+        if (!isMobileView) return;
+        if (useTutorialStore.getState().isActive) return;
+        if (localStorage.getItem(HINT_KEY)) return;
+        const timer = setTimeout(() => {
+            if (useTutorialStore.getState().isActive) return;
+            showToast(t('app.mobile_long_press_hint'), 'info');
+            localStorage.setItem(HINT_KEY, '1');
+        }, 2000);
+        return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // プラン切替時にスクロール位置をトップにリセット
