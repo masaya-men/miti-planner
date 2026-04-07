@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData, LocalizedString } from '../types';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
 import { normalizeLocalizedString } from '../types';
 import { migratePhases } from '../utils/phaseMigration';
+import { migrateLabels, isLegacyLabelFormat } from '../utils/labelMigration';
 
 /** Firestore旧データ(mechanicGroup: string)をLocalizedStringに正規化 */
 const normalizeEvents = (events: TimelineEvent[]): TimelineEvent[] =>
@@ -32,6 +33,7 @@ interface HistorySnapshot {
     timelineMitigations: AppliedMitigation[];
     timelineEvents: TimelineEvent[];
     phases: Phase[];
+    labels: Label[];
     partyMembers: PartyMember[];
 }
 
@@ -40,6 +42,7 @@ export interface TutorialSnapshot {
     timelineEvents: TimelineEvent[];
     timelineMitigations: AppliedMitigation[];
     phases: Phase[];
+    labels: Label[];
     partyMembers: PartyMember[];
     myMemberId: string | null;
     myJobHighlight: boolean;
@@ -51,6 +54,7 @@ interface MitigationState {
     partyMembers: PartyMember[];
     timelineEvents: TimelineEvent[];
     phases: Phase[];
+    labels: Label[];
     timelineMitigations: AppliedMitigation[];
     aaSettings: AASettings;
     schAetherflowPatterns: Record<string, 1 | 2>;
@@ -81,12 +85,10 @@ interface MitigationState {
     updatePhase: (id: string, name: LocalizedString) => void;
     removePhase: (id: string) => void;
     updatePhaseEndTime: (id: string, newEndTime: number) => void;
-    /** ラベル（mechanicGroup）を指定時刻から次の境界まで設定 */
-    setLabelFromTime: (time: number, label: LocalizedString) => void;
-    /** 指定時刻のラベルセクションを更新 */
-    updateLabelSection: (sectionStartTime: number, label: LocalizedString) => void;
-    /** 指定時刻のラベルセクションを削除 */
-    removeLabelSection: (sectionStartTime: number) => void;
+    addLabel: (startTime: number, name: LocalizedString) => void;
+    updateLabel: (id: string, name: LocalizedString) => void;
+    removeLabel: (id: string) => void;
+    updateLabelEndTime: (id: string, newEndTime: number) => void;
     addMitigation: (mitigation: AppliedMitigation) => void;
     removeMitigation: (id: string) => void;
     updateMitigationTime: (id: string, newTime: number) => void;
@@ -94,7 +96,7 @@ interface MitigationState {
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
     /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */
-    importTimelineEvents: (events: TimelineEvent[], importPhases?: { id: number; startTimeSec: number; name: LocalizedString }[]) => void;
+    importTimelineEvents: (events: TimelineEvent[], importPhases?: { id: number; startTimeSec: number; name: LocalizedString }[], importLabels?: Label[]) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
     /** 👇追加：複数のメンバーのジョブ変更を一括で適用する（履歴は1回だけ保存） */
@@ -179,6 +181,7 @@ export const useMitigationStore = create<MitigationState>()(
                     timelineMitigations: [...state.timelineMitigations],
                     timelineEvents: [...state.timelineEvents],
                     phases: [...state.phases],
+                    labels: [...state.labels],
                     partyMembers: [...state.partyMembers]
                 };
                 const newHistory = [...state._history, snapshot].slice(-MAX_HISTORY);
@@ -197,6 +200,7 @@ export const useMitigationStore = create<MitigationState>()(
                 partyMembers: initialMembers,
                 timelineEvents: [],
                 phases: [],
+                labels: [],
                 timelineMitigations: [],
                 aaSettings: {
                     damage: 0,
@@ -222,6 +226,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineEvents: state.timelineEvents,
                         timelineMitigations: state.timelineMitigations,
                         phases: state.phases,
+                        labels: state.labels,
                         partyMembers: state.partyMembers,
                         aaSettings: state.aaSettings,
                         schAetherflowPatterns: state.schAetherflowPatterns,
@@ -235,11 +240,18 @@ export const useMitigationStore = create<MitigationState>()(
                         computedValues: calculateMemberValues(m, snapshot.currentLevel)
                     }));
 
+                    const migratedPhases = migratePhases(snapshot.phases ?? []);
+                    const normalizedEvents = normalizeEvents(snapshot.timelineEvents);
+                    const labels: Label[] = isLegacyLabelFormat(snapshot as any)
+                        ? migrateLabels(normalizedEvents, migratedPhases)
+                        : ((snapshot as any).labels ?? []);
+
                     set({
                         currentLevel: snapshot.currentLevel,
-                        timelineEvents: normalizeEvents(snapshot.timelineEvents),
+                        timelineEvents: normalizedEvents,
                         timelineMitigations: snapshot.timelineMitigations,
-                        phases: migratePhases(snapshot.phases ?? []),
+                        phases: migratedPhases,
+                        labels,
                         partyMembers: membersWithComputed,
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,
@@ -262,6 +274,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineMitigations: state.timelineMitigations,
                         timelineEvents: state.timelineEvents,
                         phases: state.phases,
+                        labels: state.labels,
                         partyMembers: state.partyMembers
                     };
                     return {
@@ -270,6 +283,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineMitigations: previous.timelineMitigations,
                         timelineEvents: previous.timelineEvents,
                         phases: previous.phases,
+                        labels: previous.labels,
                         partyMembers: previous.partyMembers,
                     };
                 }),
@@ -283,6 +297,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineMitigations: state.timelineMitigations,
                         timelineEvents: state.timelineEvents,
                         phases: state.phases,
+                        labels: state.labels,
                         partyMembers: state.partyMembers
                     };
                     return {
@@ -291,6 +306,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineMitigations: next.timelineMitigations,
                         timelineEvents: next.timelineEvents,
                         phases: next.phases,
+                        labels: next.labels,
                         partyMembers: next.partyMembers,
                     };
                 }),
@@ -388,7 +404,7 @@ export const useMitigationStore = create<MitigationState>()(
                     useTutorialStore.getState().completeEvent('event:saved');
                 },
 
-                importTimelineEvents: (events, importPhases) => {
+                importTimelineEvents: (events, importPhases, importLabels) => {
                     pushHistory();
                     const update: Partial<ReturnType<typeof get>> = {
                         timelineEvents: normalizeEvents([...events]).sort((a, b) => a.time - b.time),
@@ -402,6 +418,9 @@ export const useMitigationStore = create<MitigationState>()(
                                 name: p.name,
                                 startTime: p.startTimeSec,
                             }));
+                    }
+                    if (importLabels) {
+                        update.labels = importLabels;
                     }
                     set(update as any);
                     // Tutorial: notify that timeline content has been loaded
@@ -459,9 +478,7 @@ export const useMitigationStore = create<MitigationState>()(
                         const idx = sorted.findIndex(p => p.id === id);
                         if (idx < 0) return {};
                         const nextPhase = sorted[idx + 1];
-                        // 次のフェーズのstartTimeを超えないようクリップ
                         const clipped = nextPhase ? Math.min(newEndTime, nextPhase.startTime) : newEndTime;
-                        // 自分のstartTime以下にはしない
                         const final = Math.max(clipped, sorted[idx].startTime + 1);
                         return {
                             phases: state.phases.map(p => p.id === id ? { ...p, endTime: final } : p)
@@ -469,100 +486,35 @@ export const useMitigationStore = create<MitigationState>()(
                     });
                 },
 
-                setLabelFromTime: (time, label) => {
+                addLabel: (startTime, name) => {
+                    const exists = get().labels.some(l => l.startTime === startTime);
+                    if (exists) return;
                     pushHistory();
                     set((state) => {
-                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
-                        // フェーズ開始時刻を算出（クリック地点が属するフェーズの先頭）
-                        const phaseBoundaries = state.phases.map(p => p.startTime).sort((a, b) => a - b);
-                        // このtimeより前のフェーズ境界 = フェーズ開始
-                        const phaseStart = [...phaseBoundaries].reverse().find(t => t !== undefined && t <= time) ?? 0;
-
-                        // 下から遡って最初に別ラベルに当たったらそこで止める
-                        const eventsInRange = sorted.filter(ev => ev.time >= phaseStart && ev.time <= time);
-                        let stopTime = phaseStart;
-                        for (let i = eventsInRange.length - 1; i >= 0; i--) {
-                            const ev = eventsInRange[i];
-                            if (ev.mechanicGroup?.ja && ev.mechanicGroup.ja !== label.ja) {
-                                stopTime = ev.time + 1; // この時刻のイベントは含めない
-                                break;
-                            }
-                        }
-
-                        const finalUpdated = sorted.map(ev => {
-                            if (ev.time > time) return ev;
-                            if (ev.time < stopTime) return ev;
-                            return { ...ev, mechanicGroup: label };
-                        });
-                        return { timelineEvents: finalUpdated };
+                        const newLabel: Label = { id: crypto.randomUUID(), name, startTime };
+                        return { labels: [...state.labels, newLabel].sort((a, b) => a.startTime - b.startTime) };
                     });
                 },
 
-                updateLabelSection: (sectionStartTime, label) => {
+                updateLabel: (id, name) => {
                     pushHistory();
-                    set((state) => {
-                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
-                        // セクションの元ラベルを取得
-                        const origin = sorted.find(ev => ev.time >= sectionStartTime && ev.mechanicGroup?.ja);
-                        if (!origin?.mechanicGroup) return {};
-                        const oldJa = origin.mechanicGroup.ja;
-
-                        const phaseEnd = state.phases
-                            .map(p => p.startTime)
-                            .sort((a, b) => a - b)
-                            .find(t => t > sectionStartTime) ?? Infinity;
-
-                        let inSection = false;
-                        const updated = sorted.map(ev => {
-                            if (ev.time >= phaseEnd) { inSection = false; return ev; }
-                            if (ev.mechanicGroup?.ja === oldJa && ev.time >= sectionStartTime) {
-                                inSection = true;
-                                return { ...ev, mechanicGroup: label };
-                            }
-                            if (inSection && !ev.mechanicGroup?.ja) {
-                                return { ...ev, mechanicGroup: label };
-                            }
-                            if (inSection && ev.mechanicGroup?.ja !== oldJa) {
-                                inSection = false;
-                            }
-                            return ev;
-                        });
-                        return { timelineEvents: updated };
-                    });
+                    set((state) => ({
+                        labels: state.labels.map(l => l.id === id ? { ...l, name } : l)
+                    }));
                 },
 
-                removeLabelSection: (sectionStartTime) => {
+                removeLabel: (id) => {
                     pushHistory();
-                    set((state) => {
-                        const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
-                        const origin = sorted.find(ev => ev.time >= sectionStartTime && ev.mechanicGroup?.ja);
-                        if (!origin?.mechanicGroup) return {};
-                        const oldJa = origin.mechanicGroup.ja;
+                    set((state) => ({
+                        labels: state.labels.filter(l => l.id !== id)
+                    }));
+                },
 
-                        const phaseEnd = state.phases
-                            .map(p => p.startTime)
-                            .sort((a, b) => a - b)
-                            .find(t => t > sectionStartTime) ?? Infinity;
-
-                        let inSection = false;
-                        const updated = sorted.map(ev => {
-                            if (ev.time >= phaseEnd) { inSection = false; return ev; }
-                            if (ev.mechanicGroup?.ja === oldJa && ev.time >= sectionStartTime) {
-                                inSection = true;
-                                const { mechanicGroup, ...rest } = ev;
-                                return rest as TimelineEvent;
-                            }
-                            if (inSection && !ev.mechanicGroup?.ja) {
-                                const { mechanicGroup, ...rest } = ev;
-                                return rest as TimelineEvent;
-                            }
-                            if (inSection && ev.mechanicGroup?.ja !== oldJa) {
-                                inSection = false;
-                            }
-                            return ev;
-                        });
-                        return { timelineEvents: updated };
-                    });
+                updateLabelEndTime: (id, newEndTime) => {
+                    pushHistory();
+                    set((state) => ({
+                        labels: state.labels.map(l => l.id === id ? { ...l, endTime: newEndTime } : l)
+                    }));
                 },
 
                 addMitigation: (mitigation) => {
@@ -913,6 +865,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineEvents: [],
                         timelineMitigations: [],
                         phases: [],
+                        labels: [],
                         partyMembers: freshMembers,
                         myMemberId: null,
                         myJobHighlight: false,
@@ -933,6 +886,7 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineEvents: normalizeEvents(snapshot.timelineEvents),
                         timelineMitigations: snapshot.timelineMitigations,
                         phases: snapshot.phases,
+                        labels: snapshot.labels,
                         partyMembers: membersWithComputed,
                         myMemberId: snapshot.myMemberId,
                         myJobHighlight: snapshot.myJobHighlight,
@@ -966,6 +920,7 @@ export const useMitigationStore = create<MitigationState>()(
                 timelineEvents: state.timelineEvents,
                 timelineMitigations: state.timelineMitigations,
                 phases: state.phases,
+                labels: state.labels,
                 partyMembers: state.partyMembers,
                 schAetherflowPatterns: state.schAetherflowPatterns,
                 aaSettings: state.aaSettings,
