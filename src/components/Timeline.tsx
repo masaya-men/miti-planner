@@ -2069,19 +2069,6 @@ const Timeline: React.FC = () => {
                                             const allSorted = [...timelineEvents].sort((a, b) => a.time - b.time);
                                             if (!allSorted.some(e => e.mechanicGroup)) return null;
 
-                                            // DEBUG: ラベル分裂調査用ログ
-                                            if (typeof window !== 'undefined' && (window as any).__DEBUG_LABELS) {
-                                                console.group('🏷️ mechanicGroup dump');
-                                                allSorted.forEach((ev, i) => {
-                                                    if (ev.mechanicGroup) {
-                                                        console.log(`[${i}] time=${ev.time} name="${ev.name?.ja}" mg="${ev.mechanicGroup.ja}" en="${ev.mechanicGroup.en}"`);
-                                                    } else {
-                                                        console.log(`[${i}] time=${ev.time} name="${ev.name?.ja}" mg=NONE`);
-                                                    }
-                                                });
-                                                console.groupEnd();
-                                                (window as any).__DEBUG_LABELS = false; // 1回だけ出力
-                                            }
 
                                             // フェーズ境界の時刻リストを作成
 

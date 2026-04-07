@@ -20,7 +20,7 @@ interface TemplateEditorProps {
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdateLabel: (mechanicGroupJa: string, newLabel: LocalizedString) => void;
+  onUpdateLabel: (mechanicGroupJa: string, newLabel: LocalizedString, eventId?: string) => void;
   onSetPhaseAtTime: (timeSec: number, phaseName: LocalizedString | null) => void;
   selectedIds: Set<string>;
   onToggleSelect: (eventId: string) => void;
@@ -630,7 +630,7 @@ export function TemplateEditor({
           ko: t('admin.tpl_label_name_ko'),
         }}
         onApply={(value) => {
-          onUpdateLabel(editingLabel.mechanicGroupJa, value);
+          onUpdateLabel(editingLabel.mechanicGroupJa, value, editingLabel.eventId);
           setEditingLabel(null);
         }}
         onCancel={() => setEditingLabel(null)}

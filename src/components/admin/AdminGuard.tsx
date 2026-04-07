@@ -10,6 +10,11 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, loading, isAdmin } = useAuthStore();
   const { t } = useTranslation();
 
+  // 開発環境でのみ管理画面ガードをバイパス（VITE_DEV_ADMIN=true）
+  if (import.meta.env.DEV && import.meta.env.VITE_DEV_ADMIN === 'true') {
+    return <>{children}</>;
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-app-bg text-app-text">
