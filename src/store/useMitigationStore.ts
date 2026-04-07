@@ -241,7 +241,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                     set({
                         currentLevel: snapshot.currentLevel,
-                        timelineEvents: normalizedEvents,
+                        timelineEvents: snapshot.timelineEvents,
                         timelineMitigations: snapshot.timelineMitigations,
                         phases: migratedPhases,
                         labels,
