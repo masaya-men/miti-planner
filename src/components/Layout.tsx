@@ -58,6 +58,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { myJobHighlight, setMyJobHighlight } = useMitigationStore(
         useShallow(s => ({ myJobHighlight: s.myJobHighlight, setMyJobHighlight: s.setMyJobHighlight }))
     );
+    const hideEmptyRows = useMitigationStore(s => s.hideEmptyRows);
 
     // モバイル判定（md: 768px）
     const [isMobile, setIsMobile] = React.useState(() =>
@@ -615,6 +616,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <MobileFAB
                     onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                     theme={theme}
+                    onToggleExpand={() => {
+                        const store = useMitigationStore.getState();
+                        store.setHideEmptyRows(!store.hideEmptyRows);
+                    }}
+                    hideEmptyRows={hideEmptyRows}
                 />
             )}
 
