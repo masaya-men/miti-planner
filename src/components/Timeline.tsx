@@ -8,7 +8,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
-import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase } from '../types';
+import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
@@ -36,7 +36,6 @@ import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
 import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
-import { LabelModal } from './LabelModal';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 
@@ -571,9 +570,11 @@ const Timeline: React.FC = () => {
     const updatePhase = useMitigationStore(s => s.updatePhase);
     const removePhase = useMitigationStore(s => s.removePhase);
     const updatePhaseEndTime = useMitigationStore(s => s.updatePhaseEndTime);
-    const setLabelFromTime = useMitigationStore(s => s.setLabelFromTime);
-    const updateLabelSection = useMitigationStore(s => s.updateLabelSection);
-    const removeLabelSection = useMitigationStore(s => s.removeLabelSection);
+    const labels = useMitigationStore(s => s.labels);
+    const addLabel = useMitigationStore(s => s.addLabel);
+    const updateLabel = useMitigationStore(s => s.updateLabel);
+    const removeLabel = useMitigationStore(s => s.removeLabel);
+    const updateLabelEndTime = useMitigationStore(s => s.updateLabelEndTime);
     const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
 
@@ -592,9 +593,11 @@ const Timeline: React.FC = () => {
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
-    const [selectedLabel, setSelectedLabel] = useState<{ startTime: number; label: { ja: string; en: string } } | null>(null);
-    const [labelModalTime, setLabelModalTime] = useState<number>(0);
+    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; endTime?: number } | null>(null);
+    const [selectedLabelTime, setSelectedLabelTime] = useState<number>(0);
     const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
+    const [labelPopover, setLabelPopover] = useState<{ label: Label; position: { x: number; y: number }; clickTime: number } | null>(null);
+    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number } | null>(null);
 
     const [mobileMitiFlow, setMobileMitiFlow] = useState<{
         isOpen: boolean;
@@ -948,30 +951,45 @@ const Timeline: React.FC = () => {
     // ラベル追加・編集・削除
     const handleLabelAdd = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
-        setLabelModalPosition({ x: e.clientX, y: e.clientY });
-        setLabelModalTime(time);
-        setSelectedLabel(null);
-        setIsLabelModalOpen(true);
-    }, []);
+        const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
+        const ownerLabel = sorted.slice().reverse().find(l => l.startTime <= time);
+        if (ownerLabel) {
+            setLabelPopover({ label: ownerLabel, position: { x: e.clientX, y: e.clientY }, clickTime: time });
+        } else {
+            setLabelModalPosition({ x: e.clientX, y: e.clientY });
+            setSelectedLabelTime(time);
+            setSelectedLabel(null);
+            setIsLabelModalOpen(true);
+        }
+    }, [labels]);
 
-    const handleLabelEdit = (startTime: number, label: { ja: string; en: string }, e: React.MouseEvent) => {
+    const handleLabelEdit = (label: Label, e: React.MouseEvent) => {
         e.stopPropagation();
         setLabelModalPosition({ x: e.clientX, y: e.clientY });
-        setSelectedLabel({ startTime, label });
+        const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
+        const idx = sorted.findIndex(l => l.id === label.id);
+        const nextLabel = sorted[idx + 1];
+        const effectiveEndTime = label.endTime ?? nextLabel?.startTime;
+        setSelectedLabel({ id: label.id, name: label.name, endTime: effectiveEndTime });
         setIsLabelModalOpen(true);
     };
 
-    const handleLabelSave = (label: { ja: string; en: string }) => {
+    const handleLabelSave = (name: LocalizedString, endTime?: number) => {
         if (selectedLabel) {
-            updateLabelSection(selectedLabel.startTime, label);
+            updateLabel(selectedLabel.id, name);
+            if (endTime !== undefined) {
+                updateLabelEndTime(selectedLabel.id, endTime);
+            }
         } else {
-            setLabelFromTime(labelModalTime, label);
+            if (selectedLabelTime !== undefined) {
+                addLabel(selectedLabelTime, name);
+            }
         }
     };
 
     const handleLabelDelete = () => {
         if (selectedLabel) {
-            removeLabelSection(selectedLabel.startTime);
+            removeLabel(selectedLabel.id);
             setIsLabelModalOpen(false);
         }
     };
@@ -1444,17 +1462,23 @@ const Timeline: React.FC = () => {
     // TL選択モード: Escapeでキャンセル
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && timelineSelectMode) {
-                setTimelineSelectMode(null);
-                setPreviewEndTime(null);
-                setIsPhaseModalOpen(true);
+            if (e.key === 'Escape') {
+                if (timelineSelectMode) {
+                    setTimelineSelectMode(null);
+                    setPreviewEndTime(null);
+                    setIsPhaseModalOpen(true);
+                }
+                if (labelSelectMode) {
+                    setLabelSelectMode(null);
+                    setIsLabelModalOpen(true);
+                }
             }
         };
-        if (timelineSelectMode) {
+        if (timelineSelectMode || labelSelectMode) {
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [timelineSelectMode]);
+    }, [timelineSelectMode, labelSelectMode]);
 
     useEffect(() => {
         if (!clearMenuOpen) return;
@@ -1991,9 +2015,23 @@ const Timeline: React.FC = () => {
                                             onCellClick={handleCellClick}
                                             onMobileDamageClick={handleMobileDamageClick}
                                             phaseColumnCollapsed={phaseColumnCollapsed}
-                                            timelineSelectMode={timelineSelectMode}
+                                            timelineSelectMode={timelineSelectMode ?? (labelSelectMode ? { phaseId: labelSelectMode.labelId, startTime: labelSelectMode.startTime } : null)}
                                             previewEndTime={previewEndTime}
                                             onTimelineSelect={(time) => {
+                                                if (labelSelectMode) {
+                                                    updateLabelEndTime(labelSelectMode.labelId, time);
+                                                    const label = labels.find(l => l.id === labelSelectMode.labelId);
+                                                    if (label) {
+                                                        const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
+                                                        const idx = sorted.findIndex(l => l.id === label.id);
+                                                        const nextLabel = sorted[idx + 1];
+                                                        const effectiveEndTime = time ?? nextLabel?.startTime;
+                                                        setSelectedLabel({ id: label.id, name: label.name, endTime: effectiveEndTime });
+                                                        setIsLabelModalOpen(true);
+                                                    }
+                                                    setLabelSelectMode(null);
+                                                    return;
+                                                }
                                                 if (timelineSelectMode) {
                                                     updatePhaseEndTime(timelineSelectMode.phaseId, time);
                                                     setTimelineSelectMode(null);
@@ -2006,7 +2044,7 @@ const Timeline: React.FC = () => {
                                                 }
                                             }}
                                             onTimelineSelectHover={(time) => {
-                                                if (timelineSelectMode) {
+                                                if (timelineSelectMode || labelSelectMode) {
                                                     setPreviewEndTime(time);
                                                 }
                                             }}
@@ -2069,58 +2107,17 @@ const Timeline: React.FC = () => {
                                         });
                                         })()}
 
-                                        {/* ギミック区間オーバーレイ（PC only） */}
-                                        {!phaseColumnCollapsed && (() => {
+                                        {/* ラベル区間オーバーレイ（PC only） */}
+                                        {!phaseColumnCollapsed && labels.length > 0 && (() => {
                                             const offsetTime = showPreStart ? -10 : 0;
-                                            const allSorted = [...timelineEvents].sort((a, b) => a.time - b.time);
-                                            if (!allSorted.some(e => e.mechanicGroup)) return null;
+                                            const sortedLabels = [...labels].sort((a, b) => a.startTime - b.startTime);
 
+                                            return sortedLabels.map((label, li) => {
+                                                const nextLabel = sortedLabels[li + 1];
+                                                const effectiveEndTime = label.endTime ?? nextLabel?.startTime ?? (gridLines[gridLines.length - 1] ?? label.startTime + 1);
 
-                                            // フェーズ境界の時刻リストを作成
-
-
-                                            const groups: { ja: string; en: string; startTime: number; endTime: number }[] = [];
-                                            let currentGroupJa: string | null = null;
-                                            let currentGroupEn = '';
-                                            let groupStart = 0;
-
-                                            const flushGroup = (endTime: number) => {
-                                                if (currentGroupJa) {
-                                                    groups.push({ ja: currentGroupJa, en: currentGroupEn, startTime: groupStart, endTime });
-                                                }
-                                                currentGroupJa = null;
-                                                currentGroupEn = '';
-                                            };
-
-                                            allSorted.forEach((ev, i) => {
-                                                const mgJa = ev.mechanicGroup?.ja || '';
-
-                                                // ラベルなしのイベントはスキップ（グループを分割しない）
-                                                if (!mgJa) {
-                                                    if (i === allSorted.length - 1 && currentGroupJa) {
-                                                        const lastGridTime = gridLines[gridLines.length - 1] ?? ev.time;
-                                                        flushGroup(Math.max(ev.time + 1, lastGridTime));
-                                                    }
-                                                    return;
-                                                }
-
-                                                // 異なるラベルが来たらグループを閉じる
-                                                if (mgJa !== currentGroupJa) {
-                                                    flushGroup(ev.time);
-                                                    currentGroupJa = mgJa;
-                                                    currentGroupEn = ev.mechanicGroup?.en || '';
-                                                    groupStart = ev.time;
-                                                }
-                                                // 最後のイベント — ラベルをタイムライン末尾まで伸ばす
-                                                if (i === allSorted.length - 1 && currentGroupJa) {
-                                                    const lastGridTime = gridLines[gridLines.length - 1] ?? ev.time;
-                                                    flushGroup(Math.max(ev.time + 1, lastGridTime));
-                                                }
-                                            });
-
-                                            return groups.map((group, gi) => {
-                                                const effectiveStart = Math.max(group.startTime, offsetTime);
-                                                const effectiveEnd = Math.max(group.endTime, offsetTime);
+                                                const effectiveStart = Math.max(label.startTime, offsetTime);
+                                                const effectiveEnd = Math.max(effectiveEndTime, offsetTime);
                                                 if (!showPreStart && effectiveEnd <= 0) return null;
 
                                                 const startY = timeToYMap.get(effectiveStart) ?? (Math.max(0, effectiveStart - offsetTime) * pixelsPerSecond);
@@ -2129,12 +2126,12 @@ const Timeline: React.FC = () => {
                                                 const height = Math.max(0, endY - startY);
                                                 if (height <= 0) return null;
 
-                                                const label = getPhaseName(group, contentLanguage);
-
+                                                const displayName = getPhaseName(label.name, contentLanguage);
                                                 const hasPhases = phases.length > 0;
+
                                                 return (
                                                     <div
-                                                        key={`gimmick-${gi}`}
+                                                        key={`label-${label.id}`}
                                                         className={clsx(
                                                             "absolute border-r border-b border-app-border/50 bg-app-surface2/50 pointer-events-auto z-10 cursor-pointer hover:bg-app-surface2/80",
                                                             hasPhases
@@ -2142,7 +2139,10 @@ const Timeline: React.FC = () => {
                                                                 : "left-0 w-[24px] md:left-[60px] md:w-[50px]"
                                                         )}
                                                         style={{ top: `${top}px`, height: `${height}px` }}
-                                                        onClick={(e) => handleLabelEdit(group.startTime, { ja: group.ja, en: group.en }, e)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setLabelPopover({ label, position: { x: e.clientX, y: e.clientY }, clickTime: label.startTime });
+                                                        }}
                                                     >
                                                         <div className="sticky top-0 w-full h-[100px] flex items-center justify-center pt-4">
                                                             <div className="transform -rotate-90 overflow-visible drop-shadow-sm origin-center">
@@ -2150,7 +2150,7 @@ const Timeline: React.FC = () => {
                                                                     "whitespace-nowrap font-medium text-app-text leading-none",
                                                                     hasPhases ? "text-app-base" : "text-app-xs md:text-app-base"
                                                                 )}>
-                                                                    {label}
+                                                                    {displayName}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -2419,13 +2419,18 @@ const Timeline: React.FC = () => {
                 mode="phase"
                 position={phaseModalPosition}
             />
-            <LabelModal
+            <BoundaryEditModal
                 isOpen={isLabelModalOpen}
                 isEdit={!!selectedLabel}
-                initialLabel={selectedLabel?.label || { ja: '', en: '' }}
+                initial={selectedLabel ? { name: selectedLabel.name, endTime: selectedLabel.endTime } : undefined}
                 onClose={() => setIsLabelModalOpen(false)}
                 onSave={handleLabelSave}
                 onDelete={selectedLabel ? handleLabelDelete : undefined}
+                onStartTimelineSelect={selectedLabel ? () => {
+                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: selectedLabel.endTime ?? 0 });
+                    setIsLabelModalOpen(false);
+                } : undefined}
+                mode="label"
                 position={labelModalPosition}
             />
             <HeaderPhaseDropdown
@@ -2885,6 +2890,67 @@ const Timeline: React.FC = () => {
                 </div>,
                 document.body
             )}
+            {labelPopover && createPortal(
+                <div
+                    className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
+                    onClick={() => setLabelPopover(null)}
+                >
+                    <div
+                        className={clsx(
+                            "min-w-[200px] rounded-xl py-1.5 glass-tier3 glass-panel",
+                            "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]",
+                            "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)]",
+                            "md:static md:absolute md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:w-auto"
+                        )}
+                        style={{
+                            ...(window.innerWidth >= 768 ? {
+                                left: Math.min(labelPopover.position.x, window.innerWidth - 220),
+                                top: Math.min(labelPopover.position.y, window.innerHeight - 200),
+                                transform: 'none',
+                                position: 'absolute',
+                            } : {})
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => {
+                                handleLabelEdit(labelPopover.label, { stopPropagation: () => {}, clientX: labelPopover.position.x, clientY: labelPopover.position.y } as React.MouseEvent);
+                                setLabelPopover(null);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer text-app-text hover:bg-app-surface2"
+                        >
+                            <Pencil size={15} className="text-app-text shrink-0" />
+                            <span>{t('timeline.label_edit')}</span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                const clickTime = labelPopover.clickTime;
+                                setLabelPopover(null);
+                                setLabelModalPosition(labelPopover.position);
+                                setSelectedLabelTime(clickTime);
+                                setSelectedLabel(null);
+                                setIsLabelModalOpen(true);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer text-app-text hover:bg-app-surface2"
+                        >
+                            <Plus size={15} className="text-app-text shrink-0" />
+                            <span>{t('timeline.label_add_here')}</span>
+                        </button>
+                        <div className="h-px mx-3 my-1 bg-app-border" />
+                        <button
+                            onClick={() => {
+                                removeLabel(labelPopover.label.id);
+                                setLabelPopover(null);
+                            }}
+                            className="flex items-center gap-3 mx-1.5 px-3 py-2 text-app-2xl font-medium transition-colors cursor-pointer rounded-lg text-red-500 hover:bg-red-500/10"
+                        >
+                            <Trash2 size={15} className="shrink-0" />
+                            <span>{t('timeline.label_delete')}</span>
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
             {eventPopover && createPortal(
                 <div
                     className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"
@@ -3014,7 +3080,7 @@ const Timeline: React.FC = () => {
                     "bg-app-bg border border-app-blue/30 rounded-2xl",
                     "shadow-[0_8px_32px_rgba(0,0,0,.6)]",
                     "transition-all duration-300",
-                    timelineSelectMode
+                    (timelineSelectMode || labelSelectMode)
                         ? "opacity-100 -translate-x-1/2 translate-y-0 pointer-events-auto"
                         : "opacity-0 -translate-x-1/2 translate-y-10 pointer-events-none"
                 )}>
@@ -3025,9 +3091,15 @@ const Timeline: React.FC = () => {
                     <div className="w-px h-5 bg-app-text/10 shrink-0" />
                     <button
                         onClick={() => {
-                            setTimelineSelectMode(null);
-                            setPreviewEndTime(null);
-                            setIsPhaseModalOpen(true);
+                            if (timelineSelectMode) {
+                                setTimelineSelectMode(null);
+                                setPreviewEndTime(null);
+                                setIsPhaseModalOpen(true);
+                            }
+                            if (labelSelectMode) {
+                                setLabelSelectMode(null);
+                                setIsLabelModalOpen(true);
+                            }
                         }}
                         className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
                     >
