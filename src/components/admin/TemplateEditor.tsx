@@ -486,7 +486,7 @@ export function TemplateEditor({
                   </span>
                 </td>
 
-                {/* ラベル（グループ先頭行のみ表示・編集可能、空でもクリックで追加可能） */}
+                {/* ラベル（グループ先頭行: ラベル名表示・編集、非先頭行: ＋で新境界追加） */}
                 <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
                   {firstInLabelGroup ? (
                     <span
@@ -503,7 +503,21 @@ export function TemplateEditor({
                     >
                       {labelJa || '＋'}
                     </span>
-                  ) : null}
+                  ) : (
+                    <span
+                      onClick={(e) => {
+                        setEditingLabel({
+                          timeSec: event.time,
+                          labelStartTimeSec: event.time,
+                          pos: { x: e.clientX, y: e.clientY },
+                          nameObj: { ja: '', en: '' },
+                        });
+                      }}
+                      className="cursor-pointer text-app-text-muted/20 hover:text-blue-400 transition-colors"
+                    >
+                      ＋
+                    </span>
+                  )}
                 </td>
 
                 {/* 時間 */}

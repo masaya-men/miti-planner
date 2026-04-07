@@ -187,6 +187,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         };
     }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
 
+    // リモートデータ読み込み中フラグ（PULL/マイグレーション時のdirty marking防止）
+    const isRemoteLoadingRef = React.useRef(false);
+
     // 自動保存（2層構造）
     // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
     // Firestore: イベント駆動（ページ離脱 / タブ非表示 / プラン切替時）+ 5分定期バックアップ
@@ -218,14 +221,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             }
         };
 
-        /** Firestoreから最新データを取得（ログイン中のみ） */
+        /** Firestoreから最新データを取得（ログイン中のみ）
+         *  isRemoteLoadingRefでsubscriptionのdirty markingを抑制 */
         const pullFromCloud = () => {
             const authState = useAuthStore.getState();
             if (authState.user) {
+                isRemoteLoadingRef.current = true;
                 usePlanStore.getState().pullFromFirestore(
                     authState.user.uid,
                 ).catch((err) => {
                     console.error('[LoPo] Firestore PULL エラー:', err);
+                }).finally(() => {
+                    isRemoteLoadingRef.current = false;
                 });
             }
         };
@@ -239,6 +246,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 && state.timelineEvents === prevState.timelineEvents
                 && state.phases === prevState.phases
                 && state.partyMembers === prevState.partyMembers) return;
+            // リモートからの読み込み中は保存・同期をスキップ（dirty循環防止）
+            if (isRemoteLoadingRef.current) return;
             // プランが選択されていなければスキップ
             const planIdAtChange = usePlanStore.getState().currentPlanId;
             if (!planIdAtChange) return;
@@ -343,6 +352,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             profileName,
         ).then(() => {
             usePlanStore.setState({ _migrationDone: true });
+            // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
+            // （localStorageのMitigationStoreは古いまま残るためここで強制更新）
+            const { currentPlanId, plans } = usePlanStore.getState();
+            if (currentPlanId) {
+                const plan = plans.find(p => p.id === currentPlanId);
+                if (plan?.data) {
+                    isRemoteLoadingRef.current = true;
+                    useMitigationStore.getState().loadSnapshot(plan.data);
+                    isRemoteLoadingRef.current = false;
+                }
+            }
             // マイグレーション完了後にPULL（リロード時に他端末の変更を確実に取得）
             return planStore.pullFromFirestore(authUser.uid);
         }).catch(() => {
