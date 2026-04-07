@@ -54,7 +54,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
     if (!isOpen) return null;
 
     const handlePhaseClick = (phaseIndex: number) => {
-        const startTime = phaseIndex === 0 ? 0 : phases[phaseIndex - 1].endTime;
+        const startTime = phases[phaseIndex].startTime;
         onJump(startTime);
         onClose();
     };
