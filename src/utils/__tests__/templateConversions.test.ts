@@ -130,7 +130,7 @@ describe('convertCsvToEvents', () => {
       { cells: ['0:10', 'テスト攻撃', '50000'] },
       { cells: ['0:20', '二撃目', '30000'] },
     ];
-    const { events, phases } = convertCsvToEvents(rows, baseMappings);
+    const { events } = convertCsvToEvents(rows, baseMappings);
     expect(events).toHaveLength(2);
     expect(events[0].time).toBe(10);
     expect(events[0].name.ja).toBe('テスト攻撃');
@@ -190,49 +190,27 @@ describe('convertCsvToEvents', () => {
 });
 
 describe('convertPlanToTemplate', () => {
-  it('フェーズ名の改行をストリップする（string型）', () => {
+  it('LocalizedStringのフェーズ名をそのまま使用する', () => {
     const planData = {
       timelineEvents: [] as any[],
       phases: [
-        { id: 'phase_1', name: 'Phase 1\nP1', endTime: 60 },
-        { id: 'phase_2', name: 'Phase 2\n二天竜', endTime: 120 },
+        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
+        { id: 'phase_2', name: { ja: '二天竜', en: 'Twin Dragons' }, startTime: 60 },
       ],
     };
     const result = convertPlanToTemplate(planData, 'test');
-    expect(result.phases[0].name).toBe('P1');
-    expect(result.phases[1].name).toBe('二天竜');
-  });
-
-  it('フェーズ名の改行をストリップする（LocalizedString型）', () => {
-    const planData = {
-      timelineEvents: [] as any[],
-      phases: [
-        {
-          id: 'phase_1',
-          name: { ja: 'Phase 1\n散開', en: 'Phase 1\nSpread' },
-          endTime: 60,
-        },
-      ],
-    };
-    const result = convertPlanToTemplate(planData, 'test');
-    const name = result.phases[0].name as { ja: string; en: string };
-    expect(name.ja).toBe('散開');
-    expect(name.en).toBe('Spread');
-  });
-
-  it('改行なしのフェーズ名はそのまま', () => {
-    const planData = {
-      timelineEvents: [] as any[],
-      phases: [{ id: 'phase_1', name: 'テスト', endTime: 60 }],
-    };
-    const result = convertPlanToTemplate(planData, 'test');
-    expect(result.phases[0].name).toBe('テスト');
+    const name0 = result.phases[0].name as { ja: string; en: string };
+    expect(name0.ja).toBe('P1');
+    expect(name0.en).toBe('P1');
+    const name1 = result.phases[1].name as { ja: string; en: string };
+    expect(name1.ja).toBe('二天竜');
+    expect(name1.en).toBe('Twin Dragons');
   });
 
   it('フェーズIDを数値に変換する', () => {
     const planData = {
       timelineEvents: [] as any[],
-      phases: [{ id: 'phase_3', name: 'P3', endTime: 60 }],
+      phases: [{ id: 'phase_3', name: { ja: 'P3', en: 'P3' }, startTime: 30 }],
     };
     const result = convertPlanToTemplate(planData, 'test');
     expect(result.phases[0].id).toBe(3);
@@ -242,8 +220,8 @@ describe('convertPlanToTemplate', () => {
     const planData = {
       timelineEvents: [] as any[],
       phases: [
-        { id: 'phase_1', name: 'P1', endTime: 60 },
-        { id: 'phase_2', name: 'P2', endTime: 120 },
+        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
+        { id: 'phase_2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
       ],
     };
     const result = convertPlanToTemplate(planData, 'test');
@@ -263,7 +241,7 @@ describe('convertPlanToTemplate', () => {
           mechanicGroup: { ja: '散開', en: 'Spread' },
         },
       ],
-      phases: [{ id: 'phase_1', name: 'P1', endTime: 60 }],
+      phases: [{ id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 }],
     };
     const result = convertPlanToTemplate(planData, 'test');
     const ev = result.timelineEvents[0];

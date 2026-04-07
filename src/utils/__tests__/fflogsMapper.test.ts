@@ -1,5 +1,4 @@
 import { mapFFLogsToTimeline } from '../fflogsMapper';
-import type { MapperResult } from '../fflogsMapper';
 
 const BASE_TIME = 1000000;
 
@@ -63,7 +62,7 @@ describe('mapFFLogsToTimeline', () => {
     const r = mapFFLogsToTimeline([], [], makeFight(), [], [], [], makePlayers());
     expect(r.events).toHaveLength(0);
     expect(r.phases).toHaveLength(1);
-    expect(r.phases[0].name).toBe('P1');
+    expect(r.phases[0].name).toEqual({ ja: '', en: 'P1' });
   });
 
   it('AoE（3人以上被弾）を正しく検出する', () => {
@@ -181,8 +180,8 @@ describe('mapFFLogsToTimeline', () => {
     });
     const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
     expect(r.phases).toHaveLength(2);
-    expect(r.phases[0].name).toBe('Fatebreaker');
-    expect(r.phases[1].name).toBe('Usurper of Frost');
+    expect(r.phases[0].name).toEqual({ ja: '', en: 'Fatebreaker' });
+    expect(r.phases[1].name).toEqual({ ja: '', en: 'Usurper of Frost' });
   });
 
   it('phaseNamesにプレフィックスがない場合はそのまま使用する', () => {
@@ -191,7 +190,7 @@ describe('mapFFLogsToTimeline', () => {
       phaseNames: [{ id: 1, name: 'Phase One' }],
     });
     const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
-    expect(r.phases[0].name).toBe('Phase One');
+    expect(r.phases[0].name).toEqual({ ja: '', en: 'Phase One' });
   });
 
   it('phaseNamesが空の場合、P1/P2にフォールバックする', () => {
@@ -203,7 +202,7 @@ describe('mapFFLogsToTimeline', () => {
       phaseNames: [],
     });
     const r = mapFFLogsToTimeline([], [], fight, [], [], [], makePlayers());
-    expect(r.phases[0].name).toBe('P1');
-    expect(r.phases[1].name).toBe('P2');
+    expect(r.phases[0].name).toEqual({ ja: '', en: 'P1' });
+    expect(r.phases[1].name).toEqual({ ja: '', en: 'P2' });
   });
 });
