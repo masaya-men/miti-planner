@@ -202,7 +202,7 @@ export const TimelineRow = memo(({
                         "border-app-border",
                         "md:cursor-pointer md:hover:bg-app-surface2",
                         hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex",
-                        isHighlighted && "border-l-2 border-r-2 border-app-blue bg-app-blue/5"
+                        isHighlighted && "bg-app-blue/10"
                     )}
                     onClick={(e) => {
                         if (timelineSelectMode) {
@@ -221,11 +221,13 @@ export const TimelineRow = memo(({
                         }
                     }}
                 >
-                    <Tooltip content={t('timeline.end_phase')} position="right">
-                        <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Plus size={16} />
-                        </div>
-                    </Tooltip>
+                    {!(timelineSelectMode || labelSelectMode) && (
+                        <Tooltip content={t('timeline.end_phase')} position="right">
+                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Plus size={16} />
+                            </div>
+                        </Tooltip>
+                    )}
                 </div>
             ) : (
                 <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
@@ -237,7 +239,7 @@ export const TimelineRow = memo(({
                     className={clsx(
                         "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
                         hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]",
-                        isLabelHighlighted && "border-l-2 border-r-2 border-app-blue bg-app-blue/5"
+                        isLabelHighlighted && "bg-app-blue/10"
                     )}
                     onClick={(e) => {
                         if (labelSelectMode) {
@@ -256,11 +258,13 @@ export const TimelineRow = memo(({
                         }
                     }}
                 >
-                    <Tooltip content={t('timeline.add_label')} position="top">
-                        <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Plus size={14} />
-                        </div>
-                    </Tooltip>
+                    {!(timelineSelectMode || labelSelectMode) && (
+                        <Tooltip content={t('timeline.add_label')} position="top">
+                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Plus size={14} />
+                            </div>
+                        </Tooltip>
+                    )}
                 </div>
             )}
 
