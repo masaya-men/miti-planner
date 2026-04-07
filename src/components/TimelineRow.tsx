@@ -55,6 +55,10 @@ interface TimelineRowProps {
     onLabelAdd?: (time: number, e: React.MouseEvent) => void;
     phaseColumnCollapsed?: boolean;
     hasPhases?: boolean;
+    timelineSelectMode?: { phaseId: string; startTime: number } | null;
+    previewEndTime?: number | null;
+    onTimelineSelect?: (time: number) => void;
+    onTimelineSelectHover?: (time: number) => void;
 }
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
@@ -121,6 +125,10 @@ export const TimelineRow = memo(({
     onLabelAdd,
     phaseColumnCollapsed,
     hasPhases = true,
+    timelineSelectMode,
+    previewEndTime,
+    onTimelineSelect,
+    onTimelineSelectHover,
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -152,12 +160,18 @@ export const TimelineRow = memo(({
         time < 0 ? `-${displayTimeStr}` :
             displayTimeStr;
 
+    const isHighlighted = timelineSelectMode
+        && previewEndTime !== null
+        && time >= timelineSelectMode.startTime
+        && time <= (previewEndTime ?? 0);
+
     return (
         <div
             data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
+                isHighlighted && "bg-app-blue/10",
                 useMitigationStore.getState().showRowBorders && "border-b border-app-border"
             )}
             style={{ top: `${top}px` }}
@@ -172,10 +186,19 @@ export const TimelineRow = memo(({
                         hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex"
                     )}
                     onClick={(e) => {
+                        if (timelineSelectMode) {
+                            onTimelineSelect?.(time);
+                            return;
+                        }
                         if (window.innerWidth < 768) {
                             handleMobileTap(e);
                         } else {
                             onPhaseAdd(time, e);
+                        }
+                    }}
+                    onMouseEnter={() => {
+                        if (timelineSelectMode) {
+                            onTimelineSelectHover?.(time);
                         }
                     }}
                 >
