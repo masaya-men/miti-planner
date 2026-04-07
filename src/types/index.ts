@@ -82,7 +82,8 @@ export interface TimelineEvent {
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
     warning?: boolean; // Indicates mitigation is insufficient
-    mechanicGroup?: LocalizedString; // ギミックグループ名（例: { ja: "開幕", en: "Opener" }）
+    /** @deprecated 旧データ互換用。新データはlabels[]を使用。読み込み時のみ参照される */
+    mechanicGroup?: LocalizedString;
 }
 
 export interface Phase {
