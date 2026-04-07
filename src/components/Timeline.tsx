@@ -1530,8 +1530,9 @@ const Timeline: React.FC = () => {
                 <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden transition-all duration-300 ease-out",
                     "h-full z-[1]",
-                    "mx-0 md:mx-6 mt-0 md:mt-4 mb-0 md:mb-4 md:rounded-xl",
-                    isMobileTimeline ? "rounded-2xl mx-2 my-2" : "rounded-none"
+                    isMobileTimeline
+                        ? "rounded-2xl mx-2 mt-2 mb-2"
+                        : "mx-0 md:mx-6 mt-0 md:mt-4 mb-0 md:mb-4 rounded-none md:rounded-xl"
                 )}>
                     {/* プラン未選択時 — Liquid Glass オーバーレイ（CSSクラス .no-plan で表示制御） */}
                     <div className="empty-liquid-glass">
