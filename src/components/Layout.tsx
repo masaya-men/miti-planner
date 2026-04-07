@@ -342,9 +342,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             authUser.uid,
             profileName,
         ).then(() => {
-            // プラン自動読み込みは廃止（チュートリアルによるデータ消失防止）
-            // ユーザーはサイドバーからプランを選んで開く
             usePlanStore.setState({ _migrationDone: true });
+            // マイグレーション完了後にPULL（リロード時に他端末の変更を確実に取得）
+            return planStore.pullFromFirestore(authUser.uid);
         }).catch(() => {
             usePlanStore.setState({ _migrationDone: true });
         });
