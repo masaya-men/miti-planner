@@ -5,7 +5,7 @@
  * モーダル・フックから使われる純粋関数群。
  */
 
-import type { TimelineEvent, Phase, LocalizedString } from '../types';
+import type { TimelineEvent, Phase } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
 // ─────────────────────────────────────────────

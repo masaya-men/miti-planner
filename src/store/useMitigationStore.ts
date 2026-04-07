@@ -464,9 +464,9 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const sorted = [...state.timelineEvents].sort((a, b) => a.time - b.time);
                         // フェーズ開始時刻を算出（クリック地点が属するフェーズの先頭）
-                        const phaseBoundaries = state.phases.map(p => p.endTime).sort((a, b) => a - b);
+                        const phaseBoundaries = state.phases.map(p => p.startTime).sort((a, b) => a - b);
                         // このtimeより前のフェーズ境界 = フェーズ開始
-                        const phaseStart = [...phaseBoundaries].reverse().find(t => t <= time) ?? 0;
+                        const phaseStart = [...phaseBoundaries].reverse().find(t => t !== undefined && t <= time) ?? 0;
 
                         // 下から遡って最初に別ラベルに当たったらそこで止める
                         const eventsInRange = sorted.filter(ev => ev.time >= phaseStart && ev.time <= time);
@@ -498,7 +498,7 @@ export const useMitigationStore = create<MitigationState>()(
                         const oldJa = origin.mechanicGroup.ja;
 
                         const phaseEnd = state.phases
-                            .map(p => p.endTime)
+                            .map(p => p.startTime)
                             .sort((a, b) => a - b)
                             .find(t => t > sectionStartTime) ?? Infinity;
 
@@ -530,7 +530,7 @@ export const useMitigationStore = create<MitigationState>()(
                         const oldJa = origin.mechanicGroup.ja;
 
                         const phaseEnd = state.phases
-                            .map(p => p.endTime)
+                            .map(p => p.startTime)
                             .sort((a, b) => a - b)
                             .find(t => t > sectionStartTime) ?? Infinity;
 
