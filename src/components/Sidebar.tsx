@@ -921,6 +921,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 const tpl = await getTemplate(content.id);
                 if (tpl) {
                     const snap = store.getSnapshot();
+                    // ラベル変換: TemplateData.labels → Label[]
+                    const labels = tpl.labels
+                        ? tpl.labels.map(l => ({
+                            id: crypto.randomUUID(),
+                            name: l.name,
+                            startTime: l.startTimeSec,
+                            ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
+                        }))
+                        : undefined;
                     store.loadSnapshot({
                         ...snap,
                         timelineMitigations: [],
@@ -940,7 +949,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         })
                                     : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
                                 startTime: p.startTimeSec,
-                            })) : []
+                            })) : [],
+                        ...(labels ? { labels } : {}),
                     });
                 } else {
                     store.loadSnapshot({

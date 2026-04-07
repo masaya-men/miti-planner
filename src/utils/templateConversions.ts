@@ -5,7 +5,7 @@
  * モーダル・フックから使われる純粋関数群。
  */
 
-import type { TimelineEvent, Phase } from '../types';
+import type { TimelineEvent, Phase, Label } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 
 // ─────────────────────────────────────────────
@@ -259,7 +259,7 @@ export function convertCsvToEvents(
  * - timelineEvents は標準フィールドのみコピー
  */
 export function convertPlanToTemplate(
-  planData: { timelineEvents: TimelineEvent[]; phases: Phase[] },
+  planData: { timelineEvents: TimelineEvent[]; phases: Phase[]; labels?: Label[] },
   contentId: string,
 ): Omit<TemplateData, '_warning'> {
   // フェーズ変換
@@ -297,11 +297,25 @@ export function convertPlanToTemplate(
     return e;
   });
 
+  // ラベル変換: Label[] → TemplateData.labels形式
+  const templateLabels = planData.labels?.map((label, i) => ({
+    id: i + 1,
+    startTimeSec: label.startTime,
+    name: {
+      ja: label.name.ja,
+      en: label.name.en,
+      ...(label.name.zh ? { zh: label.name.zh } : {}),
+      ...(label.name.ko ? { ko: label.name.ko } : {}),
+    },
+    ...(label.endTime !== undefined ? { endTimeSec: label.endTime } : {}),
+  }));
+
   return {
     contentId,
     generatedAt: new Date().toISOString(),
     sourceLogsCount: 0,
     timelineEvents: templateEvents,
     phases: templatePhases,
+    ...(templateLabels && templateLabels.length > 0 ? { labels: templateLabels } : {}),
   };
 }

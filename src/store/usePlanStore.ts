@@ -116,6 +116,15 @@ export const usePlanStore = create<PlanState>()(
 
             createPlanFromTemplate: (contentId, templateData, title, initialData) => {
                 const newPlanId = `plan_${Date.now()}`;
+                // ラベル変換: TemplateData.labels → Label[]
+                const labels = templateData.labels
+                    ? templateData.labels.map(l => ({
+                        id: crypto.randomUUID(),
+                        name: l.name,
+                        startTime: l.startTimeSec,
+                        ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
+                    }))
+                    : undefined;
                 const newPlan: SavedPlan = {
                     id: newPlanId,
                     ownerId: 'local',
@@ -144,6 +153,7 @@ export const usePlanStore = create<PlanState>()(
                                     : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
                                 startTime: p.startTimeSec,
                             })) : [],
+                        ...(labels ? { labels } : {}),
                     },
                     createdAt: Date.now(),
                     updatedAt: Date.now()

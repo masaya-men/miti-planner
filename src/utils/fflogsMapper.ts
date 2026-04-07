@@ -11,8 +11,9 @@
  */
 
 import type { FFLogsRawEvent, FFLogsFight, DeathEvent, PlayerDetails } from '../api/fflogs';
-import type { TimelineEvent, LocalizedString } from '../types';
+import type { TimelineEvent, LocalizedString, Label } from '../types';
 import { roundDamageCeil } from './damageRounding';
+import { migrateLabels } from './labelMigration';
 
 // ─────────────────────────────────────────────
 // 定数・ユーティリティ
@@ -77,6 +78,7 @@ interface Norm {
 export interface MapperResult {
     events: TimelineEvent[];
     phases: { id: number; startTimeSec: number; name: LocalizedString }[];
+    labels: Label[];
     stats: {
         totalRawEvents: number;
         filteredEvents: number;
@@ -153,7 +155,7 @@ export function mapFFLogsToTimeline(
 
     if (!filtered.length) {
         return {
-            events: [], phases: buildPhases(fight),
+            events: [], phases: buildPhases(fight), labels: [],
             stats: {
                 totalRawEvents: rawEn.length, filteredEvents: 0,
                 timelineEventCount: 0, aaCount: 0, mechanicCount: 0,
@@ -387,9 +389,18 @@ export function mapFFLogsToTimeline(
     // ── Step 9: フェーズ自動生成（V5.0） ──
     const phases = buildPhases(fight);
 
+    // ── Step 10: ラベル生成（mechanicGroupからLabel[]を生成） ──
+    const phasesForLabels = phases.map(p => ({
+        id: `phase_${p.id}`,
+        name: p.name,
+        startTime: p.startTimeSec,
+    }));
+    const labels = migrateLabels(tl, phasesForLabels);
+
     return {
         events: tl,
         phases,
+        labels,
         stats: {
             totalRawEvents: rawEn.length,
             filteredEvents: filtered.length,
