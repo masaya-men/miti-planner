@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Info } from 'lucide-react';
 import clsx from 'clsx';
 
 interface ToastItem {
     id: number;
     message: string;
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'info';
 }
 
 let toastId = 0;
-let addToastFn: ((message: string, type: 'success' | 'error') => void) | null = null;
-const pendingQueue: { message: string; type: 'success' | 'error' }[] = [];
+let addToastFn: ((message: string, type: 'success' | 'error' | 'info') => void) | null = null;
+const pendingQueue: { message: string; type: 'success' | 'error' | 'info' }[] = [];
 
 /** グローバルにトーストを表示する（Reactマウント前でもキューに溜まる） */
-export function showToast(message: string, type: 'success' | 'error' = 'success') {
+export function showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
     if (addToastFn) {
         addToastFn(message, type);
     } else {
@@ -26,7 +26,7 @@ export const ToastContainer: React.FC = () => {
     const [toasts, setToasts] = useState<ToastItem[]>([]);
 
     useEffect(() => {
-        addToastFn = (message: string, type: 'success' | 'error') => {
+        addToastFn = (message: string, type: 'success' | 'error' | 'info') => {
             const id = ++toastId;
             setToasts(prev => [...prev, { id, message, type }]);
             setTimeout(() => {
@@ -56,6 +56,8 @@ export const ToastContainer: React.FC = () => {
                 >
                     {toast.type === 'error'
                         ? <XCircle size={15} className="text-red-500 shrink-0" />
+                        : toast.type === 'info'
+                        ? <Info size={15} className="text-blue-400 shrink-0" />
                         : <CheckCircle size={15} className="text-emerald-500 shrink-0" />
                     }
                     <span className="text-app-lg font-bold text-app-text whitespace-nowrap">{toast.message}</span>
