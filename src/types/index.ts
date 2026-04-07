@@ -92,6 +92,13 @@ export interface Phase {
     endTime?: number;  // 未指定なら次のPhaseのstartTimeまで
 }
 
+export interface Label {
+    id: string;
+    name: LocalizedString;
+    startTime: number;
+    endTime?: number;  // 未指定なら次のLabelのstartTimeまたはフェーズ境界まで
+}
+
 // ─────────────────────────────────────────────
 // Level / Stats 型定義
 // ─────────────────────────────────────────────
@@ -184,6 +191,7 @@ export interface PlanData {
     timelineEvents: TimelineEvent[];
     timelineMitigations: AppliedMitigation[];
     phases: Phase[];
+    labels?: Label[];
     partyMembers: PartyMember[];
     aaSettings: {
         damage: number;
