@@ -281,11 +281,35 @@ export function useTemplateEditor() {
 
   // ラベル名を更新（4言語対応）
   const updateLabel = useCallback(
-    (mechanicGroupJa: string, newLabel: LocalizedString) => {
+    (mechanicGroupJa: string, newLabel: LocalizedString, eventId?: string) => {
       setState((prev) => {
+        // 空ラベル更新時はeventIdから連続グループ範囲を特定
+        let targetIds: Set<string> | null = null;
+        if (!mechanicGroupJa && eventId) {
+          targetIds = new Set<string>();
+          const idx = prev.current.findIndex(ev => ev.id === eventId);
+          if (idx >= 0) {
+            // クリック位置から前後に同じ空ラベルを辿る
+            for (let i = idx; i >= 0; i--) {
+              const ja = prev.current[i].mechanicGroup?.ja || '';
+              if (ja !== '') break;
+              targetIds.add(prev.current[i].id);
+            }
+            for (let i = idx + 1; i < prev.current.length; i++) {
+              const ja = prev.current[i].mechanicGroup?.ja || '';
+              if (ja !== '') break;
+              targetIds.add(prev.current[i].id);
+            }
+          }
+        }
         const updated = prev.current.map((ev) => {
-          if (ev.mechanicGroup?.ja === mechanicGroupJa && !prev.deleted.has(ev.id)) {
-            return { ...ev, mechanicGroup: { ...newLabel } };
+          if (prev.deleted.has(ev.id)) return ev;
+          if (targetIds) {
+            // 空ラベル: 連続グループのみ更新
+            if (targetIds.has(ev.id)) return { ...ev, mechanicGroup: { ...newLabel } };
+          } else {
+            // 既存ラベル: 同名の全イベントを更新
+            if (ev.mechanicGroup?.ja === mechanicGroupJa) return { ...ev, mechanicGroup: { ...newLabel } };
           }
           return ev;
         });

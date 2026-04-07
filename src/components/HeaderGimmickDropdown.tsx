@@ -37,7 +37,6 @@ export function computeGimmickGroups(events: TimelineEvent[], _phases: Phase[]):
         if (mgJa !== currentJa) {
             flush();
             currentJa = mgJa;
-            groupStart = ev.time;
             groups.push({ ja: mgJa, en: ev.mechanicGroup?.en || '', startTime: ev.time });
         }
     });
