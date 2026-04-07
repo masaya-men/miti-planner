@@ -11,7 +11,7 @@
  */
 
 import type { FFLogsRawEvent, FFLogsFight, DeathEvent, PlayerDetails } from '../api/fflogs';
-import type { TimelineEvent } from '../types';
+import type { TimelineEvent, LocalizedString } from '../types';
 import { roundDamageCeil } from './damageRounding';
 
 // ─────────────────────────────────────────────
@@ -673,14 +673,14 @@ function resolveSchedulingConflicts(tl: TimelineEvent[]): void {
 }
 
 /** フェーズ自動生成（V5.1: report.phasesからボス名取得） */
-function buildPhases(fight: FFLogsFight): { id: number; startTimeSec: number; name: string }[] {
+function buildPhases(fight: FFLogsFight): { id: number; startTimeSec: number; name: LocalizedString }[] {
     const transitions = fight.phaseTransitions;
     const phaseNames = fight.phaseNames;
 
     if (!transitions || transitions.length === 0) {
         // フェーズ遷移なし — phaseNamesがあれば最初の名前を使用
         const name = phaseNames?.[0]?.name;
-        return [{ id: 1, startTimeSec: 0, name: cleanPhaseName(name) || 'P1' }];
+        return [{ id: 1, startTimeSec: 0, name: { ja: '', en: cleanPhaseName(name) || 'P1' } }];
     }
 
     return transitions.map(pt => {
@@ -688,7 +688,7 @@ function buildPhases(fight: FFLogsFight): { id: number; startTimeSec: number; na
         return {
             id: pt.id,
             startTimeSec: Math.floor((pt.startTime - fight.startTime) / 1000),
-            name: cleanPhaseName(nameEntry?.name) || `P${pt.id}`,
+            name: { ja: '', en: cleanPhaseName(nameEntry?.name) || `P${pt.id}` },
         };
     });
 }

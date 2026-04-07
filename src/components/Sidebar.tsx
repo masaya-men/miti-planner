@@ -927,24 +927,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         timelineEvents: tpl.timelineEvents,
                         phases: tpl.phases ? tpl.phases
                             .filter(p => p.startTimeSec >= 0)
-                            .map((p, i, arr) => {
-                                const nextStart = arr[i + 1]?.startTimeSec;
-                                const maxTime = Math.max(...tpl.timelineEvents.map(e => e.time), 0);
-                                return {
-                                    id: `phase_${p.id}`,
-                                    name: p.name
-                                        ? (typeof p.name === 'string'
-                                            ? p.name
-                                            : {
-                                                ja: p.name.ja || `Phase ${i + 1}`,
-                                                en: p.name.en || `Phase ${i + 1}`,
-                                                ...(p.name.zh ? { zh: p.name.zh } : {}),
-                                                ...(p.name.ko ? { ko: p.name.ko } : {}),
-                                            })
-                                        : `Phase ${i + 1}`,
-                                    endTime: nextStart !== undefined ? nextStart : maxTime + 10
-                                };
-                            }) : []
+                            .map((p, i) => ({
+                                id: `phase_${p.id}`,
+                                name: p.name
+                                    ? (typeof p.name === 'string'
+                                        ? { ja: p.name, en: '' }
+                                        : {
+                                            ja: p.name.ja || `Phase ${i + 1}`,
+                                            en: p.name.en || `Phase ${i + 1}`,
+                                            ...(p.name.zh ? { zh: p.name.zh } : {}),
+                                            ...(p.name.ko ? { ko: p.name.ko } : {}),
+                                        })
+                                    : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
+                                startTime: p.startTimeSec,
+                            })) : []
                     });
                 } else {
                     store.loadSnapshot({

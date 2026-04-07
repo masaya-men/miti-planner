@@ -14,7 +14,7 @@ export interface TemplateData {
   generatedAt: string;
   sourceLogsCount: number;
   timelineEvents: TimelineEvent[];
-  phases: { id: number; startTimeSec: number; name?: string | LocalizedString; }[];
+  phases: { id: number; startTimeSec: number; name?: LocalizedString; }[];
   _warning?: string;
 }
 
