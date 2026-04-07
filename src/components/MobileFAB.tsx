@@ -5,6 +5,7 @@ import {
     MoreHorizontal, X, List, Tag, Search,
     Cloud, CloudCheck, CloudUpload, CloudAlert,
     Globe, Sun, Moon,
+    Rows3, AlignJustify,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -20,6 +21,8 @@ interface MobileFABProps {
     onPhaseJump?: () => void;
     onLabelJump?: () => void;
     onMechanicSearch?: () => void;
+    onToggleExpand?: () => void;
+    hideEmptyRows?: boolean;
 }
 
 const LANG_CYCLE: ContentLanguage[] = ['ja', 'en', 'zh', 'ko'];
@@ -50,6 +53,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     onPhaseJump,
     onLabelJump,
     onMechanicSearch,
+    onToggleExpand,
+    hideEmptyRows,
 }) => {
     const { t, i18n } = useTranslation();
     const { setContentLanguage } = useThemeStore();
@@ -104,6 +109,13 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
 
     // FAB items（上から順 = 配列末尾 → 画面上に表示）
     const navItems = [
+        {
+            key: 'expand',
+            label: hideEmptyRows ? t('app.fab_expand') : t('app.fab_collapse'),
+            icon: hideEmptyRows ? <Rows3 size={20} /> : <AlignJustify size={20} />,
+            onClick: () => { close(); onToggleExpand?.(); },
+            accent: false,
+        },
         {
             key: 'phase',
             label: t('app.fab_phase'),
