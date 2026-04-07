@@ -1,12 +1,18 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { TimelineEvent, LocalizedString } from '../types';
 import type { TemplateData } from '../data/templateLoader';
+import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
+
+/** TemplateData.labels の要素型 */
+export type TemplateLabel = NonNullable<TemplateData['labels']>[number];
 
 export interface EditState {
   original: TimelineEvent[];
   originalPhases: TemplateData['phases'];
+  originalLabels: TemplateLabel[];
   current: TimelineEvent[];
   currentPhases: TemplateData['phases'];
+  currentLabels: TemplateLabel[];
   modified: Set<string>;   // "eventId:fieldName"
   autoFilled: Set<string>; // "eventId:fieldName"
   deleted: Set<string>;    // eventId
@@ -15,12 +21,40 @@ export interface EditState {
 const emptyState = (): EditState => ({
   original: [],
   originalPhases: [],
+  originalLabels: [],
   current: [],
   currentPhases: [],
+  currentLabels: [],
   modified: new Set(),
   autoFilled: new Set(),
   deleted: new Set(),
 });
+
+/**
+ * mechanicGroup から TemplateLabel[] を導出するヘルパー。
+ * migrateLabels を使って Label[] → TemplateLabel[] に変換する。
+ */
+function deriveLabelsFromEvents(
+  events: TimelineEvent[],
+  phases: TemplateData['phases'],
+): TemplateLabel[] {
+  const hasLegacy = isLegacyLabelFormat({ labels: undefined, timelineEvents: events });
+  if (!hasLegacy) return [];
+
+  const phasesForMigration = (phases || []).map(p => ({
+    id: `phase_${p.id}`,
+    name: p.name || { ja: '', en: '' },
+    startTime: p.startTimeSec,
+  }));
+  const migrated = migrateLabels(events, phasesForMigration);
+
+  return migrated.map((label, i) => ({
+    id: i + 1,
+    startTimeSec: label.startTime,
+    name: label.name,
+    ...(label.endTime !== undefined ? { endTimeSec: label.endTime } : {}),
+  }));
+}
 
 export function useTemplateEditor() {
   const [state, setState] = useState<EditState>(emptyState);
@@ -45,15 +79,27 @@ export function useTemplateEditor() {
   );
 
   // データをロード（全リセット）
+  // labels が渡されればそのまま使い、なければ mechanicGroup から移行する
   const loadEvents = useCallback(
-    (events: TimelineEvent[], phases: TemplateData['phases']) => {
+    (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateLabel[]) => {
       const clonedEvents = structuredClone(events);
       const clonedPhases = structuredClone(phases);
+      let clonedLabels: TemplateLabel[];
+
+      if (labels && labels.length > 0) {
+        clonedLabels = structuredClone(labels);
+      } else {
+        // mechanicGroup から labels を導出
+        clonedLabels = deriveLabelsFromEvents(clonedEvents, clonedPhases);
+      }
+
       setState({
         original: clonedEvents,
         originalPhases: clonedPhases,
+        originalLabels: structuredClone(clonedLabels),
         current: structuredClone(clonedEvents),
         currentPhases: structuredClone(clonedPhases),
+        currentLabels: structuredClone(clonedLabels),
         modified: new Set(),
         autoFilled: new Set(),
         deleted: new Set(),
@@ -168,6 +214,7 @@ export function useTemplateEditor() {
       ...prev,
       current: structuredClone(prev.original),
       currentPhases: structuredClone(prev.originalPhases),
+      currentLabels: structuredClone(prev.originalLabels),
       modified: new Set(),
       autoFilled: new Set(),
       deleted: new Set(),
@@ -197,14 +244,24 @@ export function useTemplateEditor() {
 
   // 全データを置き換え（loadEvents と同じ）
   const replaceAll = useCallback(
-    (events: TimelineEvent[], phases: TemplateData['phases']) => {
+    (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateLabel[]) => {
       const clonedEvents = structuredClone(events);
       const clonedPhases = structuredClone(phases);
+      let clonedLabels: TemplateLabel[];
+
+      if (labels && labels.length > 0) {
+        clonedLabels = structuredClone(labels);
+      } else {
+        clonedLabels = deriveLabelsFromEvents(clonedEvents, clonedPhases);
+      }
+
       setState({
         original: clonedEvents,
         originalPhases: clonedPhases,
+        originalLabels: structuredClone(clonedLabels),
         current: structuredClone(clonedEvents),
         currentPhases: structuredClone(clonedPhases),
+        currentLabels: structuredClone(clonedLabels),
         modified: new Set(),
         autoFilled: new Set(),
         deleted: new Set(),
@@ -279,45 +336,73 @@ export function useTemplateEditor() {
     [],
   );
 
-  // ラベル名を更新（4言語対応）
-  const updateLabel = useCallback(
-    (mechanicGroupJa: string, newLabel: LocalizedString, eventId?: string) => {
+  // ─────────────────────────────────────────────
+  // ラベル CRUD（labels[] ベース）
+  // ─────────────────────────────────────────────
+
+  /** ラベルを追加（指定時刻に新しいラベル境界を作成） */
+  const addLabel = useCallback(
+    (timeSec: number, name: LocalizedString) => {
       setState((prev) => {
-        // 空ラベル更新時はeventIdから連続グループ範囲を特定
-        let targetIds: Set<string> | null = null;
-        if (!mechanicGroupJa && eventId) {
-          targetIds = new Set<string>();
-          const idx = prev.current.findIndex(ev => ev.id === eventId);
-          if (idx >= 0) {
-            // クリック位置から前後に同じ空ラベルを辿る
-            for (let i = idx; i >= 0; i--) {
-              const ja = prev.current[i].mechanicGroup?.ja || '';
-              if (ja !== '') break;
-              targetIds.add(prev.current[i].id);
-            }
-            for (let i = idx + 1; i < prev.current.length; i++) {
-              const ja = prev.current[i].mechanicGroup?.ja || '';
-              if (ja !== '') break;
-              targetIds.add(prev.current[i].id);
-            }
+        const newLabels = structuredClone(prev.currentLabels);
+        const maxId = newLabels.reduce((max, l) => Math.max(max, l.id), 0);
+        newLabels.push({ id: maxId + 1, startTimeSec: timeSec, name });
+        newLabels.sort((a, b) => a.startTimeSec - b.startTimeSec);
+        return { ...prev, currentLabels: newLabels, modified: new Set([...prev.modified, '__labels__']) };
+      });
+    },
+    [],
+  );
+
+  /** ラベルを更新（ID指定で名前を変更） */
+  const updateLabel = useCallback(
+    (labelId: number, name: LocalizedString) => {
+      setState((prev) => {
+        const newLabels = structuredClone(prev.currentLabels);
+        const label = newLabels.find((l) => l.id === labelId);
+        if (!label) return prev;
+        label.name = name;
+        return { ...prev, currentLabels: newLabels, modified: new Set([...prev.modified, '__labels__']) };
+      });
+    },
+    [],
+  );
+
+  /** ラベルを削除（ID指定） */
+  const removeLabel = useCallback(
+    (labelId: number) => {
+      setState((prev) => {
+        const newLabels = prev.currentLabels.filter((l) => l.id !== labelId);
+        return { ...prev, currentLabels: newLabels, modified: new Set([...prev.modified, '__labels__']) };
+      });
+    },
+    [],
+  );
+
+  /** ラベルを時刻で追加/更新/削除する（フェーズのsetPhaseAtTimeと同じパターン） */
+  const setLabelAtTime = useCallback(
+    (timeSec: number, labelName: LocalizedString | null) => {
+      setState((prev) => {
+        let newLabels = structuredClone(prev.currentLabels);
+        const isEmpty = !labelName || (!labelName.ja && !labelName.en && !labelName.zh && !labelName.ko);
+
+        const existingIdx = newLabels.findIndex((l) => l.startTimeSec === timeSec);
+
+        if (isEmpty) {
+          if (existingIdx >= 0) {
+            newLabels.splice(existingIdx, 1);
+          }
+        } else {
+          if (existingIdx >= 0) {
+            newLabels[existingIdx].name = labelName;
+          } else {
+            const maxId = newLabels.reduce((max, l) => Math.max(max, l.id), 0);
+            newLabels.push({ id: maxId + 1, startTimeSec: timeSec, name: labelName });
+            newLabels.sort((a, b) => a.startTimeSec - b.startTimeSec);
           }
         }
-        const updated = prev.current.map((ev) => {
-          if (prev.deleted.has(ev.id)) return ev;
-          if (targetIds) {
-            // 空ラベル: 連続グループのみ更新
-            if (targetIds.has(ev.id)) return { ...ev, mechanicGroup: { ...newLabel } };
-          } else {
-            // 既存ラベル: 同名の全イベントを更新
-            if (ev.mechanicGroup?.ja === mechanicGroupJa) return { ...ev, mechanicGroup: { ...newLabel } };
-          }
-          return ev;
-        });
-        const modifiedIds = new Set(prev.modified);
-        updated.forEach((ev, i) => {
-          if (ev !== prev.current[i]) modifiedIds.add(ev.id);
-        });
-        return { ...prev, current: updated, modified: modifiedIds };
+
+        return { ...prev, currentLabels: newLabels, modified: new Set([...prev.modified, '__labels__']) };
       });
     },
     [],
@@ -366,6 +451,7 @@ export function useTemplateEditor() {
     return {
       events: state.current.filter((ev) => !state.deleted.has(ev.id)),
       phases: state.currentPhases,
+      labels: state.currentLabels,
     };
   }, [state]);
 
@@ -383,7 +469,10 @@ export function useTemplateEditor() {
     getSaveData,
     updatePhaseForGroup,
     setPhaseAtTime,
+    addLabel,
     updateLabel,
+    removeLabel,
+    setLabelAtTime,
     bulkUpdate,
     autoPropagate,
     setAutoPropagate,

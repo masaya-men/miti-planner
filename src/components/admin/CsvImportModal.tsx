@@ -26,7 +26,7 @@ import type { TemplateData } from '../../data/templateLoader';
 interface CsvImportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (events: TimelineEvent[], phases: TemplateData['phases']) => void;
+  onImport: (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateData['labels']) => void;
 }
 
 type Step = 'paste' | 'mapping';
@@ -81,12 +81,12 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({
     setError(null);
     // ヘッダー行を除いたデータ行でイベントを生成
     const dataRows = rows.slice(1);
-    const { events, phases } = convertCsvToEvents(dataRows, mappings);
+    const { events, phases, labels } = convertCsvToEvents(dataRows, mappings);
     if (events.length === 0) {
       setError(t('admin.tpl_csv_error'));
       return;
     }
-    onImport(events, phases);
+    onImport(events, phases, labels);
     handleClose();
   };
 

@@ -161,19 +161,22 @@ function randomChars(length: number): string {
 // ─────────────────────────────────────────────
 
 /**
- * ParsedRow の配列とカラムマッピングから TimelineEvent と phases を生成する。
+ * ParsedRow の配列とカラムマッピングから TimelineEvent, phases, labels を生成する。
  * - 名前のない行はスキップ
  * - フェーズ変化はフェーズカラムの値変化で検出
+ * - ギミックグループ変化は mechanic カラムの値変化で検出し、labels[] も生成
  * - フェーズが1件も検出されない場合は { id: 1, startTimeSec: 0 } を生成
  */
 export function convertCsvToEvents(
   rows: ParsedRow[],
   mappings: ColumnMapping[],
-): { events: TimelineEvent[]; phases: TemplateData['phases'] } {
+): { events: TimelineEvent[]; phases: TemplateData['phases']; labels: NonNullable<TemplateData['labels']> } {
   const events: TimelineEvent[] = [];
   const phases: TemplateData['phases'] = [];
+  const labels: NonNullable<TemplateData['labels']> = [];
 
   let phaseCounter = 0;
+  let labelCounter = 0;
   let currentPhaseName: string | null = null;
   let currentMechanicGroup: string | undefined = undefined;
 
@@ -187,10 +190,19 @@ export function convertCsvToEvents(
     const nameVal = get('name');
     if (!nameVal) return; // 名前のない行はスキップ
 
-    // ギミックグループ検出
+    const timeVal = get('time');
+    const time = parseTimeString(timeVal) ?? 0;
+
+    // ギミックグループ検出 → labels[] にも反映
     const mechanicVal = get('mechanic');
-    if (mechanicVal) {
+    if (mechanicVal && mechanicVal !== currentMechanicGroup) {
       currentMechanicGroup = mechanicVal;
+      labelCounter++;
+      labels.push({
+        id: labelCounter,
+        startTimeSec: time,
+        name: { ja: mechanicVal, en: '' },
+      });
     }
 
     // フェーズ検出
@@ -198,17 +210,13 @@ export function convertCsvToEvents(
     if (phaseVal && phaseVal !== currentPhaseName) {
       currentPhaseName = phaseVal;
       phaseCounter++;
-      const timeVal = get('time');
-      const startTimeSec = parseTimeString(timeVal) ?? 0;
+      const startTimeSec = time;
       phases.push({
         id: phaseCounter,
         startTimeSec,
         name: { ja: '', en: phaseVal },
       });
     }
-
-    const timeVal = get('time');
-    const time = parseTimeString(timeVal) ?? 0;
 
     const damageVal = get('damage');
     const damageAmount = damageVal ? parseInt(damageVal.replace(/,/g, ''), 10) || undefined : undefined;
@@ -243,7 +251,7 @@ export function convertCsvToEvents(
     phases.push({ id: 1, startTimeSec: 0 });
   }
 
-  return { events, phases };
+  return { events, phases, labels };
 }
 
 // ─────────────────────────────────────────────

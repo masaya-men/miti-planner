@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent, LocalizedString } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
-import type { EditState } from '../../hooks/useTemplateEditor';
+import type { EditState, TemplateLabel } from '../../hooks/useTemplateEditor';
 import { formatTime, parseTimeString } from '../../utils/templateConversions';
 
 // ─────────────────────────────────────────────
@@ -16,11 +16,12 @@ import { formatTime, parseTimeString } from '../../utils/templateConversions';
 interface TemplateEditorProps {
   events: TimelineEvent[];
   phases: TemplateData['phases'];
+  labels: TemplateLabel[];
   editState: EditState;
   showUntranslatedOnly: boolean;
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdateLabel: (mechanicGroupJa: string, newLabel: LocalizedString, eventId?: string) => void;
+  onSetLabelAtTime: (timeSec: number, labelName: LocalizedString | null) => void;
   onSetPhaseAtTime: (timeSec: number, phaseName: LocalizedString | null) => void;
   selectedIds: Set<string>;
   onToggleSelect: (eventId: string) => void;
@@ -46,6 +47,21 @@ function getPhaseForTime(
     : undefined;
   const displayName = nameObj ? (nameObj.ja || nameObj.en || `P${result.id}`) : `P${result.id}`;
   return { id: result.id, name: displayName, nameObj, startTimeSec: result.startTimeSec ?? 0 };
+}
+
+/** 指定時刻が属するラベルを返す（ラベルの startTimeSec 以上で次のラベルの startTimeSec 未満） */
+function getLabelForTime(
+  time: number,
+  labels: TemplateLabel[],
+): TemplateLabel | null {
+  if (labels.length === 0) return null;
+  let result: TemplateLabel | null = null;
+  for (const label of labels) {
+    if (label.startTimeSec <= time) {
+      result = label;
+    }
+  }
+  return result;
 }
 
 type CellHighlight = 'autofilled' | 'modified' | 'none';
@@ -325,11 +341,12 @@ function LocalizedEditPopover({ title, initial, labels, position, onApply, onCan
 export function TemplateEditor({
   events,
   phases,
+  labels,
   editState,
   showUntranslatedOnly,
   onUpdateCell,
   onDeleteEvent,
-  onUpdateLabel,
+  onSetLabelAtTime,
   onSetPhaseAtTime,
   selectedIds,
   onToggleSelect,
@@ -339,19 +356,18 @@ export function TemplateEditor({
 
   // フェーズ・ラベル編集ポップオーバーの状態
   const [editingPhase, setEditingPhase] = useState<{ timeSec: number; phaseStartTimeSec: number; eventId: string; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
-  const [editingLabel, setEditingLabel] = useState<{ mechanicGroupJa: string; eventId: string; pos: { x: number; y: number } } | null>(null);
+  const [editingLabel, setEditingLabel] = useState<{ timeSec: number; labelStartTimeSec: number; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
 
   // フィルタリング
   const filteredEvents = showUntranslatedOnly
     ? events.filter((ev) => !ev.name.en.trim())
     : events;
 
-  // ラベルグループの先頭行を判定するため、前の行のmechanicGroup.jaを追跡
-  const isFirstInGroup = (index: number): boolean => {
+  // ラベルグループの先頭行を判定: labels[] から取得したラベルIDが前行と異なるか
+  const isFirstInLabelGroup = (index: number, currentLabel: TemplateLabel | null): boolean => {
     if (index === 0) return true;
-    const current = filteredEvents[index]?.mechanicGroup?.ja || '';
-    const prev = filteredEvents[index - 1]?.mechanicGroup?.ja || '';
-    return current !== prev;
+    const prevLabel = getLabelForTime(filteredEvents[index - 1]?.time ?? 0, labels);
+    return currentLabel?.id !== prevLabel?.id;
   };
 
   // ダメージ種別の選択肢
@@ -416,8 +432,9 @@ export function TemplateEditor({
           {filteredEvents.map((event, index) => {
             const evId = event.id;
             const phase = getPhaseForTime(event.time, phases);
-            const firstInGroup = isFirstInGroup(index);
-            const labelJa = event.mechanicGroup?.ja || '';
+            const currentLabel = getLabelForTime(event.time, labels);
+            const firstInLabelGroup = isFirstInLabelGroup(index, currentLabel);
+            const labelJa = currentLabel?.name?.ja || '';
 
             const timeHighlight = getCellHighlight(evId, 'time', editState);
             const nameJaHighlight = getCellHighlight(evId, 'name.ja', editState);
@@ -471,9 +488,17 @@ export function TemplateEditor({
 
                 {/* ラベル（グループ先頭行のみ表示・編集可能、空でもクリックで追加可能） */}
                 <td className="py-1 pr-2 text-app-base font-medium text-app-text-muted">
-                  {firstInGroup ? (
+                  {firstInLabelGroup ? (
                     <span
-                      onClick={(e) => setEditingLabel({ mechanicGroupJa: labelJa || '', eventId: evId, pos: { x: e.clientX, y: e.clientY } })}
+                      onClick={(e) => {
+                        const isAtBoundary = labels.some(l => l.startTimeSec === event.time);
+                        setEditingLabel({
+                          timeSec: event.time,
+                          labelStartTimeSec: currentLabel?.startTimeSec ?? event.time,
+                          pos: { x: e.clientX, y: e.clientY },
+                          nameObj: isAtBoundary ? (currentLabel?.name ?? { ja: '', en: '' }) : { ja: '', en: '' },
+                        });
+                      }}
                       className={`cursor-pointer transition-colors ${labelJa ? 'text-app-text hover:text-blue-400' : 'text-app-text-muted/40 hover:text-blue-400'}`}
                     >
                       {labelJa || '＋'}
@@ -619,9 +644,7 @@ export function TemplateEditor({
     {editingLabel && (
       <LocalizedEditPopover
         title={t('admin.tpl_label_edit_title')}
-        initial={
-          events.find((ev) => ev.mechanicGroup?.ja === editingLabel.mechanicGroupJa)?.mechanicGroup ?? { ja: '', en: '' }
-        }
+        initial={editingLabel.nameObj}
         position={editingLabel.pos}
         labels={{
           ja: t('admin.tpl_label_name_ja'),
@@ -630,7 +653,14 @@ export function TemplateEditor({
           ko: t('admin.tpl_label_name_ko'),
         }}
         onApply={(value) => {
-          onUpdateLabel(editingLabel.mechanicGroupJa, value, editingLabel.eventId);
+          const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;
+          if (isEmpty) {
+            // 削除: 囲んでいるラベルの境界を削除
+            onSetLabelAtTime(editingLabel.labelStartTimeSec, null);
+          } else {
+            // 追加/更新: クリックした行の時刻にラベル境界を設定
+            onSetLabelAtTime(editingLabel.timeSec, value);
+          }
           setEditingLabel(null);
         }}
         onCancel={() => setEditingLabel(null)}

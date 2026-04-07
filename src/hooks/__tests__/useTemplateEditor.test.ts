@@ -104,16 +104,41 @@ describe('useTemplateEditor', () => {
     expect(result.current.state.currentPhases).toHaveLength(0);
   });
 
-  it('updateLabel でラベル名を一括更新する', () => {
+  it('loadEvents で mechanicGroup からラベルが自動導出される', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));
-    act(() => result.current.updateLabel('テスト', { ja: '更新ラベル', en: 'Updated Label' }));
-    const ev1 = result.current.state.current.find(e => e.id === 'ev1');
-    const ev2 = result.current.state.current.find(e => e.id === 'ev2');
-    expect(ev1?.mechanicGroup?.ja).toBe('更新ラベル');
-    expect(ev2?.mechanicGroup?.ja).toBe('更新ラベル');
-    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
-    expect(ev3?.mechanicGroup).toBeUndefined();
+    // ev1, ev2 の mechanicGroup "テスト" からラベルが1件導出される
+    expect(result.current.state.currentLabels.length).toBeGreaterThanOrEqual(1);
+    expect(result.current.state.currentLabels[0].name.ja).toBe('テスト');
+  });
+
+  it('setLabelAtTime でラベルを追加・更新・削除する', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    const initialCount = result.current.state.currentLabels.length;
+
+    // 新しいラベルを追加
+    act(() => result.current.setLabelAtTime(20, { ja: '新ラベル', en: 'New Label' }));
+    expect(result.current.state.currentLabels.length).toBe(initialCount + 1);
+    const added = result.current.state.currentLabels.find(l => l.startTimeSec === 20);
+    expect(added?.name.ja).toBe('新ラベル');
+
+    // ラベルを更新
+    act(() => result.current.setLabelAtTime(20, { ja: '更新ラベル', en: 'Updated Label' }));
+    const updated = result.current.state.currentLabels.find(l => l.startTimeSec === 20);
+    expect(updated?.name.ja).toBe('更新ラベル');
+
+    // ラベルを削除（空名）
+    act(() => result.current.setLabelAtTime(20, null));
+    expect(result.current.state.currentLabels.length).toBe(initialCount);
+  });
+
+  it('updateLabel でラベルIDを指定して名前を更新する', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    const label = result.current.state.currentLabels[0];
+    act(() => result.current.updateLabel(label.id, { ja: '更新ラベル', en: 'Updated Label' }));
+    expect(result.current.state.currentLabels[0].name.ja).toBe('更新ラベル');
   });
 
   it('getSaveData で削除済みイベントを除外したデータを返す', () => {
@@ -124,5 +149,6 @@ describe('useTemplateEditor', () => {
     expect(saveData.events).toHaveLength(2);
     expect(saveData.events.find(e => e.id === 'ev2')).toBeUndefined();
     expect(saveData.phases).toHaveLength(1);
+    expect(saveData.labels).toBeDefined();
   });
 });
