@@ -116,7 +116,7 @@ export const HeaderTimeInput: React.FC<HeaderTimeInputProps> = ({
                     onChange={(e) => { setValue(e.target.value); setError(false); }}
                     placeholder={t('timeline.nav_time_placeholder')}
                     className={clsx(
-                        "w-full px-3 py-2 rounded-md bg-app-bg border text-app-2xl text-app-text placeholder:text-app-text-muted focus:outline-none focus:ring-1",
+                        "w-full px-3 py-2 rounded-md bg-app-bg border text-[16px] md:text-app-2xl text-app-text placeholder:text-app-text-muted focus:outline-none focus:ring-1",
                         error ? "border-red-500 focus:ring-red-500" : "border-app-border focus:ring-app-text"
                     )}
                 />

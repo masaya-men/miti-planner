@@ -518,7 +518,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
                                 onFocus={(e) => e.target.select()}
                                 className={clsx(
-                                    "w-full rounded-lg p-2.5 text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
+                                    "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
                                     "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
@@ -533,7 +533,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 value={contentLanguage === 'en' ? name.en : name.ja}
                                 onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
                                 className={clsx(
-                                    "w-full rounded-lg p-2.5 text-app-2xl transition-all border focus:outline-none focus:ring-1",
+                                    "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
                                     "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                 )}
                                 required
@@ -619,7 +619,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setDamageAmount(v === '' ? 0 : Number(v)); }}
                                     onFocus={(e) => e.target.select()}
                                     className={clsx(
-                                        "w-full rounded-lg p-2.5 text-app-3xl font-mono transition-all font-bold border focus:outline-none focus:ring-1",
+                                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-3xl font-mono transition-all font-bold border focus:outline-none focus:ring-1",
                                         "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                                     )}
                                 />
@@ -642,7 +642,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                     onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setCalcActualDamage(v === '' ? 0 : Number(v)); }}
                                                     onFocus={(e) => e.target.select()}
                                                     className={clsx(
-                                                        "flex-1 border rounded-lg px-4 py-2.5 text-app-3xl font-mono outline-none transition-all",
+                                                        "flex-1 border rounded-lg px-4 py-2.5 text-[16px] md:text-app-3xl font-mono outline-none transition-all",
                                                         "bg-app-surface border-app-border text-app-text focus:border-app-text"
                                                     )}
                                                     placeholder="0"

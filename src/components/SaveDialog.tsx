@@ -93,7 +93,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
                                     if (e.key === 'Escape') onClose();
                                 }}
                                 placeholder={t('save_dialog.plan_name_placeholder', 'Enter plan name...')}
-                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-app-xl focus:outline-none focus:border-app-text transition-all font-black text-app-text placeholder:text-app-text-muted/50"
+                                className="w-full px-5 py-4 bg-glass-card/40 border border-glass-border/30 rounded-2xl text-[16px] md:text-app-xl focus:outline-none focus:border-app-text transition-all font-black text-app-text placeholder:text-app-text-muted/50"
                             />
                         </div>
                     </div>

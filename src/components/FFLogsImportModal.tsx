@@ -346,7 +346,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     value={url}
                     onChange={handleUrlChange}
                     disabled={isLoading || status.phase === 'preview'}
-                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted disabled:opacity-50"
+                    className="w-full bg-app-surface2 border border-app-border rounded-xl py-3 pl-10 pr-3 text-[16px] md:text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted disabled:opacity-50"
                     placeholder={t('fflogs.placeholder')}
                     spellCheck={false}
                 />

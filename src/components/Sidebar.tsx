@@ -274,7 +274,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         onChange={e => setEditingTitle(e.target.value)}
                                         onBlur={finishEditing}
                                         onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                        className="flex-1 text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
+                                        className="flex-1 text-[16px] md:text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none"
                                     />
                                 ) : (
                                     <div
@@ -683,7 +683,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                 onChange={e => setEditingTitle(e.target.value)}
                                 onBlur={finishEditing}
                                 onKeyDown={e => { if (e.key === 'Enter') finishEditing(); if (e.key === 'Escape') setEditingPlanId(null); }}
-                                className="flex-1 text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
+                                className="flex-1 text-[16px] md:text-app-base py-1 px-2 rounded-md bg-app-bg border border-app-text/30 text-app-text font-medium outline-none w-full"
                             />
                         );
                     }
@@ -1541,7 +1541,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     if (e.key === 'Escape') handleCancelNewPlan();
                                 }}
                                 onFocus={e => e.target.select()}
-                                className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-app-2xl text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
+                                className="w-full px-4 py-3 bg-app-surface2 border border-app-border rounded-xl text-[16px] md:text-app-2xl text-app-text font-bold outline-none focus:border-app-text/40 transition-colors"
                             />
                         </div>
                         <div className="px-5 pb-4 flex flex-col gap-3">

@@ -93,7 +93,7 @@ export const CsvImportModal: React.FC<CsvImportModalProps> = ({ isOpen, onClose 
                         <textarea
                             value={csvText}
                             onChange={(e) => setCsvText(e.target.value)}
-                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text resize-none placeholder:text-app-text-muted"
+                            className="w-full h-48 bg-app-surface2 border border-app-border rounded-xl p-3 text-[16px] md:text-app-2xl font-mono text-app-text focus:outline-none focus:border-app-text resize-none placeholder:text-app-text-muted"
                             placeholder="0:00, Start&#10;0:15, First AOE, 100000, magical, PT"
                             spellCheck={false}
                         />
