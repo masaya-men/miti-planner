@@ -2015,7 +2015,8 @@ const Timeline: React.FC = () => {
                                             onCellClick={handleCellClick}
                                             onMobileDamageClick={handleMobileDamageClick}
                                             phaseColumnCollapsed={phaseColumnCollapsed}
-                                            timelineSelectMode={timelineSelectMode ?? (labelSelectMode ? { phaseId: labelSelectMode.labelId, startTime: labelSelectMode.startTime } : null)}
+                                            timelineSelectMode={timelineSelectMode}
+                                            labelSelectMode={labelSelectMode}
                                             previewEndTime={previewEndTime}
                                             onTimelineSelect={(time) => {
                                                 if (labelSelectMode) {
