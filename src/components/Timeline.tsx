@@ -1431,6 +1431,21 @@ const Timeline: React.FC = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [clipboardEvent]);
 
+    // TL選択モード: Escapeでキャンセル
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && timelineSelectMode) {
+                setTimelineSelectMode(null);
+                setPreviewEndTime(null);
+                setIsPhaseModalOpen(true);
+            }
+        };
+        if (timelineSelectMode) {
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [timelineSelectMode]);
+
     useEffect(() => {
         if (!clearMenuOpen) return;
         const handleClick = () => setClearMenuOpen(false);
@@ -1966,6 +1981,25 @@ const Timeline: React.FC = () => {
                                             onCellClick={handleCellClick}
                                             onMobileDamageClick={handleMobileDamageClick}
                                             phaseColumnCollapsed={phaseColumnCollapsed}
+                                            timelineSelectMode={timelineSelectMode}
+                                            previewEndTime={previewEndTime}
+                                            onTimelineSelect={(time) => {
+                                                if (timelineSelectMode) {
+                                                    updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                    setTimelineSelectMode(null);
+                                                    setPreviewEndTime(null);
+                                                    const phase = phases.find(p => p.id === timelineSelectMode.phaseId);
+                                                    if (phase) {
+                                                        setSelectedPhase({ id: phase.id, name: phase.name, endTime: time });
+                                                        setIsPhaseModalOpen(true);
+                                                    }
+                                                }
+                                            }}
+                                            onTimelineSelectHover={(time) => {
+                                                if (timelineSelectMode) {
+                                                    setPreviewEndTime(time);
+                                                }
+                                            }}
                                         />
                                     );
 
