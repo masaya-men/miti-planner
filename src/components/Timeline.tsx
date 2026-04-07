@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 import { MobileTimelineRow } from './MobileTimelineRow';
+import { MobileContextMenu } from './MobileContextMenu';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -607,6 +608,12 @@ const Timeline: React.FC = () => {
         selectedMemberId: string | null;
     }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null });
 
+    const [mobileContextMenu, setMobileContextMenu] = useState<{
+        isOpen: boolean;
+        event: TimelineEvent | null;
+        time: number;
+    } | null>(null);
+
     const [mitigationSelectorOpen, setMitigationSelectorOpen] = useState(false);
     const [selectorPosition, setSelectorPosition] = useState({ x: 0, y: 0 });
     const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
@@ -1109,6 +1116,43 @@ const Timeline: React.FC = () => {
         setMobileMenuOpen(false);
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
     }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
+
+    const handleMobileLongPress = useCallback((event: TimelineEvent, time: number) => {
+        setMobilePartyOpen(false);
+        setMobileToolsOpen(false);
+        setMobileMenuOpen(false);
+        setMobileContextMenu({ isOpen: true, event, time });
+    }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
+
+    const handleContextEdit = useCallback(() => {
+        if (!mobileContextMenu?.event) return;
+        setSelectedEvent(mobileContextMenu.event);
+        setSelectedTime(mobileContextMenu.time);
+        setIsModalOpen(true);
+        setMobileContextMenu(null);
+    }, [mobileContextMenu]);
+
+    const handleContextAdd = useCallback(() => {
+        if (!mobileContextMenu) return;
+        setSelectedEvent(null);
+        setSelectedTime(mobileContextMenu.time);
+        setIsModalOpen(true);
+        setMobileContextMenu(null);
+    }, [mobileContextMenu]);
+
+    const handleContextDelete = useCallback(() => {
+        if (!mobileContextMenu?.event) return;
+        setConfirmDialog({
+            title: t('timeline.event_delete'),
+            message: t('timeline.delete_event_confirm'),
+            variant: 'danger',
+            onConfirm: () => {
+                removeEvent(mobileContextMenu.event!.id);
+                setConfirmDialog(null);
+                setMobileContextMenu(null);
+            },
+        });
+    }, [mobileContextMenu, t, removeEvent]);
 
     // 他のボトムメニューが開いたら軽減追加シートを閉じる
     useEffect(() => {
@@ -2033,6 +2077,7 @@ const Timeline: React.FC = () => {
                                                     partyMembers={sortedPartyMembers}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
+                                                    onLongPress={handleMobileLongPress}
                                                     phaseColumnCollapsed={phaseColumnCollapsed}
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
@@ -2054,6 +2099,7 @@ const Timeline: React.FC = () => {
                                                     partyMembers={sortedPartyMembers}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
+                                                    onLongPress={handleMobileLongPress}
                                                     phaseColumnCollapsed={phaseColumnCollapsed}
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
@@ -2076,6 +2122,7 @@ const Timeline: React.FC = () => {
                                                     partyMembers={sortedPartyMembers}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
+                                                    onLongPress={handleMobileLongPress}
                                                     phaseColumnCollapsed={phaseColumnCollapsed}
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
@@ -2516,6 +2563,19 @@ const Timeline: React.FC = () => {
                 initialTime={selectedTime}
                 position={eventModalPosition}
             />
+
+            {mobileContextMenu?.event && (
+                <MobileContextMenu
+                    isOpen={mobileContextMenu.isOpen}
+                    onClose={() => setMobileContextMenu(null)}
+                    event={mobileContextMenu.event}
+                    time={mobileContextMenu.time}
+                    onEdit={handleContextEdit}
+                    onAdd={handleContextAdd}
+                    onDelete={handleContextDelete}
+                    contentLanguage={contentLanguage}
+                />
+            )}
 
             <BoundaryEditModal
                 isOpen={isPhaseModalOpen}
