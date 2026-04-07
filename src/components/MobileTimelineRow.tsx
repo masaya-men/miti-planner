@@ -24,6 +24,7 @@ interface MobileTimelineRowProps {
     partyMembers: PartyMember[];
     activeMitigations: AppliedMitigation[];
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
+    onLongPress?: (event: TimelineEvent, time: number) => void;
     phaseColumnCollapsed?: boolean;
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
@@ -106,6 +107,7 @@ export const MobileTimelineRow = memo(({
     partyMembers,
     activeMitigations,
     onMobileDamageClick,
+    onLongPress,
     hasPhases: _hasPhases = true,
     phaseColumnCollapsed,
     timelineSelectMode,
@@ -156,7 +158,50 @@ export const MobileTimelineRow = memo(({
         && time >= labelSelectMode.startTime
         && time <= (previewEndTime ?? 0);
 
+    const longPressTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const touchStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
+    const isLongPressRef = React.useRef(false);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        const touch = e.touches[0];
+        touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+        isLongPressRef.current = false;
+
+        longPressTimerRef.current = setTimeout(() => {
+            isLongPressRef.current = true;
+            if (onLongPress && events.length > 0) {
+                try { navigator.vibrate(10); } catch {}
+                onLongPress(events[0], time);
+            }
+        }, 300);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (!touchStartPosRef.current) return;
+        const touch = e.touches[0];
+        const dx = Math.abs(touch.clientX - touchStartPosRef.current.x);
+        const dy = Math.abs(touch.clientY - touchStartPosRef.current.y);
+        if (dx > 5 || dy > 5) {
+            if (longPressTimerRef.current) {
+                clearTimeout(longPressTimerRef.current);
+                longPressTimerRef.current = null;
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+        touchStartPosRef.current = null;
+    };
+
     const handleTap = (e: React.MouseEvent) => {
+        if (isLongPressRef.current) {
+            isLongPressRef.current = false;
+            return;
+        }
         if (timelineSelectMode || labelSelectMode) {
             onTimelineSelect?.(time);
             e.stopPropagation();
@@ -178,6 +223,9 @@ export const MobileTimelineRow = memo(({
             )}
             style={{ top: `${top}px` }}
             onClick={handleTap}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             onMouseEnter={() => {
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelectHover?.(time);
@@ -291,6 +339,7 @@ export const MobileTimelineRow = memo(({
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
     if (prevProps.eventIndex !== nextProps.eventIndex) return false;
     if (prevProps.isSecondEvent !== nextProps.isSecondEvent) return false;
+    if (prevProps.onLongPress !== nextProps.onLongPress) return false;
     if (prevProps.activeMitigations !== nextProps.activeMitigations) {
         if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
         for (let i = 0; i < prevProps.activeMitigations.length; i++) {
