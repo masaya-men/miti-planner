@@ -2,19 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, AppliedMitigation, PlanData, LocalizedString } from '../types';
 import { normalizeLocalizedString } from '../types';
+import { migratePhases } from '../utils/phaseMigration';
 
 /** Firestore旧データ(mechanicGroup: string)をLocalizedStringに正規化 */
 const normalizeEvents = (events: TimelineEvent[]): TimelineEvent[] =>
     events.map(e => e.mechanicGroup ? { ...e, mechanicGroup: normalizeLocalizedString(e.mechanicGroup as any) } : e);
 
-/** フェーズ名に "[object Object]" が混入した壊れたデータを修復 */
-const normalizePhases = (phases: Phase[]): Phase[] =>
-    phases.map(p => {
-        if (typeof p.name === 'string' && p.name.includes('[object Object]')) {
-            return { ...p, name: p.name.replace(/\n?\[object Object\]/g, '') };
-        }
-        return p;
-    });
+
 import { calculateMemberValues } from '../utils/calculator';
 import {
   getJobsFromStore,
@@ -83,9 +77,10 @@ interface MitigationState {
     addEvent: (event: TimelineEvent) => void;
     updateEvent: (id: string, event: Partial<TimelineEvent>) => void;
     removeEvent: (id: string) => void;
-    addPhase: (endTime: number, name?: string) => void;
-    updatePhase: (id: string, name: string) => void;
+    addPhase: (startTime: number, name: LocalizedString) => void;
+    updatePhase: (id: string, name: LocalizedString) => void;
     removePhase: (id: string) => void;
+    updatePhaseEndTime: (id: string, newEndTime: number) => void;
     /** ラベル（mechanicGroup）を指定時刻から次の境界まで設定 */
     setLabelFromTime: (time: number, label: LocalizedString) => void;
     /** 指定時刻のラベルセクションを更新 */
@@ -244,7 +239,7 @@ export const useMitigationStore = create<MitigationState>()(
                         currentLevel: snapshot.currentLevel,
                         timelineEvents: normalizeEvents(snapshot.timelineEvents),
                         timelineMitigations: snapshot.timelineMitigations,
-                        phases: normalizePhases(snapshot.phases),
+                        phases: migratePhases(snapshot.phases ?? []),
                         partyMembers: membersWithComputed,
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,
@@ -419,19 +414,18 @@ export const useMitigationStore = create<MitigationState>()(
                     }));
                 },
 
-                addPhase: (endTime, name = 'New Phase') => {
-                    const exists = get().phases.some(p => p.endTime === endTime);
+                addPhase: (startTime, name) => {
+                    const exists = get().phases.some(p => p.startTime === startTime);
                     if (exists) return;
                     pushHistory();
                     set((state) => {
                         const newPhase: Phase = {
                             id: crypto.randomUUID(),
                             name,
-                            endTime
+                            startTime
                         };
-                        return { phases: [...state.phases, newPhase].sort((a, b) => a.endTime - b.endTime) };
+                        return { phases: [...state.phases, newPhase].sort((a, b) => a.startTime - b.startTime) };
                     });
-                    // (チュートリアルイベント削除済み: phase:added)
                 },
 
                 updatePhase: (id, name) => {
@@ -446,6 +440,23 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         phases: state.phases.filter(p => p.id !== id)
                     }));
+                },
+
+                updatePhaseEndTime: (id, newEndTime) => {
+                    pushHistory();
+                    set((state) => {
+                        const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(p => p.id === id);
+                        if (idx < 0) return {};
+                        const nextPhase = sorted[idx + 1];
+                        // 次のフェーズのstartTimeを超えないようクリップ
+                        const clipped = nextPhase ? Math.min(newEndTime, nextPhase.startTime) : newEndTime;
+                        // 自分のstartTime以下にはしない
+                        const final = Math.max(clipped, sorted[idx].startTime + 1);
+                        return {
+                            phases: state.phases.map(p => p.id === id ? { ...p, endTime: final } : p)
+                        };
+                    });
                 },
 
                 setLabelFromTime: (time, label) => {
