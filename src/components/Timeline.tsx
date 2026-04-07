@@ -8,11 +8,11 @@ import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
-import type { TimelineEvent, Mitigation, AppliedMitigation } from '../types';
+import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
-import { PhaseModal } from './PhaseModal';
+import { BoundaryEditModal } from './BoundaryEditModal';
 
 import { MitigationSelector } from './MitigationSelector';
 import { JobPicker } from './JobPicker';
@@ -570,6 +570,7 @@ const Timeline: React.FC = () => {
     const addPhase = useMitigationStore(s => s.addPhase);
     const updatePhase = useMitigationStore(s => s.updatePhase);
     const removePhase = useMitigationStore(s => s.removePhase);
+    const updatePhaseEndTime = useMitigationStore(s => s.updatePhaseEndTime);
     const setLabelFromTime = useMitigationStore(s => s.setLabelFromTime);
     const updateLabelSection = useMitigationStore(s => s.updateLabelSection);
     const removeLabelSection = useMitigationStore(s => s.removeLabelSection);
@@ -583,9 +584,11 @@ const Timeline: React.FC = () => {
     const [eventPopover, setEventPopover] = useState<{ event: TimelineEvent; position: { x: number; y: number } } | null>(null);
 
     const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
-    const [selectedPhase, setSelectedPhase] = useState<{ id: string, name: string } | null>(null);
+    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; endTime?: number } | null>(null);
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
+    const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number } | null>(null);
+    const [previewEndTime, setPreviewEndTime] = useState<number | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
     const [selectedLabel, setSelectedLabel] = useState<{ startTime: number; label: { ja: string; en: string } } | null>(null);
@@ -896,25 +899,31 @@ const Timeline: React.FC = () => {
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
-        setSelectedPhaseTime(time + 1);
+        setSelectedPhaseTime(time);
         setSelectedPhase(null);
         setIsPhaseModalOpen(true);
     }, []);
 
-    const handlePhaseEdit = (id: string, currentName: string, e: React.MouseEvent) => {
+    const handlePhaseEdit = (phase: Phase, e: React.MouseEvent) => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
-        setSelectedPhase({ id, name: currentName });
+        const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+        const idx = sorted.findIndex(p => p.id === phase.id);
+        const nextPhase = sorted[idx + 1];
+        const effectiveEndTime = phase.endTime ?? nextPhase?.startTime;
+        setSelectedPhase({ id: phase.id, name: phase.name, endTime: effectiveEndTime });
         setIsPhaseModalOpen(true);
     };
 
-    const handlePhaseSave = (name: string, time?: number) => {
+    const handlePhaseSave = (name: LocalizedString, endTime?: number) => {
         if (selectedPhase) {
             updatePhase(selectedPhase.id, name);
+            if (endTime !== undefined) {
+                updatePhaseEndTime(selectedPhase.id, endTime);
+            }
         } else {
-            const targetTime = time !== undefined ? time : selectedPhaseTime;
-            if (targetTime !== undefined) {
-                addPhase(targetTime, name);
+            if (selectedPhaseTime !== undefined) {
+                addPhase(selectedPhaseTime, name);
             }
         }
     };
@@ -1969,13 +1978,19 @@ const Timeline: React.FC = () => {
                                     <>
                                         {renderItems}
 
+                                        {timelineSelectMode && (
+                                            <div className="fixed top-0 left-0 right-0 z-[9998] bg-app-blue/90 text-white text-center py-2 text-app-lg font-medium">
+                                                {t('boundary_modal.select_banner')}
+                                            </div>
+                                        )}
+
                                         {/* フェーズオーバーレイ */}
                                         {!phaseColumnCollapsed && phases.map((phase, index) => {
-                                            if (!showPreStart && phase.endTime <= 0) return null;
-
                                             const offsetTime = showPreStart ? -10 : 0;
-                                            const startTime = index === 0 ? 0 : phases[index - 1].endTime;
-                                            const endTime = phase.endTime;
+                                            const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+                                            const startTime = phase.startTime;
+                                            const nextPhase = sorted[index + 1];
+                                            const endTime = phase.endTime ?? nextPhase?.startTime ?? (Math.max(...timelineEvents.map(e => e.time), 0) + 10);
 
                                             if (!showPreStart && endTime <= 0) return null;
 
@@ -1991,12 +2006,11 @@ const Timeline: React.FC = () => {
                                                     key={phase.id}
                                                     className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 cursor-pointer hover:bg-app-surface2 pointer-events-auto z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
-                                                    onClick={(e) => handlePhaseEdit(phase.id, getPhaseName(phase.name, contentLanguage), e)}
+                                                    onClick={(e) => handlePhaseEdit(phase, e)}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
                                                         <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
-                                                                {/* PC: Phase番号 + ボス名の2行表示 */}
                                                                 <span className="hidden md:block whitespace-nowrap text-app-xl font-bold text-app-text leading-none">
                                                                     {t('timeline.phase_prefix', { index: index + 1 })}
                                                                 </span>
@@ -2005,7 +2019,6 @@ const Timeline: React.FC = () => {
                                                                         {getPhaseName(phase.name, contentLanguage)}
                                                                     </span>
                                                                 )}
-                                                                {/* スマホ: 1行表示（ボス名のみ） */}
                                                                 <span className="md:hidden whitespace-nowrap text-app-base font-bold text-app-text leading-none">
                                                                     {getPhaseName(phase.name, contentLanguage)}
                                                                 </span>
@@ -2021,6 +2034,20 @@ const Timeline: React.FC = () => {
                                             const offsetTime = showPreStart ? -10 : 0;
                                             const allSorted = [...timelineEvents].sort((a, b) => a.time - b.time);
                                             if (!allSorted.some(e => e.mechanicGroup)) return null;
+
+                                            // DEBUG: ラベル分裂調査用ログ
+                                            if (typeof window !== 'undefined' && (window as any).__DEBUG_LABELS) {
+                                                console.group('🏷️ mechanicGroup dump');
+                                                allSorted.forEach((ev, i) => {
+                                                    if (ev.mechanicGroup) {
+                                                        console.log(`[${i}] time=${ev.time} name="${ev.name?.ja}" mg="${ev.mechanicGroup.ja}" en="${ev.mechanicGroup.en}"`);
+                                                    } else {
+                                                        console.log(`[${i}] time=${ev.time} name="${ev.name?.ja}" mg=NONE`);
+                                                    }
+                                                });
+                                                console.groupEnd();
+                                                (window as any).__DEBUG_LABELS = false; // 1回だけ出力
+                                            }
 
                                             // フェーズ境界の時刻リストを作成
 
@@ -2351,14 +2378,18 @@ const Timeline: React.FC = () => {
                 position={eventModalPosition}
             />
 
-            <PhaseModal
+            <BoundaryEditModal
                 isOpen={isPhaseModalOpen}
                 isEdit={!!selectedPhase}
-                initialName={selectedPhase?.name || ''}
-                initialTime={selectedPhaseTime}
+                initial={selectedPhase ? { name: selectedPhase.name, endTime: selectedPhase.endTime } : undefined}
                 onClose={() => setIsPhaseModalOpen(false)}
                 onSave={handlePhaseSave}
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
+                onStartTimelineSelect={selectedPhase ? () => {
+                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: selectedPhase.endTime ?? 0 });
+                    setIsPhaseModalOpen(false);
+                } : undefined}
+                mode="phase"
                 position={phaseModalPosition}
             />
             <LabelModal
