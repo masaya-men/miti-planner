@@ -171,9 +171,7 @@ export const MobileTimelineRow = memo(({
         <div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full flex h-[80px] active:bg-app-text/5 transition-colors duration-75",
-                isSecondEvent ? "bg-app-surface2/50" : "",
-                (isHighlighted || isLabelHighlighted) && "bg-app-blue/10",
+                "absolute left-0 w-full h-[80px] px-2",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px` }}
@@ -184,13 +182,22 @@ export const MobileTimelineRow = memo(({
                 }
             }}
         >
-            {/* 左: フェーズ/ラベル列 (24px) — 常に表示 */}
-            {!phaseColumnCollapsed && (
-                <div className="w-[24px] min-w-[24px] border-r border-app-border/40 h-full flex items-center justify-center" />
-            )}
+            {/* カード本体 — Apple風の角丸カード */}
+            <div className={clsx(
+                "h-full flex rounded-xl transition-colors duration-100",
+                "active:bg-app-text/5",
+                isSecondEvent
+                    ? "bg-app-text/[0.02]"
+                    : "",
+                (isHighlighted || isLabelHighlighted) && "bg-app-blue/10"
+            )}>
+                {/* 左: フェーズ/ラベル列 (24px) — 常に表示 */}
+                {!phaseColumnCollapsed && (
+                    <div className="w-[24px] min-w-[24px] h-full flex items-center justify-center opacity-40" />
+                )}
 
-            {/* 右: 2行カード */}
-            <div className="flex-1 min-w-0 flex flex-col justify-center px-2 gap-0.5">
+                {/* 右: 2行カード */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center px-2 gap-0.5">
                 {/* 上段: 時間 + 種別アイコン + 攻撃名 + 対象バッジ */}
                 <div className="flex items-center gap-1.5 min-w-0">
                     {/* 時間 or 〃 */}
@@ -247,12 +254,6 @@ export const MobileTimelineRow = memo(({
                             </span>
 
                             {/* 致死バッジ */}
-                            {isLethal && (
-                                <span className="text-[9px] font-black text-red-500 bg-red-500/10 px-1 py-px rounded-md flex-shrink-0">
-                                    {t('app.mobile_lethal')}
-                                </span>
-                            )}
-
                             {/* 軽減% */}
                             {damage.mitigationPercent > 0 && !isLethal && (
                                 <span className="font-mono text-[11px] text-app-text opacity-25 leading-none flex-shrink-0">
@@ -281,6 +282,7 @@ export const MobileTimelineRow = memo(({
                     />
                 </div>
             </div>
+            </div>{/* カード本体 end */}
         </div>
     );
 }, (prevProps, nextProps) => {
