@@ -76,7 +76,7 @@ interface Norm {
 
 export interface MapperResult {
     events: TimelineEvent[];
-    phases: { id: number; startTimeSec: number; name: string }[];
+    phases: { id: number; startTimeSec: number; name: LocalizedString }[];
     stats: {
         totalRawEvents: number;
         filteredEvents: number;

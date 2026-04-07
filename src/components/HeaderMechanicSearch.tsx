@@ -36,10 +36,10 @@ function formatTime(seconds: number): string {
 }
 
 function getPhaseName(time: number, phases: Phase[]): string {
-    for (let i = 0; i < phases.length; i++) {
-        const start = i === 0 ? 0 : phases[i - 1].endTime;
-        if (time >= start && time < phases[i].endTime) {
-            return getPhaseNameStr(phases[i].name);
+    const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+    for (let i = sorted.length - 1; i >= 0; i--) {
+        if (time >= sorted[i].startTime) {
+            return getPhaseNameStr(sorted[i].name);
         }
     }
     return '';
