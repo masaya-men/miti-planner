@@ -138,7 +138,7 @@ export function AdminTemplates() {
       const res = await apiFetch(`/api/admin?resource=templates&id=${contentId}`);
       if (res.ok) {
         const data = await res.json();
-        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? []);
+        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? [], data.labels);
       } else if (res.status === 404) {
         editor.loadEvents([], []);
       } else {
@@ -158,7 +158,7 @@ export function AdminTemplates() {
 
     try {
       setSaving(true);
-      const { events, phases } = editor.getSaveData();
+      const { events, phases, labels } = editor.getSaveData();
       const res = await apiFetch('/api/admin?resource=templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,6 +166,7 @@ export function AdminTemplates() {
           contentId: selectedContentId,
           timelineEvents: events,
           phases,
+          labels,
           source: dataSource,
         }),
       });
@@ -176,7 +177,7 @@ export function AdminTemplates() {
       const reloadRes = await apiFetch(`/api/admin?resource=templates&id=${selectedContentId}`);
       if (reloadRes.ok) {
         const data = await reloadRes.json();
-        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? []);
+        editor.loadEvents(data.timelineEvents ?? [], data.phases ?? [], data.labels);
       }
       await fetchTemplates();
     } catch {
@@ -280,8 +281,8 @@ export function AdminTemplates() {
     editor.replaceAll(events, phases);
     setDataSource('plan_promote');
   };
-  const handleCsvImport = (events: TimelineEvent[], phases: TemplateData['phases']) => {
-    editor.replaceAll(events, phases);
+  const handleCsvImport = (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateData['labels']) => {
+    editor.replaceAll(events, phases, labels as any);
     setDataSource('csv_import');
   };
   const handleFflogsMatched = (matches: Map<string, string>) => {
@@ -365,11 +366,12 @@ export function AdminTemplates() {
           <TemplateEditor
             events={filteredVisibleEvents}
             phases={editor.state.currentPhases}
+            labels={editor.state.currentLabels}
             editState={editor.state}
             showUntranslatedOnly={showUntranslatedOnly}
             onUpdateCell={editor.updateCell}
             onDeleteEvent={editor.deleteEvent}
-            onUpdateLabel={editor.updateLabel}
+            onSetLabelAtTime={editor.setLabelAtTime}
             onSetPhaseAtTime={editor.setPhaseAtTime}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
