@@ -9,27 +9,30 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **最優先**: Phase/Label startTime統一リファクタリング（段階1: フェーズ）
+- **最優先**: Phase/Label startTime統一リファクタリング（段階2: ラベル Label[]化）
 - **設計書**: `docs/superpowers/specs/2026-04-07-phase-label-starttime-design.md`
-- **実装計画**: `docs/superpowers/plans/2026-04-07-phase-starttime-migration.md`
-- **実行方法**: subagent-driven-development スキルでタスク1から順番に
-- **未push**: ビルドエラー3件修正、テンプレートエディタ空ラベル修正、設計書・計画書（コミット済みだがpush前）
+- **段階1完了**: フェーズstartTime化（11タスク全完了、ビルド・105テスト通過）
+- **未push**: 前セッション4件 + 今セッション11件（計15件のコミット）
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、月100ビルド制限
 - **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
 
-### 今回の作業内容
-- ビルドエラー3件修正（groupStart未宣言、未使用import/変数）
-- テンプレートエディタ空ラベルバグ修正（undefinedマッチ問題）
-- ラベル分裂の根本原因特定 → イベント単位のmechanicGroupが元凶
-- Phase/Labelデータモデル統一の設計完了（startTimeベース、LocalizedString統一）
-- 段階1（フェーズ）の詳細実装計画作成（11タスク）
-- AdminGuardにDEVバイパス追加（.env.local VITE_DEV_ADMIN=true）→ 計画Task 11で削除予定
+### 今回の作業内容（段階1完了）
+- Phase型を `{ id, name: LocalizedString, startTime, endTime? }` に変更
+- 旧Phase→新Phase変換関数 `migratePhases` 実装（テスト9件）
+- useMitigationStoreのPhase操作をstartTimeベースに更新
+- BoundaryEditModal新規作成（多言語入力+終端時間変更+TL選択、フェーズ・ラベル共用）
+- Timeline.tsx/TimelineRow.tsxのフェーズ描画・操作をstartTimeベースに更新
+- TL選択モード（ハイライト付き終端時間選択）実装
+- HeaderPhaseDropdownをstartTimeベースに更新
+- FFLogsMapper・テンプレート変換をstartTime+LocalizedStringに更新
+- 既存テスト全更新（105テスト全パス）
+- PhaseModal.tsx削除、デバッグログ削除、AdminGuardバイパス削除
 
 ### 次セッションでやること
-1. 設計書・計画書を読む
-2. `superpowers:subagent-driven-development` スキルで実装計画のTask 1から実行
-3. 段階1（フェーズ startTime化）完了後、段階2（ラベル Label[]化）の計画作成
-4. 全完了後にまとめてpush（ビルド1回で済ませる）
+1. まとめてpush（ビルド1回で済ませる）
+2. 本番動作確認（フェーズ表示・編集・FFLogsインポート）
+3. 段階2（ラベル Label[]化）の実装計画作成
+4. 段階2実装
 
 ---
 
@@ -58,7 +61,7 @@
 ### Phase/Label リファクタリング（進行中）
 - [x] 設計書作成・承認
 - [x] 段階1（フェーズ）実装計画作成
-- [ ] 段階1 実装（11タスク）
+- [x] 段階1 実装（11タスク完了、ビルド・テスト通過）
 - [ ] 段階2（ラベル）計画作成・実装
 
 ### 多言語
