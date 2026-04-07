@@ -2915,23 +2915,6 @@ const Timeline: React.FC = () => {
                 <div className="flex flex-col gap-3">
                     <div className="flex gap-2">
                         <button
-                            onClick={() => {
-                                const store = useMitigationStore.getState();
-                                store.setHideEmptyRows(!store.hideEmptyRows);
-                            }}
-                            className={clsx(
-                                "flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer",
-                                !useMitigationStore.getState().hideEmptyRows
-                                    ? "bg-app-text/15 border-app-text text-app-text"
-                                    : "bg-app-surface2 border-app-border text-app-text"
-                            )}
-                        >
-                            {useMitigationStore.getState().hideEmptyRows ? <Rows3 size={16} /> : <AlignJustify size={16} />}
-                            <span className="text-app-lg font-bold uppercase">
-                                {useMitigationStore.getState().hideEmptyRows ? t('ui.compact_view') : t('ui.compact_view_on')}
-                            </span>
-                        </button>
-                        <button
                             onClick={() => useMitigationStore.getState().undo()}
                             disabled={!canUndo}
                             className={clsx(
