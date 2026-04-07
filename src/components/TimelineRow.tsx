@@ -178,9 +178,22 @@ export const TimelineRow = memo(({
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
-                useMitigationStore.getState().showRowBorders && "border-b border-app-border"
+                useMitigationStore.getState().showRowBorders && "border-b border-app-border",
+                (timelineSelectMode || labelSelectMode) && "cursor-pointer",
+                (isHighlighted || isLabelHighlighted) && "bg-app-blue/5"
             )}
             style={{ top: `${top}px` }}
+            onMouseEnter={() => {
+                if (timelineSelectMode || labelSelectMode) {
+                    onTimelineSelectHover?.(time);
+                }
+            }}
+            onClick={(e) => {
+                if (timelineSelectMode || labelSelectMode) {
+                    onTimelineSelect?.(time);
+                    e.stopPropagation();
+                }
+            }}
         >
             {/* Phase Column — スマホ: フェーズなし→非表示 / PC: フェーズ追加 */}
             {!phaseColumnCollapsed ? (

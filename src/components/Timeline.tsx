@@ -2134,16 +2134,12 @@ const Timeline: React.FC = () => {
                                                     <div
                                                         key={`label-${label.id}`}
                                                         className={clsx(
-                                                            "absolute border-r border-b border-app-border/50 bg-app-surface2/50 pointer-events-auto z-10 cursor-pointer hover:bg-app-surface2/80",
+                                                            "absolute border-r border-b border-app-border/50 bg-app-surface2/50 pointer-events-none z-10",
                                                             hasPhases
                                                                 ? "hidden md:block left-[60px] w-[50px]"
                                                                 : "left-0 w-[24px] md:left-[60px] md:w-[50px]"
                                                         )}
                                                         style={{ top: `${top}px`, height: `${height}px` }}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setLabelPopover({ label, position: { x: e.clientX, y: e.clientY }, clickTime: label.startTime });
-                                                        }}
                                                     >
                                                         <div className="sticky top-0 w-full h-[100px] flex items-center justify-center pt-4">
                                                             <div className="transform -rotate-90 overflow-visible drop-shadow-sm origin-center">
