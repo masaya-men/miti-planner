@@ -135,11 +135,12 @@ export const CheatSheetView: React.FC = () => {
                         }
                     });
 
-                    const localizedName = getPhaseName(def.name, contentLanguage);
-                    let maxValBase = member.computedValues[localizedName] || 0;
+                    // Always use Japanese name for computedValues lookup (SKILL_DATA keys are Japanese)
+                    const jaName = typeof def.name === 'string' ? def.name : (def.name.ja || '');
+                    let maxValBase = member.computedValues[jaName] || 0;
 
                     if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
-                        maxValBase = member.computedValues[`${def.name.en} (Neutral)`] || member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
+                        maxValBase = member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
                     }
 
                     const maxVal = Math.floor(maxValBase * healingMultiplier);
