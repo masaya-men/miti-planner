@@ -17,6 +17,7 @@ import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import type { MigrationMode } from '../utils/jobMigration';
 import type { Job } from '../types';
 import { PARTY_MEMBER_IDS } from '../constants/party';
+import { createPortal } from 'react-dom';
 
 // ── スワイプ削除付きスロット行 ──
 const SwipeableSlot: React.FC<{
@@ -331,10 +332,10 @@ const MobilePartySettings: React.FC = () => {
                 </div>
             )}
 
-            {/* ドラッグゴースト */}
-            {drag.isDragging && drag.item && (
+            {/* ドラッグゴースト — MobileBottomSheetのtransformを回避するためportal化 */}
+            {drag.isDragging && drag.item && createPortal(
                 <div
-                    className="fixed pointer-events-none z-50"
+                    className="fixed pointer-events-none z-[9999]"
                     style={{
                         left: drag.position.x - 24,
                         top: drag.position.y - 24,
@@ -344,7 +345,8 @@ const MobilePartySettings: React.FC = () => {
                     <div className="w-12 h-12 rounded-xl bg-app-surface2 border border-app-text/30 flex items-center justify-center shadow-lg shadow-black/40">
                         <img src={drag.item.icon} className="w-9 h-9 object-contain" />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* ジョブ変更マイグレーション確認モーダル */}
