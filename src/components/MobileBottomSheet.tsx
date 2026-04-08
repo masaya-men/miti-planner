@@ -87,9 +87,8 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                             borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
                         }}
                         initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
-                        transition={SPRING.default}
+                        animate={{ y: 0, transition: { type: "spring", stiffness: 380, damping: 22 } }}
+                        exit={{ y: '100%', transition: { duration: 0.25, ease: [0.32, 0.72, 0, 1] } }}
                     >
                         {/* Drag handle */}
                         <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
