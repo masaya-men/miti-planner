@@ -241,7 +241,7 @@
 
     /* モバイルUI用 */
     --color-sheet-bg: #1c1c1e;
-    --color-nav-bg: rgba(20, 20, 20, 0.85);
+    --color-nav-bg: rgba(20, 20, 20, 0.70);
     --color-nav-border: rgba(255, 255, 255, 0.08);
     --color-overlay: rgba(0, 0, 0, 0.4);
     --color-fab-bg: rgba(255, 255, 255, 0.1);
@@ -303,7 +303,7 @@
 
     /* モバイルUI用 */
     --color-sheet-bg: #ffffff;
-    --color-nav-bg: rgba(249, 249, 249, 0.94);
+    --color-nav-bg: rgba(249, 249, 249, 0.70);
     --color-nav-border: rgba(0, 0, 0, 0.12);
     --color-overlay: rgba(0, 0, 0, 0.2);
     --color-fab-bg: rgba(255, 255, 255, 0.9);
