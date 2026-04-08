@@ -62,17 +62,19 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const [open, setOpen] = React.useState(false);
     const { canSync, cloudStatus, handleSync } = useSyncState();
 
-    const close = () => setOpen(false);
+    const close = () => { setOpen(false); setLangOpen(false); };
+    const [langOpen, setLangOpen] = React.useState(false);
 
-    // 言語サイクル: ja → en → zh → ko → ja
-    const handleLanguage = () => {
-        const current = i18n.language as ContentLanguage;
-        const idx = LANG_CYCLE.indexOf(current);
-        const next = LANG_CYCLE[(idx + 1) % LANG_CYCLE.length];
+    // 言語選択: 展開式セレクター
+    const handleLanguageToggle = () => {
+        setLangOpen(prev => !prev);
+    };
+    const handleLanguageSelect = (lang: ContentLanguage) => {
+        setLangOpen(false);
         close();
         runTransition(() => {
-            i18n.changeLanguage(next);
-            setContentLanguage(next);
+            i18n.changeLanguage(lang);
+            setContentLanguage(lang);
         }, 'language');
     };
 
@@ -152,7 +154,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             key: 'language',
             label: t('app.fab_language'),
             icon: <Globe size={20} />,
-            onClick: handleLanguage,
+            onClick: handleLanguageToggle,
             accent: false,
         },
         {
@@ -238,6 +240,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                 );
                             }
                             const isSync = item.key === 'sync';
+                            const isLang = item.key === 'language';
                             return (
                                 <motion.div
                                     key={item.key}
@@ -245,10 +248,43 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     variants={itemVariants}
                                     className="flex items-center gap-2.5"
                                 >
-                                    {/* ラベル（ボタンの左） */}
-                                    <span className="text-app-lg font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
-                                        {item.label}
-                                    </span>
+                                    {/* 言語展開ボタン（左方向にぽぽぽぽんっ） */}
+                                    {isLang && (
+                                        <AnimatePresence>
+                                            {langOpen && LANG_CYCLE.map((lang, li) => (
+                                                <motion.button
+                                                    key={lang}
+                                                    initial={{ opacity: 0, x: 16, scale: 0.85 }}
+                                                    animate={{
+                                                        opacity: 1, x: 0, scale: 1,
+                                                        transition: { type: 'spring', stiffness: 400, damping: 28, delay: li * 0.045 },
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0, x: 12, scale: 0.85,
+                                                        transition: { type: 'spring', stiffness: 500, damping: 30, delay: li * 0.025 },
+                                                    }}
+                                                    onClick={() => handleLanguageSelect(lang)}
+                                                    className={clsx(
+                                                        "w-11 h-11 rounded-full border flex items-center justify-center",
+                                                        "shadow-lg active:scale-90 transition-transform duration-100",
+                                                        "text-app-lg font-bold uppercase",
+                                                        i18n.language === lang
+                                                            ? "bg-app-text text-app-bg border-app-text"
+                                                            : "bg-app-surface border-app-border text-app-text"
+                                                    )}
+                                                >
+                                                    {lang.toUpperCase()}
+                                                </motion.button>
+                                            ))}
+                                        </AnimatePresence>
+                                    )}
+
+                                    {/* ラベル（ボタンの左） — 言語展開中は非表示 */}
+                                    {!(isLang && langOpen) && (
+                                        <span className="text-app-lg font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
+                                            {item.label}
+                                        </span>
+                                    )}
 
                                     {/* ボタン */}
                                     <button
