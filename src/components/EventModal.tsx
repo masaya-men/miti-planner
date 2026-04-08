@@ -13,6 +13,9 @@ import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+// SPRING は今後のアニメーション実装で使用予定
+// import { SPRING } from '../tokens/motionTokens';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
 function toHalfWidthNumber(str: string): string {
@@ -468,36 +471,58 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
             {/* Transparent Backdrop */}
-            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`} onClick={handleBackdropClick} />
+            <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} onClick={handleBackdropClick} />
 
             <div
                 data-tutorial-modal
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
-                    "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto glass-tier3",
+                    "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto",
+                    !isMobile && "glass-tier3",
                     "ring-black/[0.02] dark:ring-white/5",
                     isMobile
-                        ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] rounded-t-2xl rounded-b-none border-b-0"
+                        ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] border-b-0"
                         : "absolute w-[500px] rounded-xl transition-all duration-200"
                 )}
-                style={isMobile ? undefined : desktopStyle}
+                style={isMobile ? {
+                    backgroundColor: 'var(--color-sheet-bg)',
+                    borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
+                    borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
+                } : desktopStyle}
             >
                 {/* Mobile Drag Handle Indicator */}
-                {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
+                {isMobile && (
+                    <div className="flex justify-center pt-2.5 pb-1">
+                        <div
+                            className="bg-[var(--app-text)]/20"
+                            style={{
+                                width: MOBILE_TOKENS.sheet.handleWidth,
+                                height: MOBILE_TOKENS.sheet.handleHeight,
+                                borderRadius: MOBILE_TOKENS.sheet.handleRadius,
+                            }}
+                        />
+                    </div>
+                )}
 
                 {isMobile ? (
-                    /* Mobile Title Row: タイトル + 時間バッジ + 閉じるボタン */
-                    <div className="flex justify-between items-center px-5 py-3 border-b flex-shrink-0 transition-colors border-app-border bg-app-surface2">
-                        <div className="flex items-center gap-2.5">
-                            <h2 className="text-app-2xl font-bold text-app-text">
-                                {initialData ? t('app.context_edit_event') : t('app.context_add_event')}
-                            </h2>
-                            <span className="px-2 py-0.5 rounded-md bg-app-text/10 text-app-text-muted text-app-base font-mono tabular-nums">
-                                {initialData?.time ?? initialTime ?? 0}s
-                            </span>
-                        </div>
-                        <button onClick={onClose} className="text-app-text p-1.5 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
-                            <X size={18} />
+                    /* Mobile iOS-style Navbar: キャンセル + タイトル + 保存 */
+                    <div className="flex justify-between items-center px-4 py-2.5 border-b flex-shrink-0 border-app-border">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="text-app-blue text-app-2xl font-medium cursor-pointer"
+                        >
+                            {t('app.event_cancel', { defaultValue: 'キャンセル' })}
+                        </button>
+                        <h2 className="text-app-2xl font-bold text-app-text">
+                            {initialData ? t('app.event_edit_title', { defaultValue: 'イベント編集' }) : t('app.event_add_title', { defaultValue: 'イベント追加' })}
+                        </h2>
+                        <button
+                            type="submit"
+                            form="event-modal-form"
+                            className="text-app-blue text-app-2xl font-bold cursor-pointer"
+                        >
+                            {t('app.event_save', { defaultValue: '保存' })}
                         </button>
                     </div>
                 ) : (
