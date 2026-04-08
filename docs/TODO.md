@@ -9,23 +9,19 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、月100ビルド制限
-- **前セッション修正（push済み・Firestore同期済み）**:
-  - スキルtype不整合修正（dark_missionary/dark_mind/magick_barrier → type:"all"）
-  - EventModal逆算ロジックのtype判定バグ修正（elseパターンに統一）
-  - EventModalにhealingIncrease計算を追加（選択スキル間で回復効果アップがバリア値に反映）
-  - healingIncreaseDuration仕組み追加（型+Timeline+CheatSheetView）
-  - ピュシスII回復効果アップ（Lv60-97:10秒 / Lv98+:15秒の2エントリ）
-  - テンパランス回復効果アップ（20%, selfOnly）
-  - ダメージタイプ選択ボタン白黒反転統一
-  - MobileContextMenu位置修正（glass-panelのposition:relativeがabsoluteを上書きしていた）
-  - EventModalモバイルボトムシート配置改善（fixed bottom-14 max-h-[75vh]）
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
+- **今セッション完了（push済み）**:
+  - 管理画面に「Firestoreに同期」ボタン追加（API: ?resource=sync、admin認証+監査ログ）
+  - スマホUIネイティブリデザイン設計書作成・承認済み
+  - 実装計画（16タスク）作成済み
+- **本番確認済み**: スマホコンテキストメニュー位置、EventModal位置、ダメージタイプボタン、回復効果アップ → 全てOK
 
-### 次セッションでやること（本番確認必須）
-1. **本番確認**（上記修正すべて — 特にスマホのコンテキストメニュー位置、EventModal位置、ダメージタイプボタン、回復効果アップ）
-2. **管理画面に「mockData.tsと同期」ボタン追加**（スキル編集のたびにseedスクリプト手動実行は不便）
-3. **スマホUIリデザイン**（Appleネイティブ風 — brainstormingから丁寧に）
-4. FAB言語切替を展開式セレクターに改善（リデザインと合わせて）
+### 次セッションでやること
+1. **管理画面の同期ボタン本番確認**（デプロイ後に確認）
+2. **スマホUIネイティブリデザイン実装**（subagent-driven-development、Task 1から開始）
+   - 設計書: `docs/superpowers/specs/2026-04-08-mobile-native-redesign.md`
+   - 実装計画: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
+   - 16タスク: トークン→フック→共通コンポ→個別コンポ8個→i18n→最終確認
 
 ---
 
@@ -56,7 +52,8 @@
 - [x] 実装（MobileTimelineRow、MobileFAB、SyncButtonラベル、同期トースト、iOSズーム防止）
 - [x] 本番動作確認・デザイン微調整
 - [x] スマホでイベント追加（モバイル最適化メニューでPCと同機能）
-- [ ] FAB言語切替を展開式セレクターに改善
+- [ ] FAB言語切替を展開式セレクターに改善（ネイティブリデザインと合わせて実施）
+- [ ] スマホUIネイティブリデザイン（Apple HIG準拠フル改修、設計書・計画書あり）
 
 ### 多言語
 - [ ] コンテンツ名・軽減モーダル等のデータ系zh/ko対応（LocalizedString拡張）
