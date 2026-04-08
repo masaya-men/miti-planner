@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -10,6 +10,8 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { SCALE } from '../tokens/motionTokens';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
@@ -46,6 +48,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         member: PartyMember;
         isFocused: boolean;
         isMyJob: boolean;
+        isDropTarget?: boolean;
         theme: string;
         onFocusToggle: (index: number) => void;
         onRemoveJob: (memberId: string) => void;
@@ -54,7 +57,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     }
 
     const SlotItem = React.memo<SlotItemProps>(({
-        index, member, isFocused, isMyJob, theme,
+        index, member, isFocused, isMyJob, isDropTarget, theme,
         onFocusToggle, onRemoveJob, onMyJobToggle, dataTutorial
     }) => {
         if (!member) return null;
@@ -75,7 +78,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     onFocusToggle(index);
                 }}
                 className={clsx(
-                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden",
+                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden transition-transform",
+                    isDropTarget && "ring-2 ring-blue-400 scale-[1.03]",
                     isFocused
                         ? activeColor === 'blue'
                             ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80"
@@ -318,6 +322,35 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
         setMyMemberId(isMyJob ? null : memberId);
     }, [setMyMemberId]);
 
+    // ── PC用 D&D: ジョブパレットからスロットへドラッグ ──
+    const slotDropRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+    const handleDragDrop = useCallback((job: Job, targetId: string) => {
+        const targetIndex = parseInt(targetId, 10);
+        if (isNaN(targetIndex)) return;
+        setDraftMembers(prev => prev.map((m, i) => i === targetIndex ? { ...m, jobId: job.id } : m));
+        setFocusedSlot(null);
+        useTutorialStore.getState().completeEvent('party:job-set');
+    }, []);
+
+    const drag = useDragAndDrop<Job>({ holdDelay: 0, onDrop: handleDragDrop });
+
+    const handlePaletteDragMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+        drag.moveDrag(e);
+        if (!drag.isDragging) return;
+        const pos = 'touches' in e
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
+        let found: string | null = null;
+        slotDropRefs.current.forEach((el, idx) => {
+            const rect = el.getBoundingClientRect();
+            if (pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom) {
+                found = String(idx);
+            }
+        });
+        drag.setActiveTarget(found);
+    }, [drag.isDragging, drag.moveDrag, drag.setActiveTarget]);
+
     const MELEE_IDS = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
     const PHYS_RANGED_IDS = ['brd', 'mch', 'dnc'];
 
@@ -500,6 +533,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                             key={job.id}
                                             data-job-id={job.id}
                                             onClick={() => handleJobSelect(job.id)}
+                                            onMouseDown={(e) => drag.startDrag(job, e)}
                                             className={clsx(
                                                 "btn-tactile w-9 h-9 rounded-lg border flex items-center justify-center relative group/btn cursor-pointer",
                                                 "bg-transparent border-transparent hover:bg-app-surface2",
@@ -508,7 +542,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                         >
                                             <Ripple />
                                             <Tooltip content={getPhaseName(job.name, contentLanguage)}>
-                                                <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10" />
+                                                <img src={job.icon} alt={getPhaseName(job.name, contentLanguage)} className="w-8 h-8 object-contain transition-transform group-hover/btn:scale-110 relative z-10 pointer-events-none" />
                                             </Tooltip>
                                         </button>
                                     );
@@ -542,6 +576,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                 ref={popoverRef}
                 data-tutorial-modal
                 data-tutorial="party-settings"
+                onMouseMove={handlePaletteDragMove}
+                onMouseUp={drag.endDrag}
                 className={clsx(
                     "relative flex flex-col glass-tier3 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
@@ -640,18 +676,20 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     const member = draftMembers[index];
                                     if (!member) return null;
                                     return (
-                                        <SlotItem
-                                            key={member.id}
-                                            index={index}
-                                            member={member}
-                                            isFocused={focusedSlot === index}
-                                            isMyJob={myMemberId === member.id}
-                                            theme={theme}
-                                            onFocusToggle={handleFocusToggle}
-                                            onRemoveJob={handleRemoveJob}
-                                            onMyJobToggle={handleMyJobToggle}
-                                            {...(index === mtGroupIndices[1] ? { dataTutorial: 'party-healer-slot' } : {})}
-                                        />
+                                        <div key={member.id} ref={(el) => { if (el) slotDropRefs.current.set(index, el); }}>
+                                            <SlotItem
+                                                index={index}
+                                                member={member}
+                                                isFocused={focusedSlot === index}
+                                                isMyJob={myMemberId === member.id}
+                                                isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
+                                                theme={theme}
+                                                onFocusToggle={handleFocusToggle}
+                                                onRemoveJob={handleRemoveJob}
+                                                onMyJobToggle={handleMyJobToggle}
+                                                {...(index === mtGroupIndices[1] ? { dataTutorial: 'party-healer-slot' } : {})}
+                                            />
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -668,17 +706,19 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                     const member = draftMembers[index];
                                     if (!member) return null;
                                     return (
-                                        <SlotItem
-                                            key={member.id}
-                                            index={index}
-                                            member={member}
-                                            isFocused={focusedSlot === index}
-                                            isMyJob={myMemberId === member.id}
-                                            theme={theme}
-                                            onFocusToggle={handleFocusToggle}
-                                            onRemoveJob={handleRemoveJob}
-                                            onMyJobToggle={handleMyJobToggle}
-                                        />
+                                        <div key={member.id} ref={(el) => { if (el) slotDropRefs.current.set(index, el); }}>
+                                            <SlotItem
+                                                index={index}
+                                                member={member}
+                                                isFocused={focusedSlot === index}
+                                                isMyJob={myMemberId === member.id}
+                                                isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
+                                                theme={theme}
+                                                onFocusToggle={handleFocusToggle}
+                                                onRemoveJob={handleRemoveJob}
+                                                onMyJobToggle={handleMyJobToggle}
+                                            />
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -693,6 +733,22 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                     </div>
                 </div>
             </div>
+
+            {/* ドラッグゴースト */}
+            {drag.isDragging && drag.item && (
+                <div
+                    className="fixed pointer-events-none z-[10001]"
+                    style={{
+                        left: drag.position.x - 20,
+                        top: drag.position.y - 20,
+                        transform: `scale(${SCALE.drag})`,
+                    }}
+                >
+                    <div className="w-10 h-10 rounded-xl bg-app-surface2 border border-app-text/30 flex items-center justify-center shadow-lg shadow-black/40">
+                        <img src={drag.item.icon} className="w-8 h-8 object-contain" />
+                    </div>
+                </div>
+            )}
 
             {/* Render Migration Confirmation over everything else */}
             {migrationBatch && (
