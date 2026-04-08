@@ -28,6 +28,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     wrapperClassName,
 }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -113,6 +114,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
             cancelAnimationFrame(rafRef.current);
         };
     }, []);
+
+    // モバイルではツールチップを表示しない（タッチ時に残る問題を防止）
+    if (isMobile) {
+        return <div className={clsx("relative flex items-center justify-center w-fit h-fit", wrapperClassName)}>{children}</div>;
+    }
 
     return (
         <div

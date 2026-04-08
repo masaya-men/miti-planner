@@ -87,13 +87,13 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                         <motion.div
                             key="context-sheet"
                             className={clsx(
-                                "absolute left-0 right-0 bottom-0",
+                                "absolute left-0 right-0",
                                 "glass-tier3 glass-panel",
                                 "rounded-t-2xl rounded-b-none",
                                 "flex flex-col overflow-hidden",
                                 "pointer-events-auto",
-                                "pb-[env(safe-area-inset-bottom,0px)]",
                             )}
+                            style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
