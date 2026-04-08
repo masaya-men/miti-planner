@@ -881,12 +881,16 @@
 }
 
 @layer components {
-  /* ボタンのタクタイルフィードバック — 最小限 */
+  /* ボタンのタクタイルフィードバック — spring */
   .btn-tactile {
-    @apply transition-colors duration-150;
+    transition: transform var(--duration-fast) var(--ease-spring),
+                color 150ms ease,
+                background-color 150ms ease,
+                border-color 150ms ease,
+                opacity 150ms ease;
   }
   .btn-tactile:active {
-    @apply opacity-80;
+    transform: scale(var(--scale-press));
   }
 
   /* 背景ブロブ — 無効化（非表示） */
