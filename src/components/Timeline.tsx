@@ -833,6 +833,7 @@ const Timeline: React.FC = () => {
         });
     };
 
+
     useEffect(() => {
         const syncPadding = () => {
             if (scrollContainerRef.current && headerRef.current) {
