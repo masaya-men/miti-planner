@@ -11,19 +11,20 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
 - **今セッション完了**:
-  - PC版ネイティブポリッシュ 14タスク全完了（12コミット）
-    - Phase 1: ダーク(#0F0F10) + ライト(#FAFAFA) テーマ色調整
-    - Phase 2: CSS spring easing (linear())、btn-tactile/Toast/Tooltip/ヘッダー/サイドバー
-    - Phase 3: glass-panel画面いっぱい化、モーダル角丸微増
-    - スマホフィードバック: テキスト選択防止、ヘッダーコンテンツ名縮小、ジョブピッカー常時表示
-    - PC版リグレッション修正（glass CSSの定義順序修正）
+  - PC版ネイティブポリッシュ v1（14タスク）+ v2（9タスク）
+  - v1: テーマ色調整、glass-panel、モーダル角丸、テキスト選択防止等
+  - v2: ICS Media記事準拠のspring 3段階化（default/bouncy/snappy）
+  - v2バグ修正: ヘッダー/ナビ透過化(70%)、テーブル余白除去、D&Dゴースト位置(createPortal)
+  - v2 spring適用: MobileBottomSheet(bouncy open/smooth close)、Toast(bouncy)、btn-tactile(snappy)、サイドバー/ヘッダー統一(380/22)
   - ビルド成功・テスト116全パス
 
 ### 次セッションでやること
-1. **本番目視確認**（PC・スマホ両方でテーマ・アニメーション・レイアウトを確認）
-   - 特にヘッダーハンドル/SyncButton位置は実機確認推奨
-   - ダーク/ライト両テーマで確認
-2. DESIGN.md更新（色値が変わったのでカラーパレット表を新値に更新）
+1. **本番目視確認**（PC・スマホ両方）
+   - ヘッダー/ボトムナビの透過具合
+   - テーブルが画面いっぱいか、ナビの下に透けるか
+   - D&Dゴーストが正しい位置に出るか
+   - spring アニメーションの体感（シート開閉、トースト、ボタン）
+2. FAB言語切替の改善（展開式セレクター）
 
 ---
 
