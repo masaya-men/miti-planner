@@ -70,7 +70,7 @@
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  from { opacity: 0; transform: translateY(-52px) scale(0.82); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
@@ -915,13 +915,13 @@
 
 /* Toast springアニメーション */
 .animate-toast-in {
-  animation: toastIn var(--duration-modal) var(--ease-spring) forwards;
+  animation: toastIn var(--duration-toast) var(--ease-spring-bouncy) forwards;
 }
 
 @layer components {
   /* ボタンのタクタイルフィードバック — spring */
   .btn-tactile {
-    transition: transform var(--duration-fast) var(--ease-spring),
+    transition: transform 0.3s var(--ease-spring-snappy),
                 color 150ms ease,
                 background-color 150ms ease,
                 border-color 150ms ease,
