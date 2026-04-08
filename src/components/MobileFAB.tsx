@@ -27,8 +27,6 @@ interface MobileFABProps {
     hideEmptyRows?: boolean;
 }
 
-const LANG_CYCLE: ContentLanguage[] = ['ja', 'en', 'zh', 'ko'];
-
 const LANG_LABELS: Record<ContentLanguage, string> = {
     ja: '日',
     en: 'EN',
@@ -41,6 +39,8 @@ const ARC_RADIUS = 60;
 const ARC_CHIP_SIZE = 36;
 // 150°〜210°（左方向、上下対称の扇形）を4等分
 const ARC_ANGLES = [150, 170, 190, 210];
+// 円弧チップの言語順序（仕様: 上から 한(150°), 中(170°), EN(190°), 日(210°)）
+const ARC_LANG_ORDER: ContentLanguage[] = ['ko', 'zh', 'en', 'ja'];
 
 function arcPosition(angleDeg: number): { x: number; y: number } {
     const rad = (angleDeg * Math.PI) / 180;
@@ -84,6 +84,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const { runTransition } = useTransitionOverlay();
     const [open, setOpen] = React.useState(false);
     const [langOpen, setLangOpen] = React.useState(false);
+    const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
 
     const close = () => {
@@ -96,19 +97,25 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         setLangOpen(prev => !prev);
     };
 
-    // 言語選択実行
+    // 言語選択実行（選択チップをscale 1.3→吸い込み、他は逆staggerで中心へ）
     const handleLanguageSelect = (lang: ContentLanguage) => {
         const current = i18n.language as ContentLanguage;
         if (lang === current) {
             setLangOpen(false);
             return;
         }
-        setLangOpen(false);
-        close();
-        runTransition(() => {
-            i18n.changeLanguage(lang);
-            setContentLanguage(lang);
-        }, 'language');
+        setSelectedLang(lang);
+        // 吸い込みアニメーション完了を待ってからトランジション実行
+        const exitDuration = ARC_LANG_ORDER.length * 0.04 + 0.2; // stagger + base
+        setTimeout(() => {
+            setLangOpen(false);
+            setSelectedLang(null);
+            close();
+            runTransition(() => {
+                i18n.changeLanguage(lang);
+                setContentLanguage(lang);
+            }, 'language');
+        }, exitDuration * 1000);
     };
 
     // テーマ切替
@@ -230,8 +237,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             opacity: 0,
             rotate: -15,
         },
-        visible: (i: number) => {
-            const pos = arcPosition(ARC_ANGLES[i]);
+        visible: (custom: { i: number }) => {
+            const pos = arcPosition(ARC_ANGLES[custom.i]);
             return {
                 x: pos.x,
                 y: pos.y,
@@ -240,21 +247,40 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 rotate: 0,
                 transition: {
                     ...SPRING.bouncy,
-                    delay: i * 0.05,
+                    delay: custom.i * 0.05,
                 },
             };
         },
-        exit: (i: number) => ({
-            x: 0,
-            y: 0,
-            scale: 0,
-            opacity: 0,
-            rotate: -15,
-            transition: {
-                ...SPRING.snappy,
-                delay: (LANG_CYCLE.length - 1 - i) * 0.025,
-            },
-        }),
+        exit: (custom: { i: number; lang: ContentLanguage }) => {
+            const isSelected = selectedLang === custom.lang;
+            if (isSelected) {
+                // 選択されたチップ: scale 1.3 → 0 で中心へ
+                return {
+                    x: 0,
+                    y: 0,
+                    scale: 0,
+                    opacity: 0,
+                    rotate: 0,
+                    transition: {
+                        duration: 0.2,
+                        ease: 'easeIn' as const,
+                    },
+                };
+            }
+            // 他のチップ: 逆staggerで中心へ吸い込まれる
+            const totalChips = ARC_LANG_ORDER.length;
+            return {
+                x: 0,
+                y: 0,
+                scale: 0,
+                opacity: 0,
+                rotate: -15,
+                transition: {
+                    ...SPRING.snappy,
+                    delay: (totalChips - 1 - custom.i) * 0.04,
+                },
+            };
+        },
         tap: {
             scale: 1.3,
             transition: { duration: 0.1 },
@@ -335,7 +361,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                                 borderColor: 'var(--color-fab-border)',
                                             }}
                                             animate={langOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.12 }}
                                         >
                                             {item.icon}
                                         </motion.button>
@@ -368,10 +394,10 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     {/* 円弧言語チップ */}
                                     {isLang && (
                                         <AnimatePresence>
-                                            {langOpen && LANG_CYCLE.map((lang, i) => (
+                                            {langOpen && ARC_LANG_ORDER.map((lang, i) => (
                                                 <motion.button
                                                     key={lang}
-                                                    custom={i}
+                                                    custom={{ i, lang }}
                                                     variants={arcChipVariants}
                                                     initial="hidden"
                                                     animate="visible"
