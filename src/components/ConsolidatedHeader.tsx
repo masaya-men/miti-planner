@@ -375,7 +375,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         className={clsx(
-                            "relative w-full h-full cursor-pointer overflow-hidden group/btn",
+                            "relative w-full h-full cursor-pointer overflow-hidden group/btn outline-none",
                             "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >

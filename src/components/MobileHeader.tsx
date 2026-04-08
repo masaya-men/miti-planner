@@ -4,7 +4,6 @@ import { usePlanStore } from '../store/usePlanStore';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
-import { useMitigationStore } from '../store/useMitigationStore';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 
 export const MobileHeader: React.FC<{
@@ -19,24 +18,19 @@ export const MobileHeader: React.FC<{
     const contentLabel = contentDef
         ? getPhaseName(contentDef.name, contentLanguage)
         : null;
-    const partyMembers = useMitigationStore(s => s.partyMembers);
-    const partyJobs = partyMembers
-        .filter(m => m.jobId)
-        .map(m => m.jobId!.toUpperCase())
-        .join(' · ');
-
-    const subtitle = [currentPlan?.title, partyJobs].filter(Boolean).join(' — ');
+    const subtitle = [contentLabel, currentPlan?.title].filter(Boolean).join('  ');
 
     return (
         <header
-            className="shrink-0 border-b flex md:hidden flex-col justify-center px-3 z-40 relative backdrop-blur-xl border-app-border"
+            className="shrink-0 flex md:hidden flex-col justify-center px-3 z-40 fixed top-0 left-0 right-0 backdrop-blur-md"
             style={{
-                minHeight: MOBILE_TOKENS.header.height,
+                minHeight: MOBILE_TOKENS.header.compactHeight,
                 paddingTop: 'env(safe-area-inset-top, 0px)',
                 backgroundColor: 'var(--color-nav-bg)',
+                borderBottom: '0.5px solid var(--color-nav-border)',
             }}
         >
-            {/* Top: LOPO label */}
+            {/* 1段目: LOPO */}
             <button
                 onClick={onHome}
                 className="cursor-pointer text-left"
@@ -50,20 +44,10 @@ export const MobileHeader: React.FC<{
                 </span>
             </button>
 
-            {/* Middle: Content name (Large Title) */}
-            {contentLabel && (
-                <p
-                    className="text-app-text-muted font-bold leading-tight truncate"
-                    style={{ fontSize: MOBILE_TOKENS.header.subtitleSize }}
-                >
-                    {contentLabel}
-                </p>
-            )}
-
-            {/* Bottom: Plan name + party jobs */}
+            {/* 2段目: コンテンツ名　プラン名 */}
             {subtitle && (
                 <p
-                    className="text-app-text-muted truncate leading-tight"
+                    className="text-app-text-muted font-bold leading-tight truncate"
                     style={{ fontSize: MOBILE_TOKENS.header.subtitleSize }}
                 >
                     {subtitle}

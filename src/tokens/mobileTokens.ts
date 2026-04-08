@@ -2,6 +2,7 @@
 export const MOBILE_TOKENS = {
   header: {
     height: 72,
+    compactHeight: 52,
     titleSize: 26,
     logoSize: 11,
     subtitleSize: 12,
