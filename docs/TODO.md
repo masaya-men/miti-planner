@@ -19,11 +19,10 @@
   - ビルド成功・テスト116全パス
 
 ### 次セッションでやること（要設計書）
-1. **PCハンドル黒化問題**（重大 — 設計書を書いてから修正）
-   - glass-tier3のborder/shadowがheight:0でも描画される問題
-   - glass-tier3を除去すると glassmorphismデザインが崩壊する
-   - CSSのみで解決する方法を設計書に書いてから実装
-   - 参考: glass-tier3は`!important`付きでborder/shadowを設定
+1. ~~**PCハンドル黒化問題**~~ → **解決済み**
+   - 原因: ハンドルbuttonにoutline-none未設定（ブラウザデフォルトフォーカスアウトライン）
+   - 副修正: --glass-border修正漏れ（両テーマで--color-borderと揃えた）
+   - 副修正: Fキーフォーカスモードを「常に両方オープン⇔フォーカス」のトグルに変更
 2. **スマホヘッダー透過問題**（設計書を書いてから修正）
    - MobileHeaderはposition:relative（通常フロー）→テーブルがヘッダーの裏に来ない
    - position:fixedにするとテーブルのpaddingTop調整が必要

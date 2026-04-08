@@ -34,6 +34,7 @@ import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { getColumnWidth } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
 import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
@@ -645,7 +646,7 @@ const Timeline: React.FC = () => {
     } | null>(null);
 
     const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
-    const pixelsPerSecond = isMobileTimeline ? 80 : 50;
+    const pixelsPerSecond = isMobileTimeline ? 60 : 50;
     const fightDuration = 1200;
 
     const handleTogglePhaseCollapse = () => {
@@ -1993,7 +1994,7 @@ const Timeline: React.FC = () => {
                         ref={scrollContainerRef}
                         className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200"
                         onScroll={handleScrollSync}
-
+                        style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
@@ -2107,6 +2108,7 @@ const Timeline: React.FC = () => {
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     eventIndex={0}
+                                                    rowHeight={pixelsPerSecond}
                                                 />
                                             );
                                             currentY += pixelsPerSecond;
@@ -2130,6 +2132,7 @@ const Timeline: React.FC = () => {
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     eventIndex={1}
                                                     isSecondEvent
+                                                    rowHeight={pixelsPerSecond}
                                                 />
                                             );
                                         } else {
@@ -2151,6 +2154,7 @@ const Timeline: React.FC = () => {
                                                     previewEndTime={previewEndTime}
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
+                                                    rowHeight={pixelsPerSecond}
                                                 />
                                             );
                                         }
@@ -2235,8 +2239,8 @@ const Timeline: React.FC = () => {
                                                     className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                 >
-                                                    <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName="sticky top-0 w-full">
-                                                        <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-4 md:pt-6">
+                                                    <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName={clsx("sticky w-full", isMobileView ? "top-[52px]" : "top-0")}>
+                                                        <div className="w-full h-[100px] md:h-[150px] flex items-center justify-center pt-6 md:pt-6">
                                                             <div className="transform -rotate-90 overflow-visible px-2 drop-shadow-md origin-center flex flex-col items-center gap-0.5">
                                                                 <span className="hidden md:block whitespace-nowrap text-app-xl font-bold text-app-text leading-none">
                                                                     {t('timeline.phase_prefix', { index: index + 1 })}

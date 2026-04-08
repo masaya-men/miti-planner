@@ -38,6 +38,8 @@ interface MobileTimelineRowProps {
     eventIndex?: number;
     /** true の場合、時間の代わりに「〃」を表示し背景を少し変える */
     isSecondEvent?: boolean;
+    /** 行の高さ (pixelsPerSecond) */
+    rowHeight?: number;
 }
 
 /** ダメージ値を短縮表示 */
@@ -111,7 +113,7 @@ export const MobileTimelineRow = memo(({
     onMobileDamageClick,
     onLongPress,
     hasPhases: _hasPhases = true,
-    phaseColumnCollapsed,
+    phaseColumnCollapsed: _phaseColumnCollapsed,
     timelineSelectMode,
     labelSelectMode,
     previewEndTime,
@@ -119,6 +121,7 @@ export const MobileTimelineRow = memo(({
     onTimelineSelectHover,
     eventIndex,
     isSecondEvent,
+    rowHeight = 80,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -223,12 +226,12 @@ export const MobileTimelineRow = memo(({
         <motion.div
             data-time-row={time}
             className={clsx(
-                "absolute left-0 w-full h-[80px]",
+                "absolute left-0 w-full",
                 "active:bg-app-text/[0.03] transition-colors duration-100",
                 (isHighlighted || isLabelHighlighted) && "bg-app-blue/10",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
-            style={{ top: `${top}px` }}
+            style={{ top: `${top}px`, height: `${rowHeight}px` }}
             animate={{ scale: isPressed ? SCALE.press : 1 }}
             transition={SPRING.default}
             onClick={handleTap}
@@ -242,22 +245,20 @@ export const MobileTimelineRow = memo(({
             }}
         >
             <div className="h-full flex">
-                {/* 左: フェーズ/ラベル列 (24px) — 常に表示 */}
-                {!phaseColumnCollapsed && (
-                    <div className="w-[24px] min-w-[24px] h-full flex items-center justify-center opacity-40" />
-                )}
+                {/* 左: フェーズ/ラベル列 (24px) — 常に縦罫線を表示 */}
+                <div className="w-[24px] min-w-[24px] h-full flex items-center justify-center relative">
+                    <div className="absolute right-0 top-0 bottom-0 w-px bg-app-text/[0.06]" />
+                </div>
 
-                {/* 右: コンテンツエリア + Apple風インセット区切り線 */}
+                {/* 右: コンテンツエリア + 区切り線 */}
                 <div className="flex-1 min-w-0 flex flex-col justify-center px-3 gap-0.5 relative">
-                    {/* インセット区切り線 — 2つ目のイベント行は表示しない（連続感） */}
-                    {!isSecondEvent && (
-                        <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
-                    )}
+                    {/* 下部区切り線 */}
+                    <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
                 {/* 上段: 時間 + 種別アイコン + 攻撃名 + 対象バッジ */}
                 <div className="flex items-center gap-1.5 min-w-0">
-                    {/* 時間 or 〃 */}
+                    {/* 時間 or 〃 — 固定幅で後続要素の開始位置を揃える */}
                     <span className={clsx(
-                        "font-mono text-[15px] leading-none flex-shrink-0",
+                        "font-mono text-[15px] leading-none flex-shrink-0 w-[38px]",
                         isSecondEvent ? "text-app-text-muted opacity-50" : "text-app-text opacity-50"
                     )}>
                         {isSecondEvent ? t('app.mobile_same_time') : formattedTime}

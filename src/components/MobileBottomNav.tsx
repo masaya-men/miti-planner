@@ -79,7 +79,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             className={clsx(
                 "md:hidden fixed bottom-0 left-0 right-0 z-[400]",
                 "flex items-stretch justify-around",
-                "backdrop-blur-xl",
+                "backdrop-blur-md",
             )}
             style={{
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',

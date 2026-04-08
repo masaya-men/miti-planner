@@ -139,8 +139,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // H: ヘッダー開閉
     // P/T/L/A: Timeline.tsx側で処理
     const focusModeRef = React.useRef(false);
-    const preFocusSidebarRef = React.useRef(true);
-    const preFocusHeaderRef = React.useRef(false);
     React.useEffect(() => {
         const handleShortcut = (e: KeyboardEvent) => {
             if (isMobile) return;
@@ -158,27 +156,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             } else if (key === 'f') {
                 e.preventDefault();
                 if (!focusModeRef.current) {
-                    // フォーカスモードに入る: 現在の状態を記憶してから隠す
-                    preFocusSidebarRef.current = isSidebarOpen;
-                    preFocusHeaderRef.current = isHeaderCollapsed;
+                    // フォーカスモードに入る: サイドバー閉じ＋ヘッダー折りたたみ
                     setIsSidebarOpen(false);
                     localStorage.setItem('lopo_sidebar_open', 'false');
                     setIsHeaderCollapsed(true);
                     focusModeRef.current = true;
                 } else {
-                    // フォーカスモードから抜ける: 記憶した状態に復元
-                    setIsSidebarOpen(preFocusSidebarRef.current);
-                    localStorage.setItem('lopo_sidebar_open', String(preFocusSidebarRef.current));
-                    setIsHeaderCollapsed(preFocusHeaderRef.current);
+                    // フォーカスモードから抜ける: 常にサイドバー開＋ヘッダー展開
+                    setIsSidebarOpen(true);
+                    localStorage.setItem('lopo_sidebar_open', 'true');
+                    setIsHeaderCollapsed(false);
                     focusModeRef.current = false;
                 }
             }
         };
         const handleExitFocus = () => {
             if (focusModeRef.current) {
-                setIsSidebarOpen(preFocusSidebarRef.current);
-                localStorage.setItem('lopo_sidebar_open', String(preFocusSidebarRef.current));
-                setIsHeaderCollapsed(preFocusHeaderRef.current);
+                setIsSidebarOpen(true);
+                localStorage.setItem('lopo_sidebar_open', 'true');
+                setIsHeaderCollapsed(false);
                 focusModeRef.current = false;
             }
         };
@@ -483,8 +479,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                 />
 
-                {/* Main content — add bottom padding on mobile for bottom nav */}
-                {/* モバイルではフローティングヘッダーが非表示なのでpaddingTop不要 */}
+                {/* Main content — モバイルはfixedヘッダー分のpaddingTop、PCはヘッダー開閉に連動 */}
                 <motion.main
                     className={clsx("flex-1 flex flex-col relative overflow-hidden pb-0", !currentPlanId && "no-plan")}
                     initial={false}
