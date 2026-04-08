@@ -176,6 +176,14 @@
     --glass-panel-border: rgba(255, 255, 255, 0.25);
     --glass-panel-inset: none;
     --glass-panel-shadow: 0 0 15px rgba(255, 255, 255, 0.2), 0 0 4px rgba(255, 255, 255, 0.4);
+
+    /* モバイルUI用 */
+    --color-sheet-bg: #1c1c1e;
+    --color-nav-bg: rgba(20, 20, 20, 0.85);
+    --color-nav-border: rgba(255, 255, 255, 0.08);
+    --color-overlay: rgba(0, 0, 0, 0.4);
+    --color-fab-bg: rgba(255, 255, 255, 0.1);
+    --color-fab-border: rgba(255, 255, 255, 0.15);
   }
 
   .theme-light {
@@ -230,6 +238,14 @@
     --color-amber-hover: #b45309;
     --color-amber-dim: rgba(217, 119, 6, 0.08);
     --color-amber-border: rgba(217, 119, 6, 0.20);
+
+    /* モバイルUI用 */
+    --color-sheet-bg: #ffffff;
+    --color-nav-bg: rgba(249, 249, 249, 0.94);
+    --color-nav-border: rgba(0, 0, 0, 0.12);
+    --color-overlay: rgba(0, 0, 0, 0.2);
+    --color-fab-bg: rgba(255, 255, 255, 0.9);
+    --color-fab-border: rgba(0, 0, 0, 0.08);
 
     --glass-tier3-bg: rgba(255, 255, 255, 0.65);
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
