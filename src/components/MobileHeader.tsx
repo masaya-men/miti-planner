@@ -33,7 +33,7 @@ export const MobileHeader: React.FC<{
             style={{
                 minHeight: MOBILE_TOKENS.header.height,
                 paddingTop: 'env(safe-area-inset-top, 0px)',
-                backgroundColor: 'var(--color-nav-bg)',
+                backgroundColor: 'rgba(255, 0, 0, 0.15)',
             }}
         >
             {/* Top: LOPO label */}
