@@ -488,7 +488,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className={clsx("flex-1 flex flex-col relative overflow-hidden pb-0", !currentPlanId && "no-plan")}
                     initial={false}
                     animate={isMobile ? undefined : { paddingTop: isHeaderCollapsed ? 23 : 124 }}
-                    style={isMobile ? { paddingTop: 'calc(72px + env(safe-area-inset-top, 0px))' } : undefined}
                     transition={{ type: "spring", stiffness: 380, damping: 22 }}
                 >
                     {children}
