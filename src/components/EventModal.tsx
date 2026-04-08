@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { getPhaseName } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
-import { useMitigations, useJobs, useLevelModifiers } from '../hooks/useSkillsData';
-import { calculateHpValue, calculatePotencyValue } from '../utils/calculator';
+import { useMitigations, useJobs } from '../hooks/useSkillsData';
+import { calculateMemberValues } from '../utils/calculator';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
@@ -136,7 +136,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const { partyMembers, currentLevel } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
-    const LEVEL_MODIFIERS = useLevelModifiers();
 
     const tutorialState = useTutorialStore();
     const isTutorialActive = tutorialState.isActive;
@@ -230,18 +229,19 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         let shieldTotal = 0;
         let mitigationMult = 1;
 
-        // 1. Calculate Shields & Mitigation Multipliers
         selectedMitigations.forEach(mitId => {
             const def = MITIGATIONS.find(m => m.id === mitId);
             if (!def) return;
 
-            // Percentage Mitigation
-            if (!def.isShield) {
+            // Scope filtering: AoE attacks only use party-wide mitigations
+            if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
+
+            // Percentage Mitigation (apply for ALL skills with value > 0, including shield+mitigation hybrids)
+            if (def.value > 0) {
                 let val = def.value;
                 if (damageType === 'physical' && def.valuePhysical !== undefined) val = def.valuePhysical;
                 if (damageType === 'magical' && def.valueMagical !== undefined) val = def.valueMagical;
 
-                // Check type validity
                 if (def.type === 'physical' && damageType === 'magical') val = 0;
                 if (def.type === 'magical' && damageType === 'physical') val = 0;
 
@@ -250,13 +250,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
             // Shield Calculation
             if (def.isShield) {
+                // Always use Japanese name for computedValues lookup (SKILL_DATA keys are Japanese)
+                const jaName = typeof def.name === 'string' ? def.name : (def.name.ja || '');
                 const member = partyMembers.find(m => m.jobId === def.jobId);
                 let shieldVal = 0;
 
                 if (member && member.computedValues) {
-                    shieldVal = member.computedValues[getPhaseName(def.name, contentLanguage)] || 0;
-                } else {
-                    // Fallback to average calculation if member not found in computedValues
+                    shieldVal = member.computedValues[jaName] || 0;
+                }
+
+                // Fallback: use calculateMemberValues with default stats
+                if (shieldVal === 0) {
                     let stats = DEFAULT_HEALER_STATS;
                     let role = 'healer';
 
@@ -267,17 +271,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                             role = m2.role;
                         } else {
                             const job = JOBS.find(j => j.id === def.jobId);
-                            if (job?.role === 'tank') stats = DEFAULT_TANK_STATS;
+                            if (job?.role === 'tank') { stats = DEFAULT_TANK_STATS; role = 'tank'; }
                         }
                     }
 
-                    if (def.valueType === 'hp') {
-                        shieldVal = calculateHpValue(stats.hp, def.value || 0);
-                    } else if (def.valueType === 'potency') {
-                        let val = calculatePotencyValue({ ...stats, wd: stats.wd }, def.value || 0, role, LEVEL_MODIFIERS[currentLevel]);
-                        if (def.healingIncrease) val = Math.floor(val * def.healingIncrease);
-                        shieldVal = val;
-                    }
+                    const tempComputed = calculateMemberValues(
+                        { id: 'temp', jobId: def.jobId || null, role, stats, computedValues: {} } as any,
+                        currentLevel
+                    );
+                    shieldVal = tempComputed[jaName] || 0;
                 }
 
                 shieldTotal += shieldVal;
@@ -285,7 +287,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         });
 
         // Formula: Raw = (Actual + Shields) / Mult
-        if (mitigationMult === 0) mitigationMult = 0.01; // Avoid divide by zero
+        if (mitigationMult === 0) mitigationMult = 0.01;
         const raw = Math.ceil((actual + shieldTotal) / mitigationMult);
 
         return raw;
