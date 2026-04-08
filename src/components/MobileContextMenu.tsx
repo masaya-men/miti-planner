@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import type { TimelineEvent, LocalizedString } from '../types';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+import { SPRING, SCALE } from '../tokens/motionTokens';
 
 // ─── ヘルパー ─────────────────────────────────────────────────────────────────
 
@@ -75,7 +77,8 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                         {/* 背景オーバーレイ */}
                         <motion.div
                             key="context-overlay"
-                            className="absolute inset-0 bg-black/60 pointer-events-auto"
+                            className="absolute inset-0 pointer-events-auto"
+                            style={{ backgroundColor: 'var(--color-overlay)' }}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -88,24 +91,30 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                             key="context-sheet"
                             className={clsx(
                                 "absolute left-0 right-0",
-                                "glass-tier3",
-                                "rounded-t-2xl rounded-b-none",
                                 "flex flex-col overflow-hidden",
                                 "pointer-events-auto",
                             )}
-                            style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
-                            initial={{ y: '100%' }}
-                            animate={{ y: 0 }}
-                            exit={{ y: '100%' }}
-                            transition={{
-                                type: 'spring',
-                                stiffness: 380,
-                                damping: 34,
+                            style={{
+                                bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
+                                backgroundColor: 'var(--color-sheet-bg)',
+                                borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
+                                borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
                             }}
+                            initial={{ y: '100%', scale: SCALE.ctxMenu }}
+                            animate={{ y: 0, scale: 1 }}
+                            exit={{ y: '100%', scale: SCALE.ctxMenu }}
+                            transition={SPRING.default}
                         >
                             {/* ドラッグハンドル */}
                             <div className="flex justify-center pt-3 pb-1">
-                                <div className="w-10 h-1 rounded-full bg-app-border" />
+                                <div
+                                    className="bg-[var(--app-text)]/20"
+                                    style={{
+                                        width: MOBILE_TOKENS.sheet.handleWidth,
+                                        height: MOBILE_TOKENS.sheet.handleHeight,
+                                        borderRadius: MOBILE_TOKENS.sheet.handleRadius,
+                                    }}
+                                />
                             </div>
 
                             {/* コンテキストヘッダー — どのイベントか確認できる */}
