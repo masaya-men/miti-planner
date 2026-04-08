@@ -1135,14 +1135,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         <motion.aside
             initial={false}
             animate={{ width: fullWidth ? '100%' : isOpen ? 300 : 24 }}
-            transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
+            transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 28 }}
             className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
             style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
         >
             {/* [1] サイドバー本体 (コンテンツエリア) */}
             <motion.div
                 animate={{ width: fullWidth ? '100%' : isOpen ? 276 : 0 }}
-                transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
+                transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 28 }}
                 className="h-full flex flex-col overflow-hidden"
                 style={fullWidth ? { width: '100%', minWidth: '100%' } : undefined}
             >
