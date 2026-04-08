@@ -32,7 +32,7 @@ const SwipeableSlot: React.FC<{
     const swipe = useSwipeAction({ onSwipe: onRemove });
 
     return (
-        <div className="relative overflow-hidden" style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}>
+        <div className="relative overflow-hidden select-none" style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}>
             {/* 削除ボタン背景（スワイプで露出） */}
             {swipe.swiped && (
                 <button
@@ -268,7 +268,7 @@ const MobilePartySettings: React.FC = () => {
             </div>
 
             {/* ジョブ選択グリッド（スロット選択時 or D&Dソース） */}
-            {focusedSlot && !myJobMode ? (
+            {focusedSlot && !myJobMode && (
                 <div className="bg-app-surface2/50 rounded-xl p-3 border border-app-border">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
@@ -300,8 +300,9 @@ const MobilePartySettings: React.FC = () => {
                         })}
                     </div>
                 </div>
-            ) : !myJobMode && (
-                /* ロール別ジョブピッカー（D&Dソース） */
+            )}
+            {!myJobMode && (
+                /* ロール別ジョブピッカー（D&Dソース） — 常時表示 */
                 <div className="flex flex-col gap-2">
                     {jobsByRole.map(group => (
                         <div key={group.role}>
