@@ -833,10 +833,6 @@
 /* glass-panel — タイムライン枠のガラス表現 */
 .glass-panel {
   position: relative;
-  border: 1px solid var(--glass-panel-border) !important;
-  box-shadow:
-    var(--glass-panel-inset),
-    var(--glass-panel-shadow) !important;
 }
 
 
