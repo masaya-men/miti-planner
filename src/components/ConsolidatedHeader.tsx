@@ -134,10 +134,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 380, damping: 22 }}
-                className={clsx(
-                    "w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none",
-                    isHeaderCollapsed && "!border-0 !shadow-none pointer-events-none"
-                )}
+                className="w-full overflow-hidden pointer-events-auto"
+                style={isHeaderCollapsed ? undefined : { borderRight: '1px solid var(--color-border)' }}
             >
                 <div
                     className="flex flex-col w-full h-[96px] pt-[5px]"
