@@ -29,6 +29,27 @@ interface MobileFABProps {
 
 const LANG_CYCLE: ContentLanguage[] = ['ja', 'en', 'zh', 'ko'];
 
+const LANG_LABELS: Record<ContentLanguage, string> = {
+    ja: '日',
+    en: 'EN',
+    zh: '中',
+    ko: '한',
+};
+
+// 円弧レイアウト定数
+const ARC_RADIUS = 60;
+const ARC_CHIP_SIZE = 36;
+// 150°〜210°（左方向、上下対称の扇形）を4等分
+const ARC_ANGLES = [150, 170, 190, 210];
+
+function arcPosition(angleDeg: number): { x: number; y: number } {
+    const rad = (angleDeg * Math.PI) / 180;
+    return {
+        x: ARC_RADIUS * Math.cos(rad),
+        y: -ARC_RADIUS * Math.sin(rad), // CSS座標系はy反転
+    };
+}
+
 // ─── Sync ボタン内ロジック（SyncButton.tsx と同じ） ───
 function useSyncState() {
     const currentPlanId = usePlanStore(s => s.currentPlanId);
@@ -62,19 +83,31 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const { setContentLanguage } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
     const [open, setOpen] = React.useState(false);
+    const [langOpen, setLangOpen] = React.useState(false);
     const { canSync, cloudStatus, handleSync } = useSyncState();
 
-    const close = () => setOpen(false);
+    const close = () => {
+        setLangOpen(false);
+        setOpen(false);
+    };
 
-    // 言語サイクル: ja → en → zh → ko → ja
-    const handleLanguage = () => {
+    // 言語円弧セレクターのトグル
+    const handleLanguageToggle = () => {
+        setLangOpen(prev => !prev);
+    };
+
+    // 言語選択実行
+    const handleLanguageSelect = (lang: ContentLanguage) => {
         const current = i18n.language as ContentLanguage;
-        const idx = LANG_CYCLE.indexOf(current);
-        const next = LANG_CYCLE[(idx + 1) % LANG_CYCLE.length];
+        if (lang === current) {
+            setLangOpen(false);
+            return;
+        }
+        setLangOpen(false);
         close();
         runTransition(() => {
-            i18n.changeLanguage(next);
-            setContentLanguage(next);
+            i18n.changeLanguage(lang);
+            setContentLanguage(lang);
         }, 'language');
     };
 
@@ -154,7 +187,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             key: 'language',
             label: t('app.fab_language'),
             icon: <Globe size={20} />,
-            onClick: handleLanguage,
+            onClick: handleLanguageToggle,
             accent: false,
         },
         {
@@ -187,6 +220,45 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 delay: i * 0.025,
             },
         }),
+    };
+
+    const arcChipVariants = {
+        hidden: {
+            x: 0,
+            y: 0,
+            scale: 0,
+            opacity: 0,
+            rotate: -15,
+        },
+        visible: (i: number) => {
+            const pos = arcPosition(ARC_ANGLES[i]);
+            return {
+                x: pos.x,
+                y: pos.y,
+                scale: 1,
+                opacity: 1,
+                rotate: 0,
+                transition: {
+                    ...SPRING.bouncy,
+                    delay: i * 0.05,
+                },
+            };
+        },
+        exit: (i: number) => ({
+            x: 0,
+            y: 0,
+            scale: 0,
+            opacity: 0,
+            rotate: -15,
+            transition: {
+                ...SPRING.snappy,
+                delay: (LANG_CYCLE.length - 1 - i) * 0.025,
+            },
+        }),
+        tap: {
+            scale: 1.3,
+            transition: { duration: 0.1 },
+        },
     };
 
     const allItems = [...navItems, 'divider' as const, ...settingsItems];
@@ -232,12 +304,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                 );
                             }
                             const isSync = item.key === 'sync';
+                            const isLang = item.key === 'language';
                             return (
                                 <motion.div
                                     key={item.key}
                                     custom={idx}
                                     variants={itemVariants}
                                     className="flex items-center gap-2.5"
+                                    style={isLang ? { position: 'relative' } : undefined}
                                 >
                                     {/* ラベル（ボタンの左） */}
                                     <span className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
@@ -245,29 +319,84 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     </span>
 
                                     {/* ボタン */}
-                                    <button
-                                        onClick={item.onClick}
-                                        disabled={'disabled' in item ? Boolean(item.disabled) : false}
-                                        className={clsx(
-                                            "flex items-center justify-center border",
-                                            "shadow-lg active:scale-90 transition-transform duration-100",
-                                            "disabled:pointer-events-none disabled:opacity-40",
-                                            isSync
-                                                ? "bg-app-blue/12 border-app-blue/20 text-app-blue"
-                                                : "text-app-text"
-                                        )}
-                                        style={{
-                                            width: MOBILE_TOKENS.fab.itemSize,
-                                            height: MOBILE_TOKENS.fab.itemSize,
-                                            borderRadius: MOBILE_TOKENS.fab.radius,
-                                            ...(!isSync ? {
+                                    {isLang ? (
+                                        <motion.button
+                                            onClick={item.onClick}
+                                            className={clsx(
+                                                "flex items-center justify-center border",
+                                                "shadow-lg active:scale-90 transition-transform duration-100",
+                                                "text-app-text"
+                                            )}
+                                            style={{
+                                                width: MOBILE_TOKENS.fab.itemSize,
+                                                height: MOBILE_TOKENS.fab.itemSize,
+                                                borderRadius: MOBILE_TOKENS.fab.radius,
                                                 backgroundColor: 'var(--color-fab-bg)',
                                                 borderColor: 'var(--color-fab-border)',
-                                            } : {}),
-                                        }}
-                                    >
-                                        {item.icon}
-                                    </button>
+                                            }}
+                                            animate={langOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            {item.icon}
+                                        </motion.button>
+                                    ) : (
+                                        <button
+                                            onClick={item.onClick}
+                                            disabled={'disabled' in item ? Boolean(item.disabled) : false}
+                                            className={clsx(
+                                                "flex items-center justify-center border",
+                                                "shadow-lg active:scale-90 transition-transform duration-100",
+                                                "disabled:pointer-events-none disabled:opacity-40",
+                                                isSync
+                                                    ? "bg-app-blue/12 border-app-blue/20 text-app-blue"
+                                                    : "text-app-text"
+                                            )}
+                                            style={{
+                                                width: MOBILE_TOKENS.fab.itemSize,
+                                                height: MOBILE_TOKENS.fab.itemSize,
+                                                borderRadius: MOBILE_TOKENS.fab.radius,
+                                                ...(!isSync ? {
+                                                    backgroundColor: 'var(--color-fab-bg)',
+                                                    borderColor: 'var(--color-fab-border)',
+                                                } : {}),
+                                            }}
+                                        >
+                                            {item.icon}
+                                        </button>
+                                    )}
+
+                                    {/* 円弧言語チップ */}
+                                    {isLang && (
+                                        <AnimatePresence>
+                                            {langOpen && LANG_CYCLE.map((lang, i) => (
+                                                <motion.button
+                                                    key={lang}
+                                                    custom={i}
+                                                    variants={arcChipVariants}
+                                                    initial="hidden"
+                                                    animate="visible"
+                                                    exit="exit"
+                                                    whileTap="tap"
+                                                    onClick={() => handleLanguageSelect(lang)}
+                                                    className={clsx(
+                                                        "absolute flex items-center justify-center rounded-full",
+                                                        "font-semibold text-[13px] shadow-lg select-none",
+                                                        lang === (i18n.language as ContentLanguage)
+                                                            ? "bg-app-blue text-white shadow-app-blue/30"
+                                                            : "bg-black/70 text-white/90 backdrop-blur-sm"
+                                                    )}
+                                                    style={{
+                                                        width: ARC_CHIP_SIZE,
+                                                        height: ARC_CHIP_SIZE,
+                                                        right: (MOBILE_TOKENS.fab.itemSize - ARC_CHIP_SIZE) / 2,
+                                                        top: (MOBILE_TOKENS.fab.itemSize - ARC_CHIP_SIZE) / 2,
+                                                    }}
+                                                >
+                                                    {LANG_LABELS[lang]}
+                                                </motion.button>
+                                            ))}
+                                        </AnimatePresence>
+                                    )}
                                 </motion.div>
                             );
                         })}
