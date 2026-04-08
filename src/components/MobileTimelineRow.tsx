@@ -1,4 +1,5 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
@@ -6,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { SCALE, SPRING } from '../tokens/motionTokens';
 
 interface DamageInfo {
     unmitigated: number;
@@ -161,14 +163,17 @@ export const MobileTimelineRow = memo(({
     const longPressTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const touchStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
     const isLongPressRef = React.useRef(false);
+    const [isPressed, setIsPressed] = useState(false);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         const touch = e.touches[0];
         touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
         isLongPressRef.current = false;
+        setIsPressed(true);
 
         longPressTimerRef.current = setTimeout(() => {
             isLongPressRef.current = true;
+            setIsPressed(false);
             if (onLongPress && events.length > 0) {
                 try { navigator.vibrate(10); } catch {}
                 onLongPress(events[0], time);
@@ -182,6 +187,7 @@ export const MobileTimelineRow = memo(({
         const dx = Math.abs(touch.clientX - touchStartPosRef.current.x);
         const dy = Math.abs(touch.clientY - touchStartPosRef.current.y);
         if (dx > 5 || dy > 5) {
+            setIsPressed(false);
             if (longPressTimerRef.current) {
                 clearTimeout(longPressTimerRef.current);
                 longPressTimerRef.current = null;
@@ -190,6 +196,7 @@ export const MobileTimelineRow = memo(({
     };
 
     const handleTouchEnd = () => {
+        setIsPressed(false);
         if (longPressTimerRef.current) {
             clearTimeout(longPressTimerRef.current);
             longPressTimerRef.current = null;
@@ -213,7 +220,7 @@ export const MobileTimelineRow = memo(({
     };
 
     return (
-        <div
+        <motion.div
             data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full h-[80px]",
@@ -222,6 +229,8 @@ export const MobileTimelineRow = memo(({
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px` }}
+            animate={{ scale: isPressed ? SCALE.press : 1 }}
+            transition={SPRING.default}
             onClick={handleTap}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -329,7 +338,7 @@ export const MobileTimelineRow = memo(({
                 </div>
             </div>
             </div>{/* カード本体 end */}
-        </div>
+        </motion.div>
     );
 }, (prevProps, nextProps) => {
     if (prevProps.time !== nextProps.time) return false;
