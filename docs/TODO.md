@@ -10,17 +10,21 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了**:
-  - スマホUIネイティブリデザイン 15/16タスク実装完了
-    - Task 11: MobilePartySettings D&D（長押しドラッグ）＋スワイプ削除
-    - Task 14: PartySettingsModal PC用マウスD&D（ジョブパレット→スロット）
-    - 同期バグ（`_settings.preferRest`）: Firebase SDK内部プロパティ→除去
+- **今セッション完了（push済み）**:
+  - スマホUIネイティブリデザイン 15/16タスク（D&D + スワイプ削除）
+  - PC版ネイティブポリッシュ 設計書＋実装計画作成済み
+  - スマホ実機フィードバック7項目をTODO追記
   - ビルド成功・テスト116全パス
 
 ### 次セッションでやること
-1. **本番目視確認**: D&D・スワイプ削除の動作チェック（スマホエミュ＋PC）
-2. FAB言語切替を展開式セレクターに改善
-3. 設計書: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
+1. **PC版ネイティブポリッシュ実装**（14タスク、subagent-driven-development）
+   - 計画書: `docs/superpowers/plans/2026-04-08-pc-native-polish.md`
+   - 設計書: `docs/superpowers/specs/2026-04-08-pc-native-polish-design.md`
+   - Phase 1: 色・質感（#0F0F10/#FAFAFA、ボーダー薄く）
+   - Phase 2: モーション（CSS linear() spring、btn-tactile等）
+   - Phase 3: レイアウト微調整（glass-panel除去、角丸等）
+   - スマホフィードバック修正（テキスト選択防止、ヘッダー、D&D等）
+2. 本番目視確認（各Phase後）
 
 ---
 
