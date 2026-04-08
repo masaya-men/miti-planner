@@ -34,69 +34,53 @@ const LANG_LABELS: Record<ContentLanguage, string> = {
     ko: '한',
 };
 
-// 円弧レイアウト定数
-const ARC_RADIUS = 60;
-const ARC_CHIP_SIZE = 36;
-// 150°〜210°（左方向、上下対称の扇形）を4等分
-const ARC_ANGLES = [150, 170, 190, 210];
-// 円弧チップの言語順序（仕様: 上から 한(150°), 中(170°), EN(190°), 日(210°)）
-const ARC_LANG_ORDER: ContentLanguage[] = ['ko', 'zh', 'en', 'ja'];
+// 言語チップレイアウト定数 — 「言語」ラベルの左に一直線
+const LANG_CHIP_SIZE = 42;
+const LANG_CHIP_GAP = 8;
+// 表示順序（左から: 日 EN 中 한→ 右端が現在地に近い）
+const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'ko'];
 
-function arcPosition(angleDeg: number): { x: number; y: number } {
-    const rad = (angleDeg * Math.PI) / 180;
-    return {
-        x: ARC_RADIUS * Math.cos(rad),
-        y: -ARC_RADIUS * Math.sin(rad), // CSS座標系はy反転
-    };
+// i番目のチップのx位置（Globeボタン中心基準、左方向=負）
+// Globeボタン(44px) + gap(10px) + ラベル幅(≈50px) + gap(12px) + チップ列
+function langChipX(i: number): number {
+    const labelOffset = -(MOBILE_TOKENS.fab.itemSize / 2 + 10 + 50 + 12);
+    return labelOffset - (LANG_DISPLAY_ORDER.length - 1 - i) * (LANG_CHIP_SIZE + LANG_CHIP_GAP) - LANG_CHIP_SIZE / 2;
 }
 
-// 円弧チップのアニメーション variants（コンポーネント外に配置、クロージャ依存を排除）
-const arcChipVariants = {
+// 言語チップのアニメーション variants
+const langChipVariants = {
     hidden: {
         x: 0,
-        y: 0,
         scale: 0,
         opacity: 0,
-        rotate: -15,
     },
-    visible: (custom: { i: number }) => {
-        const pos = arcPosition(ARC_ANGLES[custom.i]);
-        return {
-            x: pos.x,
-            y: pos.y,
-            scale: 1,
-            opacity: 1,
-            rotate: 0,
-            transition: {
-                ...SPRING.bouncy,
-                delay: custom.i * 0.05,
-            },
-        };
-    },
+    visible: (custom: { i: number; targetX: number }) => ({
+        x: custom.targetX,
+        scale: 1,
+        opacity: 1,
+        transition: {
+            ...SPRING.bouncy,
+            delay: custom.i * 0.05,
+        },
+    }),
     exit: (custom: { i: number; lang: ContentLanguage; selectedLang: ContentLanguage | null }) => {
         const isSelected = custom.selectedLang === custom.lang;
         if (isSelected) {
-            // 選択されたチップ: scale 1.3 → 0 で中心へ
             return {
                 x: 0,
-                y: 0,
                 scale: 0,
                 opacity: 0,
-                rotate: 0,
                 transition: {
                     duration: 0.2,
                     ease: 'easeIn' as const,
                 },
             };
         }
-        // 他のチップ: 逆staggerで中心へ吸い込まれる
-        const totalChips = ARC_LANG_ORDER.length;
+        const totalChips = LANG_DISPLAY_ORDER.length;
         return {
             x: 0,
-            y: 0,
             scale: 0,
             opacity: 0,
-            rotate: -15,
             transition: {
                 ...SPRING.snappy,
                 delay: (totalChips - 1 - custom.i) * 0.04,
@@ -175,7 +159,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         }
         setSelectedLang(lang);
         // 吸い込みアニメーション完了を待ってからトランジション実行
-        const exitDuration = ARC_LANG_ORDER.length * 0.04 + 0.2; // stagger + base
+        const exitDuration = LANG_DISPLAY_ORDER.length * 0.04 + 0.2; // stagger + base
         langTimerRef.current = setTimeout(() => {
             setLangOpen(false);
             setSelectedLang(null);
@@ -403,14 +387,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                         </button>
                                     )}
 
-                                    {/* 円弧言語チップ */}
+                                    {/* 言語チップ — 「言語」ラベルの左に一直線展開 */}
                                     {isLang && (
                                         <AnimatePresence>
-                                            {langOpen && ARC_LANG_ORDER.map((lang, i) => (
+                                            {langOpen && LANG_DISPLAY_ORDER.map((lang: ContentLanguage, i: number) => (
                                                 <motion.button
                                                     key={lang}
-                                                    custom={{ i, lang, selectedLang }}
-                                                    variants={arcChipVariants}
+                                                    custom={{ i, lang, selectedLang, targetX: langChipX(i) }}
+                                                    variants={langChipVariants}
                                                     initial="hidden"
                                                     animate="visible"
                                                     exit="exit"
@@ -424,10 +408,10 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                                             : "bg-black/70 text-white/90 backdrop-blur-sm"
                                                     )}
                                                     style={{
-                                                        width: ARC_CHIP_SIZE,
-                                                        height: ARC_CHIP_SIZE,
-                                                        right: (MOBILE_TOKENS.fab.itemSize - ARC_CHIP_SIZE) / 2,
-                                                        top: (MOBILE_TOKENS.fab.itemSize - ARC_CHIP_SIZE) / 2,
+                                                        width: LANG_CHIP_SIZE,
+                                                        height: LANG_CHIP_SIZE,
+                                                        right: (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
+                                                        top: (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
                                                     }}
                                                 >
                                                     {LANG_LABELS[lang]}
