@@ -880,6 +880,11 @@
   width: 100%;
 }
 
+/* Toast springアニメーション */
+.animate-toast-in {
+  animation: toastIn var(--duration-modal) var(--ease-spring) forwards;
+}
+
 @layer components {
   /* ボタンのタクタイルフィードバック — spring */
   .btn-tactile {

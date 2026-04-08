@@ -137,7 +137,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                             initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.97 }}
-                            transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }}
+                            transition={{ duration: 0.15, ease: [0.34, 1.56, 0.64, 1] }}
                             style={{
                                 position: 'fixed',
                                 zIndex: 99999,
