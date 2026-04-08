@@ -9,6 +9,7 @@
 import contentsHandler from './_contentsHandler.js';
 import roleHandler from './_roleHandler.js';
 import templatesHandler from './_templatesHandler.js';
+import syncHandler from './_syncHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -20,7 +21,9 @@ export default async function handler(req: any, res: any) {
       return roleHandler(req, res);
     case 'templates':
       return templatesHandler(req, res);
+    case 'sync':
+      return syncHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync' });
   }
 }

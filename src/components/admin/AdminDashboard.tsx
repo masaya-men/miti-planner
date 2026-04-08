@@ -2,7 +2,7 @@
  * 管理画面ダッシュボード
  * アクションカード・最近の変更・バックアップ復元への導線を表示
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
@@ -78,6 +78,29 @@ export function AdminDashboard() {
 
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const handleSync = useCallback(async () => {
+    if (syncing) return;
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await apiFetch('/api/admin?resource=sync', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncResult({ ok: true, message: isJa
+          ? `同期完了（ジョブ: ${data.jobs}, スキル: ${data.mitigations}）`
+          : `Synced (jobs: ${data.jobs}, skills: ${data.mitigations})` });
+      } else {
+        setSyncResult({ ok: false, message: data.error || 'Unknown error' });
+      }
+    } catch (err: any) {
+      setSyncResult({ ok: false, message: err.message || 'Network error' });
+    } finally {
+      setSyncing(false);
+    }
+  }, [syncing, isJa]);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,6 +151,30 @@ export function AdminDashboard() {
               <div className="text-app-lg text-[var(--app-text-muted)] mt-1">{t(card.descKey)}</div>
             </button>
           ))}
+        </div>
+      </section>
+
+      {/* セクション 1.5: Firestore同期 */}
+      <section>
+        <h2 className="text-app-2xl font-semibold mb-4 text-[var(--app-text-muted)] uppercase tracking-wide">
+          {t('admin.dash_sync_section')}
+        </h2>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="border border-[var(--app-text)]/20 px-6 py-3 text-left hover:border-[var(--app-text)]/40 hover:bg-[var(--app-text)]/5 transition-colors disabled:opacity-40"
+          >
+            <div className="text-app-2xl font-bold">
+              {syncing ? t('admin.dash_sync_running') : t('admin.dash_sync_button')}
+            </div>
+            <div className="text-app-lg text-[var(--app-text-muted)] mt-1">{t('admin.dash_sync_desc')}</div>
+          </button>
+          {syncResult && (
+            <span className={`text-app-lg ${syncResult.ok ? 'text-green-500' : 'text-app-red'}`}>
+              {syncResult.message}
+            </span>
+          )}
         </div>
       </section>
 
