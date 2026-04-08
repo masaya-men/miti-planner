@@ -78,7 +78,6 @@
         "context_add_event_desc": "在 {{time}} 添加新攻击",
         "context_delete_event": "删除事件",
         "context_delete_event_desc": "从时间轴中删除此攻击",
-        "mobile_long_press_hint": "长按卡片可添加、编辑或删除事件",
         "mobile_same_time": "〃",
         "mobile_lethal": "致死",
         "local_only": "仅本地",
@@ -156,6 +155,7 @@
         "my_job_instruction_new": "点击星标设置为主要职业",
         "set_my_job": "设置我的职业",
         "my_job_tap_slot": "点击你的位置进行选择",
+        "drop_to_remove": "拖到此处删除",
         "hp_label": "HP"
     },
     "modal": {
@@ -1009,6 +1009,8 @@
         "step4_desc": "使用「工具」进行自动规划和 FFLogs 导入",
         "step5_title": "拖放操作",
         "step5_desc": "长按职业图标拖到槽位",
+        "step6_title": "管理事件",
+        "step6_desc": "长按时间轴卡片可添加、编辑或删除事件",
         "skip": "关闭",
         "next": "下一步",
         "prev": "上一步",

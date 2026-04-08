@@ -84,20 +84,26 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
     const [isPositioned, setIsPositioned] = useState(false);
 
     useLayoutEffect(() => {
-        if (isOpen && triggerRef?.current) {
-            const rect = triggerRef.current.getBoundingClientRect();
+        if (isOpen) {
+            const rect = triggerRef?.current?.getBoundingClientRect();
             const isMobile = window.innerWidth < 768;
-            if (isMobile) {
-                const width = Math.min(window.innerWidth - 16, 320);
-                setPosition({
-                    top: rect.bottom + 4,
-                    left: Math.max(8, (window.innerWidth - width) / 2),
-                });
+            if (rect && rect.height > 0) {
+                if (isMobile) {
+                    const width = Math.min(window.innerWidth - 16, 320);
+                    setPosition({
+                        top: rect.bottom + 4,
+                        left: Math.max(8, (window.innerWidth - width) / 2),
+                    });
+                } else {
+                    setPosition({ top: rect.bottom + 4, left: rect.left });
+                }
             } else {
-                setPosition({ top: rect.bottom + 4, left: rect.left });
+                // モバイル: triggerが非表示の場合は画面中央上部に表示
+                const width = Math.min(window.innerWidth - 16, 320);
+                setPosition({ top: 60, left: Math.max(8, (window.innerWidth - width) / 2) });
             }
             setIsPositioned(true);
-        } else if (!isOpen) {
+        } else {
             setIsPositioned(false);
         }
     }, [isOpen, triggerRef]);

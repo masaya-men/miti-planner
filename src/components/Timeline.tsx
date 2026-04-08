@@ -41,7 +41,6 @@ import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
-import { showToast } from './Toast';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -768,30 +767,25 @@ const Timeline: React.FC = () => {
                 setPartySettingsOpenLocal(open);
             }
         };
+        const handlePhaseJump = () => setPhaseDropdownOpen(prev => !prev);
+        const handleLabelJump = () => setGimmickDropdownOpen(prev => !prev);
+        const handleMechanicSearch = () => setMechanicSearchOpen(prev => !prev);
         window.addEventListener('tutorial:close-all-modals', handleCloseAll);
         window.addEventListener('tutorial:open-party-modal', handleOpenParty);
         window.addEventListener('timeline:party-settings', handlePartySettings);
+        window.addEventListener('mobile:phase-jump', handlePhaseJump);
+        window.addEventListener('mobile:label-jump', handleLabelJump);
+        window.addEventListener('mobile:mechanic-search', handleMechanicSearch);
         return () => {
             window.removeEventListener('tutorial:close-all-modals', handleCloseAll);
             window.removeEventListener('tutorial:open-party-modal', handleOpenParty);
             window.removeEventListener('timeline:party-settings', handlePartySettings);
+            window.removeEventListener('mobile:phase-jump', handlePhaseJump);
+            window.removeEventListener('mobile:label-jump', handleLabelJump);
+            window.removeEventListener('mobile:mechanic-search', handleMechanicSearch);
         };
     }, []);
 
-    // スマホ初回表示時に長押しヒントを表示（一度だけ）
-    useEffect(() => {
-        const HINT_KEY = 'lopo-mobile-longpress-hint-shown';
-        if (!isMobileView) return;
-        if (useTutorialStore.getState().isActive) return;
-        if (localStorage.getItem(HINT_KEY)) return;
-        const timer = setTimeout(() => {
-            if (useTutorialStore.getState().isActive) return;
-            showToast(t('app.mobile_long_press_hint'), 'info');
-            localStorage.setItem(HINT_KEY, '1');
-        }, 2000);
-        return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     // プラン切替時にスクロール位置をトップにリセット
     const currentPlanId = usePlanStore(s => s.currentPlanId);

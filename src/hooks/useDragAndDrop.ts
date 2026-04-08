@@ -22,6 +22,7 @@ export function useDragAndDrop<T>({ holdDelay, onDrop }: UseDragAndDropOptions<T
   const delay = holdDelay ?? INTERACTION.drag.holdDelay;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startPos = useRef<Position>({ x: 0, y: 0 });
+  const pendingItemRef = useRef<T | null>(null);
   const [state, setState] = useState<DragState<T>>({
     isDragging: false,
     item: null,
@@ -40,10 +41,16 @@ export function useDragAndDrop<T>({ holdDelay, onDrop }: UseDragAndDropOptions<T
       : { x: e.clientX, y: e.clientY };
     startPos.current = pos;
 
-    timerRef.current = setTimeout(() => {
-      vibrate('medium');
-      setState({ isDragging: true, item, position: pos, activeTargetId: null });
-    }, delay);
+    if (delay === 0) {
+      // 移動閾値モード: mousedown時は保留、移動量が閾値を超えたら開始
+      pendingItemRef.current = item;
+    } else {
+      // 長押しモード: タイマー後に開始
+      timerRef.current = setTimeout(() => {
+        vibrate('medium');
+        setState({ isDragging: true, item, position: pos, activeTargetId: null });
+      }, delay);
+    }
   }, [delay, vibrate]);
 
   const moveDrag = useCallback((e: React.TouchEvent | React.MouseEvent) => {
@@ -51,7 +58,19 @@ export function useDragAndDrop<T>({ holdDelay, onDrop }: UseDragAndDropOptions<T
       ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
       : { x: e.clientX, y: e.clientY };
 
-    // Cancel hold if moved too far before drag started
+    // 移動閾値モード: 閾値を超えたらドラッグ開始
+    if (!state.isDragging && pendingItemRef.current) {
+      const dx = pos.x - startPos.current.x;
+      const dy = pos.y - startPos.current.y;
+      if (Math.abs(dx) > INTERACTION.drag.moveThreshold || Math.abs(dy) > INTERACTION.drag.moveThreshold) {
+        vibrate('medium');
+        setState({ isDragging: true, item: pendingItemRef.current, position: pos, activeTargetId: null });
+        pendingItemRef.current = null;
+      }
+      return;
+    }
+
+    // 長押しモード: タイマー前に大きく動いたらキャンセル
     if (!state.isDragging && timerRef.current) {
       const dx = pos.x - startPos.current.x;
       const dy = pos.y - startPos.current.y;
@@ -65,14 +84,16 @@ export function useDragAndDrop<T>({ holdDelay, onDrop }: UseDragAndDropOptions<T
     if (state.isDragging) {
       setState(prev => ({ ...prev, position: pos }));
     }
-  }, [state.isDragging]);
+  }, [state.isDragging, vibrate]);
 
   const endDrag = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    if (state.isDragging && state.item && state.activeTargetId) {
+    pendingItemRef.current = null;
+    if (!state.isDragging) return; // ドラッグ中でなければ不要な再レンダーを防止
+    if (state.item && state.activeTargetId) {
       vibrate('success');
       onDrop(state.item, state.activeTargetId);
     }
