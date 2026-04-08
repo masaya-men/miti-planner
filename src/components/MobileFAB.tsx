@@ -50,6 +50,65 @@ function arcPosition(angleDeg: number): { x: number; y: number } {
     };
 }
 
+// 円弧チップのアニメーション variants（コンポーネント外に配置、クロージャ依存を排除）
+const arcChipVariants = {
+    hidden: {
+        x: 0,
+        y: 0,
+        scale: 0,
+        opacity: 0,
+        rotate: -15,
+    },
+    visible: (custom: { i: number }) => {
+        const pos = arcPosition(ARC_ANGLES[custom.i]);
+        return {
+            x: pos.x,
+            y: pos.y,
+            scale: 1,
+            opacity: 1,
+            rotate: 0,
+            transition: {
+                ...SPRING.bouncy,
+                delay: custom.i * 0.05,
+            },
+        };
+    },
+    exit: (custom: { i: number; lang: ContentLanguage; selectedLang: ContentLanguage | null }) => {
+        const isSelected = custom.selectedLang === custom.lang;
+        if (isSelected) {
+            // 選択されたチップ: scale 1.3 → 0 で中心へ
+            return {
+                x: 0,
+                y: 0,
+                scale: 0,
+                opacity: 0,
+                rotate: 0,
+                transition: {
+                    duration: 0.2,
+                    ease: 'easeIn' as const,
+                },
+            };
+        }
+        // 他のチップ: 逆staggerで中心へ吸い込まれる
+        const totalChips = ARC_LANG_ORDER.length;
+        return {
+            x: 0,
+            y: 0,
+            scale: 0,
+            opacity: 0,
+            rotate: -15,
+            transition: {
+                ...SPRING.snappy,
+                delay: (totalChips - 1 - custom.i) * 0.04,
+            },
+        };
+    },
+    tap: {
+        scale: 1.3,
+        transition: { duration: 0.1 },
+    },
+};
+
 // ─── Sync ボタン内ロジック（SyncButton.tsx と同じ） ───
 function useSyncState() {
     const currentPlanId = usePlanStore(s => s.currentPlanId);
@@ -85,7 +144,17 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const [open, setOpen] = React.useState(false);
     const [langOpen, setLangOpen] = React.useState(false);
     const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
+    const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
+
+    // 言語切替タイマーのクリーンアップ
+    React.useEffect(() => {
+        return () => {
+            if (langTimerRef.current) {
+                clearTimeout(langTimerRef.current);
+            }
+        };
+    }, []);
 
     const close = () => {
         setLangOpen(false);
@@ -107,7 +176,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         setSelectedLang(lang);
         // 吸い込みアニメーション完了を待ってからトランジション実行
         const exitDuration = ARC_LANG_ORDER.length * 0.04 + 0.2; // stagger + base
-        setTimeout(() => {
+        langTimerRef.current = setTimeout(() => {
             setLangOpen(false);
             setSelectedLang(null);
             close();
@@ -229,64 +298,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         }),
     };
 
-    const arcChipVariants = {
-        hidden: {
-            x: 0,
-            y: 0,
-            scale: 0,
-            opacity: 0,
-            rotate: -15,
-        },
-        visible: (custom: { i: number }) => {
-            const pos = arcPosition(ARC_ANGLES[custom.i]);
-            return {
-                x: pos.x,
-                y: pos.y,
-                scale: 1,
-                opacity: 1,
-                rotate: 0,
-                transition: {
-                    ...SPRING.bouncy,
-                    delay: custom.i * 0.05,
-                },
-            };
-        },
-        exit: (custom: { i: number; lang: ContentLanguage }) => {
-            const isSelected = selectedLang === custom.lang;
-            if (isSelected) {
-                // 選択されたチップ: scale 1.3 → 0 で中心へ
-                return {
-                    x: 0,
-                    y: 0,
-                    scale: 0,
-                    opacity: 0,
-                    rotate: 0,
-                    transition: {
-                        duration: 0.2,
-                        ease: 'easeIn' as const,
-                    },
-                };
-            }
-            // 他のチップ: 逆staggerで中心へ吸い込まれる
-            const totalChips = ARC_LANG_ORDER.length;
-            return {
-                x: 0,
-                y: 0,
-                scale: 0,
-                opacity: 0,
-                rotate: -15,
-                transition: {
-                    ...SPRING.snappy,
-                    delay: (totalChips - 1 - custom.i) * 0.04,
-                },
-            };
-        },
-        tap: {
-            scale: 1.3,
-            transition: { duration: 0.1 },
-        },
-    };
-
     const allItems = [...navItems, 'divider' as const, ...settingsItems];
 
     return (
@@ -361,6 +372,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                                 borderColor: 'var(--color-fab-border)',
                                             }}
                                             animate={langOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                                            whileTap={{ scale: 0.9 }}
                                             transition={{ duration: 0.12 }}
                                         >
                                             {item.icon}
@@ -397,7 +409,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                             {langOpen && ARC_LANG_ORDER.map((lang, i) => (
                                                 <motion.button
                                                     key={lang}
-                                                    custom={{ i, lang }}
+                                                    custom={{ i, lang, selectedLang }}
                                                     variants={arcChipVariants}
                                                     initial="hidden"
                                                     animate="visible"
