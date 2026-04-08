@@ -10,24 +10,32 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了（push済み・デプロイ中）**:
-  - スマホUIネイティブリデザイン 13/16タスク実装完了
-    - デザイントークン3ファイル、カスタムフック3ファイル、共通コンポ2ファイル（新規8ファイル）
-    - CSS変数追加、MobileBottomSheet/Header/BottomNav/FAB/ContextMenu/EventModal/TimelineRow/Guide改修
-    - i18nキー4言語追加
+- **今セッション完了**:
+  - スマホUIネイティブリデザイン 15/16タスク実装完了
+    - Task 11: MobilePartySettings D&D（長押しドラッグ）＋スワイプ削除
+    - Task 14: PartySettingsModal PC用マウスD&D（ジョブパレット→スロット）
+    - 同期バグ（`_settings.preferRest`）: Firebase SDK内部プロパティ→除去
   - ビルド成功・テスト116全パス
-- **同期ボタンバグ**: `_settings.preferRest` undefined値がFirestoreに送信されるエラー（要修正）
 
 ### 次セッションでやること
-1. **スマホリデザイン本番目視確認**（デプロイ後、Chrome DevToolsモバイルエミュレーション）
-2. **残りTask 11**: MobilePartySettings D&D＋スワイプ削除
-3. **残りTask 14**: PC版springアニメーション＋PartySettingsModal D&D共通化
-4. **同期ボタンバグ修正**: `_syncHandler.ts` でFirestoreドキュメントに内部プロパティが混入する問題
-5. 設計書・実装計画: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
+1. **本番目視確認**: D&D・スワイプ削除の動作チェック（スマホエミュ＋PC）
+2. FAB言語切替を展開式セレクターに改善
+3. 設計書: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
 
 ---
 
 ## バグ・不具合（要修正）
+
+### 高（リグレッション）
+- [ ] PC版ヘッダー開閉ハンドル・SyncButton雲アイコンの位置ずれ（スマホリデザイン後に発生）
+
+### スマホ実機確認フィードバック
+- [ ] 長押し時にテキスト選択が発動して邪魔（イベント追加メニュー、D&D時）→ `user-select: none` / `-webkit-touch-callout: none` 追加
+- [ ] ヘッダーのコンテンツ名がスマホでは長すぎて必ず省略される＋タップしても正式名称見えない → スマホでは省略 or 非表示検討
+- [ ] 表がglass-panel角丸四角に囲まれて中央にこじんまり表示 → 画面いっぱいにスクロールさせてヘッダー/ボトムナビの下に透けて見える方が良い
+- [ ] FAB言語切替の改善が未実装（言語マーク押下→左に軽快アニメで展開セレクター）
+- [ ] パーティ編成D&D時にもテキスト選択が反応 → `touch-action` / `user-select` 修正
+- [ ] パーティ編成でジョブアイコンが常時表示でないとD&Dの価値が生きない → ジョブピッカーを常時表示に変更
 
 ### 中（特定環境・管理者向け）
 - [x] ~~テンプレート手動登録の反映が大幅に遅延する~~ 解消済み
@@ -55,7 +63,7 @@
 - [x] 本番動作確認・デザイン微調整
 - [x] スマホでイベント追加（モバイル最適化メニューでPCと同機能）
 - [ ] FAB言語切替を展開式セレクターに改善（ネイティブリデザインと合わせて実施）
-- [ ] スマホUIネイティブリデザイン残り（Task 11: D&D、Task 14: PC版アニメーション）
+- [x] スマホUIネイティブリデザイン（Task 11: D&D、Task 14: PC版D&D）
 
 ### 多言語
 - [ ] コンテンツ名・軽減モーダル等のデータ系zh/ko対応（LocalizedString拡張）
