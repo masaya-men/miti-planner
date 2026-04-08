@@ -233,6 +233,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         let shieldTotal = 0;
         let mitigationMult = 1;
 
+        // healingIncrease: 選択スキル中の回復効果アップを先に集計
+        let healingMultiplier = 1;
+        selectedMitigations.forEach(mitId => {
+            const baseId = mitId.endsWith(':burst') ? mitId.replace(/:burst$/, '') : mitId;
+            const def = MITIGATIONS.find(m => m.id === baseId);
+            if (!def || !def.healingIncrease) return;
+            if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
+            healingMultiplier += (def.healingIncrease / 100);
+        });
+
         selectedMitigations.forEach(mitId => {
             const isBurst = mitId.endsWith(':burst');
             const baseId = isBurst ? mitId.replace(/:burst$/, '') : mitId;
@@ -245,11 +255,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             // Percentage Mitigation (apply for ALL skills with value > 0, including shield+mitigation hybrids)
             if (def.value > 0) {
                 let val = def.value;
-                if (damageType === 'physical' && def.valuePhysical !== undefined) val = def.valuePhysical;
-                if (damageType === 'magical' && def.valueMagical !== undefined) val = def.valueMagical;
-
-                if (def.type === 'physical' && damageType === 'magical') val = 0;
-                if (def.type === 'magical' && damageType === 'physical') val = 0;
+                if (damageType === 'physical' && def.valuePhysical !== undefined) {
+                    val = def.valuePhysical;
+                } else if (damageType === 'magical' && def.valueMagical !== undefined) {
+                    val = def.valueMagical;
+                } else {
+                    if (def.type === 'physical' && damageType === 'magical') val = 0;
+                    if (def.type === 'magical' && damageType === 'physical') val = 0;
+                }
 
                 mitigationMult *= (1 - val / 100);
 
@@ -293,7 +306,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     shieldVal = tempComputed[jaName] || 0;
                 }
 
-                shieldTotal += shieldVal;
+                // healingIncrease を適用
+                shieldTotal += Math.floor(shieldVal * healingMultiplier);
             }
         });
 
@@ -439,23 +453,20 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const x = position ? Math.min(position.x + 20, window.innerWidth - 520) : '50%';
     const y = position ? Math.min(position.y, window.innerHeight - 600) : '50%'; // Approx height
 
-    // Style logic: 
-    // 1. Mobile -> Full width bottom sheet
+    // Style logic:
+    // 1. Mobile -> Bottom sheet (fixed to bottom, above bottom nav)
     // 2. Tutorial Active -> Force Center
     // 3. Desktop with position -> Follow cursor
     // 4. Desktop without position -> Center
-    const style = isMobile
-        ? { maxHeight: '85vh', bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' }
-        : (isTutorialActive
-            ? { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
-            : (position
-                ? { left: x, top: y }
-                : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
-            )
+    const desktopStyle = isTutorialActive
+        ? { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
+        : (position
+            ? { left: x, top: y }
+            : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
         );
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] text-left pointer-events-none display-flex flex-col justify-end">
+        <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
             {/* Transparent Backdrop */}
             <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? 'bg-black/50 backdrop-blur-[2px]' : 'bg-transparent'}`} onClick={handleBackdropClick} />
 
@@ -463,11 +474,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 data-tutorial-modal
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
-                    "absolute transition-all duration-200 flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto glass-tier3",
+                    "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto glass-tier3",
                     "ring-black/[0.02] dark:ring-white/5",
-                    isMobile ? "w-full rounded-t-2xl rounded-b-none border-b-0" : "w-[500px] rounded-xl"
+                    isMobile
+                        ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] rounded-t-2xl rounded-b-none border-b-0"
+                        : "absolute w-[500px] rounded-xl transition-all duration-200"
                 )}
-                style={style}
+                style={isMobile ? undefined : desktopStyle}
             >
                 {/* Mobile Drag Handle Indicator */}
                 {isMobile && <div className="w-12 h-1 bg-app-border rounded-full mx-auto mt-3 shrink-0" />}
@@ -595,14 +608,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             "relative group rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all cursor-pointer",
                                             isMobile ? "p-1 h-[44px]" : "p-1.5 h-[52px]",
                                             damageType === item.type
-                                                ? 'border-app-text bg-app-text/10'
+                                                ? 'border-app-text bg-app-text'
                                                 : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'
                                         )}
                                     >
                                         <Tooltip content={item.label}>
                                             <img src={item.icon} alt={item.label} className={clsx("object-contain opacity-90 group-hover:opacity-100 transition-opacity", isMobile ? "w-4 h-4" : "w-5 h-5")} />
                                         </Tooltip>
-                                        <span className={clsx("font-bold", isMobile ? "text-app-xs" : "text-app-sm", damageType === item.type ? 'text-app-text' : 'text-app-text group-hover:text-app-text')}>
+                                        <span className={clsx("font-bold", isMobile ? "text-app-xs" : "text-app-sm", damageType === item.type ? 'text-app-bg' : 'text-app-text group-hover:text-app-text')}>
                                             {item.label}
                                         </span>
                                     </button>

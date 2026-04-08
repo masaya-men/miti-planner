@@ -128,6 +128,9 @@ export const CheatSheetView: React.FC = () => {
                     buffsAtCast.forEach(buff => {
                         const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
                         if (bDef && bDef.healingIncrease) {
+                            // healingIncreaseDuration: 回復効果アップの持続時間がメイン効果と異なる場合（例: ピュシスII）
+                            const hiDuration = bDef.healingIncreaseDuration ?? bDef.duration;
+                            if (appMit.time >= buff.time + hiDuration) return;
                             if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
                             // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
                             if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;

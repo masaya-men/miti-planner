@@ -88,7 +88,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                             key="context-sheet"
                             className={clsx(
                                 "absolute left-0 right-0",
-                                "glass-tier3 glass-panel",
+                                "glass-tier3",
                                 "rounded-t-2xl rounded-b-none",
                                 "flex flex-col overflow-hidden",
                                 "pointer-events-auto",
