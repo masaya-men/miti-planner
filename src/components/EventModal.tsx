@@ -482,7 +482,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     "ring-black/[0.02] dark:ring-white/5",
                     isMobile
                         ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] border-b-0"
-                        : "absolute w-[500px] rounded-xl transition-all duration-200"
+                        : "absolute w-[500px] rounded-2xl transition-all duration-200"
                 )}
                 style={isMobile ? {
                     backgroundColor: 'var(--color-sheet-bg)',
