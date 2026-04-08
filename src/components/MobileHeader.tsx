@@ -4,10 +4,9 @@ import { usePlanStore } from '../store/usePlanStore';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
-import { LoPoButton } from './LoPoButton';
-import clsx from 'clsx';
+import { useMitigationStore } from '../store/useMitigationStore';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 
-// ── モバイルヘッダー: コンテンツ名+プラン名を中央に表示 ──
 export const MobileHeader: React.FC<{
     onHome: () => void;
     theme: string;
@@ -20,127 +19,55 @@ export const MobileHeader: React.FC<{
     const contentLabel = contentDef
         ? getPhaseName(contentDef.name, contentLanguage)
         : null;
+    const partyMembers = useMitigationStore(s => s.partyMembers);
+    const partyJobs = partyMembers
+        .filter(m => m.jobId)
+        .map(m => m.jobId!.toUpperCase())
+        .join(' · ');
 
-    // タップでポップアップ表示（3秒後に自動で閉じる）
-    const [popupVisible, setPopupVisible] = React.useState(false);
-    const [popupMounted, setPopupMounted] = React.useState(false);
-    const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-    const clearTimer = () => { if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; } };
-
-    const handleTitleTap = () => {
-        clearTimer();
-        if (!popupMounted) {
-            setPopupMounted(true);
-            // マウント後に表示アニメーション開始（次フレーム）
-            requestAnimationFrame(() => requestAnimationFrame(() => setPopupVisible(true)));
-        } else {
-            setPopupVisible(true);
-        }
-        timerRef.current = setTimeout(() => {
-            setPopupVisible(false);
-            setTimeout(() => setPopupMounted(false), 250);
-        }, 3000);
-    };
-
-    const handlePopupDismiss = () => {
-        clearTimer();
-        setPopupVisible(false);
-        setTimeout(() => setPopupMounted(false), 250);
-    };
-
-    React.useEffect(() => {
-        return () => clearTimer();
-    }, []);
-
-    const hasPlanTitle = currentPlan?.title && currentPlan.title !== contentLabel;
+    const subtitle = [currentPlan?.title, partyJobs].filter(Boolean).join(' — ');
 
     return (
         <header
-            className={clsx(
-                "shrink-0 border-b flex md:hidden items-center justify-between px-2 z-40 relative",
-                "bg-app-bg/95 backdrop-blur-md border-app-border"
-            )}
-            style={{ minHeight: '2.25rem', paddingTop: 'env(safe-area-inset-top, 0px)' }}
+            className="shrink-0 border-b flex md:hidden flex-col justify-center px-3 z-40 relative bg-app-bg/95 backdrop-blur-md border-app-border"
+            style={{
+                minHeight: MOBILE_TOKENS.header.height,
+                paddingTop: 'env(safe-area-inset-top, 0px)',
+            }}
         >
-            {/* 左: LoPoロゴ（Homeリンク兼用） */}
+            {/* Top: LOPO label */}
             <button
                 onClick={onHome}
-                className="p-1 text-app-text flex items-center shrink-0 cursor-pointer"
+                className="cursor-pointer text-left"
+                style={{
+                    fontSize: MOBILE_TOKENS.header.logoSize,
+                    letterSpacing: MOBILE_TOKENS.header.logoLetterSpacing,
+                }}
             >
-                <LoPoButton size="sm" />
+                <span className="text-app-text-muted font-bold uppercase tracking-widest">
+                    LOPO
+                </span>
             </button>
 
-            {/* 中央: コンテンツ名 / プラン名（タップでポップアップ） */}
-            {currentPlan && (
-                <div
-                    className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 cursor-pointer active:opacity-70 transition-opacity"
-                    onClick={handleTitleTap}
+            {/* Middle: Content name (Large Title) */}
+            {contentLabel && (
+                <h1
+                    className="text-app-text font-[800] leading-tight truncate"
+                    style={{ fontSize: MOBILE_TOKENS.header.titleSize }}
                 >
-                    {contentLabel && (
-                        <span className="text-app-md font-black text-app-text truncate leading-none">
-                            {contentLabel}
-                        </span>
-                    )}
-                    {hasPlanTitle && (
-                        <>
-                            {contentLabel && <span className="text-app-sm text-app-text-muted shrink-0">/</span>}
-                            <span className="text-app-base text-app-text-muted truncate leading-none">
-                                {currentPlan.title}
-                            </span>
-                        </>
-                    )}
-                </div>
+                    {contentLabel}
+                </h1>
             )}
 
-            {/* ポップアップ: ヘッダー直下に吹き出し風で表示（md以上は絶対に非表示） */}
-            {popupMounted && currentPlan && (
-                <>
-                    {/* 背景タップで閉じる */}
-                    <div
-                        className="fixed inset-0 z-[199] md:hidden"
-                        onClick={handlePopupDismiss}
-                    />
-                    <div
-                        className={clsx(
-                            "absolute left-2 right-2 top-full mt-1.5 z-[200] md:hidden",
-                            "rounded-2xl px-4 py-3 border shadow-lg",
-                            "dark:bg-[rgba(30,30,30,0.95)] dark:border-white/15 dark:shadow-black/40",
-                            "bg-white/95 border-black/8 shadow-black/10",
-                            "transition-all duration-250 ease-out origin-top",
-                            popupVisible
-                                ? "opacity-100 scale-100 translate-y-0"
-                                : "opacity-0 scale-95 -translate-y-1"
-                        )}
-                        style={{
-                            backdropFilter: 'blur(20px)',
-                            WebkitBackdropFilter: 'blur(20px)',
-                        }}
-                    >
-                        {/* 吹き出しの三角 */}
-                        <div className={clsx(
-                            "absolute -top-[6px] left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-l border-t",
-                            "dark:bg-[rgba(30,30,30,0.95)] dark:border-white/15",
-                            "bg-white/95 border-black/8"
-                        )} />
-                        {contentLabel && (
-                            <p className="text-app-xl font-black text-app-text text-center leading-snug">
-                                {contentLabel}
-                            </p>
-                        )}
-                        {hasPlanTitle && (
-                            <p className={clsx(
-                                "text-app-md text-app-text/60 text-center leading-snug",
-                                contentLabel && "mt-1"
-                            )}>
-                                {currentPlan.title}
-                            </p>
-                        )}
-                    </div>
-                </>
+            {/* Bottom: Plan name + party jobs */}
+            {subtitle && (
+                <p
+                    className="text-app-text-muted truncate leading-tight"
+                    style={{ fontSize: MOBILE_TOKENS.header.subtitleSize }}
+                >
+                    {subtitle}
+                </p>
             )}
-
-            {/* 右: スペーサー（ボタン類はMobileFABに移行） */}
-            <div className="w-8 shrink-0" />
         </header>
     );
 };
