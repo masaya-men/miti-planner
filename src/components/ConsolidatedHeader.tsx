@@ -357,7 +357,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             <div className="w-full relative shrink-0" style={{ height: '24px' }}>
                 {/* ハンドル本体 */}
                 <div
-                    className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
+                    className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto bg-app-bg"
                 >
                     {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示
                          PCフォーカスモード時（header collapsed + sidebar closed）は右パネルに表示するため非表示 */}
