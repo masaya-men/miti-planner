@@ -903,6 +903,13 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* タッチ操作時のテキスト選択防止 */
+button, [role="button"], .touch-none {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* ===== 空パネル（プラン未選択時）— Liquid Glass + 呼吸する光 ===== */
 
 /* Liquid Glass オーバーレイ（Timeline内に配置）— デフォルト非表示、.no-planで表示 */
