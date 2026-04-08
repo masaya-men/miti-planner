@@ -27,24 +27,24 @@ UIを作成・修正する際、このファイルに従うこと。
 
 | 役割 | CSS変数 | 値 | 用途 |
 |------|---------|-----|------|
-| 背景(主) | `--color-bg-primary` | `#000000` | ページ全体の背景 |
-| 背景(副) | `--color-bg-secondary` | `#000000` | セクション背景 |
-| 背景(三次) | `--color-bg-tertiary` | `#0a0a0a` | カード・パネル内部 |
-| テキスト(主) | `--color-text-primary` | `#ffffff` | 本文、見出し |
+| 背景(主) | `--color-bg-primary` | `#0F0F10` | ページ全体の背景 |
+| 背景(副) | `--color-bg-secondary` | `#0F0F10` | セクション背景 |
+| 背景(三次) | `--color-bg-tertiary` | `#161618` | カード・パネル内部 |
+| テキスト(主) | `--color-text-primary` | `#F0F0F0` | 本文、見出し |
 | テキスト(副) | `--color-text-secondary` | `#d4d4d8` | 補足テキスト |
 | テキスト(ミュート) | `--color-text-muted` | `#a1a1aa` | ラベル、プレースホルダ |
-| ボーダー | `--color-border` | `rgba(255,255,255,0.22)` | 区切り線、枠線 |
+| ボーダー | `--color-border` | `rgba(255,255,255,0.10)` | 区切り線、枠線 |
 
 ### ライトテーマ
 
 | 役割 | CSS変数 | 値 |
 |------|---------|-----|
-| 背景(主) | `--color-bg-primary` | `#ffffff` |
-| 背景(三次) | `--color-bg-tertiary` | `#f5f5f5` |
-| テキスト(主) | `--color-text-primary` | `#000000` |
+| 背景(主) | `--color-bg-primary` | `#FAFAFA` |
+| 背景(三次) | `--color-bg-tertiary` | `#ffffff` |
+| テキスト(主) | `--color-text-primary` | `#171717` |
 | テキスト(副) | `--color-text-secondary` | `#27272a` |
 | テキスト(ミュート) | `--color-text-muted` | `#52525b` |
-| ボーダー | `--color-border` | `rgba(0,0,0,1)` |
+| ボーダー | `--color-border` | `rgba(0,0,0,0.10)` |
 
 ### 機能色（両テーマ共通の役割）
 
