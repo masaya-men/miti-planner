@@ -9,19 +9,23 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **段階1+2完了**: Phase/Label startTime統一リファクタリング完了・デプロイ済み
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数7/12、月100ビルド制限
-- **同期設計**: 5分クールダウン(自動のみ)、初回editは即push、タブ切替/離脱/手動は即push、競合時は両版コピー保存
-- **スマホUX改善**: 実装・本番確認完了
-- **スマホイベント管理**: 実装完了（長押し→編集/追加/削除、FAB展開ボタン、チュートリアルヒント）
-- **バグ修正済み**: EventModal逆算計算（scope/バリア/兼用スキル）、バリア言語依存バグ（Timeline/EventModal/CheatSheetView）
-- **burst効果選択**: EventModalにburst版アイコン追加済み（未push）
-- **未push**: ローカルにコミット済み、push許可待ち
+- **前セッション修正（push済み・Firestore同期済み）**:
+  - スキルtype不整合修正（dark_missionary/dark_mind/magick_barrier → type:"all"）
+  - EventModal逆算ロジックのtype判定バグ修正（elseパターンに統一）
+  - EventModalにhealingIncrease計算を追加（選択スキル間で回復効果アップがバリア値に反映）
+  - healingIncreaseDuration仕組み追加（型+Timeline+CheatSheetView）
+  - ピュシスII回復効果アップ（Lv60-97:10秒 / Lv98+:15秒の2エントリ）
+  - テンパランス回復効果アップ（20%, selfOnly）
+  - ダメージタイプ選択ボタン白黒反転統一
+  - MobileContextMenu位置修正（glass-panelのposition:relativeがabsoluteを上書きしていた）
+  - EventModalモバイルボトムシート配置改善（fixed bottom-14 max-h-[75vh]）
 
-### 次セッションでやること
-1. **push→本番確認**（スマホイベント管理、バグ修正、burst効果、ツールチップ非表示、長押しメニュー位置）
-2. **スマホUIリデザイン**（Appleネイティブ風 — カード化、ラベル、言語セレクター。brainstormingから）
-3. FAB言語切替を展開式セレクターに改善（リデザインと合わせて）
+### 次セッションでやること（本番確認必須）
+1. **本番確認**（上記修正すべて — 特にスマホのコンテキストメニュー位置、EventModal位置、ダメージタイプボタン、回復効果アップ）
+2. **管理画面に「mockData.tsと同期」ボタン追加**（スキル編集のたびにseedスクリプト手動実行は不便）
+3. **スマホUIリデザイン**（Appleネイティブ風 — brainstormingから丁寧に）
+4. FAB言語切替を展開式セレクターに改善（リデザインと合わせて）
 
 ---
 

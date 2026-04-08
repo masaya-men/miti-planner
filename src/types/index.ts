@@ -50,6 +50,7 @@ export interface Mitigation {
     scope?: 'self' | 'party' | 'target'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
     healingIncrease?: number; // Healing potency increase (e.g. 10 for 10%)
+    healingIncreaseDuration?: number; // Duration of healing increase if different from main duration (e.g. Physis II: 10s vs 15s main)
     healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)
     requires?: string; // Prerequisite mitigation ID that must be active
     resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };

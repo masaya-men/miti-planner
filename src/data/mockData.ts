@@ -42,6 +42,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'holos',
     'panhaima',
     'philosophia',
+    'physis_base',
     'physis',
     'ixochole',
     'haima',
@@ -237,7 +238,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Dark Knight ---
     {
         id: "dark_mind", jobId: "drk", name: { ja: "ダークマインド", en: "Dark Mind" }, icon: "/icons/Dark_Mind.png",
-        recast: 60, duration: 10, type: "magical", value: 20, isShield: false,
+        recast: 60, duration: 10, type: "all", value: 20, isShield: false,
         valueMagical: 20, valuePhysical: 10, scope: "self", minLevel: 45, family: "tank_sub_self"
     },
     {
@@ -250,7 +251,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "dark_missionary", jobId: "drk", name: { ja: "ダークミッショナリー", en: "Dark Missionary" }, icon: "/icons/Dark_Missionary.png",
-        recast: 90, duration: 15, type: "magical", value: 10, isShield: false,
+        recast: 90, duration: 15, type: "all", value: 10, isShield: false,
         valueMagical: 10, valuePhysical: 5, scope: "party", minLevel: 76, family: "tank_party_miti"
     },
     {
@@ -389,8 +390,12 @@ export const MITIGATIONS: Mitigation[] = [
         recast: 180, duration: 20, type: "all", value: 0, isShield: false, minLevel: 100, family: "bh_180_big"
     },
     {
+        id: "physis_base", jobId: "sge", name: { ja: "ピュシスII", en: "Physis II" }, icon: "/icons/Physis_II.png",
+        recast: 60, duration: 15, type: "all", value: 0, isShield: false, healingIncrease: 10, healingIncreaseDuration: 10, note: "PH2持続15s, 回復効果10%上昇10s", minLevel: 60, maxLevel: 97, family: "bh_sub_a"
+    },
+    {
         id: "physis", jobId: "sge", name: { ja: "ピュシスII", en: "Physis II" }, icon: "/icons/Physis_II.png",
-        recast: 60, duration: 15, type: "all", value: 0, isShield: false, note: "PH2持続15s", minLevel: 60, family: "bh_sub_a"
+        recast: 60, duration: 15, type: "all", value: 0, isShield: false, healingIncrease: 10, note: "PH2持続15s, 回復効果10%上昇15s", minLevel: 98, family: "bh_sub_a"
     },
     {
         id: "ixochole", jobId: "sge", name: { ja: "イックソコレ", en: "Ixochole" }, icon: "/icons/Ixochole.png",
@@ -413,7 +418,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Red Mage ---
     {
         id: "magick_barrier", jobId: "rdm", name: { ja: "バマジク", en: "Magick Barrier" }, icon: "/icons/Magick_Barrier.png",
-        recast: 120, duration: 10, type: "magical", value: 10, isShield: false,
+        recast: 120, duration: 10, type: "all", value: 10, isShield: false,
         note: "被魔法10%軽減, 回復効果5%上昇", valueMagical: 10, valuePhysical: 0, healingIncrease: 5, minLevel: 86, family: "caster_party_miti"
     },
 
@@ -512,7 +517,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "temperance", jobId: "whm", name: { ja: "テンパランス", en: "Temperance" }, icon: "/icons/Temperance.png",
-        recast: 120, duration: 20, type: "all", value: 10, isShield: false, minLevel: 80, family: "ph_120_aoe"
+        recast: 120, duration: 20, type: "all", value: 10, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, minLevel: 80, family: "ph_120_aoe"
     },
     {
         id: "aquaveil", jobId: "whm", name: { ja: "アクアヴェール", en: "Aquaveil" }, icon: "/icons/Aquaveil.png",
