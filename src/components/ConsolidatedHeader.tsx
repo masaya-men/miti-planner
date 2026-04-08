@@ -133,7 +133,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 animate={{
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
-                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                transition={{ type: "spring", stiffness: 380, damping: 22 }}
                 className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none"
             >
                 <div
