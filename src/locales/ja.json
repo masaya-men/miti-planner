@@ -90,7 +90,14 @@
         "double_click_rename": "ダブルクリックで名前を変更",
         "rename": "名前を変更",
         "empty_state_pc": "サイドバーからコンテンツを選択",
-        "empty_state_mobile": "メニューからコンテンツを選択"
+        "empty_state_mobile": "メニューからコンテンツを選択",
+        "party_drag_hint": "ジョブアイコンをスロットにドラッグ",
+        "party_title": "パーティ",
+        "event_cancel": "キャンセル",
+        "event_save": "保存",
+        "event_edit_title": "イベント編集",
+        "event_add_title": "イベント追加",
+        "swipe_delete": "削除"
     },
     "login": {
         "title": "ログイン",
@@ -1024,6 +1031,8 @@
         "step3_desc": "ダメージ数値をタップすると、その技に対して軽減スキルを追加できます",
         "step4_title": "便利なツール",
         "step4_desc": "「ツール」からオートプランやFFLogsインポートが使えます",
+        "step5_title": "ドラッグ＆ドロップ",
+        "step5_desc": "ジョブアイコンを長押ししてスロットにドラッグできます",
         "skip": "閉じる",
         "next": "次へ",
         "prev": "戻る",
