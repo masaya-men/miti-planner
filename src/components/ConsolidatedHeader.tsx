@@ -124,6 +124,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
         <motion.div
             className="absolute top-0 w-full z-[100] flex flex-col pointer-events-none"
+            style={{ left: '-1px', width: 'calc(100% + 1px)' }}
             initial={false}
         >
             {/* [1] ── ヘッダー本体コンテナ ── */}
@@ -133,8 +134,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     height: isHeaderCollapsed ? 0 : 101,
                 }}
                 transition={{ type: "spring", stiffness: 380, damping: 22 }}
-                className="w-full overflow-hidden pointer-events-auto"
-                style={isHeaderCollapsed ? undefined : { borderRight: '1px solid var(--color-border)' }}
+                className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none"
             >
                 <div
                     className="flex flex-col w-full h-[96px] pt-[5px]"
@@ -357,7 +357,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             <div className="w-full relative shrink-0" style={{ height: '24px' }}>
                 {/* ハンドル本体 */}
                 <div
-                    className="absolute bottom-0 left-0 right-0 h-[24px] z-50 pointer-events-auto bg-app-bg"
+                    className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 >
                     {/* ヘッダー折りたたみ時: 同期ボタンをハンドル左端に表示
                          PCフォーカスモード時（header collapsed + sidebar closed）は右パネルに表示するため非表示 */}
@@ -379,6 +379,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
+                        {/* 上端の固定ライン */}
+                        <div className="absolute inset-x-0 top-0 h-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
                         {/* 下端の固定ライン */}
                         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-app-border group-hover/btn:bg-app-text-muted transition-colors duration-200" />
 

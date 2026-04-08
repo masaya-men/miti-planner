@@ -1593,11 +1593,11 @@ const Timeline: React.FC = () => {
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 <div className={clsx(
-                    "relative flex-1 flex flex-col glass-panel overflow-hidden transition-all duration-300 ease-out",
-                    "h-full z-[1] bg-white dark:bg-[var(--color-bg-primary)]",
+                    "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden transition-all duration-300 ease-out",
+                    "h-full z-[1]",
                     isMobileTimeline
-                        ? "rounded-none mx-0 mt-0 pt-[calc(72px+env(safe-area-inset-top,0px))]"
-                        : "mx-0 mt-0 mb-0 rounded-none pt-0"
+                        ? "rounded-none mx-0 mt-0"
+                        : "mx-0 mt-0 mb-0 rounded-none"
                 )}>
                     {/* プラン未選択時 — Liquid Glass オーバーレイ（CSSクラス .no-plan で表示制御） */}
                     <div className="empty-liquid-glass">
