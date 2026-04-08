@@ -29,11 +29,11 @@ export const MobileHeader: React.FC<{
 
     return (
         <header
-            className="fixed top-0 left-0 right-0 border-b flex md:hidden flex-col justify-center px-3 z-[400] backdrop-blur-xl border-app-border"
+            className="shrink-0 border-b flex md:hidden flex-col justify-center px-3 z-40 relative backdrop-blur-xl border-app-border"
             style={{
                 minHeight: MOBILE_TOKENS.header.height,
                 paddingTop: 'env(safe-area-inset-top, 0px)',
-                backgroundColor: 'rgba(255, 0, 0, 0.15)',
+                backgroundColor: 'var(--color-nav-bg)',
             }}
         >
             {/* Top: LOPO label */}
