@@ -206,21 +206,21 @@
     --font-size-5xl: 26px;
     --font-size-6xl: 36px;
 
-    --color-bg-primary: #ffffff;
-    --color-bg-secondary: #ffffff;
-    --color-bg-tertiary: #f5f5f5;
+    --color-bg-primary: #FAFAFA;
+    --color-bg-secondary: #FAFAFA;
+    --color-bg-tertiary: #ffffff;
 
     --color-accent-primary: #000000;
     --app-accent-rgb: 0, 0, 0;
     --color-accent-secondary: #000000;
     --color-accent-dim: rgba(0, 0, 0, 0.05);
 
-    --color-text-primary: #000000;
+    --color-text-primary: #171717;
     --color-text-secondary: #27272a;
     --color-text-muted: #52525b;
     --color-text-on-accent: #ffffff;
 
-    --color-border: rgba(0, 0, 0, 1);
+    --color-border: rgba(0, 0, 0, 0.10);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
     /* アクセントカラー */
@@ -250,7 +250,7 @@
     --glass-tier3-bg: rgba(255, 255, 255, 0.65);
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
     --glass-tier3-border: rgba(0, 0, 0, 0.08);
-    --glass-tier3-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+    --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
     --glass-tier3-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
     --glass-tier2-bg: rgba(255, 255, 255, 0.60);
@@ -272,9 +272,9 @@
     --glass-shadow: none;
 
     /* glass-panel（タイムライン枠） */
-    --glass-panel-border: rgba(0, 0, 0, 1);
+    --glass-panel-border: rgba(0, 0, 0, 0.08);
     --glass-panel-inset: none;
-    --glass-panel-shadow: 0 0 8px rgba(0, 0, 0, 0.15), 0 0 2px rgba(0, 0, 0, 0.4);
+    --glass-panel-shadow: 0 0 8px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.1);
   }
 
   body {
