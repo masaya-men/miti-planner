@@ -10,18 +10,20 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了（push済み）**:
-  - 管理画面に「Firestoreに同期」ボタン追加（API: ?resource=sync、admin認証+監査ログ）
-  - スマホUIネイティブリデザイン設計書作成・承認済み
-  - 実装計画（16タスク）作成済み
-- **本番確認済み**: スマホコンテキストメニュー位置、EventModal位置、ダメージタイプボタン、回復効果アップ → 全てOK
+- **今セッション完了（push済み・デプロイ中）**:
+  - スマホUIネイティブリデザイン 13/16タスク実装完了
+    - デザイントークン3ファイル、カスタムフック3ファイル、共通コンポ2ファイル（新規8ファイル）
+    - CSS変数追加、MobileBottomSheet/Header/BottomNav/FAB/ContextMenu/EventModal/TimelineRow/Guide改修
+    - i18nキー4言語追加
+  - ビルド成功・テスト116全パス
+- **同期ボタンバグ**: `_settings.preferRest` undefined値がFirestoreに送信されるエラー（要修正）
 
 ### 次セッションでやること
-1. **管理画面の同期ボタン本番確認**（デプロイ後に確認）
-2. **スマホUIネイティブリデザイン実装**（subagent-driven-development、Task 1から開始）
-   - 設計書: `docs/superpowers/specs/2026-04-08-mobile-native-redesign.md`
-   - 実装計画: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
-   - 16タスク: トークン→フック→共通コンポ→個別コンポ8個→i18n→最終確認
+1. **スマホリデザイン本番目視確認**（デプロイ後、Chrome DevToolsモバイルエミュレーション）
+2. **残りTask 11**: MobilePartySettings D&D＋スワイプ削除
+3. **残りTask 14**: PC版springアニメーション＋PartySettingsModal D&D共通化
+4. **同期ボタンバグ修正**: `_syncHandler.ts` でFirestoreドキュメントに内部プロパティが混入する問題
+5. 設計書・実装計画: `docs/superpowers/plans/2026-04-08-mobile-native-redesign.md`
 
 ---
 
@@ -53,7 +55,7 @@
 - [x] 本番動作確認・デザイン微調整
 - [x] スマホでイベント追加（モバイル最適化メニューでPCと同機能）
 - [ ] FAB言語切替を展開式セレクターに改善（ネイティブリデザインと合わせて実施）
-- [ ] スマホUIネイティブリデザイン（Apple HIG準拠フル改修、設計書・計画書あり）
+- [ ] スマホUIネイティブリデザイン残り（Task 11: D&D、Task 14: PC版アニメーション）
 
 ### 多言語
 - [ ] コンテンツ名・軽減モーダル等のデータ系zh/ko対応（LocalizedString拡張）
