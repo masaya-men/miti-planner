@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
-import { SPRING } from '../tokens/motionTokens';
 
 interface MobileBottomSheetProps {
     isOpen: boolean;
