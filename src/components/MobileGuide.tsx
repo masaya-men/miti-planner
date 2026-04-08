@@ -2,8 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Users, Crosshair, Wrench, X } from 'lucide-react';
+import { Menu, Users, Crosshair, Wrench, GripVertical, X } from 'lucide-react';
 import clsx from 'clsx';
+import { SPRING } from '../tokens/motionTokens';
 
 interface MobileGuideProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ const STEPS = [
     { titleKey: 'step2_title', descKey: 'step2_desc', Icon: Users },
     { titleKey: 'step3_title', descKey: 'step3_desc', Icon: Crosshair },
     { titleKey: 'step4_title', descKey: 'step4_desc', Icon: Wrench },
+    { titleKey: 'step5_title', descKey: 'step5_desc', Icon: GripVertical },
 ] as const;
 
 export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => {
@@ -49,6 +51,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
+                transition={SPRING.default}
                 className={clsx(
                     "w-full max-w-xs rounded-2xl overflow-hidden flex flex-col",
                     "bg-app-surface border border-app-border shadow-lg"
