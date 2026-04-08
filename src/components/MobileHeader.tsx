@@ -29,7 +29,7 @@ export const MobileHeader: React.FC<{
 
     return (
         <header
-            className="shrink-0 border-b flex md:hidden flex-col justify-center px-3 z-40 relative bg-app-bg/95 backdrop-blur-md border-app-border"
+            className="shrink-0 border-b flex md:hidden flex-col justify-center px-3 z-40 relative bg-app-bg/70 backdrop-blur-xl border-app-border"
             style={{
                 minHeight: MOBILE_TOKENS.header.height,
                 paddingTop: 'env(safe-area-inset-top, 0px)',
