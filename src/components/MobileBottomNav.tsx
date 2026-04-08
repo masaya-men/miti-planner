@@ -1,8 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu, Users, Eye, Wrench, LogIn } from 'lucide-react';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+import { SPRING } from '../tokens/motionTokens';
 
 interface MobileBottomNavProps {
     onMenuToggle: () => void;
@@ -25,28 +28,28 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     const items = [
         {
             id: 'menu',
-            icon: <Menu size={20} />,
+            icon: <Menu size={MOBILE_TOKENS.bottomNav.iconSize} />,
             label: t('nav.menu'),
             onClick: onMenuToggle,
             active: activeTab === 'menu',
         },
         {
             id: 'party',
-            icon: <Users size={20} />,
+            icon: <Users size={MOBILE_TOKENS.bottomNav.iconSize} />,
             label: t('nav.party'),
             onClick: onPartyOpen,
             active: activeTab === 'party',
         },
         {
             id: 'tools',
-            icon: <Wrench size={20} />,
+            icon: <Wrench size={MOBILE_TOKENS.bottomNav.iconSize} />,
             label: t('nav.tools'),
             onClick: onToolsOpen,
             active: activeTab === 'tools',
         },
         {
             id: 'myjob',
-            icon: <Eye size={20} />,
+            icon: <Eye size={MOBILE_TOKENS.bottomNav.iconSize} />,
             label: 'MY JOB',
             onClick: onMyJobHighlightToggle,
             active: myJobHighlight,
@@ -57,10 +60,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 <img
                     src={profileAvatarUrl}
                     alt=""
-                    className="w-5 h-5 rounded-full object-cover"
+                    className="rounded-full object-cover"
+                    style={{ width: MOBILE_TOKENS.bottomNav.iconSize, height: MOBILE_TOKENS.bottomNav.iconSize }}
                 />
             ) : (
-                <LogIn size={20} />
+                <LogIn size={MOBILE_TOKENS.bottomNav.iconSize} />
             ),
             label: user ? t('nav.account') : t('nav.login'),
             onClick: onLoginOpen,
@@ -68,15 +72,35 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         },
     ];
 
+    const activeIndex = items.findIndex(item => item.active);
+
     return (
-        <nav className={clsx(
-            "md:hidden fixed bottom-0 left-0 right-0 z-[400]",
-            "flex items-stretch justify-around",
-            "bg-app-bg/95 backdrop-blur-md",
-            "border-t border-app-border",
-        )}
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', minHeight: '3.5rem' }}
+        <nav
+            className={clsx(
+                "md:hidden fixed bottom-0 left-0 right-0 z-[400]",
+                "flex items-stretch justify-around",
+                "backdrop-blur-xl",
+            )}
+            style={{
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                minHeight: MOBILE_TOKENS.bottomNav.height,
+                backgroundColor: 'var(--color-nav-bg)',
+                borderTop: '0.5px solid var(--color-nav-border)',
+            }}
         >
+            {/* Sliding indicator */}
+            {activeIndex >= 0 && (
+                <motion.div
+                    className="absolute top-0 h-[2px] rounded-full"
+                    style={{
+                        width: `${100 / items.length}%`,
+                        backgroundColor: items[activeIndex]?.id === 'myjob' ? '#eab308' : 'var(--color-app-text)',
+                    }}
+                    animate={{ left: `${(100 / items.length) * activeIndex}%` }}
+                    transition={SPRING.snappy}
+                />
+            )}
+
             {items.map(item => (
                 <button
                     key={item.id}
@@ -90,15 +114,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                             : "text-app-text/40"
                     )}
                 >
-                    {/* アクティブインジケーター */}
-                    {item.active && (
-                        <div className={clsx("absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full", item.id === 'myjob' ? "bg-yellow-500" : "bg-app-text")} />
-                    )}
                     <div>{item.icon}</div>
-                    <span className={clsx(
-                        "text-app-sm tracking-tight leading-none",
-                        item.active ? "font-black" : "font-bold"
-                    )}>{item.label}</span>
+                    <span
+                        className={clsx(
+                            "tracking-tight leading-none capitalize",
+                            item.active ? "font-black" : "font-bold"
+                        )}
+                        style={{ fontSize: MOBILE_TOKENS.bottomNav.labelSize }}
+                    >{item.label}</span>
                 </button>
             ))}
         </nav>
