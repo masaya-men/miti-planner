@@ -223,7 +223,7 @@ export const TimelineRow = memo(({
                 >
                     {!(timelineSelectMode || labelSelectMode) && (
                         <Tooltip content={t('timeline.end_phase')} position="right">
-                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
                                 <Plus size={16} />
                             </div>
                         </Tooltip>
@@ -260,7 +260,7 @@ export const TimelineRow = memo(({
                 >
                     {!(timelineSelectMode || labelSelectMode) && (
                         <Tooltip content={t('timeline.add_label')} position="top">
-                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="hidden md:flex items-center justify-center w-full h-full text-app-text-muted opacity-0 translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-150">
                                 <Plus size={14} />
                             </div>
                         </Tooltip>
@@ -293,9 +293,9 @@ export const TimelineRow = memo(({
                           undefined
                         }
                         className={clsx(
-                            "w-full h-full items-center justify-center cursor-pointer transition-all",
+                            "w-full h-full items-center justify-center cursor-pointer transition-all duration-150",
                             "hidden md:flex",
-                            "opacity-0 group-hover:opacity-100 hover:bg-app-surface2",
+                            "opacity-0 translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-app-surface2",
                             "[&.tutorial-target-highlight]:opacity-100 [&.tutorial-target-highlight]:bg-white/10"
                         )}
                         onClick={(e) => onAddEventClick(time, e)}
