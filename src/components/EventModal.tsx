@@ -145,19 +145,23 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
         if (isTutorialActive && (currentStep?.id === 'add-3-miti' || currentStep?.id === 'create-8-miti')) {
-            const mit = MITIGATIONS.find(m => m.id === id);
+            const baseId = id.replace(/:burst$/, '');
+            const mit = MITIGATIONS.find(m => m.id === baseId);
             if (currentStep?.id === 'create-8-miti') {
-                // create-plan: リプライザルのみ許可
                 if (!mit || mit.name.en !== 'Reprisal') return;
             } else {
-                // main: Reprisal, Addle, Sacred Soil のみ許可
                 const isTargetSkill = mit && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en);
                 if (!isTargetSkill) return;
             }
         }
-        setSelectedMitigations(prev =>
-            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
-        );
+        setSelectedMitigations(prev => {
+            if (prev.includes(id)) return prev.filter(m => m !== id);
+            // Burst variants are mutually exclusive with their base
+            const baseId = id.replace(/:burst$/, '');
+            const isBurst = id.endsWith(':burst');
+            const counterpart = isBurst ? baseId : `${id}:burst`;
+            return [...prev.filter(m => m !== counterpart), id];
+        });
     };
 
     // Sorting Logic
@@ -230,7 +234,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         let mitigationMult = 1;
 
         selectedMitigations.forEach(mitId => {
-            const def = MITIGATIONS.find(m => m.id === mitId);
+            const isBurst = mitId.endsWith(':burst');
+            const baseId = isBurst ? mitId.replace(/:burst$/, '') : mitId;
+            const def = MITIGATIONS.find(m => m.id === baseId);
             if (!def) return;
 
             // Scope filtering: AoE attacks only use party-wide mitigations
@@ -246,6 +252,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 if (def.type === 'magical' && damageType === 'physical') val = 0;
 
                 mitigationMult *= (1 - val / 100);
+
+                // Burst: apply additional mitigation from the enhanced window
+                if (isBurst && def.burstValue) {
+                    mitigationMult *= (1 - def.burstValue / 100);
+                }
             }
 
             // Shield Calculation
@@ -692,7 +703,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         {selectedMitigations.length > 0 && (
                                           <div className="flex items-center gap-0.5">
                                             {selectedMitigations.slice(0, 4).map(mitId => {
-                                              const mit = MITIGATIONS.find(m => m.id === mitId);
+                                              const baseId = mitId.replace(/:burst$/, '');
+                                              const mit = MITIGATIONS.find(m => m.id === baseId);
                                               if (!mit) return null;
                                               const lang = t('app.language') === 'English' ? 'en' : 'ja';
                                               return (
@@ -719,37 +731,52 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                             "bg-app-surface2 border-app-border"
                                         )}
                                     >
-                                        {sortedMitigations.map((mit: typeof MITIGATIONS[0]) => {
-                                            const isTutorialTarget = isTutorialActive && (
-                                                (currentStep?.id === 'add-3-miti' && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id)) ||
-                                                (currentStep?.id === 'create-8-miti' && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id))
-                                            );
-                                            // チュートリアル中はvisibleMitigationsチェックをスキップ（IntersectionObserverのタイミング問題回避）
-                                            const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
+                                        {sortedMitigations.flatMap((mit: typeof MITIGATIONS[0]) => {
+                                            const hasBurst = !!(mit.burstValue && mit.burstDuration);
+                                            const variants = hasBurst
+                                                ? [{ id: mit.id, burst: false }, { id: `${mit.id}:burst`, burst: true }]
+                                                : [{ id: mit.id, burst: false }];
 
-                                            return (
-                                                <button
-                                                    key={mit.id}
-                                                    data-mitigation-id={mit.id}
-                                                    data-tutorial={
-                                                        isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
-                                                            ? 'tutorial-skill-reprisal'
-                                                            : shouldHighlight ? 'tutorial-skill-target' : undefined
-                                                    }
-                                                    type="button"
-                                                    onClick={() => toggleMitigation(mit.id)}
-                                                    className={clsx(
-                                                        "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
-                                                        selectedMitigations.includes(mit.id)
-                                                            ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
-                                                            : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
-                                                    )}
-                                                >
-                                                    <Tooltip content={getTooltipText(mit)}>
-                                                        <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
-                                                    </Tooltip>
-                                                </button>
-                                            );
+                                            return variants.map(variant => {
+                                                const isTutorialTarget = isTutorialActive && !variant.burst && (
+                                                    (currentStep?.id === 'add-3-miti' && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id)) ||
+                                                    (currentStep?.id === 'create-8-miti' && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id))
+                                                );
+                                                const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
+
+                                                return (
+                                                    <button
+                                                        key={variant.id}
+                                                        data-mitigation-id={variant.id}
+                                                        data-tutorial={
+                                                            !variant.burst && isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
+                                                                ? 'tutorial-skill-reprisal'
+                                                                : shouldHighlight ? 'tutorial-skill-target' : undefined
+                                                        }
+                                                        type="button"
+                                                        onClick={() => toggleMitigation(variant.id)}
+                                                        className={clsx(
+                                                            "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
+                                                            selectedMitigations.includes(variant.id)
+                                                                ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
+                                                                : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
+                                                        )}
+                                                    >
+                                                        <Tooltip content={getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')}>
+                                                            <div className="relative">
+                                                                <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
+                                                                {variant.burst && (
+                                                                    <img
+                                                                        src={mit.icon}
+                                                                        alt=""
+                                                                        className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </Tooltip>
+                                                    </button>
+                                                );
+                                            });
                                         })}
                                     </div>
                                     {/* Tutorial scroll hint for Step 9D */}
