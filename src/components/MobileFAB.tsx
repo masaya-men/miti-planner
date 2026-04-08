@@ -14,6 +14,8 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+import { SPRING, STAGGER } from '../tokens/motionTokens';
 
 interface MobileFABProps {
     onToggleTheme: () => void;
@@ -107,7 +109,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         syncIconClass = 'text-red-400';
     }
 
-    // FAB items（上から順 = 配列末尾 → 画面上に表示）
+    // FAB items
     const navItems = [
         {
             key: 'expand',
@@ -164,7 +166,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         },
     ];
 
-    // アニメーション: 下から上へ展開
+    // アニメーション: トークン使用
     const itemVariants = {
         hidden: { opacity: 0, y: 16, scale: 0.85 },
         visible: (i: number) => ({
@@ -172,10 +174,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             y: 0,
             scale: 1,
             transition: {
-                type: 'spring' as const,
-                stiffness: 400,
-                damping: 28,
-                delay: i * 0.045,
+                ...SPRING.default,
+                delay: i * (STAGGER.fab / 1000),
             },
         }),
         exit: (i: number) => ({
@@ -183,22 +183,15 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             y: 12,
             scale: 0.85,
             transition: {
-                type: 'spring' as const,
-                stiffness: 500,
-                damping: 30,
+                ...SPRING.snappy,
                 delay: i * 0.025,
             },
         }),
     };
 
-    // 全アイテム（設定→ナビの順でi=0から。画面上から: nav, 区切り, settings）
-    // 展開は上側（設定が一番上、ナビが下）になるよう逆順で並べて上方向に配置
     const allItems = [...navItems, 'divider' as const, ...settingsItems];
-    // 上から: settingsItems → divider → navItems（画面上側 = 後に表示）
-    // exit delay は逆順（上から消える）
 
     return (
-        /* md:hidden — PC では非表示 */
         <div className="fixed bottom-20 right-4 z-[300] md:hidden flex flex-col items-end gap-0">
 
             {/* 背景オーバーレイ */}
@@ -206,7 +199,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 {open && (
                     <motion.div
                         key="fab-overlay"
-                        className="fixed inset-0 z-[-1] bg-black/50"
+                        className="fixed inset-0 z-[-1]"
+                        style={{ backgroundColor: 'var(--color-overlay)' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -246,7 +240,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     className="flex items-center gap-2.5"
                                 >
                                     {/* ラベル（ボタンの左） */}
-                                    <span className="text-app-lg font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
+                                    <span className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
                                         {item.label}
                                     </span>
 
@@ -255,13 +249,22 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                         onClick={item.onClick}
                                         disabled={'disabled' in item ? Boolean(item.disabled) : false}
                                         className={clsx(
-                                            "w-11 h-11 rounded-full border flex items-center justify-center",
+                                            "flex items-center justify-center border",
                                             "shadow-lg active:scale-90 transition-transform duration-100",
                                             "disabled:pointer-events-none disabled:opacity-40",
                                             isSync
                                                 ? "bg-app-blue/12 border-app-blue/20 text-app-blue"
-                                                : "bg-app-surface border-app-border text-app-text"
+                                                : "text-app-text"
                                         )}
+                                        style={{
+                                            width: MOBILE_TOKENS.fab.itemSize,
+                                            height: MOBILE_TOKENS.fab.itemSize,
+                                            borderRadius: MOBILE_TOKENS.fab.radius,
+                                            ...(!isSync ? {
+                                                backgroundColor: 'var(--color-fab-bg)',
+                                                borderColor: 'var(--color-fab-border)',
+                                            } : {}),
+                                        }}
                                     >
                                         {item.icon}
                                     </button>
@@ -272,14 +275,17 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 )}
             </AnimatePresence>
 
-            {/* メインFABボタン（52px） */}
+            {/* メインFABボタン */}
             <motion.button
                 onClick={() => setOpen(prev => !prev)}
-                className={clsx(
-                    "w-[52px] h-[52px] rounded-full border flex items-center justify-center",
-                    "bg-app-surface border-app-border text-app-text shadow-xl",
-                    "active:scale-90 transition-all duration-200",
-                )}
+                className="flex items-center justify-center border text-app-text shadow-xl active:scale-90 transition-all duration-200"
+                style={{
+                    width: MOBILE_TOKENS.fab.size,
+                    height: MOBILE_TOKENS.fab.size,
+                    borderRadius: MOBILE_TOKENS.fab.radius,
+                    backgroundColor: 'var(--color-fab-bg)',
+                    borderColor: 'var(--color-fab-border)',
+                }}
                 whileTap={{ scale: 0.88 }}
             >
                 <AnimatePresence mode="wait" initial={false}>
