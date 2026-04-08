@@ -489,7 +489,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className={clsx("flex-1 flex flex-col relative overflow-hidden pb-0", !currentPlanId && "no-plan")}
                     initial={false}
                     animate={{ paddingTop: isMobile ? 0 : (isHeaderCollapsed ? 23 : 124) }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={{ type: "spring", stiffness: 380, damping: 22 }}
                 >
                     {children}
 
@@ -558,7 +558,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className="hidden md:flex flex-col h-full shrink-0 relative z-40 glass-tier3 glass-frame glass-border-t-0 glass-border-l-0 glass-shadow-none overflow-hidden"
                 initial={false}
                 animate={{ width: isHeaderCollapsed && !isSidebarOpen ? 24 : 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                transition={{ type: "spring", stiffness: 380, damping: 22 }}
             >
                 {/* 左端ライン（コンテンツとの境界） */}
                 <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border" />
