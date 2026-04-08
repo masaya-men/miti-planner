@@ -83,7 +83,6 @@
         "context_add_event_desc": "{{time}} に新しい攻撃を追加",
         "context_delete_event": "イベントを削除",
         "context_delete_event_desc": "この攻撃をタイムラインから削除",
-        "mobile_long_press_hint": "カードを長押しでイベントの追加・編集・削除ができます",
         "mobile_same_time": "〃",
         "mobile_lethal": "致死",
         "local_only": "ローカルのみ",
@@ -174,6 +173,7 @@
         "my_job_instruction_new": "星マークをクリックして自分のジョブに設定できます",
         "set_my_job": "自分のジョブを設定",
         "my_job_tap_slot": "自分のスロットをタップしてください",
+        "drop_to_remove": "ここにドロップで削除",
         "hp_label": "HP"
     },
     "modal": {
@@ -1033,6 +1033,8 @@
         "step4_desc": "「ツール」からオートプランやFFLogsインポートが使えます",
         "step5_title": "ドラッグ＆ドロップ",
         "step5_desc": "ジョブアイコンを長押ししてスロットにドラッグできます",
+        "step6_title": "イベントの操作",
+        "step6_desc": "タイムラインのカードを長押しでイベントの追加・編集・削除ができます",
         "skip": "閉じる",
         "next": "次へ",
         "prev": "戻る",

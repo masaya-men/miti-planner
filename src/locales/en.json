@@ -78,7 +78,6 @@
         "context_add_event_desc": "Add a new attack at {{time}}",
         "context_delete_event": "Delete Event",
         "context_delete_event_desc": "Remove this attack from timeline",
-        "mobile_long_press_hint": "Long press a card to add, edit, or delete events",
         "mobile_same_time": "〃",
         "mobile_lethal": "Lethal",
         "local_only": "Local only",
@@ -173,6 +172,7 @@
         "my_job_instruction_new": "Click the star to set as your primary job",
         "set_my_job": "Set My Job",
         "my_job_tap_slot": "Tap your slot to select",
+        "drop_to_remove": "Drop here to remove",
         "hp_label": "HP"
     },
     "modal": {
@@ -1029,6 +1029,8 @@
         "step4_desc": "Use \"Tools\" for Auto Plan and FFLogs Import",
         "step5_title": "Drag & Drop",
         "step5_desc": "Long press job icons and drag them to slots",
+        "step6_title": "Manage Events",
+        "step6_desc": "Long press a timeline card to add, edit, or delete events",
         "skip": "Close",
         "next": "Next",
         "prev": "Back",

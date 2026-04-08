@@ -42,11 +42,16 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
     const [isPositioned, setIsPositioned] = useState(false);
 
     useLayoutEffect(() => {
-        if (isOpen && triggerRef?.current) {
-            const rect = triggerRef.current.getBoundingClientRect();
-            setPosition({ top: rect.bottom + 4, left: rect.left });
+        if (isOpen) {
+            const rect = triggerRef?.current?.getBoundingClientRect();
+            if (rect && rect.height > 0) {
+                setPosition({ top: rect.bottom + 4, left: rect.left });
+            } else {
+                // モバイル: triggerが非表示の場合は画面中央上部に表示
+                setPosition({ top: 60, left: Math.max(8, (window.innerWidth - 200) / 2) });
+            }
             setIsPositioned(true);
-        } else if (!isOpen) {
+        } else {
             setIsPositioned(false);
         }
     }, [isOpen, triggerRef]);

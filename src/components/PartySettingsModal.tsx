@@ -11,12 +11,144 @@ import { migrateMitigations } from '../utils/jobMigration';
 import { Ripple } from './Ripple';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { SCALE } from '../tokens/motionTokens';
+import { SCALE, SPRING } from '../tokens/motionTokens';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { MigrationMode } from '../utils/jobMigration';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Job, PartyMember, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
 import { Tooltip } from './ui/Tooltip';
+
+interface SlotItemProps {
+    index: number;
+    member: PartyMember;
+    isFocused: boolean;
+    isMyJob: boolean;
+    isDropTarget?: boolean;
+    theme: string;
+    jobs: Job[];
+    contentLanguage: string;
+    onFocusToggle: (index: number) => void;
+    onRemoveJob: (memberId: string) => void;
+    onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
+    dataTutorial?: string;
+}
+
+const SlotItem = React.memo<SlotItemProps>(({
+    index, member, isFocused, isMyJob, isDropTarget, theme, jobs, contentLanguage,
+    onFocusToggle, onRemoveJob, onMyJobToggle, dataTutorial
+}) => {
+    const { t } = useTranslation();
+    if (!member) return null;
+    const job = jobs.find(j => j.id === member.jobId);
+
+    const getSlotColor = () => {
+        if (job) return job.role === 'tank' ? 'blue' : job.role === 'healer' ? 'green' : 'red';
+        return member.role === 'tank' ? 'blue' : member.role === 'healer' ? 'green' : 'red';
+    };
+    const activeColor = getSlotColor();
+
+    return (
+        <div
+            id={`party-slot-${index}`}
+            {...(dataTutorial ? { 'data-tutorial': dataTutorial } : {})}
+            onClick={() => {
+                onFocusToggle(index);
+            }}
+            className={clsx(
+                "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden transition-transform",
+                isDropTarget && "ring-2 ring-blue-400 scale-[1.03]",
+                isFocused
+                    ? activeColor === 'blue'
+                        ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80"
+                        : activeColor === 'green'
+                            ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80"
+                            : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80"
+                    : job
+                        ? activeColor === 'blue'
+                            ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 hover:bg-blue-500/[0.10] hover:border-blue-300/70"
+                            : activeColor === 'green'
+                                ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
+                                : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 hover:bg-rose-500/[0.10] hover:border-rose-300/70"
+                        : activeColor === 'blue'
+                            ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
+                            : activeColor === 'green'
+                                ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
+                                : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
+            )}
+        >
+            <Ripple />
+
+            {/* Left side: Tag and Icon */}
+            <div className="flex items-center gap-3 z-10 pointer-events-none">
+                <div className={clsx(
+                    "text-app-base font-black tracking-tighter w-6 z-10",
+                    theme === 'dark'
+                        ? activeColor === 'blue'
+                            ? "text-blue-200"
+                            : activeColor === 'green'
+                                ? "text-emerald-200"
+                                : "text-rose-200"
+                        : activeColor === 'blue'
+                            ? "text-blue-800"
+                            : activeColor === 'green'
+                                ? "text-emerald-800"
+                                : "text-rose-800"
+                )}>
+                    {member.id}
+                </div>
+                {job ? (
+                    <img
+                        src={job.icon}
+                        alt={getPhaseName(job.name, contentLanguage)}
+                        className="w-8 h-8 object-contain"
+                    />
+                ) : (
+                    <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
+                        <span className="text-app-xs text-app-text-muted font-black uppercase tracking-widest">Select</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Right side: Actions */}
+            <div className="flex items-center gap-2 z-20">
+                {job && (
+                    <>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onMyJobToggle(member.id, isMyJob);
+                            }}
+                            className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
+                                isMyJob
+                                    ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 scale-110"
+                                    : "bg-app-surface2 text-app-text/30 border-app-border hover:bg-app-surface2 hover:text-app-text/80"
+                            )}
+                        >
+                            <Tooltip content={t('party.my_job')}>
+                                <Star size={16} className={clsx("transition-all duration-300",
+                                    isMyJob
+                                        ? "fill-yellow-500 text-yellow-500"
+                                        : "group-hover/star:scale-110"
+                                )} />
+                            </Tooltip>
+                        </button>
+                        <button
+                            data-tutorial-remove={member.id}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemoveJob(member.id);
+                            }}
+                            className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+});
 
 interface PartySettingsModalProps {
     isOpen: boolean;
@@ -42,139 +174,6 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
     // Absolute Rules - DO NOT MODIFY
     const mtGroupIndices = [0, 2, 4, 6];
     const stGroupIndices = [1, 3, 5, 7];
-
-    interface SlotItemProps {
-        index: number;
-        member: PartyMember;
-        isFocused: boolean;
-        isMyJob: boolean;
-        isDropTarget?: boolean;
-        theme: string;
-        onFocusToggle: (index: number) => void;
-        onRemoveJob: (memberId: string) => void;
-        onMyJobToggle: (memberId: string, isMyJob: boolean) => void;
-        dataTutorial?: string;
-    }
-
-    const SlotItem = React.memo<SlotItemProps>(({
-        index, member, isFocused, isMyJob, isDropTarget, theme,
-        onFocusToggle, onRemoveJob, onMyJobToggle, dataTutorial
-    }) => {
-        if (!member) return null;
-        const job = JOBS.find(j => j.id === member.jobId);
-        const { t } = useTranslation();
-
-        const getSlotColor = () => {
-            if (job) return job.role === 'tank' ? 'blue' : job.role === 'healer' ? 'green' : 'red';
-            return member.role === 'tank' ? 'blue' : member.role === 'healer' ? 'green' : 'red';
-        };
-        const activeColor = getSlotColor();
-
-        return (
-            <div
-                id={`party-slot-${index}`}
-                {...(dataTutorial ? { 'data-tutorial': dataTutorial } : {})}
-                onClick={() => {
-                    onFocusToggle(index);
-                }}
-                className={clsx(
-                    "btn-tactile h-14 rounded-xl flex items-center justify-between px-3 cursor-pointer border relative group/slot overflow-hidden transition-transform",
-                    isDropTarget && "ring-2 ring-blue-400 scale-[1.03]",
-                    isFocused
-                        ? activeColor === 'blue'
-                            ? "bg-blue-500/[0.12] border-[1.5px] border-blue-300/80"
-                            : activeColor === 'green'
-                                ? "bg-emerald-500/[0.12] border-[1.5px] border-emerald-300/80"
-                                : "bg-rose-500/[0.12] border-[1.5px] border-rose-300/80"
-                        : job
-                            ? activeColor === 'blue'
-                                ? "bg-blue-500/[0.06] border-[1.5px] border-blue-300/50 hover:bg-blue-500/[0.10] hover:border-blue-300/70"
-                                : activeColor === 'green'
-                                    ? "bg-emerald-500/[0.06] border-[1.5px] border-emerald-300/50 hover:bg-emerald-500/[0.10] hover:border-emerald-300/70"
-                                    : "bg-rose-500/[0.06] border-[1.5px] border-rose-300/50 hover:bg-rose-500/[0.10] hover:border-rose-300/70"
-                            : activeColor === 'blue'
-                                ? "bg-blue-500/[0.03] border-[1.5px] border-blue-300/25 hover:bg-blue-500/[0.06] border-dashed"
-                                : activeColor === 'green'
-                                    ? "bg-emerald-500/[0.03] border-[1.5px] border-emerald-300/25 hover:bg-emerald-500/[0.06] border-dashed"
-                                    : "bg-rose-500/[0.03] border-[1.5px] border-rose-300/25 hover:bg-rose-500/[0.06] border-dashed"
-                )}
-            >
-                {/* 光の反射グラデーション（removed for B/W theme） */}
-                {/* 上端の輝くライン（removed for B/W theme） */}
-
-                <Ripple />
-
-                {/* Left side: Tag and Icon */}
-                <div className="flex items-center gap-3 z-10 pointer-events-none">
-                    <div className={clsx(
-                        "text-app-base font-black tracking-tighter w-6 z-10",
-                        theme === 'dark'
-                            ? activeColor === 'blue'
-                                ? "text-blue-200"
-                                : activeColor === 'green'
-                                    ? "text-emerald-200"
-                                    : "text-rose-200"
-                            : activeColor === 'blue'
-                                ? "text-blue-800"
-                                : activeColor === 'green'
-                                    ? "text-emerald-800"
-                                    : "text-rose-800"
-                    )}>
-                        {member.id}
-                    </div>
-                    {job ? (
-                        <img
-                            src={job.icon}
-                            alt={getPhaseName(job.name, contentLanguage)}
-                            className="w-8 h-8 object-contain"
-                        />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full border border-app-border bg-app-surface2 flex flex-col items-center justify-center">
-                            <span className="text-app-xs text-app-text-muted font-black uppercase tracking-widest">Select</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Right side: Actions */}
-                <div className="flex items-center gap-2 z-20">
-                    {job && (
-                        <>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onMyJobToggle(member.id, isMyJob);
-                                }}
-                                className={clsx("p-2 rounded-lg transition-all flex items-center justify-center border cursor-pointer group/star",
-                                    isMyJob
-                                        ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 scale-110"
-                                        : "bg-app-surface2 text-app-text/30 border-app-border hover:bg-app-surface2 hover:text-app-text/80"
-                                )}
-                            >
-                                <Tooltip content={t('party.my_job')}>
-                                    <Star size={16} className={clsx("transition-all duration-300",
-                                        isMyJob
-                                            ? "fill-yellow-500 text-yellow-500"
-                                            : "group-hover/star:scale-110"
-                                    )} />
-                                </Tooltip>
-                            </button>
-                            <button
-                                data-tutorial-remove={member.id}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onRemoveJob(member.id);
-                                }}
-                                className="p-2 rounded-lg text-app-red/40 hover:text-app-red hover:bg-app-red-dim transition-colors border border-transparent hover:border-app-red-border cursor-pointer"
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                        </>
-                    )}
-                </div>
-            </div>
-        );
-    });
-
 
     const lastMeleeSlotRef = useRef<number>(0);
 
@@ -563,29 +562,40 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
             isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
-            <div
-                className={clsx(
-                    "absolute inset-0 transition-opacity duration-300 ease-out",
-                    isOpen ? "opacity-100" : "opacity-0"
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        key="party-backdrop"
+                        className="absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={handleAttemptClose}
+                    />
                 )}
-                onClick={handleAttemptClose}
-            />
+            </AnimatePresence>
 
             {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
-            <div
+            <motion.div
                 ref={popoverRef}
                 data-tutorial-modal
                 data-tutorial="party-settings"
                 onMouseMove={handlePaletteDragMove}
                 onMouseUp={drag.endDrag}
                 className={clsx(
-                    "relative flex flex-col glass-tier3 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                    "relative flex flex-col glass-tier3 shadow-sm",
                     "md:h-full md:w-[450px] md:max-w-full md:border-r",
-                    isOpen ? "md:translate-x-0" : "md:-translate-x-full",
-                    // モバイル: ボトムナビ(3.5rem+safe-area)の上に配置
                     "max-md:fixed max-md:left-0 max-md:right-0 max-md:max-h-[70vh] max-md:rounded-t-2xl max-md:border-t",
-                    isOpen ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
+                initial={false}
+                animate={isOpen
+                    ? { x: 0, y: 0 }
+                    : window.innerWidth >= 768
+                        ? { x: '-100%' }
+                        : { y: '100%' }
+                }
+                transition={SPRING.gentle}
                 style={{ bottom: window.innerWidth < 768 ? 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' : undefined }}
             >
                 {/* Mobile drag handle */}
@@ -684,6 +694,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                                 isMyJob={myMemberId === member.id}
                                                 isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
                                                 theme={theme}
+                                                jobs={JOBS}
+                                                contentLanguage={contentLanguage}
                                                 onFocusToggle={handleFocusToggle}
                                                 onRemoveJob={handleRemoveJob}
                                                 onMyJobToggle={handleMyJobToggle}
@@ -714,6 +726,8 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                                                 isMyJob={myMemberId === member.id}
                                                 isDropTarget={drag.isDragging && drag.activeTargetId === String(index)}
                                                 theme={theme}
+                                                jobs={JOBS}
+                                                contentLanguage={contentLanguage}
                                                 onFocusToggle={handleFocusToggle}
                                                 onRemoveJob={handleRemoveJob}
                                                 onMyJobToggle={handleMyJobToggle}
@@ -732,7 +746,7 @@ export const PartySettingsModal: React.FC<PartySettingsModalProps> = ({ isOpen, 
                         {renderJobPalette()}
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* ドラッグゴースト */}
             {drag.isDragging && drag.item && (

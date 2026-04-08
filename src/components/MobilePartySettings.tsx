@@ -4,13 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useJobs } from '../hooks/useSkillsData';
-import { X, Star, LogOut, Trash2 } from 'lucide-react';
+import { X, Star, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 import { JobMigrationModal } from './JobMigrationModal';
 import { ConfirmDialog } from './ConfirmDialog';
 import { migrateMitigations } from '../utils/jobMigration';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useSwipeAction } from '../hooks/useSwipeAction';
 import { useHaptic } from '../hooks/useHaptic';
 import { SCALE } from '../tokens/motionTokens';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -19,64 +18,79 @@ import type { Job } from '../types';
 import { PARTY_MEMBER_IDS } from '../constants/party';
 import { createPortal } from 'react-dom';
 
-// ── スワイプ削除付きスロット行 ──
-const SwipeableSlot: React.FC<{
+// ── パーティスロット（長押しで削除） ──
+const PartySlot: React.FC<{
     member: { id: string; jobId: string | null };
     job: Job | null;
-    isMyJob: boolean;
     isFocused: boolean;
     isDropTarget: boolean;
     myJobMode: boolean;
     onTap: () => void;
-    onRemove: () => void;
-}> = ({ member, job, isMyJob, isFocused, isDropTarget, myJobMode, onTap, onRemove }) => {
-    const swipe = useSwipeAction({ onSwipe: onRemove });
+    onLongPress: () => void;
+}> = ({ member, job, isFocused, isDropTarget, myJobMode, onTap, onLongPress }) => {
+    const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const movedRef = React.useRef(false);
+    const startPosRef = React.useRef({ x: 0, y: 0 });
+
+    const handlePointerDown = (e: React.TouchEvent | React.MouseEvent) => {
+        if (!job) return;
+        movedRef.current = false;
+        const pos = 'touches' in e
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
+        startPosRef.current = pos;
+        timerRef.current = setTimeout(() => {
+            if (!movedRef.current) onLongPress();
+        }, 400);
+    };
+
+    const handlePointerMove = (e: React.TouchEvent | React.MouseEvent) => {
+        const pos = 'touches' in e
+            ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            : { x: e.clientX, y: e.clientY };
+        if (Math.abs(pos.x - startPosRef.current.x) > 8 || Math.abs(pos.y - startPosRef.current.y) > 8) {
+            movedRef.current = true;
+            if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+        }
+    };
+
+    const handlePointerUp = () => {
+        if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    };
+
+    React.useEffect(() => {
+        return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    }, []);
 
     return (
-        <div className="relative overflow-hidden select-none" style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}>
-            {/* 削除ボタン背景（スワイプで露出） */}
-            {swipe.swiped && (
-                <button
-                    onClick={swipe.confirm}
-                    className="absolute right-0 top-0 bottom-0 w-16 bg-red-500 flex items-center justify-center cursor-pointer"
-                    style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}
-                >
-                    <Trash2 size={16} className="text-white" />
-                </button>
+        <div
+            onClick={onTap}
+            onTouchStart={handlePointerDown}
+            onTouchMove={handlePointerMove}
+            onTouchEnd={handlePointerUp}
+            onMouseDown={handlePointerDown}
+            onMouseMove={handlePointerMove}
+            onMouseUp={handlePointerUp}
+            className={clsx(
+                "flex flex-col items-center gap-1 p-2 border transition-all active:scale-95 relative cursor-pointer select-none",
+                isDropTarget
+                    ? "border-blue-400 bg-blue-400/15 ring-1 ring-blue-400"
+                    : myJobMode
+                        ? "border-app-text/50 bg-app-text/5"
+                        : isFocused
+                            ? "border-app-text bg-app-text/10"
+                            : "border-app-border bg-app-surface2"
             )}
-            <div
-                {...(job ? swipe.handlers : {})}
-                onClick={() => { if (!swipe.swiped) onTap(); else swipe.reset(); }}
-                className={clsx(
-                    "flex flex-col items-center gap-1 p-2 border transition-all active:scale-95 relative cursor-pointer",
-                    isDropTarget
-                        ? "border-blue-400 bg-blue-400/15 ring-1 ring-blue-400"
-                        : myJobMode
-                            ? "border-app-text/50 bg-app-text/5"
-                            : isFocused
-                                ? "border-app-text bg-app-text/10"
-                                : "border-app-border bg-app-surface2"
-                )}
-                style={{
-                    borderRadius: MOBILE_TOKENS.party.slotRadius,
-                    transform: `translateX(${-swipe.offsetX}px)`,
-                    transition: swipe.offsetX === 0 ? 'transform 0.2s ease' : 'none',
-                }}
-            >
-                {job ? (
-                    <img src={job.icon} className="w-8 h-8 object-contain pointer-events-none" />
-                ) : (
-                    <div className="w-8 h-8 rounded-full border border-dashed border-app-border flex items-center justify-center">
-                        <span className="text-app-base text-app-text-muted">+</span>
-                    </div>
-                )}
-                <span className="text-app-base font-black text-app-text">{member.id}</span>
-                {isMyJob && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <Star size={8} className="text-black fill-black" />
-                    </div>
-                )}
-            </div>
+            style={{ borderRadius: MOBILE_TOKENS.party.slotRadius }}
+        >
+            {job ? (
+                <img src={job.icon} className="w-8 h-8 object-contain pointer-events-none" />
+            ) : (
+                <div className="w-8 h-8 rounded-full border border-dashed border-app-border flex items-center justify-center">
+                    <span className="text-app-base text-app-text-muted">+</span>
+                </div>
+            )}
+            <span className="text-app-base font-black text-app-text">{member.id}</span>
         </div>
     );
 };
@@ -111,7 +125,6 @@ const MobilePartySettings: React.FC = () => {
         // スワップ: ドロップ先に既にジョブがある場合、同じジョブの別スロットと入れ替え
         const existingMember = partyMembers.find(m => m.jobId === job.id && m.id !== targetId);
         if (existingMember && member.jobId) {
-            // existingMember に member の現ジョブを、member に job を
             setMemberJob(existingMember.id, member.jobId);
         } else if (existingMember) {
             setMemberJob(existingMember.id, null as unknown as string);
@@ -138,6 +151,12 @@ const MobilePartySettings: React.FC = () => {
         drag.setActiveTarget(found);
     }, [drag.isDragging, drag.moveDrag, drag.setActiveTarget]);
 
+    // スロットのジョブ除去（長押し）
+    const handleRemoveJob = useCallback((memberId: string) => {
+        vibrate('medium');
+        setMemberJob(memberId, null as unknown as string);
+    }, [setMemberJob, vibrate]);
+
     const sortedMembers = PARTY_MEMBER_IDS.map(id => partyMembers.find(m => m.id === id)).filter(Boolean) as typeof partyMembers;
 
     // ジョブ変更ハンドラ — 軽減がある場合はマイグレーション確認を表示
@@ -160,12 +179,6 @@ const MobilePartySettings: React.FC = () => {
         setMemberJob(memberId, jobId);
         setFocusedSlot(null);
     };
-
-    // スロットのジョブ除去
-    const handleRemoveJob = useCallback((memberId: string) => {
-        vibrate('medium');
-        setMemberJob(memberId, null as unknown as string);
-    }, [setMemberJob, vibrate]);
 
     // マイグレーション確定
     const handleMigrationConfirm = (mode: MigrationMode) => {
@@ -244,12 +257,17 @@ const MobilePartySettings: React.FC = () => {
                         <div
                             key={member.id}
                             ref={(el) => { if (el) slotRefs.current.set(member.id, el); }}
+                            className="relative"
                             style={isDropTarget ? { transform: `scale(${SCALE.dropTarget})`, transition: 'transform 0.15s ease' } : { transition: 'transform 0.15s ease' }}
                         >
-                            <SwipeableSlot
+                            {isMyJob && (
+                                <div className="absolute -top-1.5 -right-1.5 z-10 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                                    <Star size={8} className="text-black fill-black" />
+                                </div>
+                            )}
+                            <PartySlot
                                 member={member}
                                 job={job ?? null}
-                                isMyJob={isMyJob}
                                 isFocused={isFocused}
                                 isDropTarget={isDropTarget}
                                 myJobMode={myJobMode}
@@ -261,7 +279,7 @@ const MobilePartySettings: React.FC = () => {
                                         setFocusedSlot(isFocused ? null : member.id);
                                     }
                                 }}
-                                onRemove={() => handleRemoveJob(member.id)}
+                                onLongPress={() => handleRemoveJob(member.id)}
                             />
                         </div>
                     );
@@ -303,31 +321,21 @@ const MobilePartySettings: React.FC = () => {
                 </div>
             )}
             {!myJobMode && (
-                /* ロール別ジョブピッカー（D&Dソース） — 常時表示 */
-                <div className="flex flex-col gap-2">
-                    {jobsByRole.map(group => (
-                        <div key={group.role}>
-                            <span className="text-app-xs font-black text-app-text-muted/50 uppercase tracking-wider px-1">
-                                {group.role}
-                            </span>
-                            <div className="grid grid-cols-6 gap-1.5 mt-0.5">
-                                {group.jobs.map(job => (
-                                    <button
-                                        key={job.id}
-                                        onClick={() => {
-                                            // タップ: 最初の空きスロットに自動配置
-                                            const emptySlot = sortedMembers.find(m => !m.jobId);
-                                            if (emptySlot) handleJobChange(emptySlot.id, job.id);
-                                        }}
-                                        onTouchStart={(e) => drag.startDrag(job, e)}
-                                        onMouseDown={(e) => drag.startDrag(job, e)}
-                                        className="w-10 h-10 rounded-lg border border-app-border bg-app-surface2 flex items-center justify-center cursor-pointer active:scale-90 transition-all touch-none"
-                                    >
-                                        <img src={job.icon} alt={job.name?.ja} className="w-7 h-7 object-contain pointer-events-none" />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                /* ジョブピッカー（D&Dソース） */
+                <div className="grid grid-cols-7 gap-1.5">
+                    {jobsByRole.flatMap(group => group.jobs).map(job => (
+                        <button
+                            key={job.id}
+                            onClick={() => {
+                                const emptySlot = sortedMembers.find(m => !m.jobId);
+                                if (emptySlot) handleJobChange(emptySlot.id, job.id);
+                            }}
+                            onTouchStart={(e) => drag.startDrag(job, e)}
+                            onMouseDown={(e) => drag.startDrag(job, e)}
+                            className="aspect-square rounded-lg border border-app-border bg-app-surface2 flex items-center justify-center cursor-pointer active:scale-90 transition-all touch-none"
+                        >
+                            <img src={job.icon} alt={job.name?.ja} className="w-9 h-9 object-contain pointer-events-none" />
+                        </button>
                     ))}
                 </div>
             )}

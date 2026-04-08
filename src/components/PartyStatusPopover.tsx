@@ -10,6 +10,8 @@ import { Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import clsx from 'clsx';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SPRING } from '../tokens/motionTokens';
 import { FormattedNumberInput } from './ui/FormattedNumberInput';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
@@ -166,26 +168,36 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
             visible ? "pointer-events-auto" : "pointer-events-none"
         )}>
             {/* Backdrop */}
-            <div
-                className={clsx(
-                    "absolute inset-0 transition-opacity duration-300 ease-out",
-                    visible ? "opacity-100" : "opacity-0"
+            <AnimatePresence>
+                {visible && (
+                    <motion.div
+                        key="status-backdrop"
+                        className="absolute inset-0"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={onClose}
+                    />
                 )}
-                onClick={onClose}
-            />
+            </AnimatePresence>
 
             {/* Slide-Over Panel — Left on PC, Bottom on Mobile */}
-            <div
+            <motion.div
                 ref={popoverRef}
                 className={clsx(
-                    "glass-tier3 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-y-auto",
-                    // PC: left slide-over
+                    "glass-tier3 flex flex-col overflow-y-auto",
                     "md:absolute md:top-0 md:left-0 md:h-full md:w-[450px] md:max-w-full md:border-r",
-                    visible ? "md:translate-x-0" : "md:-translate-x-full",
-                    // Mobile: bottom sheet
                     "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:max-h-[65vh] max-md:rounded-t-2xl max-md:border-t max-md:pb-20",
-                    visible ? "max-md:translate-y-0" : "max-md:translate-y-full"
                 )}
+                initial={false}
+                animate={visible
+                    ? { x: 0, y: 0 }
+                    : window.innerWidth >= 768
+                        ? { x: '-100%' }
+                        : { y: '100%' }
+                }
+                transition={SPRING.gentle}
             >
                 {/* Mobile drag handle */}
                 <div
@@ -323,7 +335,7 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </div>,
         document.body
     );

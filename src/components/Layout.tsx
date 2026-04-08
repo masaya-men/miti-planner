@@ -438,7 +438,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 isOpen={mobilePartyOpen}
                 onClose={() => setMobilePartyOpen(false)}
                 title={t('nav.party')}
-                height="70vh"
+                height="calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px) - 8px)"
             >
                 <MobilePartyWithTabs />
             </MobileBottomSheet>
@@ -583,7 +583,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             </button>
                         )},
                         { key: 'sync', delay: 0.9, render: () => (
-                            <SyncButton size={14} className="w-6 h-6" />
+                            <SyncButton size={14} className="w-6 h-6 justify-center" />
                         )},
                     ].map(({ key, delay, render }) => (
                         <motion.div
@@ -611,6 +611,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <MobileFAB
                     onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
                     theme={theme}
+                    onPhaseJump={() => window.dispatchEvent(new Event('mobile:phase-jump'))}
+                    onLabelJump={() => window.dispatchEvent(new Event('mobile:label-jump'))}
+                    onMechanicSearch={() => window.dispatchEvent(new Event('mobile:mechanic-search'))}
                     onToggleExpand={() => {
                         const store = useMitigationStore.getState();
                         store.setHideEmptyRows(!store.hideEmptyRows);
