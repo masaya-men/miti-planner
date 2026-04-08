@@ -51,12 +51,12 @@ export const MobileHeader: React.FC<{
 
             {/* Middle: Content name (Large Title) */}
             {contentLabel && (
-                <h1
-                    className="text-app-text font-[800] leading-tight truncate"
-                    style={{ fontSize: MOBILE_TOKENS.header.titleSize }}
+                <p
+                    className="text-app-text-muted font-bold leading-tight truncate"
+                    style={{ fontSize: MOBILE_TOKENS.header.subtitleSize }}
                 >
                     {contentLabel}
-                </h1>
+                </p>
             )}
 
             {/* Bottom: Plan name + party jobs */}
