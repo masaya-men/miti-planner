@@ -11,20 +11,24 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
 - **今セッション完了**:
-  - PC版ネイティブポリッシュ v1（14タスク）+ v2（9タスク）
-  - v1: テーマ色調整、glass-panel、モーダル角丸、テキスト選択防止等
-  - v2: ICS Media記事準拠のspring 3段階化（default/bouncy/snappy）
-  - v2バグ修正: ヘッダー/ナビ透過化(70%)、テーブル余白除去、D&Dゴースト位置(createPortal)
-  - v2 spring適用: MobileBottomSheet(bouncy open/smooth close)、Toast(bouncy)、btn-tactile(snappy)、サイドバー/ヘッダー統一(380/22)
+  - PC版ネイティブポリッシュ v1（14タスク）+ v2 spring（9タスク）
+  - v1: テーマ色調整(#0F0F10/#FAFAFA)、glass-panel画面いっぱい化、モーダル角丸、テキスト選択防止等
+  - v2: ICS Media記事準拠spring 3段階化(default/bouncy/snappy)、MobileBottomSheet/Toast/btn-tactile/ヘッダー/サイドバー適用
+  - バグ修正: ジョブピッカーrole大小文字、i18nキー(party→jobs)、D&Dゴースト位置(createPortal)
+  - **注意**: glass-tier3の破壊的除去→元に戻した。PCハンドル黒化・スマホ透過は未解決
   - ビルド成功・テスト116全パス
 
-### 次セッションでやること
-1. **本番目視確認**（PC・スマホ両方）
-   - ヘッダー/ボトムナビの透過具合
-   - テーブルが画面いっぱいか、ナビの下に透けるか
-   - D&Dゴーストが正しい位置に出るか
-   - spring アニメーションの体感（シート開閉、トースト、ボタン）
-2. FAB言語切替の改善（展開式セレクター）
+### 次セッションでやること（要設計書）
+1. **PCハンドル黒化問題**（重大 — 設計書を書いてから修正）
+   - glass-tier3のborder/shadowがheight:0でも描画される問題
+   - glass-tier3を除去すると glassmorphismデザインが崩壊する
+   - CSSのみで解決する方法を設計書に書いてから実装
+   - 参考: glass-tier3は`!important`付きでborder/shadowを設定
+2. **スマホヘッダー透過問題**（設計書を書いてから修正）
+   - MobileHeaderはposition:relative（通常フロー）→テーブルがヘッダーの裏に来ない
+   - position:fixedにするとテーブルのpaddingTop調整が必要
+   - Layoutの構造を理解した上で設計書を書く
+3. FAB言語切替の改善（展開式セレクター）
 
 ---
 
