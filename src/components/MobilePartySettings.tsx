@@ -181,9 +181,9 @@ const MobilePartySettings: React.FC = () => {
     // ロール別ジョブ分類（D&Dピッカー用）
     const jobsByRole = React.useMemo(() => {
         const groups: { role: string; jobs: Job[] }[] = [
-            { role: 'TANK', jobs: [] },
-            { role: 'HEALER', jobs: [] },
-            { role: 'DPS', jobs: [] },
+            { role: 'tank', jobs: [] },
+            { role: 'healer', jobs: [] },
+            { role: 'dps', jobs: [] },
         ];
         for (const job of JOBS) {
             const g = groups.find(g => g.role === job.role);
@@ -273,7 +273,7 @@ const MobilePartySettings: React.FC = () => {
                 <div className="bg-app-surface2/50 rounded-xl p-3 border border-app-border">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
-                            {focusedSlot} — {t('party.select_job')}
+                            {focusedSlot} — {t('jobs.select_job')}
                         </span>
                         <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
                             <X size={14} />
