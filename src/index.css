@@ -132,6 +132,31 @@
     --color-border: rgba(255, 255, 255, 0.10);
     --color-border-accent: rgba(255, 255, 255, 0.3);
 
+    /* ── spring easing（CSS linear()） ── */
+    --ease-spring: linear(
+      0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%,
+      0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%,
+      1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%,
+      1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%,
+      0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1
+    );
+    --ease-spring-gentle: linear(
+      0, 0.007, 0.029 2.2%, 0.118, 0.24 7.1%, 0.621 13.8%,
+      0.818 17.7%, 0.904, 0.967, 1.01, 1.037 25.4%,
+      1.051, 1.058, 1.06, 1.056 31.2%, 1.042 34%,
+      0.997 42%, 0.977 47.1%, 0.972 51.3%, 0.973 55.5%,
+      0.993 71.7%, 1.001 78.9%, 1
+    );
+
+    /* ── duration ── */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-modal: 300ms;
+
+    /* ── scale ── */
+    --scale-press: 0.96;
+    --scale-hover: 1.04;
+
     /* アクセントカラー */
     --color-blue: #3b82f6;
     --color-blue-hover: #2563eb;
@@ -1112,4 +1137,14 @@
   0%   { transform: scale(1); }
   40%  { transform: scale(1.18); }
   100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root, .theme-dark, .theme-light {
+    --ease-spring: ease;
+    --ease-spring-gentle: ease;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-modal: 0ms;
+  }
 }
