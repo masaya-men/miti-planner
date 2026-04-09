@@ -6,7 +6,6 @@ export const SPRING = {
   gentle: { type: 'spring' as const, stiffness: 300, damping: 24 },
   snappy: { type: 'spring' as const, stiffness: 500, damping: 30 },
   bouncy: { type: 'spring' as const, stiffness: 380, damping: 15 },
-  dialog: { type: 'spring' as const, stiffness: 380, damping: 25 },
 } as const;
 
 // CSS transition durations (ms)

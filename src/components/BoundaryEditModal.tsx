@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { SPRING } from '../tokens/motionTokens';
 import { X, Trash2, Crosshair } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -117,13 +116,10 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                         onClick={handleBackdropClick}
                     />
                     <motion.div
-                        initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.2 }}
-                        animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1 }}
-                        exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95 }}
-                        transition={isMobile
-                            ? { duration: 0.3, ease: [0.32, 0.72, 0, 1] }
-                            : { scale: SPRING.dialog, opacity: { duration: 0.2 } }
-                        }
+                        initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
+                        animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+                        exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ duration: 0.1 }}
                         onClick={(e) => e.stopPropagation()}
                         className={`absolute shadow-sm overflow-hidden ring-1 ring-app-border glass-tier3 pointer-events-auto flex flex-col ${isMobile ? 'w-full rounded-t-2xl rounded-b-none border-b-0' : 'w-[400px] rounded-xl'}`}
                         style={style}
