@@ -3,6 +3,7 @@ import { useJobs } from '../hooks/useSkillsData';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SPRING } from '../tokens/motionTokens';
 import { Tooltip } from './ui/Tooltip';
 import { getPhaseName } from '../types';
 
@@ -47,9 +48,13 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                 />
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.2 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{
+                        scale: SPRING.dialog,
+                        opacity: { duration: 0.2 },
+                    }}
                     className="pointer-events-auto glass-tier3 rounded-xl p-2 w-[220px] flex flex-col gap-2 absolute z-[100]"
                     style={{
                         left: Math.min(position.x, window.innerWidth - 240),
