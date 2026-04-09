@@ -10,14 +10,17 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了・push済み**:
-  - FFLogs翻訳モーダル: fight ID抽出修正（URLのfight=Nを使用）
-  - ライトモード改善: モーダル透過度85%、反転色ソフト化（toggle変数）、管理画面リンク色
-  - フェーズ/ラベル ツールチップ文言修正（4言語）
-  - PWAアイコン: 黒背景版に置換
+- **今セッション完了（push前）**:
+  - LP完全リビルド（Tasks 1-15）: 3Dポータル型ランディングページ実装済み
+    - `src/components/landing/portal/` に Three.js 3Dシーン全モジュール
+    - `src/components/landing/LandingPage.tsx` に統合済み
+    - ビルドエラーゼロ、TypeScript エラーゼロ、テスト 128件全パス
+  - `public/Earth's_Reply.png` 追加
+- **14コミット分未push** → push + デプロイが次の作業
 
 ### 次にやること（最優先）
-- LP（ランディングページ）を完璧に作り直す → これが完了すればv1完成
+- push + Vercel デプロイ確認（LP 3Dポータルの動作確認）
+- LP実機確認後、TODO「LP完璧に作り直す」を完了済みに移動
 
 ---
 
