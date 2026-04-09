@@ -23,8 +23,9 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, List, Crosshair
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, Crosshair, PictureInPicture2
 } from 'lucide-react';
+const PipView = React.lazy(() => import('./PipView'));
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import clsx from 'clsx';
 import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
@@ -580,6 +581,12 @@ const Timeline: React.FC = () => {
     const updateLabelEndTime = useMitigationStore(s => s.updateLabelEndTime);
     const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
+    const myMemberId = useMitigationStore(s => s.myMemberId);
+
+    // PiP カンペビュー
+    const [pipWindow, setPipWindow] = useState<Window | null>(null);
+    const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
+    const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
@@ -714,6 +721,53 @@ const Timeline: React.FC = () => {
             window.removeEventListener('timeline:import', handleImportEvent);
         };
     }, [handleAutoPlan]);
+
+    const handleOpenPip = useCallback(async () => {
+        if (!pipSupported) return;
+        try {
+            const dpip = (window as any).documentPictureInPicture;
+            const win: Window = await dpip.requestWindow({
+                width: 320,
+                height: 400,
+            });
+
+            // スタイルをPiPウィンドウにコピー
+            const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+            styles.forEach(s => win.document.head.appendChild(s.cloneNode(true)));
+
+            // ダークテーマclass をコピー + 透過背景
+            win.document.documentElement.classList.add(...document.documentElement.classList);
+            win.document.documentElement.style.background = 'transparent';
+            win.document.body.style.margin = '0';
+            win.document.body.style.overflow = 'hidden';
+            win.document.body.style.background = 'transparent';
+
+            // Reactマウントポイント
+            const container = win.document.createElement('div');
+            container.id = 'pip-root';
+            container.style.width = '100%';
+            container.style.height = '100%';
+            container.style.position = 'relative';
+            win.document.body.appendChild(container);
+
+            setPipWindow(win);
+            setPipContainer(container);
+
+            // ウィンドウ閉じられた時のクリーンアップ
+            win.addEventListener('pagehide', () => {
+                setPipWindow(null);
+                setPipContainer(null);
+            });
+        } catch (e) {
+            console.warn('PiP open failed:', e);
+        }
+    }, [pipSupported]);
+
+    const handleClosePip = useCallback(() => {
+        pipWindow?.close();
+        setPipWindow(null);
+        setPipContainer(null);
+    }, [pipWindow]);
 
     // パーティ設定: PC用のローカルstate + モバイル用のContext
     const [partySettingsOpenLocal, setPartySettingsOpenLocal] = useState(false);
@@ -1711,14 +1765,25 @@ const Timeline: React.FC = () => {
                                         <Rows3 size={12} />
                                     </button>
                                 </Tooltip>
-                                <Tooltip content={t('timeline.secret_feature')}>
-                                    <button
-                                        className="p-1 rounded transition-all duration-150 text-app-text-muted cursor-default opacity-40"
-                                        disabled
-                                    >
-                                        <List size={12} />
-                                    </button>
-                                </Tooltip>
+                                {/* PiP カンペビュー — 透過ウィンドウ未実現のため非表示（コードは保持） */}
+                                {false && pipSupported && (
+                                    <Tooltip content={myMemberId ? t('timeline.pip_open') : t('timeline.pip_open_disabled')}>
+                                        <button
+                                            onClick={pipWindow ? handleClosePip : handleOpenPip}
+                                            disabled={!myMemberId}
+                                            className={clsx(
+                                                "p-1 rounded transition-all duration-150",
+                                                !myMemberId
+                                                    ? "text-app-text-muted cursor-default opacity-40"
+                                                    : pipWindow
+                                                        ? "text-app-blue cursor-pointer hover:bg-app-blue/10"
+                                                        : "text-app-text-muted cursor-pointer hover:bg-app-surface2 hover:text-app-text"
+                                            )}
+                                        >
+                                            <PictureInPicture2 size={12} />
+                                        </button>
+                                    </Tooltip>
+                                )}
                             </div>
 
                             {/* 短い区切り線 — テーブルの U.Dmg|Dmg 境界と揃う */}
@@ -3292,6 +3357,13 @@ const Timeline: React.FC = () => {
                 document.body
             )}
 
+            {/* PiP カンペビュー — 別窓にReactPortalでレンダリング */}
+            {pipContainer && createPortal(
+                <React.Suspense fallback={null}>
+                    <PipView mode="pip" onClose={handleClosePip} />
+                </React.Suspense>,
+                pipContainer
+            )}
         </>
     );
 };

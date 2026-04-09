@@ -107,58 +107,74 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         [partyMembers, JOBS]
     );
 
+    // ジョブメニュー外クリックで閉じる
+    const menuRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (!jobMenuOpen) return;
+        const handleClick = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setJobMenuOpen(false);
+            }
+        };
+        const timer = setTimeout(() => document.addEventListener('click', handleClick), 0);
+        return () => { clearTimeout(timer); document.removeEventListener('click', handleClick); };
+    }, [jobMenuOpen]);
+
     return (
         <div
             className="flex flex-col h-full select-none"
-            style={mode === 'pip' ? { backgroundColor: `rgba(15, 15, 16, ${opacity})` } : undefined}
+            style={mode === 'pip' ? { background: `rgba(15, 15, 16, ${opacity})` } : { background: '#0F0F10' }}
         >
             {/* ── ツールバー ── */}
-            <div className="flex items-center gap-2 px-3 py-2 shrink-0 border-b border-white/10">
+            <div className="flex items-center gap-1.5 px-2 py-1 shrink-0 border-b border-white/10">
                 {/* ジョブアイコン + Popover切替 */}
-                <div className="relative">
+                <div className="relative" ref={menuRef}>
                     <button
                         onClick={() => setJobMenuOpen(!jobMenuOpen)}
-                        className="w-7 h-7 rounded-md border border-white/20 flex items-center justify-center cursor-pointer hover:border-white/40 transition-colors"
+                        className="w-6 h-6 rounded border border-white/20 flex items-center justify-center cursor-pointer hover:border-white/40 transition-colors"
                     >
                         {selectedJob ? (
-                            <img src={selectedJob.icon} className="w-5 h-5 object-contain" />
+                            <img src={selectedJob.icon} className="w-4 h-4 object-contain" />
                         ) : (
-                            <span className="text-xs text-white/50">?</span>
+                            <span className="text-[9px] text-white/50">?</span>
                         )}
                     </button>
 
                     {/* ジョブ切替メニュー */}
                     {jobMenuOpen && (
-                        <div className="absolute top-9 left-0 z-50 bg-black/90 border border-white/20 rounded-lg p-1.5 flex flex-col gap-0.5 animate-in fade-in zoom-in-95">
+                        <div className="absolute top-7 left-0 z-50 bg-black/95 border border-white/20 rounded-md p-1 flex flex-wrap gap-0.5 w-[140px]">
                             {activeMembers.map(m => (
                                 <button
                                     key={m.id}
                                     onClick={() => { setSelectedMemberId(m.id); setJobMenuOpen(false); }}
                                     className={clsx(
-                                        "flex items-center gap-2 px-2 py-1 rounded-md text-xs cursor-pointer transition-colors",
+                                        "w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors",
                                         m.id === selectedMemberId
-                                            ? "bg-white/20 text-white"
-                                            : "text-white/70 hover:bg-white/10 hover:text-white"
+                                            ? "bg-white/25 ring-1 ring-white/40"
+                                            : "hover:bg-white/10"
                                     )}
+                                    title={m.id}
                                 >
-                                    {m.job && <img src={m.job.icon} className="w-5 h-5 object-contain" />}
-                                    <span className="font-bold">{m.id}</span>
+                                    {m.job && <img src={m.job.icon} className="w-4 h-4 object-contain" />}
                                 </button>
                             ))}
                         </div>
                     )}
                 </div>
 
+                {/* 選択中メンバーID */}
+                <span className="text-[9px] font-bold text-white/50 w-5">{selectedMemberId}</span>
+
                 {/* 透過率スライダー（PC PiPモードのみ） */}
                 {mode === 'pip' && (
                     <input
                         type="range"
-                        min={0.2}
+                        min={0.1}
                         max={1}
                         step={0.05}
                         value={opacity}
                         onChange={(e) => setOpacity(Number(e.target.value))}
-                        className="flex-1 h-1 accent-white/70 cursor-pointer"
+                        className="flex-1 h-0.5 accent-white/60 cursor-pointer"
                     />
                 )}
 
@@ -168,24 +184,30 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {/* 閉じるボタン */}
                 <button
                     onClick={onClose}
-                    className="w-7 h-7 rounded-md flex items-center justify-center cursor-pointer text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white hover:bg-white/10 transition-colors"
                 >
-                    <X size={14} />
+                    <X size={10} />
                 </button>
             </div>
 
             {/* ── カンペリスト ── */}
-            <div className="flex-1 overflow-y-auto px-3 py-2">
+            <div className="flex-1 overflow-y-auto px-1.5 py-1">
                 {cueItems.length === 0 ? (
-                    <p className="text-white/40 text-sm text-center mt-8">
+                    <p className="text-white/40 text-[10px] text-center mt-4">
                         {t('timeline.pip_no_mitigations')}
                     </p>
                 ) : (
-                    <div className="flex flex-col gap-1.5">
-                        {cueItems.map(({ event, mitigations }) => (
-                            <div key={event.id} className="flex items-center gap-2 min-h-[32px]">
+                    <div className="flex flex-col">
+                        {cueItems.map(({ event, mitigations }, i) => (
+                            <div
+                                key={event.id}
+                                className={clsx(
+                                    "flex items-center gap-1 py-0.5 px-1",
+                                    i % 2 === 0 && "bg-white/[0.03]"
+                                )}
+                            >
                                 {/* 時間 */}
-                                <span className="text-white/50 text-xs font-mono w-10 shrink-0 text-right">
+                                <span className="text-white/40 text-[10px] font-mono w-8 shrink-0 text-right">
                                     {formatTime(event.time)}
                                 </span>
 
@@ -199,14 +221,14 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                             if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
                                             if (e.key === 'Escape') setEditingEventId(null);
                                         }}
-                                        className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1.5 py-0.5 text-xs text-white outline-none"
+                                        className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
                                     />
                                 ) : (
                                     <span
                                         onDoubleClick={() => handleDoubleClick(event.id)}
                                         className={clsx(
-                                            "flex-1 min-w-0 text-xs truncate cursor-default",
-                                            notes[event.id] ? "text-yellow-300" : "text-white/90"
+                                            "flex-1 min-w-0 text-[10px] truncate cursor-default leading-tight",
+                                            notes[event.id] ? "text-yellow-300" : "text-white/80"
                                         )}
                                         title={t('timeline.pip_edit_hint')}
                                     >
@@ -215,12 +237,12 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                 )}
 
                                 {/* 軽減スキルアイコン */}
-                                <div className="flex items-center gap-0.5 shrink-0">
+                                <div className="flex items-center shrink-0">
                                     {mitigations.map(({ applied, definition }) => (
                                         <img
                                             key={applied.id}
                                             src={definition.icon}
-                                            className="w-5 h-5 object-contain"
+                                            className="w-4 h-4 object-contain"
                                             title={definition.name[lang] || definition.name.ja || definition.name.en || ''}
                                         />
                                     ))}
@@ -229,11 +251,6 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                         ))}
                     </div>
                 )}
-            </div>
-
-            {/* ヒントテキスト（最下部） */}
-            <div className="px-3 py-1 text-center shrink-0">
-                <span className="text-white/25 text-[9px]">{t('timeline.pip_edit_hint')}</span>
             </div>
         </div>
     );

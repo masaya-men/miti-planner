@@ -180,6 +180,85 @@ const MobilePartySettings: React.FC = () => {
         setFocusedSlot(null);
     };
 
+    // スマート配置: focusedSlot があればそこに、なければロール別に最適スロットへ
+    const lastMeleeSlotRef = useRef<string | null>(null);
+    const MELEE_IDS = ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'];
+    const PHYS_RANGED_IDS = ['brd', 'mch', 'dnc'];
+
+    const handleSmartAssign = (jobId: string) => {
+        const job = JOBS.find(j => j.id === jobId);
+        if (!job) return;
+
+        // Mode A: フォーカス中のスロットに直接配置
+        if (focusedSlot) {
+            handleJobChange(focusedSlot, jobId);
+            return;
+        }
+
+        // Mode B: スマート配置（PC版と同じロジック）
+        let targetId: string | undefined;
+
+        if (job.role === 'tank') {
+            const mtScore: Record<string, number> = { drk: 4, war: 3, pld: 2, gnb: 1 };
+            const mtMember = sortedMembers.find(m => m.id === 'MT')!;
+            const stMember = sortedMembers.find(m => m.id === 'ST')!;
+            const currentMtJob = mtMember.jobId;
+            const currentStJob = stMember.jobId;
+            const isMtPreferred = (mtScore[jobId] ?? 0) >= 3;
+
+            if (!currentMtJob && !currentStJob) {
+                targetId = isMtPreferred ? 'MT' : 'ST';
+            } else if (currentMtJob && !currentStJob) {
+                if ((mtScore[jobId] ?? 0) > (mtScore[currentMtJob] ?? 0)) {
+                    // 新ジョブの方がMT適性が高い → 現MTをSTに押し出してMTに配置
+                    setMemberJob('ST', currentMtJob);
+                    targetId = 'MT';
+                } else {
+                    targetId = 'ST';
+                }
+            } else if (!currentMtJob && currentStJob) {
+                if ((mtScore[jobId] ?? 0) < (mtScore[currentStJob] ?? 0)) {
+                    // 現STの方がMT適性が高い → 現STをMTに移動、新ジョブをSTに
+                    setMemberJob('MT', currentStJob);
+                    targetId = 'ST';
+                } else {
+                    targetId = 'MT';
+                }
+            } else {
+                targetId = isMtPreferred ? 'MT' : 'ST';
+            }
+        } else if (job.role === 'healer') {
+            const preferred = ['whm', 'ast'].includes(jobId)
+                ? ['H1', 'H2'] : ['H2', 'H1'];
+            targetId = preferred.find(id => !sortedMembers.find(m => m.id === id)?.jobId)
+                ?? preferred[0];
+        } else if (MELEE_IDS.includes(jobId)) {
+            const d1 = sortedMembers.find(m => m.id === 'D1')!;
+            const d2 = sortedMembers.find(m => m.id === 'D2')!;
+            if (!d1.jobId && !d2.jobId) {
+                targetId = 'D1';
+            } else if (!d1.jobId) {
+                targetId = 'D1';
+            } else if (!d2.jobId) {
+                targetId = 'D2';
+            } else {
+                targetId = lastMeleeSlotRef.current === 'D1' ? 'D2' : 'D1';
+            }
+            lastMeleeSlotRef.current = targetId;
+        } else if (PHYS_RANGED_IDS.includes(jobId)) {
+            targetId = !sortedMembers.find(m => m.id === 'D3')?.jobId ? 'D3'
+                : !sortedMembers.find(m => m.id === 'D4')?.jobId ? 'D4' : 'D3';
+        } else {
+            // キャスター
+            targetId = !sortedMembers.find(m => m.id === 'D4')?.jobId ? 'D4'
+                : !sortedMembers.find(m => m.id === 'D3')?.jobId ? 'D3' : 'D4';
+        }
+
+        if (targetId) {
+            handleJobChange(targetId, jobId);
+        }
+    };
+
     // マイグレーション確定
     const handleMigrationConfirm = (mode: MigrationMode) => {
         if (!migrationPending) return;
@@ -286,50 +365,24 @@ const MobilePartySettings: React.FC = () => {
                 })}
             </div>
 
-            {/* ジョブ選択グリッド（スロット選択時 or D&Dソース） */}
+            {/* フォーカス中ヒント */}
             {focusedSlot && !myJobMode && (
-                <div className="bg-app-surface2/50 rounded-xl p-3 border border-app-border">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
-                            {focusedSlot} — {t('jobs.select_job')}
-                        </span>
-                        <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
-                            <X size={14} />
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-6 gap-1.5">
-                        {JOBS.map(job => {
-                            const isCurrentJob = partyMembers.find(m => m.id === focusedSlot)?.jobId === job.id;
-                            return (
-                                <button
-                                    key={job.id}
-                                    onClick={() => handleJobChange(focusedSlot, job.id)}
-                                    onTouchStart={(e) => drag.startDrag(job, e)}
-                                    onMouseDown={(e) => drag.startDrag(job, e)}
-                                    className={clsx(
-                                        "w-10 h-10 rounded-lg border flex items-center justify-center cursor-pointer active:scale-90 transition-all touch-none",
-                                        isCurrentJob
-                                            ? "bg-app-text/20 border-app-text"
-                                            : "bg-app-surface2 border-app-border"
-                                    )}
-                                >
-                                    <img src={job.icon} alt={job.name?.ja} className="w-7 h-7 object-contain pointer-events-none" />
-                                </button>
-                            );
-                        })}
-                    </div>
+                <div className="flex items-center justify-between px-1">
+                    <span className="text-app-base font-black text-app-text-muted uppercase tracking-wider">
+                        {focusedSlot} — {t('jobs.select_job')}
+                    </span>
+                    <button onClick={() => setFocusedSlot(null)} className="text-app-text-muted p-1 cursor-pointer">
+                        <X size={14} />
+                    </button>
                 </div>
             )}
+            {/* ジョブパレット（タップでスマート配置 + D&Dソース） */}
             {!myJobMode && (
-                /* ジョブピッカー（D&Dソース） */
                 <div className="grid grid-cols-7 gap-1.5">
                     {jobsByRole.flatMap(group => group.jobs).map(job => (
                         <button
                             key={job.id}
-                            onClick={() => {
-                                const emptySlot = sortedMembers.find(m => !m.jobId);
-                                if (emptySlot) handleJobChange(emptySlot.id, job.id);
-                            }}
+                            onClick={() => handleSmartAssign(job.id)}
                             onTouchStart={(e) => drag.startDrag(job, e)}
                             onMouseDown={(e) => drag.startDrag(job, e)}
                             className="aspect-square rounded-lg border border-app-border bg-app-surface2 flex items-center justify-center cursor-pointer active:scale-90 transition-all touch-none"
