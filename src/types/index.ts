@@ -79,6 +79,7 @@ export interface TimelineEvent {
     id: string;
     time: number; // seconds from start
     name: LocalizedString;
+    guid?: number; // FFLogs ability GUID
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
