@@ -30,7 +30,17 @@ export function AdminContents() {
       const res = await apiFetch('/api/admin?resource=contents');
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
-      setContents(data.items ?? []);
+      // Firestore形式(name: {ja,en,...}) → フラット形式(nameJa,nameEn,...)にマッピング
+      const mapped = (data.items ?? []).map((item: any) => ({
+        ...item,
+        nameJa: item.nameJa ?? item.name?.ja ?? '',
+        nameEn: item.nameEn ?? item.name?.en ?? '',
+        nameZh: item.nameZh ?? item.name?.zh ?? '',
+        nameKo: item.nameKo ?? item.name?.ko ?? '',
+        shortNameJa: item.shortNameJa ?? item.shortName?.ja ?? '',
+        shortNameEn: item.shortNameEn ?? item.shortName?.en ?? '',
+      }));
+      setContents(mapped);
     } catch {
       setError(t('admin.error_load'));
     } finally {
@@ -53,7 +63,12 @@ export function AdminContents() {
         body: JSON.stringify({
           item: {
             id: data.id,
-            name: { ja: data.nameJa, en: data.nameEn },
+            name: {
+              ja: data.nameJa,
+              en: data.nameEn,
+              ...(data.nameZh ? { zh: data.nameZh } : {}),
+              ...(data.nameKo ? { ko: data.nameKo } : {}),
+            },
             shortName: { ja: data.shortNameJa, en: data.shortNameEn },
             category: data.category,
             level: data.level,

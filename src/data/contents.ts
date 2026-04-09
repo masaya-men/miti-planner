@@ -8,6 +8,8 @@ export interface RawContentData {
   patch: string;     // e.g. "7.11"
   ja: string;        // Official Japanese Name
   en: string;        // Official English Name
+  zh?: string;       // Official Chinese (Simplified) Name
+  ko?: string;       // Official Korean Name
   shortNameJa?: string; // Optional Abbreviation (e.g. 絶エデン, 辺獄4, etc.)
   hasCheckpoint?: boolean; // true if fight has a save-point between phases
   fflogsEncounterId?: number; // FFLogs encounter ID for Rankings API

@@ -10,16 +10,24 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **前セッション完了・push済み**: フッターglass効果、チュートリアル罫線バグ修正、MT/ST表示順保証
+- **前セッション完了・push済み**: スマホスマート配置、PiPカンペビュー(非表示保留)
 - **今セッション完了**:
-  - スマホパーティ編成: 二重ジョブ表示修正 + PC版と同じスマート配置ロジック追加
-  - PiPカンペビュー: コード実装済みだがUI非表示（Document PiP APIでは透過不可のため保留）
-  - PiP調査結果: 透過にはネイティブアプリ(Tauri v2等)が必要。コードは将来復活用に保持
-  - ビルド成功・テスト122全パス
+  - LangToggle 4言語化（LP: JP/EN/ZH/KO）
+  - contents.json 全63コンテンツにzh/ko公式名称追加
+  - 管理画面コンテンツ編集にzh/ko入力欄追加（AdminContentForm）
+  - APIハンドラのnameフィールド深いマージ修正（既存zh/ko保持）
+  - seed-firestore.mjs にzh/ko対応追加
+  - Firestoreマイグレーションスクリプト作成（migrate-contents-zhko.mjs）
+  - ビルド成功・テスト122全パス・push済み
+
+### 次にやること（最優先）
+- `node scripts/migrate-contents-zhko.mjs` を実行してFirestoreにzh/koを反映
+- 実行後、zh/ko言語でコンテンツ名が正しく表示されるか確認
 
 ### 次にやること
 - スマホパーティ編成の実機確認（スマート配置ロジック）
-- TODO.mdの未着手タスクから優先度の高いものを選んで着手
+- 多言語: スキル・ジョブ名のzh/ko翻訳（mockData.ts + seed-skills-stats.ts）
+- 多言語: コンテンツ種類ボタン・カテゴリ名のzh/ko（一部configに反映済み）
 
 ---
 
@@ -43,9 +51,11 @@
 ## 未着手（次にやること）
 
 ### 多言語
-- [ ] コンテンツ名・軽減モーダル等のデータ系zh/ko対応（LocalizedString拡張）
-- [ ] コンテンツ種類ボタン・コンテンツ名の中韓翻訳
-- [ ] ランディングページのLangToggle（2言語→4言語対応）
+- [x] ランディングページのLangToggle（2言語→4言語対応）
+- [x] コンテンツ名のzh/ko翻訳（contents.json + 管理画面対応）
+- [ ] Firestoreへのzh/koマイグレーション実行（スクリプト作成済み）
+- [ ] スキル・ジョブ名のzh/ko翻訳（mockData.ts）
+- [ ] コンテンツ種類ボタンのzh/ko（categoryLabels）
 - [ ] ハウジングツアーページの言語対応
 
 ### 管理画面改善

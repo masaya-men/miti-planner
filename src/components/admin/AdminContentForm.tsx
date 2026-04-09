@@ -11,6 +11,8 @@ export interface ContentData {
   id: string;
   nameJa: string;
   nameEn: string;
+  nameZh: string;
+  nameKo: string;
   shortNameJa: string;
   shortNameEn: string;
   category: string;
@@ -68,6 +70,8 @@ export function emptyContent(): ContentData {
     id: '',
     nameJa: '',
     nameEn: '',
+    nameZh: '',
+    nameKo: '',
     shortNameJa: '',
     shortNameEn: '',
     category: 'savage',
@@ -200,6 +204,34 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
             onChange={(e) => set('nameEn', e.target.value)}
             required
           />
+        </div>
+
+        {/* 名前（中国語・韓国語）— 任意 */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelClass}>
+              名前（中国語）
+              <span className={`${exampleClass} ml-1 font-normal`}>任意</span>
+            </label>
+            <input
+              className={inputClass}
+              value={form.nameZh}
+              onChange={(e) => set('nameZh', e.target.value)}
+              placeholder="例: 阿卡狄亚���式登天斗技场 重量级1"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>
+              名前（韓国語）
+              <span className={`${exampleClass} ml-1 font-normal`}>任意</span>
+            </label>
+            <input
+              className={inputClass}
+              value={form.nameKo}
+              onChange={(e) => set('nameKo', e.target.value)}
+              placeholder="例: 아르카디아 선수권: 헤비급(영웅) 1"
+            />
+          </div>
         </div>
 
         {/* コンテンツID */}
