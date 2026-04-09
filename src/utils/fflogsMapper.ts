@@ -154,11 +154,18 @@ export function mapFFLogsToTimeline(
     );
 
     if (!filtered.length) {
+        const tl: TimelineEvent[] = [];
+        const damageGuids = new Set<number>();
+        addNonDamageCasts(tl, castEn, castJp, jpNameMap, enNameMap, damageGuids, ref, isEnglishOnly);
+        tl.sort((a, b) => a.time - b.time);
+        const phases = buildPhases(fight);
+        const phasesForLabels = phases.map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec }));
+        const labels = migrateLabels(tl, phasesForLabels);
         return {
-            events: [], phases: buildPhases(fight), labels: [],
+            events: tl, phases, labels,
             stats: {
                 totalRawEvents: rawEn.length, filteredEvents: 0,
-                timelineEventCount: 0, aaCount: 0, mechanicCount: 0,
+                timelineEventCount: tl.length, aaCount: 0, mechanicCount: tl.length,
                 mtId: null, stId: null, isEnglishOnly,
             },
         };
@@ -274,6 +281,7 @@ export function mapFFLogsToTimeline(
                     damageType: mapDamageType(f.aType),
                     damageAmount: tankDmg > 0 ? roundDamageCeil(tankDmg) : undefined,
                     target: tid === stId ? 'ST' : 'MT',
+                    guid: f.guid,
                 });
             }
             const aoeDmg = computeAoEDamage(pHits);
@@ -283,6 +291,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: aoeDmg > 0 ? roundDamageCeil(aoeDmg) : undefined,
                 target: 'AoE',
+                guid: f.guid,
             });
 
         } else if (isComposite && tHits.length > 0) {
@@ -295,6 +304,7 @@ export function mapFFLogsToTimeline(
                     damageType: mapDamageType(f.aType),
                     damageAmount: tankDmg > 0 ? roundDamageCeil(tankDmg) : undefined,
                     target: tid === stId ? 'ST' : 'MT',
+                    guid: f.guid,
                 });
             }
 
@@ -307,6 +317,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: aoeDmg > 0 ? roundDamageCeil(aoeDmg) : undefined,
                 target: uTgts.size >= 3 ? 'AoE' : 'MT',
+                guid: f.guid,
             });
 
         } else if (uTgts.size >= 3) {
@@ -318,6 +329,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: dmg > 0 ? roundDamageCeil(dmg) : undefined,
                 target: 'AoE',
+                guid: f.guid,
             });
 
         } else if (uTgts.size === 2 && [...uTgts].every(id => tankIds.has(id))) {
@@ -330,6 +342,7 @@ export function mapFFLogsToTimeline(
                     damageType: mapDamageType(f.aType),
                     damageAmount: dmg > 0 ? roundDamageCeil(dmg) : undefined,
                     target: tid === stId ? 'ST' : 'MT',
+                    guid: f.guid,
                 });
             }
 
@@ -343,6 +356,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: dmg > 0 ? roundDamageCeil(dmg) : undefined,
                 target: tid === stId ? 'ST' : 'MT',
+                guid: f.guid,
             });
 
         } else if (uTgts.size === 1) {
@@ -354,6 +368,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: dmg > 0 ? roundDamageCeil(dmg) : undefined,
                 target: 'AoE',
+                guid: f.guid,
             });
 
         } else {
@@ -365,6 +380,7 @@ export function mapFFLogsToTimeline(
                 damageType: mapDamageType(f.aType),
                 damageAmount: dmg > 0 ? roundDamageCeil(dmg) : undefined,
                 target: 'AoE',
+                guid: f.guid,
             });
         }
     }
@@ -577,6 +593,7 @@ function addNonDamageCasts(
             ),
             damageType: 'magical',
             target: 'AoE',
+            guid: g !== -1 ? g : undefined,
         });
     }
 }
