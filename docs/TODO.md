@@ -10,23 +10,20 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **前セッション完了・push済み**: スマホスマート配置、PiPカンペビュー(非表示保留)
+- **前セッション完了・push済み**: LP4言語化、contents.json zh/ko、管理画面zh/ko対応
 - **今セッション完了**:
-  - LangToggle 4言語化（LP: JP/EN/ZH/KO）
-  - contents.json 全63コンテンツにzh/ko公式名称追加
-  - 管理画面コンテンツ編集にzh/ko入力欄追加（AdminContentForm）
-  - APIハンドラのnameフィールド深いマージ修正（既存zh/ko保持）
-  - seed-firestore.mjs にzh/ko対応追加
-  - Firestoreマイグレーションスクリプト作成（migrate-contents-zhko.mjs）
-  - ビルド成功・テスト122全パス・push済み
+  - Firestore zh/koマイグレーション実行（全63コンテンツ反映済み）
+  - スキル・ジョブ名zh/ko翻訳（mockData.ts全21ジョブ+全123スキル）
+  - Firestore同期済み（seed-skills-stats.ts実行）
+  - migrate-contents-zhko.mjs / seed-firestore.mjs Windowsパス修正
+  - ビルド成功・テスト122全パス
 
 ### 次にやること（最優先）
-- `node scripts/migrate-contents-zhko.mjs` を実行してFirestoreにzh/koを反映
-- 実行後、zh/ko言語でコンテンツ名が正しく表示されるか確認
+- zh/ko言語でスキル・ジョブ名が正しく表示されるか確認
+- 7.0新スキルのzh/ko名は推定翻訳のため要検証（管理画面で修正可能）
 
 ### 次にやること
 - スマホパーティ編成の実機確認（スマート配置ロジック）
-- 多言語: スキル・ジョブ名のzh/ko翻訳（mockData.ts + seed-skills-stats.ts）
 - 多言語: コンテンツ種類ボタン・カテゴリ名のzh/ko（一部configに反映済み）
 
 ---
@@ -53,8 +50,8 @@
 ### 多言語
 - [x] ランディングページのLangToggle（2言語→4言語対応）
 - [x] コンテンツ名のzh/ko翻訳（contents.json + 管理画面対応）
-- [ ] Firestoreへのzh/koマイグレーション実行（スクリプト作成済み）
-- [ ] スキル・ジョブ名のzh/ko翻訳（mockData.ts）
+- [x] Firestoreへのzh/koマイグレーション実行（63件反映済み）
+- [x] スキル・ジョブ名のzh/ko翻訳（mockData.ts 21ジョブ+123スキル、Firestore同期済み）
 - [ ] コンテンツ種類ボタンのzh/ko（categoryLabels）
 - [ ] ハウジングツアーページの言語対応
 
