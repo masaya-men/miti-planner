@@ -28,6 +28,7 @@ import { getTemplate } from '../data/templateLoader';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { SegmentButton } from './ui/SegmentButton';
 import {
     Plus,
     ChevronLeft,
@@ -1152,32 +1153,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     <div className="border-b border-glass-border mx-3 mb-2 mt-3" />
                     <div className="px-3 shrink-0 mb-3">
-                        <div className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm">
-                            {LEVEL_TIERS.map((level, i) => (
-                                <React.Fragment key={level}>
-                                    {i > 0 && <div className="w-px h-3 bg-app-text/15 shrink-0" />}
-                                    <button
-                                        onClick={() => {
-                                            setActiveLevel(level);
-                                            useMitigationStore.getState().setCurrentLevel(level);
-                                        }}
-                                        className={clsx(
-                                            "flex-1 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
-                                            activeLevel === level
-                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02] z-10"
-                                                : "text-app-text hover:bg-glass-hover"
-                                        )}
-                                    >
-                                        {level}
-                                    </button>
-                                </React.Fragment>
-                            ))}
-                        </div>
+                        <SegmentButton
+                            options={LEVEL_TIERS.map(l => ({ value: String(l), label: String(l) }))}
+                            value={String(activeLevel)}
+                            onChange={(v) => {
+                                const level = Number(v) as ContentLevel;
+                                setActiveLevel(level);
+                                useMitigationStore.getState().setCurrentLevel(level);
+                            }}
+                            size="sm"
+                            className="shadow-sm"
+                        />
 
                         <div className="border-b border-glass-border my-2" />
 
                         <div
-                            className="flex items-center bg-glass-card/80 rounded-lg p-0.5 border border-glass-border shadow-sm overflow-x-auto custom-scrollbar-thin"
+                            className="overflow-x-auto custom-scrollbar-thin"
                             onWheel={(e) => {
                                 if (e.deltaY !== 0) {
                                     e.currentTarget.scrollLeft += e.deltaY;
@@ -1185,33 +1176,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 }
                             }}
                         >
-                            <button
-                                onClick={() => setActiveCategory('all')}
-                                className={clsx(
-                                    "flex-1 min-w-fit whitespace-nowrap px-3 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
-                                    activeCategory === 'all'
-                                        ? "bg-app-text text-app-bg shadow-lg"
-                                        : "text-app-text hover:bg-glass-hover"
-                                )}
-                            >
-                                {t('ui.all').toUpperCase()}
-                            </button>
-                            {availableCategories.map(cat => (
-                                <React.Fragment key={cat}>
-                                    <div className="w-px h-3 bg-app-text/15 shrink-0" />
-                                    <button
-                                        onClick={() => setActiveCategory(cat)}
-                                        className={clsx(
-                                            "flex-1 min-w-fit whitespace-nowrap px-3 py-1.5 rounded-md text-app-base font-black transition-all duration-200 cursor-pointer active:scale-95",
-                                            activeCategory === cat
-                                                ? "bg-app-text text-app-bg shadow-lg"
-                                                : "text-app-text hover:bg-glass-hover"
-                                        )}
-                                    >
-                                        {(CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase()}
-                                    </button>
-                                </React.Fragment>
-                            ))}
+                            <SegmentButton
+                                options={[
+                                    { value: 'all', label: t('ui.all').toUpperCase() },
+                                    ...availableCategories.map(cat => ({
+                                        value: cat,
+                                        label: (CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase(),
+                                    })),
+                                ]}
+                                value={activeCategory}
+                                onChange={setActiveCategory}
+                                size="sm"
+                                className="shadow-sm min-w-fit"
+                            />
                         </div>
 
                         <div className="border-b border-glass-border my-2" />
