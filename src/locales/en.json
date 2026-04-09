@@ -642,75 +642,19 @@
     },
     "portal": {
         "title": "LoPo",
-        "subtitle": "Tools to support your adventures — mitigation planning, housing tours, and more",
-        "coming_soon": "Coming Soon",
-        "hero": {
-            "label": "FFXIV Tool Portal",
-            "tagline": "FFXIV Mitigation Planning Tool",
-            "tagline_sub": "Housing Tour Planner coming soon",
-            "cta_primary": "Open Mitigation Planner",
-            "cta_housing": "Housing Tour",
-            "cta_secondary": "Learn more",
-            "scroll_hint": "SCROLL"
-        },
-        "miti": {
-            "label": "01 — Mitigation Planner",
-            "heading": "Manage mitigation on a timeline",
-            "desc_1": "Place mitigation skills on a timeline.",
-            "desc_2": "Damage calculated automatically.",
-            "desc_3": "Import timelines from FFLogs."
-        },
-        "features": {
-            "auto_plan": {
-                "title": "Auto Plan",
-                "desc": "Auto-suggests mitigation placement. Sometimes genius, sometimes lost"
-            },
-            "fflogs": {
-                "title": "FFLogs Import",
-                "desc": "Generate attack timelines from logs. No manual input"
-            },
-            "responsive": {
-                "title": "Use Anywhere",
-                "desc": "Works on PC, phone, and tablet"
-            },
-            "share": {
-                "title": "Easy Sharing",
-                "desc": "Send your mitigation plan to party members instantly"
-            }
-        },
-        "housing": {
-            "label": "02 — Housing Tour Planner",
-            "heading": "Explore housing",
-            "desc_1": "Register addresses and create tour routes.",
-            "desc_2": "Browse houses from the image gallery.",
-            "badge": "Coming Soon"
-        },
-        "cta": {
-            "heading": "Free to use",
-            "sub": "Log in to unlock cloud saves and sharing.",
-            "button": "Open Mitigation Planner",
-            "kofi": "Enjoying it? → Support on Ko-fi"
-        },
+        "miti_button": "Mitigation Planner",
+        "housing_button": "Housing Tour",
+        "housing_coming_soon": "Coming Soon",
         "footer": {
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "This is an unofficial fan tool and is not affiliated with SQUARE ENIX CO., LTD.",
             "privacy": "Privacy Policy",
             "terms": "Terms of Service",
+            "commercial": "Commercial Disclosure",
             "share": "Share",
             "share_copied": "Copied!",
-            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
-            "commercial": "Commercial Disclosure",
-            "copy_link_tooltip": "Copy Link"
-        },
-        "tools": {
-            "miti_planner": {
-                "title": "Mitigation Planner",
-                "description": "Timeline-based mitigation planning tool. Place mitigation skills on boss timelines for Savage and Ultimate raids."
-            },
-            "housing_tour": {
-                "title": "Housing Tour",
-                "description": "Plan and share housing area tour routes. Find beautiful houses and tour them with friends."
-            }
+            "share_text": "A tool that makes something in FFXIV a little easier",
+            "copy_link_tooltip": "Copy link"
         }
     },
     "tutorial": {

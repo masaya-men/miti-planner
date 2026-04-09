@@ -646,75 +646,19 @@
     },
     "portal": {
         "title": "LoPo",
-        "subtitle": "軽減プランナーやハウジングツアーなど、冒険をサポートするツール群",
-        "coming_soon": "準備中",
-        "hero": {
-            "label": "FFXIV Tool Portal",
-            "tagline": "FFXIV 軽減計画ツール",
-            "tagline_sub": "ハウジングツアープランナーも準備中",
-            "cta_primary": "軽減プランナーを開く",
-            "cta_housing": "ハウジングツアー",
-            "cta_secondary": "詳しく見る",
-            "scroll_hint": "SCROLL"
-        },
-        "miti": {
-            "label": "01 — Mitigation Planner",
-            "heading": "軽減をタイムラインで管理する",
-            "desc_1": "タイムライン上に軽減スキルを配置。",
-            "desc_2": "ダメージ量を自動計算。",
-            "desc_3": "FFLogsからタイムラインを取り込み。"
-        },
-        "features": {
-            "auto_plan": {
-                "title": "オートプラン",
-                "desc": "軽減配置を自動提案。たまに天才、たまに迷子"
-            },
-            "fflogs": {
-                "title": "FFLogsインポート",
-                "desc": "ログから攻撃タイムラインを生成。手入力不要"
-            },
-            "responsive": {
-                "title": "どこでも使える",
-                "desc": "PC・スマホ・タブレット対応"
-            },
-            "share": {
-                "title": "簡単に共有",
-                "desc": "軽減表をPTメンバーにすぐ送れます"
-            }
-        },
-        "housing": {
-            "label": "02 — Housing Tour Planner",
-            "heading": "ハウジングを巡る",
-            "desc_1": "住所を登録して、ツアールートを作成。",
-            "desc_2": "画像ギャラリーから気になる家を探せます。",
-            "badge": "Coming Soon"
-        },
-        "cta": {
-            "heading": "無料で使えます",
-            "sub": "ログインでクラウド保存・共有が使えます。",
-            "button": "軽減プランナーを開く",
-            "kofi": "気に入ったら → Ko-fiで応援"
-        },
+        "miti_button": "軽減プランナー",
+        "housing_button": "ハウジングツアー",
+        "housing_coming_soon": "準備中です",
         "footer": {
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
             "disclaimer": "当サイトは非公式のファンツールであり、株式会社スクウェア・エニックスとは一切関係ありません。",
             "privacy": "プライバシーポリシー",
             "terms": "利用規約",
+            "commercial": "特定商取引法に基づく表記",
             "share": "共有する",
             "share_copied": "コピーしました！",
             "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
-            "commercial": "特定商取引法に基づく表記",
             "copy_link_tooltip": "リンクをコピー"
-        },
-        "tools": {
-            "miti_planner": {
-                "title": "軽減プランナー",
-                "description": "タイムラインベースの軽減計画ツール。零式・絶のボスタイムラインに軽減スキルを配置して、パーティ全体の軽減計画を作成。"
-            },
-            "housing_tour": {
-                "title": "ハウジングツアー",
-                "description": "ハウジングエリアの巡回ルートを計画・共有するためのツール。お気に入りの家を見つけて、フレンドと一緒にツアーしよう。"
-            }
         }
     },
     "tutorial": {
