@@ -206,3 +206,43 @@ describe('mapFFLogsToTimeline', () => {
     expect(r.phases[1].name).toEqual({ ja: '', en: 'P2' });
   });
 });
+
+describe('guid保存', () => {
+  it('ダメージイベントにGUIDが保存される', () => {
+    const rawEn = [
+      dmg(10, 12345, 'Holy', 3, 50000),
+      dmg(10, 12345, 'Holy', 4, 50000),
+      dmg(10, 12345, 'Holy', 5, 50000),
+    ];
+    const rawJp = [
+      jpDmg(10, 12345, 'ホーリー', 3, 50000),
+      jpDmg(10, 12345, 'ホーリー', 4, 50000),
+      jpDmg(10, 12345, 'ホーリー', 5, 50000),
+    ];
+    const r = mapFFLogsToTimeline(rawEn, rawJp, makeFight(), [], [], [], makePlayers());
+    const ev = r.events.find(e => e.name.en === 'Holy');
+    expect(ev).toBeDefined();
+    expect(ev!.guid).toBe(12345);
+  });
+
+  it('キャストイベントにGUIDが保存される', () => {
+    const castEn = [cast(5, 99999, 'Divination')];
+    const castJp = [cast(5, 99999, 'ディヴィネーション')];
+    const r = mapFFLogsToTimeline([], [], makeFight(), [], castEn, castJp, makePlayers());
+    const ev = r.events.find(e => e.name.en === 'Divination');
+    expect(ev).toBeDefined();
+    expect(ev!.guid).toBe(99999);
+  });
+
+  it('AAイベントにはGUIDが保存されない', () => {
+    const rawEn = [
+      dmg(10, 8888, 'Attack', 1, 30000),
+      dmg(11, 8888, 'Attack', 1, 30000),
+    ];
+    const r = mapFFLogsToTimeline(rawEn, [], makeFight(), [], [], [], makePlayers());
+    const aaEv = r.events.find(e => e.name.en === 'AA');
+    if (aaEv) {
+      expect(aaEv.guid).toBeUndefined();
+    }
+  });
+});
