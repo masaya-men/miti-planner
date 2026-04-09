@@ -13,6 +13,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
+import { SegmentButton } from './ui/SegmentButton';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 // SPRING は今後のアニメーション実装で使用予定
 // import { SPRING } from '../tokens/motionTokens';
@@ -544,40 +545,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 )}
 
                 <form id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", isMobile ? "p-4 space-y-4 max-h-[75vh]" : "p-6 space-y-6 max-h-[75vh]")}>
-                    {/* Input Mode Toggle (Segmented Control) */}
-                    <div className={clsx(
-                        "flex p-1 rounded-lg border transition-colors",
-                        isMobile ? "mb-3" : "mb-6",
-                        "bg-app-surface2 border-app-border"
-                    )}>
-                        <button
-                            type="button"
-                            onClick={() => setInputMode('reverse')}
-                            className={clsx(
-                                "flex-1 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
-                                isMobile ? "py-1.5 px-3" : "py-2 px-4",
-                                inputMode === 'reverse'
-                                    ? "bg-app-text text-app-bg border border-app-text"
-                                    : "text-app-text border border-transparent"
-                            )}
-                        >
-                            <Calculator size={14} className="inline-block mr-2" />
-                            {t('modal.mode_reverse', '逆算入力 (Reverse)')}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setInputMode('direct')}
-                            className={clsx(
-                                "flex-1 text-app-lg font-bold rounded-md transition-all flex items-center justify-center cursor-pointer",
-                                isMobile ? "py-1.5 px-3" : "py-2 px-4",
-                                inputMode === 'direct'
-                                    ? "bg-app-text text-app-bg border border-app-text"
-                                    : "text-app-text border border-transparent"
-                            )}
-                        >
-                            {t('modal.mode_direct', '直接入力 (Direct)')}
-                        </button>
-                    </div>
+                    {/* Input Mode Toggle */}
+                    <SegmentButton
+                        options={[
+                            { value: 'reverse', label: t('modal.mode_reverse', '逆算入力 (Reverse)'), icon: <Calculator size={14} /> },
+                            { value: 'direct', label: t('modal.mode_direct', '直接入力 (Direct)') },
+                        ]}
+                        value={inputMode}
+                        onChange={setInputMode}
+                        className={isMobile ? 'mb-3' : 'mb-6'}
+                    />
 
                     {/* Common Event Properties */}
                     <div className={clsx("grid grid-cols-2", isMobile ? "gap-3" : "gap-4")}>
@@ -619,60 +596,31 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         {/* Damage Type */}
                         <div>
                             <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.damage_type')}</label>
-                            <div className={clsx("flex", isMobile ? "gap-1.5" : "gap-2")}>
-                                {[
-                                    { type: 'magical', icon: '/icons/type_magic.png', label: t('modal.magical') },
-                                    { type: 'physical', icon: '/icons/type_phys.png', label: t('modal.physical') },
-                                    { type: 'unavoidable', icon: '/icons/type_dark.png', label: t('modal.unavoidable') }
-                                ].map((item) => (
-                                    <button
-                                        key={item.type}
-                                        type="button"
-                                        onClick={() => setDamageType(item.type as any)}
-                                        className={clsx(
-                                            "relative group rounded-lg border flex flex-col items-center justify-center gap-0.5 flex-1 transition-all cursor-pointer",
-                                            isMobile ? "p-1 h-[44px]" : "p-1.5 h-[52px]",
-                                            damageType === item.type
-                                                ? 'border-app-text bg-app-text'
-                                                : 'border-app-border bg-app-surface2 hover:bg-app-surface2 hover:border-app-border'
-                                        )}
-                                    >
-                                        <Tooltip content={item.label}>
-                                            <img src={item.icon} alt={item.label} className={clsx("object-contain opacity-90 group-hover:opacity-100 transition-opacity", isMobile ? "w-4 h-4" : "w-5 h-5")} />
-                                        </Tooltip>
-                                        <span className={clsx("font-bold", isMobile ? "text-app-xs" : "text-app-sm", damageType === item.type ? 'text-app-bg' : 'text-app-text group-hover:text-app-text')}>
-                                            {item.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                            <SegmentButton
+                                options={[
+                                    { value: 'magical', label: t('modal.magical'), icon: '/icons/type_magic.png' },
+                                    { value: 'physical', label: t('modal.physical'), icon: '/icons/type_phys.png' },
+                                    { value: 'unavoidable', label: t('modal.unavoidable'), icon: '/icons/type_dark.png' },
+                                ]}
+                                value={damageType}
+                                onChange={(v) => setDamageType(v as any)}
+                                size={isMobile ? 'sm' : 'md'}
+                            />
                         </div>
 
                         {/* Target Selection */}
                         <div>
                             <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.target')}</label>
-                            <div className={clsx("flex items-center", isMobile ? "gap-1.5 h-[44px]" : "gap-2 h-[52px]")}>
-                                {[
+                            <SegmentButton
+                                options={[
                                     { value: 'AoE', label: t('modal.aoe') },
                                     { value: 'MT', label: t('modal.mt') },
-                                    { value: 'ST', label: t('modal.st') }
-                                ].map((t) => (
-                                    <button
-                                        key={t.value}
-                                        type="button"
-                                        onClick={() => setTarget(t.value as any)}
-                                        className={clsx(
-                                            "h-full flex-1 rounded font-medium transition-all border flex items-center justify-center cursor-pointer",
-                                            isMobile ? "text-app-base" : "text-app-lg",
-                                            target === t.value
-                                                ? 'bg-app-text text-app-bg border-app-text'
-                                                : 'bg-app-surface2 border-app-border text-app-text hover:bg-app-surface2'
-                                        )}
-                                    >
-                                        {t.label}
-                                    </button>
-                                ))}
-                            </div>
+                                    { value: 'ST', label: t('modal.st') },
+                                ]}
+                                value={target ?? 'AoE'}
+                                onChange={(v) => setTarget(v as any)}
+                                size={isMobile ? 'sm' : 'md'}
+                            />
                         </div>
                     </div>
 
