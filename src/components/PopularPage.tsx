@@ -593,7 +593,7 @@ export const PopularPage: React.FC = () => {
             </main>
 
             {/* フッター */}
-            <footer className="relative z-10 border-t border-app-border px-3 sm:px-5 py-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-app-xs text-app-text-muted tracking-wide">
+            <footer className="relative z-10 glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none px-3 sm:px-5 py-4 flex flex-col sm:flex-row items-center justify-center gap-2 text-app-xs text-app-text-muted tracking-wide">
                 <span>{t('footer.copyright')} · {t('footer.disclaimer')}</span>
                 <span className="flex flex-wrap items-center justify-center gap-x-2">
                     <a href="/privacy" className="underline hover:text-app-text transition-colors">{t('footer.privacy_policy')}</a>

@@ -1427,10 +1427,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             {fullWidth ? null : <div
                 className="h-full w-6 z-50 flex items-center justify-center shrink-0 relative"
             >
-                {/* 左端の固定ライン — チュートリアル中もハンドルが非表示でも常に表示 */}
-                {tutorialActive && currentStepIndex <= 2 && (
+                {/* 固定ライン — チュートリアル中もハンドルが非表示でも常に表示 */}
+                {tutorialActive && currentStepIndex <= 2 && (<>
                     <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border z-50" />
-                )}
+                    <div className="absolute inset-y-0 right-0 w-[1px] bg-app-border z-50" />
+                </>)}
 
                 <div
                     className={clsx(

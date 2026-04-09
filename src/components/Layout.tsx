@@ -512,9 +512,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                 {/* Footer — hidden on mobile, shown on PC */}
                 <footer className={clsx(
-                    "h-6 shrink-0 border-t hidden md:flex items-center justify-center z-50 pointer-events-none",
-                    "border-app-border",
-                    "bg-transparent"
+                    "h-6 shrink-0 hidden md:flex items-center justify-center z-50 pointer-events-none",
+                    "glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
                 )}>
                     <p className="text-app-xs text-app-text-muted tracking-wide pointer-events-auto flex items-center gap-0">
                         {t('footer.copyright')}{' · '}{t('footer.disclaimer')}
