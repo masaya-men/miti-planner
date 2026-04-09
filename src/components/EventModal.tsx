@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { X, Trash2, Calculator, Save } from 'lucide-react';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -15,8 +16,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 import { SegmentButton } from './ui/SegmentButton';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
-// SPRING は今後のアニメーション実装で使用予定
-// import { SPRING } from '../tokens/motionTokens';
+import { SPRING } from '../tokens/motionTokens';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
 function toHalfWidthNumber(str: string): string {
@@ -474,8 +474,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             {/* Transparent Backdrop */}
             <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} onClick={handleBackdropClick} />
 
-            <div
+            <motion.div
                 data-tutorial-modal
+                initial={isMobile ? undefined : { opacity: 0, scale: 0.2 }}
+                animate={isMobile ? undefined : { opacity: 1, scale: 1 }}
+                transition={isMobile ? undefined : {
+                    scale: SPRING.dialog,
+                    opacity: { duration: 0.2 },
+                }}
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
                     "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto",
@@ -483,7 +489,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     "ring-black/[0.02] dark:ring-white/5",
                     isMobile
                         ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] border-b-0"
-                        : "absolute w-[500px] rounded-2xl transition-all duration-200"
+                        : "absolute w-[500px] rounded-2xl"
                 )}
                 style={isMobile ? {
                     backgroundColor: 'var(--color-sheet-bg)',
@@ -824,7 +830,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                         </button>
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </div>,
         document.body
     );
