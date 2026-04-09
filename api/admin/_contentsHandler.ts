@@ -183,8 +183,15 @@ export default async function handler(req: any, res: any) {
       await createBackup(db, current);
 
       const before = { ...items[idx] };
-      // 既存にマージ
-      items[idx] = { ...items[idx], ...item };
+      // 既存にマージ（name/shortNameは深いマージで既存のzh/ko等を保持）
+      const merged = { ...items[idx], ...item };
+      if (item.name && items[idx].name) {
+        merged.name = { ...items[idx].name, ...item.name };
+      }
+      if (item.shortName && items[idx].shortName) {
+        merged.shortName = { ...items[idx].shortName, ...item.shortName };
+      }
+      items[idx] = merged;
 
       await contentsRef.set({ ...current, items });
       await bumpDataVersion(db);

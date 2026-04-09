@@ -154,9 +154,12 @@ function getSeriesMetadata(id, category) {
 // ==========================================
 const items = rawContents.map((rc) => {
   const { seriesId, order, shortJa, shortEn } = getSeriesMetadata(rc.id, rc.category);
+  const name = { ja: rc.ja, en: rc.en };
+  if (rc.zh) name.zh = rc.zh;
+  if (rc.ko) name.ko = rc.ko;
   return {
     id: rc.id,
-    name: { ja: rc.ja, en: rc.en },
+    name,
     shortName: { ja: rc.shortNameJa || shortJa, en: shortEn },
     seriesId,
     category: rc.category,
@@ -174,9 +177,12 @@ rawContents.forEach((rc) => {
   const { seriesId, seriesJa, seriesEn } = getSeriesMetadata(rc.id, rc.category);
   const hasPhaseSuffix = /_p\d+$/.test(rc.id);
   if (!seriesMap.has(seriesId) || !hasPhaseSuffix) {
+    const seriesName = rc.category === 'ultimate'
+      ? { ja: rc.ja, en: rc.en, ...(rc.zh ? { zh: rc.zh } : {}), ...(rc.ko ? { ko: rc.ko } : {}) }
+      : { ja: seriesJa, en: seriesEn };
     seriesMap.set(seriesId, {
       id: seriesId,
-      name: rc.category === 'ultimate' ? { ja: rc.ja, en: rc.en } : { ja: seriesJa, en: seriesEn },
+      name: seriesName,
       category: rc.category,
       level: rc.level,
     });
@@ -193,17 +199,17 @@ const configData = {
   dataVersion: 1,
   featureFlags: { useFirestore: true },
   categoryLabels: {
-    savage: { ja: '零式', en: 'Savage' },
-    ultimate: { ja: '絶', en: 'Ultimate' },
-    dungeon: { ja: 'ダンジョン', en: 'Dungeon' },
-    raid: { ja: 'レイド', en: 'Raid' },
-    custom: { ja: 'その他', en: 'Misc' },
+    savage: { ja: '零式', en: 'Savage', zh: '零式', ko: '영웅' },
+    ultimate: { ja: '絶', en: 'Ultimate', zh: '绝境战', ko: '절' },
+    dungeon: { ja: 'ダンジョン', en: 'Dungeon', zh: '迷宫挑战', ko: '던전' },
+    raid: { ja: 'レイド', en: 'Raid', zh: '大型任务', ko: '레이드' },
+    custom: { ja: 'その他', en: 'Misc', zh: '其他', ko: '기타' },
   },
   levelLabels: {
-    70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)' },
-    80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)' },
-    90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)' },
-    100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)' },
+    70: { ja: 'Lv70 (紅蓮)', en: 'Lv70 (Stormblood)', zh: 'Lv70 (红莲)', ko: 'Lv70 (홍련)' },
+    80: { ja: 'Lv80 (漆黒)', en: 'Lv80 (Shadowbringers)', zh: 'Lv80 (暗影)', ko: 'Lv80 (칠흑)' },
+    90: { ja: 'Lv90 (暁月)', en: 'Lv90 (Endwalker)', zh: 'Lv90 (晓月)', ko: 'Lv90 (효월)' },
+    100: { ja: 'Lv100 (黄金)', en: 'Lv100 (Dawntrail)', zh: 'Lv100 (金曦)', ko: 'Lv100 (황금)' },
   },
 };
 
