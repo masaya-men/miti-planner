@@ -11,22 +11,23 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
 - **前セッション完了・push済み**: LP4言語化、contents.json zh/ko、管理画面zh/ko対応
+- **前々セッション完了**:
+  - スキル・ジョブ名zh/ko翻訳、サイドバーzh/ko対応、Firestore再シード
 - **今セッション完了**:
-  - Firestoreマイグレーション実行（コンテンツ名63件zh/ko反映）
-  - スキル・ジョブ名zh/ko翻訳（21ジョブ+123スキル）
-    - 韓国語: datamining CSV（ゲームクライアント抽出）で全件照合
-    - 中国語: SDO公式ジョブガイド（actff1.web.sdo.com）で全件照合
-  - サイドバーのシリーズ名・shortName zh/ko対応（contentRegistry.ts + seed-firestore.mjs）
-  - Windowsパス修正（migrate-contents-zhko.mjs / seed-firestore.mjs）
-  - Firestore全データ再シード済み（contents + skills）
-  - ビルド成功・テスト122全パス
+  - テンプレート技名zh/ko翻訳機能（管理画面FFLogs翻訳モーダル拡張）
+    - TimelineEventにguidフィールド追加（FFLogsインポート時に自動保存）
+    - FflogsTranslationModalに言語選択UI（en/zh/ko）追加
+    - GUIDベース + EN名フォールバックの2段階マッチング
+    - useTemplateEditorにapplyTranslation関数追加
+    - i18nキー4言語対応
+  - ビルド成功・テスト128全パス
 
 ### 次にやること（最優先）
-- 本番デプロイ後の動作確認（zh/ko言語切替でコンテンツ名・スキル名・サイドバー）
+- 本番デプロイ後の動作確認（管理画面でzh/koテンプレート翻訳を実テスト）
 
 ### 次にやること
 - スマホパーティ編成の実機確認（スマート配置ロジック）
-- 多言語: テンプレート技名のzh/ko（管理画面でzh/koのFFLogsインポート→guidベースで翻訳）
+- 各コンテンツのテンプレートにzh/ko翻訳を実際に適用していく
 
 ---
 
@@ -54,7 +55,7 @@
 - [x] コンテンツ名のzh/ko翻訳（contents.json + 管理画面対応）
 - [x] Firestoreへのzh/koマイグレーション実行（63件反映済み）
 - [x] スキル・ジョブ名のzh/ko翻訳（mockData.ts 21ジョブ+123スキル、Firestore同期済み）
-- [ ] テンプレート技名のzh/ko翻訳（管理画面FFLogsインポートでguidベース翻訳）
+- [x] テンプレート技名のzh/ko翻訳機能（管理画面FFLogsモーダル拡張済み、各コンテンツへの適用は順次）
 - [ ] コンテンツ種類ボタンのzh/ko（categoryLabels）
 - [ ] ハウジングツアーページの言語対応
 
