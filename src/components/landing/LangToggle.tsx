@@ -21,29 +21,18 @@ export function LangToggle() {
   };
 
   return (
-    <div
-      className="fixed right-4 md:right-6 top-4 md:top-6 z-[10000] flex items-center gap-2"
-    >
-      {LANGUAGES.map(({ code, label }, idx) => (
+    <div className="flex items-center gap-0.5">
+      {LANGUAGES.map(({ code, label }) => (
         <button
           key={code}
           onClick={() => switchTo(code)}
-          className="font-mono text-xs tracking-widest transition-opacity duration-200 hover:opacity-80"
+          className="font-mono text-[11px] tracking-[0.1em] px-1.5 py-0.5 transition-opacity duration-200 hover:opacity-80"
           style={{
             color: 'var(--color-lp-text)',
-            opacity: current === code ? 1 : 0.35,
+            opacity: current === code ? 1 : 0.3,
           }}
-          data-hover
         >
           {label}
-          {idx < LANGUAGES.length - 1 && (
-            <span
-              className="ml-2 pointer-events-none select-none"
-              style={{ opacity: 0.2, color: 'var(--color-lp-text)' }}
-            >
-              |
-            </span>
-          )}
         </button>
       ))}
     </div>
