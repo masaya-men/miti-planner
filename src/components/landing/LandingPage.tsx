@@ -1,14 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useThemeStore } from '../../store/useThemeStore';
 import { LangToggle } from './LangToggle';
 import { LandingFooter } from './LandingFooter';
 
-/* ── grid columns count ── */
 const GRID_COLS = 6;
-
-/* ── stagger ease ── */
 const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* ── nav link with underline micro-interaction ── */
@@ -29,7 +27,6 @@ function NavLink({
     >
       <span className="relative">
         {children}
-        {/* underline slide-in */}
         <span
           className="absolute left-0 -bottom-0.5 h-px w-0 group-hover:w-full transition-all duration-300 ease-out"
           style={{ backgroundColor: 'var(--color-lp-text)' }}
@@ -43,6 +40,20 @@ function NavLink({
           {badge}
         </span>
       )}
+    </button>
+  );
+}
+
+/* ── theme toggle ── */
+function ThemeToggle() {
+  const { theme, setTheme } = useThemeStore();
+  return (
+    <button
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="font-mono text-[11px] tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-70"
+      style={{ color: 'var(--color-lp-text-muted)' }}
+    >
+      {theme === 'dark' ? '☀' : '●'}
     </button>
   );
 }
@@ -69,17 +80,14 @@ function ProjectCard({
       whileTap={{ scale: 0.99 }}
     >
       <div className="flex items-start gap-6">
-        {/* Number */}
         <span
           className="font-mono text-[11px] tracking-wider pt-1 shrink-0"
           style={{ color: 'var(--color-lp-text-muted)' }}
         >
           {number}
         </span>
-
-        {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h3
               className="text-[clamp(24px,3vw,36px)] font-bold tracking-tight leading-tight transition-transform duration-500 group-hover:translate-x-2"
               style={{ color: 'var(--color-lp-text)' }}
@@ -105,15 +113,13 @@ function ProjectCard({
             {desc}
           </p>
         </div>
-
-        {/* Arrow */}
         <div className="shrink-0 pt-2 overflow-hidden">
-          <motion.span
-            className="block text-lg transition-transform duration-300 -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
+          <span
+            className="block text-lg transition-all duration-300 -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
             style={{ color: 'var(--color-lp-text)' }}
           >
             →
-          </motion.span>
+          </span>
         </div>
       </div>
     </motion.button>
@@ -124,11 +130,10 @@ export function LandingPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [showComingSoon, setShowComingSoon] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -60]);
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -80]);
 
   useEffect(() => {
     document.title = t('app.page_title_landing');
@@ -148,11 +153,10 @@ export function LandingPage() {
 
   return (
     <div
-      ref={containerRef}
-      className="relative min-h-[200vh]"
+      className="relative"
       style={{ backgroundColor: 'var(--color-lp-bg)', color: 'var(--color-lp-text)' }}
     >
-      {/* ── Grid lines overlay ── */}
+      {/* ── Grid lines ── */}
       <div className="fixed inset-0 pointer-events-none z-0" aria-hidden>
         <div className="h-full max-w-[1200px] mx-auto px-6 flex">
           {Array.from({ length: GRID_COLS + 1 }).map((_, i) => (
@@ -170,7 +174,10 @@ export function LandingPage() {
       </div>
 
       {/* ── Top bar ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between">
+      <header
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between"
+        style={{ backgroundColor: 'var(--color-lp-bg)', opacity: 0.95 }}
+      >
         <motion.span
           className="font-mono text-[11px] tracking-[0.15em] uppercase"
           style={{ color: 'var(--color-lp-text-muted)' }}
@@ -182,7 +189,7 @@ export function LandingPage() {
         </motion.span>
 
         <motion.nav
-          className="flex items-center gap-6"
+          className="flex items-center gap-4 md:gap-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
@@ -190,22 +197,19 @@ export function LandingPage() {
           <NavLink onClick={() => navigate('/miti')}>
             {t('portal.miti_button')}
           </NavLink>
-          <NavLink
-            onClick={() => setShowComingSoon(true)}
-            badge="soon"
-          >
+          <NavLink onClick={() => setShowComingSoon(true)} badge="soon">
             {t('portal.housing_button')}
           </NavLink>
+          <ThemeToggle />
           <LangToggle />
         </motion.nav>
       </header>
 
-      {/* ── Hero section ── */}
+      {/* ── Hero ── */}
       <motion.section
         className="relative z-10 flex flex-col justify-center min-h-screen px-6 max-w-[1200px] mx-auto"
         style={{ opacity: heroOpacity, y: heroY }}
       >
-        {/* Main title */}
         <div className="select-none mt-8">
           <div className="overflow-hidden">
             <motion.h1
@@ -219,22 +223,16 @@ export function LandingPage() {
           </div>
         </div>
 
-        {/* Subtitle */}
-        <motion.div
-          className="mt-6 flex flex-col gap-1"
+        <motion.p
+          className="mt-6 text-sm tracking-[0.08em]"
+          style={{ color: 'var(--color-lp-text-muted)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9, duration: 0.8 }}
         >
-          <p
-            className="text-sm tracking-[0.08em]"
-            style={{ color: 'var(--color-lp-text-muted)' }}
-          >
-            FFXIV Tool Portal
-          </p>
-        </motion.div>
+          FFXIV Tool Portal
+        </motion.p>
 
-        {/* Scroll indicator */}
         <motion.div
           className="absolute bottom-10 left-6 flex items-center gap-3"
           initial={{ opacity: 0 }}
@@ -256,7 +254,7 @@ export function LandingPage() {
         </motion.div>
       </motion.section>
 
-      {/* ── Projects section ── */}
+      {/* ── Projects ── */}
       <section className="relative z-10 px-6 max-w-[1200px] mx-auto pb-24">
         <motion.div
           initial={{ opacity: 0 }}
@@ -285,18 +283,12 @@ export function LandingPage() {
             badge="COMING SOON"
           />
 
-          {/* Bottom border */}
-          <div
-            className="border-t"
-            style={{ borderColor: 'var(--color-lp-grid)' }}
-          />
+          <div className="border-t" style={{ borderColor: 'var(--color-lp-grid)' }} />
         </motion.div>
       </section>
 
       {/* ── Footer ── */}
-      <div className="relative z-10">
-        <LandingFooter />
-      </div>
+      <LandingFooter />
 
       {/* ── Coming Soon toast ── */}
       {showComingSoon && (
