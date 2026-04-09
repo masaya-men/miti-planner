@@ -128,7 +128,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
                         <div className="flex justify-between items-center px-6 py-4 border-b border-app-border bg-app-surface2/40 shrink-0">
                             <h2 className="text-app-2xl font-bold text-app-text">{t(titleKey)}</h2>
-                            <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                            <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
                                 <X size={16} />
                             </button>
                         </div>
@@ -169,7 +169,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                 ) : <div />}
                                 <div className="flex gap-2">
                                     <button type="button" onClick={onClose}
-                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 text-app-lg font-medium cursor-pointer active:scale-95">
+                                        className="px-4 py-1.5 text-app-text rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 text-app-lg font-medium cursor-pointer active:scale-95">
                                         {t('modal.cancel')}
                                     </button>
                                     <button type="submit"

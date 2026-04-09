@@ -135,7 +135,7 @@ export const MobileGuide: React.FC<MobileGuideProps> = ({ isOpen, onClose }) => 
                         onClick={handleNext}
                         className={clsx(
                             "flex-1 py-2.5 rounded-xl text-app-2xl font-bold transition-all cursor-pointer",
-                            "bg-app-text text-app-bg"
+                            "bg-app-toggle text-app-toggle-text"
                         )}
                     >
                         {isLast ? t('mobile_guide.done') : t('mobile_guide.next')}

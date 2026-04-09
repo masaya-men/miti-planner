@@ -160,7 +160,7 @@ export const JobMigrationModal: React.FC<JobMigrationModalProps> = ({
                 <div className="px-5 py-3 border-t border-app-border flex justify-end gap-2 shrink-0">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 rounded-lg text-app-lg font-medium text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-95"
+                        className="px-4 py-2 rounded-lg text-app-lg font-medium text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-95"
                     >
                         {t('common.cancel', 'キャンセル')}
                     </button>

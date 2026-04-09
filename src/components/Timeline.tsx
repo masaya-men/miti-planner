@@ -1693,7 +1693,7 @@ const Timeline: React.FC = () => {
                                     className={clsx(
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-app-base font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
                                         !hideEmptyRows
-                                            ? "bg-app-text text-app-bg"
+                                            ? "bg-app-toggle text-app-toggle-text"
                                             : "text-app-text"
                                     )}
                                 >
@@ -1714,7 +1714,7 @@ const Timeline: React.FC = () => {
                             <div className="flex-1 md:flex-none md:w-[199px] md:min-w-[199px] flex items-center px-1 md:px-2 h-full">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
-                                    isAaModeEnabled && "bg-app-text text-app-bg"
+                                    isAaModeEnabled && "bg-app-toggle text-app-toggle-text"
                                 )}>
                                     <button
                                         ref={aaSettingsButtonRef}

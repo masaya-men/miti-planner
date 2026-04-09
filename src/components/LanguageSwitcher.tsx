@@ -59,7 +59,7 @@ export const LanguageSwitcher: React.FC = () => {
                 <button
                     ref={globeRef}
                     onClick={() => setOpen(prev => !prev)}
-                    className="group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 bg-transparent border-app-border text-app-text hover:bg-app-text hover:border-app-text hover:text-app-bg"
+                    className="group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 bg-transparent border-app-border text-app-text hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text"
                 >
                     <Globe size={16} className="group-hover:rotate-45 transition-transform duration-500" />
                 </button>
@@ -78,7 +78,7 @@ export const LanguageSwitcher: React.FC = () => {
                                 onClick={() => handleLanguageChange(code)}
                                 className={`w-full text-left px-3 py-2 text-app-base transition-colors cursor-pointer ${
                                     currentLang === code
-                                        ? 'bg-app-text text-app-bg font-black'
+                                        ? 'bg-app-toggle text-app-toggle-text font-black'
                                         : 'text-app-text hover:bg-app-surface2 font-medium'
                                 }`}
                             >

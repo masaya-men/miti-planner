@@ -212,7 +212,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                             <div className={clsx(
                                 "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
                                 isActive && !multiSelect.isEnabled
-                                    ? "bg-app-text text-app-bg"
+                                    ? "bg-app-toggle text-app-toggle-text"
                                     : "bg-glass-card text-app-text group-hover:bg-glass-hover"
                             )}>
                                 <span className="leading-none">{shortName.split('\n')[0]}</span>
@@ -308,9 +308,9 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         }}
                                     >
                                         {currentPlanId === plan.id && (
-                                            <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
+                                            <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-toggle" />
                                         )}
-                                        <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
+                                        <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-toggle" : "bg-app-text-muted/40")} />
                                         <Tooltip content={plan.title} position="top" wrapperClassName="flex-1 min-w-0 !w-auto !justify-start">
                                             <span className="block truncate text-left">{plan.title}</span>
                                         </Tooltip>
@@ -699,9 +699,9 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                             )}
                         >
                             {currentPlanId === plan.id && (
-                                <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-text" />
+                                <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-toggle" />
                             )}
-                            <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-text" : "bg-app-text-muted/40")} />
+                            <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-toggle" : "bg-app-text-muted/40")} />
                             {plan.title}
                             {currentPlanId === plan.id && (
                                 <Tooltip content={t('app.rename')}>
@@ -1204,7 +1204,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                 }
                             }}
                             data-tutorial="new-plan-btn"
-                            className="flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg active:scale-95 shadow-sm"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text active:scale-95 shadow-sm"
                         >
                             <Plus size={12} />
                             {t('sidebar.new_plan').toUpperCase()}
@@ -1214,8 +1214,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             className={clsx(
                                 "flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer active:scale-95",
                                 multiSelect.isEnabled && multiSelect.mode === 'share'
-                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg shadow-sm"
+                                    ? "bg-app-toggle text-app-toggle-text border-app-toggle shadow-md"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text shadow-sm"
                             )}
                         >
                             {multiSelect.isEnabled && multiSelect.mode === 'share' ? <CheckSquare size={12} /> : <Square size={12} />}
@@ -1227,8 +1227,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             className={clsx(
                                 "flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer active:scale-95 shadow-sm",
                                 multiSelect.isEnabled && multiSelect.mode === 'delete'
-                                    ? "bg-app-text text-app-bg border-app-text shadow-md"
-                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-text hover:border-app-text hover:text-app-bg"
+                                    ? "bg-app-toggle text-app-toggle-text border-app-toggle shadow-md"
+                                    : "bg-glass-card text-app-text border-glass-border hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text"
                             )}
                         >
                             <Trash2 size={12} />
@@ -1555,7 +1555,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     className={clsx(
                                         "flex-[2] py-2.5 rounded-xl text-app-lg font-bold transition-all cursor-pointer",
                                         pendingPlanName.trim()
-                                            ? "bg-app-text text-app-bg hover:opacity-80 active:scale-[0.98]"
+                                            ? "bg-app-toggle text-app-toggle-text hover:opacity-80 active:scale-[0.98]"
                                             : "bg-app-surface2 text-app-text-muted cursor-not-allowed"
                                     )}
                                 >
@@ -1581,12 +1581,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         {/* ヘッダー */}
                         <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">
                             <h2 className="text-app-xl font-black text-app-text tracking-widest flex items-center gap-3 uppercase">
-                                <span className="w-1.5 h-4 bg-app-text rounded-full" />
+                                <span className="w-1.5 h-4 bg-app-toggle rounded-full" />
                                 {t('sidebar.delete_confirm_title')}
                             </h2>
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                                className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={18} />
                             </button>

@@ -134,7 +134,7 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="flex items-center gap-2 px-5 py-4 border-t border-app-border">
             <button
               onClick={handleCopy}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-text text-app-bg text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
             >
               <Copy size={14} />
               {t('backup.copy_button')}

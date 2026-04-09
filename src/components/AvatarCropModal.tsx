@@ -82,7 +82,7 @@ export const AvatarCropModal: React.FC<AvatarCropModalProps> = ({
                     </h2>
                     <button
                         onClick={handleReset}
-                        className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                        className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                     >
                         <X size={16} />
                     </button>
@@ -144,7 +144,7 @@ export const AvatarCropModal: React.FC<AvatarCropModalProps> = ({
                                 onClick={handleConfirm}
                                 className={clsx(
                                     "w-full py-2.5 rounded-xl text-app-lg font-bold flex items-center justify-center gap-2 cursor-pointer",
-                                    "bg-app-text text-app-bg hover:opacity-90 transition-all active:scale-[0.98]"
+                                    "bg-app-toggle text-app-toggle-text hover:opacity-90 transition-all active:scale-[0.98]"
                                 )}
                             >
                                 <Check size={16} />

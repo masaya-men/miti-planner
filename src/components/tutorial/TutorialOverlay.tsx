@@ -337,7 +337,7 @@ function ExitDialog() {
           </button>
           <button
             onClick={() => useTutorialStore.getState().confirmExit()}
-            className="px-4 py-2 text-app-lg rounded-lg bg-app-text text-app-bg font-semibold hover:opacity-80 transition-opacity cursor-pointer"
+            className="px-4 py-2 text-app-lg rounded-lg bg-app-toggle text-app-toggle-text font-semibold hover:opacity-80 transition-opacity cursor-pointer"
           >
             {t('tutorial.exit_yes')}
           </button>

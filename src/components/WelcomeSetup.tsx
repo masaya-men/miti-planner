@@ -99,7 +99,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                    className="absolute top-3 right-3 p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                 >
                     <X size={18} />
                 </button>
@@ -185,7 +185,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
                     className={clsx(
                         "w-full py-3 rounded-xl text-app-xl font-bold uppercase tracking-wider transition-all duration-200",
                         displayName.trim() && !isSubmitting
-                            ? "bg-app-text text-app-bg hover:opacity-90 active:scale-[0.98] cursor-pointer"
+                            ? "bg-app-toggle text-app-toggle-text hover:opacity-90 active:scale-[0.98] cursor-pointer"
                             : "bg-app-text/20 text-app-text-muted cursor-not-allowed"
                     )}
                 >

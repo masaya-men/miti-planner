@@ -76,7 +76,7 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
                 <span className="text-app-lg font-black text-app-text uppercase tracking-wider">
                     {t('timeline.nav_label_jump')}
                 </span>
-                <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
                     <X size={14} />
                 </button>
             </div>

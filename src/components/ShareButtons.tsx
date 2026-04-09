@@ -8,7 +8,7 @@ import type { SavedPlan } from '../types';
 import { useTutorialStore } from '../store/useTutorialStore';
 
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
-const hoverInvert = "hover:bg-app-text hover:border-app-text hover:text-app-bg";
+const hoverInvert = "hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text";
 const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 
 interface ShareButtonsProps {

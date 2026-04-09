@@ -357,9 +357,9 @@
         "nav_label_jump": "跳转到标签",
         "nav_no_labels": "无标签",
         "nav_no_results": "无结果",
-        "end_phase": "添加到此处的阶段名称",
+        "end_phase": "从此处添加阶段",
         "add_event": "添加机制",
-        "add_label": "添加到此处的机制标签"
+        "add_label": "从此处添加标签"
     },
     "migration": {
         "title": "职业变更技能迁移",
