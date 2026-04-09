@@ -26,6 +26,7 @@ import { Tooltip } from './ui/Tooltip';
 import { ShareButtons } from './ShareButtons';
 import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
+import { SegmentButton } from './ui/SegmentButton';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -332,22 +333,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            <div className="flex h-9 rounded-full p-[3px] border border-app-border">
-                                {(['light_party', 'role'] as const).map((order) => (
-                                    <button
-                                        key={order}
-                                        onClick={() => setPartySortOrder(order)}
-                                        className={clsx(
-                                            "px-3 h-full rounded-full text-app-sm font-black uppercase tracking-wider transition-all duration-300 cursor-pointer",
-                                            partySortOrder === order
-                                                ? "bg-app-text text-app-bg"
-                                                : "text-app-text"
-                                        )}
-                                    >
-                                        {order === 'light_party' ? t('ui.sort_light_party') : t('ui.sort_role')}
-                                    </button>
-                                ))}
-                            </div>
+                            <SegmentButton
+                                options={[
+                                    { value: 'light_party', label: t('ui.sort_light_party') },
+                                    { value: 'role', label: t('ui.sort_role') },
+                                ]}
+                                value={partySortOrder}
+                                onChange={setPartySortOrder}
+                                size="sm"
+                                pill
+                            />
                         </div>
                     </div>
                 </div>

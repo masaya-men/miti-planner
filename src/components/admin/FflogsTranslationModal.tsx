@@ -56,6 +56,21 @@ function extractReportCode(input: string): string | null {
   return null;
 }
 
+/**
+ * translate=false が英語名を返しているか判定する。
+ * 中国サーバーのレポートでは translate パラメータの意味が逆になり、
+ * translate=false がネイティブ言語（中国語）を返す。
+ */
+function isLikelyEnglish(names: Map<number, string>): boolean {
+  let asciiCount = 0;
+  let total = 0;
+  for (const name of names.values()) {
+    total++;
+    if (/^[\x20-\x7E]+$/.test(name)) asciiCount++;
+  }
+  return total === 0 || asciiCount / total > 0.5;
+}
+
 // ─────────────────────────────────────────────
 // コンポーネント
 // ─────────────────────────────────────────────
@@ -97,27 +112,32 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
         return;
       }
 
-      // 英語イベント(translate=false) + ネイティブイベント(translate=true) を並行取得
-      const [enEvents, nativeEvents] = await Promise.all([
+      // translate=false + translate=true を並行取得
+      // 注: 中国サーバー等ではtranslateの意味が逆になるため、後で自動判定する
+      const [rawFalseEvents, rawTrueEvents] = await Promise.all([
         fetchFightEvents(reportCode, fight, false),
         fetchFightEvents(reportCode, fight, true),
       ]);
 
-      // guid → enName マップ（先着優先）
-      const guidToEn = new Map<number, string>();
-      for (const ev of enEvents) {
-        if (ev.ability && !guidToEn.has(ev.ability.guid)) {
-          guidToEn.set(ev.ability.guid, ev.ability.name);
+      // guid → name マップ構築（先着優先）
+      const mapFalse = new Map<number, string>();
+      for (const ev of rawFalseEvents) {
+        if (ev.ability && !mapFalse.has(ev.ability.guid)) {
+          mapFalse.set(ev.ability.guid, ev.ability.name);
         }
       }
 
-      // guid → nativeName マップ（先着優先）
-      const guidToNative = new Map<number, string>();
-      for (const ev of nativeEvents) {
-        if (ev.ability && !guidToNative.has(ev.ability.guid)) {
-          guidToNative.set(ev.ability.guid, ev.ability.name);
+      const mapTrue = new Map<number, string>();
+      for (const ev of rawTrueEvents) {
+        if (ev.ability && !mapTrue.has(ev.ability.guid)) {
+          mapTrue.set(ev.ability.guid, ev.ability.name);
         }
       }
+
+      // 中国サーバーではtranslate=falseがネイティブ言語を返すため自動検出して入替
+      const falseIsEnglish = isLikelyEnglish(mapFalse);
+      const guidToEn = falseIsEnglish ? mapFalse : mapTrue;
+      const guidToNative = falseIsEnglish ? mapTrue : mapFalse;
 
       if (lang === 'en') {
         // EN翻訳: テンプレートイベントごとにGUID/JA名でマッチ
