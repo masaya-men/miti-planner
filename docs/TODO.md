@@ -12,19 +12,21 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
 - **前セッション完了・push済み**: LP4言語化、contents.json zh/ko、管理画面zh/ko対応
 - **今セッション完了**:
-  - Firestore zh/koマイグレーション実行（全63コンテンツ反映済み）
-  - スキル・ジョブ名zh/ko翻訳（mockData.ts全21ジョブ+全123スキル）
-  - Firestore同期済み（seed-skills-stats.ts実行）
-  - migrate-contents-zhko.mjs / seed-firestore.mjs Windowsパス修正
+  - Firestoreマイグレーション実行（コンテンツ名63件zh/ko反映）
+  - スキル・ジョブ名zh/ko翻訳（21ジョブ+123スキル）
+    - 韓国語: datamining CSV（ゲームクライアント抽出）で全件照合
+    - 中国語: SDO公式ジョブガイド（actff1.web.sdo.com）で全件照合
+  - サイドバーのシリーズ名・shortName zh/ko対応（contentRegistry.ts + seed-firestore.mjs）
+  - Windowsパス修正（migrate-contents-zhko.mjs / seed-firestore.mjs）
+  - Firestore全データ再シード済み（contents + skills）
   - ビルド成功・テスト122全パス
 
 ### 次にやること（最優先）
-- zh/ko言語でスキル・ジョブ名が正しく表示されるか確認
-- 7.0新スキルのzh/ko名は推定翻訳のため要検証（管理画面で修正可能）
+- 本番デプロイ後の動作確認（zh/ko言語切替でコンテンツ名・スキル名・サイドバー）
 
 ### 次にやること
 - スマホパーティ編成の実機確認（スマート配置ロジック）
-- 多言語: コンテンツ種類ボタン・カテゴリ名のzh/ko（一部configに反映済み）
+- 多言語: テンプレート技名のzh/ko（管理画面でzh/koのFFLogsインポート→guidベースで翻訳）
 
 ---
 
@@ -52,6 +54,7 @@
 - [x] コンテンツ名のzh/ko翻訳（contents.json + 管理画面対応）
 - [x] Firestoreへのzh/koマイグレーション実行（63件反映済み）
 - [x] スキル・ジョブ名のzh/ko翻訳（mockData.ts 21ジョブ+123スキル、Firestore同期済み）
+- [ ] テンプレート技名のzh/ko翻訳（管理画面FFLogsインポートでguidベース翻訳）
 - [ ] コンテンツ種類ボタンのzh/ko（categoryLabels）
 - [ ] ハウジングツアーページの言語対応
 

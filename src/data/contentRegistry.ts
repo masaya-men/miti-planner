@@ -38,17 +38,16 @@ const STATIC_PROJECT_LABELS: Record<string, LocalizedString> = {
 // Dynamic Series Generation Logic
 // ==========================================
 // Parses the prefix of the ID from RAID_CONTENTS to group floors into Series.
-function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: string; seriesJa: string; seriesEn: string; order: number; shortJa: string; shortEn: string } {
+function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: string; seriesJa: string; seriesEn: string; seriesZh: string; seriesKo: string; order: number; shortJa: string; shortEn: string; shortZh: string; shortKo: string } {
     if (category === 'ultimate') {
-        // dsr_p1 → seriesId: "dsr", shortJa: "DSR\nP1", order: 0.1
         const baseId = id.replace(/_p\d+$/, '');
         const pMatch = id.match(/_p(\d+)$/);
         const uppercase = baseId.toUpperCase();
+        const short = pMatch ? `${uppercase}\nP${pMatch[1]}` : uppercase;
         if (pMatch) {
-            const pNum = parseInt(pMatch[1], 10);
-            return { seriesId: baseId, seriesJa: '', seriesEn: '', order: pNum * 0.1, shortJa: `${uppercase}\nP${pNum}`, shortEn: `${uppercase}\nP${pNum}` };
+            return { seriesId: baseId, seriesJa: '', seriesEn: '', seriesZh: '', seriesKo: '', order: parseInt(pMatch[1], 10) * 0.1, shortJa: short, shortEn: short, shortZh: short, shortKo: short };
         }
-        return { seriesId: baseId, seriesJa: '', seriesEn: '', order: 1, shortJa: uppercase, shortEn: uppercase };
+        return { seriesId: baseId, seriesJa: '', seriesEn: '', seriesZh: '', seriesKo: '', order: 1, shortJa: short, shortEn: short, shortZh: short, shortKo: short };
     }
 
     // Match patterns like "m4s", "p12s_p1", "o8s_p2"
@@ -64,68 +63,71 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
     }
 
     let relativeOrder = absoluteOrder;
-    let seriesInfo = { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc' };
+    let seriesInfo = { seriesId: 'misc', seriesJa: 'その他', seriesEn: 'Misc', seriesZh: '其他', seriesKo: '기타' };
 
     if (id.startsWith('m')) {
         if (absoluteOrder < 5) {
-            seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'ライトヘビー級', seriesEn: 'Light-heavyweight' };
+            seriesInfo = { seriesId: 'aac_lhw', seriesJa: 'ライトヘビー級', seriesEn: 'Light-heavyweight', seriesZh: '轻量级', seriesKo: '라이트헤비급' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder < 9) {
-            seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'クルーザー級', seriesEn: 'Cruiserweight' };
+            seriesInfo = { seriesId: 'aac_cruiser', seriesJa: 'クルーザー級', seriesEn: 'Cruiserweight', seriesZh: '中量级', seriesKo: '크루저급' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'ヘビー級', seriesEn: 'Heavyweight' };
+            seriesInfo = { seriesId: 'aac_heavy', seriesJa: 'ヘビー級', seriesEn: 'Heavyweight', seriesZh: '重量级', seriesKo: '헤비급' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('p')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '辺獄編', seriesEn: 'Asphodelos' };
+            seriesInfo = { seriesId: 'pandaemonium_asphodelos', seriesJa: '辺獄編', seriesEn: 'Asphodelos', seriesZh: '边境之狱', seriesKo: '변옥편' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '煉獄編', seriesEn: 'Abyssos' };
+            seriesInfo = { seriesId: 'pandaemonium_abyssos', seriesJa: '煉獄編', seriesEn: 'Abyssos', seriesZh: '炼净之狱', seriesKo: '연옥편' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '天獄編', seriesEn: 'Anabaseios' };
+            seriesInfo = { seriesId: 'pandaemonium_anabaseios', seriesJa: '天獄編', seriesEn: 'Anabaseios', seriesZh: '荒天之狱', seriesKo: '천옥편' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('e')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'eden_gate', seriesJa: '覚醒編', seriesEn: 'Gate' };
+            seriesInfo = { seriesId: 'eden_gate', seriesJa: '覚醒編', seriesEn: 'Gate', seriesZh: '觉醒之章', seriesKo: '각성편' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'eden_verse', seriesJa: '共鳴編', seriesEn: 'Verse' };
+            seriesInfo = { seriesId: 'eden_verse', seriesJa: '共鳴編', seriesEn: 'Verse', seriesZh: '共鸣之章', seriesKo: '공명편' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'eden_promise', seriesJa: '再生編', seriesEn: 'Promise' };
+            seriesInfo = { seriesId: 'eden_promise', seriesJa: '再生編', seriesEn: 'Promise', seriesZh: '再生之章', seriesKo: '재생편' };
             relativeOrder = absoluteOrder - 8;
         }
     } else if (id.startsWith('o')) {
         if (absoluteOrder <= 4) {
-            seriesInfo = { seriesId: 'omega_deltascape', seriesJa: 'デルタ編', seriesEn: 'Deltascape' };
+            seriesInfo = { seriesId: 'omega_deltascape', seriesJa: 'デルタ編', seriesEn: 'Deltascape', seriesZh: '德尔塔幻境', seriesKo: '델타편' };
             relativeOrder = absoluteOrder;
         } else if (absoluteOrder <= 8) {
-            seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: 'シグマ編', seriesEn: 'Sigmascape' };
+            seriesInfo = { seriesId: 'omega_sigmascape', seriesJa: 'シグマ編', seriesEn: 'Sigmascape', seriesZh: '西格玛幻境', seriesKo: '시그마편' };
             relativeOrder = absoluteOrder - 4;
         } else {
-            seriesInfo = { seriesId: 'omega_alphascape', seriesJa: 'アルファ編', seriesEn: 'Alphascape' };
+            seriesInfo = { seriesId: 'omega_alphascape', seriesJa: 'アルファ編', seriesEn: 'Alphascape', seriesZh: '阿尔法幻境', seriesKo: '알파편' };
             relativeOrder = absoluteOrder - 8;
         }
     }
 
-    const shortJa = Math.floor(relativeOrder) + '層' + (phaseOffset === 0.1 ? '\n前半' : phaseOffset === 0.2 ? '\n後半' : '');
+    const floor = Math.floor(relativeOrder);
+    const shortJa = floor + '層' + (phaseOffset === 0.1 ? '\n前半' : phaseOffset === 0.2 ? '\n後半' : '');
     const shortEn = id.toUpperCase().replace('_', '\n').replace(' ', '\n');
+    const shortZh = floor + '层' + (phaseOffset === 0.1 ? '\n前半' : phaseOffset === 0.2 ? '\n后半' : '');
+    const shortKo = floor + '층' + (phaseOffset === 0.1 ? '\n전반' : phaseOffset === 0.2 ? '\n후반' : '');
     const orderForSorting = relativeOrder + phaseOffset;
 
-    return { ...seriesInfo, order: orderForSorting, shortJa, shortEn };
+    return { ...seriesInfo, order: orderForSorting, shortJa, shortEn, shortZh, shortKo };
 }
 
 // Map flat RawContentData into strictly-typed ContentDefinitions
 const STATIC_CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => {
-    const { seriesId, order, shortJa, shortEn } = getSeriesMetadata(rc.id, rc.category);
+    const { seriesId, order, shortJa, shortEn, shortZh, shortKo } = getSeriesMetadata(rc.id, rc.category);
     return {
         id: rc.id,
-        name: { ja: rc.ja, en: rc.en },
-        shortName: { ja: rc.shortNameJa || shortJa, en: shortEn },
+        name: { ja: rc.ja, en: rc.en, zh: rc.zh, ko: rc.ko },
+        shortName: { ja: rc.shortNameJa || shortJa, en: shortEn, zh: shortZh, ko: shortKo },
         seriesId,
         category: rc.category,
         level: rc.level,
@@ -138,12 +140,14 @@ const STATIC_CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => 
 // _p1等のサフィックスがないコンテンツの名前をシリーズ名として優先する
 const seriesMap = new Map<string, ContentSeries>();
 RAID_CONTENTS.forEach(rc => {
-    const { seriesId, seriesJa, seriesEn } = getSeriesMetadata(rc.id, rc.category);
+    const { seriesId, seriesJa, seriesEn, seriesZh, seriesKo } = getSeriesMetadata(rc.id, rc.category);
     const hasPhaseSuffix = /_p\d+$/.test(rc.id);
     if (!seriesMap.has(seriesId) || (!hasPhaseSuffix && seriesMap.has(seriesId))) {
         seriesMap.set(seriesId, {
             id: seriesId,
-            name: rc.category === 'ultimate' ? { ja: rc.ja, en: rc.en } : { ja: seriesJa, en: seriesEn },
+            name: rc.category === 'ultimate'
+                ? { ja: rc.ja, en: rc.en, zh: rc.zh, ko: rc.ko }
+                : { ja: seriesJa, en: seriesEn, zh: seriesZh, ko: seriesKo },
             category: rc.category,
             level: rc.level
         });
