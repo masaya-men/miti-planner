@@ -1,6 +1,4 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
-import { motion } from 'framer-motion';
-import { SPRING } from '../tokens/motionTokens';
 import { createPortal } from 'react-dom';
 import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
@@ -78,19 +76,15 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
     };
 
     return createPortal(
-        <motion.div
+        <div
             ref={popoverRef}
-            initial={{ opacity: 0, scale: 0.2 }}
-            animate={isPositioned ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.2 }}
-            transition={{
-                scale: SPRING.dialog,
-                opacity: { duration: 0.2 },
-            }}
-            className="fixed w-[280px] glass-tier3 rounded-lg z-[9999] overflow-hidden shadow-sm"
+            className={clsx(
+                "fixed w-[280px] glass-tier3 rounded-lg z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200 shadow-sm transition-opacity",
+                !isPositioned ? "opacity-0" : "opacity-100"
+            )}
             style={{
                 top: `${popoverPosition.top}px`,
                 left: `${popoverPosition.left}px`,
-                transformOrigin: 'top left',
             }}
         >
             {/* Header */}
@@ -179,7 +173,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                     </button>
                 </div>
             )}
-        </motion.div>,
+        </div>,
         document.body
     );
 };
