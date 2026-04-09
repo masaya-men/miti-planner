@@ -872,11 +872,21 @@ const Timeline: React.FC = () => {
     }, [fightDuration]);
 
     const eventsByTime = useMemo(() => {
+        const targetOrder = { MT: 0, ST: 1 } as const;
         const map = new Map<number, TimelineEvent[]>();
         timelineEvents.forEach(event => {
             const t = event.time;
             if (!map.has(t)) map.set(t, []);
             map.get(t)?.push(event);
+        });
+        // 同一時刻内: MT → ST → AoE の順を保証
+        map.forEach(events => {
+            if (events.length > 1) {
+                events.sort((a, b) =>
+                    (targetOrder[a.target as keyof typeof targetOrder] ?? 2) -
+                    (targetOrder[b.target as keyof typeof targetOrder] ?? 2)
+                );
+            }
         });
         return map;
     }, [timelineEvents]);
