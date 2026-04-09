@@ -121,6 +121,27 @@ export function createPortalScene(
     }
   };
 
+  // --- Theme change detection ---
+  const themeObserver = new MutationObserver(() => {
+    const newColors = getPortalColors();
+    renderer.setClearColor(newColors.bg, 1);
+    scene.fog = new THREE.FogExp2(newColors.bg, 0.04);
+    particles.material.uniforms.uColorCyan.value = newColors.cyan;
+    particles.material.uniforms.uColorAmber.value = newColors.amber;
+    // Update portal lights
+    (buttons.cyanGroup.children[2] as THREE.PointLight).color = newColors.cyan;
+    (buttons.amberGroup.children[2] as THREE.PointLight).color = newColors.amber;
+    // Update portal glow spheres
+    const cyanGlowMat = (buttons.cyanGroup.children[1] as THREE.Mesh).material as THREE.MeshStandardMaterial;
+    cyanGlowMat.color = newColors.cyan;
+    const amberGlowMat = (buttons.amberGroup.children[1] as THREE.Mesh).material as THREE.MeshStandardMaterial;
+    amberGlowMat.color = newColors.amber;
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
   animate();
 
   // --- Mouse event handlers ---
@@ -161,6 +182,7 @@ export function createPortalScene(
 
   const dispose = () => {
     cancelAnimationFrame(rafId);
+    themeObserver.disconnect();
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('click', handleClick);
     window.removeEventListener('resize', handleResize);
