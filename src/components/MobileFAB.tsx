@@ -6,6 +6,7 @@ import {
     Cloud, CloudCheck, CloudUpload, CloudAlert,
     Globe, Sun, Moon,
     Rows3, AlignJustify,
+    PictureInPicture2,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -130,6 +131,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
+    const myMemberId = useMitigationStore(s => s.myMemberId);
 
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
@@ -231,6 +233,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             icon: <Search size={20} />,
             onClick: handleSearch,
             accent: false,
+        },
+        {
+            key: 'cueSheet',
+            label: t('app.fab_cue_sheet'),
+            icon: <PictureInPicture2 size={20} />,
+            onClick: () => { close(); window.dispatchEvent(new Event('mobile:open-cue-sheet')); },
+            accent: false,
+            disabled: !myMemberId,
         },
     ];
 
