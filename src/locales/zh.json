@@ -622,75 +622,19 @@
     },
     "portal": {
         "title": "LoPo",
-        "subtitle": "支持您冒险的工具——减伤规划、房屋巡览等",
-        "coming_soon": "即将推出",
-        "hero": {
-            "label": "FFXIV 工具门户",
-            "tagline": "FFXIV 减伤规划工具",
-            "tagline_sub": "房屋巡览规划器即将推出",
-            "cta_primary": "打开减伤规划器",
-            "cta_housing": "房屋巡览",
-            "cta_secondary": "了解更多",
-            "scroll_hint": "滚动"
-        },
-        "miti": {
-            "label": "01 — 减伤规划器",
-            "heading": "在时间轴上管理减伤",
-            "desc_1": "将减伤技能放置在时间轴上。",
-            "desc_2": "伤害自动计算。",
-            "desc_3": "从 FFLogs 导入时间轴。"
-        },
-        "features": {
-            "auto_plan": {
-                "title": "自动规划",
-                "desc": "自动推荐减伤配置。有时很聪明，有时会迷路"
-            },
-            "fflogs": {
-                "title": "FFLogs 导入",
-                "desc": "从日志生成攻击时间轴。无需手动输入"
-            },
-            "responsive": {
-                "title": "随处使用",
-                "desc": "支持电脑、手机和平板"
-            },
-            "share": {
-                "title": "轻松分享",
-                "desc": "将减伤方案即时发送给队友"
-            }
-        },
-        "housing": {
-            "label": "02 — 房屋巡览规划器",
-            "heading": "探索房屋",
-            "desc_1": "登记地址并创建巡览路线。",
-            "desc_2": "从图片库浏览房屋。",
-            "badge": "即将推出"
-        },
-        "cta": {
-            "heading": "免费使用",
-            "sub": "登录解锁云存储和分享功能。",
-            "button": "打开减伤规划器",
-            "kofi": "觉得好用？→ 在 Ko-fi 上支持"
-        },
+        "miti_button": "减伤规划器",
+        "housing_button": "房屋巡游",
+        "housing_coming_soon": "即将推出",
         "footer": {
             "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
-            "disclaimer": "这是非官方粉丝工具，与 SQUARE ENIX CO., LTD. 无关。",
+            "disclaimer": "本网站为非官方粉丝工具，与株式会社史克威尔艾尼克斯无关。",
             "privacy": "隐私政策",
-            "terms": "服务条款",
+            "terms": "使用条款",
+            "commercial": "特定商业交易法标注",
             "share": "分享",
             "share_copied": "已复制！",
-            "share_text": "FFXIVのなにかがちょっとラクになるツール / A tool that makes something in FFXIV a little easier",
-            "commercial": "特定商业交易法标示",
+            "share_text": "让FFXIV中的某些事情变得轻松一点的工具",
             "copy_link_tooltip": "复制链接"
-        },
-        "tools": {
-            "miti_planner": {
-                "title": "减伤规划器",
-                "description": "基于时间轴的减伤规划工具。在零式和绝本的 Boss 时间轴上放置减伤技能。"
-            },
-            "housing_tour": {
-                "title": "房屋巡览",
-                "description": "规划和分享房屋区域巡览路线。发现美丽的房屋并与朋友一起参观。"
-            }
         }
     },
     "tutorial": {

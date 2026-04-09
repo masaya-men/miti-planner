@@ -251,6 +251,17 @@
     --color-overlay: rgba(0, 0, 0, 0.4);
     --color-fab-bg: rgba(255, 255, 255, 0.1);
     --color-fab-border: rgba(255, 255, 255, 0.15);
+
+    /* === LP Portal アクセントカラー === */
+    --color-portal-cyan: #00D4FF;
+    --color-portal-cyan-glow: rgba(0, 212, 255, 0.5);
+    --color-portal-cyan-dim: rgba(0, 212, 255, 0.1);
+    --color-portal-amber: #FFB347;
+    --color-portal-amber-glow: rgba(255, 179, 71, 0.5);
+    --color-portal-amber-dim: rgba(255, 179, 71, 0.1);
+    --color-lp-bg: #0F0F10;
+    --color-lp-text: #F0F0F0;
+    --color-lp-text-muted: #a1a1aa;
   }
 
   .theme-light {
@@ -316,6 +327,13 @@
     --color-overlay: rgba(0, 0, 0, 0.2);
     --color-fab-bg: rgba(255, 255, 255, 0.9);
     --color-fab-border: rgba(0, 0, 0, 0.08);
+
+    /* === LP Portal ライトモード === */
+    --color-lp-bg: #1a1a2e;
+    --color-portal-cyan: #00B8D9;
+    --color-portal-cyan-glow: rgba(0, 184, 217, 0.35);
+    --color-portal-amber: #E5A040;
+    --color-portal-amber-glow: rgba(229, 160, 64, 0.35);
 
     --glass-tier3-bg: rgba(255, 255, 255, 0.15);
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
