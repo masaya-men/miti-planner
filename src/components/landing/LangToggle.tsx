@@ -22,23 +22,27 @@ export function LangToggle() {
 
   return (
     <div
-      className="fixed right-5 md:right-8 top-5 md:top-8 z-[100000] flex items-center rounded-full border border-white/20 overflow-hidden"
-      style={{ mixBlendMode: 'difference' }}
+      className="fixed right-4 md:right-6 top-4 md:top-6 z-[10000] flex items-center gap-2"
     >
-      {LANGUAGES.map(({ code, label }) => (
+      {LANGUAGES.map(({ code, label }, idx) => (
         <button
           key={code}
           onClick={() => switchTo(code)}
-          className={`group relative px-5 py-3.5 text-app-2xl-plus font-bold tracking-wider transition-all duration-300 overflow-hidden ${
-            current === code
-              ? 'bg-white text-black'
-              : 'text-white/40 hover:text-white'
-          }`}
+          className="font-mono text-xs tracking-widest transition-opacity duration-200 hover:opacity-80"
+          style={{
+            color: 'var(--color-lp-text)',
+            opacity: current === code ? 1 : 0.35,
+          }}
           data-hover
         >
-          <span className="relative z-10">{label}</span>
-          {current !== code && (
-            <div className="absolute inset-0 bg-white/15 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+          {label}
+          {idx < LANGUAGES.length - 1 && (
+            <span
+              className="ml-2 pointer-events-none select-none"
+              style={{ opacity: 0.2, color: 'var(--color-lp-text)' }}
+            >
+              |
+            </span>
           )}
         </button>
       ))}
