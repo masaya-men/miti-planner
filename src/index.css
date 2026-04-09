@@ -252,16 +252,11 @@
     --color-fab-bg: rgba(255, 255, 255, 0.1);
     --color-fab-border: rgba(255, 255, 255, 0.15);
 
-    /* === LP Portal アクセントカラー === */
-    --color-portal-cyan: #00D4FF;
-    --color-portal-cyan-glow: rgba(0, 212, 255, 0.5);
-    --color-portal-cyan-dim: rgba(0, 212, 255, 0.1);
-    --color-portal-amber: #FFB347;
-    --color-portal-amber-glow: rgba(255, 179, 71, 0.5);
-    --color-portal-amber-dim: rgba(255, 179, 71, 0.1);
-    --color-lp-bg: #0F0F10;
-    --color-lp-text: #F0F0F0;
-    --color-lp-text-muted: #a1a1aa;
+    /* === LP === */
+    --color-lp-bg: #0e0e0e;
+    --color-lp-text: #e8e8e8;
+    --color-lp-text-muted: #666666;
+    --color-lp-grid: rgba(255, 255, 255, 0.06);
   }
 
   .theme-light {
@@ -328,12 +323,11 @@
     --color-fab-bg: rgba(255, 255, 255, 0.9);
     --color-fab-border: rgba(0, 0, 0, 0.08);
 
-    /* === LP Portal ライトモード === */
-    --color-lp-bg: #1a1a2e;
-    --color-portal-cyan: #00B8D9;
-    --color-portal-cyan-glow: rgba(0, 184, 217, 0.35);
-    --color-portal-amber: #E5A040;
-    --color-portal-amber-glow: rgba(229, 160, 64, 0.35);
+    /* === LP ライトモード === */
+    --color-lp-bg: #f2efe9;
+    --color-lp-text: #1a1a1a;
+    --color-lp-text-muted: #999999;
+    --color-lp-grid: rgba(0, 0, 0, 0.06);
 
     --glass-tier3-bg: rgba(255, 255, 255, 0.15);
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
