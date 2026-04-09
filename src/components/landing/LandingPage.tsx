@@ -135,6 +135,16 @@ export function LandingPage() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.2], [0, -80]);
 
+  // LP用: bodyのoverflow:hiddenを解除してスクロール可能にする
+  useEffect(() => {
+    document.body.style.overflow = 'auto';
+    document.body.style.overflowX = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.overflowX = '';
+    };
+  }, []);
+
   useEffect(() => {
     document.title = t('app.page_title_landing');
   }, [t]);
