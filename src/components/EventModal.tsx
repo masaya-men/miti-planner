@@ -594,7 +594,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     {/* Type & Target Row */}
                     <div className={clsx("grid grid-cols-2", isMobile ? "gap-3" : "gap-4")}>
                         {/* Damage Type */}
-                        <div>
+                        <div className="flex flex-col">
                             <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.damage_type')}</label>
                             <SegmentButton
                                 options={[
@@ -605,11 +605,13 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 value={damageType}
                                 onChange={(v) => setDamageType(v as any)}
                                 size={isMobile ? 'sm' : 'md'}
+                                layout="vertical"
+                                className="flex-1"
                             />
                         </div>
 
                         {/* Target Selection */}
-                        <div>
+                        <div className="flex flex-col">
                             <label className={clsx("block text-app-lg font-medium text-app-text", isMobile ? "mb-1.5" : "mb-2")}>{t('modal.target')}</label>
                             <SegmentButton
                                 options={[
@@ -620,6 +622,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 value={target ?? 'AoE'}
                                 onChange={(v) => setTarget(v as any)}
                                 size={isMobile ? 'sm' : 'md'}
+                                className="flex-1"
                             />
                         </div>
                     </div>

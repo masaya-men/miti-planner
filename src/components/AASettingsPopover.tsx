@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
+import { SegmentButton } from './ui/SegmentButton';
 import type { AASettings } from '../store/useMitigationStore';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -106,22 +107,15 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Target */}
                 <div className="space-y-1.5">
                     <label className="text-app-base font-black text-app-text uppercase tracking-wider block">{t('aa_settings.target')}</label>
-                    <div className="flex bg-glass-card p-1 rounded-md border border-glass-border">
-                        {['MT', 'ST'].map((target) => (
-                            <button
-                                key={target}
-                                className={clsx(
-                                    "flex-1 py-1 px-2 text-app-lg font-black rounded transition-colors cursor-pointer",
-                                    settings.target === target
-                                        ? "bg-app-text text-app-bg border border-app-text"
-                                        : "text-app-text hover:bg-glass-hover"
-                                )}
-                                onClick={() => handleChange('target', target)}
-                            >
-                                {target}
-                            </button>
-                        ))}
-                    </div>
+                    <SegmentButton
+                        options={[
+                            { value: 'MT', label: 'MT' },
+                            { value: 'ST', label: 'ST' },
+                        ]}
+                        value={settings.target}
+                        onChange={(v) => handleChange('target', v)}
+                        size="sm"
+                    />
                 </div>
 
                 {/* Damage Amount */}
@@ -140,27 +134,16 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 {/* Damage Type */}
                 <div className="space-y-1.5">
                     <label className="text-app-base font-black text-app-text uppercase tracking-wider block">{t('aa_settings.type')}</label>
-                    <div className="flex gap-2">
-                        {[
-                            { id: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png', color: 'text-cyan-300' },
-                            { id: 'physical', label: t('aa_settings.phys'), icon: '/icons/type_phys.png', color: 'text-orange-300' },
-                            { id: 'unavoidable', label: t('aa_settings.dark'), icon: '/icons/type_dark.png', color: 'text-purple-300' }
-                        ].map((type) => (
-                            <button
-                                key={type.id}
-                                className={clsx(
-                                    "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded border transition-all gap-1 cursor-pointer",
-                                    settings.type === type.id
-                                        ? "bg-app-text/10 border-app-text"
-                                        : "bg-glass-card border-glass-border hover:bg-glass-hover hover:border-app-border"
-                                )}
-                                onClick={() => handleChange('type', type.id)}
-                            >
-                                <img src={type.icon} alt={String(type.label)} className="w-5 h-5 object-contain opacity-90" />
-                                <span className={clsx("text-app-sm font-black", settings.type === type.id ? 'text-app-text' : 'text-app-text')}>{type.label}</span>
-                            </button>
-                        ))}
-                    </div>
+                    <SegmentButton
+                        options={[
+                            { value: 'magical', label: t('aa_settings.magic'), icon: '/icons/type_magic.png' },
+                            { value: 'physical', label: t('aa_settings.phys'), icon: '/icons/type_phys.png' },
+                            { value: 'unavoidable', label: t('aa_settings.dark'), icon: '/icons/type_dark.png' },
+                        ]}
+                        value={settings.type}
+                        onChange={(v) => handleChange('type', v)}
+                        size="sm"
+                    />
                 </div>
 
             </div>

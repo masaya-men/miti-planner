@@ -14,16 +14,23 @@
 - **前々セッション完了**:
   - スキル・ジョブ名zh/ko翻訳、サイドバーzh/ko対応、Firestore再シード
 - **今セッション完了**:
-  - テンプレート技名zh/ko翻訳機能（管理画面FFLogs翻訳モーダル拡張）
-    - TimelineEventにguidフィールド追加（FFLogsインポート時に自動保存）
-    - FflogsTranslationModalに言語選択UI（en/zh/ko）追加
-    - GUIDベース + EN名フォールバックの2段階マッチング
-    - useTemplateEditorにapplyTranslation関数追加
-    - i18nキー4言語対応
+  - FFLogs翻訳モーダル: 中国サーバーレポート対応（translateパラメータ自動検出・入替）
+    - 根本原因: 中国サーバーではtranslate=falseが中国語、translate=trueが英語を返す（逆）
+    - isLikelyEnglish()でASCII判定→マップ自動入替で全リージョン対応
+  - SegmentButton コンポーネント実装（CSS スプリングアニメーション付き）
+    - src/components/ui/SegmentButton.tsx: 再利用可能コンポーネント
+    - EventModal: inputMode/damageType(縦)/target の3箇所
+    - Sidebar: Level/Category の2箇所
+    - AASettingsPopover: target/type の2箇所
+    - ConsolidatedHeader: パーティ並び替え(pill形状) の1箇所
+    - CSS変数 --ease-spring（参考URL準拠、1秒）、GPU accelerated transform
+    - hasInteracted refでモーダル開閉時のアニメーション抑制
   - ビルド成功・テスト128全パス
 
 ### 次にやること（最優先）
-- 本番デプロイ後の動作確認（管理画面でzh/koテンプレート翻訳を実テスト）
+- 本番デプロイ＋管理画面でzh/koテンプレート翻訳を実テスト
+  - 中国サーバーレポートでzh翻訳が動作するか確認
+  - JPサーバーレポートでEN翻訳が引き続き動作するか確認
 
 ### 次にやること
 - スマホパーティ編成の実機確認（スマート配置ロジック）
