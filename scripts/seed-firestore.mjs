@@ -9,7 +9,8 @@
  */
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { resolve, basename } from 'node:path';
+import { resolve, basename, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -35,7 +36,8 @@ function loadEnv(filePath) {
   return env;
 }
 
-const ROOT = resolve(new URL('.', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1'), '..');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, '..');
 const envPath = resolve(ROOT, '.env.local');
 const env = loadEnv(envPath);
 
