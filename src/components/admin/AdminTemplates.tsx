@@ -8,6 +8,7 @@ import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
 import { useTemplateEditor } from '../../hooks/useTemplateEditor';
+import type { TranslationMatchResult } from '../../hooks/useTemplateEditor';
 import { TemplateEditor } from './TemplateEditor';
 import { TemplateEditorToolbar } from './TemplateEditorToolbar';
 import { PlanToTemplateModal } from './PlanToTemplateModal';
@@ -285,8 +286,8 @@ export function AdminTemplates() {
     editor.replaceAll(events, phases, labels as any);
     setDataSource('csv_import');
   };
-  const handleFflogsMatched = (matches: Map<string, string>) => {
-    editor.autoFillEnNames(matches);
+  const handleFflogsMatched = (result: TranslationMatchResult) => {
+    editor.applyTranslation(result);
   };
 
   const hasExistingTemplate = templates.some((t) => t.contentId === selectedContentId);
@@ -532,6 +533,7 @@ export function AdminTemplates() {
         isOpen={showFflogsModal}
         onClose={() => setShowFflogsModal(false)}
         onMatched={handleFflogsMatched}
+        events={editor.visibleEvents}
       />
     </div>
   );
