@@ -10,17 +10,17 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了（push前）**:
-  - LP完全リビルド（Tasks 1-15）: 3Dポータル型ランディングページ実装済み
-    - `src/components/landing/portal/` に Three.js 3Dシーン全モジュール
-    - `src/components/landing/LandingPage.tsx` に統合済み
-    - ビルドエラーゼロ、TypeScript エラーゼロ、テスト 128件全パス
-  - `public/Earth's_Reply.png` 追加
-- **14コミット分未push** → push + デプロイが次の作業
+- **今セッション完了・push済み**:
+  - LP刷新: Eva Sanchez風エディトリアルデザインに全面リビルド
+    - 巨大タイポグラフィ「LoPo」、縦グリッドライン、モノスペースナビ
+    - テーマ切替（☀/●）、言語切替、フッター全て動作確認済み
+    - `src/components/landing/LandingPage.tsx` + `LangToggle.tsx` + `LandingFooter.tsx`
+    - Three.js 3Dポータル（portal/）は廃止・削除済み
+    - bodyのoverflow:hidden問題を修正（LP表示中のみautoに上書き）
+  - CSS変数: --color-lp-* をEva風カラーに変更（ライト: #f2efe9クリーム、ダーク: #0e0e0e）
 
 ### 次にやること（最優先）
-- push + Vercel デプロイ確認（LP 3Dポータルの動作確認）
-- LP実機確認後、TODO「LP完璧に作り直す」を完了済みに移動
+- モーダルの出現アニメーション変更（軽減アプリ内のモーダル全般）
 
 ---
 
