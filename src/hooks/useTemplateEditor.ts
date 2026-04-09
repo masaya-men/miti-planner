@@ -6,6 +6,15 @@ import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
 /** TemplateData.labels の要素型 */
 export type TemplateLabel = NonNullable<TemplateData['labels']>[number];
 
+/** FFLogs翻訳マッチ結果 */
+export interface TranslationMatchResult {
+  lang: 'en' | 'zh' | 'ko';
+  /** eventId → 翻訳名 */
+  translations: Map<string, string>;
+  /** eventId → GUID（GUIDが未設定だったイベント用） */
+  guids: Map<string, number>;
+}
+
 export interface EditState {
   original: TimelineEvent[];
   originalPhases: TemplateData['phases'];
@@ -242,6 +251,34 @@ export function useTemplateEditor() {
     [],
   );
 
+  // 翻訳を一括適用（zh/ko + GUID保存）
+  const applyTranslation = useCallback(
+    (result: TranslationMatchResult) => {
+      setState((prev) => {
+        const newCurrent = structuredClone(prev.current);
+        const newAutoFilled = new Set(prev.autoFilled);
+
+        for (const ev of newCurrent) {
+          if (prev.deleted.has(ev.id)) continue;
+
+          const translation = result.translations.get(ev.id);
+          if (translation) {
+            ev.name[result.lang] = translation;
+            newAutoFilled.add(`${ev.id}:name.${result.lang}`);
+          }
+
+          const guid = result.guids.get(ev.id);
+          if (guid && !ev.guid) {
+            ev.guid = guid;
+          }
+        }
+
+        return { ...prev, current: newCurrent, autoFilled: newAutoFilled };
+      });
+    },
+    [],
+  );
+
   // 全データを置き換え（loadEvents と同じ）
   const replaceAll = useCallback(
     (events: TimelineEvent[], phases: TemplateData['phases'], labels?: TemplateLabel[]) => {
@@ -435,6 +472,7 @@ export function useTemplateEditor() {
     deleteEvent,
     undo,
     autoFillEnNames,
+    applyTranslation,
     replaceAll,
     getSaveData,
     setPhaseAtTime,

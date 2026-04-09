@@ -2,6 +2,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTemplateEditor } from '../useTemplateEditor';
 import type { TimelineEvent } from '../../types';
+import type { TranslationMatchResult } from '../useTemplateEditor';
 
 function makeEvents(): TimelineEvent[] {
   return [
@@ -150,5 +151,57 @@ describe('useTemplateEditor', () => {
     expect(saveData.events.find(e => e.id === 'ev2')).toBeUndefined();
     expect(saveData.phases).toHaveLength(1);
     expect(saveData.labels).toBeDefined();
+  });
+});
+
+describe('applyTranslation', () => {
+  it('zh翻訳をイベントに適用する', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+
+    const translations = new Map([['ev1', '测试攻击'], ['ev3', '第二击']]);
+    const guids = new Map([['ev1', 1001], ['ev3', 1002]]);
+    const matchResult: TranslationMatchResult = { lang: 'zh', translations, guids };
+
+    act(() => result.current.applyTranslation(matchResult));
+
+    const ev1 = result.current.state.current.find(e => e.id === 'ev1');
+    expect(ev1?.name.zh).toBe('测试攻击');
+    expect(ev1?.guid).toBe(1001);
+
+    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
+    expect(ev3?.name.zh).toBe('第二击');
+    expect(ev3?.guid).toBe(1002);
+  });
+
+  it('既存GUIDがある場合は上書きしない', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    const events = makeEvents();
+    events[0].guid = 9999;
+    act(() => result.current.loadEvents(events, makePhases()));
+
+    const translations = new Map([['ev1', '测试攻击']]);
+    const guids = new Map([['ev1', 1001]]);
+    const matchResult: TranslationMatchResult = { lang: 'zh', translations, guids };
+
+    act(() => result.current.applyTranslation(matchResult));
+
+    const ev1 = result.current.state.current.find(e => e.id === 'ev1');
+    expect(ev1?.name.zh).toBe('测试攻击');
+    expect(ev1?.guid).toBe(9999);
+  });
+
+  it('削除済みイベントはスキップする', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.deleteEvent('ev1'));
+
+    const translations = new Map([['ev1', '测试攻击']]);
+    const guids = new Map<string, number>();
+    const matchResult: TranslationMatchResult = { lang: 'zh', translations, guids };
+
+    act(() => result.current.applyTranslation(matchResult));
+
+    expect(result.current.visibleEvents.find(e => e.id === 'ev1')).toBeUndefined();
   });
 });
