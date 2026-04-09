@@ -27,6 +27,8 @@ import { MobileFAB } from './MobileFAB';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 
+const PipView = React.lazy(() => import('./PipView'));
+
 interface LayoutProps {
     children: React.ReactNode;
 }
@@ -78,6 +80,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [mobileLoginModalOpen, setMobileLoginModalOpen] = React.useState(false);
     const [mobileAccountOpen, setMobileAccountOpen] = React.useState(false);
+    const [mobileCueSheet, setMobileCueSheet] = React.useState(false);
     const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore(
         useShallow(s => ({ timelineSortOrder: s.timelineSortOrder, setTimelineSortOrder: s.setTimelineSortOrder }))
     );
@@ -132,6 +135,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             document.removeEventListener('focusout', handleFocusOut);
         };
     }, [isMobile]);
+
+    // スマホ用カンペビューイベント
+    React.useEffect(() => {
+        const open = () => setMobileCueSheet(true);
+        window.addEventListener('mobile:open-cue-sheet', open);
+        return () => window.removeEventListener('mobile:open-cue-sheet', open);
+    }, []);
 
     // キーボードショートカット（PCのみ）
     // F: フォーカスモード（サイドバー+ヘッダー両方非表示/復元）
@@ -667,6 +677,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
                 <MobileAccountMenu onClose={() => setMobileAccountOpen(false)} />
             </MobileBottomSheet>
+
+            {/* スマホ用カンペビュー（フルスクリーン） */}
+            {mobileCueSheet && (
+                <div className="fixed inset-0 z-[9999] bg-app-bg md:hidden">
+                    <React.Suspense fallback={null}>
+                        <PipView mode="fullscreen" onClose={() => setMobileCueSheet(false)} />
+                    </React.Suspense>
+                </div>
+            )}
         </div>
     );
 };
