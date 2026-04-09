@@ -2,6 +2,22 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-04-09）
+- [x] フッターglass効果: Layout.tsx + PopularPage.tsxにglass-tier3 glass-frame適用
+- [x] チュートリアルSTEP1-3サイドバーハンドル右罫線消失バグ修正（右側代替ライン追加）
+- [x] 同一時刻イベントの表示順保証: MT→ST→AoEの順で常に表示（Timeline.tsx eventsByTime）
+- [x] PC版ヘッダー開閉ハンドル・SyncButton雲アイコンの位置ずれ修正（glass CSS定義順序修正）
+- [x] PC版パーティ編成モーダルのクリック不能修正（endDrag再レンダー+SlotItem内部定義問題）
+- [x] パーティ編成D&D時テキスト選択反応修正（user-select:none追加）
+- [x] パーティ編成ジョブアイコン常時表示に変更
+- [x] スマホ長押し時テキスト選択修正（user-select:none追加）
+- [x] スマホヘッダーコンテンツ名省略修正（subtitleサイズ+muted色に縮小）
+- [x] glass-panelのborder/shadow除去、画面いっぱい化
+- [x] FAB言語切替を横一列spring展開に実装
+- [x] 長押しチュートリアルをMobileGuide 6枚目に追加
+- [x] ラベル分裂 → Phase/Labelリファクタリングで根本解決
+- [x] テンプレートエディタ空ラベル編集不可 → undefinedマッチ修正
+
 ## 完了（2026-04-06 セッション2）
 - [x] ジョブ名ツールチップが言語設定に追従しない → getPhaseName()でzh/ko対応、フォールバック順en優先に修正
 - [x] Tooltipのz-indexをモーダルより上に変更（9999→99999）
