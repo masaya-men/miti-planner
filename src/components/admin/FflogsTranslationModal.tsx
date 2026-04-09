@@ -1,14 +1,17 @@
 /**
  * src/components/admin/FflogsTranslationModal.tsx
  *
- * FFLogsレポートURLから英語技名を取得し、テンプレートの日本語技名と
- * GUIDで突合して jaName→enName のマップを返すモーダル。
+ * FFLogsレポートURLから技名を取得し、テンプレートのイベントと
+ * GUIDで突合して翻訳マップを返すモーダル。
+ * en / zh / ko の3言語に対応。
  */
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { resolveFight, fetchFightEvents } from '../../api/fflogs';
+import type { TimelineEvent } from '../../types';
+import type { TranslationMatchResult } from '../../hooks/useTemplateEditor';
 
 // ─────────────────────────────────────────────
 // 型定義
@@ -17,9 +20,11 @@ import { resolveFight, fetchFightEvents } from '../../api/fflogs';
 interface FflogsTranslationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** 突合結果: jaName → enName */
-  onMatched: (matches: Map<string, string>) => void;
+  onMatched: (result: TranslationMatchResult) => void;
+  events: TimelineEvent[];
 }
+
+type TargetLang = 'en' | 'zh' | 'ko';
 
 type Status =
   | { phase: 'idle' }
@@ -59,15 +64,18 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
   isOpen,
   onClose,
   onMatched,
+  events,
 }) => {
   const { t } = useTranslation();
   useEscapeClose(isOpen, onClose);
 
   const [url, setUrl] = useState('');
+  const [lang, setLang] = useState<TargetLang>('en');
   const [status, setStatus] = useState<Status>({ phase: 'idle' });
 
   const handleClose = () => {
     setUrl('');
+    setLang('en');
     setStatus({ phase: 'idle' });
     onClose();
   };
@@ -89,10 +97,10 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
         return;
       }
 
-      // 英語・日本語イベントを並行取得
-      const [enEvents, jaEvents] = await Promise.all([
-        fetchFightEvents(reportCode, fight, true),
+      // 英語イベント(translate=false) + ネイティブイベント(translate=true) を並行取得
+      const [enEvents, nativeEvents] = await Promise.all([
         fetchFightEvents(reportCode, fight, false),
+        fetchFightEvents(reportCode, fight, true),
       ]);
 
       // guid → enName マップ（先着優先）
@@ -103,28 +111,103 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
         }
       }
 
-      // guid → jaName マップ（先着優先）
-      const guidToJa = new Map<number, string>();
-      for (const ev of jaEvents) {
-        if (ev.ability && !guidToJa.has(ev.ability.guid)) {
-          guidToJa.set(ev.ability.guid, ev.ability.name);
+      // guid → nativeName マップ（先着優先）
+      const guidToNative = new Map<number, string>();
+      for (const ev of nativeEvents) {
+        if (ev.ability && !guidToNative.has(ev.ability.guid)) {
+          guidToNative.set(ev.ability.guid, ev.ability.name);
         }
       }
 
-      // jaName → enName 突合（jaName === enName は除外）
-      const matches = new Map<string, string>();
-      for (const [guid, jaName] of guidToJa) {
-        const enName = guidToEn.get(guid);
-        if (enName && enName !== jaName) {
-          matches.set(jaName, enName);
-        }
-      }
+      if (lang === 'en') {
+        // EN翻訳: テンプレートイベントごとにGUID/JA名でマッチ
+        const translations = new Map<string, string>();
+        const guids = new Map<string, number>();
 
-      if (matches.size > 0) {
-        onMatched(matches);
-        setStatus({ phase: 'success', count: matches.size });
+        for (const ev of events) {
+          if (ev.name.en.trim()) continue; // Already has EN name
+
+          let matchedGuid: number | undefined;
+
+          // 1) GUIDマッチ
+          if (ev.guid && guidToEn.has(ev.guid)) {
+            matchedGuid = ev.guid;
+          }
+          // 2) JA名マッチ（フォールバック）
+          if (!matchedGuid) {
+            for (const [guid, nativeName] of guidToNative) {
+              if (nativeName === ev.name.ja) {
+                matchedGuid = guid;
+                break;
+              }
+            }
+          }
+
+          if (matchedGuid) {
+            const enName = guidToEn.get(matchedGuid);
+            if (enName && enName !== ev.name.ja) {
+              translations.set(ev.id, enName);
+              if (!ev.guid) guids.set(ev.id, matchedGuid);
+            }
+          }
+        }
+
+        if (translations.size > 0) {
+          onMatched({ lang: 'en', translations, guids });
+          setStatus({ phase: 'success', count: translations.size });
+        } else {
+          setStatus({ phase: 'no_match' });
+        }
+
       } else {
-        setStatus({ phase: 'no_match' });
+        // ZH/KO翻訳: GUID/EN名でマッチ
+        const translations = new Map<string, string>();
+        const guids = new Map<string, number>();
+
+        // enName → guid 逆引き
+        const enToGuid = new Map<string, number>();
+        for (const [guid, enName] of guidToEn) {
+          if (!enToGuid.has(enName)) enToGuid.set(enName, guid);
+        }
+
+        for (const ev of events) {
+          let matchedGuid: number | undefined;
+
+          // 1) GUIDマッチ
+          if (ev.guid && guidToNative.has(ev.guid)) {
+            matchedGuid = ev.guid;
+          }
+          // 2) EN名マッチ（フォールバック）
+          if (!matchedGuid && ev.name.en) {
+            matchedGuid = enToGuid.get(ev.name.en);
+            // TB suffix対応
+            if (!matchedGuid) {
+              const base = ev.name.en.replace(/ \(TB\)$/, '');
+              if (base !== ev.name.en) {
+                matchedGuid = enToGuid.get(base);
+              }
+            }
+          }
+
+          if (matchedGuid) {
+            let nativeName = guidToNative.get(matchedGuid);
+            if (nativeName) {
+              // TB suffixの復元
+              if (ev.name.en.endsWith(' (TB)') && !nativeName.endsWith(' (TB)')) {
+                nativeName += ' (TB)';
+              }
+              translations.set(ev.id, nativeName);
+              if (!ev.guid) guids.set(ev.id, matchedGuid);
+            }
+          }
+        }
+
+        if (translations.size > 0) {
+          onMatched({ lang, translations, guids });
+          setStatus({ phase: 'success', count: translations.size });
+        } else {
+          setStatus({ phase: 'no_match' });
+        }
       }
     } catch {
       setStatus({ phase: 'error' });
@@ -162,10 +245,36 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
         {/* コンテンツ */}
         <div className="p-5 flex flex-col gap-4">
 
+          {/* 言語選択 */}
+          <div className="flex items-center gap-2">
+            <span className="text-app-base text-app-text-muted">
+              {t('admin.tpl_fflogs_lang_label')}
+            </span>
+            {(['en', 'zh', 'ko'] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setLang(l)}
+                className={`px-3 py-1 text-app-lg rounded border cursor-pointer transition-colors ${
+                  lang === l
+                    ? 'border-purple-500/60 bg-purple-500/15 text-purple-400'
+                    : 'border-app-text/20 text-app-text-muted hover:bg-app-text/10'
+                }`}
+              >
+                {t(`admin.tpl_fflogs_lang_${l}`)}
+              </button>
+            ))}
+          </div>
+
           {/* URLラベル */}
           <label className="flex flex-col gap-1.5">
             <span className="text-app-base text-app-text-muted">
-              {t('admin.tpl_fflogs_url_label')}
+              {lang === 'en'
+                ? t('admin.tpl_fflogs_url_label')
+                : t('admin.tpl_fflogs_url_hint_zhko', {
+                    lang: t(`admin.tpl_fflogs_lang_${lang}`),
+                  })
+              }
             </span>
 
             {/* URL入力 + 取得ボタン */}
