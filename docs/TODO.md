@@ -10,17 +10,11 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **今セッション完了・push済み**:
-  - LP刷新: Eva Sanchez風エディトリアルデザインに全面リビルド
-    - 巨大タイポグラフィ「LoPo」、縦グリッドライン、モノスペースナビ
-    - テーマ切替（☀/●）、言語切替、フッター全て動作確認済み
-    - `src/components/landing/LandingPage.tsx` + `LangToggle.tsx` + `LandingFooter.tsx`
-    - Three.js 3Dポータル（portal/）は廃止・削除済み
-    - bodyのoverflow:hidden問題を修正（LP表示中のみautoに上書き）
-  - CSS変数: --color-lp-* をEva風カラーに変更（ライト: #f2efe9クリーム、ダーク: #0e0e0e）
+- **軽減アプリ: 一旦完成（2026-04-10）**
+- 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（最優先）
-- （次のタスクをここに記載）
+- LP・ハウジングツアー等、軽減アプリ以外の改善に着手
 
 ---
 
