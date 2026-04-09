@@ -43,7 +43,7 @@ interface PopularApiResponse {
 const showToast = (msg: string) => {
     const el = document.createElement('div');
     el.textContent = msg;
-    el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-text text-app-bg px-4 py-2 rounded-full text-app-2xl font-bold z-50';
+    el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-toggle text-app-toggle-text px-4 py-2 rounded-full text-app-2xl font-bold z-50';
     document.body.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 1500);
     setTimeout(() => el.remove(), 2000);
@@ -324,21 +324,21 @@ export const PopularPage: React.FC = () => {
             <div className="mt-auto flex gap-1.5">
                 <button
                     onClick={() => handleCopy(entry)}
-                    className="flex-1 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-1"
+                    className="flex-1 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center gap-1"
                 >
                     <Download size={10} />
                     {t('popular.save_to_mine')}
                 </button>
                 <button
                     onClick={() => handleShareX(entry)}
-                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
                     title={t('popular.share_x')}
                 >
                     {t('popular.share_x')}
                 </button>
                 <button
                     onClick={() => handleCopyLink(entry)}
-                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
+                    className="h-8 w-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
                     title={t('popular.share_link')}
                 >
                     <Link2 size={12} />
@@ -399,7 +399,7 @@ export const PopularPage: React.FC = () => {
                         {hasAny && (
                             <button
                                 onClick={() => handleCopyAllRank(rank)}
-                                className="px-3 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                                className="px-3 h-8 rounded-full border border-app-border text-app-md font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95"
                             >
                                 {rank === 0 ? t('popular.copy_all_rank1') : t('popular.copy_all_rank2')}
                             </button>
@@ -571,14 +571,14 @@ export const PopularPage: React.FC = () => {
                         <LanguageSwitcher />
                         <button
                             onClick={toggleTheme}
-                            className="w-9 h-9 rounded-full border border-app-border flex items-center justify-center hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                            className="w-9 h-9 rounded-full border border-app-border flex items-center justify-center hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95"
                         >
                             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                         </button>
                         <div className="w-px h-5 bg-app-border" />
                         <button
                             onClick={() => { window.close(); window.location.href = '/miti'; }}
-                            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 h-9 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-text hover:text-app-bg transition-colors duration-200 cursor-pointer active:scale-95"
+                            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 h-9 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors duration-200 cursor-pointer active:scale-95"
                         >
                             <ArrowLeft size={12} />
                             <span className="hidden sm:inline">{t('popular.back_to_miti')}</span>

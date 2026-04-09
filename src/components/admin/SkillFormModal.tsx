@@ -520,7 +520,7 @@ export function SkillFormModal({ isOpen, onClose, onSave, skill, jobId, jobs, al
                         キャンセル
                     </button>
                     <button onClick={handleSubmit}
-                        className="px-6 py-1.5 text-app-lg bg-app-text text-app-bg rounded hover:opacity-90 transition-opacity font-bold">
+                        className="px-6 py-1.5 text-app-lg bg-app-toggle text-app-toggle-text rounded hover:opacity-90 transition-opacity font-bold">
                         {isNew ? 'スキルを追加' : '変更を保存'}
                     </button>
                 </div>

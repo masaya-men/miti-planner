@@ -38,20 +38,22 @@ type Status =
 // ─────────────────────────────────────────────
 
 /**
- * FFLogs URLまたは裸のレポートコードからレポートコードを抽出する。
- * 例: https://www.fflogs.com/reports/XXXXXXXXXX#fight=1 → XXXXXXXXXX
- * @returns レポートコード文字列、または null（パース失敗時）
+ * FFLogs URLまたは裸のレポートコードからレポートコードとfight IDを抽出する。
+ * 例: https://www.fflogs.com/reports/XXXXXXXXXX?fight=1 → { code: 'XXXXXXXXXX', fightId: '1' }
  */
-function extractReportCode(input: string): string | null {
+function extractUrlInfo(input: string): { code: string; fightId: string | null } | null {
   const trimmed = input.trim();
 
   // URLパターン: /reports/XXXXXXXX
   const urlMatch = trimmed.match(/\/reports\/([A-Za-z0-9]{10,20})/);
-  if (urlMatch) return urlMatch[1];
+  if (urlMatch) {
+    const fightMatch = trimmed.match(/[?&#]fight=(\d+)/);
+    return { code: urlMatch[1], fightId: fightMatch ? fightMatch[1] : null };
+  }
 
   // 裸のコード: 10〜20文字の英数字のみ
   const bareMatch = trimmed.match(/^[A-Za-z0-9]{10,20}$/);
-  if (bareMatch) return trimmed;
+  if (bareMatch) return { code: trimmed, fightId: null };
 
   return null;
 }
@@ -96,8 +98,8 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
   };
 
   const handleFetch = async () => {
-    const reportCode = extractReportCode(url);
-    if (!reportCode) {
+    const parsed = extractUrlInfo(url);
+    if (!parsed) {
       setStatus({ phase: 'error' });
       return;
     }
@@ -105,8 +107,8 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
     setStatus({ phase: 'loading' });
 
     try {
-      // 最後のキルファイトを取得
-      const fight = await resolveFight(reportCode, 'last');
+      // URLのfight IDがあればそれを使い、なければ最後のキルを取得
+      const fight = await resolveFight(parsed.code, parsed.fightId || 'last');
       if (!fight) {
         setStatus({ phase: 'error' });
         return;
@@ -115,8 +117,8 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
       // translate=false + translate=true を並行取得
       // 注: 中国サーバー等ではtranslateの意味が逆になるため、後で自動判定する
       const [rawFalseEvents, rawTrueEvents] = await Promise.all([
-        fetchFightEvents(reportCode, fight, false),
-        fetchFightEvents(reportCode, fight, true),
+        fetchFightEvents(parsed.code, fight, false),
+        fetchFightEvents(parsed.code, fight, true),
       ]);
 
       // guid → name マップ構築（先着優先）
@@ -134,7 +136,7 @@ export const FflogsTranslationModal: React.FC<FflogsTranslationModalProps> = ({
         }
       }
 
-      // 中国サーバーではtranslate=falseがネイティブ言語を返すため自動検出して入替
+      // 中国サーバー・韓国サーバーではtranslate=falseがネイティブ言語を返すため自動検出して入替
       const falseIsEnglish = isLikelyEnglish(mapFalse);
       const guidToEn = falseIsEnglish ? mapFalse : mapTrue;
       const guidToNative = falseIsEnglish ? mapTrue : mapFalse;

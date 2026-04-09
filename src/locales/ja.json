@@ -378,9 +378,9 @@
         "nav_label_jump": "ラベルにジャンプ",
         "nav_no_labels": "ラベルなし",
         "nav_no_results": "該当なし",
-        "end_phase": "ここまでのフェーズ名を追加",
+        "end_phase": "ここからフェーズを追加",
         "add_event": "敵の攻撃を追加",
-        "add_label": "ここまでのギミックを追加"
+        "add_label": "ここからラベルを追加"
     },
     "migration": {
         "title": "ジョブ変更に伴うスキル引き継ぎ",

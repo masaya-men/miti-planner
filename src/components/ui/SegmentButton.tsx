@@ -55,7 +55,7 @@ export function SegmentButton<T extends string>({
       {/* スライドするインジケーター背景 */}
       {indicator.width > 0 && (
         <div
-          className={clsx('absolute bg-app-text shadow-lg pointer-events-none', innerRadius)}
+          className={clsx('absolute bg-app-toggle shadow-lg pointer-events-none', innerRadius)}
           style={{
             top: '2px',
             bottom: '2px',
@@ -86,7 +86,7 @@ export function SegmentButton<T extends string>({
             layout === 'vertical' ? 'flex-col gap-0.5 py-1.5 px-1' : 'gap-1.5',
             layout === 'horizontal' && (size === 'sm' ? 'py-1.5 px-3 text-app-base' : 'py-2 px-2 text-app-lg'),
             layout === 'vertical' && (size === 'sm' ? 'text-app-xs' : 'text-app-sm'),
-            option.value === value ? 'text-app-bg' : 'text-app-text',
+            option.value === value ? 'text-app-toggle-text' : 'text-app-text',
           )}
         >
           {option.icon && (

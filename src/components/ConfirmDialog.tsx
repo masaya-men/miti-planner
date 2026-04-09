@@ -57,7 +57,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     <h3 className="text-app-2xl font-black text-app-text tracking-wide">{title}</h3>
                     <button
                         onClick={onCancel}
-                        className="ml-auto p-1 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                        className="ml-auto p-1 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                     >
                         <X size={14} />
                     </button>

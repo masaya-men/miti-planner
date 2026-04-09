@@ -228,7 +228,7 @@ export const SharePage: React.FC = () => {
                     </p>
                     <button
                         onClick={() => navigate('/')}
-                        className="px-4 py-2 rounded-full border border-app-border text-app-2xl hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-full border border-app-border text-app-2xl hover:bg-app-toggle hover:text-app-toggle-text transition-colors cursor-pointer"
                     >
                         {t('app.return_home')}
                     </button>
@@ -249,7 +249,7 @@ export const SharePage: React.FC = () => {
                     </span>
                     <button
                         onClick={handleCopyToMine}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-text hover:text-app-bg transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-app-border text-app-lg font-bold hover:bg-app-toggle hover:text-app-toggle-text transition-colors cursor-pointer"
                     >
                         <Copy size={12} />
                         {isBundleView
@@ -271,7 +271,7 @@ export const SharePage: React.FC = () => {
                                     className={clsx(
                                         "px-3 py-1 rounded-md text-app-lg font-bold transition-colors cursor-pointer whitespace-nowrap",
                                         idx === activeTab
-                                            ? "bg-app-text text-app-bg"
+                                            ? "bg-app-toggle text-app-toggle-text"
                                             : "text-app-text-muted hover:text-app-text hover:bg-app-text/10"
                                     )}
                                 >

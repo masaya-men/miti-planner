@@ -152,7 +152,7 @@ export function AdminLogs() {
             onClick={() => setFilter(item.key)}
             className={`px-3 py-1 text-app-lg rounded border transition-colors ${
               filter === item.key
-                ? 'border-app-text bg-app-text text-app-bg'
+                ? 'border-app-text bg-app-toggle text-app-toggle-text'
                 : 'border-app-text/20 hover:bg-app-text/10'
             }`}
           >

@@ -199,7 +199,7 @@ const PillSelect: React.FC<{
                 onClick={() => !disabled && onChange(opt.id)}
                 className={`px-2.5 py-1 rounded-full text-app-sm font-bold tracking-wider transition-all cursor-pointer ${
                     value === opt.id
-                        ? 'bg-app-text text-app-bg'
+                        ? 'bg-app-toggle text-app-toggle-text'
                         : 'bg-app-surface2 text-app-text-muted border border-app-border hover:border-app-text-muted'
                 } ${disabled ? 'opacity-30 pointer-events-none' : ''}`}
             >
@@ -357,7 +357,7 @@ export const PulseSettings: React.FC = () => {
                                 onClick={() => update.enabled(!enabled)}
                                 className={`px-2 py-0.5 rounded-full text-app-xs font-bold tracking-wider transition-all cursor-pointer ${
                                     enabled
-                                        ? 'bg-app-text text-app-bg'
+                                        ? 'bg-app-toggle text-app-toggle-text'
                                         : 'bg-app-surface2 text-app-text-muted border border-app-border'
                                 }`}
                             >

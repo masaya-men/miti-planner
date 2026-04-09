@@ -142,7 +142,7 @@ export function AdminBackups() {
             onClick={() => setFilter(item.key)}
             className={`px-3 py-1 text-app-lg rounded border transition-colors ${
               filter === item.key
-                ? 'border-app-text bg-app-text text-app-bg'
+                ? 'border-app-text bg-app-toggle text-app-toggle-text'
                 : 'border-app-text/20 hover:bg-app-text/10'
             }`}
           >
@@ -196,7 +196,7 @@ export function AdminBackups() {
                     <button
                       onClick={() => handleRestore(entry)}
                       disabled={restoring}
-                      className="px-2 py-1 text-app-base border border-app-text rounded bg-app-text text-app-bg hover:opacity-80 transition-opacity disabled:opacity-50"
+                      className="px-2 py-1 text-app-base border border-app-text rounded bg-app-toggle text-app-toggle-text hover:opacity-80 transition-opacity disabled:opacity-50"
                     >
                       {restoring ? '...' : 'OK'}
                     </button>

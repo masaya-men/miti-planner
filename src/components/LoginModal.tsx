@@ -96,7 +96,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                             </h2>
                             <button
                                 onClick={onClose}
-                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={16} />
                             </button>
@@ -131,7 +131,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                         onClick={() => { navigate('/admin'); onClose(); }}
                                         className={clsx(
                                             "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
-                                            "text-yellow-400 border border-yellow-400/30 hover:bg-yellow-400/10 hover:border-yellow-400/60"
+                                            "text-app-amber border border-app-amber/30 hover:bg-app-amber/10 hover:border-app-amber/60"
                                         )}
                                     >
                                         <Settings size={14} />

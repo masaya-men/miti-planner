@@ -95,7 +95,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 </div>
                 <button
                     onClick={onClose}
-                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                 >
                     <X size={14} />
                 </button>
@@ -162,7 +162,7 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                         className={clsx(
                             "w-full py-2 rounded-md text-app-lg font-black uppercase tracking-wider transition-all duration-200 cursor-pointer border",
                             settings.damage > 0
-                                ? "border-app-text text-app-text bg-transparent hover:bg-app-text hover:text-app-bg active:scale-[0.98]"
+                                ? "border-app-text text-app-text bg-transparent hover:bg-app-toggle hover:text-app-toggle-text active:scale-[0.98]"
                                 : "border-app-text/20 text-app-text/40 bg-transparent cursor-not-allowed"
                         )}
                     >

@@ -12,6 +12,8 @@
   --color-app-text-sec: var(--color-text-secondary);
   --color-app-text-muted: var(--color-text-muted);
   --color-app-text-on-accent: var(--color-text-on-accent);
+  --color-app-toggle: var(--color-toggle-bg);
+  --color-app-toggle-text: var(--color-toggle-text);
   --color-app-border: var(--color-border);
   --color-app-border-accent: var(--color-border-accent);
 
@@ -128,6 +130,9 @@
     --color-text-secondary: #d4d4d8;
     --color-text-muted: #a1a1aa;
     --color-text-on-accent: #000000;
+
+    --color-toggle-bg: #F0F0F0;
+    --color-toggle-text: #0F0F10;
 
     --color-border: rgba(255, 255, 255, 0.10);
     --color-border-accent: rgba(255, 255, 255, 0.3);
@@ -282,6 +287,9 @@
     --color-text-muted: #52525b;
     --color-text-on-accent: #ffffff;
 
+    --color-toggle-bg: #404040;
+    --color-toggle-text: #ffffff;
+
     --color-border: rgba(0, 0, 0, 0.10);
     --color-border-accent: rgba(0, 0, 0, 0.3);
 
@@ -309,7 +317,7 @@
     --color-fab-bg: rgba(255, 255, 255, 0.9);
     --color-fab-border: rgba(0, 0, 0, 0.08);
 
-    --glass-tier3-bg: rgba(255, 255, 255, 0.65);
+    --glass-tier3-bg: rgba(255, 255, 255, 0.15);
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
     --glass-tier3-border: rgba(0, 0, 0, 0.08);
     --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);

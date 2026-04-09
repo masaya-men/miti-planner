@@ -374,9 +374,9 @@
         "nav_label_jump": "Jump to label",
         "nav_no_labels": "No labels",
         "nav_no_results": "No results",
-        "end_phase": "Add phase name up to here",
+        "end_phase": "Add phase from here",
         "add_event": "Add Mechanic",
-        "add_label": "Add mechanic label up to here"
+        "add_label": "Add label from here"
     },
     "migration": {
         "title": "Job Change Skill Migration",

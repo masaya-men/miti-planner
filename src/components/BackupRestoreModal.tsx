@@ -229,7 +229,7 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
               disabled={!text.trim()}
               className={
                 text.trim()
-                  ? "w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-app-text text-app-bg text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
+                  ? "w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
                   : "w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-app-text/20 text-app-text-muted text-app-sm font-bold cursor-not-allowed"
               }
             >

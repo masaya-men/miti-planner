@@ -111,7 +111,7 @@ export function TutorialCard({
                           onClick={() => handleLangChange(code)}
                           className={`w-full text-left px-3 py-1.5 text-app-base transition-colors cursor-pointer ${
                             i18n.language === code
-                              ? 'bg-app-text text-app-bg font-black'
+                              ? 'bg-app-toggle text-app-toggle-text font-black'
                               : 'text-app-text hover:bg-app-text/5 font-medium'
                           }`}
                         >

@@ -226,7 +226,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                         <button
                             data-tutorial="new-plan-close"
                             onClick={() => onClose()}
-                            className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                            className="p-2 rounded-full text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                         >
                             <X size={18} />
                         </button>
@@ -250,7 +250,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                         className={clsx(
                                             "flex-1 py-2 rounded-lg text-app-md font-black transition-all duration-300 cursor-pointer",
                                             level === l
-                                                ? "bg-app-text text-app-bg shadow-lg scale-[1.02]"
+                                                ? "bg-app-toggle text-app-toggle-text shadow-lg scale-[1.02]"
                                                 : "text-app-text hover:bg-glass-hover"
                                         )}
                                     >
@@ -277,7 +277,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                         className={clsx(
                                             "whitespace-nowrap px-6 py-2.5 rounded-full text-app-md font-black transition-all border cursor-pointer",
                                             category === cat
-                                                ? "bg-app-text text-app-bg border-app-text"
+                                                ? "bg-app-toggle text-app-toggle-text border-app-toggle"
                                                 : "bg-glass-card/30 text-app-text border-glass-border/40 hover:border-glass-hover"
                                         )}
                                     >
@@ -303,7 +303,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                                                     className={clsx(
                                                         "w-full px-4 py-3 rounded-xl text-app-lg font-black transition-all border cursor-pointer text-left active:scale-[0.98]",
                                                         boss?.id === b.id
-                                                            ? "bg-app-text text-app-bg border-app-text"
+                                                            ? "bg-app-toggle text-app-toggle-text border-app-toggle"
                                                             : "bg-glass-card/30 text-app-text border-glass-border/40 hover:bg-glass-hover"
                                                     )}
                                                 >

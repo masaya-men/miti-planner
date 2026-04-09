@@ -205,7 +205,7 @@ export function AdminSkills() {
                             {selectedJobId && (
                                 <button
                                     onClick={openAddModal}
-                                    className="px-3 py-1 text-app-lg bg-app-text text-app-bg rounded hover:opacity-90 transition-opacity font-bold"
+                                    className="px-3 py-1 text-app-lg bg-app-toggle text-app-toggle-text rounded hover:opacity-90 transition-opacity font-bold"
                                 >
                                     + スキル追加
                                 </button>

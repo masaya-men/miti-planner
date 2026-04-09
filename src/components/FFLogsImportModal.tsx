@@ -253,7 +253,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                                 <CloudDownload size={18} />
                                 {t('fflogs.title')}
                             </h2>
-                            <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90">
+                            <button onClick={handleClose} className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
                                 <X size={18} />
                             </button>
                         </div>
@@ -271,7 +271,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             </p>
                             <button
                                 onClick={() => { handleClose(); setShowLoginModal(true); }}
-                                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-app-2xl font-bold bg-app-text text-app-bg hover:opacity-80 transition-opacity cursor-pointer"
+                                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-opacity cursor-pointer"
                             >
                                 <LogIn size={16} />
                                 {t('fflogs.login_button')}
@@ -415,7 +415,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                             </h2>
                             <button
                                 onClick={handleClose}
-                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                                className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                             >
                                 <X size={18} />
                             </button>
@@ -503,7 +503,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 cursor-pointer active:scale-90"
+                            className="p-1.5 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                         >
                             <X size={18} />
                         </button>
@@ -524,7 +524,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         <button
                             onClick={handleClose}
                             disabled={isLoading}
-                            className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-text hover:text-app-bg hover:border-app-text transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
+                            className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 disabled:opacity-50 cursor-pointer active:scale-95"
                         >
                             {t('common.cancel', 'キャンセル')}
                         </button>

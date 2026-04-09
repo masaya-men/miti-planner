@@ -37,8 +37,8 @@ interface ConsolidatedHeaderProps {
     setStatusOpen: (open: boolean) => void;
 }
 
-// ホバー: 白黒反転（ライト→黒塗り白文字 / ダーク→白塗り黒文字）
-const hoverInvert = "hover:bg-app-text hover:border-app-text hover:text-app-bg";
+// ホバー: 反転（ライト→ソフトダーク / ダーク→ソフトライト）
+const hoverInvert = "hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text";
 
 // アイコン丸ボタン共通スタイル（1px border で統一）
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
@@ -47,7 +47,7 @@ const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverIn
 // テキスト付きピルボタン共通スタイル（1px border で統一）
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
-const pillBtnActive = `bg-app-text text-app-bg border-app-text ${hoverInvert}`;
+const pillBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
 
 // SyncButton は ./SyncButton.tsx に共有コンポーネントとして切り出し済み
 
@@ -209,12 +209,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
                             )}
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
+                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* チュートリアル */}
                             <TutorialMenu btnClassName={clsx(pillBtnBase, pillBtnDefault)} />
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
+                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* テーマ切替（チュートリアル中も常に操作可能） */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
@@ -297,7 +297,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     className={clsx(
                                         iconBtnBase,
                                         needsImport
-                                            ? "bg-app-text text-app-bg border-app-text animate-pulse"
+                                            ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
                                             : iconBtnDefault
                                     )}
                                 >
@@ -329,7 +329,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text mx-0.5 rounded-full" />
+                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>

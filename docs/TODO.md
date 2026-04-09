@@ -10,31 +10,14 @@
 
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
-- **前セッション完了・push済み**: LP4言語化、contents.json zh/ko、管理画面zh/ko対応
-- **前々セッション完了**:
-  - スキル・ジョブ名zh/ko翻訳、サイドバーzh/ko対応、Firestore再シード
-- **今セッション完了**:
-  - FFLogs翻訳モーダル: 中国サーバーレポート対応（translateパラメータ自動検出・入替）
-    - 根本原因: 中国サーバーではtranslate=falseが中国語、translate=trueが英語を返す（逆）
-    - isLikelyEnglish()でASCII判定→マップ自動入替で全リージョン対応
-  - SegmentButton コンポーネント実装（CSS スプリングアニメーション付き）
-    - src/components/ui/SegmentButton.tsx: 再利用可能コンポーネント
-    - EventModal: inputMode/damageType(縦)/target の3箇所
-    - Sidebar: Level/Category の2箇所
-    - AASettingsPopover: target/type の2箇所
-    - ConsolidatedHeader: パーティ並び替え(pill形状) の1箇所
-    - CSS変数 --ease-spring（参考URL準拠、1秒）、GPU accelerated transform
-    - hasInteracted refでモーダル開閉時のアニメーション抑制
-  - ビルド成功・テスト128全パス
+- **今セッション完了・push済み**:
+  - FFLogs翻訳モーダル: fight ID抽出修正（URLのfight=Nを使用）
+  - ライトモード改善: モーダル透過度85%、反転色ソフト化（toggle変数）、管理画面リンク色
+  - フェーズ/ラベル ツールチップ文言修正（4言語）
+  - PWAアイコン: 黒背景版に置換
 
 ### 次にやること（最優先）
-- 本番デプロイ＋管理画面でzh/koテンプレート翻訳を実テスト
-  - 中国サーバーレポートでzh翻訳が動作するか確認
-  - JPサーバーレポートでEN翻訳が引き続き動作するか確認
-
-### 次にやること
-- スマホパーティ編成の実機確認（スマート配置ロジック）
-- 各コンテンツのテンプレートにzh/ko翻訳を実際に適用していく
+- LP（ランディングページ）を完璧に作り直す → これが完了すればv1完成
 
 ---
 
@@ -44,7 +27,6 @@
 - [ ] ラベル名が管理画面で取得できない（スプシヘッダー問題？）
 
 ### FFLogs残課題
-- [ ] DSRフェーズ: フェーズ区切り・ボス名が正しくない（テンプレート対応予定、一旦無視）
 - [ ] 英語ログ警告: 未確認
 
 ### 低（動作影響なし・エッジケース）
