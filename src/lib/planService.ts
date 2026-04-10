@@ -14,6 +14,8 @@ import {
   collection,
   getDocs,
   getDoc,
+  getDocsFromServer,
+  getDocFromServer,
   setDoc,
   writeBatch,
   query,
@@ -163,14 +165,20 @@ async function checkPlanLimits(
 // CRUD 操作
 // ========================================
 
-/** ユーザーの全プランを取得 */
+/** ユーザーの全プランを取得（サーバー優先、オフライン時のみキャッシュ） */
 async function fetchUserPlans(uid: string): Promise<SavedPlan[]> {
   const q = query(
     collection(db, COLLECTIONS.PLANS),
     where('ownerId', '==', uid),
     orderBy('updatedAt', 'desc'),
   );
-  const snap = await getDocs(q);
+  let snap;
+  try {
+    snap = await getDocsFromServer(q);
+  } catch {
+    // オフライン時はキャッシュにフォールバック
+    snap = await getDocs(q);
+  }
   return snap.docs.map((d) => fromFirestore(d.id, d.data() as FirestorePlan));
 }
 
@@ -217,10 +225,15 @@ async function updatePlan(
   uid: string,
 ): Promise<'updated' | 'skipped_newer_remote'> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
-  // セキュリティルールの制約で、自分のドキュメントしかreadできないため
-  // try/catchで読み取りエラーも含めてハンドリング
+  // サーバーから直接読み取り（キャッシュの古いデータで削除済みドキュメントを誤検出しないため）
   try {
-    const snap = await getDoc(planRef);
+    let snap;
+    try {
+      snap = await getDocFromServer(planRef);
+    } catch {
+      // オフライン時はキャッシュにフォールバック
+      snap = await getDoc(planRef);
+    }
     if (!snap.exists()) {
       throw new Error('NOT_EXISTS');
     }
