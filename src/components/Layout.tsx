@@ -364,7 +364,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             authUser.uid,
             profileName,
         ).then(() => {
-            usePlanStore.setState({ _migrationDone: true });
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
             // （localStorageのMitigationStoreは古いまま残るためここで強制更新）
             const { currentPlanId, plans } = usePlanStore.getState();
@@ -376,10 +375,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     isRemoteLoadingRef.current = false;
                 }
             }
-            // マイグレーション完了後にPULL（リロード時に他端末の変更を確実に取得）
-            return planStore.pullFromFirestore(authUser.uid);
-        }).catch(() => {
+        }).catch((err) => {
+            console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
+        }).finally(() => {
             usePlanStore.setState({ _migrationDone: true });
+            // マイグレーション成功・失敗いずれでもPULL実行（他端末の変更を確実に取得）
+            planStore.pullFromFirestore(authUser.uid);
         });
     }, [authUser, authLoading, hasMigrated]);
 
