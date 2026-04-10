@@ -90,14 +90,16 @@ export default async function handler(req: any, res: any) {
     );
 
     // 監査ログ
-    await writeAuditLog(db, {
+    await writeAuditLog({
       action: 'update',
       target: 'skills',
       adminUid,
       changes: {
-        type: 'sync_from_source',
-        jobs: JOBS.length,
-        mitigations: MITIGATIONS.length,
+        after: {
+          type: 'sync_from_source',
+          jobs: JOBS.length,
+          mitigations: MITIGATIONS.length,
+        },
       },
     });
 
