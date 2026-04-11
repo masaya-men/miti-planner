@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
-import { AdminContentForm, emptyContent, type ContentData } from './AdminContentForm';
+import { AdminContentForm, type ContentData } from './AdminContentForm';
 
 export function AdminContents() {
   const { t } = useTranslation();
@@ -142,7 +142,7 @@ export function AdminContents() {
       {showForm && (
         <div className="mb-6 p-4 border border-app-text/10 rounded">
           <AdminContentForm
-            initial={editing ?? emptyContent()}
+            initial={editing}
             onSave={handleSave}
             onCancel={cancelForm}
             saving={saving}
