@@ -373,7 +373,7 @@ export function AdminTemplates() {
             onUpdateCell={editor.updateCell}
             onDeleteEvent={editor.deleteEvent}
             onSetLabelAtTime={editor.setLabelAtTime}
-            onSetPhaseAtTime={editor.setPhaseAtTime}
+            onUpdatePhaseName={editor.updatePhaseName}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}

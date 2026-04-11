@@ -75,34 +75,21 @@ describe('useTemplateEditor', () => {
     expect(result.current.hasChanges).toBe(false);
   });
 
-  it('setPhaseAtTime でフェーズ境界を追加する', () => {
+  it('updatePhaseName でフェーズ名のみ更新する（境界時刻は変わらない）', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));
-    act(() => result.current.setPhaseAtTime(10, { ja: '新フェーズ', en: 'New Phase' }));
-    expect(result.current.state.currentPhases).toHaveLength(2);
-    expect(result.current.state.currentPhases[1].startTimeSec).toBe(10);
-  });
-
-  it('setPhaseAtTime で既存フェーズの名前を更新する', () => {
-    const { result } = renderHook(() => useTemplateEditor());
-    act(() => result.current.loadEvents(makeEvents(), makePhases()));
-    act(() => result.current.setPhaseAtTime(0, { ja: '更新名', en: 'Updated' }));
+    act(() => result.current.updatePhaseName(1, { ja: '更新名', en: 'Updated' }));
     expect(result.current.state.currentPhases).toHaveLength(1);
     expect(result.current.state.currentPhases[0].name).toEqual({ ja: '更新名', en: 'Updated' });
+    expect(result.current.state.currentPhases[0].startTimeSec).toBe(0);
   });
 
-  it('setPhaseAtTime で空名でフェーズを削除する', () => {
+  it('updatePhaseName で存在しないIDは無視する', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));
-    act(() => result.current.setPhaseAtTime(0, { ja: '', en: '' }));
-    expect(result.current.state.currentPhases).toHaveLength(0);
-  });
-
-  it('setPhaseAtTime で null でフェーズを削除する', () => {
-    const { result } = renderHook(() => useTemplateEditor());
-    act(() => result.current.loadEvents(makeEvents(), makePhases()));
-    act(() => result.current.setPhaseAtTime(0, null));
-    expect(result.current.state.currentPhases).toHaveLength(0);
+    act(() => result.current.updatePhaseName(999, { ja: 'テスト', en: 'Test' }));
+    expect(result.current.state.currentPhases).toHaveLength(1);
+    expect(result.current.state.currentPhases[0].name).toEqual({ ja: 'フェーズ1', en: 'Phase 1' });
   });
 
   it('loadEvents で mechanicGroup からラベルが自動導出される', () => {
