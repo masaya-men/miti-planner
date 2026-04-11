@@ -143,10 +143,10 @@ export const usePlanStore = create<PlanState>()(
                                 id: `phase_${p.id}`,
                                 name: p.name
                                     ? (typeof p.name === 'string'
-                                        ? { ja: p.name, en: '' }
+                                        ? { ja: p.name, en: p.name }
                                         : {
-                                            ja: p.name.ja || `Phase ${i + 1}`,
-                                            en: p.name.en || `Phase ${i + 1}`,
+                                            ja: p.name.ja || p.name.en || `Phase ${i + 1}`,
+                                            en: p.name.en || p.name.ja || `Phase ${i + 1}`,
                                             ...(p.name.zh ? { zh: p.name.zh } : {}),
                                             ...(p.name.ko ? { ko: p.name.ko } : {}),
                                         })

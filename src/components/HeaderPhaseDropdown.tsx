@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import type { Phase } from '../types';
 import { getPhaseName } from '../types';
+import { useThemeStore } from '../store/useThemeStore';
 
 interface HeaderPhaseDropdownProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
+    const { contentLanguage } = useThemeStore();
     useEscapeClose(isOpen, onClose);
 
     // クリック外閉じ
@@ -96,7 +98,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
                             onClick={() => handlePhaseClick(index)}
                             className="w-full px-3 py-2.5 text-left text-app-2xl text-app-text hover:bg-glass-hover border-b border-glass-border last:border-b-0 cursor-pointer transition-colors"
                         >
-                            {getPhaseName(phase.name)}
+                            {getPhaseName(phase.name, contentLanguage)}
                         </button>
                     ))
                 )}

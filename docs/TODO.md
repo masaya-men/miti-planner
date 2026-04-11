@@ -48,6 +48,8 @@
 - [ ] ハウジングツアーページの言語対応
 
 ### 管理画面改善
+- [ ] 管理ダッシュボード: ログインユーザー数・総プラン数・ユーザー別プラン数を表示（Firebase Admin SDK）
+- [ ] 管理ダッシュボード: Firebase Console / Google Analytics / Vercel Dashboard へのリンク集（APIで取れないデータ用）
 - [ ] AA名統一: 英語も"AA"に変更（中韓も同様）
 
 ### その他
