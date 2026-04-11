@@ -22,7 +22,7 @@ interface TemplateEditorProps {
   onUpdateCell: (eventId: string, field: string, value: any) => void;
   onDeleteEvent: (eventId: string) => void;
   onSetLabelAtTime: (timeSec: number, labelName: LocalizedString | null) => void;
-  onSetPhaseAtTime: (timeSec: number, phaseName: LocalizedString | null) => void;
+  onUpdatePhaseName: (phaseId: number, name: LocalizedString) => void;
   selectedIds: Set<string>;
   onToggleSelect: (eventId: string) => void;
   onToggleSelectAll: () => void;
@@ -347,15 +347,14 @@ export function TemplateEditor({
   onUpdateCell,
   onDeleteEvent,
   onSetLabelAtTime,
-  onSetPhaseAtTime,
+  onUpdatePhaseName,
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
 }: TemplateEditorProps) {
   const { t } = useTranslation();
 
-  // フェーズ・ラベル編集ポップオーバーの状態
-  const [editingPhase, setEditingPhase] = useState<{ timeSec: number; phaseStartTimeSec: number; eventId: string; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
+  // ラベル編集ポップオーバーの状態
   const [editingLabel, setEditingLabel] = useState<{ timeSec: number; labelStartTimeSec: number; pos: { x: number; y: number }; nameObj: LocalizedString } | null>(null);
 
   // フィルタリング
@@ -387,6 +386,57 @@ export function TemplateEditor({
 
   return (
     <>
+    {/* フェーズ名編集（時刻は固定、名前のみ編集可能） */}
+    {phases.length > 0 && (
+      <div className="mb-4 border border-app-text/10 rounded-lg overflow-hidden">
+        <div className="px-3 py-2 bg-app-surface2 border-b border-app-text/10">
+          <span className="text-app-lg font-medium text-app-text">{t('admin.tpl_phase_names_title', 'フェーズ名')}</span>
+        </div>
+        <div className="divide-y divide-app-text/5">
+          {phases.map((phase, i) => {
+            const nameObj: LocalizedString = phase.name
+              ? (typeof phase.name === 'string' ? { ja: '', en: phase.name } : phase.name as LocalizedString)
+              : { ja: '', en: '' };
+            return (
+              <div key={phase.id} className="px-3 py-2 flex items-center gap-3">
+                <span className="text-app-base text-app-text-muted shrink-0 w-[80px]">
+                  P{i + 1} ({formatTime(phase.startTimeSec)})
+                </span>
+                <input
+                  type="text"
+                  value={nameObj.ja}
+                  onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, ja: e.target.value })}
+                  placeholder="JA"
+                  className="flex-1 min-w-0 px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                />
+                <input
+                  type="text"
+                  value={nameObj.en}
+                  onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, en: e.target.value })}
+                  placeholder="EN"
+                  className="flex-1 min-w-0 px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                />
+                <input
+                  type="text"
+                  value={nameObj.zh ?? ''}
+                  onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, zh: e.target.value || undefined })}
+                  placeholder="ZH"
+                  className="flex-1 min-w-0 px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                />
+                <input
+                  type="text"
+                  value={nameObj.ko ?? ''}
+                  onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, ko: e.target.value || undefined })}
+                  placeholder="KO"
+                  className="flex-1 min-w-0 px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
     <div className="overflow-x-auto">
       <table className="w-full text-app-lg border-collapse">
         <colgroup>
@@ -467,22 +517,9 @@ export function TemplateEditor({
                   />
                 </td>
 
-                {/* フェーズ */}
+                {/* フェーズ（表示のみ） */}
                 <td className="py-1 pr-2 text-app-text-muted text-app-base">
-                  <span
-                    onClick={(e) => {
-                      setEditingPhase({
-                        timeSec: event.time,
-                        phaseStartTimeSec: phase.startTimeSec,
-                        eventId: evId,
-                        pos: { x: e.clientX, y: e.clientY },
-                        nameObj: phase.nameObj ?? { ja: '', en: '' },
-                      });
-                    }}
-                    className="cursor-pointer hover:text-app-text transition-colors"
-                  >
-                    {phase.name}
-                  </span>
+                  {phase.name}
                 </td>
 
                 {/* ラベル（グループ先頭行: ラベル名表示・編集、非先頭行: ＋で新境界追加） */}
@@ -625,33 +662,6 @@ export function TemplateEditor({
         </tbody>
       </table>
     </div>
-
-    {/* フェーズ編集ポップオーバー（テーブル外にfixed表示） */}
-    {editingPhase && (
-      <LocalizedEditPopover
-        title={t('admin.tpl_phase_edit_title')}
-        initial={editingPhase.nameObj}
-        position={editingPhase.pos}
-        labels={{
-          ja: t('admin.tpl_phase_name_ja'),
-          en: t('admin.tpl_phase_name_en'),
-          zh: t('admin.tpl_phase_name_zh'),
-          ko: t('admin.tpl_phase_name_ko'),
-        }}
-        onApply={(value) => {
-          const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;
-          if (isEmpty) {
-            // 削除: 囲んでいるフェーズの境界を削除
-            onSetPhaseAtTime(editingPhase.phaseStartTimeSec, null);
-          } else {
-            // 既存フェーズの名前を更新（phaseStartTimeSecで正しいフェーズを特定）
-            onSetPhaseAtTime(editingPhase.phaseStartTimeSec, value);
-          }
-          setEditingPhase(null);
-        }}
-        onCancel={() => setEditingPhase(null)}
-      />
-    )}
 
     {/* ラベル編集ポップオーバー（テーブル外にfixed表示） */}
     {editingLabel && (
