@@ -76,6 +76,8 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const isJa = i18n.language.startsWith('ja');
 
+  const [stats, setStats] = useState<{ userCount: number; planCount: number } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -101,6 +103,25 @@ export function AdminDashboard() {
       setSyncing(false);
     }
   }, [syncing, isJa]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadStats() {
+      try {
+        const res = await apiFetch('/api/admin?resource=dashboard');
+        if (cancelled) return;
+        if (res.ok) {
+          setStats(await res.json());
+        }
+      } catch {
+        // 統計取得失敗は無視
+      } finally {
+        if (!cancelled) setStatsLoading(false);
+      }
+    }
+    loadStats();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +155,39 @@ export function AdminDashboard() {
   return (
     <div className="space-y-10">
       <h1 className="text-app-3xl font-bold">{t('admin.dashboard')}</h1>
+
+      {/* 統計 */}
+      <section>
+        <h2 className="text-app-2xl font-semibold mb-4 text-[var(--app-text-muted)] uppercase tracking-wide">
+          統計
+        </h2>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="border border-[var(--app-text)]/20 p-6">
+            <div className="text-app-lg text-[var(--app-text-muted)]">ユーザー数</div>
+            <div className="text-app-5xl font-bold mt-1">
+              {statsLoading ? '—' : stats?.userCount ?? '—'}
+            </div>
+          </div>
+          <div className="border border-[var(--app-text)]/20 p-6">
+            <div className="text-app-lg text-[var(--app-text-muted)]">プラン数</div>
+            <div className="text-app-5xl font-bold mt-1">
+              {statsLoading ? '—' : stats?.planCount ?? '—'}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 外部リンク */}
+      <section>
+        <h2 className="text-app-2xl font-semibold mb-4 text-[var(--app-text-muted)] uppercase tracking-wide">
+          外部ツール
+        </h2>
+        <div className="flex gap-4 text-app-lg">
+          <a href="https://console.firebase.google.com/project/lopo-7793e" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-60 transition-opacity">Firebase Console</a>
+          <a href="https://analytics.google.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-60 transition-opacity">Google Analytics</a>
+          <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-60 transition-opacity">Vercel Dashboard</a>
+        </div>
+      </section>
 
       {/* セクション 1: アクションカード */}
       <section>
