@@ -471,13 +471,12 @@ export function TemplateEditor({
                 <td className="py-1 pr-2 text-app-text-muted text-app-base">
                   <span
                     onClick={(e) => {
-                      const isAtBoundary = phases.some(p => p.startTimeSec === event.time);
                       setEditingPhase({
                         timeSec: event.time,
                         phaseStartTimeSec: phase.startTimeSec,
                         eventId: evId,
                         pos: { x: e.clientX, y: e.clientY },
-                        nameObj: isAtBoundary ? (phase.nameObj ?? { ja: '', en: '' }) : { ja: '', en: '' },
+                        nameObj: phase.nameObj ?? { ja: '', en: '' },
                       });
                     }}
                     className="cursor-pointer hover:text-app-text transition-colors"
@@ -645,8 +644,8 @@ export function TemplateEditor({
             // 削除: 囲んでいるフェーズの境界を削除
             onSetPhaseAtTime(editingPhase.phaseStartTimeSec, null);
           } else {
-            // 追加/更新: クリックした行の時刻に境界を設定
-            onSetPhaseAtTime(editingPhase.timeSec, value);
+            // 既存フェーズの名前を更新（phaseStartTimeSecで正しいフェーズを特定）
+            onSetPhaseAtTime(editingPhase.phaseStartTimeSec, value);
           }
           setEditingPhase(null);
         }}
