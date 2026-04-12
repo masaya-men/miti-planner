@@ -2679,7 +2679,8 @@ const Timeline: React.FC = () => {
                 onSave={handlePhaseSave}
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
                 onStartTimelineSelect={selectedPhase ? () => {
-                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: selectedPhase.endTime ?? 0 });
+                    const phase = phases.find(p => p.id === selectedPhase.id);
+                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: phase?.startTime ?? 0 });
                     setIsPhaseModalOpen(false);
                 } : undefined}
                 mode="phase"
@@ -2693,7 +2694,8 @@ const Timeline: React.FC = () => {
                 onSave={handleLabelSave}
                 onDelete={selectedLabel ? handleLabelDelete : undefined}
                 onStartTimelineSelect={selectedLabel ? () => {
-                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: selectedLabel.endTime ?? 0 });
+                    const label = labels.find(l => l.id === selectedLabel.id);
+                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: label?.startTime ?? 0 });
                     setIsLabelModalOpen(false);
                 } : undefined}
                 mode="label"
