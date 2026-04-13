@@ -81,10 +81,11 @@ interface ContentTreeItemProps {
     highlightFirst?: boolean;
     lang: ContentLanguage;
     onContextMenu?: (e: React.MouseEvent, planId: string, planTitle: string, contentId: string | null) => void;
+    onShiftSelect?: (planId: string) => void;
 }
 
 const ContentTreeItem = React.memo<ContentTreeItemProps>(({
-    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang, onContextMenu
+    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang, onContextMenu, onShiftSelect
 }) => {
     const { t } = useTranslation();
     const { plans, currentPlanId, updatePlan } = usePlanStore(
@@ -307,7 +308,12 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 : "text-app-text hover:bg-glass-hover",
                                             "relative"
                                         )}
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                            // Shift+クリック → 複数選択モードに入りつつ選択
+                                            if (e.shiftKey) {
+                                                onShiftSelect?.(plan.id);
+                                                return;
+                                            }
                                             if (currentPlanId === plan.id) return;
                                             runTransition(() => {
                                                 const store = usePlanStore.getState();
@@ -1280,6 +1286,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                                     onSelect={handleSelectContent}
                                                     highlightFirst={isTutorialContentSelect && idx === 0 && sid === seriesIds[0]}
                                                     lang={lang}
+                                                    onContextMenu={(e, planId, planTitle, contentId) => {
+                                                        setContextMenu({ x: e.clientX, y: e.clientY, planId, planTitle, contentId });
+                                                    }}
+                                                    onShiftSelect={(planId) => {
+                                                        setMultiSelect(prev => ({
+                                                            isEnabled: true,
+                                                            selectedIds: prev.selectedIds.includes(planId)
+                                                                ? prev.selectedIds.filter(id => id !== planId)
+                                                                : [...prev.selectedIds, planId],
+                                                            mode: prev.mode || 'share',
+                                                        }));
+                                                    }}
                                                 />
                                             ))}
                                         </div>
@@ -1301,6 +1319,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     onToggleSelect={toggleItemId}
                                     onSelect={handleSelectContent}
                                     lang={lang}
+                                    onContextMenu={(e, planId, planTitle, contentId) => {
+                                        setContextMenu({ x: e.clientX, y: e.clientY, planId, planTitle, contentId });
+                                    }}
+                                    onShiftSelect={(planId) => {
+                                        setMultiSelect(prev => ({
+                                            isEnabled: true,
+                                            selectedIds: prev.selectedIds.includes(planId)
+                                                ? prev.selectedIds.filter(id => id !== planId)
+                                                : [...prev.selectedIds, planId],
+                                            mode: prev.mode || 'share',
+                                        }));
+                                    }}
                                 />
                             ))}
                         </div>
@@ -1318,6 +1348,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     onToggleSelect={toggleItemId}
                                     onSelect={handleSelectContent}
                                     lang={lang}
+                                    onContextMenu={(e, planId, planTitle, contentId) => {
+                                        setContextMenu({ x: e.clientX, y: e.clientY, planId, planTitle, contentId });
+                                    }}
+                                    onShiftSelect={(planId) => {
+                                        setMultiSelect(prev => ({
+                                            isEnabled: true,
+                                            selectedIds: prev.selectedIds.includes(planId)
+                                                ? prev.selectedIds.filter(id => id !== planId)
+                                                : [...prev.selectedIds, planId],
+                                            mode: prev.mode || 'share',
+                                        }));
+                                    }}
                                 />
                             ))}
                             {(['dungeon', 'raid', 'custom'] as const).map(cat => {
