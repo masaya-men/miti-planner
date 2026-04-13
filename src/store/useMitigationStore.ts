@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
 import { migratePhases } from '../utils/phaseMigration';
-import { migrateLabels, isLegacyLabelFormat } from '../utils/labelMigration';
+import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes } from '../utils/labelMigration';
 
 import { calculateMemberValues } from '../utils/calculator';
 import {
@@ -239,7 +239,7 @@ export const useMitigationStore = create<MitigationState>()(
                     const migratedPhases = migratePhases(snapshot.phases ?? []);
                     const labels: Label[] = isLegacyLabelFormat(snapshot as any)
                         ? migrateLabels(snapshot.timelineEvents, migratedPhases)
-                        : ((snapshot as any).labels ?? []);
+                        : ensureLabelEndTimes((snapshot as any).labels ?? []);
 
                     set({
                         currentLevel: snapshot.currentLevel,
@@ -443,15 +443,17 @@ export const useMitigationStore = create<MitigationState>()(
                     if (exists) return;
                     pushHistory();
                     set((state) => {
+                        const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
+                        const nextPhase = sorted.find(p => p.startTime > startTime);
                         const newPhase: Phase = {
                             id: crypto.randomUUID(),
                             name,
-                            startTime
+                            startTime,
+                            endTime: nextPhase ? nextPhase.startTime : startTime + 1,
                         };
-                        // 新フェーズの開始時刻より後にendTimeを持つフェーズをクリップ
                         const clippedPhases = state.phases.map(p => {
-                            if (p.endTime && p.endTime > startTime && p.startTime < startTime) {
-                                return { ...p, endTime: undefined };
+                            if (p.endTime > startTime && p.startTime < startTime) {
+                                return { ...p, endTime: startTime };
                             }
                             return p;
                         });
@@ -494,18 +496,15 @@ export const useMitigationStore = create<MitigationState>()(
                         const phase = state.phases.find(p => p.id === id);
                         if (!phase) return {};
                         let final = Math.max(newStartTime, 0);
-                        if (phase.endTime !== undefined) {
-                            final = Math.min(final, phase.endTime - 1);
-                        }
+                        final = Math.min(final, phase.endTime - 1);
                         const oldStartTime = phase.startTime;
-                        // 開始時間を後ろにずらした場合、前のフェーズにendTimeを設定して空白を作る
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(p => p.id === id);
                         const prevPhase = idx > 0 ? sorted[idx - 1] : null;
                         return {
                             phases: state.phases.map(p => {
                                 if (p.id === id) return { ...p, startTime: final };
-                                if (prevPhase && p.id === prevPhase.id && p.endTime === undefined && final > oldStartTime) {
+                                if (prevPhase && p.id === prevPhase.id && final > oldStartTime) {
                                     return { ...p, endTime: oldStartTime };
                                 }
                                 return p;
@@ -519,11 +518,17 @@ export const useMitigationStore = create<MitigationState>()(
                     if (exists) return;
                     pushHistory();
                     set((state) => {
-                        const newLabel: Label = { id: crypto.randomUUID(), name, startTime };
-                        // 新ラベルの開始時刻より後にendTimeを持つラベルをクリップ
+                        const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
+                        const nextLabel = sorted.find(l => l.startTime > startTime);
+                        const newLabel: Label = {
+                            id: crypto.randomUUID(),
+                            name,
+                            startTime,
+                            endTime: nextLabel ? nextLabel.startTime : startTime + 1,
+                        };
                         const clippedLabels = state.labels.map(l => {
-                            if (l.endTime && l.endTime > startTime && l.startTime < startTime) {
-                                return { ...l, endTime: undefined };
+                            if (l.endTime > startTime && l.startTime < startTime) {
+                                return { ...l, endTime: startTime };
                             }
                             return l;
                         });
@@ -558,9 +563,7 @@ export const useMitigationStore = create<MitigationState>()(
                         const label = state.labels.find(l => l.id === id);
                         if (!label) return {};
                         let final = Math.max(newStartTime, 0);
-                        if (label.endTime !== undefined) {
-                            final = Math.min(final, label.endTime - 1);
-                        }
+                        final = Math.min(final, label.endTime - 1);
                         const oldStartTime = label.startTime;
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(l => l.id === id);
@@ -568,7 +571,7 @@ export const useMitigationStore = create<MitigationState>()(
                         return {
                             labels: state.labels.map(l => {
                                 if (l.id === id) return { ...l, startTime: final };
-                                if (prevLabel && l.id === prevLabel.id && l.endTime === undefined && final > oldStartTime) {
+                                if (prevLabel && l.id === prevLabel.id && final > oldStartTime) {
                                     return { ...l, endTime: oldStartTime };
                                 }
                                 return l;
