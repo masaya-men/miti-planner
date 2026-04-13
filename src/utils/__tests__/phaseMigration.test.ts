@@ -25,8 +25,8 @@ describe('migratePhases', () => {
         ];
         const result = migratePhases(legacy);
         expect(result).toHaveLength(2);
-        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Phase 1', en: '' }, startTime: 0 });
-        expect(result[1]).toEqual({ id: 'p2', name: { ja: 'Phase 2', en: '' }, startTime: 60 });
+        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Phase 1', en: '' }, startTime: 0, endTime: 60 });
+        expect(result[1]).toEqual({ id: 'p2', name: { ja: 'Phase 2', en: '' }, startTime: 60, endTime: 61 });
     });
 
     it('LocalizedString名のフェーズも正しく変換する', () => {
@@ -35,15 +35,15 @@ describe('migratePhases', () => {
             { id: 'p2', name: { ja: 'フェーズ2', en: 'Phase 2' }, endTime: 90 },
         ];
         const result = migratePhases(legacy);
-        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'フェーズ1', en: 'Phase 1' }, startTime: 0 });
-        expect(result[1]).toEqual({ id: 'p2', name: { ja: 'フェーズ2', en: 'Phase 2' }, startTime: 30 });
+        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'フェーズ1', en: 'Phase 1' }, startTime: 0, endTime: 30 });
+        expect(result[1]).toEqual({ id: 'p2', name: { ja: 'フェーズ2', en: 'Phase 2' }, startTime: 30, endTime: 31 });
     });
 
     it('フェーズが1つの場合、startTime=0に変換する', () => {
         const legacy = [{ id: 'p1', name: 'Only Phase', endTime: 300 }];
         const result = migratePhases(legacy);
         expect(result).toHaveLength(1);
-        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Only Phase', en: '' }, startTime: 0 });
+        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Only Phase', en: '' }, startTime: 0, endTime: 1 });
     });
 
     it('[object Object]混入データをクリーニングする', () => {
@@ -58,10 +58,47 @@ describe('migratePhases', () => {
             { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
         ];
         const result = migratePhases(newFormat);
-        expect(result).toEqual(newFormat);
+        expect(result).toEqual([
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 60 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60, endTime: 61 },
+        ]);
     });
 
     it('空配列は空配列を返す', () => {
         expect(migratePhases([])).toEqual([]);
+    });
+
+    it('endTimeがない新形式フェーズにendTimeを補完する', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
+            { id: 'p3', name: { ja: 'P3', en: 'P3' }, startTime: 120 },
+        ];
+        const result = migratePhases(newFormat);
+        expect(result[0].endTime).toBe(60);
+        expect(result[1].endTime).toBe(120);
+        expect(result[2].endTime).toBe(121);
+    });
+
+    it('既にendTimeがあるフェーズはそのまま維持する', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 50 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60, endTime: 100 },
+        ];
+        const result = migratePhases(newFormat);
+        expect(result[0].endTime).toBe(50);
+        expect(result[1].endTime).toBe(100);
+    });
+
+    it('旧形式変換後もendTimeが補完される', () => {
+        const legacy = [
+            { id: 'p1', name: 'Phase 1', endTime: 60 },
+            { id: 'p2', name: 'Phase 2', endTime: 120 },
+        ];
+        const result = migratePhases(legacy);
+        expect(result[0].startTime).toBe(0);
+        expect(result[0].endTime).toBe(60);
+        expect(result[1].startTime).toBe(60);
+        expect(result[1].endTime).toBe(61);
     });
 });
