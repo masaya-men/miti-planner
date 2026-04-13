@@ -53,6 +53,7 @@ import clsx from 'clsx';
 import { showToast } from './Toast';
 import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
+import { ContextMenu } from './ui/ContextMenu';
 
 // ─────────────────────────────────────────────
 // Props
@@ -79,10 +80,11 @@ interface ContentTreeItemProps {
     onSelect: (content: ContentDefinition, forceNew?: boolean) => void;
     highlightFirst?: boolean;
     lang: ContentLanguage;
+    onContextMenu?: (e: React.MouseEvent, planId: string, planTitle: string, contentId: string | null) => void;
 }
 
 const ContentTreeItem = React.memo<ContentTreeItemProps>(({
-    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang
+    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang, onContextMenu
 }) => {
     const { t } = useTranslation();
     const { plans, currentPlanId, updatePlan } = usePlanStore(
@@ -322,6 +324,12 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 e.preventDefault();
                                                 e.currentTarget.click();
                                             }
+                                        }}
+                                        onContextMenu={(e) => {
+                                            // 複数選択モード中はコンテキストメニューを表示しない
+                                            if (multiSelect.isEnabled) return;
+                                            e.preventDefault();
+                                            onContextMenu?.(e, plan.id, plan.title, plan.contentId);
                                         }}
                                     >
                                         {currentPlanId === plan.id && (
@@ -773,6 +781,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     const [backupExportOpen, setBackupExportOpen] = useState(false);
     const [backupRestoreOpen, setBackupRestoreOpen] = useState(false);
+    // 右クリックコンテキストメニュー用ステート
+    const [contextMenu, setContextMenu] = useState<{
+        x: number; y: number; planId: string; planTitle: string; contentId: string | null;
+    } | null>(null);
     // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
     React.useEffect(() => {
         const handleClose = () => setIsNewPlanModalOpen(false);
