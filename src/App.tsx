@@ -48,9 +48,11 @@ function App() {
   const { i18n } = useTranslation();
   useMasterDataInit();
 
-  // 起動時: archivedなのにdataが展開されているプランを再圧縮
+  // 起動時: archivedなのにdataが展開されているプランを再圧縮 + 未使用プランのサイレント圧縮
   useEffect(() => {
-    usePlanStore.getState().recompressStaleArchives();
+    const store = usePlanStore.getState();
+    store.recompressStaleArchives();
+    store.silentCompressStale();
   }, []);
 
   // Sync theme class on <html> so Tailwind dark: variants work

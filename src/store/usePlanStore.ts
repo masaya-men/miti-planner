@@ -61,6 +61,8 @@ interface PlanState {
     decompressArchivedPlan: (id: string) => Promise<PlanData | null>;
     /** archived && data が展開されているプランを検知して再圧縮 */
     recompressStaleArchives: () => Promise<void>;
+    /** 7日以上開かれていない非アーカイブプランをサイレント圧縮（archivedフラグは変更しない） */
+    silentCompressStale: () => Promise<void>;
 }
 
 export const usePlanStore = create<PlanState>()(
@@ -306,7 +308,7 @@ export const usePlanStore = create<PlanState>()(
                         try {
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
-                            console.error('Firestore削除エラー:', planId, err);
+                            console.error('Firestore削除エラー:', err);
                         }
                     }
 
@@ -381,7 +383,7 @@ export const usePlanStore = create<PlanState>()(
                         try {
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
-                            console.error('Firestore強制削除エラー:', planId, err);
+                            console.error('Firestore強制削除エラー:', err);
                         }
                     }
                     // dirtyプランのみ同期（盲目的に全プランをpushしない）
@@ -458,7 +460,7 @@ export const usePlanStore = create<PlanState>()(
                         return { _deletedPlanIds: newDeleted };
                     });
                 } catch (err) {
-                    console.error('Firestore削除エラー:', planId, err);
+                    console.error('Firestore削除エラー:', err);
                     // 失敗しても _deletedPlanIds に残っているので次回の同期で再試行
                 }
             },
@@ -478,7 +480,7 @@ export const usePlanStore = create<PlanState>()(
                             try {
                                 await planService.deletePlan(planId, uid, null);
                             } catch (err) {
-                                console.error('手動同期: 削除エラー:', planId, err);
+                                console.error('手動同期: 削除エラー:', err);
                             }
                         }
                         const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
@@ -589,6 +591,40 @@ export const usePlanStore = create<PlanState>()(
                 );
                 for (const plan of stale) {
                     await get().archivePlan(plan.id);
+                }
+            },
+
+            /**
+             * 7日以上開かれていない非アーカイブプランをサイレント圧縮
+             * archived フラグは変更しない（タブ移動しない）
+             */
+            silentCompressStale: async () => {
+                const { getStalePlanIds } = await import('../utils/lastOpenedStore');
+                const plans = get().plans;
+                const candidates = plans.filter(p =>
+                    !p.archived &&
+                    p.data && Object.keys(p.data).length > 0
+                );
+                if (candidates.length === 0) return;
+
+                const staleIds = getStalePlanIds(
+                    candidates.map(p => p.id),
+                    PLAN_LIMITS.SILENT_COMPRESS_AFTER_DAYS
+                );
+                if (staleIds.length === 0) return;
+
+                for (const id of staleIds) {
+                    const plan = get().plans.find(p => p.id === id);
+                    if (!plan || !plan.data) continue;
+                    const compressed = await compressPlanData(plan.data);
+                    set((state) => ({
+                        plans: state.plans.map(p =>
+                            p.id === id
+                                ? { ...p, compressedData: compressed, data: undefined as unknown as PlanData }
+                                : p
+                        ),
+                        _dirtyPlanIds: new Set([...state._dirtyPlanIds, id]),
+                    }));
                 }
             },
         }),
