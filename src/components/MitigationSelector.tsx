@@ -136,7 +136,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             return activeMitigations.some(am => {
                 const isNeutSect = am.mitigationId === 'neutral_sect';
                 const isHoroscope = am.mitigationId === 'horoscope';
-                const isActive = selectedTime >= am.time && selectedTime < am.time + am.duration;
+                // requiresWindow がある場合はそちらを使用（例: 金剛周天は30秒窓）
+                const window = m.requiresWindow ?? am.duration;
+                const isActive = selectedTime >= am.time && selectedTime < am.time + window;
                 if (!isActive) return false;
 
                 // Special handling for Astrologian conditional skills
