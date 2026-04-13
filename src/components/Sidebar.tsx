@@ -7,8 +7,6 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import {
     CATEGORY_LABELS,
-    getContentBySeries,
-    getSeriesByLevel,
     getProjectLabel,
     getContentById,
     getSavageForCurrentExpansion,
@@ -18,7 +16,7 @@ import {
     getCurrentExpansionLevel,
 } from '../data/contentRegistry';
 import { ArchivePromptModal } from './ArchivePromptModal';
-import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import type { ContentLevel, ContentDefinition } from '../types';
 import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
 import type { ContentLanguage } from '../store/useThemeStore';
@@ -440,209 +438,6 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     );
 });
 ContentTreeItem.displayName = 'ContentTreeItem';
-
-// ─────────────────────────────────────────────
-// Sub-component: SeriesAccordion
-// ─────────────────────────────────────────────
-
-interface SeriesAccordionProps {
-    series: any;
-    floors: ContentDefinition[];
-    selectedContentId: string | null;
-    multiSelect: MultiSelectState;
-    onToggleSelect: (id: string) => void;
-    onToggleSeriesSelect?: (floorIds: string[]) => void;
-    onSelectContent: (content: ContentDefinition, forceNew?: boolean) => void;
-    lang: ContentLanguage;
-    highlightFirst?: boolean;
-    showLabel: boolean;
-    defaultExpanded?: boolean;
-}
-
-const SeriesAccordion: React.FC<SeriesAccordionProps> = ({
-    series, floors, selectedContentId, multiSelect, onToggleSelect, onToggleSeriesSelect, onSelectContent, lang, highlightFirst, showLabel, defaultExpanded = true
-}) => {
-    const hasActiveFloor = React.useMemo(() => floors.some(f => f.id === selectedContentId), [floors, selectedContentId]);
-    const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
-    const plans = usePlanStore(s => s.plans);
-
-    React.useEffect(() => {
-        if (hasActiveFloor) {
-            setIsExpanded(true);
-        }
-    }, [hasActiveFloor]);
-
-    const seriesName = series.name[lang as ContentLanguage] || series.name.ja;
-
-    // シリーズ一括選択: 共有=各層の1番目、削除=全プラン
-    const seriesPlanIds = React.useMemo(() => {
-        if (multiSelect.mode === 'delete') {
-            // 削除モード: シリーズ内の全プランを対象
-            return floors.flatMap(floor => plans.filter(p => p.contentId === floor.id).map(p => p.id));
-        }
-        // 共有モード: 各層の1番目のプランのみ
-        return floors
-            .map(floor => {
-                const floorPlans = plans.filter(p => p.contentId === floor.id);
-                return floorPlans.length > 0 ? floorPlans[0].id : null;
-            })
-            .filter((id): id is string => id !== null);
-    }, [floors, plans, multiSelect.mode]);
-
-    // シリーズ内の選択状態: 全選択/一部/なし
-    const selectedCount = React.useMemo(() =>
-        seriesPlanIds.filter(id => multiSelect.selectedIds.includes(id)).length
-        , [seriesPlanIds, multiSelect.selectedIds]);
-    const isAllSelected = seriesPlanIds.length > 0 && selectedCount === seriesPlanIds.length;
-    const isSomeSelected = selectedCount > 0 && !isAllSelected;
-
-    const handleSeriesCheckbox = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (onToggleSeriesSelect && seriesPlanIds.length > 0) {
-            onToggleSeriesSelect(seriesPlanIds);
-            // チェック時に展開する
-            if (!isAllSelected) {
-                setIsExpanded(true);
-            }
-        }
-    };
-
-    if (!showLabel) {
-        return (
-            <div className="space-y-0.5">
-                {floors.map((floor, idx) => (
-                    <ContentTreeItem
-                        key={floor.id}
-                        content={floor}
-                        isActive={floor.id === selectedContentId}
-                        multiSelect={multiSelect}
-                        onToggleSelect={onToggleSelect}
-                        onSelect={onSelectContent}
-                        lang={lang}
-                        highlightFirst={highlightFirst && idx === 0}
-                    />
-                ))}
-            </div>
-        );
-    }
-
-    return (
-        <div className="mb-1">
-            <button
-                onClick={multiSelect.isEnabled && seriesPlanIds.length > 0 ? handleSeriesCheckbox : () => setIsExpanded(!isExpanded)}
-                className="sidebar-item w-full text-app-lg text-app-text font-bold px-2 py-1.5 truncate flex items-center gap-1.5 group/series hover:bg-glass-hover rounded-md transition-colors cursor-pointer active:scale-[0.98]"
-            >
-                {multiSelect.isEnabled && seriesPlanIds.length > 0 ? (
-                    <div className={clsx(
-                        "shrink-0 transition-colors",
-                        isAllSelected || isSomeSelected ? "text-app-text" : "text-app-text-muted/40 group-hover/series:text-app-text-muted"
-                    )}>
-                        {isAllSelected ? (
-                            <CheckSquare size={14} />
-                        ) : isSomeSelected ? (
-                            <CheckSquare size={14} className="opacity-50" />
-                        ) : (
-                            <Square size={14} />
-                        )}
-                    </div>
-                ) : (
-                    <div className="transition-transform duration-200 shrink-0" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                        <ChevronRight size={10} className="text-app-text-muted" />
-                    </div>
-                )}
-                <span className={clsx("flex-1 text-left truncate", "text-app-text")}>
-                    {seriesName}
-                </span>
-            </button>
-            {isExpanded && (
-                <div className="space-y-0.5 mt-0.5 animate-in fade-in slide-in-from-left-1 duration-200">
-                    {floors.map((floor, idx) => (
-                        <ContentTreeItem
-                            key={floor.id}
-                            content={floor}
-                            isActive={floor.id === selectedContentId}
-                            multiSelect={multiSelect}
-                            onToggleSelect={onToggleSelect}
-                            onSelect={onSelectContent}
-                            lang={lang}
-                            highlightFirst={highlightFirst && idx === 0}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
-
-// ─────────────────────────────────────────────
-// Sub-component: CategoryAccordion
-// ─────────────────────────────────────────────
-
-interface CategoryAccordionProps {
-    level: ContentLevel;
-    category: ContentCategory;
-    selectedContentId: string | null;
-    multiSelect: MultiSelectState;
-    onToggleSelect: (id: string) => void;
-    onToggleSeriesSelect?: (floorIds: string[]) => void;
-    onSelectContent: (content: ContentDefinition, forceNew?: boolean) => void;
-    highlightFirst?: boolean;
-    lang: ContentLanguage;
-    defaultExpanded?: boolean;
-}
-
-
-const CategoryAccordion: React.FC<CategoryAccordionProps> = ({
-    level, category, selectedContentId, multiSelect, onToggleSelect, onToggleSeriesSelect, onSelectContent, highlightFirst, lang, defaultExpanded = false
-}) => {
-    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-    const projectLabel = getProjectLabel(level, category);
-    const categoryLabel = projectLabel
-        ? `${CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja}：${projectLabel[lang as ContentLanguage] || projectLabel.ja}`
-        : CATEGORY_LABELS[category][lang as ContentLanguage] || CATEGORY_LABELS[category].ja;
-    const seriesList = getSeriesByLevel(level).filter(s => s.category === category);
-    if (seriesList.length === 0) return null;
-
-    return (
-        <div className="mb-2">
-            <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={clsx(
-                    "sidebar-item w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left cursor-pointer transition-colors duration-200 active:scale-[0.98]",
-                    "text-app-text hover:bg-glass-hover",
-                    "font-bold text-app-lg tracking-widest uppercase"
-                )}
-                data-tutorial="sidebar-category"
-            >
-                <div className="transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
-                    <ChevronRight size={12} />
-                </div>
-                <span>{categoryLabel}</span>
-            </button>
-
-            {isExpanded && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l border-glass-border pl-2 animate-in fade-in slide-in-from-left-1 duration-200">
-                    {seriesList.map((series, idx) => (
-                        <SeriesAccordion
-                            key={series.id}
-                            series={series}
-                            floors={getContentBySeries(series.id)}
-                            selectedContentId={selectedContentId}
-                            multiSelect={multiSelect}
-                            onToggleSelect={onToggleSelect}
-                            onToggleSeriesSelect={onToggleSeriesSelect}
-                            onSelectContent={onSelectContent}
-                            lang={lang}
-                            highlightFirst={highlightFirst}
-                            showLabel={seriesList.length > 1 || category === 'ultimate'}
-                            defaultExpanded={category === 'ultimate' || idx === 0}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
 
 // ─────────────────────────────────────────────
 // Sub-component: FreePlanSection
@@ -1133,27 +928,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 return { ...prev, selectedIds: [...prev.selectedIds, id] };
             }
             return prev;
-        });
-    };
-
-    // シリーズ一括選択: 全選択済みなら全解除、それ以外なら未選択分を追加
-    const toggleSeriesSelect = (planIds: string[]) => {
-        setMultiSelect(prev => {
-            const allSelected = planIds.every(id => prev.selectedIds.includes(id));
-            if (allSelected) {
-                // 全解除
-                return { ...prev, selectedIds: prev.selectedIds.filter(id => !planIds.includes(id)) };
-            } else {
-                // 未選択分を追加（共有モード時は10件制限を考慮）
-                const toAdd = planIds.filter(id => !prev.selectedIds.includes(id));
-                const newIds = [...prev.selectedIds];
-                for (const id of toAdd) {
-                    if (prev.mode === 'delete' || newIds.length < 10) {
-                        newIds.push(id);
-                    }
-                }
-                return { ...prev, selectedIds: newIds };
-            }
         });
     };
 
@@ -1824,6 +1598,79 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 document.body
             )}
         </motion.aside>
+            {/* 右クリックコンテキストメニュー */}
+            {contextMenu && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    onClose={() => setContextMenu(null)}
+                    items={[
+                        {
+                            label: t('sidebar.context_share'),
+                            icon: <Share2 size={12} />,
+                            onClick: () => {
+                                const plan = plans.find(p => p.id === contextMenu.planId);
+                                if (plan) {
+                                    setBundlePlansForModal([{
+                                        contentId: plan.contentId,
+                                        title: plan.title,
+                                        planData: plan.data,
+                                    }]);
+                                    setBundleModalOpen(true);
+                                }
+                            },
+                        },
+                        {
+                            label: t('sidebar.context_duplicate'),
+                            icon: <Copy size={12} />,
+                            onClick: () => {
+                                const newPlan = usePlanStore.getState().duplicatePlan(contextMenu.planId);
+                                if (!newPlan) showToast(t('sidebar.duplicate_limit_reached'), 'error');
+                            },
+                        },
+                        {
+                            label: t('sidebar.context_rename'),
+                            icon: <Pencil size={12} />,
+                            onClick: () => {
+                                window.dispatchEvent(new CustomEvent('sidebar:start-rename', {
+                                    detail: { planId: contextMenu.planId },
+                                }));
+                            },
+                        },
+                        { divider: true, label: '', onClick: () => {} },
+                        {
+                            label: t('sidebar.context_delete'),
+                            icon: <Trash2 size={12} />,
+                            danger: true,
+                            onClick: () => {
+                                const ps = usePlanStore.getState();
+                                const authUser = useAuthStore.getState().user;
+                                if (authUser) {
+                                    ps.deleteFromFirestore(contextMenu.planId, authUser.uid, contextMenu.contentId);
+                                } else {
+                                    ps.deletePlan(contextMenu.planId);
+                                }
+                            },
+                        },
+                    ]}
+                />
+            )}
+            {/* 自動アーカイブ確認ダイアログ */}
+            <ArchivePromptModal
+                isOpen={archivePrompt !== null}
+                planCount={archivePrompt?.planIds.length ?? 0}
+                onArchive={async () => {
+                    if (archivePrompt) {
+                        await usePlanStore.getState().archivePlans(archivePrompt.planIds);
+                    }
+                    setArchivePrompt(null);
+                }}
+                onDismiss={() => {
+                    const currentLevel = getCurrentExpansionLevel();
+                    localStorage.setItem(`archive-dismissed-${currentLevel}`, 'true');
+                    setArchivePrompt(null);
+                }}
+            />
             <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
             <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
     </>);
