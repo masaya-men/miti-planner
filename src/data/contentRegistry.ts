@@ -238,3 +238,35 @@ export function getLevelLabel(level: ContentLevel): LocalizedString {
     const store = useMasterDataStore.getState();
     return store.config?.levelLabels?.[level] ?? STATIC_LEVEL_LABELS[level];
 }
+
+// ==========================================
+// サイドバータブ用フィルタ関数
+// ==========================================
+
+/** 現在の最新拡張のレベルを返す */
+export function getCurrentExpansionLevel(): ContentLevel {
+    const all = getContentDefinitions();
+    const levels = all.map(c => c.level);
+    return Math.max(...levels) as ContentLevel;
+}
+
+/** 現在の拡張パッケージの零式コンテンツ一覧（全ティア） */
+export function getSavageForCurrentExpansion(): ContentDefinition[] {
+    const currentLevel = getCurrentExpansionLevel();
+    return getContentDefinitions()
+        .filter(c => c.category === 'savage' && c.level === currentLevel)
+        .sort((a, b) => a.order - b.order);
+}
+
+/** 全絶コンテンツ一覧（レベル不問、レベル昇順→order昇順） */
+export function getAllUltimates(): ContentDefinition[] {
+    return getContentDefinitions()
+        .filter(c => c.category === 'ultimate')
+        .sort((a, b) => a.level - b.level || a.order - b.order);
+}
+
+/** dungeon/raid/custom コンテンツ一覧 */
+export function getOtherContents(): ContentDefinition[] {
+    return getContentDefinitions()
+        .filter(c => c.category === 'dungeon' || c.category === 'raid' || c.category === 'custom');
+}
