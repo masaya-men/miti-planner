@@ -57,7 +57,6 @@ interface TimelineRowProps {
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
     labelSelectMode?: { labelId: string; startTime: number } | null;
-    previewEndTime?: number | null;
     onTimelineSelect?: (time: number) => void;
     onTimelineSelectHover?: (time: number) => void;
 }
@@ -128,7 +127,6 @@ export const TimelineRow = memo(({
     hasPhases = true,
     timelineSelectMode,
     labelSelectMode,
-    previewEndTime,
     onTimelineSelect,
     onTimelineSelectHover,
 }: TimelineRowProps) => {
@@ -162,20 +160,6 @@ export const TimelineRow = memo(({
         time < 0 ? `-${displayTimeStr}` :
             displayTimeStr;
 
-    const isHighlighted = (() => {
-        if (!timelineSelectMode || previewEndTime == null) return false;
-        const a = timelineSelectMode.startTime;
-        const b = previewEndTime;
-        return time >= Math.min(a, b) && time <= Math.max(a, b);
-    })();
-
-    const isLabelHighlighted = (() => {
-        if (!labelSelectMode || previewEndTime == null) return false;
-        const a = labelSelectMode.startTime;
-        const b = previewEndTime;
-        return time >= Math.min(a, b) && time <= Math.max(a, b);
-    })();
-
     return (
         <div
             data-time-row={time}
@@ -201,12 +185,12 @@ export const TimelineRow = memo(({
             {/* Phase Column — スマホ: フェーズなし→非表示 / PC: フェーズ追加 */}
             {!phaseColumnCollapsed ? (
                 <div
+                    data-phase-col
                     className={clsx(
                         "md:w-[60px] border-r h-full relative items-center justify-center group-hover:text-app-text",
                         "border-app-border",
                         "md:cursor-pointer md:hover:bg-app-surface2",
                         hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex",
-                        isHighlighted && "bg-app-blue/10"
                     )}
                     onClick={(e) => {
                         if (timelineSelectMode) {
@@ -240,10 +224,10 @@ export const TimelineRow = memo(({
             {/* Label Column — スマホ: フェーズなし→フェーズ位置に表示 / PC: 常に表示 */}
             {!phaseColumnCollapsed && (
                 <div
+                    data-label-col
                     className={clsx(
                         "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
                         hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]",
-                        isLabelHighlighted && "bg-app-blue/10"
                     )}
                     onClick={(e) => {
                         if (labelSelectMode) {

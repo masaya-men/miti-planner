@@ -31,7 +31,6 @@ interface MobileTimelineRowProps {
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
     labelSelectMode?: { labelId: string; startTime: number } | null;
-    previewEndTime?: number | null;
     onTimelineSelect?: (time: number) => void;
     onTimelineSelectHover?: (time: number) => void;
     /** 表示するイベントのインデックス（複数イベント時に1つだけ表示） */
@@ -116,7 +115,6 @@ export const MobileTimelineRow = memo(({
     phaseColumnCollapsed: _phaseColumnCollapsed,
     timelineSelectMode,
     labelSelectMode,
-    previewEndTime,
     onTimelineSelect,
     onTimelineSelectHover,
     eventIndex,
@@ -150,21 +148,6 @@ export const MobileTimelineRow = memo(({
             maxHp = partyMembers.find(m => m.id === event.target)?.stats.hp || 1;
         }
         return damage.mitigated >= maxHp;
-    })();
-
-    // TL選択ハイライト
-    const isHighlighted = (() => {
-        if (!timelineSelectMode || previewEndTime == null) return false;
-        const a = timelineSelectMode.startTime;
-        const b = previewEndTime;
-        return time >= Math.min(a, b) && time <= Math.max(a, b);
-    })();
-
-    const isLabelHighlighted = (() => {
-        if (!labelSelectMode || previewEndTime == null) return false;
-        const a = labelSelectMode.startTime;
-        const b = previewEndTime;
-        return time >= Math.min(a, b) && time <= Math.max(a, b);
     })();
 
     const longPressTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -232,7 +215,6 @@ export const MobileTimelineRow = memo(({
             className={clsx(
                 "absolute left-0 w-full",
                 "active:bg-app-text/[0.03] transition-colors duration-100",
-                (isHighlighted || isLabelHighlighted) && "bg-app-blue/10",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px`, height: `${rowHeight}px` }}
