@@ -25,6 +25,8 @@ import { NewPlanModal } from './NewPlanModal';
 import { ShareModal } from './ShareModal';
 import { LoginModal } from './LoginModal';
 import { getTemplate } from '../data/templateLoader';
+import { ensurePhaseEndTimes } from '../utils/phaseMigration';
+import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
@@ -937,18 +939,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     const snap = store.getSnapshot();
                     // ラベル変換: TemplateData.labels → Label[]
                     const labels = tpl.labels
-                        ? tpl.labels.map(l => ({
+                        ? ensureLabelEndTimes(tpl.labels.map(l => ({
                             id: crypto.randomUUID(),
                             name: l.name,
                             startTime: l.startTimeSec,
                             ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
-                        }))
+                        })))
                         : undefined;
                     store.loadSnapshot({
                         ...snap,
                         timelineMitigations: [],
                         timelineEvents: tpl.timelineEvents,
-                        phases: tpl.phases ? tpl.phases
+                        phases: tpl.phases ? ensurePhaseEndTimes(tpl.phases
                             .filter(p => p.startTimeSec >= 0)
                             .map((p, i) => ({
                                 id: `phase_${p.id}`,
@@ -963,7 +965,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         })
                                     : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
                                 startTime: p.startTimeSec,
-                            })) : [],
+                            }))) : [],
                         ...(labels ? { labels } : {}),
                     });
                 } else {

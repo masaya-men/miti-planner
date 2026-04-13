@@ -601,6 +601,10 @@ const Timeline: React.FC = () => {
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
     const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
+    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
+    const [showPreStart] = useState(true);
+    const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
+    const pixelsPerSecond = isMobileTimeline ? 60 : 50;
     const previewEndTimeRef = useRef<number | null>(null);
     const previewRafRef = useRef<number | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -679,7 +683,6 @@ const Timeline: React.FC = () => {
     const [selectedLabelTime, setSelectedLabelTime] = useState<number>(0);
     const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
     const [labelPopover, setLabelPopover] = useState<{ label: Label; position: { x: number; y: number }; clickTime: number } | null>(null);
-    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
 
     const [mobileMitiFlow, setMobileMitiFlow] = useState<{
         isOpen: boolean;
@@ -723,8 +726,6 @@ const Timeline: React.FC = () => {
         newJobId: string;
     } | null>(null);
 
-    const isMobileTimeline = typeof window !== 'undefined' && window.innerWidth < 768;
-    const pixelsPerSecond = isMobileTimeline ? 60 : 50;
     const fightDuration = 1200;
 
     const handleTogglePhaseCollapse = () => {
@@ -981,7 +982,6 @@ const Timeline: React.FC = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isAaModeEnabled]);
 
-    const [showPreStart] = useState(true);
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
 
@@ -2369,7 +2369,6 @@ const Timeline: React.FC = () => {
                                             return sorted.map((phase, index) => {
                                             const offsetTime = showPreStart ? -10 : 0;
                                             const startTime = phase.startTime;
-                                            const nextPhase = sorted[index + 1];
                                             // endTimeは「その行を含む」（inclusive）→ 描画時は+1して次行の先頭まで伸ばす
                                             const endTime = phase.endTime + 1;
 
@@ -2415,8 +2414,7 @@ const Timeline: React.FC = () => {
                                             const offsetTime = showPreStart ? -10 : 0;
                                             const sortedLabels = [...labels].sort((a, b) => a.startTime - b.startTime);
 
-                                            return sortedLabels.map((label, li) => {
-                                                const nextLabel = sortedLabels[li + 1];
+                                            return sortedLabels.map((label) => {
                                                 // endTimeは inclusive → 描画時は+1
                                                 const effectiveEndTime = label.endTime + 1;
 

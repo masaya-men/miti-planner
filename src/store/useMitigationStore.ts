@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
-import { migratePhases } from '../utils/phaseMigration';
+import { migratePhases, ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes } from '../utils/labelMigration';
 
 import { calculateMemberValues } from '../utils/calculator';
@@ -406,13 +406,13 @@ export const useMitigationStore = create<MitigationState>()(
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
                     };
                     if (importPhases) {
-                        update.phases = importPhases
+                        update.phases = ensurePhaseEndTimes(importPhases
                             .filter(p => p.startTimeSec >= 0)
                             .map(p => ({
                                 id: `phase_${p.id}`,
                                 name: p.name,
                                 startTime: p.startTimeSec,
-                            }));
+                            })));
                     }
                     if (importLabels) {
                         update.labels = importLabels;

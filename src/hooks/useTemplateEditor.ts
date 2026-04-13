@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import type { TimelineEvent, LocalizedString } from '../types';
 import type { TemplateData } from '../data/templateLoader';
 import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
+import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 
 /** TemplateData.labels の要素型 */
 export type TemplateLabel = NonNullable<TemplateData['labels']>[number];
@@ -50,11 +51,11 @@ function deriveLabelsFromEvents(
   const hasLegacy = isLegacyLabelFormat({ labels: undefined, timelineEvents: events });
   if (!hasLegacy) return [];
 
-  const phasesForMigration = (phases || []).map(p => ({
+  const phasesForMigration = ensurePhaseEndTimes((phases || []).map(p => ({
     id: `phase_${p.id}`,
     name: p.name || { ja: '', en: '' },
     startTime: p.startTimeSec,
-  }));
+  })));
   const migrated = migrateLabels(events, phasesForMigration);
 
   return migrated.map((label, i) => ({

@@ -199,8 +199,8 @@ describe('convertPlanToTemplate', () => {
     const planData = {
       timelineEvents: [] as any[],
       phases: [
-        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
-        { id: 'phase_2', name: { ja: '二天竜', en: 'Twin Dragons' }, startTime: 60 },
+        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 60 },
+        { id: 'phase_2', name: { ja: '二天竜', en: 'Twin Dragons' }, startTime: 60, endTime: 61 },
       ],
     };
     const result = convertPlanToTemplate(planData, 'test');
@@ -215,7 +215,7 @@ describe('convertPlanToTemplate', () => {
   it('フェーズIDを数値に変換する', () => {
     const planData = {
       timelineEvents: [] as any[],
-      phases: [{ id: 'phase_3', name: { ja: 'P3', en: 'P3' }, startTime: 30 }],
+      phases: [{ id: 'phase_3', name: { ja: 'P3', en: 'P3' }, startTime: 30, endTime: 31 }],
     };
     const result = convertPlanToTemplate(planData, 'test');
     expect(result.phases[0].id).toBe(3);
@@ -225,8 +225,8 @@ describe('convertPlanToTemplate', () => {
     const planData = {
       timelineEvents: [] as any[],
       phases: [
-        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
-        { id: 'phase_2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
+        { id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 60 },
+        { id: 'phase_2', name: { ja: 'P2', en: 'P2' }, startTime: 60, endTime: 61 },
       ],
     };
     const result = convertPlanToTemplate(planData, 'test');
@@ -245,7 +245,7 @@ describe('convertPlanToTemplate', () => {
           target: 'AoE' as const,
         },
       ],
-      phases: [{ id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0 }],
+      phases: [{ id: 'phase_1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 1 }],
     };
     const result = convertPlanToTemplate(planData, 'test');
     const ev = result.timelineEvents[0];

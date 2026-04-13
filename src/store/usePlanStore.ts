@@ -7,6 +7,8 @@ import { useMitigationStore } from './useMitigationStore';
 import { planService } from '../lib/planService';
 import { PLAN_LIMITS } from '../types/firebase';
 import { getContentById } from '../data/contentRegistry';
+import { ensurePhaseEndTimes } from '../utils/phaseMigration';
+import { ensureLabelEndTimes } from '../utils/labelMigration';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -118,12 +120,12 @@ export const usePlanStore = create<PlanState>()(
                 const newPlanId = `plan_${Date.now()}`;
                 // ラベル変換: TemplateData.labels → Label[]
                 const labels = templateData.labels
-                    ? templateData.labels.map(l => ({
+                    ? ensureLabelEndTimes(templateData.labels.map(l => ({
                         id: crypto.randomUUID(),
                         name: l.name,
                         startTime: l.startTimeSec,
                         ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
-                    }))
+                    })))
                     : undefined;
                 const newPlan: SavedPlan = {
                     id: newPlanId,
@@ -137,7 +139,7 @@ export const usePlanStore = create<PlanState>()(
                     data: {
                         ...initialData,
                         timelineEvents: [...templateData.timelineEvents],
-                        phases: templateData.phases ? templateData.phases
+                        phases: templateData.phases ? ensurePhaseEndTimes(templateData.phases
                             .filter(p => p.startTimeSec >= 0)
                             .map((p, i) => ({
                                 id: `phase_${p.id}`,
@@ -152,7 +154,7 @@ export const usePlanStore = create<PlanState>()(
                                         })
                                     : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
                                 startTime: p.startTimeSec,
-                            })) : [],
+                            }))) : [],
                         ...(labels ? { labels } : {}),
                     },
                     createdAt: Date.now(),

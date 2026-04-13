@@ -14,6 +14,7 @@ import type { FFLogsRawEvent, FFLogsFight, DeathEvent, PlayerDetails } from '../
 import type { TimelineEvent, LocalizedString, Label } from '../types';
 import { roundDamageCeil } from './damageRounding';
 import { migrateLabels } from './labelMigration';
+import { ensurePhaseEndTimes } from './phaseMigration';
 
 // ─────────────────────────────────────────────
 // 定数・ユーティリティ
@@ -159,7 +160,7 @@ export function mapFFLogsToTimeline(
         addNonDamageCasts(tl, castEn, castJp, jpNameMap, enNameMap, damageGuids, ref, isEnglishOnly);
         tl.sort((a, b) => a.time - b.time);
         const phases = buildPhases(fight);
-        const phasesForLabels = phases.map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec }));
+        const phasesForLabels = ensurePhaseEndTimes(phases.map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec })));
         const labels = migrateLabels(tl, phasesForLabels);
         return {
             events: tl, phases, labels,
@@ -406,11 +407,11 @@ export function mapFFLogsToTimeline(
     const phases = buildPhases(fight);
 
     // ── Step 10: ラベル生成（mechanicGroupからLabel[]を生成） ──
-    const phasesForLabels = phases.map(p => ({
+    const phasesForLabels = ensurePhaseEndTimes(phases.map(p => ({
         id: `phase_${p.id}`,
         name: p.name,
         startTime: p.startTimeSec,
-    }));
+    })));
     const labels = migrateLabels(tl, phasesForLabels);
 
     return {

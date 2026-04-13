@@ -9,6 +9,7 @@
 import type { TimelineEvent, LocalizedString } from '../types';
 import { fetchTemplate as fetchFromFirestore } from '../hooks/useMasterData';
 import { isLegacyLabelFormat, migrateLabels } from '../utils/labelMigration';
+import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 
 export interface TemplateData {
   contentId: string;
@@ -35,11 +36,11 @@ function ensureLabels(tpl: TemplateData): TemplateData {
   if (!hasLegacy) return tpl;
 
   // migrateLabelsはPhase[]形式を期待するので変換
-  const phasesForMigration = (tpl.phases || []).map(p => ({
+  const phasesForMigration = ensurePhaseEndTimes((tpl.phases || []).map(p => ({
     id: `phase_${p.id}`,
     name: p.name || { ja: '', en: '' },
     startTime: p.startTimeSec,
-  }));
+  })));
   const migratedLabels = migrateLabels(tpl.timelineEvents, phasesForMigration);
 
   if (migratedLabels.length === 0) return tpl;
