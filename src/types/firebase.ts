@@ -168,6 +168,8 @@ export const PLAN_LIMITS = {
   SAVE_DEBOUNCE_MS: 5_000,
   /** アーカイブまでの日数 */
   ARCHIVE_AFTER_DAYS: 90,
+  /** サイレント圧縮までの日数 */
+  SILENT_COMPRESS_AFTER_DAYS: 7,
 } as const;
 
 /** Firestoreコレクション名 */
