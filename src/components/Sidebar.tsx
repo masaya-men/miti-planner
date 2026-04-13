@@ -343,8 +343,13 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 // サイレント圧縮されている場合は解凍
                                                 let planData = plan.data;
                                                 if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
-                                                    planData = await decompressPlanData(plan.compressedData);
-                                                    store.updatePlan(plan.id, { data: planData, compressedData: undefined });
+                                                    try {
+                                                        planData = await decompressPlanData(plan.compressedData);
+                                                        store.updatePlan(plan.id, { data: planData, compressedData: undefined });
+                                                    } catch {
+                                                        showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                                                        return;
+                                                    }
                                                 }
                                                 useMitigationStore.getState().loadSnapshot(planData);
                                                 store.setCurrentPlanId(plan.id);
@@ -1077,8 +1082,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             // サイレント圧縮されている場合は解凍
             let planData = plan.data;
             if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
-                planData = await decompressPlanData(plan.compressedData);
-                usePlanStore.getState().updatePlan(plan.id, { data: planData, compressedData: undefined });
+                try {
+                    planData = await decompressPlanData(plan.compressedData);
+                    usePlanStore.getState().updatePlan(plan.id, { data: planData, compressedData: undefined });
+                } catch {
+                    showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                    return;
+                }
             }
 
             // Load new plan
@@ -1127,7 +1137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [bundleModalOpen, setBundleModalOpen] = useState(false);
     const [bundlePlansForModal, setBundlePlansForModal] = useState<{ contentId: string | null; title: string; planData: any }[]>([]);
 
-    const handleShareBundle = () => {
+    const handleShareBundle = async () => {
         if (multiSelect.selectedIds.length === 0) return;
 
         // 現在のプランを保存
@@ -1137,18 +1147,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             planStore.updatePlan(currentPlanId, { data: mitiStore.getSnapshot() });
         }
 
-        // 選択されたプランIDからデータを収集
-        const bundlePlans = multiSelect.selectedIds
-            .map(planId => {
+        // 選択されたプランIDからデータを収集（圧縮済みプランは解凍）
+        const bundlePlansRaw = await Promise.all(
+            multiSelect.selectedIds.map(async (planId) => {
                 const plan = planStore.plans.find(p => p.id === planId);
                 if (!plan) return null;
+                let planData = plan.data;
+                if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+                    try {
+                        planData = await decompressPlanData(plan.compressedData);
+                    } catch {
+                        return null;
+                    }
+                }
                 return {
                     contentId: plan.contentId,
                     title: plan.title,
-                    planData: plan.data,
+                    planData,
                 };
             })
-            .filter(Boolean) as { contentId: string | null; title: string; planData: any }[];
+        );
+        const bundlePlans = bundlePlansRaw.filter(Boolean) as { contentId: string | null; title: string; planData: any }[];
 
         if (bundlePlans.length === 0) {
             showToast(t('app.share_no_plans') || 'プランがありません');
@@ -1767,13 +1786,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         {
                             label: t('sidebar.context_share'),
                             icon: <Share2 size={12} />,
-                            onClick: () => {
+                            onClick: async () => {
                                 const plan = plans.find(p => p.id === contextMenu.planId);
                                 if (plan) {
+                                    let planData = plan.data;
+                                    if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+                                        try {
+                                            planData = await decompressPlanData(plan.compressedData);
+                                        } catch {
+                                            showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                                            return;
+                                        }
+                                    }
                                     setBundlePlansForModal([{
                                         contentId: plan.contentId,
                                         title: plan.title,
-                                        planData: plan.data,
+                                        planData,
                                     }]);
                                     setBundleModalOpen(true);
                                 }
