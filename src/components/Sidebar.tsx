@@ -869,7 +869,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         }
     }, [currentPlanId, plans]);
 
-    // 過去拡張の零式プランを検知して自動アーカイブ確認ダイアログを表示
+    // 過去拡張の零式プランを自動アーカイブ（通知のみ）
     React.useEffect(() => {
         const currentLevel = getCurrentExpansionLevel();
         const oldSavagePlans = plans.filter(p =>
@@ -878,10 +878,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             p.level !== undefined &&
             p.level < currentLevel
         );
-        const dismissedKey = `archive-dismissed-${currentLevel}`;
-        const dismissed = localStorage.getItem(dismissedKey);
-        if (oldSavagePlans.length > 0 && !dismissed) {
-            setArchivePrompt({ planIds: oldSavagePlans.map(p => p.id) });
+        const doneKey = `archive-auto-done-${currentLevel}`;
+        const done = localStorage.getItem(doneKey);
+        if (oldSavagePlans.length > 0 && !done) {
+            // 自動でアーカイブ実行
+            usePlanStore.getState().archivePlans(oldSavagePlans.map(p => p.id)).then(() => {
+                localStorage.setItem(doneKey, 'true');
+                setArchivePrompt({ planIds: oldSavagePlans.map(p => p.id) });
+            });
         }
     }, [plans]);
 
@@ -1810,21 +1814,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     ]}
                 />
             )}
-            {/* 自動アーカイブ確認ダイアログ */}
+            {/* 自動アーカイブ通知ダイアログ */}
             <ArchivePromptModal
                 isOpen={archivePrompt !== null}
                 planCount={archivePrompt?.planIds.length ?? 0}
-                onArchive={async () => {
-                    if (archivePrompt) {
-                        await usePlanStore.getState().archivePlans(archivePrompt.planIds);
-                    }
-                    setArchivePrompt(null);
-                }}
-                onDismiss={() => {
-                    const currentLevel = getCurrentExpansionLevel();
-                    localStorage.setItem(`archive-dismissed-${currentLevel}`, 'true');
-                    setArchivePrompt(null);
-                }}
+                onClose={() => setArchivePrompt(null)}
             />
             <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
             <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
