@@ -30,6 +30,7 @@ import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 import { useMasterDataInit } from './hooks/useMasterData';
+import { usePlanStore } from './store/usePlanStore';
 
 /**
  * App — Root component with route definitions.
@@ -46,6 +47,11 @@ function App() {
   const theme = useThemeStore((state) => state.theme);
   const { i18n } = useTranslation();
   useMasterDataInit();
+
+  // 起動時: archivedなのにdataが展開されているプランを再圧縮
+  useEffect(() => {
+    usePlanStore.getState().recompressStaleArchives();
+  }, []);
 
   // Sync theme class on <html> so Tailwind dark: variants work
   useEffect(() => {

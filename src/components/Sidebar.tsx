@@ -320,6 +320,11 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 const snap = useMitigationStore.getState().getSnapshot();
                                                 if (store.currentPlanId) {
                                                     store.updatePlan(store.currentPlanId, { data: snap });
+                                                    // アーカイブプランなら再圧縮
+                                                    const currentPlan = store.plans.find(p => p.id === store.currentPlanId);
+                                                    if (currentPlan?.archived) {
+                                                        store.archivePlan(store.currentPlanId);
+                                                    }
                                                 }
                                                 useMitigationStore.getState().loadSnapshot(plan.data);
                                                 store.setCurrentPlanId(plan.id);
@@ -1062,6 +1067,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             if (currentPlanId) {
                 const snapshot = getSnapshot();
                 updatePlan(currentPlanId, { data: snapshot });
+                // アーカイブプランなら再圧縮
+                const currentPlan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
+                if (currentPlan?.archived) {
+                    usePlanStore.getState().archivePlan(currentPlanId);
+                }
             }
 
             // Load new plan
