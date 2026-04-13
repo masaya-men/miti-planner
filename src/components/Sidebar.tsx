@@ -12,6 +12,10 @@ import {
     getSeriesByLevel,
     getProjectLabel,
     getContentById,
+    getSavageForCurrentExpansion,
+    getAllUltimates,
+    getOtherContents,
+    getSeriesById,
 } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { Tooltip } from './ui/Tooltip';
@@ -30,7 +34,7 @@ import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-import { SegmentButton } from './ui/SegmentButton';
+
 import {
     Plus,
     ChevronLeft,
@@ -63,7 +67,6 @@ interface SidebarProps {
     fullWidth?: boolean;
 }
 
-const LEVEL_TIERS: ContentLevel[] = [100, 90, 80, 70];
 
 // ─────────────────────────────────────────────
 // Sub-component: ContentTreeItem
@@ -743,19 +746,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         }
         return null;
     });
-    const [activeLevel, setActiveLevel] = useState<ContentLevel>(() => {
+    type SidebarTab = 'savage' | 'ultimate' | 'other' | 'archive';
+    const [activeTab, setActiveTab] = useState<SidebarTab>(() => {
         if (selectedContentId) {
             const content = getContentById(selectedContentId);
-            if (content) return content.level;
+            if (content) {
+                if (content.category === 'savage') return 'savage';
+                if (content.category === 'ultimate') return 'ultimate';
+                return 'other';
+            }
         }
-        return 100;
-    });
-    const [activeCategory, setActiveCategory] = useState<ContentCategory | 'all'>(() => {
-        if (selectedContentId) {
-            const content = getContentById(selectedContentId);
-            if (content) return content.category;
-        }
-        return 'all';
+        return 'savage';
     });
     const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
     const [backupExportOpen, setBackupExportOpen] = useState(false);
@@ -767,23 +768,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         return () => window.removeEventListener('tutorial:close-new-plan-modal', handleClose);
     }, []);
 
-    // チュートリアル開始時に最新レベルを自動選択
+    // チュートリアル開始時に零式タブを自動選択
     React.useEffect(() => {
         if (tutorialActive) {
-            setActiveLevel(LEVEL_TIERS[0]);
-            setActiveCategory('all');
+            setActiveTab('savage');
         }
     }, [tutorialActive]);
 
-    // チュートリアル復帰時にサイドバーのレベル・カテゴリを同期
+    // チュートリアル復帰時にサイドバーのタブを同期
     React.useEffect(() => {
         const handleRestored = (e: Event) => {
             const { contentId } = (e as CustomEvent).detail ?? {};
             if (contentId) {
                 const c = getContentById(contentId);
                 if (c) {
-                    setActiveLevel(c.level);
-                    setActiveCategory(c.category);
+                    if (c.category === 'savage') setActiveTab('savage');
+                    else if (c.category === 'ultimate') setActiveTab('ultimate');
+                    else setActiveTab('other');
                     setSelectedContentId(contentId);
                 }
             }
@@ -840,10 +841,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             const plan = plans.find(p => p.id === currentPlanId);
             if (plan?.contentId) {
                 setSelectedContentId(plan.contentId);
+                const content = getContentById(plan.contentId);
+                if (content) {
+                    if (content.category === 'savage') setActiveTab('savage');
+                    else if (content.category === 'ultimate') setActiveTab('ultimate');
+                    else setActiveTab('other');
+                }
             }
         } else {
-            setActiveLevel(LEVEL_TIERS[0]);
-            setActiveCategory('all');
+            setActiveTab('savage');
             setSelectedContentId(null);
         }
     }, [currentPlanId, plans]);
@@ -917,8 +923,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
             );
             store.setMyMemberId(null);
-            setActiveLevel(content.level);
-            setActiveCategory(content.category);
+            if (content.category === 'savage') setActiveTab('savage');
+            else if (content.category === 'ultimate') setActiveTab('ultimate');
+            else setActiveTab('other');
 
             if (isTutorial) {
                 // チュートリアル: 実際のステータスからダメージを動的計算
@@ -1032,10 +1039,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
             const c = plan.contentId ? getContentById(plan.contentId) : undefined;
-            const newLevel = (c?.level ?? plan.level ?? plan.data.currentLevel ?? activeLevel) as ContentLevel;
-            const newCategory = c?.category ?? 'custom';
-            setActiveLevel(newLevel);
-            setActiveCategory(newCategory);
+            const newLevel = (c?.level ?? plan.level ?? plan.data.currentLevel ?? 100) as ContentLevel;
+            if (c) {
+                if (c.category === 'savage') setActiveTab('savage');
+                else if (c.category === 'ultimate') setActiveTab('ultimate');
+                else setActiveTab('other');
+            } else {
+                setActiveTab('other');
+            }
             useMitigationStore.getState().setCurrentLevel(newLevel);
         }, 'plan');
     };
@@ -1120,14 +1131,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         setBundleModalOpen(true);
     };
 
-    const availableCategories = useMemo(() => getCategoriesByLevel(activeLevel), [activeLevel]);
-
-    useMemo(() => {
-        if (activeCategory !== 'all' && !availableCategories.includes(activeCategory)) {
-            setActiveCategory('all');
-        }
-    }, [availableCategories, activeCategory]);
-
     // チュートリアルのステップ1（コンテンツ選択）でサイドバーの最初のアイテムをハイライト
     const tutorialStep = useTutorialStore(s => s.getCurrentStep());
     const isTutorialContentSelect = tutorialStep?.id === 'main-1-content';
@@ -1153,48 +1156,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {/* Header Controls area with save button instead of big new plan */}
                     <div className="p-2 border-b border-glass-border" />
 
-                    <div className="border-b border-glass-border mx-3 mb-2 mt-3" />
-                    <div className="px-3 shrink-0 mb-3">
-                        <SegmentButton
-                            options={LEVEL_TIERS.map(l => ({ value: String(l), label: String(l) }))}
-                            value={String(activeLevel)}
-                            onChange={(v) => {
-                                const level = Number(v) as ContentLevel;
-                                setActiveLevel(level);
-                                useMitigationStore.getState().setCurrentLevel(level);
-                            }}
-                            size="sm"
-                            className="shadow-sm"
-                        />
+                    {/* タブ */}
+                    <div className="flex px-2.5 pt-2 gap-0.5">
+                        {([
+                            { key: 'savage' as const, icon: '\u2694', label: t('sidebar.tab_savage') },
+                            { key: 'ultimate' as const, icon: '\uD83D\uDC51', label: t('sidebar.tab_ultimate') },
+                            { key: 'other' as const, icon: '\uD83D\uDCC1', label: t('sidebar.tab_other') },
+                            { key: 'archive' as const, icon: '\uD83D\uDCE6', label: t('sidebar.tab_archive') },
+                        ]).map(tab => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                className={clsx(
+                                    "flex-1 text-center py-1.5 text-app-base font-bold rounded-t-md transition-all duration-150 cursor-pointer",
+                                    activeTab === tab.key
+                                        ? "bg-app-surface2 text-app-text border border-glass-border border-b-transparent"
+                                        : "text-app-text-muted hover:text-app-text-sec hover:bg-glass-hover border border-transparent"
+                                )}
+                            >
+                                {tab.icon} {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="border-b border-glass-border mx-2.5" />
 
-                        <div className="border-b border-glass-border my-2" />
-
-                        <div
-                            className="overflow-x-auto custom-scrollbar-thin"
-                            onWheel={(e) => {
-                                if (e.deltaY !== 0) {
-                                    e.currentTarget.scrollLeft += e.deltaY;
-                                    e.preventDefault();
-                                }
-                            }}
-                        >
-                            <SegmentButton
-                                options={[
-                                    { value: 'all', label: t('ui.all').toUpperCase() },
-                                    ...availableCategories.map(cat => ({
-                                        value: cat,
-                                        label: (CATEGORY_LABELS[cat][lang as ContentLanguage] || CATEGORY_LABELS[cat].ja).toUpperCase(),
-                                    })),
-                                ]}
-                                value={activeCategory}
-                                onChange={setActiveCategory}
-                                size="sm"
-                                className="shadow-sm min-w-fit"
-                            />
-                        </div>
-
-                        <div className="border-b border-glass-border my-2" />
-
+                    {/* ボタンバー */}
+                    <div className="px-3 shrink-0 my-2">
                         <div className="flex items-center gap-1 flex-wrap">
                         <button
                             onClick={() => {
@@ -1239,39 +1226,81 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
-                        {availableCategories
-                            .filter(c => activeCategory === 'all' || activeCategory === c)
-                            .map(category => (
-                                <CategoryAccordion
-                                    key={`${activeLevel}-${category}`}
-                                    level={activeLevel}
-                                    category={category}
-                                    selectedContentId={selectedContentId}
+                    {/* 零式タブ (savage) */}
+                    {activeTab === 'savage' && (
+                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                            {(() => {
+                                const savageContents = getSavageForCurrentExpansion();
+                                const seriesIds = [...new Set(savageContents.map(c => c.seriesId))];
+                                return seriesIds.map(sid => {
+                                    const series = getSeriesById(sid);
+                                    const contents = savageContents.filter(c => c.seriesId === sid);
+                                    if (contents.length === 0) return null;
+                                    const seriesName = series?.name[lang as ContentLanguage] || series?.name.ja || sid;
+                                    const projectLabel = getProjectLabel(contents[0].level, 'savage');
+                                    const sectionLabel = projectLabel
+                                        ? `${projectLabel[lang as ContentLanguage] || projectLabel.ja}：${seriesName}`
+                                        : seriesName;
+                                    return (
+                                        <div key={sid}>
+                                            <div className="text-[9px] font-semibold text-app-text-muted uppercase tracking-wider px-2 pt-2 pb-1">
+                                                {sectionLabel}
+                                            </div>
+                                            {contents.map((content, idx) => (
+                                                <ContentTreeItem
+                                                    key={content.id}
+                                                    content={content}
+                                                    isActive={selectedContentId === content.id}
+                                                    multiSelect={multiSelect}
+                                                    onToggleSelect={toggleItemId}
+                                                    onSelect={handleSelectContent}
+                                                    highlightFirst={isTutorialContentSelect && idx === 0 && sid === seriesIds[0]}
+                                                    lang={lang}
+                                                />
+                                            ))}
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    )}
+
+                    {/* 絶タブ (ultimate) */}
+                    {activeTab === 'ultimate' && (
+                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                            {getAllUltimates().map(content => (
+                                <ContentTreeItem
+                                    key={content.id}
+                                    content={content}
+                                    isActive={selectedContentId === content.id}
                                     multiSelect={multiSelect}
                                     onToggleSelect={toggleItemId}
-                                    onToggleSeriesSelect={toggleSeriesSelect}
-                                    onSelectContent={handleSelectContent}
+                                    onSelect={handleSelectContent}
                                     lang={lang}
-                                    highlightFirst={isTutorialContentSelect && category === availableCategories[0]}
-                                    defaultExpanded={category === 'savage' || category === 'ultimate'}
                                 />
                             ))}
+                        </div>
+                    )}
 
-                        {/* カテゴリ付きフリープラン（ダンジョン・レイド・その他） */}
-                        {(['dungeon', 'raid', 'custom'] as const)
-                            .filter(cat => activeCategory === 'all' || activeCategory === cat)
-                            .map(cat => {
-                                // categoryフィールドで振り分け。contentIdがcontents.jsonに存在しないプランも対象
+                    {/* その他タブ (other) */}
+                    {activeTab === 'other' && (
+                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                            {getOtherContents().map(content => (
+                                <ContentTreeItem
+                                    key={content.id}
+                                    content={content}
+                                    isActive={selectedContentId === content.id}
+                                    multiSelect={multiSelect}
+                                    onToggleSelect={toggleItemId}
+                                    onSelect={handleSelectContent}
+                                    lang={lang}
+                                />
+                            ))}
+                            {(['dungeon', 'raid', 'custom'] as const).map(cat => {
                                 const catPlans = plans.filter(p => {
-                                    // レベルフィルタ: p.level（不変）を優先、なければコンテンツ定義、最後にdata.currentLevel
-                                    const planLevel = p.level ?? (p.contentId ? getContentById(p.contentId)?.level : undefined) ?? p.data.currentLevel;
-                                    if (Number(planLevel) !== Number(activeLevel)) return false;
-                                    // categoryフィールドがある場合はそれで判定
+                                    if (p.archived) return false;
                                     if (p.category) return p.category === cat;
-                                    // 旧プラン互換: contentIdがnullで categoryもない → customに振り分け
                                     if (p.contentId === null && cat === 'custom') return true;
-                                    // contentIdがあるがcontents.jsonに未登録 → customに振り分け
                                     if (p.contentId && !getContentById(p.contentId) && cat === 'custom') return true;
                                     return false;
                                 });
@@ -1290,7 +1319,60 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     />
                                 );
                             })}
-                    </div>
+                        </div>
+                    )}
+
+                    {/* アーカイブタブ (archive) */}
+                    {activeTab === 'archive' && (
+                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                            {(() => {
+                                const archivedPlans = plans.filter(p => p.archived);
+                                if (archivedPlans.length === 0) {
+                                    return (
+                                        <div className="text-center text-app-text-muted text-app-base py-8">
+                                            {t('sidebar.archive_empty')}
+                                        </div>
+                                    );
+                                }
+                                const sorted = [...archivedPlans].sort((a, b) => {
+                                    const levelA = a.level ?? 0;
+                                    const levelB = b.level ?? 0;
+                                    if (levelA !== levelB) return levelA - levelB;
+                                    const catOrder = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
+                                    return catOrder.indexOf(a.category || 'custom') - catOrder.indexOf(b.category || 'custom');
+                                });
+                                return sorted.map(plan => (
+                                    <div
+                                        key={plan.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        className="sidebar-item flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-app-base text-app-text hover:bg-glass-hover cursor-pointer transition-colors active:scale-[0.98]"
+                                        onClick={async () => {
+                                            const data = await usePlanStore.getState().decompressArchivedPlan(plan.id);
+                                            if (data) {
+                                                runTransition(() => {
+                                                    const store = usePlanStore.getState();
+                                                    const snap = useMitigationStore.getState().getSnapshot();
+                                                    if (store.currentPlanId) {
+                                                        store.updatePlan(store.currentPlanId, { data: snap });
+                                                    }
+                                                    store.updatePlan(plan.id, { data });
+                                                    useMitigationStore.getState().loadSnapshot(data);
+                                                    store.setCurrentPlanId(plan.id);
+                                                }, 'plan');
+                                            }
+                                        }}
+                                    >
+                                        <span className="w-1 h-1 rounded-full bg-app-text-muted/40 shrink-0" />
+                                        <span className="truncate flex-1">{plan.title}</span>
+                                        <span className="text-[9px] text-app-text-muted shrink-0">
+                                            Lv{plan.level}
+                                        </span>
+                                    </div>
+                                ));
+                            })()}
+                        </div>
+                    )}
 
                     {/* フローティングアクションバー — 画面下部中央（createPortalでbody直下） */}
                     {createPortal(
@@ -1470,10 +1552,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 setIsNewPlanModalOpen(false);
                 if (created) {
                     setSelectedContentId(created.contentId);
-                    const newLevel = created.level as ContentLevel;
-                    setActiveLevel(newLevel);
-                    useMitigationStore.getState().setCurrentLevel(newLevel);
-                    setActiveCategory(created.category);
+                    useMitigationStore.getState().setCurrentLevel(created.level);
+                    if (created.category === 'savage') setActiveTab('savage');
+                    else if (created.category === 'ultimate') setActiveTab('ultimate');
+                    else setActiveTab('other');
                     // 作成されたコンテンツが見える位置までスクロール
                     setTimeout(() => {
                         const el = document.querySelector(`[data-content-id="${created.contentId}"]`);
