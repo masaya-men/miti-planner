@@ -601,24 +601,77 @@ const Timeline: React.FC = () => {
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
     const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
-    const [previewEndTime, setPreviewEndTime] = useState<number | null>(null);
     const previewEndTimeRef = useRef<number | null>(null);
     const previewRafRef = useRef<number | null>(null);
-    const throttledSetPreviewEndTime = useCallback((time: number | null) => {
+    const overlayRef = useRef<HTMLDivElement>(null);
+
+    /** DOM直接操作でプレビューハイライトを更新（React再レンダリングなし） */
+    const updatePreviewHighlight = useCallback((time: number | null) => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        // 前回のハイライトをクリア
+        const highlighted = container.querySelectorAll('.preview-highlight');
+        for (let i = 0; i < highlighted.length; i++) {
+            highlighted[i].classList.remove('preview-highlight');
+        }
+
+        if (time === null || (!timelineSelectMode && !labelSelectMode)) {
+            if (overlayRef.current) overlayRef.current.style.display = 'none';
+            container.classList.remove('phase-select-preview', 'label-select-preview');
+            return;
+        }
+
+        // コンテナにモード識別クラスを付与（CSS側でフェーズ/ラベル列を区別）
+        container.classList.remove('phase-select-preview', 'label-select-preview');
+        container.classList.add(timelineSelectMode ? 'phase-select-preview' : 'label-select-preview');
+
+        const mode = timelineSelectMode || labelSelectMode!;
+        const min = Math.min(mode.startTime, time);
+        const max = Math.max(mode.startTime, time);
+
+        // 範囲内の行にpreview-highlightクラスを付与
+        const rows = container.querySelectorAll('[data-time-row]');
+        for (let i = 0; i < rows.length; i++) {
+            const t = Number(rows[i].getAttribute('data-time-row'));
+            if (t >= min && t <= max) {
+                rows[i].classList.add('preview-highlight');
+            }
+        }
+
+        // オーバーレイ位置を直接更新
+        if (overlayRef.current && timeToYMapRef.current) {
+            const tMap = timeToYMapRef.current;
+            const offsetTime = showPreStart ? -10 : 0;
+            const pxPerSec = pixelsPerSecond;
+            const startTime = Math.max(Math.min(mode.startTime, time), offsetTime);
+            const endTime = Math.max(Math.max(mode.startTime, time) + 1, offsetTime);
+            const startY = tMap.get(startTime) ?? (Math.max(0, startTime - offsetTime) * pxPerSec);
+            const endY = tMap.get(endTime) ?? (Math.max(0, endTime - offsetTime) * pxPerSec);
+            const height = Math.max(0, endY - startY);
+            overlayRef.current.style.top = `${startY}px`;
+            overlayRef.current.style.height = `${height}px`;
+            overlayRef.current.style.display = height > 0 ? '' : 'none';
+        }
+    }, [timelineSelectMode, labelSelectMode, showPreStart, pixelsPerSecond]);
+
+    const throttledUpdatePreview = useCallback((time: number | null) => {
         previewEndTimeRef.current = time;
         if (time === null) {
-            // null(クリア)は即座に反映
-            if (previewRafRef.current !== null) { cancelAnimationFrame(previewRafRef.current); previewRafRef.current = null; }
-            setPreviewEndTime(null);
+            if (previewRafRef.current !== null) {
+                cancelAnimationFrame(previewRafRef.current);
+                previewRafRef.current = null;
+            }
+            updatePreviewHighlight(null);
             return;
         }
         if (previewRafRef.current === null) {
             previewRafRef.current = requestAnimationFrame(() => {
-                setPreviewEndTime(previewEndTimeRef.current);
+                updatePreviewHighlight(previewEndTimeRef.current);
                 previewRafRef.current = null;
             });
         }
-    }, []);
+    }, [updatePreviewHighlight]);
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
@@ -1608,11 +1661,11 @@ const Timeline: React.FC = () => {
             if (e.key === 'Escape') {
                 if (timelineSelectMode) {
                     setTimelineSelectMode(null);
-                    setPreviewEndTime(null);
+                    throttledUpdatePreview(null);
                 }
                 if (labelSelectMode) {
                     setLabelSelectMode(null);
-                    setPreviewEndTime(null);
+                    throttledUpdatePreview(null);
                 }
             }
         };
@@ -2164,7 +2217,7 @@ const Timeline: React.FC = () => {
                                                     updateLabelEndTime(labelSelectMode.labelId, time);
                                                 }
                                                 setLabelSelectMode(null);
-                                                setPreviewEndTime(null);
+                                                throttledUpdatePreview(null);
                                                 return;
                                             }
                                             if (timelineSelectMode) {
@@ -2174,11 +2227,11 @@ const Timeline: React.FC = () => {
                                                     updatePhaseEndTime(timelineSelectMode.phaseId, time);
                                                 }
                                                 setTimelineSelectMode(null);
-                                                setPreviewEndTime(null);
+                                                throttledUpdatePreview(null);
                                             }
                                         };
                                         const mobileHoverHandler = (time: number) => {
-                                            if (timelineSelectMode || labelSelectMode) throttledSetPreviewEndTime(time);
+                                            if (timelineSelectMode || labelSelectMode) throttledUpdatePreview(time);
                                         };
 
                                         if (rowEvents.length >= 2) {
@@ -2198,7 +2251,6 @@ const Timeline: React.FC = () => {
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
                                                     labelSelectMode={labelSelectMode}
-                                                    previewEndTime={previewEndTime}
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     eventIndex={0}
@@ -2221,7 +2273,6 @@ const Timeline: React.FC = () => {
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
                                                     labelSelectMode={labelSelectMode}
-                                                    previewEndTime={previewEndTime}
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     eventIndex={1}
@@ -2245,7 +2296,6 @@ const Timeline: React.FC = () => {
                                                     hasPhases={phases.length > 0}
                                                     timelineSelectMode={timelineSelectMode}
                                                     labelSelectMode={labelSelectMode}
-                                                    previewEndTime={previewEndTime}
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     rowHeight={pixelsPerSecond}
@@ -2273,7 +2323,6 @@ const Timeline: React.FC = () => {
                                                 phaseColumnCollapsed={phaseColumnCollapsed}
                                                 timelineSelectMode={timelineSelectMode}
                                                 labelSelectMode={labelSelectMode}
-                                                previewEndTime={previewEndTime}
                                                 onTimelineSelect={(time) => {
                                                     if (labelSelectMode) {
                                                         if (labelSelectMode.field === 'startTime') {
@@ -2282,7 +2331,7 @@ const Timeline: React.FC = () => {
                                                             updateLabelEndTime(labelSelectMode.labelId, time);
                                                         }
                                                         setLabelSelectMode(null);
-                                                        setPreviewEndTime(null);
+                                                        throttledUpdatePreview(null);
                                                         return;
                                                     }
                                                     if (timelineSelectMode) {
@@ -2292,12 +2341,12 @@ const Timeline: React.FC = () => {
                                                             updatePhaseEndTime(timelineSelectMode.phaseId, time);
                                                         }
                                                         setTimelineSelectMode(null);
-                                                        setPreviewEndTime(null);
+                                                        throttledUpdatePreview(null);
                                                     }
                                                 }}
                                                 onTimelineSelectHover={(time) => {
                                                     if (timelineSelectMode || labelSelectMode) {
-                                                        throttledSetPreviewEndTime(time);
+                                                        throttledUpdatePreview(time);
                                                     }
                                                 }}
                                             />
@@ -2411,35 +2460,16 @@ const Timeline: React.FC = () => {
                                         })()}
 
                                         {/* TL選択モード ハイライトオーバーレイ */}
-                                        {(timelineSelectMode || labelSelectMode) && previewEndTime !== null && (() => {
-                                            const mode = timelineSelectMode || labelSelectMode!;
-                                            const isLabel = !!labelSelectMode;
-                                            const offsetTime = showPreStart ? -10 : 0;
-                                            const startTime = mode.startTime;
-                                            const endTime = previewEndTime + 1; // inclusive: include hovered row
-
-                                            const effectiveStart = Math.max(Math.min(startTime, endTime - 1), offsetTime);
-                                            const effectiveEnd = Math.max(Math.max(startTime + 1, endTime), offsetTime);
-
-                                            const startY = timeToYMap.get(effectiveStart) ?? (Math.max(0, effectiveStart - offsetTime) * pixelsPerSecond);
-                                            const endY = timeToYMap.get(effectiveEnd) ?? (Math.max(0, effectiveEnd - offsetTime) * pixelsPerSecond);
-                                            const top = startY;
-                                            const height = Math.max(0, endY - startY);
-                                            if (height <= 0) return null;
-
-                                            const hasPhases = phases.length > 0;
-                                            return (
-                                                <div
-                                                    className={clsx(
-                                                        "absolute pointer-events-none z-20 border-2 border-app-blue bg-app-blue/10 rounded-sm",
-                                                        isLabel
-                                                            ? (hasPhases ? "hidden md:block left-[60px] w-[50px]" : "left-0 w-[24px] md:left-[60px] md:w-[50px]")
-                                                            : "left-0 w-[24px] md:w-[60px]"
-                                                    )}
-                                                    style={{ top: `${top}px`, height: `${height}px` }}
-                                                />
-                                            );
-                                        })()}
+                                        <div
+                                            ref={overlayRef}
+                                            className={clsx(
+                                                "absolute pointer-events-none z-20 border-2 border-app-blue bg-app-blue/10 rounded-sm",
+                                                labelSelectMode
+                                                    ? (phases.length > 0 ? "hidden md:block left-[60px] w-[50px]" : "left-0 w-[24px] md:left-[60px] md:w-[50px]")
+                                                    : "left-0 w-[24px] md:w-[60px]"
+                                            )}
+                                            style={{ display: 'none' }}
+                                        />
 
                                         {(() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
@@ -3384,11 +3414,11 @@ const Timeline: React.FC = () => {
                         onClick={() => {
                             if (timelineSelectMode) {
                                 setTimelineSelectMode(null);
-                                setPreviewEndTime(null);
+                                throttledUpdatePreview(null);
                             }
                             if (labelSelectMode) {
                                 setLabelSelectMode(null);
-                                setPreviewEndTime(null);
+                                throttledUpdatePreview(null);
                             }
                         }}
                         className="py-1.5 px-3 rounded-lg text-app-md font-bold text-app-text-muted hover:text-app-text hover:bg-app-text/5 transition-all cursor-pointer whitespace-nowrap active:scale-95"
