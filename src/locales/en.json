@@ -1428,8 +1428,10 @@
         "edit_label": "Edit Label",
         "name_label": "Phase name",
         "name_placeholder": "Enter name",
+        "start_time": "Start Time",
         "end_time": "Phase end time",
         "select_on_timeline": "Select on timeline",
-        "select_banner": "Click to select end position (Esc to cancel)"
+        "select_banner": "Click to select end position (Esc to cancel)",
+        "select_banner_start": "Click to select start position (Esc to cancel)"
     }
 }

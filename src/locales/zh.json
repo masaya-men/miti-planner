@@ -1383,8 +1383,10 @@
         "edit_label": "编辑标签",
         "name_label": "阶段名称",
         "name_placeholder": "输入名称",
+        "start_time": "开始时间",
         "end_time": "阶段结束时间",
         "select_on_timeline": "在时间轴上选择",
-        "select_banner": "点击选择结束位置（Esc取消）"
+        "select_banner": "点击选择结束位置（Esc取消）",
+        "select_banner_start": "点击选择开始位置（Esc取消）"
     }
 }

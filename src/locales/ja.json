@@ -1432,8 +1432,10 @@
         "edit_label": "ラベルを編集",
         "name_label": "フェーズ名",
         "name_placeholder": "名前を入力",
+        "start_time": "開始時間",
         "end_time": "フェーズの終了時間",
         "select_on_timeline": "タイムラインで選択",
-        "select_banner": "終了位置をクリックで選択（Escでキャンセル）"
+        "select_banner": "終了位置をクリックで選択（Escでキャンセル）",
+        "select_banner_start": "開始位置をクリックで選択（Escでキャンセル）"
     }
 }

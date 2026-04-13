@@ -1383,8 +1383,10 @@
         "edit_label": "라벨 편집",
         "name_label": "페이즈 이름",
         "name_placeholder": "이름 입력",
+        "start_time": "시작 시간",
         "end_time": "페이즈 종료 시간",
         "select_on_timeline": "타임라인에서 선택",
-        "select_banner": "클릭하여 종료 위치 선택 (Esc로 취소)"
+        "select_banner": "클릭하여 종료 위치 선택 (Esc로 취소)",
+        "select_banner_start": "클릭하여 시작 위치 선택 (Esc로 취소)"
     }
 }

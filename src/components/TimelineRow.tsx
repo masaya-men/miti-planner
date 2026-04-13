@@ -162,15 +162,19 @@ export const TimelineRow = memo(({
         time < 0 ? `-${displayTimeStr}` :
             displayTimeStr;
 
-    const isHighlighted = timelineSelectMode
-        && previewEndTime !== null
-        && time >= timelineSelectMode.startTime
-        && time <= (previewEndTime ?? 0);
+    const isHighlighted = (() => {
+        if (!timelineSelectMode || previewEndTime == null) return false;
+        const a = timelineSelectMode.startTime;
+        const b = previewEndTime;
+        return time >= Math.min(a, b) && time <= Math.max(a, b);
+    })();
 
-    const isLabelHighlighted = labelSelectMode
-        && previewEndTime !== null
-        && time >= labelSelectMode.startTime
-        && time <= (previewEndTime ?? 0);
+    const isLabelHighlighted = (() => {
+        if (!labelSelectMode || previewEndTime == null) return false;
+        const a = labelSelectMode.startTime;
+        const b = previewEndTime;
+        return time >= Math.min(a, b) && time <= Math.max(a, b);
+    })();
 
     return (
         <div

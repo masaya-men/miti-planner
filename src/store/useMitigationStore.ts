@@ -79,10 +79,12 @@ interface MitigationState {
     updatePhase: (id: string, name: LocalizedString) => void;
     removePhase: (id: string) => void;
     updatePhaseEndTime: (id: string, newEndTime: number) => void;
+    updatePhaseStartTime: (id: string, newStartTime: number) => void;
     addLabel: (startTime: number, name: LocalizedString) => void;
     updateLabel: (id: string, name: LocalizedString) => void;
     removeLabel: (id: string) => void;
     updateLabelEndTime: (id: string, newEndTime: number) => void;
+    updateLabelStartTime: (id: string, newStartTime: number) => void;
     addMitigation: (mitigation: AppliedMitigation) => void;
     removeMitigation: (id: string) => void;
     updateMitigationTime: (id: string, newTime: number) => void;
@@ -486,6 +488,32 @@ export const useMitigationStore = create<MitigationState>()(
                     });
                 },
 
+                updatePhaseStartTime: (id, newStartTime) => {
+                    pushHistory();
+                    set((state) => {
+                        const phase = state.phases.find(p => p.id === id);
+                        if (!phase) return {};
+                        let final = Math.max(newStartTime, 0);
+                        if (phase.endTime !== undefined) {
+                            final = Math.min(final, phase.endTime - 1);
+                        }
+                        const oldStartTime = phase.startTime;
+                        // 開始時間を後ろにずらした場合、前のフェーズにendTimeを設定して空白を作る
+                        const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(p => p.id === id);
+                        const prevPhase = idx > 0 ? sorted[idx - 1] : null;
+                        return {
+                            phases: state.phases.map(p => {
+                                if (p.id === id) return { ...p, startTime: final };
+                                if (prevPhase && p.id === prevPhase.id && p.endTime === undefined && final > oldStartTime) {
+                                    return { ...p, endTime: oldStartTime };
+                                }
+                                return p;
+                            })
+                        };
+                    });
+                },
+
                 addLabel: (startTime, name) => {
                     const exists = get().labels.some(l => l.startTime === startTime);
                     if (exists) return;
@@ -522,6 +550,31 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => ({
                         labels: state.labels.map(l => l.id === id ? { ...l, endTime: newEndTime } : l)
                     }));
+                },
+
+                updateLabelStartTime: (id, newStartTime) => {
+                    pushHistory();
+                    set((state) => {
+                        const label = state.labels.find(l => l.id === id);
+                        if (!label) return {};
+                        let final = Math.max(newStartTime, 0);
+                        if (label.endTime !== undefined) {
+                            final = Math.min(final, label.endTime - 1);
+                        }
+                        const oldStartTime = label.startTime;
+                        const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(l => l.id === id);
+                        const prevLabel = idx > 0 ? sorted[idx - 1] : null;
+                        return {
+                            labels: state.labels.map(l => {
+                                if (l.id === id) return { ...l, startTime: final };
+                                if (prevLabel && l.id === prevLabel.id && l.endTime === undefined && final > oldStartTime) {
+                                    return { ...l, endTime: oldStartTime };
+                                }
+                                return l;
+                            })
+                        };
+                    });
                 },
 
                 addMitigation: (mitigation) => {

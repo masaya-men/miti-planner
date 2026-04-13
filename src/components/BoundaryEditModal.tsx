@@ -10,10 +10,11 @@ import type { LocalizedString } from '../types';
 interface BoundaryEditModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (name: LocalizedString, endTime?: number) => void;
+    onSave: (name: LocalizedString, startTime?: number, endTime?: number) => void;
     onDelete?: () => void;
-    onStartTimelineSelect?: () => void;
-    initial?: { name: LocalizedString; endTime?: number };
+    onTimelineSelectStart?: () => void;
+    onTimelineSelectEnd?: () => void;
+    initial?: { name: LocalizedString; startTime?: number; endTime?: number };
     isEdit?: boolean;
     mode: 'phase' | 'label';
     position?: { x: number; y: number };
@@ -35,7 +36,7 @@ function formatTime(seconds: number): string {
 }
 
 export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
-    isOpen, onClose, onSave, onDelete, onStartTimelineSelect,
+    isOpen, onClose, onSave, onDelete, onTimelineSelectStart, onTimelineSelectEnd,
     initial, isEdit = false, mode, position
 }) => {
     const { t } = useTranslation();
@@ -44,6 +45,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     const [nameInput, setNameInput] = useState('');
     const [preservedName, setPreservedName] = useState<LocalizedString>({ ja: '', en: '' });
+    const [startTimeInput, setStartTimeInput] = useState('');
     const [endTimeInput, setEndTimeInput] = useState('');
     const [isMobile, setIsMobile] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -62,10 +64,12 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
             setPreservedName(initial.name);
             const langValue = initial.name[contentLanguage as keyof LocalizedString] || initial.name.ja || initial.name.en || '';
             setNameInput(langValue);
+            setStartTimeInput(initial.startTime !== undefined ? formatTime(initial.startTime) : '');
             setEndTimeInput(initial.endTime !== undefined ? formatTime(initial.endTime) : '');
         } else if (isOpen) {
             setPreservedName({ ja: '', en: '' });
             setNameInput('');
+            setStartTimeInput('');
             setEndTimeInput('');
         }
     }, [isOpen, initial, contentLanguage]);
@@ -84,15 +88,17 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const startTime = startTimeInput ? parseTimeInput(startTimeInput) ?? undefined : undefined;
         const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-        onSave(buildName(), endTime);
+        onSave(buildName(), startTime, endTime);
         onClose();
     };
 
     const handleBackdropClick = () => {
         if (nameInput.trim()) {
+            const startTime = startTimeInput ? parseTimeInput(startTimeInput) ?? undefined : undefined;
             const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-            onSave(buildName(), endTime);
+            onSave(buildName(), startTime, endTime);
         }
         onClose();
     };
@@ -143,13 +149,31 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
                             {isEdit && (
                                 <div>
+                                    <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.start_time')}</label>
+                                    <div className="flex gap-2">
+                                        <input type="text" value={startTimeInput} onChange={(e) => setStartTimeInput(e.target.value)}
+                                            className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
+                                            placeholder="M:SS" />
+                                        {onTimelineSelectStart && (
+                                            <button type="button" onClick={() => { onTimelineSelectStart(); }}
+                                                className="px-3 py-2 text-app-text rounded-lg border border-app-border hover:bg-app-surface2 transition-colors flex items-center gap-1.5 text-app-sm cursor-pointer">
+                                                <Crosshair size={14} />
+                                                <span>{t('boundary_modal.select_on_timeline')}</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {isEdit && (
+                                <div>
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.end_time')}</label>
                                     <div className="flex gap-2">
                                         <input type="text" value={endTimeInput} onChange={(e) => setEndTimeInput(e.target.value)}
                                             className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
                                             placeholder="M:SS" />
-                                        {onStartTimelineSelect && (
-                                            <button type="button" onClick={() => { onStartTimelineSelect(); }}
+                                        {onTimelineSelectEnd && (
+                                            <button type="button" onClick={() => { onTimelineSelectEnd(); }}
                                                 className="px-3 py-2 text-app-text rounded-lg border border-app-border hover:bg-app-surface2 transition-colors flex items-center gap-1.5 text-app-sm cursor-pointer">
                                                 <Crosshair size={14} />
                                                 <span>{t('boundary_modal.select_on_timeline')}</span>

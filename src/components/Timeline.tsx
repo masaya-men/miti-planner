@@ -574,11 +574,13 @@ const Timeline: React.FC = () => {
     const updatePhase = useMitigationStore(s => s.updatePhase);
     const removePhase = useMitigationStore(s => s.removePhase);
     const updatePhaseEndTime = useMitigationStore(s => s.updatePhaseEndTime);
+    const updatePhaseStartTime = useMitigationStore(s => s.updatePhaseStartTime);
     const labels = useMitigationStore(s => s.labels);
     const addLabel = useMitigationStore(s => s.addLabel);
     const updateLabel = useMitigationStore(s => s.updateLabel);
     const removeLabel = useMitigationStore(s => s.removeLabel);
     const updateLabelEndTime = useMitigationStore(s => s.updateLabelEndTime);
+    const updateLabelStartTime = useMitigationStore(s => s.updateLabelStartTime);
     const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
     const myMemberId = useMitigationStore(s => s.myMemberId);
@@ -595,19 +597,36 @@ const Timeline: React.FC = () => {
     const [eventPopover, setEventPopover] = useState<{ event: TimelineEvent; position: { x: number; y: number } } | null>(null);
 
     const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
-    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; endTime?: number } | null>(null);
+    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; startTime: number; endTime?: number } | null>(null);
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
-    const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number } | null>(null);
+    const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
     const [previewEndTime, setPreviewEndTime] = useState<number | null>(null);
+    const previewEndTimeRef = useRef<number | null>(null);
+    const previewRafRef = useRef<number | null>(null);
+    const throttledSetPreviewEndTime = useCallback((time: number | null) => {
+        previewEndTimeRef.current = time;
+        if (time === null) {
+            // null(クリア)は即座に反映
+            if (previewRafRef.current !== null) { cancelAnimationFrame(previewRafRef.current); previewRafRef.current = null; }
+            setPreviewEndTime(null);
+            return;
+        }
+        if (previewRafRef.current === null) {
+            previewRafRef.current = requestAnimationFrame(() => {
+                setPreviewEndTime(previewEndTimeRef.current);
+                previewRafRef.current = null;
+            });
+        }
+    }, []);
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
-    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; endTime?: number } | null>(null);
+    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; startTime: number; endTime?: number } | null>(null);
     const [selectedLabelTime, setSelectedLabelTime] = useState<number>(0);
     const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
     const [labelPopover, setLabelPopover] = useState<{ label: Label; position: { x: number; y: number }; clickTime: number } | null>(null);
-    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number } | null>(null);
+    const [labelSelectMode, setLabelSelectMode] = useState<{ labelId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
 
     const [mobileMitiFlow, setMobileMitiFlow] = useState<{
         isOpen: boolean;
@@ -1008,14 +1027,18 @@ const Timeline: React.FC = () => {
         const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
         const idx = sorted.findIndex(p => p.id === phase.id);
         const nextPhase = sorted[idx + 1];
-        const effectiveEndTime = phase.endTime ?? nextPhase?.startTime;
-        setSelectedPhase({ id: phase.id, name: phase.name, endTime: effectiveEndTime });
+        const effectiveEndTime = phase.endTime ?? nextPhase?.startTime
+            ?? (Math.max(...timelineEvents.map(e => e.time), phase.startTime) + 10);
+        setSelectedPhase({ id: phase.id, name: phase.name, startTime: phase.startTime, endTime: effectiveEndTime });
         setIsPhaseModalOpen(true);
     };
 
-    const handlePhaseSave = (name: LocalizedString, endTime?: number) => {
+    const handlePhaseSave = (name: LocalizedString, startTime?: number, endTime?: number) => {
         if (selectedPhase) {
             updatePhase(selectedPhase.id, name);
+            if (startTime !== undefined) {
+                updatePhaseStartTime(selectedPhase.id, startTime);
+            }
             if (endTime !== undefined) {
                 updatePhaseEndTime(selectedPhase.id, endTime);
             }
@@ -1054,14 +1077,18 @@ const Timeline: React.FC = () => {
         const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
         const idx = sorted.findIndex(l => l.id === label.id);
         const nextLabel = sorted[idx + 1];
-        const effectiveEndTime = label.endTime ?? nextLabel?.startTime;
-        setSelectedLabel({ id: label.id, name: label.name, endTime: effectiveEndTime });
+        const effectiveEndTime = label.endTime ?? nextLabel?.startTime
+            ?? (Math.max(...timelineEvents.map(e => e.time), label.startTime) + 10);
+        setSelectedLabel({ id: label.id, name: label.name, startTime: label.startTime, endTime: effectiveEndTime });
         setIsLabelModalOpen(true);
     };
 
-    const handleLabelSave = (name: LocalizedString, endTime?: number) => {
+    const handleLabelSave = (name: LocalizedString, startTime?: number, endTime?: number) => {
         if (selectedLabel) {
             updateLabel(selectedLabel.id, name);
+            if (startTime !== undefined) {
+                updateLabelStartTime(selectedLabel.id, startTime);
+            }
             if (endTime !== undefined) {
                 updateLabelEndTime(selectedLabel.id, endTime);
             }
@@ -2141,19 +2168,27 @@ const Timeline: React.FC = () => {
                                         // Mobile: MobileTimelineRow を使用
                                         const mobileSelectHandler = (time: number) => {
                                             if (labelSelectMode) {
-                                                updateLabelEndTime(labelSelectMode.labelId, time);
+                                                if (labelSelectMode.field === 'startTime') {
+                                                    updateLabelStartTime(labelSelectMode.labelId, time);
+                                                } else {
+                                                    updateLabelEndTime(labelSelectMode.labelId, time);
+                                                }
                                                 setLabelSelectMode(null);
                                                 setPreviewEndTime(null);
                                                 return;
                                             }
                                             if (timelineSelectMode) {
-                                                updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                if (timelineSelectMode.field === 'startTime') {
+                                                    updatePhaseStartTime(timelineSelectMode.phaseId, time);
+                                                } else {
+                                                    updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                }
                                                 setTimelineSelectMode(null);
                                                 setPreviewEndTime(null);
                                             }
                                         };
                                         const mobileHoverHandler = (time: number) => {
-                                            if (timelineSelectMode || labelSelectMode) setPreviewEndTime(time);
+                                            if (timelineSelectMode || labelSelectMode) throttledSetPreviewEndTime(time);
                                         };
 
                                         if (rowEvents.length >= 2) {
@@ -2251,20 +2286,28 @@ const Timeline: React.FC = () => {
                                                 previewEndTime={previewEndTime}
                                                 onTimelineSelect={(time) => {
                                                     if (labelSelectMode) {
-                                                        updateLabelEndTime(labelSelectMode.labelId, time);
+                                                        if (labelSelectMode.field === 'startTime') {
+                                                            updateLabelStartTime(labelSelectMode.labelId, time);
+                                                        } else {
+                                                            updateLabelEndTime(labelSelectMode.labelId, time);
+                                                        }
                                                         setLabelSelectMode(null);
                                                         setPreviewEndTime(null);
                                                         return;
                                                     }
                                                     if (timelineSelectMode) {
-                                                        updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                        if (timelineSelectMode.field === 'startTime') {
+                                                            updatePhaseStartTime(timelineSelectMode.phaseId, time);
+                                                        } else {
+                                                            updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                                        }
                                                         setTimelineSelectMode(null);
                                                         setPreviewEndTime(null);
                                                     }
                                                 }}
                                                 onTimelineSelectHover={(time) => {
                                                     if (timelineSelectMode || labelSelectMode) {
-                                                        setPreviewEndTime(time);
+                                                        throttledSetPreviewEndTime(time);
                                                     }
                                                 }}
                                             />
@@ -2674,13 +2717,18 @@ const Timeline: React.FC = () => {
             <BoundaryEditModal
                 isOpen={isPhaseModalOpen}
                 isEdit={!!selectedPhase}
-                initial={selectedPhase ? { name: selectedPhase.name, endTime: selectedPhase.endTime } : undefined}
+                initial={selectedPhase ? { name: selectedPhase.name, startTime: selectedPhase.startTime, endTime: selectedPhase.endTime } : undefined}
                 onClose={() => setIsPhaseModalOpen(false)}
                 onSave={handlePhaseSave}
                 onDelete={selectedPhase ? handlePhaseDelete : undefined}
-                onStartTimelineSelect={selectedPhase ? () => {
+                onTimelineSelectStart={selectedPhase ? () => {
+                    const anchorTime = selectedPhase.endTime ?? selectedPhase.startTime;
+                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: anchorTime, field: 'startTime' });
+                    setIsPhaseModalOpen(false);
+                } : undefined}
+                onTimelineSelectEnd={selectedPhase ? () => {
                     const phase = phases.find(p => p.id === selectedPhase.id);
-                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: phase?.startTime ?? 0 });
+                    setTimelineSelectMode({ phaseId: selectedPhase.id, startTime: phase?.startTime ?? 0, field: 'endTime' });
                     setIsPhaseModalOpen(false);
                 } : undefined}
                 mode="phase"
@@ -2689,13 +2737,18 @@ const Timeline: React.FC = () => {
             <BoundaryEditModal
                 isOpen={isLabelModalOpen}
                 isEdit={!!selectedLabel}
-                initial={selectedLabel ? { name: selectedLabel.name, endTime: selectedLabel.endTime } : undefined}
+                initial={selectedLabel ? { name: selectedLabel.name, startTime: selectedLabel.startTime, endTime: selectedLabel.endTime } : undefined}
                 onClose={() => setIsLabelModalOpen(false)}
                 onSave={handleLabelSave}
                 onDelete={selectedLabel ? handleLabelDelete : undefined}
-                onStartTimelineSelect={selectedLabel ? () => {
+                onTimelineSelectStart={selectedLabel ? () => {
+                    const anchorTime = selectedLabel.endTime ?? selectedLabel.startTime;
+                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: anchorTime, field: 'startTime' });
+                    setIsLabelModalOpen(false);
+                } : undefined}
+                onTimelineSelectEnd={selectedLabel ? () => {
                     const label = labels.find(l => l.id === selectedLabel.id);
-                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: label?.startTime ?? 0 });
+                    setLabelSelectMode({ labelId: selectedLabel.id, startTime: label?.startTime ?? 0, field: 'endTime' });
                     setIsLabelModalOpen(false);
                 } : undefined}
                 mode="label"
@@ -3336,7 +3389,9 @@ const Timeline: React.FC = () => {
                 )}>
                     <Crosshair size={14} className="text-app-blue shrink-0" />
                     <span className="text-app-md font-black text-app-text whitespace-nowrap">
-                        {t('boundary_modal.select_banner')}
+                        {(timelineSelectMode?.field === 'startTime' || labelSelectMode?.field === 'startTime')
+                            ? t('boundary_modal.select_banner_start')
+                            : t('boundary_modal.select_banner')}
                     </span>
                     <div className="w-px h-5 bg-app-text/10 shrink-0" />
                     <button
