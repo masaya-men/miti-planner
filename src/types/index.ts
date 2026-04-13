@@ -241,4 +241,8 @@ export interface SavedPlan {
     data: PlanData;
     createdAt: number;
     updatedAt: number;
+    /** アーカイブ済みフラグ */
+    archived?: boolean;
+    /** 圧縮済みデータ（archived時にdataの代わりに使用） */
+    compressedData?: string;
 }
