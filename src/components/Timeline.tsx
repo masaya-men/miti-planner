@@ -597,7 +597,7 @@ const Timeline: React.FC = () => {
     const [eventPopover, setEventPopover] = useState<{ event: TimelineEvent; position: { x: number; y: number } } | null>(null);
 
     const [isPhaseModalOpen, setIsPhaseModalOpen] = useState(false);
-    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; startTime: number; endTime?: number } | null>(null);
+    const [selectedPhase, setSelectedPhase] = useState<{ id: string; name: LocalizedString; startTime: number; endTime: number } | null>(null);
     const [selectedPhaseTime, setSelectedPhaseTime] = useState<number>(0);
     const [phaseModalPosition, setPhaseModalPosition] = useState({ x: 0, y: 0 });
     const [timelineSelectMode, setTimelineSelectMode] = useState<{ phaseId: string; startTime: number; field: 'startTime' | 'endTime' } | null>(null);
@@ -622,7 +622,7 @@ const Timeline: React.FC = () => {
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
-    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; startTime: number; endTime?: number } | null>(null);
+    const [selectedLabel, setSelectedLabel] = useState<{ id: string; name: LocalizedString; startTime: number; endTime: number } | null>(null);
     const [selectedLabelTime, setSelectedLabelTime] = useState<number>(0);
     const [labelModalPosition, setLabelModalPosition] = useState({ x: 0, y: 0 });
     const [labelPopover, setLabelPopover] = useState<{ label: Label; position: { x: number; y: number }; clickTime: number } | null>(null);
@@ -1024,12 +1024,7 @@ const Timeline: React.FC = () => {
     const handlePhaseEdit = (phase: Phase, e: React.MouseEvent) => {
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
-        const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
-        const idx = sorted.findIndex(p => p.id === phase.id);
-        const nextPhase = sorted[idx + 1];
-        const effectiveEndTime = phase.endTime ?? nextPhase?.startTime
-            ?? (Math.max(...timelineEvents.map(e => e.time), phase.startTime) + 10);
-        setSelectedPhase({ id: phase.id, name: phase.name, startTime: phase.startTime, endTime: effectiveEndTime });
+        setSelectedPhase({ id: phase.id, name: phase.name, startTime: phase.startTime, endTime: phase.endTime });
         setIsPhaseModalOpen(true);
     };
 
@@ -1074,12 +1069,7 @@ const Timeline: React.FC = () => {
     const handleLabelEdit = (label: Label, e: React.MouseEvent) => {
         e.stopPropagation();
         setLabelModalPosition({ x: e.clientX, y: e.clientY });
-        const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
-        const idx = sorted.findIndex(l => l.id === label.id);
-        const nextLabel = sorted[idx + 1];
-        const effectiveEndTime = label.endTime ?? nextLabel?.startTime
-            ?? (Math.max(...timelineEvents.map(e => e.time), label.startTime) + 10);
-        setSelectedLabel({ id: label.id, name: label.name, startTime: label.startTime, endTime: effectiveEndTime });
+        setSelectedLabel({ id: label.id, name: label.name, startTime: label.startTime, endTime: label.endTime });
         setIsLabelModalOpen(true);
     };
 
@@ -2332,9 +2322,7 @@ const Timeline: React.FC = () => {
                                             const startTime = phase.startTime;
                                             const nextPhase = sorted[index + 1];
                                             // endTimeは「その行を含む」（inclusive）→ 描画時は+1して次行の先頭まで伸ばす
-                                            const endTime = phase.endTime !== undefined
-                                                ? Math.min(phase.endTime + 1, nextPhase?.startTime ?? Infinity)
-                                                : nextPhase?.startTime ?? (Math.max(...timelineEvents.map(e => e.time), 0) + 10);
+                                            const endTime = phase.endTime + 1;
 
                                             if (!showPreStart && endTime <= 0) return null;
 
@@ -2381,9 +2369,7 @@ const Timeline: React.FC = () => {
                                             return sortedLabels.map((label, li) => {
                                                 const nextLabel = sortedLabels[li + 1];
                                                 // endTimeは inclusive → 描画時は+1
-                                                const effectiveEndTime = label.endTime !== undefined
-                                                    ? Math.min(label.endTime + 1, nextLabel?.startTime ?? Infinity)
-                                                    : nextLabel?.startTime ?? (gridLines[gridLines.length - 1] ?? label.startTime + 1);
+                                                const effectiveEndTime = label.endTime + 1;
 
                                                 const effectiveStart = Math.max(label.startTime, offsetTime);
                                                 const effectiveEnd = Math.max(effectiveEndTime, offsetTime);
