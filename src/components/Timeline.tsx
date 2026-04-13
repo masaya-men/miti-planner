@@ -676,6 +676,16 @@ const Timeline: React.FC = () => {
             });
         }
     }, [updatePreviewHighlight]);
+
+    // rAFクリーンアップ（アンマウント時）
+    useEffect(() => {
+        return () => {
+            if (previewRafRef.current !== null) {
+                cancelAnimationFrame(previewRafRef.current);
+            }
+        };
+    }, []);
+
     const [phasePopover, setPhasePopover] = useState<{ phase: Phase; position: { x: number; y: number }; clickTime: number } | null>(null);
 
     const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
@@ -1673,7 +1683,7 @@ const Timeline: React.FC = () => {
             window.addEventListener('keydown', handleKeyDown);
             return () => window.removeEventListener('keydown', handleKeyDown);
         }
-    }, [timelineSelectMode, labelSelectMode]);
+    }, [timelineSelectMode, labelSelectMode, throttledUpdatePreview]);
 
     useEffect(() => {
         if (!clearMenuOpen) return;
