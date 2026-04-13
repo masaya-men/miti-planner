@@ -26,20 +26,17 @@ export const LoPoButton: React.FC<{
     const [w, setW] = useState(0);
 
     useEffect(() => {
-        if (!containerRef.current) return;
-        const ro = new ResizeObserver(([entry]) => setW(entry.contentRect.width));
-        ro.observe(containerRef.current);
+        const el = containerRef.current;
+        if (!el) return;
+        setW(el.offsetWidth);
+        const ro = new ResizeObserver(() => setW(el.offsetWidth));
+        ro.observe(el);
         return () => ro.disconnect();
     }, []);
 
+    // カプセル枠線: 中央から左右に描画するため2本のパス
     const r = h / 2 - 0.75;
     const mid = w / 2;
-    const rightPath = w > 0
-        ? `M ${mid} 0.75 L ${w - h / 2} 0.75 A ${r} ${r} 0 0 1 ${w - 0.75} ${h / 2} A ${r} ${r} 0 0 1 ${w - h / 2} ${h - 0.75} L ${mid} ${h - 0.75}`
-        : '';
-    const leftPath = w > 0
-        ? `M ${mid} 0.75 L ${h / 2} 0.75 A ${r} ${r} 0 0 0 0.75 ${h / 2} A ${r} ${r} 0 0 0 ${h / 2} ${h - 0.75} L ${mid} ${h - 0.75}`
-        : '';
 
     return (
         <div
@@ -51,23 +48,25 @@ export const LoPoButton: React.FC<{
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' && onClick) onClick(); }}
         >
-            {/* カプセル枠線 */}
+            {/* カプセル枠線（ホバー時に中央から左右へストローク描画） */}
             {w > 0 && (
             <svg
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none overflow-visible"
                 width={w}
                 height={h}
                 fill="none"
             >
+                {/* 右半分: 中央上 → 右上 → 右弧 → 右下 → 中央下 */}
                 <path
-                    d={rightPath}
+                    d={`M ${mid} 0.75 L ${w - h / 2} 0.75 A ${r} ${r} 0 0 1 ${w - 0.75} ${h / 2} A ${r} ${r} 0 0 1 ${w - h / 2} ${h - 0.75} L ${mid} ${h - 0.75}`}
                     stroke="currentColor"
                     strokeWidth="1.5"
                     className="lopo-capsule-path"
                     pathLength="1"
                 />
+                {/* 左半分: 中央上 → 左上 → 左弧 → 左下 → 中央下 */}
                 <path
-                    d={leftPath}
+                    d={`M ${mid} 0.75 L ${h / 2} 0.75 A ${r} ${r} 0 0 0 0.75 ${h / 2} A ${r} ${r} 0 0 0 ${h / 2} ${h - 0.75} L ${mid} ${h - 0.75}`}
                     stroke="currentColor"
                     strokeWidth="1.5"
                     className="lopo-capsule-path"
