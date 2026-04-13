@@ -92,14 +92,14 @@ export interface Phase {
     id: string;
     name: LocalizedString;
     startTime: number;
-    endTime?: number;  // 未指定なら次のPhaseのstartTimeまで
+    endTime: number;
 }
 
 export interface Label {
     id: string;
     name: LocalizedString;
     startTime: number;
-    endTime?: number;  // 未指定なら次のLabelのstartTimeまたはフェーズ境界まで
+    endTime: number;
 }
 
 // ─────────────────────────────────────────────
