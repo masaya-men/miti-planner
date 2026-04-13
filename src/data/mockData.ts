@@ -51,6 +51,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'feint',
     'mantra',
     'riddle_of_earth',
+    'earths_reply',
     'troubadour_base',
     'troubadour',
     'nature_s_minne',
@@ -233,6 +234,10 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "riddle_of_earth", jobId: "mnk", name: { ja: "金剛の極意", en: "Riddle of Earth", zh: "金刚极意", ko: "금강의 극의" }, icon: "/icons/Riddle_of_Earth.png",
         recast: 120, duration: 10, type: "all", value: 20, isShield: false, scope: "self", minLevel: 64, family: "melee_self_miti"
+    },
+    {
+        id: "earths_reply", jobId: "mnk", name: { ja: "金剛周天", en: "Earth's Reply", zh: "金刚周天", ko: "금강주천" }, icon: "/icons/Earth's_Reply.png",
+        recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "party", minLevel: 64, requires: "riddle_of_earth", requiresWindow: 30
     },
 
     // --- Dark Knight ---

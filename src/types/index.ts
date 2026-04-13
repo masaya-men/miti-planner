@@ -53,6 +53,7 @@ export interface Mitigation {
     healingIncreaseDuration?: number; // Duration of healing increase if different from main duration (e.g. Physis II: 10s vs 15s main)
     healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)
     requires?: string; // Prerequisite mitigation ID that must be active
+    requiresWindow?: number; // Override window (seconds) for requires check (default: parent's duration)
     resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
     family?: string; // Compatibility family for job migration mappings

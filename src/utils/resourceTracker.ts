@@ -179,16 +179,19 @@ export function getRemainingCharges(
     if (def.requires) {
         // Window charges: count uses within the active prerequisite window
         const parentInstances = activeMitigations.filter(am => am.mitigationId === def.requires);
+        const reqWindow = def.requiresWindow;
         // Find the parent window that covers selectedTime
         const activeParent = parentInstances.find(p => {
-            return selectedTime >= p.time && selectedTime < p.time + p.duration;
+            const window = reqWindow ?? p.duration;
+            return selectedTime >= p.time && selectedTime < p.time + window;
         });
         if (!activeParent) return def.maxCharges; // No active parent = full charges (will be hidden anyway)
 
         // Count how many times this skill is placed within this parent window
+        const windowDuration = reqWindow ?? activeParent.duration;
         const usedInWindow = activeMitigations.filter(am => {
             if (am.mitigationId !== mitigationId) return false;
-            return am.time >= activeParent.time && am.time < activeParent.time + activeParent.duration;
+            return am.time >= activeParent.time && am.time < activeParent.time + windowDuration;
         }).length;
 
         return Math.max(0, def.maxCharges - usedInWindow);
@@ -265,8 +268,11 @@ export function validateMitigationPlacement(
         const parentInstances = relevantMitigations.filter(am => am.mitigationId === m.requires);
 
         // 移動させようとしている時間が、前提スキルの効果時間内に収まっているかチェック
+        // requiresWindow がある場合はそちらを使用（例: 金剛周天は金剛の極意の30秒窓）
+        const requiresWindow = m.requiresWindow;
         let isActiveParent = parentInstances.some(p => {
-            return selectedTime >= p.time && selectedTime < (p.time + p.duration);
+            const window = requiresWindow ?? p.duration;
+            return selectedTime >= p.time && selectedTime < (p.time + window);
         });
 
         // AST SpecialCase: Horoscope also allows Helios skills (which normally require Neutral Sect)
