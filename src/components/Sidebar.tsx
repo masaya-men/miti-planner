@@ -347,7 +347,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                         planData = await decompressPlanData(plan.compressedData);
                                                         store.updatePlan(plan.id, { data: planData, compressedData: undefined });
                                                     } catch {
-                                                        showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                                                        showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
                                                         return;
                                                     }
                                                 }
@@ -1086,7 +1086,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     planData = await decompressPlanData(plan.compressedData);
                     usePlanStore.getState().updatePlan(plan.id, { data: planData, compressedData: undefined });
                 } catch {
-                    showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                    showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
                     return;
                 }
             }
@@ -1794,7 +1794,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         try {
                                             planData = await decompressPlanData(plan.compressedData);
                                         } catch {
-                                            showToast(t('app.decompress_error') || '圧縮データの復元に失敗しました', 'error');
+                                            showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
                                             return;
                                         }
                                     }

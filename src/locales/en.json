@@ -49,6 +49,7 @@
         "share_copy_all_to_mine": "Copy All",
         "share_copied_toast": "Plan copied",
         "share_no_plans": "No plans found",
+        "decompress_error": "Failed to load data. Please refresh the page. If you are not signed in, the data may not be recoverable.",
         "shared_plan": "Shared Mitigation Plan",
         "auto_saved": "Auto-saved",
         "saving": "Saving...",
@@ -974,7 +975,7 @@
         "plan_limit_per_content": "You can have up to {{max}} plans per content.",
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "You have over {{threshold}} plans. Older plans outside of current Savage and Ultimate tiers will be automatically archived.",
-        "guest_hint": "Your data is saved in this browser only. <login>Sign in</login> to sync across devices and set a team logo on shared images.",
+        "guest_hint": "Your data is saved in this browser only and will be lost if you clear cookies or close incognito mode. <login>Sign in</login> to keep your data safe.",
         "guest_hint_short": "<login>Sign in</login> to sync across devices."
     },
     "mobile": {

@@ -54,6 +54,7 @@
         "share_copy_all_to_mine": "すべてコピー",
         "share_copied_toast": "軽減表をコピーしました",
         "share_no_plans": "プランがありません",
+        "decompress_error": "データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。",
         "shared_plan": "共有された軽減プラン",
         "auto_saved": "自動保存しました",
         "saving": "保存中...",
@@ -978,7 +979,7 @@
         "plan_limit_per_content": "このコンテンツの軽減表は最大{{max}}件までです。",
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "軽減表が{{threshold}}件を超えています。現行の零式・絶以外の古い軽減表は自動的に圧縮保存されます。",
-        "guest_hint": "データはこのブラウザにのみ保存されます。<login>ログイン</login>すると、他の端末でも引き継ぎ＆共有画像にロゴを設定できます。",
+        "guest_hint": "データはこのブラウザにのみ保存されます。Cookieの削除やシークレットモードの終了で失われます。<login>ログイン</login>すると安全に引き継げます。",
         "guest_hint_short": "<login>ログイン</login>すると他の端末でも引き継げます。"
     },
     "mobile": {

@@ -104,6 +104,55 @@ describe('compression', () => {
         expect(compressed.length).toBeLessThan(originalSize * 0.5);
     });
 
+    it('圧縮済みプランの共有パス: data=undefined + compressedData から復元できる', async () => {
+        // Sidebar.tsx の共有ハンドラと同じ条件分岐を再現
+        const original = samplePlanData;
+        const compressed = await compressPlanData(original);
+
+        // サイレント圧縮後のプラン状態をシミュレート
+        const plan = {
+            id: 'plan_1',
+            title: 'テスト軽減表',
+            contentId: 'fru',
+            data: undefined as unknown as PlanData,  // 圧縮済みなのでundefined
+            compressedData: compressed,
+        };
+
+        // Sidebar.tsx の共有ハンドラと同じ条件分岐
+        let planData = plan.data;
+        if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+            planData = await decompressPlanData(plan.compressedData);
+        }
+
+        // 共有データとして渡されるオブジェクト
+        const sharePayload = {
+            contentId: plan.contentId,
+            title: plan.title,
+            planData,
+        };
+
+        expect(sharePayload.planData).toEqual(original);
+        expect(sharePayload.title).toBe('テスト軽減表');
+        expect(sharePayload.contentId).toBe('fru');
+    });
+
+    it('通常プランの共有パス: data が存在する場合は解凍しない', async () => {
+        const plan = {
+            id: 'plan_2',
+            title: '通常プラン',
+            contentId: 'm1s',
+            data: samplePlanData,
+            compressedData: undefined as string | undefined,
+        };
+
+        let planData = plan.data;
+        if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+            planData = await decompressPlanData(plan.compressedData);
+        }
+
+        expect(planData).toEqual(samplePlanData);
+    });
+
     it('複数回の往復（3回）で元データと一致する', async () => {
         let data = samplePlanData;
 

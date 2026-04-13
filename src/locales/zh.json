@@ -49,6 +49,7 @@
         "share_copy_all_to_mine": "全部复制",
         "share_copied_toast": "方案已复制",
         "share_no_plans": "未找到方案",
+        "decompress_error": "数据加载失败。请刷新页面。如果未登录，数据可能无法恢复。",
         "shared_plan": "共享减伤方案",
         "auto_saved": "已自动保存",
         "saving": "保存中...",
@@ -954,7 +955,7 @@
         "plan_limit_per_content": "每个副本最多可创建 {{max}} 个方案。",
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "您已有超过 {{threshold}} 个方案。不属于当前零式和绝本的旧方案将自动归档。",
-        "guest_hint": "数据仅保存在此浏览器中。<login>登录</login>以跨设备同步并在分享图片中设置团队标志。",
+        "guest_hint": "数据仅保存在此浏览器中，清除Cookie或关闭无痕模式将导致数据丢失。<login>登录</login>以安全保存数据。",
         "guest_hint_short": "<login>登录</login>以跨设备同步数据。"
     },
     "mobile": {
