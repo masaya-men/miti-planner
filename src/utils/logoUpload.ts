@@ -95,7 +95,7 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
  * リサイズ → Firebase Storage → Firestore の順に処理し、ダウンロード URL を返す
  */
 export async function uploadTeamLogo(userId: string, file: File): Promise<string> {
-    console.log('[LogoUpload] 開始:', { fileName: file.name, fileSize: file.size, fileType: file.type });
+    console.log('[LogoUpload] 開始:', { fileSize: file.size, fileType: file.type });
 
     let blob: Blob;
     try {

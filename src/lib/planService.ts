@@ -379,7 +379,7 @@ async function migrateLocalPlansToFirestore(
         console.warn('プラン上限に達したため、残りのローカルプランのアップロードをスキップ');
         break;
       }
-      console.error('プランのアップロードに失敗:', plan.id, err);
+      console.error('プランのアップロードに失敗:', err);
     }
   }
 
@@ -478,9 +478,9 @@ async function syncDirtyPlans(
     }),
   );
 
-  for (const [i, result] of results.entries()) {
+  for (const [, result] of results.entries()) {
     if (result.status === 'rejected') {
-      console.error('Firestore同期エラー:', plansToSync[i].id, result.reason);
+      console.error('Firestore同期エラー:', result.reason);
     }
   }
 

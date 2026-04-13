@@ -45,6 +45,8 @@
 ### 中（特定環境・管理者向け）
 - [ ] ラベル名が管理画面で取得できない（スプシヘッダー問題？）
 - [ ] TS5.9互換: mockData.ts等のインポートパスに拡張子が必要（3件）
+- [ ] SVGパスエラー: `<path> attribute d`にCSS値（50%, calc()）が混入。コンソールに`Expected number`エラー
+- [ ] Firestore削除同期エラー: 削除済みプランの同期が`Missing or insufficient permissions`で失敗し続ける
 
 ### FFLogs残課題
 - [ ] 英語ログ警告: 未確認
