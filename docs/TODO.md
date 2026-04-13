@@ -13,13 +13,21 @@
 - **軽減アプリ: 一旦完成（2026-04-10）**
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
-### 進行中: サイドバー大幅改修（2026-04-13〜）
+### 完了: サイドバー大幅改修（2026-04-13）
 - 設計書: `docs/superpowers/specs/2026-04-13-sidebar-overhaul-design.md`
-- 実装計画: `docs/superpowers/plans/2026-04-13-sidebar-overhaul.md`（12タスク）
-- **完了: Task 1-2**（contentRegistryフィルタ関数 + 圧縮ユーティリティ）
-- **次: Task 3**（SavedPlan型拡張 + usePlanStoreアーカイブアクション）
-- **最大: Task 4**（Sidebar.tsxをタブ構造に書き換え）
-- subagent-driven-developmentで実行中
+- 実装計画: `docs/superpowers/plans/2026-04-13-sidebar-overhaul.md`（12タスク全完了）
+- Task 1-2: contentRegistryフィルタ関数 + 圧縮ユーティリティ
+- Task 3: SavedPlan型拡張 + アーカイブアクション
+- Task 4: サイドバーをタブ構造に書き換え（零式・絶・その他・アーカイブ）
+- Task 5: i18nキー追加（4言語）
+- Task 6: コンテンツ行ホバー+ボタン
+- Task 7: 右クリックコンテキストメニュー
+- Task 8: Shift+クリック複数選択
+- Task 9: アーカイブ切替時再圧縮 + 起動時回収
+- Task 10: 自動アーカイブ確認ダイアログ
+- Task 11: 不要コンポーネント削除
+- Task 12: ビルド確認（npm run build + vitest run パス）
+- **次: 開発サーバーで動作確認 → push → デプロイ**
 
 ### 完了（2026-04-13）
 - endTime必須化 + プレビュー120fps化 → デプロイ済み・動作確認OK
