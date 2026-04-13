@@ -15,7 +15,9 @@ import {
     getAllUltimates,
     getOtherContents,
     getSeriesById,
+    getCurrentExpansionLevel,
 } from '../data/contentRegistry';
+import { ArchivePromptModal } from './ArchivePromptModal';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { Tooltip } from './ui/Tooltip';
 import type { MultiSelectState } from '../types/sidebarTypes';
@@ -796,6 +798,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const [contextMenu, setContextMenu] = useState<{
         x: number; y: number; planId: string; planTitle: string; contentId: string | null;
     } | null>(null);
+    // 自動アーカイブ確認ダイアログ用ステート
+    const [archivePrompt, setArchivePrompt] = useState<{ planIds: string[] } | null>(null);
+
     // チュートリアル戻るボタン用: ストアからモーダルを閉じるカスタムイベント
     React.useEffect(() => {
         const handleClose = () => setIsNewPlanModalOpen(false);
@@ -827,6 +832,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         window.addEventListener('tutorial:plan-restored', handleRestored);
         return () => window.removeEventListener('tutorial:plan-restored', handleRestored);
     }, []);
+
     const [multiSelect, setMultiSelect] = useState<MultiSelectState>({
         isEnabled: false,
         selectedIds: [],
@@ -888,6 +894,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             setSelectedContentId(null);
         }
     }, [currentPlanId, plans]);
+
+    // 過去拡張の零式プランを検知して自動アーカイブ確認ダイアログを表示
+    React.useEffect(() => {
+        const currentLevel = getCurrentExpansionLevel();
+        const oldSavagePlans = plans.filter(p =>
+            !p.archived &&
+            p.category === 'savage' &&
+            p.level !== undefined &&
+            p.level < currentLevel
+        );
+        const dismissedKey = `archive-dismissed-${currentLevel}`;
+        const dismissed = localStorage.getItem(dismissedKey);
+        if (oldSavagePlans.length > 0 && !dismissed) {
+            setArchivePrompt({ planIds: oldSavagePlans.map(p => p.id) });
+        }
+    }, [plans]);
 
     // コンテンツクリック → 既存プランがあればそれを開く、なければ名前入力ダイアログを表示
     const handleSelectContent = (content: ContentDefinition, forceNew?: boolean) => {
