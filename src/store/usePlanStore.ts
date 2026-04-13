@@ -109,7 +109,7 @@ export const usePlanStore = create<PlanState>()(
                         currentPlanId: wasCurrent ? null : state.currentPlanId,
                         lastActivePlanId: state.lastActivePlanId === id ? null : state.lastActivePlanId,
                         _dirtyPlanIds: newDirty,
-                        _deletedPlanIds: plan
+                        _deletedPlanIds: plan && plan.ownerId !== 'local'
                             ? new Set([...state._deletedPlanIds, id])
                             : state._deletedPlanIds,
                     };
@@ -304,11 +304,19 @@ export const usePlanStore = create<PlanState>()(
 
                 try {
                     // 削除されたプランの処理
+                    const failedDeleteIds = new Set<string>();
                     for (const planId of syncingDeletedIds) {
                         try {
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
-                            console.error('Firestore削除エラー:', err);
+                            // 権限エラー・NOT_FOUND = Firestoreに存在しない → リトライ不要
+                            const msg = err instanceof Error ? err.message : '';
+                            if (msg.includes('permissions') || msg.includes('NOT_FOUND')) {
+                                // Firestoreに存在しないプランの削除は成功扱い
+                            } else {
+                                failedDeleteIds.add(planId);
+                                console.error('Firestore削除エラー:', err);
+                            }
                         }
                     }
 
@@ -352,7 +360,10 @@ export const usePlanStore = create<PlanState>()(
                         const remainingDirty = new Set(current._dirtyPlanIds);
                         for (const id of syncingDirtyIds) remainingDirty.delete(id);
                         const remainingDeleted = new Set(current._deletedPlanIds);
-                        for (const id of syncingDeletedIds) remainingDeleted.delete(id);
+                        // 削除失敗したものはキューに残す（次回リトライ）
+                        for (const id of syncingDeletedIds) {
+                            if (!failedDeleteIds.has(id)) remainingDeleted.delete(id);
+                        }
                         return {
                             _dirtyPlanIds: remainingDirty,
                             _deletedPlanIds: remainingDeleted,
@@ -378,12 +389,15 @@ export const usePlanStore = create<PlanState>()(
 
                 const syncWork = async () => {
                     const state = get();
-                    // 削除の処理
+                    // 削除の処理（権限エラー = Firestoreに存在しない → スキップ）
                     for (const planId of state._deletedPlanIds) {
                         try {
                             await planService.deletePlan(planId, uid, null);
                         } catch (err) {
-                            console.error('Firestore強制削除エラー:', err);
+                            const msg = err instanceof Error ? err.message : '';
+                            if (!msg.includes('permissions') && !msg.includes('NOT_FOUND')) {
+                                console.error('Firestore強制削除エラー:', err);
+                            }
                         }
                     }
                     // dirtyプランのみ同期（盲目的に全プランをpushしない）
@@ -460,8 +474,18 @@ export const usePlanStore = create<PlanState>()(
                         return { _deletedPlanIds: newDeleted };
                     });
                 } catch (err) {
-                    console.error('Firestore削除エラー:', err);
-                    // 失敗しても _deletedPlanIds に残っているので次回の同期で再試行
+                    const msg = err instanceof Error ? err.message : '';
+                    if (msg.includes('permissions') || msg.includes('NOT_FOUND')) {
+                        // Firestoreに存在しないプラン → キューから除去
+                        set((state) => {
+                            const newDeleted = new Set(state._deletedPlanIds);
+                            newDeleted.delete(planId);
+                            return { _deletedPlanIds: newDeleted };
+                        });
+                    } else {
+                        console.error('Firestore削除エラー:', err);
+                        // 失敗しても _deletedPlanIds に残っているので次回の同期で再試行
+                    }
                 }
             },
 
@@ -480,7 +504,10 @@ export const usePlanStore = create<PlanState>()(
                             try {
                                 await planService.deletePlan(planId, uid, null);
                             } catch (err) {
-                                console.error('手動同期: 削除エラー:', err);
+                                const msg = err instanceof Error ? err.message : '';
+                                if (!msg.includes('permissions') && !msg.includes('NOT_FOUND')) {
+                                    console.error('手動同期: 削除エラー:', err);
+                                }
                             }
                         }
                         const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
