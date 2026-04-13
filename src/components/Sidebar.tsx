@@ -999,18 +999,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         timelineEvents: tpl.timelineEvents,
                         phases: tpl.phases ? ensurePhaseEndTimes(tpl.phases
                             .filter(p => p.startTimeSec >= 0)
-                            .map((p, i) => ({
+                            .map((p) => ({
                                 id: `phase_${p.id}`,
                                 name: p.name
                                     ? (typeof p.name === 'string'
                                         ? { ja: p.name, en: '' }
                                         : {
-                                            ja: p.name.ja || `Phase ${i + 1}`,
-                                            en: p.name.en || `Phase ${i + 1}`,
-                                            ...(p.name.zh ? { zh: p.name.zh } : {}),
-                                            ...(p.name.ko ? { ko: p.name.ko } : {}),
+                                            ja: p.name.ja ?? '',
+                                            en: p.name.en ?? '',
+                                            ...(p.name.zh != null ? { zh: p.name.zh } : {}),
+                                            ...(p.name.ko != null ? { ko: p.name.ko } : {}),
                                         })
-                                    : { ja: `Phase ${i + 1}`, en: `Phase ${i + 1}` },
+                                    : { ja: '', en: '' },
                                 startTime: p.startTimeSec,
                             }))) : [],
                         ...(labels ? { labels } : {}),

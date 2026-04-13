@@ -724,6 +724,9 @@ const Timeline: React.FC = () => {
     const [phaseColumnCollapsed, setPhaseColumnCollapsed] = useState(() => {
         try { return localStorage.getItem('lopo-phase-col-collapsed') === 'true'; } catch { return false; }
     });
+    const [labelColumnCollapsed, setLabelColumnCollapsed] = useState(() => {
+        try { return localStorage.getItem('lopo-label-col-collapsed') === 'true'; } catch { return false; }
+    });
     const phaseHeaderRef = useRef<HTMLDivElement>(null);
     const gimmickHeaderRef = useRef<HTMLDivElement>(null);
     const timeHeaderRef = useRef<HTMLDivElement>(null);
@@ -745,6 +748,17 @@ const Timeline: React.FC = () => {
             return next;
         });
     };
+
+    const handleToggleLabelCollapse = () => {
+        setLabelColumnCollapsed(prev => {
+            const next = !prev;
+            try { localStorage.setItem('lopo-label-col-collapsed', String(next)); } catch {}
+            return next;
+        });
+    };
+
+    const hasLabels = labels.length > 0;
+    const labelColumnVisible = !labelColumnCollapsed && !(phaseColumnCollapsed && !hasLabels);
 
     const handleNavJump = (time: number) => {
         if (!scrollContainerRef.current) return;
@@ -1619,7 +1633,13 @@ const Timeline: React.FC = () => {
             } else if (key === 't') {
                 e.preventDefault();
                 setTimeInputOpen(prev => !prev);
-            } else if (key === 'l') {
+            } else if (key === 'l' && e.shiftKey) {
+                // Shift+L: ラベル列の表示/非表示
+                e.preventDefault();
+                if (gimmickDropdownOpen) setGimmickDropdownOpen(false);
+                handleToggleLabelCollapse();
+            } else if (key === 'l' && !e.shiftKey) {
+                // L: ラベルドロップダウン開閉
                 e.preventDefault();
                 setGimmickDropdownOpen(prev => !prev);
             } else if (key === 'a') {
@@ -1629,7 +1649,7 @@ const Timeline: React.FC = () => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [phaseDropdownOpen]);
+    }, [phaseDropdownOpen, gimmickDropdownOpen]);
 
     useEffect(() => {
         const handleReset = () => {
@@ -2034,7 +2054,7 @@ const Timeline: React.FC = () => {
                                             </Tooltip>
                                         )}
                                         {/* モバイル: フェーズなし → ラベルヘッダーをフェーズ位置に */}
-                                        {mobileLabelInPhaseSlot && !phaseColumnCollapsed && (
+                                        {mobileLabelInPhaseSlot && labelColumnVisible && (
                                             <div
                                                 ref={gimmickHeaderRef}
                                                 className="w-[24px] min-w-[24px] md:hidden flex-none border-r border-app-border h-full flex items-center justify-center text-app-text-muted font-black text-app-xs"
@@ -2044,7 +2064,7 @@ const Timeline: React.FC = () => {
                                             </div>
                                         )}
                                         {/* PC: ラベル列ヘッダー */}
-                                        {!phaseColumnCollapsed && (
+                                        {labelColumnVisible ? (
                                             <Tooltip content={t('timeline.header_gimmick_tooltip')}>
                                                 <div
                                                     ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
@@ -2055,6 +2075,16 @@ const Timeline: React.FC = () => {
                                                         {t('timeline.header_gimmick')}
                                                         <ChevronDown size={10} className="inline" />
                                                     </span>
+                                                </div>
+                                            </Tooltip>
+                                        ) : (
+                                            <Tooltip content={`${t('timeline.nav_label_expand')} (Shift+L)`}>
+                                                <div
+                                                    ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
+                                                    className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                                    onClick={() => handleToggleLabelCollapse()}
+                                                >
+                                                    <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
                                                 </div>
                                             </Tooltip>
                                         )}
@@ -2331,6 +2361,7 @@ const Timeline: React.FC = () => {
                                                 onCellClick={handleCellClick}
                                                 onMobileDamageClick={handleMobileDamageClick}
                                                 phaseColumnCollapsed={phaseColumnCollapsed}
+                                                labelColumnVisible={labelColumnVisible}
                                                 timelineSelectMode={timelineSelectMode}
                                                 labelSelectMode={labelSelectMode}
                                                 onTimelineSelect={(time) => {
@@ -2383,6 +2414,8 @@ const Timeline: React.FC = () => {
                                             const endTime = phase.endTime + 1;
 
                                             if (!showPreStart && endTime <= 0) return null;
+                                            // フェーズ名が空ならオーバーレイ全体を描画しない
+                                            if (!getPhaseName(phase.name, contentLanguage)) return null;
 
                                             const effectiveStartTime = Math.max(startTime, offsetTime);
                                             const effectiveEndTime = Math.max(endTime, offsetTime);
@@ -2420,7 +2453,7 @@ const Timeline: React.FC = () => {
                                         })()}
 
                                         {/* ラベル区間オーバーレイ（PC only） */}
-                                        {!phaseColumnCollapsed && labels.length > 0 && (() => {
+                                        {labelColumnVisible && labels.length > 0 && (() => {
                                             const offsetTime = showPreStart ? -10 : 0;
                                             const sortedLabels = [...labels].sort((a, b) => a.startTime - b.startTime);
 
@@ -2447,8 +2480,8 @@ const Timeline: React.FC = () => {
                                                         className={clsx(
                                                             "absolute border-r border-b border-app-border/50 bg-app-surface2 pointer-events-none z-10",
                                                             hasPhases
-                                                                ? "hidden md:block left-[60px] w-[50px]"
-                                                                : "left-0 w-[24px] md:left-[60px] md:w-[50px]"
+                                                                ? `hidden md:block ${phaseColumnCollapsed ? 'left-[16px]' : 'left-[60px]'} w-[50px]`
+                                                                : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[16px]' : 'md:left-[60px]'} md:w-[50px]`
                                                         )}
                                                         style={{ top: `${top}px`, height: `${height}px` }}
                                                     >
@@ -2473,8 +2506,10 @@ const Timeline: React.FC = () => {
                                             className={clsx(
                                                 "absolute pointer-events-none z-20 border-2 border-app-blue bg-app-blue/10 rounded-sm",
                                                 labelSelectMode
-                                                    ? (phases.length > 0 ? "hidden md:block left-[60px] w-[50px]" : "left-0 w-[24px] md:left-[60px] md:w-[50px]")
-                                                    : "left-0 w-[24px] md:w-[60px]"
+                                                    ? (phases.length > 0
+                                                        ? `hidden md:block ${phaseColumnCollapsed ? 'left-[16px]' : 'left-[60px]'} w-[50px]`
+                                                        : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[16px]' : 'md:left-[60px]'} md:w-[50px]`)
+                                                    : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:w-[16px]' : 'md:w-[60px]'}`
                                             )}
                                             style={{ display: 'none' }}
                                         />
@@ -2793,6 +2828,8 @@ const Timeline: React.FC = () => {
                 labels={labels}
                 onJump={handleNavJump}
                 triggerRef={gimmickHeaderRef}
+                isCollapsed={labelColumnCollapsed}
+                onToggleCollapse={handleToggleLabelCollapse}
             />
             <HeaderTimeInput
                 isOpen={timeInputOpen}

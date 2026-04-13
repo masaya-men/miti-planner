@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -14,10 +14,12 @@ interface HeaderGimmickDropdownProps {
     labels: Label[];
     onJump: (time: number) => void;
     triggerRef: React.RefObject<HTMLElement | null>;
+    isCollapsed: boolean;
+    onToggleCollapse: () => void;
 }
 
 export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
-    isOpen, onClose, labels, onJump, triggerRef
+    isOpen, onClose, labels, onJump, triggerRef, isCollapsed, onToggleCollapse
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
@@ -104,6 +106,17 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
                         );
                     })
                 )}
+            </div>
+
+            {/* 折りたたみトグル */}
+            <div className="border-t border-glass-border">
+                <button
+                    onClick={() => { onToggleCollapse(); onClose(); }}
+                    className="w-full px-3 py-2.5 text-left text-app-lg text-app-text-muted hover:bg-glass-hover cursor-pointer transition-colors flex items-center gap-2"
+                >
+                    {isCollapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+                    {isCollapsed ? t('timeline.nav_label_expand') : t('timeline.nav_label_collapse')}
+                </button>
             </div>
         </div>,
         document.body

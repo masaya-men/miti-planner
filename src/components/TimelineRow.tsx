@@ -54,6 +54,7 @@ interface TimelineRowProps {
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
     onLabelAdd?: (time: number, e: React.MouseEvent) => void;
     phaseColumnCollapsed?: boolean;
+    labelColumnVisible?: boolean;
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
     labelSelectMode?: { labelId: string; startTime: number } | null;
@@ -124,6 +125,7 @@ export const TimelineRow = memo(({
     onMobileDamageClick,
     onLabelAdd,
     phaseColumnCollapsed,
+    labelColumnVisible,
     hasPhases = true,
     timelineSelectMode,
     labelSelectMode,
@@ -221,8 +223,8 @@ export const TimelineRow = memo(({
                 <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
             )}
 
-            {/* Label Column — スマホ: フェーズなし→フェーズ位置に表示 / PC: 常に表示 */}
-            {!phaseColumnCollapsed && (
+            {/* Label Column — スマホ: フェーズなし→フェーズ位置に表示 / PC: 展開or折り畳み */}
+            {labelColumnVisible ? (
                 <div
                     data-label-col
                     className={clsx(
@@ -254,6 +256,8 @@ export const TimelineRow = memo(({
                         </Tooltip>
                     )}
                 </div>
+            ) : (
+                <div className="w-[16px] min-w-[16px] max-w-[16px] border-r border-app-border h-full hidden md:block" />
             )}
 
             {/* Time Column — スマホ: 軽減追加 */}
@@ -642,5 +646,7 @@ export const TimelineRow = memo(({
             if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
         }
     }
+    if (prevProps.phaseColumnCollapsed !== nextProps.phaseColumnCollapsed) return false;
+    if (prevProps.labelColumnVisible !== nextProps.labelColumnVisible) return false;
     return true;
 });
