@@ -236,7 +236,7 @@ export const MITIGATIONS: Mitigation[] = [
         recast: 120, duration: 10, type: "all", value: 20, isShield: false, scope: "self", minLevel: 64, family: "melee_self_miti"
     },
     {
-        id: "earths_reply", jobId: "mnk", name: { ja: "金剛周天", en: "Earth's Reply", zh: "金刚周天", ko: "금강주천" }, icon: "/icons/Earth's_Reply.png",
+        id: "earths_reply", jobId: "mnk", name: { ja: "金剛周天", en: "Earth's Reply", zh: "金刚周天", ko: "금강주천" }, icon: "/icons/Earths_Reply.png",
         recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "party", minLevel: 64, requires: "riddle_of_earth", requiresWindow: 30
     },
 
