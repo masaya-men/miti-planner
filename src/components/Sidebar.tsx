@@ -54,6 +54,8 @@ import { showToast } from './Toast';
 import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { ContextMenu } from './ui/ContextMenu';
+import { decompressPlanData } from '../utils/compression';
+import { setLastOpened } from '../utils/lastOpenedStore';
 
 // ─────────────────────────────────────────────
 // Props
@@ -327,19 +329,27 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                 return;
                                             }
                                             if (currentPlanId === plan.id) return;
-                                            runTransition(() => {
+                                            runTransition(async () => {
                                                 const store = usePlanStore.getState();
                                                 const snap = useMitigationStore.getState().getSnapshot();
                                                 if (store.currentPlanId) {
                                                     store.updatePlan(store.currentPlanId, { data: snap });
-                                                    // アーカイブプランなら再圧縮
+                                                    // アーカイブ/サイレント圧縮プランなら再圧縮
                                                     const currentPlan = store.plans.find(p => p.id === store.currentPlanId);
-                                                    if (currentPlan?.archived) {
+                                                    if (currentPlan?.archived || currentPlan?.compressedData) {
                                                         store.archivePlan(store.currentPlanId);
                                                     }
                                                 }
-                                                useMitigationStore.getState().loadSnapshot(plan.data);
+                                                // サイレント圧縮されている場合は解凍
+                                                let planData = plan.data;
+                                                if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+                                                    planData = await decompressPlanData(plan.compressedData);
+                                                    store.updatePlan(plan.id, { data: planData, compressedData: undefined });
+                                                }
+                                                useMitigationStore.getState().loadSnapshot(planData);
                                                 store.setCurrentPlanId(plan.id);
+                                                // lastOpenedAt を更新
+                                                setLastOpened(plan.id, Date.now());
                                             }, 'plan');
                                         }}
                                         onKeyDown={(e) => {
@@ -665,6 +675,8 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
                         store.updatePlan(plan.id, { data });
                         useMitigationStore.getState().loadSnapshot(data);
                         store.setCurrentPlanId(plan.id);
+                        // lastOpenedAt を更新
+                        setLastOpened(plan.id, Date.now());
                     }, 'plan');
                 }
             }}
@@ -1046,24 +1058,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
         const plan = usePlanStore.getState().getPlan(planId);
         if (!plan || currentPlanId === planId) return;
 
-        runTransition(() => {
+        runTransition(async () => {
             // Save current session before switching
             if (currentPlanId) {
                 const snapshot = getSnapshot();
                 updatePlan(currentPlanId, { data: snapshot });
-                // アーカイブプランなら再圧縮
+                // アーカイブ/サイレント圧縮プランなら再圧縮
                 const currentPlan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
-                if (currentPlan?.archived) {
+                if (currentPlan?.archived || currentPlan?.compressedData) {
                     usePlanStore.getState().archivePlan(currentPlanId);
                 }
             }
 
+            // サイレント圧縮されている場合は解凍
+            let planData = plan.data;
+            if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
+                planData = await decompressPlanData(plan.compressedData);
+                usePlanStore.getState().updatePlan(plan.id, { data: planData, compressedData: undefined });
+            }
+
             // Load new plan
-            loadSnapshot(plan.data);
+            loadSnapshot(planData);
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
             const c = plan.contentId ? getContentById(plan.contentId) : undefined;
-            const newLevel = (c?.level ?? plan.level ?? plan.data.currentLevel ?? 100) as ContentLevel;
+            const newLevel = (c?.level ?? plan.level ?? planData.currentLevel ?? 100) as ContentLevel;
             if (c) {
                 if (c.category === 'savage') setActiveTab('savage');
                 else if (c.category === 'ultimate') setActiveTab('ultimate');
@@ -1072,6 +1091,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 setActiveTab('other');
             }
             useMitigationStore.getState().setCurrentLevel(newLevel);
+            // lastOpenedAt を更新
+            setLastOpened(planId, Date.now());
         }, 'plan');
     };
 
