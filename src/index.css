@@ -1220,3 +1220,19 @@ button, [role="button"], .touch-none {
     --duration-toast: 0ms;
   }
 }
+
+/* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
+/* デスクトップ: フェーズ/ラベル列を個別にハイライト */
+.phase-select-preview .preview-highlight [data-phase-col] {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+.label-select-preview .preview-highlight [data-label-col] {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+/* モバイル: カード全体をハイライト */
+@media (max-width: 767px) {
+    .phase-select-preview .preview-highlight[data-time-row],
+    .label-select-preview .preview-highlight[data-time-row] {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+}
