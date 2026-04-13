@@ -473,6 +473,7 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
     const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
     const [editingTitle, setEditingTitle] = React.useState('');
     const editInputRef = React.useRef<HTMLInputElement>(null);
+    const [confirmDeletePlanId, setConfirmDeletePlanId] = React.useState<string | null>(null);
 
     const startEditing = (planId: string, title: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -588,21 +589,36 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                                         <Pencil size={9} />
                                     </button>
                                 </Tooltip>
-                                <Tooltip content={t('sidebar.delete_single')}>
+                                {/* 削除ボタン（2段階確認） */}
+                                <Tooltip content={confirmDeletePlanId === plan.id ? t('sidebar.delete_single_confirm_click') : t('sidebar.delete_single')}>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            const ps = usePlanStore.getState();
-                                            const authUser = useAuthStore.getState().user;
-                                            if (authUser) {
-                                                ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
+                                            if (confirmDeletePlanId === plan.id) {
+                                                const ps = usePlanStore.getState();
+                                                const authUser = useAuthStore.getState().user;
+                                                if (authUser) {
+                                                    ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
+                                                } else {
+                                                    ps.deletePlan(plan.id);
+                                                }
+                                                setConfirmDeletePlanId(null);
                                             } else {
-                                                ps.deletePlan(plan.id);
+                                                setConfirmDeletePlanId(plan.id);
+                                                setTimeout(() => setConfirmDeletePlanId(null), 3000);
                                             }
                                         }}
-                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                        className={clsx(
+                                            "shrink-0 rounded flex items-center justify-center transition-colors cursor-pointer",
+                                            confirmDeletePlanId === plan.id
+                                                ? "text-red-500 bg-red-500/10 px-2 py-0.5 gap-1"
+                                                : "text-app-text-muted hover:text-red-500 hover:bg-red-500/10 w-5 h-5"
+                                        )}
                                     >
                                         <Trash2 size={9} />
+                                        {confirmDeletePlanId === plan.id && (
+                                            <span className="text-[10px] font-bold whitespace-nowrap">{t('sidebar.delete_single')}</span>
+                                        )}
                                     </button>
                                 </Tooltip>
                             </div>
@@ -1131,7 +1147,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         : seriesName;
                                     return (
                                         <div key={sid}>
-                                            <div className="text-[9px] font-semibold text-app-text-muted uppercase tracking-wider px-2 pt-2 pb-1">
+                                            <div className="text-app-base font-bold text-app-text-muted px-2.5 pt-3 pb-1">
                                                 {sectionLabel}
                                             </div>
                                             {contents.map((content, idx) => (

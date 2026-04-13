@@ -258,11 +258,17 @@ export function getSavageForCurrentExpansion(): ContentDefinition[] {
         .sort((a, b) => a.order - b.order);
 }
 
-/** 全絶コンテンツ一覧（レベル降順→同レベル内はorder昇順＝P1が上） */
+/** 全絶コンテンツ一覧（patch降順→同patch内はorder昇順＝DSR P1がDSRの上） */
 export function getAllUltimates(): ContentDefinition[] {
     return getContentDefinitions()
         .filter(c => c.category === 'ultimate')
-        .sort((a, b) => b.level - a.level || a.order - b.order);
+        .sort((a, b) => {
+            // patch降順で比較（"7.11" > "6.31" > "6.11" > "5.11" etc.）
+            const patchCmp = b.patch.localeCompare(a.patch, undefined, { numeric: true });
+            if (patchCmp !== 0) return patchCmp;
+            // 同patchではorder昇順（DSR P1=0.1 が DSR=1 の前に来る）
+            return a.order - b.order;
+        });
 }
 
 /** dungeon/raid/custom コンテンツ一覧 */
