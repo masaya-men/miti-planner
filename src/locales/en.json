@@ -976,7 +976,7 @@
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "You have over {{threshold}} plans. Older plans outside of current Savage and Ultimate tiers will be automatically archived.",
         "guest_hint": "Your data is saved in this browser only and will be lost if you clear cookies or close incognito mode. <login>Sign in</login> to keep your data safe.",
-        "guest_hint_short": "<login>Sign in</login> to sync across devices."
+        "guest_hint_short": "Data is saved on this device only. <login>Sign in</login> to keep it safe."
     },
     "mobile": {
         "tools_title": "Tools",

@@ -956,7 +956,7 @@
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "계획이 {{threshold}}개를 초과했습니다. 현재 영식 및 절 이외의 오래된 계획은 자동으로 보관됩니다.",
         "guest_hint": "데이터는 이 브라우저에만 저장되며, 쿠키 삭제 또는 시크릿 모드 종료 시 삭제됩니다. <login>로그인</login>하면 안전하게 보관됩니다.",
-        "guest_hint_short": "<login>로그인</login>하면 기기 간 동기화가 가능합니다."
+        "guest_hint_short": "데이터는 이 기기에만 저장됩니다. <login>로그인</login>하면 안전하게 보관됩니다."
     },
     "mobile": {
         "tools_title": "도구",

@@ -956,7 +956,7 @@
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "您已有超过 {{threshold}} 个方案。不属于当前零式和绝本的旧方案将自动归档。",
         "guest_hint": "数据仅保存在此浏览器中，清除Cookie或关闭无痕模式将导致数据丢失。<login>登录</login>以安全保存数据。",
-        "guest_hint_short": "<login>登录</login>以跨设备同步数据。"
+        "guest_hint_short": "数据仅保存在此设备上。<login>登录</login>以安全保存。"
     },
     "mobile": {
         "tools_title": "工具",

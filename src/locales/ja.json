@@ -980,7 +980,7 @@
         "plan_limit_count": "{{current}} / {{max}}",
         "plan_archive_warning": "軽減表が{{threshold}}件を超えています。現行の零式・絶以外の古い軽減表は自動的に圧縮保存されます。",
         "guest_hint": "データはこのブラウザにのみ保存されます。Cookieの削除やシークレットモードの終了で失われます。<login>ログイン</login>すると安全に引き継げます。",
-        "guest_hint_short": "<login>ログイン</login>すると他の端末でも引き継げます。"
+        "guest_hint_short": "データはこの端末にのみ保存されます。<login>ログイン</login>すると安全に引き継げます。"
     },
     "mobile": {
         "tools_title": "ツール",
