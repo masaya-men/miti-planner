@@ -22,7 +22,7 @@ export function migrateLabels(timelineEvents: TimelineEvent[], phases: Phase[]):
     // 時刻順にソート
     const sorted = [...timelineEvents].sort((a, b) => a.time - b.time);
 
-    const labels: Label[] = [];
+    const labels: Array<Omit<Label, 'endTime'>> = [];
     let currentLabelName: string | null = null;
     let currentPhaseId: string | null = null;
 
@@ -56,7 +56,22 @@ export function migrateLabels(timelineEvents: TimelineEvent[], phases: Phase[]):
         }
     }
 
-    return labels;
+    return ensureLabelEndTimes(labels);
+}
+
+/**
+ * endTimeが未定義のラベルにendTimeを補完する。
+ * - 中間ラベル: 次のラベルのstartTime
+ * - 最終ラベル: startTime + 1
+ */
+export function ensureLabelEndTimes(labels: Array<Omit<Label, 'endTime'> & { endTime?: number }>): Label[] {
+    if (labels.length === 0) return [];
+    const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
+    return sorted.map((l, i) => {
+        if (l.endTime !== undefined) return l as Label;
+        const next = sorted[i + 1];
+        return { ...l, endTime: next ? next.startTime : l.startTime + 1 } as Label;
+    });
 }
 
 /** イベントの時刻がどのフェーズに属するかをIDで返す。フェーズがない場合はnull */

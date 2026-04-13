@@ -14,7 +14,7 @@ type TPhase = {
     id: string;
     name: { ja: string; en: string };
     startTime: number;
-    endTime?: number;
+    endTime: number;
 };
 
 describe('isLegacyLabelFormat', () => {
@@ -94,8 +94,8 @@ describe('migrateLabels', () => {
     it('フェーズ境界でラベルは区切る', () => {
         // フェーズ1: 0-30、フェーズ2: 30-
         const phases: TPhase[] = [
-            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
-            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 30 },
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 30 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 30, endTime: 60 },
         ];
         const events: TEvent[] = [
             { id: 'e1', time: 0, name: { ja: 'A', en: 'A' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
@@ -121,5 +121,16 @@ describe('migrateLabels', () => {
         expect(result[0].id).toBeTruthy();
         expect(result[1].id).toBeTruthy();
         expect(result[0].id).not.toBe(result[1].id);
+    });
+
+    it('生成されたラベルにendTimeが補完される', () => {
+        const events: TEvent[] = [
+            { id: 'e1', time: 0, name: { ja: 'A', en: 'A' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
+            { id: 'e2', time: 10, name: { ja: 'B', en: 'B' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
+            { id: 'e3', time: 20, name: { ja: 'C', en: 'C' }, damageType: 'magical', mechanicGroup: { ja: '展開', en: 'Spread' } },
+        ];
+        const result = migrateLabels(events, []);
+        expect(result[0].endTime).toBe(20);
+        expect(result[1].endTime).toBe(21);
     });
 });
