@@ -258,11 +258,11 @@ export function getSavageForCurrentExpansion(): ContentDefinition[] {
         .sort((a, b) => a.order - b.order);
 }
 
-/** 全絶コンテンツ一覧（レベル不問、レベル昇順→order昇順） */
+/** 全絶コンテンツ一覧（レベル降順→同レベル内はorder昇順＝P1が上） */
 export function getAllUltimates(): ContentDefinition[] {
     return getContentDefinitions()
         .filter(c => c.category === 'ultimate')
-        .sort((a, b) => a.level - b.level || a.order - b.order);
+        .sort((a, b) => b.level - a.level || a.order - b.order);
 }
 
 /** dungeon/raid/custom コンテンツ一覧 */

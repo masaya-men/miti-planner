@@ -33,7 +33,7 @@ import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { createTutorialEvents, TUTORIAL_PLAN_TITLE } from '../data/tutorialTemplate';
 import i18n from '../i18n';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-
+import { SegmentButton } from './ui/SegmentButton';
 import {
     Plus,
     ChevronLeft,
@@ -82,10 +82,12 @@ interface ContentTreeItemProps {
     lang: ContentLanguage;
     onContextMenu?: (e: React.MouseEvent, planId: string, planTitle: string, contentId: string | null) => void;
     onShiftSelect?: (planId: string) => void;
+    /** shortNameアイコンの代わりに正式名称をテキスト表示する */
+    showFullName?: boolean;
 }
 
 const ContentTreeItem = React.memo<ContentTreeItemProps>(({
-    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang, onContextMenu, onShiftSelect
+    content, isActive, multiSelect, onToggleSelect, onSelect, highlightFirst, lang, onContextMenu, onShiftSelect, showFullName
 }) => {
     const { t } = useTranslation();
     const { plans, currentPlanId, updatePlan } = usePlanStore(
@@ -215,19 +217,29 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                             </div>
                         )}
 
-                        <div className="shrink-0 flex items-center justify-center">
-                            <div className={clsx(
-                                "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
-                                isActive && !multiSelect.isEnabled
-                                    ? "bg-app-toggle text-app-toggle-text"
-                                    : "bg-glass-card text-app-text group-hover:bg-glass-hover"
+                        {showFullName ? (
+                            /* 正式名称テキスト表示（絶タブ用） */
+                            <span className={clsx(
+                                "flex-1 min-w-0 truncate text-app-base font-bold",
+                                isActive && !multiSelect.isEnabled ? "text-app-text" : "text-app-text"
                             )}>
-                                <span className="leading-none">{shortName.split('\n')[0]}</span>
-                                {shortName.split('\n')[1] && (
-                                    <span className="text-app-sm leading-none mt-0.5">{shortName.split('\n')[1]}</span>
-                                )}
+                                {floorName}
+                            </span>
+                        ) : (
+                            <div className="shrink-0 flex items-center justify-center">
+                                <div className={clsx(
+                                    "w-8 h-9 rounded flex flex-col items-center justify-center font-black text-app-base shrink-0",
+                                    isActive && !multiSelect.isEnabled
+                                        ? "bg-app-toggle text-app-toggle-text"
+                                        : "bg-glass-card text-app-text group-hover:bg-glass-hover"
+                                )}>
+                                    <span className="leading-none">{shortName.split('\n')[0]}</span>
+                                    {shortName.split('\n')[1] && (
+                                        <span className="text-app-sm leading-none mt-0.5">{shortName.split('\n')[1]}</span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* プランありシェブロン（展開インジケーター兼プラン存在表示） */}
                         {contentPlans.length > 0 && !multiSelect.isEnabled && (
@@ -523,30 +535,78 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                     }
 
                     return (
-                        <button
+                        <div
                             key={plan.id}
+                            role="button"
+                            tabIndex={0}
                             onClick={() => onLoadPlan(plan.id)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    onLoadPlan(plan.id);
+                                }
+                            }}
                             className={clsx(
-                                "sidebar-item w-full text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium truncate flex items-center gap-2 cursor-pointer active:scale-[0.98] relative",
-                                currentPlanId === plan.id ? "text-app-text font-bold" : "text-app-text hover:bg-glass-hover"
+                                "sidebar-item w-full text-left text-app-base py-1 px-2 rounded-md transition-colors font-medium flex items-center gap-2 cursor-pointer active:scale-[0.98] relative group/plan",
+                                currentPlanId === plan.id
+                                    ? "bg-app-text/10 text-app-text font-bold"
+                                    : "text-app-text hover:bg-glass-hover"
                             )}
                         >
                             {currentPlanId === plan.id && (
                                 <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-app-toggle" />
                             )}
                             <span className={clsx("w-1 h-1 rounded-full shrink-0", currentPlanId === plan.id ? "bg-app-toggle" : "bg-app-text-muted/40")} />
-                            {plan.title}
-                            {currentPlanId === plan.id && (
+                            <Tooltip content={plan.title} position="top" wrapperClassName="flex-1 min-w-0 !w-auto !justify-start">
+                                <span className="block truncate text-left">{plan.title}</span>
+                            </Tooltip>
+                            <div className={clsx(
+                                "flex items-center shrink-0 transition-opacity duration-150",
+                                currentPlanId === plan.id
+                                    ? "opacity-100"
+                                    : "opacity-0 group-hover/plan:opacity-100"
+                            )}>
+                                <Tooltip content={t('sidebar.duplicate_plan')}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
+                                            if (!newPlan) {
+                                                showToast(t('sidebar.duplicate_limit_reached'), 'error');
+                                            }
+                                        }}
+                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                    >
+                                        <Copy size={9} />
+                                    </button>
+                                </Tooltip>
                                 <Tooltip content={t('app.rename')}>
                                     <button
                                         onClick={(e) => startEditing(plan.id, plan.title, e)}
-                                        className="ml-auto shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
                                     >
                                         <Pencil size={9} />
                                     </button>
                                 </Tooltip>
-                            )}
-                        </button>
+                                <Tooltip content={t('sidebar.delete_single')}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            const ps = usePlanStore.getState();
+                                            const authUser = useAuthStore.getState().user;
+                                            if (authUser) {
+                                                ps.deleteFromFirestore(plan.id, authUser.uid, plan.contentId);
+                                            } else {
+                                                ps.deletePlan(plan.id);
+                                            }
+                                        }}
+                                        className="shrink-0 w-5 h-5 rounded flex items-center justify-center text-app-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                    >
+                                        <Trash2 size={9} />
+                                    </button>
+                                </Tooltip>
+                            </div>
+                        </div>
                     );
                 })}
             </div>
@@ -993,28 +1053,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     <div className="p-2 border-b border-glass-border" />
 
                     {/* タブ */}
-                    <div className="flex px-2.5 pt-2 gap-0.5">
-                        {([
-                            { key: 'savage' as const, icon: '\u2694', label: t('sidebar.tab_savage') },
-                            { key: 'ultimate' as const, icon: '\uD83D\uDC51', label: t('sidebar.tab_ultimate') },
-                            { key: 'other' as const, icon: '\uD83D\uDCC1', label: t('sidebar.tab_other') },
-                            { key: 'archive' as const, icon: '\uD83D\uDCE6', label: t('sidebar.tab_archive') },
-                        ]).map(tab => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={clsx(
-                                    "flex-1 text-center py-1.5 text-app-base font-bold rounded-t-md transition-all duration-150 cursor-pointer",
-                                    activeTab === tab.key
-                                        ? "bg-app-surface2 text-app-text border border-glass-border border-b-transparent"
-                                        : "text-app-text-muted hover:text-app-text-sec hover:bg-glass-hover border border-transparent"
-                                )}
-                            >
-                                {tab.icon} {tab.label}
-                            </button>
-                        ))}
+                    <div className="px-3 pt-3">
+                        <SegmentButton
+                            options={[
+                                { value: 'savage' as const, label: t('sidebar.tab_savage').toUpperCase() },
+                                { value: 'ultimate' as const, label: t('sidebar.tab_ultimate').toUpperCase() },
+                                { value: 'other' as const, label: t('sidebar.tab_other').toUpperCase() },
+                                { value: 'archive' as const, label: t('sidebar.tab_archive').toUpperCase() },
+                            ]}
+                            value={activeTab}
+                            onChange={setActiveTab}
+                            size="sm"
+                            className="shadow-sm"
+                        />
                     </div>
-                    <div className="border-b border-glass-border mx-2.5" />
 
                     {/* ボタンバー */}
                     <div className="px-3 shrink-0 my-2">
@@ -1125,6 +1177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     onToggleSelect={toggleItemId}
                                     onSelect={handleSelectContent}
                                     lang={lang}
+                                    showFullName
                                     onContextMenu={(e, planId, planTitle, contentId) => {
                                         setContextMenu({ x: e.clientX, y: e.clientY, planId, planTitle, contentId });
                                     }}
