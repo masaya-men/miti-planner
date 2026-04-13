@@ -461,7 +461,22 @@
         "delete_single": "삭제",
         "delete_single_confirm_click": "클릭하여 삭제",
         "delete_single_confirm_tap": "탭하여 삭제",
-        "plan_limit": "한도 {{current}}/{{max}}"
+        "plan_limit": "한도 {{current}}/{{max}}",
+        "tab_savage": "영식",
+        "tab_ultimate": "절",
+        "tab_other": "기타",
+        "tab_archive": "보관함",
+        "archive_empty": "보관된 플랜이 없습니다",
+        "archive_confirm_title": "이전 확장팩 플랜 보관",
+        "archive_confirm_message": "이전 확장팩의 영식 플랜을 보관하시겠습니까? 보관함 탭에서 언제든 접근할 수 있습니다.",
+        "archive_confirm_yes": "보관하기",
+        "archive_confirm_no": "나중에",
+        "archive_delete_all": "일괄 삭제",
+        "archive_plan_count": "{{count}}개의 플랜이 대상입니다",
+        "context_share": "공유",
+        "context_duplicate": "복제",
+        "context_rename": "이름 변경",
+        "context_delete": "삭제"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

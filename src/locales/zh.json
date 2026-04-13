@@ -461,7 +461,22 @@
         "delete_single": "删除",
         "delete_single_confirm_click": "点击以删除",
         "delete_single_confirm_tap": "轻触以删除",
-        "plan_limit": "上限 {{current}}/{{max}}"
+        "plan_limit": "上限 {{current}}/{{max}}",
+        "tab_savage": "零式",
+        "tab_ultimate": "绝境战",
+        "tab_other": "其他",
+        "tab_archive": "归档",
+        "archive_empty": "没有已归档的方案",
+        "archive_confirm_title": "归档旧版本方案",
+        "archive_confirm_message": "是否归档旧版本的零式方案？您可以随时从归档标签页访问。",
+        "archive_confirm_yes": "归档",
+        "archive_confirm_no": "暂不",
+        "archive_delete_all": "批量删除",
+        "archive_plan_count": "共{{count}}个方案",
+        "context_share": "分享",
+        "context_duplicate": "复制",
+        "context_rename": "重命名",
+        "context_delete": "删除"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",

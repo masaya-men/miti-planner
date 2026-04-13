@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,6 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import {
     CATEGORY_LABELS,
     getContentBySeries,
-    getCategoriesByLevel,
     getSeriesByLevel,
     getProjectLabel,
     getContentById,
@@ -1360,6 +1359,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                                     useMitigationStore.getState().loadSnapshot(data);
                                                     store.setCurrentPlanId(plan.id);
                                                 }, 'plan');
+                                            }
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                (e.currentTarget as HTMLElement).click();
                                             }
                                         }}
                                     >

@@ -482,7 +482,22 @@
         "delete_single": "削除",
         "delete_single_confirm_click": "クリックで削除",
         "delete_single_confirm_tap": "タップで削除",
-        "plan_limit": "上限 {{current}}/{{max}}"
+        "plan_limit": "上限 {{current}}/{{max}}",
+        "tab_savage": "零式",
+        "tab_ultimate": "絶",
+        "tab_other": "その他",
+        "tab_archive": "アーカイブ",
+        "archive_empty": "アーカイブにプランはありません",
+        "archive_confirm_title": "過去拡張のプランをアーカイブ",
+        "archive_confirm_message": "過去拡張の零式プランをアーカイブしますか？アーカイブタブからいつでもアクセスできます。",
+        "archive_confirm_yes": "アーカイブする",
+        "archive_confirm_no": "今はしない",
+        "archive_delete_all": "一括削除",
+        "archive_plan_count": "{{count}}件のプランが対象です",
+        "context_share": "シェア",
+        "context_duplicate": "複製",
+        "context_rename": "名前変更",
+        "context_delete": "削除"
     },
     "footer": {
         "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
