@@ -240,7 +240,20 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                     </button>
                 </Tooltip>
 
-                {/* ホバーの+ボタンは廃止 → サブアイテム末尾の+行に移動 */}
+                {/* ホバーで表示される「+」ボタン — 展開せずにプラン追加 */}
+                {!multiSelect.isEnabled && (
+                    <Tooltip content={t('sidebar.add_plan')}>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(content, true);
+                            }}
+                            className="shrink-0 w-6 h-6 rounded flex items-center justify-center text-app-text-muted hover:text-app-text hover:bg-glass-hover transition-all cursor-pointer opacity-0 group-hover/content:opacity-100"
+                        >
+                            <Plus size={12} />
+                        </button>
+                    </Tooltip>
+                )}
             </div>
 
             {/* サブアイテム: 保存済みプラン一覧 */}
