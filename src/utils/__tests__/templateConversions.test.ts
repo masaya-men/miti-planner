@@ -163,12 +163,10 @@ describe('convertCsvToEvents', () => {
     expect(phases[1].startTimeSec).toBe(60);
   });
 
-  it('フェーズがない場合はデフォルトを生成する', () => {
+  it('フェーズがない場合は空配列を返す', () => {
     const rows = [{ cells: ['0:10', '攻撃', ''] }];
     const { phases } = convertCsvToEvents(rows, baseMappings);
-    expect(phases).toHaveLength(1);
-    expect(phases[0].id).toBe(1);
-    expect(phases[0].startTimeSec).toBe(0);
+    expect(phases).toHaveLength(0);
   });
 
   it('ギミックグループをlabelsとして生成する', () => {

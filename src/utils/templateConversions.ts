@@ -242,11 +242,6 @@ export function convertCsvToEvents(
     events.push(event);
   });
 
-  // フェーズが1件も検出されなかった場合はデフォルトを追加
-  if (phases.length === 0) {
-    phases.push({ id: 1, startTimeSec: 0 });
-  }
-
   return { events, phases, labels };
 }
 
@@ -266,8 +261,10 @@ export function convertPlanToTemplate(
   planData: { timelineEvents: TimelineEvent[]; phases: Phase[]; labels?: Label[] },
   contentId: string,
 ): Omit<TemplateData, '_warning'> {
-  // フェーズ変換
-  const templatePhases: TemplateData['phases'] = planData.phases.map((phase, index) => {
+  // フェーズ変換（名前なしフェーズは除外）
+  const templatePhases: TemplateData['phases'] = planData.phases
+    .filter(phase => phase.name.ja || phase.name.en || phase.name.zh || phase.name.ko)
+    .map((phase, index) => {
     const idMatch = phase.id.match(/\d+/);
     const numericId = idMatch ? parseInt(idMatch[0], 10) : index + 1;
 

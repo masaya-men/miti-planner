@@ -22,6 +22,21 @@ export interface TemplateData {
 }
 
 /**
+ * 名前のないフェーズ（CSVインポート時のデフォルト残骸）を除去する。
+ * Firestoreに保存された既存データのクリーンアップ用。
+ */
+function filterPhantomPhases(tpl: TemplateData): TemplateData {
+  if (!tpl.phases || tpl.phases.length === 0) return tpl;
+  const filtered = tpl.phases.filter(p => {
+    if (!p.name) return false;
+    if (typeof p.name === 'string') return !!p.name;
+    return !!(p.name.ja || p.name.en || p.name.zh || p.name.ko);
+  });
+  if (filtered.length === tpl.phases.length) return tpl;
+  return { ...tpl, phases: filtered };
+}
+
+/**
  * labelsフィールドがないテンプレートに対して、
  * timelineEventsのmechanicGroupからlabelsを生成する（旧テンプレート互換）。
  */
@@ -80,7 +95,7 @@ export async function getStaticTemplate(contentId: string): Promise<TemplateData
 
   try {
     const module = await templateModules[modulePath]() as { default: TemplateData };
-    return ensureLabels(module.default);
+    return filterPhantomPhases(ensureLabels(module.default));
   } catch (error) {
     console.error(`Failed to load template for ${contentId}:`, error);
     return null;
@@ -93,5 +108,5 @@ export async function getStaticTemplate(contentId: string): Promise<TemplateData
  */
 export async function getTemplate(contentId: string): Promise<TemplateData | null> {
   const tpl = await fetchFromFirestore(contentId);
-  return tpl ? ensureLabels(tpl) : null;
+  return tpl ? filterPhantomPhases(ensureLabels(tpl)) : null;
 }
