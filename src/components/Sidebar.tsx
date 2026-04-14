@@ -385,9 +385,9 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         )}>
                                             <Tooltip content={t('sidebar.duplicate_plan')}>
                                                 <button
-                                                    onClick={(e) => {
+                                                    onClick={async (e) => {
                                                         e.stopPropagation();
-                                                        const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
+                                                        const newPlan = await usePlanStore.getState().duplicatePlan(plan.id);
                                                         if (!newPlan) {
                                                             showToast(t('sidebar.duplicate_limit_reached'), 'error');
                                                         }
@@ -584,9 +584,9 @@ const FreePlanSection: React.FC<FreePlanSectionProps> = ({
                             )}>
                                 <Tooltip content={t('sidebar.duplicate_plan')}>
                                     <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             e.stopPropagation();
-                                            const newPlan = usePlanStore.getState().duplicatePlan(plan.id);
+                                            const newPlan = await usePlanStore.getState().duplicatePlan(plan.id);
                                             if (!newPlan) {
                                                 showToast(t('sidebar.duplicate_limit_reached'), 'error');
                                             }
@@ -1810,8 +1810,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         {
                             label: t('sidebar.context_duplicate'),
                             icon: <Copy size={12} />,
-                            onClick: () => {
-                                const newPlan = usePlanStore.getState().duplicatePlan(contextMenu.planId);
+                            onClick: async () => {
+                                const newPlan = await usePlanStore.getState().duplicatePlan(contextMenu.planId);
                                 if (!newPlan) showToast(t('sidebar.duplicate_limit_reached'), 'error');
                             },
                         },

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { SavedPlan, ContentLevel } from '../types';
 import type { TemplateData } from '../data/templateLoader';
+import { getTemplate } from '../data/templateLoader';
 import type { PlanData } from '../types';
 import { useMitigationStore } from './useMitigationStore';
 import { planService } from '../lib/planService';
@@ -51,8 +52,8 @@ interface PlanState {
     manualSync: (uid: string, displayName: string) => Promise<void>;
     hasDirtyPlans: () => boolean;
     setPlans: (plans: SavedPlan[]) => void;
-    /** プランを複製して直下に挿入。件数制限超過時はnullを返す */
-    duplicatePlan: (planId: string) => SavedPlan | null;
+    /** プランを複製して直下に挿入。最新テンプレートのイベントを使用。件数制限超過時はnullを返す */
+    duplicatePlan: (planId: string) => Promise<SavedPlan | null>;
     /** 指定プランをアーカイブ（圧縮含む） */
     archivePlan: (id: string) => Promise<void>;
     /** 複数プランを一括アーカイブ */
@@ -225,7 +226,7 @@ export const usePlanStore = create<PlanState>()(
 
             setPlans: (plans) => set({ plans }),
 
-            duplicatePlan: (planId) => {
+            duplicatePlan: async (planId) => {
                 const state = get();
                 const source = state.plans.find(p => p.id === planId);
                 if (!source) return null;
@@ -239,9 +240,17 @@ export const usePlanStore = create<PlanState>()(
                     if (contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) return null;
                 }
 
+                // 圧縮済みプランはデータを復元してからコピー
+                let sourceData = source.data;
+                if (!sourceData || Object.keys(sourceData).length === 0) {
+                    const decompressed = await get().decompressArchivedPlan(planId);
+                    if (!decompressed) return null;
+                    sourceData = decompressed;
+                }
+
                 // 連番サフィックス生成: "M1S" → "M1S (2)", "M1S (2)" → "M1S (3)"
                 const baseTitle = source.title.replace(/\s*\(\d+\)$/, '');
-                const existingNumbers = state.plans
+                const existingNumbers = get().plans
                     .filter(p => p.title.startsWith(baseTitle))
                     .map(p => {
                         const match = p.title.match(/\((\d+)\)$/);
@@ -254,21 +263,63 @@ export const usePlanStore = create<PlanState>()(
                     ...structuredClone(source),
                     id: `plan_${Date.now()}`,
                     title: newTitle,
+                    data: structuredClone(sourceData),
                     createdAt: Date.now(),
                     updatedAt: Date.now(),
                     isPublic: false,
                     copyCount: 0,
                     useCount: 0,
+                    archived: false,
+                    compressedData: undefined,
                 };
 
+                // 最新テンプレートでイベント・フェーズ・ラベルを差し替え
+                if (source.contentId) {
+                    try {
+                        const tpl = await getTemplate(source.contentId);
+                        if (tpl) {
+                            newPlan.data = {
+                                ...newPlan.data,
+                                timelineEvents: [...tpl.timelineEvents],
+                                phases: tpl.phases ? ensurePhaseEndTimes(tpl.phases
+                                    .filter(p => p.startTimeSec >= 0)
+                                    .map((p) => ({
+                                        id: `phase_${p.id}`,
+                                        name: p.name
+                                            ? (typeof p.name === 'string'
+                                                ? { ja: p.name, en: p.name }
+                                                : {
+                                                    ja: p.name.ja ?? p.name.en ?? '',
+                                                    en: p.name.en ?? p.name.ja ?? '',
+                                                    ...(p.name.zh != null ? { zh: p.name.zh } : {}),
+                                                    ...(p.name.ko != null ? { ko: p.name.ko } : {}),
+                                                })
+                                            : { ja: '', en: '' },
+                                        startTime: p.startTimeSec,
+                                    }))) : [],
+                                labels: tpl.labels
+                                    ? ensureLabelEndTimes(tpl.labels.map(l => ({
+                                        id: crypto.randomUUID(),
+                                        name: l.name,
+                                        startTime: l.startTimeSec,
+                                        ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
+                                    })))
+                                    : newPlan.data.labels,
+                            };
+                        }
+                    } catch {
+                        // テンプレート取得失敗時はソースのイベントをそのまま使用
+                    }
+                }
+
                 // ソースプランの直後に挿入
-                const sourceIndex = state.plans.findIndex(p => p.id === planId);
-                const newPlans = [...state.plans];
+                const sourceIndex = get().plans.findIndex(p => p.id === planId);
+                const newPlans = [...get().plans];
                 newPlans.splice(sourceIndex + 1, 0, newPlan);
 
                 set({
                     plans: newPlans,
-                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, newPlan.id]),
+                    _dirtyPlanIds: new Set([...get()._dirtyPlanIds, newPlan.id]),
                 });
                 return newPlan;
             },
