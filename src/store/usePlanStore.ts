@@ -212,6 +212,13 @@ export const usePlanStore = create<PlanState>()(
                             }
                         }
                     }
+                    // changed有無に関わらず、currentPlanIdが存在しないプランを指していたらクリア
+                    const finalPlanId = get().currentPlanId;
+                    if (finalPlanId && !get().plans.find(p => p.id === finalPlanId)) {
+                        const lastActive = get().lastActivePlanId;
+                        set({ currentPlanId: null, lastActivePlanId: lastActive === finalPlanId ? null : lastActive });
+                        useMitigationStore.getState().resetForTutorial();
+                    }
                     set({ _isSyncing: false, _cloudStatus: 'synced' });
                 } catch (err) {
                     console.error('Firestore PULL エラー:', err);
@@ -622,6 +629,13 @@ export const usePlanStore = create<PlanState>()(
                         }
                     }
 
+                    // changed有無に関わらず、currentPlanIdが存在しないプランを指していたらクリア
+                    const finalPlanId = get().currentPlanId;
+                    if (finalPlanId && !get().plans.find(p => p.id === finalPlanId)) {
+                        const lastActive = get().lastActivePlanId;
+                        set({ currentPlanId: null, lastActivePlanId: lastActive === finalPlanId ? null : lastActive });
+                        useMitigationStore.getState().resetForTutorial();
+                    }
                     set({ _isSyncing: false, _cloudStatus: 'synced', _lastSyncAt: Date.now() });
                 } catch (err) {
                     console.error('手動同期エラー:', err);
