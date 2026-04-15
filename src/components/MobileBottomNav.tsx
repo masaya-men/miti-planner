@@ -82,7 +82,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 "backdrop-blur-md",
             )}
             style={{
-                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2px)',
                 minHeight: MOBILE_TOKENS.bottomNav.height,
                 backgroundColor: 'var(--color-nav-bg)',
                 borderTop: '0.5px solid var(--color-nav-border)',
