@@ -80,8 +80,10 @@ const MitiIcons: React.FC<{
 }> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId }) => {
     const MITIGATIONS = useMitigations();
     if (mitigations.length === 0) return null;
+    const isCompact = mitigations.length >= 6;
+    const iconSize = isCompact ? "w-[14px] h-[14px]" : "w-[22px] h-[22px]";
     return (
-        <div className="flex items-center gap-px flex-shrink-0 ml-auto">
+        <div className={clsx("flex items-center gap-px flex-shrink-0 ml-auto", isCompact && "flex-wrap max-w-[120px] justify-end")}>
             {mitigations.map(mit => {
                 const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
                 if (!def) return null;
@@ -92,7 +94,7 @@ const MitiIcons: React.FC<{
                         src={def.icon}
                         alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
                         className={clsx(
-                            "w-[22px] h-[22px] object-cover rounded-md",
+                            iconSize, "object-cover rounded-md",
                             isDimmed ? "opacity-40 grayscale" : "opacity-90"
                         )}
                     />

@@ -2882,15 +2882,22 @@ const Timeline: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
-                                {/* この時間に配置済みの軽減アイコン */}
-                                {timelineMitigations
-                                    .filter(am => am.time === mobileMitiFlow.time)
-                                    .map(am => {
-                                        const def = MITIGATIONS.find(m => m.id === am.mitigationId);
-                                        if (!def) return null;
-                                        return <img key={am.id} src={def.icon} className="w-5 h-5 rounded-sm object-contain opacity-80" />;
-                                    })}
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer ml-1">
+                                {/* この時間に配置済みの軽減アイコン（多い場合は小さく2段に） */}
+                                {(() => {
+                                    const placed = timelineMitigations.filter(am => am.time === mobileMitiFlow.time);
+                                    const isCompact = placed.length >= 6;
+                                    const iconSize = isCompact ? "w-3.5 h-3.5" : "w-5 h-5";
+                                    return (
+                                        <div className={clsx("flex items-center gap-px", isCompact && "flex-wrap max-w-[120px] justify-end")}>
+                                            {placed.map(am => {
+                                                const def = MITIGATIONS.find(m => m.id === am.mitigationId);
+                                                if (!def) return null;
+                                                return <img key={am.id} src={def.icon} className={clsx(iconSize, "rounded-sm object-contain opacity-80")} />;
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer ml-1 shrink-0">
                                     <X size={16} />
                                 </button>
                             </div>
