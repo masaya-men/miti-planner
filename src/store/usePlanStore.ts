@@ -195,11 +195,14 @@ export const usePlanStore = create<PlanState>()(
                     );
                     if (changed) {
                         set({ plans: merged });
-                        // 現在開いているプランが更新された場合、MitigationStoreも更新
                         const currentPlanId = get().currentPlanId;
                         if (currentPlanId) {
                             const updatedPlan = merged.find(p => p.id === currentPlanId);
-                            if (updatedPlan?.data) {
+                            if (!updatedPlan) {
+                                // 現在のプランがリモートで削除された → 無選択状態に戻す
+                                set({ currentPlanId: null, lastActivePlanId: null });
+                                useMitigationStore.getState().resetForTutorial();
+                            } else if (updatedPlan.data) {
                                 const localPlan = state.plans.find(p => p.id === currentPlanId);
                                 // リモートの方が新しい場合のみMitigationStoreを更新
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
