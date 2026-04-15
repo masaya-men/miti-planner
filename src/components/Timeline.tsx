@@ -2171,7 +2171,10 @@ const Timeline: React.FC = () => {
 
                     <div
                         ref={scrollContainerRef}
-                        className="timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200"
+                        className={clsx(
+                            "timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200",
+                            !currentPlanId && isMobileTimeline && "hidden"
+                        )}
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
