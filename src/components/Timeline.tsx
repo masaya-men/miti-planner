@@ -32,7 +32,7 @@ import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { getColumnWidth, calculateLinkedShieldValue } from '../utils/calculator';
+import { getColumnWidth, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -1565,9 +1565,29 @@ const Timeline: React.FC = () => {
                     if (!member) return;
 
                     let healingMultiplier = 1;
+                    let critMultiplier = 1;
                     const buffsAtCast = timelineMitigations.filter(b =>
                         b.time <= appMit.time && appMit.time < b.time + b.duration && b.id !== appMit.id
                     );
+
+                    // 秘策チェック: バリアスキルに対して確定クリティカル（最初の1回のみ消費）
+                    if (def.isShield) {
+                        const activeRecitation = buffsAtCast.find(b =>
+                            b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId
+                        );
+                        if (activeRecitation) {
+                            const earlierShieldConsumes = timelineMitigations.some(m =>
+                                m.id !== appMit.id &&
+                                m.ownerId === appMit.ownerId &&
+                                m.time >= activeRecitation.time &&
+                                m.time < appMit.time &&
+                                MITIGATIONS.find(d => d.id === m.mitigationId)?.isShield
+                            );
+                            if (!earlierShieldConsumes) {
+                                critMultiplier = CRIT_MULTIPLIER;
+                            }
+                        }
+                    }
 
                     buffsAtCast.forEach(buff => {
                         const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
@@ -1578,6 +1598,8 @@ const Timeline: React.FC = () => {
                             if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
                             // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
                             if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;
+                            // 対象指定バフ（クラーシス、生命回生法等）: バフの対象とスキルの対象が一致する場合のみ
+                            if (bDef.scope === 'target' && buff.targetId !== appMit.targetId) return;
                             healingMultiplier += (bDef.healingIncrease / 100);
                         }
                     });
@@ -1590,7 +1612,7 @@ const Timeline: React.FC = () => {
                         maxValBase = member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
                     }
 
-                    const maxVal = Math.floor(maxValBase * healingMultiplier);
+                    const maxVal = Math.floor(maxValBase * critMultiplier * healingMultiplier);
 
                     // 🚀 Handle stacks (Haima/Panhaima)
                     affectedContexts.forEach(ctx => {
