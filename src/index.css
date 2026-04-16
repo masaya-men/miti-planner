@@ -216,6 +216,7 @@
     --color-amber-border: rgba(245, 158, 11, 0.25);
 
     --glass-tier3-bg: transparent;
+    --share-modal-bg: transparent;
     --glass-tier3-blur: 12px; /* 2px→12px: モーダル等のブラーを強化 */
     --glass-tier3-border: rgba(255, 255, 255, 0.18);
     --glass-tier3-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
@@ -330,6 +331,7 @@
     --color-lp-grid: rgba(0, 0, 0, 0.06);
 
     --glass-tier3-bg: rgba(255, 255, 255, 0.15);
+    --share-modal-bg: #ffffff;
     --glass-tier3-blur: 12px; /* 元の値: 2px — サイドバー・ヘッダーに問題があれば戻す */
     --glass-tier3-border: rgba(0, 0, 0, 0.08);
     --glass-tier3-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);

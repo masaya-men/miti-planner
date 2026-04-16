@@ -211,7 +211,7 @@ function buildRightArea(faviconBase64: string, teamLogoSrc: string | null, textC
                     props: {
                         style: { width: RW, height: 630, display: 'flex', position: 'relative' },
                         children: [
-                            { type: 'img', props: { src: teamLogoSrc, width: RW, height: 630, style: { position: 'absolute', objectFit: 'cover' } } },
+                            { type: 'img', props: { src: teamLogoSrc, width: RW, height: 630, style: { position: 'absolute', objectFit: 'contain' } } },
                             { type: 'div', props: { style: { position: 'absolute', top: 0, left: 0, width: RW, height: 630, backgroundColor: 'rgba(0,0,0,0.5)' } } },
                             { type: 'div', props: { style: { position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: '56px 72px' }, children: textChildren } },
                         ],

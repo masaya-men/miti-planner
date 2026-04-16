@@ -225,6 +225,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         >
             <div
                 className="relative glass-tier3 rounded-2xl shadow-2xl w-[420px] max-w-[90vw] overflow-hidden"
+                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                 onClick={e => e.stopPropagation()}
             >
                 {/* ヘッダー */}
@@ -294,7 +295,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             <img
                                 src={ogImageUrl}
                                 alt="OGP Preview"
-                                className={clsx("w-full h-full object-cover transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
+                                className={clsx("w-full h-full object-contain transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
                                 onLoad={() => setImageLoaded(true)}
                                 onError={() => setImageLoaded(true)}
                             />

@@ -10,32 +10,30 @@ import { useAuthStore } from '../store/useAuthStore';
 
 /** ロゴファイルの最大サイズ（2MB） */
 const MAX_SIZE = 2 * 1024 * 1024;
-/** リサイズ後のロゴサイズ（正方形、px） */
-const LOGO_SIZE = 400;
+/** リサイズ後のロゴ最大寸法（長辺、px） — OGP右エリア幅に合わせる */
+const LOGO_MAX_DIM = 1056;
 /** 受け付ける画像MIME Type */
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
 /**
- * Canvas API で画像を 400x400px にリサイズして JPEG に変換する
- * アスペクト比を維持した cover 方式で中央クロップする
+ * Canvas API で画像をリサイズして JPEG に変換する
+ * アスペクト比を維持し、長辺が LOGO_MAX_DIM 以下になるよう縮小する
  */
 async function resizeToJpeg(file: File): Promise<Blob> {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
+            // 長辺が LOGO_MAX_DIM を超える場合のみ縮小
+            const scale = Math.min(1, LOGO_MAX_DIM / Math.max(img.width, img.height));
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+
             const canvas = document.createElement('canvas');
-            canvas.width = LOGO_SIZE;
-            canvas.height = LOGO_SIZE;
+            canvas.width = w;
+            canvas.height = h;
             const ctx = canvas.getContext('2d')!;
+            ctx.drawImage(img, 0, 0, w, h);
 
-            // アスペクト比を維持して中央にフィット（cover方式）
-            const scale = Math.max(LOGO_SIZE / img.width, LOGO_SIZE / img.height);
-            const w = img.width * scale;
-            const h = img.height * scale;
-            const x = (LOGO_SIZE - w) / 2;
-            const y = (LOGO_SIZE - h) / 2;
-
-            ctx.drawImage(img, x, y, w, h);
             canvas.toBlob(
                 (blob) => {
                     URL.revokeObjectURL(img.src);
