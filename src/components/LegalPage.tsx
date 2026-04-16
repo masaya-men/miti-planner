@@ -211,6 +211,14 @@ export const TermsPage: React.FC = () => {
             <Section title={t('legal.terms_section7_title')}>
                 <p className="text-app-2xl text-app-text-muted">{t('legal.terms_section7_body')}</p>
             </Section>
+
+            {/* 8. アップロードコンテンツについて */}
+            <Section title={t('legal.terms_section8_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.terms_section8_intro')}</p>
+                <BulletList items={splitItems(t('legal.terms_section8_items'))} />
+                <p className="text-app-2xl text-app-text-muted mt-4 mb-2">{t('legal.terms_section8_contact')}</p>
+                <BulletList items={splitItems(t('legal.terms_section8_contact_items'))} />
+            </Section>
         </LegalPageLayout>
     );
 };
