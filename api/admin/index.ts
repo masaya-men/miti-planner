@@ -3,8 +3,9 @@
  * ?resource=contents  → コンテンツ管理 (GET/POST/PUT/DELETE)
  * ?resource=role      → ロール管理 (GET/POST)
  * ?resource=templates → テンプレート管理 (GET/POST/PUT/DELETE)
- *
- * 既存の admin/contents, admin/set-role, admin/templates を統合
+ * ?resource=sync      → データ同期 (POST)
+ * ?resource=dashboard → ダッシュボード統計 (GET)
+ * ?resource=ugc       → UGC管理 (GET/DELETE)
  */
 import contentsHandler from './_contentsHandler.js';
 import roleHandler from './_roleHandler.js';
@@ -30,6 +31,6 @@ export default async function handler(req: any, res: any) {
     case 'ugc':
       return ugcHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc' });
   }
 }
