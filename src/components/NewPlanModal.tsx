@@ -130,10 +130,14 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         const store = useMitigationStore.getState();
         const useLevel = boss ? boss.level : level;
 
-        // 2. レベル・ステータス設定 + 軽減クリア
+        // 2. レベル・ステータス設定 + 軽減・パーティクリア
         store.setCurrentLevel(useLevel);
         store.applyDefaultStats(useLevel, boss?.patch);
         store.clearAllMitigations();
+        store.updatePartyBulk(
+            store.partyMembers.map(m => ({ memberId: m.id, jobId: null }))
+        );
+        store.setMyMemberId(null);
 
         // 3. 空のタイムラインで開始（テンプレートは読み込まない）
         store.loadSnapshot({
