@@ -206,3 +206,59 @@ export const calculateMemberValues = (member: PartyMember, currentLevel: number 
     });
     return results;
 };
+
+/**
+ * copiesShieldスキル（展開戦術）のバリア値を、リンク先のバリアスキル（鼓舞）の
+ * 詠唱時バフを考慮して計算する。
+ *
+ * @param linkedMit - リンク先のAppliedMitigation（鼓舞インスタンス）
+ * @param allMitigations - タイムライン上の全AppliedMitigation
+ * @param partyMembers - 全パーティメンバー
+ * @param mitigationDefs - 全スキル定義（MITIGATIONS）
+ * @returns バリア値（整数）
+ */
+export const calculateLinkedShieldValue = (
+    linkedMit: { mitigationId: string; time: number; ownerId: string; duration: number; id: string },
+    allMitigations: readonly { mitigationId: string; time: number; ownerId: string; duration: number; id: string }[],
+    partyMembers: readonly { id: string; stats: StatInput; role: string; computedValues: Record<string, number> }[],
+    mitigationDefs: readonly { id: string; name: { ja?: string } | string; healingIncrease?: number; healingIncreaseDuration?: number; healingIncreaseSelfOnly?: boolean; scope?: string; duration: number }[],
+    _currentLevel: number = 100,
+): number => {
+    const linkedDef = mitigationDefs.find(d => d.id === linkedMit.mitigationId);
+    if (!linkedDef) return 0;
+
+    const owner = partyMembers.find(m => m.id === linkedMit.ownerId);
+    if (!owner) return 0;
+
+    // リンク先スキルの日本語名でcomputedValuesから基本バリア値を取得
+    const jaName = typeof linkedDef.name === 'string' ? linkedDef.name : (linkedDef.name.ja || '');
+    let baseValue = owner.computedValues[jaName] || 0;
+    if (baseValue === 0) return 0;
+
+    // リンク先スキルの詠唱時に有効だったバフを収集
+    const buffsAtCast = allMitigations.filter(b =>
+        b.time <= linkedMit.time && linkedMit.time < b.time + b.duration && b.id !== linkedMit.id
+    );
+
+    // 秘策チェック: 同じ使用者の秘策が有効なら確定クリティカル
+    let critMultiplier = 1;
+    const recitationActive = buffsAtCast.some(b =>
+        b.mitigationId === 'recitation' && b.ownerId === linkedMit.ownerId
+    );
+    if (recitationActive) critMultiplier = CRIT_MULTIPLIER;
+
+    // 回復効果アップバフを集計（転化、クラーシス、フェイイルミネーション等）
+    let healingMultiplier = 1;
+    buffsAtCast.forEach(buff => {
+        const bDef = mitigationDefs.find(d => d.id === buff.mitigationId);
+        if (bDef && bDef.healingIncrease) {
+            const hiDuration = bDef.healingIncreaseDuration ?? bDef.duration;
+            if (linkedMit.time >= buff.time + hiDuration) return;
+            // 自身のみ効果（転化等）: バフの使用者とリンク先スキルの使用者が同一の場合のみ
+            if (bDef.healingIncreaseSelfOnly && buff.ownerId !== linkedMit.ownerId) return;
+            healingMultiplier += (bDef.healingIncrease / 100);
+        }
+    });
+
+    return Math.floor(baseValue * critMultiplier * healingMultiplier);
+};
