@@ -141,7 +141,8 @@
         "error_upload_failed": "上传失败，请稍后重试",
         "error_remove_failed": "移除失败，请稍后重试",
         "usage_notice": "请勿未经许可上传受版权保护的图片。",
-        "usage_notice_terms": "上传即视为您同意<termsLink>使用条款</termsLink>。"
+        "usage_notice_terms": "上传即视为您同意<termsLink>使用条款</termsLink>。",
+        "logo_blocked": "您的标志因违反使用条款已被删除。请上传其他图片。"
     },
     "party": {
         "title": "队伍配置",
@@ -1410,8 +1411,8 @@
         "ugc_logo": "标志图片",
         "ugc_no_logo": "没有标志",
         "ugc_delete_logo": "删除标志",
-        "ugc_delete_confirm": "确定要删除此标志吗？此操作无法撤销。",
-        "ugc_delete_success": "标志已删除"
+        "ugc_delete_confirm": "删除此标志？此图片将被禁止在今后的分享中使用。此操作无法撤销。",
+        "ugc_delete_success": "标志已删除并加入屏蔽列表"
     },
     "boundary_modal": {
         "add_phase": "添加阶段",

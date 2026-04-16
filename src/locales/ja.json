@@ -158,7 +158,8 @@
         "error_upload_failed": "アップロードに失敗しました。時間を置いて再度お試しください",
         "error_remove_failed": "削除に失敗しました。時間を置いて再度お試しください",
         "usage_notice": "著作権のある画像を許可なく使用しないでください。",
-        "usage_notice_terms": "アップロードにより<termsLink>利用規約</termsLink>に同意したものとみなします。"
+        "usage_notice_terms": "アップロードにより<termsLink>利用規約</termsLink>に同意したものとみなします。",
+        "logo_blocked": "ロゴが利用規約に違反したため使用できません。別の画像をアップロードしてください。"
     },
     "party": {
         "title": "パーティ構成",
@@ -1459,8 +1460,8 @@
         "ugc_logo": "ロゴ画像",
         "ugc_no_logo": "ロゴはありません",
         "ugc_delete_logo": "ロゴを削除",
-        "ugc_delete_confirm": "このロゴを削除しますか？この操作は取り消せません。",
-        "ugc_delete_success": "ロゴを削除しました"
+        "ugc_delete_confirm": "このロゴを削除しますか？この画像は今後の共有でもブロックされます。この操作は取り消せません。",
+        "ugc_delete_success": "ロゴを削除し、ブロックリストに登録しました"
     },
     "boundary_modal": {
         "add_phase": "フェーズを追加",

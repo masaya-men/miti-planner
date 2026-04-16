@@ -141,7 +141,8 @@
         "error_upload_failed": "업로드에 실패했습니다. 나중에 다시 시도해 주세요",
         "error_remove_failed": "제거에 실패했습니다. 나중에 다시 시도해 주세요",
         "usage_notice": "저작권이 있는 이미지를 허가 없이 사용하지 마세요.",
-        "usage_notice_terms": "업로드 시 <termsLink>이용약관</termsLink>에 동의한 것으로 간주합니다."
+        "usage_notice_terms": "업로드 시 <termsLink>이용약관</termsLink>에 동의한 것으로 간주합니다.",
+        "logo_blocked": "로고가 이용약관 위반으로 삭제되었습니다. 다른 이미지를 업로드해 주세요."
     },
     "party": {
         "title": "파티 구성",
@@ -1410,8 +1411,8 @@
         "ugc_logo": "로고 이미지",
         "ugc_no_logo": "로고 없음",
         "ugc_delete_logo": "로고 삭제",
-        "ugc_delete_confirm": "이 로고를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-        "ugc_delete_success": "로고가 삭제되었습니다"
+        "ugc_delete_confirm": "이 로고를 삭제하시겠습니까? 이 이미지는 향후 공유에서도 차단됩니다. 이 작업은 되돌릴 수 없습니다.",
+        "ugc_delete_success": "로고를 삭제하고 차단 목록에 추가했습니다"
     },
     "boundary_modal": {
         "add_phase": "페이즈 추가",

@@ -158,7 +158,8 @@
         "error_upload_failed": "Upload failed. Please try again later",
         "error_remove_failed": "Removal failed. Please try again later",
         "usage_notice": "Do not upload copyrighted images without permission.",
-        "usage_notice_terms": "By uploading, you agree to the <termsLink>Terms of Service</termsLink>."
+        "usage_notice_terms": "By uploading, you agree to the <termsLink>Terms of Service</termsLink>.",
+        "logo_blocked": "Your logo was removed due to a terms of service violation. Please upload a different image."
     },
     "party": {
         "title": "Party Composition",
@@ -1455,8 +1456,8 @@
         "ugc_logo": "Logo Image",
         "ugc_no_logo": "No logo",
         "ugc_delete_logo": "Delete Logo",
-        "ugc_delete_confirm": "Delete this logo? This cannot be undone.",
-        "ugc_delete_success": "Logo deleted"
+        "ugc_delete_confirm": "Delete this logo? This image will also be blocked from future shares. This action cannot be undone.",
+        "ugc_delete_success": "Logo deleted and added to blocklist"
     },
     "boundary_modal": {
         "add_phase": "Add Phase",
