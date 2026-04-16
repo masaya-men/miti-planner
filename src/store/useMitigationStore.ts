@@ -166,6 +166,54 @@ const INITIAL_PARTY: PartyMember[] = [
     { id: 'D4', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
 ];
 
+/**
+ * copiesShieldスキル（展開戦術等）の自動リンクを解決する。
+ * - リンク先が有効ならそのまま
+ * - リンク先が無効になった or リンク未設定 → 有効なコピー元が1つなら自動リンク
+ * - 0個 or 2個以上 → リンク解除（ユーザー選択待ち）
+ */
+const resolveShieldLinks = (
+    mitigations: AppliedMitigation[],
+    mitigationDefs: Mitigation[],
+): AppliedMitigation[] => {
+    let changed = false;
+    const result = mitigations.map(m => {
+        const def = mitigationDefs.find(d => d.id === m.mitigationId);
+        if (!def?.copiesShield) return m;
+
+        // 現在のリンクが有効か確認
+        if (m.linkedMitigationId) {
+            const linked = mitigations.find(l => l.id === m.linkedMitigationId);
+            if (linked && linked.mitigationId === def.copiesShield &&
+                linked.time <= m.time && linked.time + linked.duration > m.time) {
+                return m; // リンク有効、変更なし
+            }
+        }
+
+        // 有効なコピー元を検索
+        const available = mitigations.filter(l =>
+            l.id !== m.id &&
+            l.mitigationId === def.copiesShield &&
+            l.time <= m.time &&
+            l.time + l.duration > m.time
+        );
+
+        if (available.length === 1) {
+            changed = true;
+            return { ...m, linkedMitigationId: available[0].id };
+        }
+
+        // 0個 or 2+個: リンク解除
+        if (m.linkedMitigationId) {
+            changed = true;
+            return { ...m, linkedMitigationId: undefined };
+        }
+        return m;
+    });
+
+    return changed ? result : mitigations;
+};
+
 export const useMitigationStore = create<MitigationState>()(
     persist(
         (set, get) => {
@@ -602,8 +650,9 @@ export const useMitigationStore = create<MitigationState>()(
                             });
                         }
 
+                        const newMitigations = [...currentMitigations, mitigation];
                         return {
-                            timelineMitigations: [...currentMitigations, mitigation]
+                            timelineMitigations: resolveShieldLinks(newMitigations, getMitigationsFromStore())
                         };
                     });
                     // Tutorial: notify that a mitigation has been added
@@ -617,10 +666,10 @@ export const useMitigationStore = create<MitigationState>()(
                     if (currentConflict) set({ conflictingMitigationId: null });
                     set((state) => {
                         const removed = state.timelineMitigations.find(m => m.id === id);
-                        if (!removed) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
+                        if (!removed) return { timelineMitigations: resolveShieldLinks(state.timelineMitigations.filter(m => m.id !== id), getMitigationsFromStore()) };
 
                         const removedDef = getMitigationsFromStore().find(d => d.id === removed.mitigationId);
-                        if (!removedDef) return { timelineMitigations: state.timelineMitigations.filter(m => m.id !== id) };
+                        if (!removedDef) return { timelineMitigations: resolveShieldLinks(state.timelineMitigations.filter(m => m.id !== id), getMitigationsFromStore()) };
 
                         // Find skills that depend on the removed skill
                         const dependentIds = getMitigationsFromStore().filter(d => d.requires === removed.mitigationId).map(d => d.id);
@@ -628,15 +677,16 @@ export const useMitigationStore = create<MitigationState>()(
                         const removedStart = removed.time;
                         const removedEnd = removed.time + removed.duration;
 
+                        const filtered = state.timelineMitigations.filter(m => {
+                            if (m.id === id) return false; // Remove the target itself
+                            // Remove dependents that overlap the removed skill's window
+                            if (dependentIds.includes(m.mitigationId) && m.ownerId === removed.ownerId) {
+                                return !(m.time >= removedStart && m.time < removedEnd);
+                            }
+                            return true;
+                        });
                         return {
-                            timelineMitigations: state.timelineMitigations.filter(m => {
-                                if (m.id === id) return false; // Remove the target itself
-                                // Remove dependents that overlap the removed skill's window
-                                if (dependentIds.includes(m.mitigationId) && m.ownerId === removed.ownerId) {
-                                    return !(m.time >= removedStart && m.time < removedEnd);
-                                }
-                                return true;
-                            })
+                            timelineMitigations: resolveShieldLinks(filtered, getMitigationsFromStore())
                         };
                     });
                 },
@@ -667,7 +717,7 @@ export const useMitigationStore = create<MitigationState>()(
                         }
 
                         return {
-                            timelineMitigations: currentMitigations
+                            timelineMitigations: resolveShieldLinks(currentMitigations, getMitigationsFromStore())
                         };
                     });
                 },
