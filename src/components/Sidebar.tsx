@@ -1716,6 +1716,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 >
                     <div
                         className="relative w-full max-w-[400px] glass-tier3 rounded-2xl overflow-hidden"
+                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                         onClick={e => e.stopPropagation()}
                     >
                         {/* ヘッダー */}

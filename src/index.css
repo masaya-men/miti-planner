@@ -188,6 +188,12 @@
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     );
 
+    /* ── row hover line（タイムライン行ホバー時の下線アニメーション） ── */
+    --row-hover-line-color: rgba(255, 255, 255, 0.2);
+    --row-hover-line-height: 1px;
+    --row-hover-line-duration: 800ms;
+    --row-hover-line-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
     /* ── duration ── */
     --duration-fast: 150ms;
     --duration-normal: 250ms;
@@ -279,6 +285,8 @@
     --font-size-4xl-plus: 24px;
     --font-size-5xl: 26px;
     --font-size-6xl: 36px;
+
+    --row-hover-line-color: rgba(0, 0, 0, 0.15);
 
     --color-bg-primary: #FAFAFA;
     --color-bg-secondary: #FAFAFA;
@@ -1220,6 +1228,29 @@ button, [role="button"], .touch-none {
     --duration-modal: 0ms;
     --duration-sheet: 0ms;
     --duration-toast: 0ms;
+  }
+}
+
+/* ── タイムライン行ホバーライン ── */
+/* PC専用: 行ホバー時に下辺を左→右にスッと引く */
+/* 行は既にposition:absoluteなので::afterの基準になる — relativeの追加は不要 */
+@media (min-width: 768px) {
+  [data-time-row]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--hover-line-left, 0px);
+    width: var(--hover-line-width, 100%);
+    height: var(--row-hover-line-height);
+    background: var(--row-hover-line-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--row-hover-line-duration) var(--row-hover-line-ease);
+    pointer-events: none;
+  }
+  [data-time-row]:hover::after {
+    transform: scaleX(1);
+    will-change: transform;
   }
 }
 

@@ -171,7 +171,11 @@ export const TimelineRow = memo(({
                 useMitigationStore.getState().showRowBorders && "border-b border-app-border",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
-            style={{ top: `${top}px` }}
+            style={{
+                top: `${top}px`,
+                '--hover-line-left': `${(phaseColumnCollapsed ? 16 : 60) + (labelColumnVisible ? 50 : 16)}px`,
+                '--hover-line-width': `${60 + 200 + 100 + 100}px`,
+            } as React.CSSProperties}
             onMouseEnter={() => {
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelectHover?.(time);

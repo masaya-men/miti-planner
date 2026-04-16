@@ -219,7 +219,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
                     className="relative w-full max-w-[440px] glass-tier3 rounded-2xl shadow-sm overflow-hidden flex flex-col pointer-events-auto"
-                    style={{ maxHeight: 'min(720px, calc(100vh - 64px))' }}
+                    style={{ maxHeight: 'min(720px, calc(100vh - 64px))', '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                 >
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-glass-border/30 flex items-center justify-between bg-glass-header/30">

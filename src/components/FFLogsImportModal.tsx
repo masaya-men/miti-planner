@@ -246,6 +246,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         className="relative w-full max-w-md mx-4 glass-tier3 shadow-sm rounded-2xl overflow-hidden"
+                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="px-5 py-4 border-b border-app-border flex items-center justify-between">
@@ -396,6 +397,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="glass-tier3 rounded-t-2xl shadow-sm flex flex-col max-h-[65vh]"
+                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                     >
                         {/* Drag handle */}
                         <div
@@ -493,6 +495,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
                     className="hidden md:flex relative z-[201] w-full max-w-lg glass-tier3 shadow-sm rounded-2xl overflow-hidden flex-col"
+                    style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}

@@ -43,7 +43,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <div className={clsx(
                 "relative w-[360px] max-w-[90vw] rounded-2xl glass-tier3",
                 "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
-            )}>
+            )}
+            style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}>
                 {/* Header */}
                 <div className="flex items-center gap-3 px-5 pt-5 pb-2">
                     <div className={clsx(
