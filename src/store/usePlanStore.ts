@@ -588,6 +588,8 @@ export const usePlanStore = create<PlanState>()(
                                 const copyPlan: SavedPlan = {
                                     ...structuredClone(plan),
                                     id: `plan_${Date.now()}_conflict`,
+                                    ownerId: 'local',
+                                    ownerDisplayName: 'Guest',
                                     title: `${plan.title} (競合コピー)`,
                                     createdAt: Date.now(),
                                     updatedAt: Date.now(),
