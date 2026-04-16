@@ -609,6 +609,11 @@
         "terms_section6_body": "本服务可能在不另行通知的情况下变更或终止。",
         "terms_section7_title": "7. 条款变更",
         "terms_section7_body": "本条款可能在不另行通知的情况下更新。变更后继续使用本服务即表示接受更新后的条款。",
+        "terms_section8_title": "8. 关于上传内容",
+        "terms_section8_intro": "本服务允许您上传团队标志等图片。上传即视为您同意以下条件。",
+        "terms_section8_items": "您上传图片的版权归您所有。不会向本服务转让任何权利,本服务将在服务提供所需的范围内（如共享页面和OGP图片显示）非独占性地使用您的图片,请仅上传您拥有版权或已获得使用许可的图片,禁止上传侵犯版权、肖像权的内容或不当图片,对于因上传图片引起的损害，除故意或重大过失外，运营方不承担责任,经确认违反条款的内容，可能会在不事先通知的情况下予以删除",
+        "terms_section8_contact": "如需举报版权侵权或内容问题，请通过以下方式联系我们：",
+        "terms_section8_contact_items": "Discord: https://discord.gg/z7uypbJSnN,GitHub: https://github.com/masaya-men/FF14Sim/issues",
 
         "commercial_title": "特定商业交易法标示",
         "commercial_last_updated": "最后更新：2026年3月27日",

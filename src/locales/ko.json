@@ -609,6 +609,11 @@
         "terms_section6_body": "본 서비스는 사전 통지 없이 변경 또는 종료될 수 있습니다.",
         "terms_section7_title": "7. 약관 변경",
         "terms_section7_body": "본 약관은 사전 통지 없이 업데이트될 수 있습니다. 변경 후 본 서비스를 계속 이용하면 업데이트된 약관에 동의하는 것으로 간주됩니다.",
+        "terms_section8_title": "8. 업로드 콘텐츠에 대하여",
+        "terms_section8_intro": "본 서비스에서는 팀 로고 등의 이미지를 업로드할 수 있습니다. 업로드 시 다음 조건에 동의한 것으로 간주합니다.",
+        "terms_section8_items": "업로드한 이미지의 저작권은 귀하에게 있습니다. 본 서비스로의 권리 양도는 발생하지 않습니다,본 서비스는 공유 페이지 및 OGP 이미지 표시 등 서비스 제공에 필요한 범위 내에서 이미지를 비독점적으로 이용합니다,저작권을 보유하고 있거나 사용 허가를 받은 이미지만 업로드해 주세요,저작권·초상권을 침해하는 콘텐츠나 부적절한 이미지의 업로드는 금지됩니다,업로드 이미지로 인한 손해에 대해 운영자는 고의 또는 중대한 과실이 있는 경우를 제외하고 책임을 지지 않습니다,약관을 위반하는 콘텐츠가 확인된 경우 사전 통지 없이 삭제할 수 있습니다",
+        "terms_section8_contact": "저작권 침해 또는 콘텐츠 관련 신고는 아래 방법으로 연락해 주세요.",
+        "terms_section8_contact_items": "Discord: https://discord.gg/z7uypbJSnN,GitHub: https://github.com/masaya-men/FF14Sim/issues",
 
         "commercial_title": "특정상거래법에 기반한 표시",
         "commercial_last_updated": "최종 수정일: 2026년 3월 27일",

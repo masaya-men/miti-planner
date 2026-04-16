@@ -629,6 +629,11 @@
         "terms_section6_body": "The Service may be changed or terminated without notice.",
         "terms_section7_title": "7. Changes to These Terms",
         "terms_section7_body": "These terms may be updated without notice. Continued use of the Service after changes constitutes acceptance of the updated terms.",
+        "terms_section8_title": "8. About Uploaded Content",
+        "terms_section8_intro": "The Service allows you to upload images such as team logos. By uploading, you agree to the following conditions.",
+        "terms_section8_items": "Copyright of uploaded images remains with you. No rights are transferred to the Service,The Service may use your images non-exclusively as needed for service delivery, such as displaying shared pages and OGP images,Only upload images for which you hold the copyright or have obtained permission to use,Uploading content that infringes copyrights or portrait rights, or inappropriate images, is prohibited,The operator is not liable for damages arising from uploaded images, except in cases of intent or gross negligence,Content that violates these terms may be removed without prior notice",
+        "terms_section8_contact": "For reports regarding copyright infringement or content concerns, please contact us through:",
+        "terms_section8_contact_items": "Discord: https://discord.gg/z7uypbJSnN,GitHub: https://github.com/masaya-men/FF14Sim/issues",
 
         "commercial_title": "Commercial Disclosure (Specified Commercial Transactions Act)",
         "commercial_last_updated": "Last updated: March 27, 2026",
