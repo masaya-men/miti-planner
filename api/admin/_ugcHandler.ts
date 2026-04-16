@@ -3,12 +3,14 @@
  * GET  ?resource=ugc&shareId=xxx — 共有プランのメタ情報+ロゴ取得
  * DELETE ?resource=ugc&shareId=xxx — ロゴのみ削除
  */
+import { createHash } from 'crypto';
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 const COLLECTION = 'shared_plans';
+const BLOCKED_LOGOS = 'blocked_logos';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -62,6 +64,19 @@ export default async function handler(req: any, res: any) {
       });
 
     } else if (req.method === 'DELETE') {
+      // ブロックリストにハッシュ登録（logoBase64が存在する場合のみ）
+      const data = snap.data()!;
+      if (data.logoBase64 && typeof data.logoBase64 === 'string') {
+        try {
+          const base64Data = data.logoBase64.replace(/^data:image\/\w+;base64,/, '');
+          const buffer = Buffer.from(base64Data, 'base64');
+          const hash = createHash('sha256').update(buffer).digest('hex');
+          await db.collection(BLOCKED_LOGOS).doc(hash).set({ blockedAt: Date.now() });
+        } catch (err) {
+          console.error('Logo hash registration failed:', err);
+          // ハッシュ登録失敗でもlogoBase64削除は続行する
+        }
+      }
       await docRef.update({ logoBase64: FieldValue.delete() });
       return res.status(200).json({ success: true });
 
