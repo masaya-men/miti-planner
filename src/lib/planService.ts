@@ -465,13 +465,10 @@ async function syncDirtyPlans(
             return;
           }
         } catch {
-          if (plan.ownerId === uid) {
-            const exists = await checkPlanExists(plan.id);
-            if (!exists) {
-              deletedRemotely.push(plan.id);
-              return;
-            }
-          }
+          // updatePlan失敗 → createPlanにフォールバック（新規作成 or 再作成）
+          // ※ リモート削除の検知はPULL側（fetchAndMerge）に任せる
+          //   PUSH側でローカルデータを削除すると、ネットワーク一時障害や
+          //   新規プラン（コピー等）が誤って消える危険がある
           await createPlan(plan, uid, displayName);
         }
       }
