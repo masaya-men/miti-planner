@@ -96,11 +96,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 body: JSON.stringify(body),
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const { shareId } = await res.json();
-            setShareIdRef(shareId);
-            const url = `${window.location.origin}/share/${shareId}`;
+            const data = await res.json();
+            setShareIdRef(data.shareId);
+            const url = `${window.location.origin}/share/${data.shareId}`;
             setShareUrl(url);
-            setOgImageUrl(buildOgUrl(shareId, showPlanTitle, showLogo));
+            setOgImageUrl(buildOgUrl(data.shareId, showPlanTitle, showLogo));
+            if (data.logoBlocked) {
+                showToast(t('team_logo.logo_blocked'), 'error');
+            }
         } catch (err) {
             console.error('Share failed:', err);
             showToast(t('app.share_failed') || '共有リンクの生成に失敗しました');
@@ -118,11 +121,16 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (withLogo && teamLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
-            await apiFetch('/api/share', {
+            const res = await apiFetch('/api/share', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (data.logoBlocked) {
+                showToast(t('team_logo.logo_blocked'), 'error');
+            }
             // プレビュー画像を再読み込み（キャッシュ回避のためタイムスタンプ付与）
             setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, withLogo) + `&t=${Date.now()}`);
         } catch (err) {
