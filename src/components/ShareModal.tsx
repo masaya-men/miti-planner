@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { X, Copy, Check, Loader2, ExternalLink, Upload, Trash2, RefreshCw } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -421,6 +422,22 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             <span className="text-app-base text-app-text-muted ml-auto">
                                 {t('team_logo.format_hint')}
                             </span>
+                        </div>
+
+                        {/* UGC注意書き */}
+                        <div className="flex items-start gap-1.5 text-app-xs text-app-text-muted leading-relaxed">
+                            <span className="shrink-0 mt-px">ⓘ</span>
+                            <div>
+                                <p>{t('team_logo.usage_notice')}</p>
+                                <p>
+                                    <Trans
+                                        i18nKey="team_logo.usage_notice_terms"
+                                        components={{
+                                            termsLink: <Link to="/terms" target="_blank" className="underline hover:text-app-text transition-colors" />
+                                        }}
+                                    />
+                                </p>
+                            </div>
                         </div>
 
                         {/* 隠しファイルインプット */}

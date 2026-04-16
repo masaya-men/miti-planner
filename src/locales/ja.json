@@ -156,7 +156,9 @@
         "error_too_large": "ファイルが大きすぎます（2MB以下にしてください）",
         "error_invalid_type": "PNG・JPG・WebP のみ対応しています",
         "error_upload_failed": "アップロードに失敗しました。時間を置いて再度お試しください",
-        "error_remove_failed": "削除に失敗しました。時間を置いて再度お試しください"
+        "error_remove_failed": "削除に失敗しました。時間を置いて再度お試しください",
+        "usage_notice": "著作権のある画像を許可なく使用しないでください。",
+        "usage_notice_terms": "アップロードにより<termsLink>利用規約</termsLink>に同意したものとみなします。"
     },
     "party": {
         "title": "パーティ構成",

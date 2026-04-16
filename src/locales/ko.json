@@ -139,7 +139,9 @@
         "error_too_large": "파일이 너무 큽니다 (최대 2MB)",
         "error_invalid_type": "PNG, JPG, WebP만 지원됩니다",
         "error_upload_failed": "업로드에 실패했습니다. 나중에 다시 시도해 주세요",
-        "error_remove_failed": "제거에 실패했습니다. 나중에 다시 시도해 주세요"
+        "error_remove_failed": "제거에 실패했습니다. 나중에 다시 시도해 주세요",
+        "usage_notice": "저작권이 있는 이미지를 허가 없이 사용하지 마세요.",
+        "usage_notice_terms": "업로드 시 <termsLink>이용약관</termsLink>에 동의한 것으로 간주합니다."
     },
     "party": {
         "title": "파티 구성",

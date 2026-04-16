@@ -139,7 +139,9 @@
         "error_too_large": "文件过大（最大 2MB）",
         "error_invalid_type": "仅支持 PNG、JPG 和 WebP 格式",
         "error_upload_failed": "上传失败，请稍后重试",
-        "error_remove_failed": "移除失败，请稍后重试"
+        "error_remove_failed": "移除失败，请稍后重试",
+        "usage_notice": "请勿未经许可上传受版权保护的图片。",
+        "usage_notice_terms": "上传即视为您同意<termsLink>使用条款</termsLink>。"
     },
     "party": {
         "title": "队伍配置",

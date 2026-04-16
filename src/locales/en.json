@@ -156,7 +156,9 @@
         "error_too_large": "File is too large (2MB max)",
         "error_invalid_type": "Only PNG, JPG, and WebP are supported",
         "error_upload_failed": "Upload failed. Please try again later",
-        "error_remove_failed": "Removal failed. Please try again later"
+        "error_remove_failed": "Removal failed. Please try again later",
+        "usage_notice": "Do not upload copyrighted images without permission.",
+        "usage_notice_terms": "By uploading, you agree to the <termsLink>Terms of Service</termsLink>."
     },
     "party": {
         "title": "Party Composition",
