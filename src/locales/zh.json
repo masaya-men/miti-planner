@@ -1220,6 +1220,8 @@
         "skill_wiz_target_self": "可以对自己使用吗？",
         "skill_wiz_min_level": "最低使用等级？",
         "skill_wiz_icon": "选择图标图片",
+        "skill_wiz_family": "职业切换映射",
+        "skill_wiz_id": "技能ID",
         "skill_wiz_special": "是否有特殊效果？",
         "skill_wiz_special_shield": "屏障（以屏障吸收伤害）",
         "skill_wiz_special_invincible": "无敌",

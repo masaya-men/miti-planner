@@ -46,6 +46,7 @@ interface MitigationDef {
   cannotTargetSelf?: boolean;
   shieldPotency?: number;
   shieldStacks?: number;
+  family?: string;
 }
 
 interface SkillsData {
@@ -82,19 +83,21 @@ const ADD_SKILL_STEPS: WizardStep[] = [
     condition: (d) => d.mode === 'add' },
   { id: 'icon',              label: 'admin.skill_wiz_icon',         required: false,
     condition: (d) => d.mode === 'add' },
+  { id: 'family',            label: 'admin.skill_wiz_family',       required: false,
+    condition: (d) => d.mode === 'add' },
   { id: 'specials',          label: 'admin.skill_wiz_special',      required: false,
+    condition: (d) => d.mode === 'add' },
+  { id: 'skillId',           label: 'admin.skill_wiz_id',           required: true,
     condition: (d) => d.mode === 'add' },
 ];
 
 // ---- ユーティリティ --------------------------------------------------------
 
-function generateSkillId(jobId: string, nameEn: string): string {
-  const base = nameEn
+function generateSkillId(_jobId: string, nameEn: string): string {
+  return nameEn
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_|_$/g, '')
-    .slice(0, 30);
-  return `${jobId}_${base}_${Date.now().toString(36)}`;
+    .replace(/^_|_$/g, '');
 }
 
 // ---- メインコンポーネント -------------------------------------------------
@@ -105,15 +108,17 @@ export function SkillWizard() {
   const isJa = i18n.language.startsWith('ja');
 
   const [jobs, setJobs] = useState<JobDef[]>([]);
+  const [existingMitigations, setExistingMitigations] = useState<MitigationDef[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
-  // ジョブ一覧をAPIから取得
+  // ジョブ一覧 + 既存スキルをAPIから取得
   useEffect(() => {
     setIsLoadingJobs(true);
     apiFetch('/api/admin?resource=templates&type=skills')
       .then((res) => res.json())
       .then((data: SkillsData) => {
         if (data.jobs) setJobs(data.jobs);
+        if (data.mitigations) setExistingMitigations(data.mitigations);
       })
       .catch((err) => {
         console.warn('[SkillWizard] ジョブ一覧の取得に失敗:', err);
@@ -130,7 +135,7 @@ export function SkillWizard() {
 
     const nameEn = (formData.nameEn as string) ?? '';
     const jobId = (formData.jobId as string) ?? '';
-    const newId = generateSkillId(jobId, nameEn);
+    const newId = (formData.skillId as string) || generateSkillId(jobId, nameEn);
 
     // 軽減タイプ処理
     const isSplitType = formData.typeSplit === true;
@@ -154,6 +159,11 @@ export function SkillWizard() {
       scope: (formData.scope as 'self' | 'party' | 'target') ?? 'self',
       minLevel: Number(formData.minLevel) || 1,
     };
+
+    // family
+    if (formData.family) {
+      newMitigation.family = formData.family as string;
+    }
 
     // バースト軽減
     if (formData.hasBurst === 'yes') {
@@ -252,6 +262,14 @@ export function SkillWizard() {
         const v = Number(data.minLevel);
         return !isNaN(v) && v >= 1 && v <= 100;
       }
+      case 'skillId': {
+        const id = (data.skillId as string)?.trim();
+        if (!id) return false;
+        if (!/^[a-z0-9_]+$/.test(id)) return false;
+        return !existingMitigations.some((m) => m.id === id);
+      }
+      case 'family':
+        return true; // optional
       default:
         return true;
     }
@@ -296,8 +314,12 @@ export function SkillWizard() {
         return <StepMinLevel data={data} setField={setField} t={t} />;
       case 'icon':
         return <StepIcon data={data} setField={setField} t={t} />;
+      case 'family':
+        return <StepFamily data={data} setField={setField} t={t} isJa={isJa} existingMitigations={existingMitigations} />;
       case 'specials':
         return <StepSpecials data={data} setField={setField} t={t} isJa={isJa} />;
+      case 'skillId':
+        return <StepSkillId data={data} setField={setField} t={t} isJa={isJa} existingMitigations={existingMitigations} />;
       default:
         return null;
     }
@@ -354,6 +376,14 @@ export function SkillWizard() {
       });
     }
 
+    if (data.family) {
+      rows.push({
+        stepId: 'family',
+        label: isJa ? 'ジョブ変更マッピング' : 'Family',
+        value: String(data.family),
+      });
+    }
+
     const specials = (data.specials as string[]) ?? [];
     if (specials.length > 0) {
       rows.push({
@@ -362,6 +392,12 @@ export function SkillWizard() {
         value: specials.join(', '),
       });
     }
+
+    rows.push({
+      stepId: 'skillId',
+      label: 'ID',
+      value: String(data.skillId ?? generateSkillId(String(data.jobId ?? ''), String(data.nameEn ?? ''))),
+    });
 
     return (
       <div className="flex flex-col gap-3">
@@ -513,7 +549,7 @@ function StepNameJa({ data, setField, t }: StepBaseProps) {
   );
 }
 
-// スキル名（英語）
+// スキル名（英語）— IDも自動生成
 function StepNameEn({ data, setField, t }: StepBaseProps) {
   return (
     <div className="flex flex-col gap-3">
@@ -521,7 +557,10 @@ function StepNameEn({ data, setField, t }: StepBaseProps) {
       <input
         type="text"
         value={(data.nameEn as string) ?? ''}
-        onChange={(e) => setField('nameEn', e.target.value)}
+        onChange={(e) => {
+          setField('nameEn', e.target.value);
+          setField('skillId', generateSkillId(String(data.jobId ?? ''), e.target.value));
+        }}
         placeholder="e.g. Sheltron"
         className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
         autoFocus
@@ -845,6 +884,119 @@ const SPECIAL_FLAGS = [
   { id: 'resourceCost',   labelKey: 'admin.skill_wiz_special_resource' },
   { id: 'healingIncrease', labelKey: 'admin.skill_wiz_special_healing' },
 ] as const;
+
+// family選択（ジョブ変更時のマッピング用）
+interface StepFamilyProps extends StepBasePropsWithLang {
+  existingMitigations: MitigationDef[];
+}
+
+function StepFamily({ data, setField, t: _t, isJa, existingMitigations }: StepFamilyProps) {
+  // 既存スキルからfamily一覧を抽出（同じロールのスキルを優先表示）
+  const familyMap = new Map<string, string[]>();
+  for (const m of existingMitigations) {
+    if (!m.family) continue;
+    const names = familyMap.get(m.family) ?? [];
+    const name = isJa ? m.name.ja : m.name.en;
+    if (!names.includes(name)) names.push(name);
+    familyMap.set(m.family, names);
+  }
+
+  const families = Array.from(familyMap.entries()).sort(([a], [b]) => a.localeCompare(b));
+  const current = (data.family as string) ?? '';
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-app-2xl text-[var(--app-text-muted)]">
+        {isJa ? 'ジョブ変更マッピング（family）' : 'Job Migration Family'}
+      </p>
+      <p className="text-app-lg text-[var(--app-text-muted)]">
+        {isJa
+          ? 'ジョブ変更時にスキルを自動変換するためのグループ。同じfamilyのスキル同士が変換対象になります。任意入力です。'
+          : 'Group for auto-mapping skills when changing jobs. Skills with the same family are mapped to each other. Optional.'}
+      </p>
+      <input
+        type="text"
+        value={current}
+        onChange={(e) => setField('family', e.target.value)}
+        placeholder={isJa ? '例: ph_180_big' : 'e.g. ph_180_big'}
+        className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+        autoFocus
+      />
+      <div className="max-h-64 overflow-y-auto flex flex-col gap-1">
+        {families.map(([fam, names]) => (
+          <button
+            key={fam}
+            type="button"
+            onClick={() => setField('family', fam)}
+            className={`text-left px-3 py-2 border transition-colors ${
+              current === fam
+                ? 'border-[var(--app-text)] bg-[var(--app-text)]/10'
+                : 'border-[var(--app-text)]/10 hover:border-[var(--app-text)]/30'
+            }`}
+          >
+            <div className="text-app-2xl font-medium font-mono">{fam}</div>
+            <div className="text-app-lg text-[var(--app-text-muted)] truncate">
+              {names.slice(0, 3).join(', ')}{names.length > 3 ? ` +${names.length - 3}` : ''}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// スキルID確認・編集
+interface StepSkillIdProps extends StepBasePropsWithLang {
+  existingMitigations: MitigationDef[];
+}
+
+function StepSkillId({ data, setField, isJa, existingMitigations }: StepSkillIdProps) {
+  const autoId = generateSkillId(String(data.jobId ?? ''), String(data.nameEn ?? ''));
+  const currentId = (data.skillId as string) ?? autoId;
+  const isDuplicate = existingMitigations.some((m) => m.id === currentId);
+  const isInvalidFormat = currentId.length > 0 && !/^[a-z0-9_]+$/.test(currentId);
+
+  // 初回表示時にIDが未設定なら自動生成値をセット
+  useEffect(() => {
+    if (!data.skillId) {
+      setField('skillId', autoId);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-app-2xl text-[var(--app-text-muted)]">
+        {isJa ? 'スキルID（自動生成・編集可能）' : 'Skill ID (auto-generated, editable)'}
+      </p>
+      <input
+        type="text"
+        value={currentId}
+        onChange={(e) => setField('skillId', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+        className={`w-full border bg-transparent px-4 py-3 text-app-2xl font-mono focus:outline-none text-[var(--app-text)] ${
+          isDuplicate || isInvalidFormat
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-[var(--app-text)]/30 focus:border-[var(--app-text)]'
+        }`}
+        autoFocus
+      />
+      {isDuplicate && (
+        <p className="text-app-lg text-red-500">
+          {isJa ? 'このIDは既に使われています' : 'This ID is already in use'}
+        </p>
+      )}
+      {isInvalidFormat && (
+        <p className="text-app-lg text-red-500">
+          {isJa ? '英小文字・数字・アンダースコアのみ使用できます' : 'Only lowercase letters, numbers, and underscores allowed'}
+        </p>
+      )}
+      <p className="text-app-lg text-[var(--app-text-muted)]">
+        {isJa
+          ? '英語名から自動生成されます。特別な理由がなければそのままでOKです。'
+          : 'Auto-generated from the English name. Leave as-is unless you have a specific reason to change it.'}
+      </p>
+    </div>
+  );
+}
 
 function StepSpecials({ data, setField, t, isJa: _isJa }: StepBasePropsWithLang) {
   const selected = (data.specials as string[]) ?? [];

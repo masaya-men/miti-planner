@@ -1269,6 +1269,8 @@
         "skill_wiz_target_self": "自分自身にも使えますか？",
         "skill_wiz_min_level": "使用可能レベルは？",
         "skill_wiz_icon": "アイコン画像を選んでください",
+        "skill_wiz_family": "ジョブ変更マッピング",
+        "skill_wiz_id": "スキルID",
         "skill_wiz_special": "特殊な動作はありますか？",
         "skill_wiz_special_shield": "シールド（ダメージを吸収するバリアを張る）",
         "skill_wiz_special_invincible": "無敵になる",

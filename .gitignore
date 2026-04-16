@@ -73,8 +73,3 @@ update_data.cjs
 
 .vercel
 .firebase/
-
-# Remotion video project
-video/node_modules/
-video/out/
-video/dist/

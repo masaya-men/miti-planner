@@ -1265,6 +1265,8 @@
         "skill_wiz_target_self": "Can it target yourself?",
         "skill_wiz_min_level": "Minimum level to use?",
         "skill_wiz_icon": "Select an icon image",
+        "skill_wiz_family": "Job Migration Family",
+        "skill_wiz_id": "Skill ID",
         "skill_wiz_special": "Any special behaviors?",
         "skill_wiz_special_shield": "Shield (absorbs damage with a barrier)",
         "skill_wiz_special_invincible": "Invulnerability",
