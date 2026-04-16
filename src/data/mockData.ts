@@ -574,6 +574,10 @@ export const MITIGATIONS: Mitigation[] = [
         recast: 120, duration: 20, type: "all", value: 10, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, minLevel: 80, family: "ph_120_aoe"
     },
     {
+        id: "liturgy_of_the_bell", jobId: "whm", name: { ja: "リタージー・オブ・ベル", en: "Liturgy of the Bell", zh: "礼仪之铃", ko: "예배종" }, icon: "/icons/Liturgy_of_the_Bell.png",
+        recast: 180, duration: 20, type: "all", value: 0, isShield: false, note: "被ダメ時HP回復(5回, 回復力400) + 残スタック×回復力200", minLevel: 90, family: "whm_bell"
+    },
+    {
         id: "aquaveil", jobId: "whm", name: { ja: "アクアヴェール", en: "Aquaveil", zh: "水流幕", ko: "물의 장막" }, icon: "/icons/Aquaveil.png",
         recast: 90, duration: 8, type: "all", value: 15, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
     },

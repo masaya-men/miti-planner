@@ -1,7 +1,13 @@
 /**
  * seed-skills-stats.ts
  * mockData.ts, defaultStats.ts, levelModifiers.ts のデータを
- * Firestore の /master/skills と /master/stats に書き込む
+ * Firestore の /master/skills と /master/stats にマージ書き込みする
+ *
+ * マージ方式:
+ * - mockData.tsのスキルは追加/更新される（IDで照合）
+ * - 管理画面から追加されたFirestoreのみのスキルは保持される
+ * - displayOrderはmockData.tsの値で上書き（表示順はコードで管理）
+ * - jobs, statsは完全上書き（管理画面からの変更なし前提）
  *
  * 使い方: npx tsx scripts/seed-skills-stats.ts
  */
@@ -54,14 +60,32 @@ const db = getFirestore();
 
 console.log('✅ Firebase Admin 初期化完了');
 
-// /master/skills
+// /master/skills — マージ方式
+// 1. Firestoreの既存mitigationsを取得
+const existingSkillsSnap = await db.doc('master/skills').get();
+const existingMitigations: any[] = existingSkillsSnap.exists
+  ? (existingSkillsSnap.data()?.mitigations ?? [])
+  : [];
+
+// 2. mockData.tsのIDセットを作成
+const mockIds = new Set(MITIGATIONS.map(m => m.id));
+
+// 3. Firestoreにしかないスキルを保持
+const firestoreOnly = existingMitigations.filter((m: any) => !mockIds.has(m.id));
+if (firestoreOnly.length > 0) {
+  console.log(`📌 Firestoreのみのスキルを保持: ${firestoreOnly.map((m: any) => m.id).join(', ')}`);
+}
+
+// 4. マージ: mockData.ts + Firestoreのみのスキル
+const mergedMitigations = [...MITIGATIONS, ...firestoreOnly];
+
 const skillsDoc = {
   jobs: JOBS,
-  mitigations: MITIGATIONS,
+  mitigations: mergedMitigations,
   displayOrder: MITIGATION_DISPLAY_ORDER,
 };
 await db.doc('master/skills').set(skillsDoc);
-console.log(`✅ /master/skills 書き込み完了 (jobs: ${JOBS.length}, mitigations: ${MITIGATIONS.length})`);
+console.log(`✅ /master/skills 書き込み完了 (mockData: ${MITIGATIONS.length}, Firestoreのみ保持: ${firestoreOnly.length}, 合計: ${mergedMitigations.length})`);
 
 // /master/stats
 const statsDoc = {
