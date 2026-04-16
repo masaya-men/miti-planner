@@ -500,11 +500,21 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
                         const nextPhase = sorted.find(p => p.startTime > startTime);
+                        const containingPhase = sorted.find(p => p.startTime <= startTime && p.endTime > startTime);
+                        let endTime: number;
+                        if (nextPhase) {
+                            endTime = nextPhase.startTime;
+                        } else if (containingPhase) {
+                            endTime = containingPhase.endTime;
+                        } else {
+                            const maxEventTime = state.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0);
+                            endTime = Math.max(maxEventTime, startTime + 1);
+                        }
                         const newPhase: Phase = {
                             id: crypto.randomUUID(),
                             name,
                             startTime,
-                            endTime: nextPhase ? nextPhase.startTime : startTime + 1,
+                            endTime,
                         };
                         const clippedPhases = state.phases.map(p => {
                             if (p.endTime > startTime && p.startTime < startTime) {
@@ -575,11 +585,21 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
                         const nextLabel = sorted.find(l => l.startTime > startTime);
+                        const containingLabel = sorted.find(l => l.startTime <= startTime && l.endTime > startTime);
+                        let endTime: number;
+                        if (nextLabel) {
+                            endTime = nextLabel.startTime;
+                        } else if (containingLabel) {
+                            endTime = containingLabel.endTime;
+                        } else {
+                            const maxEventTime = state.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0);
+                            endTime = Math.max(maxEventTime, startTime + 1);
+                        }
                         const newLabel: Label = {
                             id: crypto.randomUUID(),
                             name,
                             startTime,
-                            endTime: nextLabel ? nextLabel.startTime : startTime + 1,
+                            endTime,
                         };
                         const clippedLabels = state.labels.map(l => {
                             if (l.endTime > startTime && l.startTime < startTime) {
