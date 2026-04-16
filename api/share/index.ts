@@ -21,6 +21,7 @@ import sharePageHandler from './_sharePageHandler.js';
 const COLLECTION = 'shared_plans';
 // リクエストボディの最大サイズ（500KB）
 const MAX_BODY_SIZE = 500 * 1024;
+const BLOCKED_LOGOS = 'blocked_logos';
 
 function initAdmin() {
     if (!getApps().length) {
@@ -83,6 +84,7 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
+            let logoBlocked = false;
             // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
             const logoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
             if (typeof logoStoragePath === 'string' && logoPathRegex.test(logoStoragePath)) {
@@ -90,7 +92,14 @@ export default async function handler(req: any, res: any) {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);
                     const [buffer] = await file.download();
-                    logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                    // ブロックリストチェック
+                    const hash = createHash('sha256').update(buffer).digest('hex');
+                    const blocked = await db.collection(BLOCKED_LOGOS).doc(hash).get();
+                    if (blocked.exists) {
+                        logoBlocked = true;
+                    } else {
+                        logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                    }
                 } catch (err) {
                     console.error('Logo download failed:', err);
                 }
@@ -114,7 +123,7 @@ export default async function handler(req: any, res: any) {
                 };
                 if (logoBase64) doc.logoBase64 = logoBase64;
                 await db.collection(COLLECTION).doc(shareId).set(doc);
-                return res.status(200).json({ shareId });
+                return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
             }
 
             // 単一プラン共有
@@ -137,7 +146,7 @@ export default async function handler(req: any, res: any) {
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
 
-            return res.status(200).json({ shareId });
+            return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
 
         } else if (req.method === 'PUT') {
             // レート制限（1分あたり5回）
@@ -158,6 +167,7 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
+            let logoBlocked = false;
             // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
             const putLogoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
             if (typeof logoStoragePath === 'string' && putLogoPathRegex.test(logoStoragePath)) {
@@ -165,7 +175,14 @@ export default async function handler(req: any, res: any) {
                     const bucket = getStorage().bucket('lopo-7793e.firebasestorage.app');
                     const file = bucket.file(logoStoragePath);
                     const [buffer] = await file.download();
-                    logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                    // ブロックリストチェック
+                    const hash = createHash('sha256').update(buffer).digest('hex');
+                    const blocked = await db.collection(BLOCKED_LOGOS).doc(hash).get();
+                    if (blocked.exists) {
+                        logoBlocked = true;
+                    } else {
+                        logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                    }
                 } catch (err) {
                     console.error('Logo download failed:', err);
                 }
@@ -178,7 +195,7 @@ export default async function handler(req: any, res: any) {
                 await existingRef.update({ logoBase64: FieldValue.delete() });
             }
 
-            return res.status(200).json({ shareId });
+            return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
 
         } else if (req.method === 'GET') {
             // ── 取得 ──
