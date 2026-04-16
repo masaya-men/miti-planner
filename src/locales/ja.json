@@ -237,7 +237,10 @@
         "no_skills": "このジョブの軽減スキルはありません。",
         "remove": "削除",
         "whispering_dawn_seraph": "光輝の囁き",
-        "fey_illumination_seraph": "セラフィックイルミネーション"
+        "fey_illumination_seraph": "セラフィックイルミネーション",
+        "select_shield": "展開する鼓舞を選択",
+        "no_shield": "有効な鼓舞がありません",
+        "shield_value": "バリア: {{value}}"
     },
     "settings": {
         "party_stats": "パーティステータス設定",

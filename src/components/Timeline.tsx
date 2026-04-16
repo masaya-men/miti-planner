@@ -1331,7 +1331,7 @@ const Timeline: React.FC = () => {
         return () => window.removeEventListener('mobile:close-miti-flow', close);
     }, []);
 
-    const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string }) => {
+    const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string; _linkedMitigationId?: string }) => {
         if (!selectedMemberId) return;
 
         addMitigation({
@@ -1340,7 +1340,8 @@ const Timeline: React.FC = () => {
             time: selectedMitigationTime,
             duration: mitigation.duration,
             ownerId: selectedMemberId,
-            targetId: mitigation._targetId
+            targetId: mitigation._targetId,
+            linkedMitigationId: mitigation._linkedMitigationId,
         });
         setMitigationSelectorOpen(false);
 

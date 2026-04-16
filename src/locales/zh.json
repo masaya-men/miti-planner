@@ -216,7 +216,10 @@
         "no_skills": "该职业没有可用的减伤技能。",
         "remove": "移除",
         "whispering_dawn_seraph": "天使的低语",
-        "fey_illumination_seraph": "炽天的幻光"
+        "fey_illumination_seraph": "炽天的幻光",
+        "select_shield": "选择要展开的鼓舞",
+        "no_shield": "没有有效的鼓舞",
+        "shield_value": "屏障: {{value}}"
     },
     "settings": {
         "party_stats": "队伍属性设置",

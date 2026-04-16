@@ -10,11 +10,12 @@ import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { calculateLinkedShieldValue } from '../utils/calculator';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
     onClose: () => void;
-    onSelect: (mitigation: Mitigation & { _targetId?: string }) => void;
+    onSelect: (mitigation: Mitigation & { _targetId?: string; _linkedMitigationId?: string }) => void;
     onRemove?: (mitigationId: string) => void; // 👈 追加：削除用コールバック
     ownerId?: string | null; // 👈 追加：使用者自身（自己対象不可の判定用）
     jobId: string | null;
@@ -36,8 +37,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const [adjustedPos, setAdjustedPos] = React.useState(position);
 
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
+    const [selectedCopyShieldMit, setSelectedCopyShieldMit] = React.useState<Mitigation | null>(null);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-    const { partyMembers, currentLevel } = useMitigationStore();
+    const { partyMembers, currentLevel, timelineMitigations } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
     const [isMobile, setIsMobile] = React.useState(false);
@@ -46,6 +48,8 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     useEscapeClose(isOpen, () => {
         if (selectedSingleTargetMit) {
             setSelectedSingleTargetMit(null);
+        } else if (selectedCopyShieldMit) {
+            setSelectedCopyShieldMit(null);
         } else {
             onClose();
         }
@@ -89,6 +93,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     React.useEffect(() => {
         if (!isOpen) {
             setSelectedSingleTargetMit(null);
+            setSelectedCopyShieldMit(null);
             return;
         }
         const handleMouseDown = (e: MouseEvent) => {
@@ -181,6 +186,33 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             useMitigationStore.getState().setConflictingMitigationId(status.conflictInstanceId);
         }
 
+        // copiesShield: 展開戦術 → 有効な鼓舞を検索してUI分岐
+        if (mitigation.copiesShield) {
+            const availableShields = timelineMitigations.filter(l =>
+                l.mitigationId === mitigation.copiesShield &&
+                l.time <= selectedTime &&
+                l.time + l.duration > selectedTime
+            );
+
+            if (availableShields.length === 1) {
+                // 自動選択: 1つだけなら直接onSelect
+                onSelect({ ...mitigation, _linkedMitigationId: availableShields[0].id });
+                return;
+            }
+
+            // 0個 or 2+個: 選択UIを表示（0個でも配置は許可、バリア値0警告）
+            setSelectedCopyShieldMit(mitigation);
+            setTimeout(() => {
+                const el = document.getElementById(`miti-btn-${mitigation.id}`);
+                const container = scrollContainerRef.current;
+                if (el && container) {
+                    const topPos = el.offsetTop - 4;
+                    container.scrollTo({ top: topPos, behavior: 'smooth' });
+                }
+            }, 50);
+            return;
+        }
+
         if (mitigation.scope === 'target') {
             setSelectedSingleTargetMit(mitigation);
             setTimeout(() => {
@@ -205,9 +237,17 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         }
     };
 
+    const handleShieldSelect = (linkedMitigationId?: string) => {
+        if (selectedCopyShieldMit) {
+            onSelect({ ...selectedCopyShieldMit, _linkedMitigationId: linkedMitigationId });
+        }
+    };
+
     const handleClose = () => {
         if (selectedSingleTargetMit) {
             setSelectedSingleTargetMit(null);
+        } else if (selectedCopyShieldMit) {
+            setSelectedCopyShieldMit(null);
         } else {
             onClose();
         }
@@ -241,14 +281,25 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 <div className="flex justify-between items-center mb-2 pb-2 border-b border-app-border px-1 shrink-0 relative z-[101]">
                     <div className="flex items-center pl-1">
                         <div className="flex flex-col justify-center min-w-0">
-                            {selectedSingleTargetMit ? (
+                            {selectedCopyShieldMit ? (
+                                <button
+                                    onClick={() => setSelectedCopyShieldMit(null)}
+                                    className="group flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
+                                >
+                                    <ChevronLeft
+                                        size={12}
+                                        className="transition-transform duration-200 group-hover:-translate-x-0.5"
+                                    />
+                                    <span>{t('mitigation.select_shield', '展開する鼓舞を選択')}</span>
+                                </button>
+                            ) : selectedSingleTargetMit ? (
                                 <button
                                     onClick={() => setSelectedSingleTargetMit(null)}
                                     className="group flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter leading-none hover:text-app-text transition-colors cursor-pointer text-left"
                                 >
-                                    <ChevronLeft 
-                                        size={12} 
-                                        className="transition-transform duration-200 group-hover:-translate-x-0.5" 
+                                    <ChevronLeft
+                                        size={12}
+                                        className="transition-transform duration-200 group-hover:-translate-x-0.5"
                                     />
                                     <span>{t('mitigation.select_target', '対象を選択')}</span>
                                 </button>
@@ -282,7 +333,9 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
                                 const isClickable = (status.available || isAlreadyPlaced);
                                 const isSelectedTargetMit = selectedSingleTargetMit?.id === mitigation.id;
-                                const isBlurred = selectedSingleTargetMit !== null && !isSelectedTargetMit;
+                                const isSelectedShieldMit = selectedCopyShieldMit?.id === mitigation.id;
+                                const isBlurred = (selectedSingleTargetMit !== null && !isSelectedTargetMit) ||
+                                                  (selectedCopyShieldMit !== null && !isSelectedShieldMit);
 
                                 return (
                                     <React.Fragment key={mitigation.id}>
@@ -294,7 +347,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                         className={clsx(
                                             "w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-left group border text-app-text",
                                             isBlurred ? "opacity-30 blur-[2px] grayscale" : "",
-                                            isSelectedTargetMit ? "z-10 shadow-md bg-app-surface2 border-app-border" :
+                                            (isSelectedTargetMit || isSelectedShieldMit) ? "z-10 shadow-md bg-app-surface2 border-app-border" :
                                             isAlreadyPlaced
                                                 ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
                                                 : !status.available
@@ -341,6 +394,11 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 {mitigation.scope === 'target' && !isAlreadyPlaced && (
                                                     <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
                                                         {isSelectedTargetMit ? '▼' : '▶'}
+                                                    </span>
+                                                )}
+                                                {mitigation.copiesShield && !isAlreadyPlaced && (
+                                                    <span className="ml-2 text-app-base text-app-text-sec transition-transform group-hover:translate-x-0.5 inline-block shrink-0">
+                                                        {selectedCopyShieldMit?.id === mitigation.id ? '▼' : '▶'}
                                                     </span>
                                                 )}
                                             </div>
@@ -410,6 +468,103 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* copiesShield: 鼓舞選択パネル */}
+                                    {selectedCopyShieldMit?.id === mitigation.id && (() => {
+                                        const availableShields = timelineMitigations.filter(l =>
+                                            l.mitigationId === mitigation.copiesShield &&
+                                            l.time <= selectedTime &&
+                                            l.time + l.duration > selectedTime
+                                        );
+                                        return (
+                                            <div
+                                                className={clsx(
+                                                    "w-full mt-1 mb-2 p-3 rounded-xl border-t-white/20",
+                                                    "glass-panel shadow-[0_8px_30px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.6)]",
+                                                    "animate-in slide-in-from-top-2 fade-in duration-300 relative z-20"
+                                                )}
+                                                style={{ pointerEvents: 'auto' }}
+                                            >
+                                                {availableShields.length === 0 ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        <p className="text-app-base text-amber-700 dark:text-amber-400 font-bold text-center">
+                                                            {t('mitigation.no_shield', '有効な鼓舞がありません')}
+                                                        </p>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleShieldSelect(undefined);
+                                                            }}
+                                                            className={clsx(
+                                                                "w-full p-2 rounded-lg border transition-all duration-200",
+                                                                "bg-app-surface2 border-app-border",
+                                                                "hover:bg-app-surface2 hover:border-app-border",
+                                                                "shadow-sm dark:shadow-none hover:shadow-md",
+                                                                "cursor-pointer active:scale-95 hover:scale-[1.01]",
+                                                                "text-app-base text-app-text-sec"
+                                                            )}
+                                                        >
+                                                            {t('mitigation.no_shield', '有効な鼓舞がありません')}（{t('mitigation.shield_value', { value: 0 })}）
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col gap-2">
+                                                        {availableShields.map(shield => {
+                                                            const shieldOwner = partyMembers.find(p => p.id === shield.ownerId);
+                                                            const targetMember = shield.targetId
+                                                                ? partyMembers.find(p => p.id === shield.targetId)
+                                                                : shieldOwner;
+                                                            const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
+                                                            const barrierValue = calculateLinkedShieldValue(
+                                                                shield, timelineMitigations, partyMembers, MITIGATIONS
+                                                            );
+                                                            return (
+                                                                <button
+                                                                    key={`shield-${shield.id}`}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleShieldSelect(shield.id);
+                                                                    }}
+                                                                    className={clsx(
+                                                                        "flex items-center gap-3 p-2 rounded-lg border transition-all duration-200",
+                                                                        "bg-app-surface2 border-app-border",
+                                                                        "hover:bg-app-surface2 hover:border-app-border",
+                                                                        "shadow-sm dark:shadow-none hover:shadow-md",
+                                                                        "cursor-pointer active:scale-95 hover:scale-[1.01]"
+                                                                    )}
+                                                                >
+                                                                    {targetJob ? (
+                                                                        <img
+                                                                            src={targetJob.icon}
+                                                                            alt={targetJob.name?.en || targetJob.id}
+                                                                            className="w-8 h-8 object-contain drop-shadow-md shrink-0"
+                                                                        />
+                                                                    ) : (
+                                                                        <span className={clsx(
+                                                                            "w-8 h-8 flex items-center justify-center text-app-2xl font-black tracking-tighter uppercase drop-shadow-sm shrink-0",
+                                                                            targetMember?.role === 'tank' ? 'text-blue-500 dark:text-blue-400' :
+                                                                            targetMember?.role === 'healer' ? 'text-green-500 dark:text-green-400' :
+                                                                            'text-red-500 dark:text-red-400'
+                                                                        )}>
+                                                                            {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
+                                                                        </span>
+                                                                    )}
+                                                                    <div className="flex flex-col items-start min-w-0">
+                                                                        <span className="text-app-base font-bold text-app-text truncate">
+                                                                            {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
+                                                                        </span>
+                                                                        <span className="text-app-sm text-app-text-sec">
+                                                                            {t('mitigation.shield_value', { value: barrierValue.toLocaleString() })}
+                                                                        </span>
+                                                                    </div>
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                     </React.Fragment>
                                 );
                             })

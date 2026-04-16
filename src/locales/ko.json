@@ -216,7 +216,10 @@
         "no_skills": "이 잡에 사용 가능한 경감 기술이 없습니다.",
         "remove": "제거",
         "whispering_dawn_seraph": "천사의 속삭임",
-        "fey_illumination_seraph": "세라픽 일루미네이션"
+        "fey_illumination_seraph": "세라픽 일루미네이션",
+        "select_shield": "전개할 고무를 선택",
+        "no_shield": "유효한 고무가 없습니다",
+        "shield_value": "보호막: {{value}}"
     },
     "settings": {
         "party_stats": "파티 스탯 설정",

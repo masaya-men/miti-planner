@@ -233,7 +233,10 @@
         "no_skills": "No mitigation skills available for this job.",
         "remove": "Remove",
         "whispering_dawn_seraph": "Angel's Whisper",
-        "fey_illumination_seraph": "Seraphic Illumination"
+        "fey_illumination_seraph": "Seraphic Illumination",
+        "select_shield": "Select Shield to Deploy",
+        "no_shield": "No active shield available",
+        "shield_value": "Barrier: {{value}}"
     },
     "settings": {
         "party_stats": "Party Stats Settings",
