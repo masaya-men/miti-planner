@@ -312,11 +312,19 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "recitation", jobId: "sch", name: { ja: "秘策", en: "Recitation", zh: "秘策", ko: "비책" }, icon: "/icons/Recitation.png",
-        recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "次のヒールを確定クリ+コスト免除", minLevel: 74, family: "healer_ogcd_self_buff"
+        recast: 60, duration: 15, type: "all", value: 0, isShield: false, note: "次のヒールを確定クリ+コスト免除", minLevel: 98, family: "healer_ogcd_self_buff"
+    },
+    {
+        id: "recitation", jobId: "sch", name: { ja: "秘策", en: "Recitation", zh: "秘策", ko: "비책" }, icon: "/icons/Recitation.png",
+        recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "次のヒールを確定クリ+コスト免除", minLevel: 74, maxLevel: 97, family: "healer_ogcd_self_buff"
     },
     {
         id: "deployment_tactics", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
-        recast: 120, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, family: "bh_90_shield"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 88, family: "bh_90_shield"
+    },
+    {
+        id: "deployment_tactics", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
+        recast: 120, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, maxLevel: 87, family: "bh_90_shield"
     },
 
     {
@@ -450,7 +458,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "zoe", jobId: "sge", name: { ja: "ゾーエ", en: "Zoe", zh: "活化", ko: "생명력" }, icon: "/icons/Zoe.png",
-        recast: 120, duration: 30, type: "all", value: 0, isShield: false, note: "次の回復魔法の回復量1.5倍", minLevel: 56, family: "healer_ogcd_self_buff"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: false, note: "次の回復魔法の回復量1.5倍", minLevel: 88, family: "healer_ogcd_self_buff"
+    },
+    {
+        id: "zoe", jobId: "sge", name: { ja: "ゾーエ", en: "Zoe", zh: "活化", ko: "생명력" }, icon: "/icons/Zoe.png",
+        recast: 120, duration: 30, type: "all", value: 0, isShield: false, note: "次の回復魔法の回復量1.5倍", minLevel: 56, maxLevel: 87, family: "healer_ogcd_self_buff"
     },
     {
         id: "druochole", jobId: "sge", name: { ja: "ドルオコレ", en: "Druochole", zh: "灵橡清汁", ko: "드루오콜레" }, icon: "/icons/Druochole.png",
@@ -599,7 +611,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "asylum", jobId: "whm", name: { ja: "アサイラム", en: "Asylum", zh: "庇护所", ko: "성소" }, icon: "/icons/Asylum.png",
-        recast: 90, duration: 24, type: "all", value: 0, isShield: false, healingIncrease: 10, minLevel: 52, family: "healer_ogcd_aoe_heal"
+        recast: 90, duration: 24, type: "all", value: 0, isShield: false, healingIncrease: 10, minLevel: 78, family: "healer_ogcd_aoe_heal"
+    },
+    {
+        id: "asylum", jobId: "whm", name: { ja: "アサイラム", en: "Asylum", zh: "庇护所", ko: "성소" }, icon: "/icons/Asylum.png",
+        recast: 90, duration: 24, type: "all", value: 0, isShield: false, minLevel: 52, maxLevel: 77, family: "healer_ogcd_aoe_heal"
     },
     {
         id: "afflatus_solace", jobId: "whm", name: { ja: "ハート・オブ・ソラス", en: "Afflatus Solace", zh: "安慰之心", ko: "위로의 마음" }, icon: "/icons/Afflatus_Solace.png",
@@ -607,7 +623,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "tetragrammaton", jobId: "whm", name: { ja: "テトラグラマトン", en: "Tetragrammaton", zh: "神名", ko: "신의 이름" }, icon: "/icons/Tetragrammaton.png",
-        recast: 60, duration: 1, type: "all", value: 0, isShield: false, scope: "target", maxCharges: 2, minLevel: 60, family: "healer_ogcd_target_heal"
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, scope: "target", maxCharges: 2, minLevel: 98, family: "healer_ogcd_target_heal"
+    },
+    {
+        id: "tetragrammaton", jobId: "whm", name: { ja: "テトラグラマトン", en: "Tetragrammaton", zh: "神名", ko: "신의 이름" }, icon: "/icons/Tetragrammaton.png",
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, scope: "target", minLevel: 60, maxLevel: 97, family: "healer_ogcd_target_heal"
     },
 
     // --- Dancer ---
