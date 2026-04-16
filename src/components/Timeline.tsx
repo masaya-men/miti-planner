@@ -1570,8 +1570,9 @@ const Timeline: React.FC = () => {
                         b.time <= appMit.time && appMit.time < b.time + b.duration && b.id !== appMit.id
                     );
 
-                    // 秘策チェック: バリアスキルに対して確定クリティカル（最初の1回のみ消費）
+                    // 消費型バフチェック: バリアスキルに対して最初の1回のみ適用
                     if (def.isShield) {
+                        // 秘策 (SCH): 確定クリティカル ×1.6
                         const activeRecitation = buffsAtCast.find(b =>
                             b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId
                         );
@@ -1585,6 +1586,23 @@ const Timeline: React.FC = () => {
                             );
                             if (!earlierShieldConsumes) {
                                 critMultiplier = CRIT_MULTIPLIER;
+                            }
+                        }
+
+                        // ゾーエ (SGE): 次の回復魔法 ×1.5
+                        const activeZoe = buffsAtCast.find(b =>
+                            b.mitigationId === 'zoe' && b.ownerId === appMit.ownerId
+                        );
+                        if (activeZoe) {
+                            const earlierShieldConsumesZoe = timelineMitigations.some(m =>
+                                m.id !== appMit.id &&
+                                m.ownerId === appMit.ownerId &&
+                                m.time >= activeZoe.time &&
+                                m.time < appMit.time &&
+                                MITIGATIONS.find(d => d.id === m.mitigationId)?.isShield
+                            );
+                            if (!earlierShieldConsumesZoe) {
+                                critMultiplier *= 1.5;
                             }
                         }
                     }
