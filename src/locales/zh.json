@@ -204,6 +204,7 @@
         "unavailable_dissipation_dup": "不可用（转化中）",
         "no_aetherflow": "无以太超流",
         "no_addersgall": "无蛇胆",
+        "no_lily": "无治疗百合",
         "no_charges": "无充能",
         "cd_remaining": "CD {{seconds}}秒",
         "combat_only": "仅战斗中可用",

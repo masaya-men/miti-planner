@@ -54,7 +54,7 @@ export interface Mitigation {
     healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)
     requires?: string; // Prerequisite mitigation ID that must be active
     requiresWindow?: number; // Override window (seconds) for requires check (default: parent's duration)
-    resourceCost?: { type: 'aetherflow' | 'addersgall'; amount: number };
+    resourceCost?: { type: 'aetherflow' | 'addersgall' | 'lily'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
     family?: string; // Compatibility family for job migration mappings
     stacks?: number; // Max stacks for multi-layer barriers (e.g. Haima=5)
@@ -62,6 +62,7 @@ export interface Mitigation {
     onExpiryHealingPotency?: number; // Healing per remaining stack when duration expires
     burstValue?: number; // Additional mitigation % during initial burst window (e.g., 10 for extra 10%)
     burstDuration?: number; // Duration in seconds for the burst mitigation window (e.g., 4)
+    exclusiveWith?: string; // Mutually exclusive mitigation group (e.g. kerachole/taurochole: only latest applied counts)
     hidden?: boolean; // If true, the mitigation is not shown in the selector modal
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
     targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves

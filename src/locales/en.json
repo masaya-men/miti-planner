@@ -221,6 +221,7 @@
         "unavailable_dissipation_dup": "Unavailable (Dissipation)",
         "no_aetherflow": "No Aetherflow",
         "no_addersgall": "No Addersgall",
+        "no_lily": "No Lily",
         "no_charges": "No charges",
         "cd_remaining": "CD {{seconds}}s",
         "combat_only": "Available only during combat",

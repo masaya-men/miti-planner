@@ -204,6 +204,7 @@
         "unavailable_dissipation_dup": "사용 불가 (전개)",
         "no_aetherflow": "에테르 플로우 없음",
         "no_addersgall": "아더스갈 없음",
+        "no_lily": "릴리 없음",
         "no_charges": "충전 없음",
         "cd_remaining": "재사용 {{seconds}}초",
         "combat_only": "전투 중에만 사용 가능",

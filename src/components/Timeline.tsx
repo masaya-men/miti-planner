@@ -1475,6 +1475,16 @@ const Timeline: React.FC = () => {
 
                 if (isInvincibleForEvent) return;
 
+                // exclusiveWith: 同グループのスキルが同時にアクティブな場合、最後に付与された方のみ軽減適用
+                if (def.exclusiveWith && def.value > 0) {
+                    const laterExclusive = activeMitigations.some(other => {
+                        if (other.id === appMit.id) return false;
+                        const otherDef = MITIGATIONS.find(m => m.id === other.mitigationId);
+                        return otherDef?.exclusiveWith === def.exclusiveWith && otherDef?.value && otherDef.value > 0 && other.time > appMit.time;
+                    });
+                    if (laterExclusive) return;
+                }
+
                 let mitigationValue = def.value;
                 if (event.damageType === 'physical' && def.valuePhysical !== undefined) {
                     mitigationValue = def.valuePhysical;

@@ -14,20 +14,31 @@ export const MITIGATION_DISPLAY_ORDER = [
     'liturgy_of_the_bell',
     'divine_benison',
     'aquaveil',
+    'medica_ii',
+    'medica_iii',
+    'assize',
+    'asylum',
+    'afflatus_solace',
+    'tetragrammaton',
     'sacred_soil',
-    'succor',
-    'concitation',
     'fey_illumination',
     'summon_seraph',
     'consolation',
     'expedient',
     'seraphism',
     'accession',
+    'recitation',
+    'protraction',
+    'adloquium',
+    'deployment_tactics',
     'dissipation',
     'whispering_dawn',
     'fey_blessing',
     'indomitability',
+    'lustrate',
     'aetherpact',
+    'succor',
+    'concitation',
     'collective_unconscious',
     'neutral_sect',
     'sun_sign',
@@ -38,15 +49,21 @@ export const MITIGATION_DISPLAY_ORDER = [
     'horoscope',
     'celestial_intersection',
     'exaltation',
+    'celestial_opposition',
     'kerachole',
     'holos',
     'panhaima',
     'philosophia',
     'physis_base',
     'physis',
-    'ixochole',
-    'haima',
+    'zoe',
     'pneuma',
+    'ixochole',
+    'krasis',
+    'haima',
+    'taurochole',
+    'eukrasian_diagnosis',
+    'druochole',
     'feint_base',
     'feint',
     'mantra',
@@ -291,11 +308,15 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "adloquium", jobId: "sch", name: { ja: "鼓舞激励の策", en: "Adloquium", zh: "鼓舞激励之策", ko: "고무격려책" }, icon: "/icons/Adloquium.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, minLevel: 30, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield"
     },
     {
-        id: "recitation_deployment_tactics", jobId: "sch", name: { ja: "秘策：展開戦術", en: "Recitation Deployment Tactics", zh: "秘策·展开战术", ko: "비책: 전개전술" }, icon: "/icons/Deployment_Tactics.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, note: "確定クリティカル", family: "bh_90_shield"
+        id: "recitation", jobId: "sch", name: { ja: "秘策", en: "Recitation", zh: "秘策", ko: "비책" }, icon: "/icons/Recitation.png",
+        recast: 90, duration: 15, type: "all", value: 0, isShield: false, note: "次のヒールを確定クリ+コスト免除", minLevel: 74, family: "healer_ogcd_self_buff"
+    },
+    {
+        id: "deployment_tactics", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
+        recast: 120, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, family: "bh_90_shield"
     },
 
     {
@@ -338,6 +359,14 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "summon_seraph", jobId: "sch", name: { ja: "サモン・セラフィム", en: "Summon Seraph", zh: "炽天召唤", ko: "세라핌 소환" }, icon: "/icons/Summon_Seraph.png",
         recast: 120, duration: 22, type: "all", value: 0, isShield: false, minLevel: 80, family: "bh_120_a", requiresFairy: true
+    },
+    {
+        id: "lustrate", jobId: "sch", name: { ja: "生命活性法", en: "Lustrate", zh: "生命活性法", ko: "생명활성술" }, icon: "/icons/Lustrate.png",
+        recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "target", resourceCost: { type: 'aetherflow', amount: 1 }, minLevel: 45, family: "healer_ogcd_target_heal"
+    },
+    {
+        id: "protraction", jobId: "sch", name: { ja: "生命回生法", en: "Protraction", zh: "生命回生法", ko: "생명회생법" }, icon: "/icons/Protraction.png",
+        recast: 60, duration: 10, type: "all", value: 0, isShield: false, scope: "target", healingIncrease: 10, note: "最大HP+10% + 被回復+10%", minLevel: 86, family: "healer_ogcd_target_buff"
     },
 
     // --- Machinist ---
@@ -383,7 +412,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "kerachole", jobId: "sge", name: { ja: "ケーラコレ", en: "Kerachole", zh: "坚角清汁", ko: "케이라콜레" }, icon: "/icons/Kerachole.png",
-        recast: 30, duration: 15, type: "all", value: 10, isShield: false, resourceCost: { type: 'addersgall', amount: 1 }, minLevel: 50, family: "healer_bubble"
+        recast: 30, duration: 15, type: "all", value: 10, isShield: false, resourceCost: { type: 'addersgall', amount: 1 }, exclusiveWith: "sge_10pct_miti", minLevel: 50, family: "healer_bubble"
     },
     {
         id: "panhaima", jobId: "sge", name: { ja: "パンハイマ", en: "Panhaima", zh: "泛输血", ko: "온혈액" }, icon: "/icons/Panhaima.png",
@@ -417,7 +446,23 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "eukrasian_diagnosis", jobId: "sge", name: { ja: "エウクラシア・ディアグノシス", en: "Eukrasian Diagnosis", zh: "均衡诊断", ko: "정상건강: 진단치료" }, icon: "/icons/Eukrasian_Diagnosis.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", hidden: true, minLevel: 30, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield"
+    },
+    {
+        id: "zoe", jobId: "sge", name: { ja: "ゾーエ", en: "Zoe", zh: "活化", ko: "생명력" }, icon: "/icons/Zoe.png",
+        recast: 120, duration: 30, type: "all", value: 0, isShield: false, note: "次の回復魔法の回復量1.5倍", minLevel: 56, family: "healer_ogcd_self_buff"
+    },
+    {
+        id: "druochole", jobId: "sge", name: { ja: "ドルオコレ", en: "Druochole", zh: "灵橡清汁", ko: "드루오콜레" }, icon: "/icons/Druochole.png",
+        recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "target", resourceCost: { type: 'addersgall', amount: 1 }, minLevel: 45, family: "healer_ogcd_target_heal"
+    },
+    {
+        id: "taurochole", jobId: "sge", name: { ja: "タウロコレ", en: "Taurochole", zh: "白牛清汁", ko: "타우로콜레" }, icon: "/icons/Taurochole.png",
+        recast: 45, duration: 15, type: "all", value: 10, isShield: false, scope: "target", resourceCost: { type: 'addersgall', amount: 1 }, exclusiveWith: "sge_10pct_miti", note: "回復700+軽減10%。ケーラコレと軽減重複不可（後付け上書き）", minLevel: 62, family: "sge_target_miti_heal"
+    },
+    {
+        id: "krasis", jobId: "sge", name: { ja: "クラーシス", en: "Krasis", zh: "混合", ko: "체액 혼화" }, icon: "/icons/Krasis.png",
+        recast: 60, duration: 10, type: "all", value: 0, isShield: false, scope: "target", healingIncrease: 20, note: "対象の被回復+20%", minLevel: 86, family: "healer_ogcd_target_buff"
     },
 
     // --- Red Mage ---
@@ -434,11 +479,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "helios_conjunction", jobId: "ast", name: { ja: "コンジャンクション・ヘリオス", en: "Helios Conjunction", zh: "阳星合相", ko: "회합: 헬리오스" }, icon: "/icons/Helios_Conjunction.png",
-        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", requires: "neutral_sect", minLevel: 96, family: "healer_gcd_shield"
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", minLevel: 96, family: "healer_gcd_shield"
     },
     {
         id: "aspected_helios", jobId: "ast", name: { ja: "アスペクト・ヘリオス", en: "Aspected Helios", zh: "阳星相位", ko: "별읽기: 헬리오스" }, icon: "/icons/Helios_Conjunction.png",
-        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", requires: "neutral_sect", maxLevel: 95, family: "healer_gcd_shield"
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", maxLevel: 95, family: "healer_gcd_shield"
     },
     {
         id: "macrocosmos", jobId: "ast", name: { ja: "マクロコスモス", en: "Macrocosmos", zh: "大宇宙", ko: "대우주" }, icon: "/icons/Macrocosmos.png",
@@ -463,6 +508,10 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "exaltation", jobId: "ast", name: { ja: "エクザルテーション", en: "Exaltation", zh: "擢升", ko: "성위 격상" }, icon: "/icons/Exaltation.png",
         recast: 60, duration: 8, type: "all", value: 10, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
+    },
+    {
+        id: "celestial_opposition", jobId: "ast", name: { ja: "星天対抗", en: "Celestial Opposition", zh: "天星冲日", ko: "천궁의 반목" }, icon: "/icons/Celestial_Opposition.png",
+        recast: 60, duration: 15, type: "all", value: 0, isShield: false, minLevel: 60, family: "healer_ogcd_aoe_heal"
     },
     {
         id: "celestial_intersection", jobId: "ast", name: { ja: "星天交差", en: "Celestial Intersection", zh: "天星交错", ko: "천궁의 교차" }, icon: "/icons/Celestial_Intersection.png",
@@ -531,6 +580,30 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "divine_benison", jobId: "whm", name: { ja: "ディヴァインベニゾン", en: "Divine Benison", zh: "神祝祷", ko: "신성한 축복" }, icon: "/icons/Divine_Benison.png",
         recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, minLevel: 66, family: "ph_target_shield"
+    },
+    {
+        id: "medica_ii", jobId: "whm", name: { ja: "メディカラ", en: "Medica II", zh: "医济", ko: "메디카라" }, icon: "/icons/Medica_II.png",
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: false, minLevel: 50, maxLevel: 95, family: "healer_gcd_aoe_heal"
+    },
+    {
+        id: "medica_iii", jobId: "whm", name: { ja: "メディガ", en: "Medica III", zh: "医养", ko: "메디카가" }, icon: "/icons/Medica_III.png",
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: false, minLevel: 96, family: "healer_gcd_aoe_heal"
+    },
+    {
+        id: "assize", jobId: "whm", name: { ja: "アサイズ", en: "Assize", zh: "法令", ko: "심판" }, icon: "/icons/Assize.png",
+        recast: 40, duration: 1, type: "all", value: 0, isShield: false, minLevel: 56, family: "healer_ogcd_aoe_heal"
+    },
+    {
+        id: "asylum", jobId: "whm", name: { ja: "アサイラム", en: "Asylum", zh: "庇护所", ko: "성소" }, icon: "/icons/Asylum.png",
+        recast: 90, duration: 24, type: "all", value: 0, isShield: false, healingIncrease: 10, minLevel: 52, family: "healer_ogcd_aoe_heal"
+    },
+    {
+        id: "afflatus_solace", jobId: "whm", name: { ja: "ハート・オブ・ソラス", en: "Afflatus Solace", zh: "安慰之心", ko: "위로의 마음" }, icon: "/icons/Afflatus_Solace.png",
+        recast: 2.5, duration: 1, type: "all", value: 0, isShield: false, scope: "target", resourceCost: { type: 'lily', amount: 1 }, minLevel: 52, family: "healer_gcd_target_heal"
+    },
+    {
+        id: "tetragrammaton", jobId: "whm", name: { ja: "テトラグラマトン", en: "Tetragrammaton", zh: "神名", ko: "신의 이름" }, icon: "/icons/Tetragrammaton.png",
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, scope: "target", maxCharges: 2, minLevel: 60, family: "healer_ogcd_target_heal"
     },
 
     // --- Dancer ---

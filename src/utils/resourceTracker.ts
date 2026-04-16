@@ -142,6 +142,53 @@ export function getAddersgallStacks(
 }
 
 /**
+ * Healing Lily (WHM) - Starts at 3, regenerates 1 every 20s in combat, max 3
+ * Afflatus Solace / Afflatus Rapture costs 1
+ */
+export function getLilyStacks(
+    time: number,
+    placedMitigations: AppliedMitigation[]
+): number {
+    const consumptions = placedMitigations
+        .filter(m => {
+            const def = getMitigationsFromStore().find(d => d.id === m.mitigationId);
+            return def?.resourceCost?.type === 'lily';
+        })
+        .filter(m => m.time <= time)
+        .sort((a, b) => a.time - b.time);
+
+    if (consumptions.length === 0) return 3;
+
+    let stacks = 3;
+    let lastTime = consumptions[0].time;
+    let regenAccumulator = 0;
+
+    for (const consumption of consumptions) {
+        const elapsed = consumption.time - lastTime;
+        const totalRegenTime = regenAccumulator + elapsed;
+        const regenGains = Math.floor(totalRegenTime / 20);
+        stacks = Math.min(3, stacks + regenGains);
+        regenAccumulator = totalRegenTime % 20;
+
+        if (stacks >= 3) {
+            stacks = 3;
+            regenAccumulator = 0;
+        }
+
+        const def = getMitigationsFromStore().find(d => d.id === consumption.mitigationId);
+        stacks = Math.max(0, stacks - (def?.resourceCost?.amount || 0));
+        lastTime = consumption.time;
+    }
+
+    const finalElapsed = time - lastTime;
+    const finalRegenTime = regenAccumulator + finalElapsed;
+    const finalRegenGains = Math.floor(finalRegenTime / 20);
+    stacks = Math.min(3, stacks + finalRegenGains);
+
+    return stacks;
+}
+
+/**
  * Check if the fairy is actively responding to commands at `time`.
  */
 export function isFairyAvailable(time: number, placedMitigations: AppliedMitigation[]): boolean {
@@ -355,19 +402,23 @@ export function validateMitigationPlacement(
         }
     }
 
-    // Resource cost check (Aetherflow / Addersgall)
+    // Resource cost check (Aetherflow / Addersgall / Lily)
     if (m.resourceCost) {
         let stacks = 0;
         if (m.resourceCost.type === 'aetherflow') {
             stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
         } else if (m.resourceCost.type === 'addersgall') {
             stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+        } else if (m.resourceCost.type === 'lily') {
+            stacks = getLilyStacks(selectedTime, relevantMitigations);
         }
         const badge = `×${stacks}`;
         if (stacks < m.resourceCost.amount) {
             const label = m.resourceCost.type === 'aetherflow'
                 ? t('mitigation.no_aetherflow', 'No Aetherflow')
-                : t('mitigation.no_addersgall', 'No Addersgall');
+                : m.resourceCost.type === 'addersgall'
+                ? t('mitigation.no_addersgall', 'No Addersgall')
+                : t('mitigation.no_lily', 'No Lily');
             return { available: false, message: label, badge, badgeColor: 'red' };
         }
     }
@@ -431,6 +482,7 @@ export function validateMitigationPlacement(
                     let stacks = 0;
                     if (m.resourceCost!.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
                     else if (m.resourceCost!.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+                    else if (m.resourceCost!.type === 'lily') stacks = getLilyStacks(selectedTime, relevantMitigations);
                     return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
                 })() : {};
                 return { available: true, warning: true, message: label, shortMessage: shortLabel, conflictInstanceId: firstNext.id, ...resourceBadge };
@@ -443,6 +495,7 @@ export function validateMitigationPlacement(
         let stacks = 0;
         if (m.resourceCost.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
         else if (m.resourceCost.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
+        else if (m.resourceCost.type === 'lily') stacks = getLilyStacks(selectedTime, relevantMitigations);
         const badge = `×${stacks}`;
         return { available: true, badge, badgeColor: stacks <= 1 ? 'amber' : 'cyan' };
     }
