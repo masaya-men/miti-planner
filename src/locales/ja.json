@@ -1447,7 +1447,20 @@
         "restore_confirm_2_execute": "復元する",
         "restore_confirm_2_cancel": "やめる",
         "restore_success": "{{count}}件の軽減表を復元しました",
-        "restore_syncing": "Firestoreに同期中..."
+        "restore_syncing": "Firestoreに同期中...",
+        "ugc_title": "UGC管理",
+        "ugc_description": "共有URLを貼り付けて、アップロードされたロゴ画像を確認・削除できます。",
+        "ugc_placeholder": "共有URLまたはshareIDを貼り付け",
+        "ugc_search": "検索",
+        "ugc_content": "コンテンツ",
+        "ugc_plan_title": "プラン名",
+        "ugc_created": "作成日",
+        "ugc_type": "種類",
+        "ugc_logo": "ロゴ画像",
+        "ugc_no_logo": "ロゴはありません",
+        "ugc_delete_logo": "ロゴを削除",
+        "ugc_delete_confirm": "このロゴを削除しますか？この操作は取り消せません。",
+        "ugc_delete_success": "ロゴを削除しました"
     },
     "boundary_modal": {
         "add_phase": "フェーズを追加",

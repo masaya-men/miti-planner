@@ -11,6 +11,7 @@ import roleHandler from './_roleHandler.js';
 import templatesHandler from './_templatesHandler.js';
 import syncHandler from './_syncHandler.js';
 import dashboardHandler from './_dashboardHandler.js';
+import ugcHandler from './_ugcHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -26,6 +27,8 @@ export default async function handler(req: any, res: any) {
       return syncHandler(req, res);
     case 'dashboard':
       return dashboardHandler(req, res);
+    case 'ugc':
+      return ugcHandler(req, res);
     default:
       return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync' });
   }

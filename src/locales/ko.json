@@ -1398,7 +1398,20 @@
         "restore_confirm_2_execute": "복원",
         "restore_confirm_2_cancel": "취소",
         "restore_success": "{{count}}개의 경감표를 복원했습니다",
-        "restore_syncing": "클라우드에 동기화 중..."
+        "restore_syncing": "클라우드에 동기화 중...",
+        "ugc_title": "UGC 관리",
+        "ugc_description": "공유 URL을 붙여넣어 업로드된 로고 이미지를 확인하고 관리할 수 있습니다.",
+        "ugc_placeholder": "공유 URL 또는 shareId를 붙여넣기",
+        "ugc_search": "검색",
+        "ugc_content": "콘텐츠",
+        "ugc_plan_title": "플랜 이름",
+        "ugc_created": "생성일",
+        "ugc_type": "유형",
+        "ugc_logo": "로고 이미지",
+        "ugc_no_logo": "로고 없음",
+        "ugc_delete_logo": "로고 삭제",
+        "ugc_delete_confirm": "이 로고를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+        "ugc_delete_success": "로고가 삭제되었습니다"
     },
     "boundary_modal": {
         "add_phase": "페이즈 추가",

@@ -1398,7 +1398,20 @@
         "restore_confirm_2_execute": "恢复",
         "restore_confirm_2_cancel": "取消",
         "restore_success": "已恢复{{count}}个减伤表",
-        "restore_syncing": "正在同步到云端..."
+        "restore_syncing": "正在同步到云端...",
+        "ugc_title": "UGC管理",
+        "ugc_description": "粘贴共享URL，查看和管理上传的标志图片。",
+        "ugc_placeholder": "粘贴共享URL或shareId",
+        "ugc_search": "搜索",
+        "ugc_content": "内容",
+        "ugc_plan_title": "方案名称",
+        "ugc_created": "创建日期",
+        "ugc_type": "类型",
+        "ugc_logo": "标志图片",
+        "ugc_no_logo": "没有标志",
+        "ugc_delete_logo": "删除标志",
+        "ugc_delete_confirm": "确定要删除此标志吗？此操作无法撤销。",
+        "ugc_delete_success": "标志已删除"
     },
     "boundary_modal": {
         "add_phase": "添加阶段",
