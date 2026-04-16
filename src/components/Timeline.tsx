@@ -1543,8 +1543,9 @@ const Timeline: React.FC = () => {
                             linkedMit, timelineMitigations, partyMembers, MITIGATIONS
                         );
 
-                        // copiesShieldはパーティ全体にコピーするため、affectedContextsの全メンバーに適用
+                        // copiesShieldはパーティ全体にコピー（元の鼓舞対象は直接のバリアがあるので除外）
                         affectedContexts.forEach(ctx => {
+                            if (ctx === linkedMit.targetId) return;
                             let shieldRemaining = getShieldState(ctx, appMit.id, shieldValue);
                             if (shieldRemaining > 0) {
                                 const absorbed = Math.min(shieldRemaining, damageForShields);
