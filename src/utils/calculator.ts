@@ -218,10 +218,10 @@ export const calculateMemberValues = (member: PartyMember, currentLevel: number 
  * @returns バリア値（整数）
  */
 export const calculateLinkedShieldValue = (
-    linkedMit: { mitigationId: string; time: number; ownerId: string; duration: number; id: string },
-    allMitigations: readonly { mitigationId: string; time: number; ownerId: string; duration: number; id: string }[],
+    linkedMit: { mitigationId: string; time: number; ownerId: string; duration: number; id: string; targetId?: string },
+    allMitigations: readonly { mitigationId: string; time: number; ownerId: string; duration: number; id: string; targetId?: string; isShield?: boolean }[],
     partyMembers: readonly { id: string; stats: StatInput; role: string; computedValues: Record<string, number> }[],
-    mitigationDefs: readonly { id: string; name: { ja?: string } | string; healingIncrease?: number; healingIncreaseDuration?: number; healingIncreaseSelfOnly?: boolean; scope?: string; duration: number }[],
+    mitigationDefs: readonly { id: string; name: { ja?: string } | string; healingIncrease?: number; healingIncreaseDuration?: number; healingIncreaseSelfOnly?: boolean; scope?: string; duration: number; isShield?: boolean }[],
     _currentLevel: number = 100,
 ): number => {
     const linkedDef = mitigationDefs.find(d => d.id === linkedMit.mitigationId);
@@ -240,14 +240,26 @@ export const calculateLinkedShieldValue = (
         b.time <= linkedMit.time && linkedMit.time < b.time + b.duration && b.id !== linkedMit.id
     );
 
-    // 秘策チェック: 同じ使用者の秘策が有効なら確定クリティカル
+    // 秘策チェック: 同じ使用者の秘策が有効 + このスキルが最初の消費者なら確定クリティカル
     let critMultiplier = 1;
-    const recitationActive = buffsAtCast.some(b =>
+    const activeRecitation = buffsAtCast.find(b =>
         b.mitigationId === 'recitation' && b.ownerId === linkedMit.ownerId
     );
-    if (recitationActive) critMultiplier = CRIT_MULTIPLIER;
+    if (activeRecitation) {
+        // 秘策期間中、このlinkedMitより前に同じownerのバリアスキルがなければ秘策適用
+        const earlierShieldConsumesRecitation = allMitigations.some(m =>
+            m.id !== linkedMit.id &&
+            m.ownerId === linkedMit.ownerId &&
+            m.time >= activeRecitation.time &&
+            m.time < linkedMit.time &&
+            mitigationDefs.find(d => d.id === m.mitigationId)?.isShield
+        );
+        if (!earlierShieldConsumesRecitation) {
+            critMultiplier = CRIT_MULTIPLIER;
+        }
+    }
 
-    // 回復効果アップバフを集計（転化、クラーシス、フェイイルミネーション等）
+    // 回復効果アップバフを集計（転化、クラーシス、生命回生法、フェイイルミネーション等）
     let healingMultiplier = 1;
     buffsAtCast.forEach(buff => {
         const bDef = mitigationDefs.find(d => d.id === buff.mitigationId);
@@ -256,6 +268,8 @@ export const calculateLinkedShieldValue = (
             if (linkedMit.time >= buff.time + hiDuration) return;
             // 自身のみ効果（転化等）: バフの使用者とリンク先スキルの使用者が同一の場合のみ
             if (bDef.healingIncreaseSelfOnly && buff.ownerId !== linkedMit.ownerId) return;
+            // 対象指定バフ（クラーシス、生命回生法等）: バフの対象と鼓舞の対象が一致する場合のみ
+            if (bDef.scope === 'target' && buff.targetId !== linkedMit.targetId) return;
             healingMultiplier += (bDef.healingIncrease / 100);
         }
     });
