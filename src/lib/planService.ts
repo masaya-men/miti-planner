@@ -465,10 +465,15 @@ async function syncDirtyPlans(
             return;
           }
         } catch {
-          // updatePlan失敗 → createPlanにフォールバック（新規作成 or 再作成）
-          // ※ リモート削除の検知はPULL側（fetchAndMerge）に任せる
-          //   PUSH側でローカルデータを削除すると、ネットワーク一時障害や
-          //   新規プラン（コピー等）が誤って消える危険がある
+          // ownerId=uid のプランがFirestoreに存在しない → 別端末で削除された
+          // ownerId='local' のプランはまだ未アップロードなので削除判定しない
+          if (plan.ownerId === uid) {
+            const exists = await checkPlanExists(plan.id);
+            if (!exists) {
+              deletedRemotely.push(plan.id);
+              return;
+            }
+          }
           await createPlan(plan, uid, displayName);
         }
       }
