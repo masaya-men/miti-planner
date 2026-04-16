@@ -32,7 +32,7 @@ import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { getColumnWidth } from '../utils/calculator';
+import { getColumnWidth, calculateLinkedShieldValue } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -1524,6 +1524,37 @@ const Timeline: React.FC = () => {
                     }
 
                     if (!def.isShield && !isConditionalShield) return;
+
+                    // copiesShield: リンク先バリアのコピー処理（展開戦術）
+                    if (def.copiesShield) {
+                        if (!appMit.linkedMitigationId) return; // リンクなし → バリア0、スキップ
+
+                        const linkedMit = timelineMitigations.find(l => l.id === appMit.linkedMitigationId);
+                        if (!linkedMit) return; // リンク先が見つからない → スキップ
+
+                        const linkedOwner = partyMembers.find(p => p.id === linkedMit.ownerId);
+                        if (!linkedOwner) return;
+
+                        const shieldValue = calculateLinkedShieldValue(
+                            linkedMit, timelineMitigations, partyMembers, MITIGATIONS
+                        );
+
+                        // copiesShieldはパーティ全体にコピーするため、affectedContextsの全メンバーに適用
+                        affectedContexts.forEach(ctx => {
+                            let shieldRemaining = getShieldState(ctx, appMit.id, shieldValue);
+                            if (shieldRemaining > 0) {
+                                const absorbed = Math.min(shieldRemaining, damageForShields);
+                                const finalShield = shieldRemaining - absorbed;
+                                updateShieldState(ctx, appMit.id, finalShield);
+                                if (ctx === displayContext) {
+                                    displayShieldTotal += shieldRemaining;
+                                    currentDamage = Math.max(0, currentDamage - absorbed);
+                                }
+                            }
+                        });
+                        return; // 通常のバリア計算をスキップ
+                    }
+
                     if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
                     if (appMit.targetId && appMit.targetId !== displayContext) return;
                     if (def.type === 'physical' && event.damageType === 'magical') return;
