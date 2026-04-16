@@ -66,6 +66,7 @@ export interface Mitigation {
     hidden?: boolean; // If true, the mitigation is not shown in the selector modal
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
     targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves
+    copiesShield?: string; // Shield copy source skill ID (e.g. 'adloquium' for deployment_tactics)
 }
 
 export interface AppliedMitigation {
@@ -75,6 +76,7 @@ export interface AppliedMitigation {
     duration: number; // Snapshot of duration at application time
     ownerId: string; // Party Member ID (e.g. "MT")
     targetId?: string; // Party Member ID of the target (e.g. "ST") for single-target buffs
+    linkedMitigationId?: string; // ID of the linked shield instance (for copiesShield skills like deployment_tactics)
 }
 
 export interface TimelineEvent {

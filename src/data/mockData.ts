@@ -316,7 +316,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "deployment_tactics", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
-        recast: 120, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, family: "bh_90_shield"
+        recast: 120, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, family: "bh_90_shield"
     },
 
     {

@@ -150,8 +150,7 @@ export const SKILL_DATA = {
     "士気高揚の策": { "potency": 180, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Succor.png", "nameEn": "Succor", "maxLevel": 91, "minLevel": 35 },
     "コンソレイション": { "potency": 250, "type": "potency", "multiplier": 1, "jobs": ["sch"], "icon": "Consolation.png", "nameEn": "Consolation", "minLevel": 80 },
     "鼓舞激励の策": { "potency": 300, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Adloquium.png", "nameEn": "Adloquium", "minLevel": 30 },
-    "展開戦術": { "jobs": ["sch"], "type": "special", "note": "鼓舞の1.6倍", "icon": "Deployment_Tactics.png", "nameEn": "Deployment Tactics" }, // Custom handling logic needed
-    "秘策：展開戦術": { "potency": 300, "type": "potency", "multiplier": 2.88, "jobs": ["sch"], "icon": "Deployment_Tactics.png", "nameEn": "Recitation Deployment" }, // 300 * 1.6 (Crit) * 1.8 (Galvanize) = 864 (2.88x)
+
 
     // --- Sage ---
     "エウクラシア・プログノシスII": { "potency": 100, "type": "potency", "multiplier": 3.6, "jobs": ["sge"], "icon": "Eukrasian_Prognosis_II.png", "nameEn": "Eukrasian Prognosis II", "minLevel": 96 },
