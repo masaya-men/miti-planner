@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings } from './GridOverlay';
+import { pulseConfig, gridConfig, pulseVisualConfig, PULSE_COLOR_PRESETS, savePulseSettings, notifyGridConfigChange } from './GridOverlay';
 
 // --- 色変換ユーティリティ ---
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
@@ -273,7 +273,7 @@ export const PulseSettings: React.FC = () => {
         pulseOpacity: (v: number) => { setPulseOpacity(v); pulseVisualConfig.opacity = v; savePulseSettings(); },
         colorId: (v: string) => { setColorId(v); pulseVisualConfig.colorId = v; savePulseSettings(); },
         glow: (v: number) => { setGlow(v); pulseVisualConfig.glow = v; savePulseSettings(); },
-        gridLineWidth: (v: number) => { setGridLineWidth(v); gridConfig.lineWidth = v; savePulseSettings(); },
+        gridLineWidth: (v: number) => { setGridLineWidth(v); gridConfig.lineWidth = v; savePulseSettings(); notifyGridConfigChange(); },
         customHue: (v: number) => { setCustomHue(v); updateCustomColor(v, customLightness); savePulseSettings(); },
         customLightness: (v: number) => { setCustomLightness(v); updateCustomColor(customHue, v); savePulseSettings(); },
     };

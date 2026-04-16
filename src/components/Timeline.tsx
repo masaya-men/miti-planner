@@ -494,22 +494,25 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     })()}
                 </div>
 
-                <div
-                    className={clsx(
-                        "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-none",
-                        colors.bg,
-                        colors.border,
-                        colors.shadow,
-                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40"
-                    )}
-                    style={{
-                        height: `${Math.max(0, durationHeight)}px`,
-                        left: `calc(50% + ${overlapOffset}px)`,
-                        transform: 'translateX(-50%)'
-                    }}
-                ></div>
+                {/* エフェクト棒: copiesShieldスキル（展開戦術）とduration≤1秒（瞬発スキル）は非表示 */}
+                {mitigation.duration > 1 && !def?.copiesShield && (
+                    <div
+                        className={clsx(
+                            "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-none",
+                            colors.bg,
+                            colors.border,
+                            colors.shadow,
+                            myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40"
+                        )}
+                        style={{
+                            height: `${Math.max(0, durationHeight)}px`,
+                            left: `calc(50% + ${overlapOffset}px)`,
+                            transform: 'translateX(-50%)'
+                        }}
+                    ></div>
+                )}
 
-                {recastPx > durationHeight && (
+                {recastPx > durationHeight && !def?.copiesShield && (
                     <div
                         className={clsx(
                             "absolute w-0 border-l-[2px] border-dotted border-app-border z-0 pointer-events-none",

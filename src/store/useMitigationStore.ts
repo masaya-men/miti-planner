@@ -186,7 +186,13 @@ const resolveShieldLinks = (
             const linked = mitigations.find(l => l.id === m.linkedMitigationId);
             if (linked && linked.mitigationId === def.copiesShield &&
                 linked.time <= m.time && linked.time + linked.duration > m.time) {
-                return m; // リンク有効、変更なし
+                // リンク有効 — durationを鼓舞の残り時間に同期
+                const remainingDuration = Math.max(1, linked.time + linked.duration - m.time);
+                if (m.duration !== remainingDuration) {
+                    changed = true;
+                    return { ...m, duration: remainingDuration };
+                }
+                return m;
             }
         }
 
@@ -200,7 +206,8 @@ const resolveShieldLinks = (
 
         if (available.length === 1) {
             changed = true;
-            return { ...m, linkedMitigationId: available[0].id };
+            const remainingDuration = Math.max(1, available[0].time + available[0].duration - m.time);
+            return { ...m, linkedMitigationId: available[0].id, duration: remainingDuration };
         }
 
         // 0個 or 2+個: リンク解除

@@ -44,6 +44,11 @@ export function getGridLineWidth(): number {
     return LINE_WIDTH_MAP[gridConfig.lineWidth] ?? LINE_WIDTH_MAP[4];
 }
 
+/** gridConfig変更時にCanvas再描画を要求する */
+export function notifyGridConfigChange(): void {
+    window.dispatchEvent(new CustomEvent('grid-config-change'));
+}
+
 // --- 光パルス設定（外部から変更可能、1-5の5段階） ---
 export const pulseConfig = {
     enabled: _saved.pulse?.enabled ?? true,
@@ -493,12 +498,14 @@ export const GridOverlay: React.FC = () => {
         window.addEventListener('resize', handleResize);
         window.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseleave', handleMouseLeave);
+        window.addEventListener('grid-config-change', scheduleRedraw);
 
         return () => {
             observer.disconnect();
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('grid-config-change', scheduleRedraw);
             cancelAnimationFrame(rafRef.current);
         };
     }, [handleResize, scheduleRedraw, isNearGridLine, generatePulse, startAnimationLoop]);
