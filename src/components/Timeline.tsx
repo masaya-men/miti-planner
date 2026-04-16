@@ -547,7 +547,7 @@ const Timeline: React.FC = () => {
     const {
         aaSettings, schAetherflowPatterns, partyMembers,
         timelineMitigations, timelineEvents, phases,
-        clipboardEvent, hideEmptyRows, currentLevel,
+        clipboardEvent, hideEmptyRows, currentLevel, showRowBorders,
     } = useMitigationStore(useShallow(s => ({
         aaSettings: s.aaSettings,
         schAetherflowPatterns: s.schAetherflowPatterns,
@@ -558,6 +558,7 @@ const Timeline: React.FC = () => {
         clipboardEvent: s.clipboardEvent,
         hideEmptyRows: s.hideEmptyRows,
         currentLevel: s.currentLevel,
+        showRowBorders: s.showRowBorders,
     })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
     // Undo/Redo可否（リアクティブに監視して disabled 状態を正しく反映する）
@@ -1940,10 +1941,10 @@ const Timeline: React.FC = () => {
                             <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center gap-1 h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
-                                        onClick={() => useMitigationStore.getState().setShowRowBorders(!useMitigationStore.getState().showRowBorders)}
+                                        onClick={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
-                                            useMitigationStore.getState().showRowBorders
+                                            showRowBorders
                                                 ? "text-app-text hover:bg-app-surface2"
                                                 : "text-app-text-muted hover:bg-app-surface2"
                                         )}
@@ -2479,6 +2480,7 @@ const Timeline: React.FC = () => {
                                                         throttledUpdatePreview(time);
                                                     }
                                                 }}
+                                                showRowBorders={showRowBorders}
                                             />
                                         );
                                     }
