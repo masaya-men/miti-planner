@@ -1081,7 +1081,8 @@
         "copies": "{{count}} copies",
         "no_data": "まだデータがありません",
         "copy_card": "コピー",
-        "copying_progress": "コピー中… {{current}}/{{total}}"
+        "copying_progress": "コピー中… {{current}}/{{total}}",
+        "loading": "読み込み中..."
     },
     "admin": {
         "dashboard": "ダッシュボード",

@@ -1077,7 +1077,8 @@
         "copies": "{{count}} copies",
         "no_data": "No data yet",
         "copy_card": "Copy",
-        "copying_progress": "Copying… {{current}}/{{total}}"
+        "copying_progress": "Copying… {{current}}/{{total}}",
+        "loading": "Loading..."
     },
     "admin": {
         "dashboard": "Dashboard",

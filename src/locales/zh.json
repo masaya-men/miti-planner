@@ -1057,7 +1057,8 @@
         "copies": "{{count}} copies",
         "no_data": "暂无数据",
         "copy_card": "复制",
-        "copying_progress": "复制中… {{current}}/{{total}}"
+        "copying_progress": "复制中… {{current}}/{{total}}",
+        "loading": "加载中..."
     },
     "admin": {
         "dashboard": "仪表盘",

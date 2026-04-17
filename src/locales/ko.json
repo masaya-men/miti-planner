@@ -1057,7 +1057,8 @@
         "copies": "{{count}} copies",
         "no_data": "아직 데이터가 없습니다",
         "copy_card": "복사",
-        "copying_progress": "복사 중… {{current}}/{{total}}"
+        "copying_progress": "복사 중… {{current}}/{{total}}",
+        "loading": "불러오는 중..."
     },
     "admin": {
         "dashboard": "대시보드",
