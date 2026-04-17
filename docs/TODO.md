@@ -14,14 +14,13 @@
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること
-- **Phase 1 本番観察（デプロイ直後）**
-  - Firebase Console で人気プランの `viewCount` を1件メモ → ボトムシート開いてプレビュー → 値が変化しないことを確認
-  - `/share/<id>` 直接アクセスで従来通り +1 されることも確認
-- **Phase 2（Phase 1 本番確認後）**
-  - プラン: `docs/superpowers/plans/2026-04-17-popular-ranking-phase2-anon-trending-featured.md`
-  - 内容: 匿名ID集計 + 日別バケット旬ランキング + featured活性化 + ポリシー更新4言語（13タスク・6〜7時間、別セッション推奨）
-- **Phase 3（Phase 2 ローンチ後）**
-  - 管理画面 featured 設定UI。プランは Phase 2 ローンチ後に作成
+- **Phase 2 本番観察（デプロイ直後）**
+  - `scripts/_tmp_check_viewcount.ts` で top10 を一度スナップショット（copyCount, viewCount）
+  - 本番で人気ボタン→ボトムシート→コピーまで実行 → Firestore `shared_plans/{id}.copyCountByDay` に今日のキーが増えることを確認
+  - 別ブラウザ/シークレットでも同様にコピー → 匿名IDで重複排除されていることを確認（同一ブラウザから2回コピー → copyCount が1しか増えない）
+  - `/privacy` を4言語で切り替えて「匿名ID集計」「日別コピー集計」文言が出ることを確認
+- **Phase 3（Phase 2 本番確認後）**
+  - 管理画面 featured 設定UI。プランは Phase 2 本番確認後に作成
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
   - 前セッションで一度着手したが複雑・影響範囲大のため撤回
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
@@ -32,13 +31,19 @@
   - ✅ 通知音パス修正（FFXIV_SE/FFXIV_Notification.mp3 へ更新）
   - ✅ 野良主流ランキング再設計: 設計書 + Phase 1/Phase 2 実装プラン作成
   - ✅ 野良主流ランキング Phase 1: viewCount 自己強化ループ止血（`/api/share?preview=true` 実装、ボトムシート側フラグ付与、PopularPageは対象なし）
+  - ✅ 野良主流ランキング Phase 2: 匿名ID集計 + 日別バケット旬ランキング + featured活性化 + ポリシー4言語更新（Task 1-12 + レビュー指摘 fix 2件、151/151 テスト通過）
   - ✅ ボトムシート初期タブ選択修正（Reactバッチ更新問題）
   - ✅ ライトモード時ジョブ移行モーダル背景色修正
   - ✅ タンクLBスキル追加（Lv1/2/3 × 4ジョブ、アイコン3種、Firestore+Storage同期）
   - ✅ feedback_icon_firebase_upload.md メモリ追加（アイコン追加時はStorageアップロード必須）
 - 残り: shared_plansテストデータをFirebase Consoleで削除 → 正式な1件を共有
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
-- ハウジングツアープランナー着手（別プロジェクト作業後に開始）
+- ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### Phase 2 後の follow-up（優先度低・時間あるとき）
+- [ ] `api/popular/index.ts` `mapDoc` と `PopularEntry` 型の `viewCount` フィールドは Phase 2 以降未使用 → 削除整理
+- [ ] en/ko の `privacy_section1_auto_items` 既存翻訳でインラインコンマが bullet 分割される pre-existing バグ（Phase 2 で追加した末尾項目は影響なし、既存項目のみ軽微表示崩れ）
+- [ ] `PopularPage.tsx` `handleCopyAllRank` の localStorage persist がループ外（途中でタブ閉じると client dedupe list が保存されない、匿名ID サーバ側 dedup でカバー済み・影響軽微）
 
 ---
 
