@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -27,6 +27,7 @@ import { ShareButtons } from './ShareButtons';
 import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { SegmentButton } from './ui/SegmentButton';
+import { MitigationSheet } from './MitigationSheet';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -118,6 +119,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const contentLabel = rawContentLabel && contentLanguage === 'ja'
         ? addWaEiSpace(rawContentLabel)
         : rawContentLabel;
+
+    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
+    const currentContentId = currentPlan?.contentId ?? null;
 
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -307,9 +311,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         </div>
 
                         <div className="flex items-center gap-1.5">
-                            {/* Popular Plans — 別タブで /popular を開く */}
+                            {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
                             <button
-                                onClick={() => window.open('/popular', '_blank')}
+                                onClick={() => setIsMitiSheetOpen(true)}
                                 className={clsx(pillBtnBase, pillBtnDefault)}
                             >
                                 <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
@@ -417,6 +421,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
             {/* ログインモーダル */}
             <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+
+            <MitigationSheet
+                isOpen={isMitiSheetOpen}
+                onClose={() => setIsMitiSheetOpen(false)}
+                currentContentId={currentContentId}
+            />
         </motion.div>
     );
 };
