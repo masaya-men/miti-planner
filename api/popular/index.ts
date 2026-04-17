@@ -11,6 +11,20 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 
 const COLLECTION = 'shared_plans';
 
+const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** 今日の日付キー "YYYYMMDD" (UTC基準) */
+function todayKey(): string {
+    return new Date().toISOString().slice(0, 10).replace(/-/g, '');
+}
+
+/** today から n 日前の日付キー */
+function dayKeyDaysBefore(n: number): string {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - n);
+    return d.toISOString().slice(0, 10).replace(/-/g, '');
+}
+
 function initAdmin() {
     if (!getApps().length) {
         let pk = process.env.FIREBASE_PRIVATE_KEY ?? '';
@@ -204,7 +218,10 @@ export default async function handler(req: any, res: any) {
                 return res.status(404).json({ error: 'not found' });
             }
 
-            // uidがある場合: 重複チェック（1ユーザー1共有プランあたり1回のみ）
+            // uidがある場合: UIDで重複排除
+            // uidが無くanonIdが妥当な場合: 匿名IDで重複排除
+            // どちらも無い/不正な場合: カウントしない
+            const { anonId } = req.body;
             let alreadyCounted = false;
             if (uid) {
                 const copiedByRef = db.doc(`${COLLECTION}/${shareId}/copiedBy/${uid}`);
@@ -218,8 +235,20 @@ export default async function handler(req: any, res: any) {
                     batch.update(docRef, { copyCount: FieldValue.increment(1) });
                     await batch.commit();
                 }
+            } else if (typeof anonId === 'string' && UUID_V4_REGEX.test(anonId)) {
+                const anonCopiedByRef = db.doc(`${COLLECTION}/${shareId}/anonCopiedBy/${anonId}`);
+                const existing = await anonCopiedByRef.get();
+                if (existing.exists) {
+                    alreadyCounted = true;
+                } else {
+                    // バッチ書き込み: anonCopiedBy記録 + copyCount増加
+                    const batch = db.batch();
+                    batch.set(anonCopiedByRef, { copiedAt: FieldValue.serverTimestamp() });
+                    batch.update(docRef, { copyCount: FieldValue.increment(1) });
+                    await batch.commit();
+                }
             } else {
-                // uid未提供（未ログイン）: カウントしない
+                // UIDも anonId も無い/不正 → カウントしない
                 alreadyCounted = true;
             }
 
