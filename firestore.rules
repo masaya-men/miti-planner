@@ -155,6 +155,15 @@ service cloud.firestore {
     }
 
     // ========================================
+    // shared_plans サブコレクション anonCopiedBy
+    // 匿名コピー追跡: サーバーサイドのみ（クライアント直接アクセス不可）
+    // ========================================
+    match /shared_plans/{shareId}/anonCopiedBy/{anonId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ========================================
     // templates コレクション
     // テンプレート: 誰でも読める・直接書き込み不可
     // ========================================
