@@ -142,67 +142,72 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const list = listRef.current;
     if (!list) { setDrumrollDone(true); return; }
 
-    const cards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
-    if (cards.length === 0) { setDrumrollDone(true); return; }
+    const realCards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
+    if (realCards.length === 0) { setDrumrollDone(true); return; }
 
     // 現在のコンテンツを探す。見つからなければ先頭にフォールバック
     let targetId = currentContentId;
-    let targetIdx = targetId ? cards.findIndex(c => c.dataset.contentId === targetId) : -1;
+    let targetIdx = targetId ? realCards.findIndex(c => c.dataset.contentId === targetId) : -1;
     if (targetIdx < 0) {
       targetIdx = 0;
-      targetId = cards[0]?.dataset.contentId ?? contentIds[0];
+      targetId = realCards[0]?.dataset.contentId ?? contentIds[0];
     }
 
-    const cardHeight = cards[0].offsetHeight + 8; // gap
+    const cardHeight = realCards[0].offsetHeight + 8; // + gap
     const listHeight = list.clientHeight;
-    // スペーサーの高さを考慮（上スペーサー分のオフセット）
-    const topSpacer = list.querySelector('.miti-list-spacer') as HTMLElement | null;
-    const spacerHeight = topSpacer ? topSpacer.offsetHeight + 8 : 0; // + gap
+    const numCards = realCards.length;
+    // 上ゴーストカード分のオフセット（ゴーストはnumCards枚）
+    const ghostOffset = cardHeight * numCards;
     const centerOffset = (listHeight / 2) - (cardHeight / 2);
-    const targetTop = spacerHeight + (cardHeight * targetIdx);
-    const finalScroll = Math.max(0, targetTop - centerOffset);
 
-    // クローンで2回転分のスクロール距離を作る
-    const totalHeight = cardHeight * cards.length;
+    // ターゲットの最終スクロール位置（実カードエリア内）
+    const targetTop = ghostOffset + (cardHeight * targetIdx);
+    const finalScroll = targetTop - centerOffset;
+
+    // ドラムロール: 上端からスタート → 2回転分 + finalScrollまでスクロール
+    // アニメーション用クローンを下に追加
     const fullRotations = 2;
-    const totalScroll = (fullRotations * totalHeight) + finalScroll;
+    const animDistance = (fullRotations * cardHeight * numCards) + finalScroll;
 
-    // クローン追加
+    // 下端にクローン追加（ドラムロール用の追加スクロール領域）
     for (let i = 0; i < fullRotations + 1; i++) {
-      cards.forEach(card => {
+      realCards.forEach(card => {
         const clone = card.cloneNode(true) as HTMLElement;
         clone.style.pointerEvents = 'none';
-        clone.style.opacity = '0.5';
+        clone.style.opacity = '0.35';
+        clone.removeAttribute('data-content-id');
         clone.classList.add('drumroll-clone');
         list.appendChild(clone);
       });
     }
 
     list.classList.add('drumroll');
+    list.scrollTop = 0; // 上端からスタート
+
     const duration = 2200;
     const startTime = performance.now();
-
     const easeOutExpo = (x: number) => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      list.scrollTop = easeOutExpo(progress) * totalScroll;
+      list.scrollTop = easeOutExpo(progress) * animDistance;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        // クローン除去
+        // アニメーション最終位置 = finalScroll（実カードエリア）
+        // まずスクロール位置を確定してからクローンを除去（瞬間移動防止）
+        list.scrollTop = finalScroll;
         list.querySelectorAll('.drumroll-clone').forEach(c => c.remove());
         list.classList.remove('drumroll');
-        list.scrollTop = finalScroll;
 
         // ターゲット選択
         setSelectedId(targetId);
         setDrumrollDone(true);
 
         // グロウエフェクト
-        const targetCard = cards[targetIdx];
+        const targetCard = realCards[targetIdx];
         targetCard?.classList.add('selecting');
         setTimeout(() => targetCard?.classList.remove('selecting'), 600);
       }
@@ -483,8 +488,21 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             <div className="miti-body">
               {/* 左: OGPカードリスト */}
               <div className="miti-card-list" ref={listRef}>
-                {/* 上スペーサー: 先頭カードを中央にできるように */}
-                <div className="miti-list-spacer" />
+                {/* 上ゴースト: 循環ドラムの上端 */}
+                {contentIds.map(contentId => {
+                  const entry = popularData[contentId]?.plans?.[0];
+                  return (
+                    <div key={`ghost-top-${contentId}`} className="miti-card miti-ghost-card" aria-hidden>
+                      <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
+                      {entry ? (
+                        <img className="miti-ogp-img" src={getOgpUrl(entry.shareId)} alt="" loading="lazy" />
+                      ) : (
+                        <div className="miti-ogp-img" />
+                      )}
+                    </div>
+                  );
+                })}
+                {/* 実カード */}
                 {contentIds.map(contentId => {
                   const entry = popularData[contentId]?.plans?.[0];
                   const isSelected = selectedId === contentId;
@@ -537,8 +555,20 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     </div>
                   );
                 })}
-                {/* 下スペーサー: 末尾カードを中央にできるように */}
-                <div className="miti-list-spacer" />
+                {/* 下ゴースト: 循環ドラムの下端 */}
+                {contentIds.map(contentId => {
+                  const entry = popularData[contentId]?.plans?.[0];
+                  return (
+                    <div key={`ghost-bot-${contentId}`} className="miti-card miti-ghost-card" aria-hidden>
+                      <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
+                      {entry ? (
+                        <img className="miti-ogp-img" src={getOgpUrl(entry.shareId)} alt="" loading="lazy" />
+                      ) : (
+                        <div className="miti-ogp-img" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* 右: プレビュー */}
