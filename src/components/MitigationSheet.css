@@ -483,14 +483,50 @@
 }
 
 /* ----------------------------------------------------------
-   18. Copy count
+   18. Card bottom (copies + copy button)
    ---------------------------------------------------------- */
+
+.miti-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 3px 2px 2px;
+}
 
 .miti-copies {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  padding: 3px 2px 0;
-  text-align: right;
+}
+
+/* ----------------------------------------------------------
+   18b. Card copy button (mobile only)
+   ---------------------------------------------------------- */
+
+.miti-card-copy-btn {
+  display: none;
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  white-space: nowrap;
+}
+
+.miti-card-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-primary);
+}
+
+.miti-card-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.theme-light .miti-card-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
 }
 
 /* ----------------------------------------------------------
@@ -711,25 +747,53 @@
     border-radius: 0;
   }
 
-  /* Stack body vertically */
+  /* Handle — larger touch area for close */
+  .miti-handle {
+    width: 48px;
+    height: 5px;
+    margin: 12px auto 4px;
+    padding: 8px 0;
+    background-clip: content-box;
+    cursor: pointer;
+  }
+
+  /* Header — compact for mobile */
+  .miti-header-row {
+    gap: 6px;
+    padding-bottom: 6px;
+  }
+
+  /* Hide PC-only buttons */
+  .miti-hide-mobile {
+    display: none !important;
+  }
+
+  /* Close button — proper touch target */
+  .miti-close {
+    width: 40px;
+    height: 40px;
+  }
+
+  .miti-close svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Body is just the card list */
   .miti-body {
+    flex-direction: column;
+  }
+
+  /* Vertical card list, full width */
+  .miti-card-list {
+    width: 100%;
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
-  }
-
-  /* Horizontal scrolling card list */
-  .miti-card-list {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex: 1;
     padding: 10px 12px;
-    gap: 8px;
+    gap: 10px;
     border-right: none;
-    border-bottom: 1px solid var(--color-border);
-    flex-shrink: 0;
-    max-height: 220px;
   }
 
   .miti-card-list.drumroll {
@@ -738,30 +802,46 @@
 
   .miti-card {
     flex-shrink: 0;
-    width: 180px;
+    width: 100%;
   }
 
-  /* Preview column takes remaining space */
+  /* Hide preview on mobile */
   .miti-preview {
-    flex: 1;
-    overflow-y: auto;
+    display: none;
   }
 
-  /* Header row scroll horizontally on mobile */
-  .miti-header-row {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    gap: 6px;
-    padding-bottom: 8px;
+  /* Card bottom — copies left, copy button right */
+  .miti-card-bottom {
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 4px 4px 2px;
   }
 
-  .miti-actions {
-    flex-shrink: 0;
+  /* Job icons — adjust for taller card bottom */
+  .miti-jobs-overlay {
+    bottom: 48px;
+  }
+
+  /* Copy button on cards — proper touch target */
+  .miti-card-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: var(--font-size-lg);
+    font-weight: 700;
   }
 
   /* Capsule repositioned for mobile */
   .miti-capsule {
     top: 8px;
     font-size: var(--font-size-md);
+  }
+
+  /* Footer — tappable close zone */
+  .miti-footer {
+    padding: 12px 16px;
   }
 }

@@ -1054,7 +1054,8 @@
         "footer_readonly": "只读预览 · 复制后可作为自己的计划编辑",
         "close": "关闭",
         "copies": "{{count}} copies",
-        "no_data": "暂无数据"
+        "no_data": "暂无数据",
+        "copy_card": "复制"
     },
     "admin": {
         "dashboard": "仪表盘",

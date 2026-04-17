@@ -38,6 +38,7 @@ import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import { Tooltip } from './ui/Tooltip';
 import { MobileBottomSheet } from './MobileBottomSheet';
+import { MitigationSheet } from './MitigationSheet';
 import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
@@ -949,6 +950,10 @@ const Timeline: React.FC = () => {
             scrollContainerRef.current.scrollTo({ top: 0 });
         }
     }, [currentPlanId]);
+
+    const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
+    const currentContentId = currentPlan?.contentId ?? null;
+    const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
     const [aaSettingsOpen, setAaSettingsOpen] = useState(false);
@@ -3275,11 +3280,11 @@ const Timeline: React.FC = () => {
                             <div className="text-app-base text-app-text-muted">{t('mobile.autoplan_desc')}</div>
                         </div>
                     </button>
-                    {/* Popular Plans */}
+                    {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
                     <button
                         onClick={() => {
-                            window.open('/popular', '_blank');
                             setMobileToolsSheetOpen(false);
+                            setIsMitiSheetOpen(true);
                         }}
                         className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl border border-app-border hover:bg-app-surface2 transition-colors"
                     >
@@ -3291,6 +3296,11 @@ const Timeline: React.FC = () => {
                     </button>
                 </div>
             </MobileBottomSheet>
+            <MitigationSheet
+                isOpen={isMitiSheetOpen}
+                onClose={() => setIsMitiSheetOpen(false)}
+                currentContentId={currentContentId}
+            />
             {phasePopover && createPortal(
                 <div
                     className="fixed inset-0 z-[9998] md:bg-transparent bg-black/50 md:backdrop-blur-none backdrop-blur-[2px]"

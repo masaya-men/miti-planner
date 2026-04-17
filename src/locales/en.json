@@ -1074,7 +1074,8 @@
         "footer_readonly": "Read-only preview · Copy to edit as your own plan",
         "close": "Close",
         "copies": "{{count}} copies",
-        "no_data": "No data yet"
+        "no_data": "No data yet",
+        "copy_card": "Copy"
     },
     "admin": {
         "dashboard": "Dashboard",

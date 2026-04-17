@@ -210,6 +210,13 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
   }, [plans, t]);
 
+  // カード直接コピー（モバイル用）
+  const handleCardCopy = useCallback(async (entry: PopularEntry, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const ok = await copyPlan(entry);
+    if (ok) showToast(t('miti_sheet.copied_toast'));
+  }, [copyPlan, t]);
+
   // 単体コピー
   const handleCopyThis = useCallback(async () => {
     if (!selectedId) return;
@@ -349,7 +356,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
               damping: 28,
             }}
           >
-            <div className="miti-handle" />
+            <div className="miti-handle" onClick={onClose} />
 
             {/* ヘッダー（1行: タブ → コピー群 → ×） */}
             <div className="miti-header">
@@ -372,7 +379,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                 </div>
                 <div className="miti-actions">
                   <button
-                    className="miti-btn"
+                    className="miti-btn miti-hide-mobile"
                     onClick={() => { setSelectMode(!selectMode); setCheckedIds(new Set()); }}
                   >
                     {t('miti_sheet.copy_selected')}
@@ -387,7 +394,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                   )}
                   {!selectMode && (
                     <button
-                      className="miti-btn"
+                      className="miti-btn miti-hide-mobile"
                       onClick={handleCopyThis}
                       disabled={!selectedId}
                     >
@@ -440,8 +447,18 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                               })}
                             </div>
                           )}
-                          <div className="miti-copies">
-                            {t('miti_sheet.copies', { count: entry.copyCount })}
+                          <div className="miti-card-bottom">
+                            <span className="miti-copies">
+                              {t('miti_sheet.copies', { count: entry.copyCount })}
+                            </span>
+                            {!selectMode && (
+                              <button
+                                className="miti-card-copy-btn"
+                                onClick={(e) => handleCardCopy(entry, e)}
+                              >
+                                {t('miti_sheet.copy_card')}
+                              </button>
+                            )}
                           </div>
                         </>
                       ) : (

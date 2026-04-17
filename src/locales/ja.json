@@ -1078,7 +1078,8 @@
         "footer_readonly": "読み取り専用プレビュー · コピーすると自分のプランとして編集可能",
         "close": "閉じる",
         "copies": "{{count}} copies",
-        "no_data": "まだデータがありません"
+        "no_data": "まだデータがありません",
+        "copy_card": "コピー"
     },
     "admin": {
         "dashboard": "ダッシュボード",
