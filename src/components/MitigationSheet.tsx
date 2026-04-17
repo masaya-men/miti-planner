@@ -126,16 +126,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
   }, [isOpen, currentContentId, drumrollDone]);
 
-  // --- ドラムロール ---
+  // --- ドラムロール（シート登場と同時に開始） ---
   useEffect(() => {
     if (!isOpen || drumrollDone) return;
 
-    // DOMが描画されるまで少し待つ
-    const timer = setTimeout(() => {
+    // 次フレームでDOM描画を待ってすぐ開始
+    const raf = requestAnimationFrame(() => {
       runDrumroll();
-    }, 700);
+    });
 
-    return () => clearTimeout(timer);
+    return () => cancelAnimationFrame(raf);
   }, [isOpen, drumrollDone, activeTab]);
 
   const runDrumroll = () => {
@@ -155,8 +155,11 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
 
     const cardHeight = cards[0].offsetHeight + 8; // gap
     const listHeight = list.clientHeight;
+    // スペーサーの高さを考慮（上スペーサー分のオフセット）
+    const topSpacer = list.querySelector('.miti-list-spacer') as HTMLElement | null;
+    const spacerHeight = topSpacer ? topSpacer.offsetHeight + 8 : 0; // + gap
     const centerOffset = (listHeight / 2) - (cardHeight / 2);
-    const targetTop = cardHeight * targetIdx;
+    const targetTop = spacerHeight + (cardHeight * targetIdx);
     const finalScroll = Math.max(0, targetTop - centerOffset);
 
     // クローンで2回転分のスクロール距離を作る
@@ -480,6 +483,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             <div className="miti-body">
               {/* 左: OGPカードリスト */}
               <div className="miti-card-list" ref={listRef}>
+                {/* 上スペーサー: 先頭カードを中央にできるように */}
+                <div className="miti-list-spacer" />
                 {contentIds.map(contentId => {
                   const entry = popularData[contentId]?.plans?.[0];
                   const isSelected = selectedId === contentId;
@@ -532,6 +537,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     </div>
                   );
                 })}
+                {/* 下スペーサー: 末尾カードを中央にできるように */}
+                <div className="miti-list-spacer" />
               </div>
 
               {/* 右: プレビュー */}
