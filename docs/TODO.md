@@ -14,14 +14,25 @@
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること
+- **野良主流ランキング再設計 Phase 1（最優先・次セッションで実装）**
+  - プラン: `docs/superpowers/plans/2026-04-17-popular-ranking-phase1-stop-bleed.md`
+  - 内容: `/api/share?preview=true` で viewCount 自己強化ループを止血（5タスク・1.5時間）
+  - 進め方: superpowers:subagent-driven-development
+  - デプロイ後に Firebase Console で viewCount が増えないことを観察
+- **Phase 2（Phase 1 本番確認後）**
+  - プラン: `docs/superpowers/plans/2026-04-17-popular-ranking-phase2-anon-trending-featured.md`
+  - 内容: 匿名ID集計 + 日別バケット旬ランキング + featured活性化 + ポリシー更新4言語（13タスク・6〜7時間、別セッション推奨）
+- **Phase 3（Phase 2 ローンチ後）**
+  - 管理画面 featured 設定UI。プランは Phase 2 ローンチ後に作成
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
   - 前セッションで一度着手したが複雑・影響範囲大のため撤回
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
   - `addPhase`の`containingPhase`判定・`BoundaryEditModal` 等多数参照あり
-  - 次セッション初頭に**一緒に安全な計画**を立ててから着手
+  - セッション初頭に**一緒に安全な計画**を立ててから着手
 - **今セッションの完了事項**（2026-04-17）
-  - ✅ ボトムシートUX改善（初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms）
+  - ✅ ボトムシートUX改善（初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms、本番確認済み）
   - ✅ 通知音パス修正（FFXIV_SE/FFXIV_Notification.mp3 へ更新）
+  - ✅ 野良主流ランキング再設計: 設計書 + Phase 1/Phase 2 実装プラン作成
   - ✅ ボトムシート初期タブ選択修正（Reactバッチ更新問題）
   - ✅ ライトモード時ジョブ移行モーダル背景色修正
   - ✅ タンクLBスキル追加（Lv1/2/3 × 4ジョブ、アイコン3種、Firestore+Storage同期）
