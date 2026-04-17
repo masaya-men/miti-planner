@@ -9,6 +9,7 @@ import Timeline from './Timeline';
 import { ErrorBoundary } from './ErrorBoundary';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
+import { getAnonCopyId } from '../lib/anonCopyId';
 import { Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PlanData } from '../types';
@@ -165,7 +166,10 @@ export const SharePage: React.FC = () => {
                 apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ shareId: targetShareId }),
+                    body: JSON.stringify({
+                        shareId: targetShareId,
+                        anonId: getAnonCopyId(),
+                    }),
                 }).catch(() => {});
             }
             navigate('/miti');
@@ -201,7 +205,10 @@ export const SharePage: React.FC = () => {
                 apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ shareId: targetShareId }),
+                    body: JSON.stringify({
+                        shareId: targetShareId,
+                        anonId: getAnonCopyId(),
+                    }),
                 }).catch(() => {});
             }
             navigate('/miti');
