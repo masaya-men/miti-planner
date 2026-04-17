@@ -211,10 +211,12 @@ export default async function handler(req: any, res: any) {
             }
 
             // 閲覧数を+1（IPベースの簡易重複排除、fire-and-forget）
+            // ただし preview=true のクエリ時はスキップ（ボトムシート/人気ページのプレビュー取得で自己強化ループを起こさないため）
+            const isPreview = req.query.preview === 'true';
             const fwd = req.headers['x-forwarded-for'];
             const fwdStr = Array.isArray(fwd) ? fwd[0] : (fwd || '');
             const viewerIp = (fwdStr || req.socket?.remoteAddress || '').split(',')[0].trim();
-            if (viewerIp) {
+            if (!isPreview && viewerIp) {
                 const ipHash = createHash('sha256').update(viewerIp + id).digest('hex').slice(0, 16);
                 const viewRef = db.collection(COLLECTION).doc(id as string).collection('viewers').doc(ipHash);
                 viewRef.get().then((s: any) => {
