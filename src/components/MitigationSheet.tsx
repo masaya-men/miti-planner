@@ -111,6 +111,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const entry = d?.plans?.[0] ?? null;
     if (!entry) return;
 
+    // preview=true: プレビュー表示は受動的閲覧なのでviewCountをスキップ
     setPreviewLoading(true);
     apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}&preview=true`)
       .then(res => res.ok ? res.json() : Promise.reject())
@@ -186,6 +187,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
 
     try {
+      // previewフラグ無し: コピーは能動操作なのでviewCountを計上する
       const res = await apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
       if (!res.ok) throw new Error();
       const shared = await res.json();
