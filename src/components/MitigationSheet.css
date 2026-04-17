@@ -1,0 +1,760 @@
+/* =========================================================
+   MitigationSheet.css — みんなの軽減表ボトムシートスタイル
+   ========================================================= */
+
+/* ----------------------------------------------------------
+   Keyframes
+   ---------------------------------------------------------- */
+
+@keyframes miti-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  50%  { box-shadow: 0 0 20px 6px rgba(255, 255, 255, 0.18); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+@keyframes miti-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes miti-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes miti-sheet-out {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+@keyframes miti-capsule-in {
+  from { transform: translateY(-120%) scale(0.9); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes miti-preview-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------------------------------------
+   1. Overlay
+   ---------------------------------------------------------- */
+
+.miti-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 60;
+}
+
+/* ----------------------------------------------------------
+   2. Bottom Sheet
+   ---------------------------------------------------------- */
+
+.miti-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(22, 22, 24, 0.78);
+  box-shadow:
+    0 -12px 48px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --tw-backdrop-blur: blur(16px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  z-index: 61;
+  overflow: hidden;
+}
+
+.miti-sheet[data-state="open"] {
+  animation: miti-sheet-in 550ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.miti-sheet[data-state="closing"] {
+  animation: miti-sheet-out 350ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.theme-light .miti-sheet {
+  background: rgba(250, 250, 250, 0.88);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 -12px 48px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ----------------------------------------------------------
+   3. Capsule notification
+   ---------------------------------------------------------- */
+
+.miti-capsule {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(22, 22, 24, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  --tw-backdrop-blur: blur(12px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 62;
+  white-space: nowrap;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  animation: miti-capsule-in 700ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.theme-light .miti-capsule {
+  background: rgba(250, 250, 250, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+/* ----------------------------------------------------------
+   4. Capsule pulse dot
+   ---------------------------------------------------------- */
+
+.miti-capsule-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+  animation: miti-pulse 2s ease-in-out infinite;
+}
+
+/* ----------------------------------------------------------
+   5. Drag handle
+   ---------------------------------------------------------- */
+
+.miti-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: 10px auto 0;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.theme-light .miti-handle {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+/* ----------------------------------------------------------
+   6. Header
+   ---------------------------------------------------------- */
+
+.miti-header {
+  flex-shrink: 0;
+  padding: 0 16px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.miti-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 0;
+}
+
+.miti-header-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0 10px;
+  flex-wrap: wrap;
+}
+
+/* ----------------------------------------------------------
+   7. Close button
+   ---------------------------------------------------------- */
+
+.miti-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  flex-shrink: 0;
+}
+
+.miti-close:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--color-text-primary);
+}
+
+.theme-light .miti-close:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* ----------------------------------------------------------
+   8. Tabs
+   ---------------------------------------------------------- */
+
+.miti-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.miti-tab {
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  letter-spacing: 0.03em;
+}
+
+.miti-tab[data-active="true"] {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--color-text-primary);
+}
+
+.miti-tab:hover:not([data-active="true"]) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-secondary);
+}
+
+.theme-light .miti-tab[data-active="true"] {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--color-text-primary);
+}
+
+.theme-light .miti-tab:hover:not([data-active="true"]) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------
+   9. Action buttons container
+   ---------------------------------------------------------- */
+
+.miti-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   10. Buttons
+   ---------------------------------------------------------- */
+
+.miti-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.miti-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.miti-btn:active {
+  transform: scale(0.96);
+}
+
+.theme-light .miti-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.miti-btn-primary {
+  padding: 7px 20px;
+  border-radius: 6px;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  border: none;
+  background: #3b82f6;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 150ms;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.miti-btn-primary:hover {
+  background: #2563eb;
+}
+
+.miti-btn-primary:active {
+  transform: scale(0.96);
+}
+
+.miti-btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------
+   11. Body (left + right columns)
+   ---------------------------------------------------------- */
+
+.miti-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ----------------------------------------------------------
+   12. Card list (left column)
+   ---------------------------------------------------------- */
+
+.miti-card-list {
+  width: 280px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid var(--color-border);
+}
+
+/* Drumroll state — hide overflow during animation */
+.miti-card-list.drumroll {
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------
+   13. OGP Card
+   ---------------------------------------------------------- */
+
+.miti-card {
+  position: relative;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: var(--color-bg-tertiary);
+  cursor: pointer;
+  transition: border-color 200ms, transform 200ms, box-shadow 200ms;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.miti-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.theme-light .miti-card:hover {
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.miti-card[data-selected="true"] {
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: scale(1.02);
+}
+
+.theme-light .miti-card[data-selected="true"] {
+  border-color: rgba(0, 0, 0, 0.30);
+}
+
+/* Glow on select / drumroll stop */
+.miti-card.selecting {
+  animation: miti-glow 600ms ease-out both;
+}
+
+/* ----------------------------------------------------------
+   14. Checkbox overlay (select mode)
+   ---------------------------------------------------------- */
+
+.miti-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: rgba(22, 22, 24, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 150ms, border-color 150ms;
+  pointer-events: none;
+}
+
+.miti-check[data-checked="true"] {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.theme-light .miti-check {
+  background: rgba(250, 250, 250, 0.85);
+  border: 2px solid rgba(0, 0, 0, 0.25);
+}
+
+.theme-light .miti-check[data-checked="true"] {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* ----------------------------------------------------------
+   15. Floor label
+   ---------------------------------------------------------- */
+
+.miti-floor-label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0 2px 4px;
+}
+
+/* ----------------------------------------------------------
+   16. OGP image
+   ---------------------------------------------------------- */
+
+.miti-ogp-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--color-bg-tertiary);
+}
+
+/* ----------------------------------------------------------
+   17. Job icons overlay
+   ---------------------------------------------------------- */
+
+.miti-jobs-overlay {
+  position: absolute;
+  bottom: 22px; /* above copies text */
+  right: 4px;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 2px;
+  pointer-events: none;
+  max-width: 100%;
+}
+
+.miti-jobs-overlay img {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: contain;
+}
+
+/* ----------------------------------------------------------
+   18. Copy count
+   ---------------------------------------------------------- */
+
+.miti-copies {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  padding: 3px 2px 0;
+  text-align: right;
+}
+
+/* ----------------------------------------------------------
+   19. Preview column (right)
+   ---------------------------------------------------------- */
+
+.miti-preview {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 12px 14px;
+  gap: 10px;
+}
+
+.miti-preview[data-loaded="true"] {
+  animation: miti-preview-in 400ms ease-out both;
+}
+
+/* ----------------------------------------------------------
+   20. Info panel
+   ---------------------------------------------------------- */
+
+.miti-info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.miti-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+}
+
+.miti-info-blue {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
+.theme-light .miti-info-blue {
+  background: rgba(37, 99, 235, 0.07);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  color: #1d4ed8;
+}
+
+.miti-info-neutral {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.theme-light .miti-info-neutral {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.miti-info-item-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  opacity: 0.8;
+}
+
+/* ----------------------------------------------------------
+   21. Table container
+   ---------------------------------------------------------- */
+
+.miti-table-wrap {
+  flex: 1;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.20);
+}
+
+.theme-light .miti-table-wrap {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* ----------------------------------------------------------
+   22. Mini table
+   ---------------------------------------------------------- */
+
+.miti-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7px;
+  line-height: 1.4;
+  table-layout: fixed;
+}
+
+.miti-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(22, 22, 24, 0.90);
+}
+
+.theme-light .miti-table thead {
+  background: rgba(245, 245, 245, 0.95);
+}
+
+.miti-table th {
+  padding: 4px 5px;
+  text-align: left;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miti-table td {
+  padding: 3px 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.theme-light .miti-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.miti-table tr:last-child td {
+  border-bottom: none;
+}
+
+.miti-table td:first-child,
+.miti-table th:first-child {
+  /* phase column */
+  width: 50px;
+}
+
+.miti-table td:nth-child(2),
+.miti-table th:nth-child(2) {
+  /* time column */
+  width: 36px;
+}
+
+.miti-table td:nth-child(3),
+.miti-table th:nth-child(3) {
+  /* skill name column */
+  width: 64px;
+}
+
+/* ----------------------------------------------------------
+   23. Skill pip
+   ---------------------------------------------------------- */
+
+.miti-skill-pip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
+/* ----------------------------------------------------------
+   24. Footer
+   ---------------------------------------------------------- */
+
+.miti-footer {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ----------------------------------------------------------
+   25. Skeleton / Loading states
+   ---------------------------------------------------------- */
+
+.miti-skeleton {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  animation: miti-pulse 1.8s ease-in-out infinite;
+}
+
+.theme-light .miti-skeleton {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.miti-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: logo-spin 600ms linear infinite;
+  margin: auto;
+}
+
+.theme-light .miti-spinner {
+  border: 2px solid rgba(0, 0, 0, 0.10);
+  border-top-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ----------------------------------------------------------
+   26. Mobile responsive  @media (max-width: 767px)
+   ---------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  /* Full height on mobile */
+  .miti-sheet {
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  /* Stack body vertically */
+  .miti-body {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Horizontal scrolling card list */
+  .miti-card-list {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 12px;
+    gap: 8px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    max-height: 220px;
+  }
+
+  .miti-card-list.drumroll {
+    overflow: hidden;
+  }
+
+  .miti-card {
+    flex-shrink: 0;
+    width: 180px;
+  }
+
+  /* Preview column takes remaining space */
+  .miti-preview {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* Header actions scroll horizontally */
+  .miti-header-bottom {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-bottom: 8px;
+  }
+
+  .miti-actions {
+    flex-shrink: 0;
+  }
+
+  /* Capsule repositioned for mobile */
+  .miti-capsule {
+    top: 8px;
+    font-size: var(--font-size-md);
+  }
+}
