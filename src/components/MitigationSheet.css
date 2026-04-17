@@ -345,6 +345,16 @@
   border-right: 1px solid var(--color-border);
 }
 
+/* エンドライン: リスト末尾の区切り */
+.miti-end-line {
+  flex-shrink: 0;
+  width: 1px;
+  height: 120px;
+  margin: 8px auto 0;
+  background: linear-gradient(180deg, var(--color-text-muted) 0%, transparent 100%);
+  opacity: 0.2;
+}
+
 /* Drumroll state — hide overflow during animation */
 .miti-card-list.drumroll {
   overflow: hidden;

@@ -77,46 +77,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const [drumrollDone, setDrumrollDone] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
-  const isScrollingRef = useRef(false); // ドラムロール中のスクロールイベント抑制
 
   const contentIds = activeTab === 'savage' ? savageIds : ultimateIds;
-
-  // --- 無限循環スクロール ---
-  useEffect(() => {
-    const list = listRef.current;
-    if (!list || !drumrollDone) return;
-
-    const handleScroll = () => {
-      if (isScrollingRef.current) return;
-      const numCards = contentIds.length;
-      if (numCards === 0) return;
-
-      // カード1枚の高さ（最初の実カードから取得）
-      const firstReal = list.querySelector('[data-content-id]') as HTMLElement | null;
-      if (!firstReal) return;
-      const cardHeight = firstReal.offsetHeight + 8; // + gap
-      const sectionHeight = cardHeight * numCards;
-
-      // 3セット構成: [0..sectionHeight] [sectionHeight..2*sectionHeight] [2*sectionHeight..3*sectionHeight]
-      // 実体は中央セクション [sectionHeight..2*sectionHeight]
-      const scrollTop = list.scrollTop;
-
-      if (scrollTop < sectionHeight * 0.5) {
-        // 上端に近づいた → 中央セクションの同位置にジャンプ
-        isScrollingRef.current = true;
-        list.scrollTop = scrollTop + sectionHeight;
-        requestAnimationFrame(() => { isScrollingRef.current = false; });
-      } else if (scrollTop > sectionHeight * 2.5) {
-        // 下端に近づいた → 中央セクションの同位置にジャンプ
-        isScrollingRef.current = true;
-        list.scrollTop = scrollTop - sectionHeight;
-        requestAnimationFrame(() => { isScrollingRef.current = false; });
-      }
-    };
-
-    list.addEventListener('scroll', handleScroll, { passive: true });
-    return () => list.removeEventListener('scroll', handleScroll);
-  }, [drumrollDone, contentIds.length]);
 
   // --- データ取得 ---
   useEffect(() => {
@@ -180,56 +142,42 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const list = listRef.current;
     if (!list) { setDrumrollDone(true); return; }
 
-    const realCards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
-    if (realCards.length === 0) { setDrumrollDone(true); return; }
+    const cards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
+    if (cards.length === 0) { setDrumrollDone(true); return; }
 
-    // 現在のコンテンツを探す
     let targetId = currentContentId;
-    let targetIdx = targetId ? realCards.findIndex(c => c.dataset.contentId === targetId) : -1;
+    let targetIdx = targetId ? cards.findIndex(c => c.dataset.contentId === targetId) : -1;
     if (targetIdx < 0) {
       targetIdx = 0;
-      targetId = realCards[0]?.dataset.contentId ?? contentIds[0];
+      targetId = cards[0]?.dataset.contentId ?? contentIds[0];
     }
 
-    const cardHeight = realCards[0].offsetHeight + 8;
-    const listHeight = list.clientHeight;
-    const numCards = realCards.length;
-    const sectionHeight = cardHeight * numCards;
-    const centerOffset = (listHeight / 2) - (cardHeight / 2);
+    // ターゲットカードのトップ位置（ヘッダー直下に配置）
+    const targetCard = cards[targetIdx];
+    const targetTop = targetCard.offsetTop;
+    // スクロール限界を超えない（最後のカード対策）
+    const maxScroll = list.scrollHeight - list.clientHeight;
+    const finalScroll = Math.min(targetTop, maxScroll);
 
-    // 3セット構成: 実体は中央セクション (sectionHeight ~ 2*sectionHeight)
-    // ターゲットの最終スクロール位置
-    const finalScroll = sectionHeight + (cardHeight * targetIdx) - centerOffset;
-
-    // ドラムロール: 上端(0)からfinalScrollまで、途中で2回転分の距離を走る
-    isScrollingRef.current = true; // 循環ジャンプを抑制
-    list.classList.add('drumroll');
     list.scrollTop = 0;
-
-    const duration = 2200;
+    const duration = 1800;
     const startTime = performance.now();
     const easeOutExpo = (x: number) => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // 0 → finalScroll をイージングで（finalScroll自体が2セクション分の距離）
       list.scrollTop = easeOutExpo(progress) * finalScroll;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         list.scrollTop = finalScroll;
-        list.classList.remove('drumroll');
-        isScrollingRef.current = false;
-
         setSelectedId(targetId);
         setDrumrollDone(true);
 
-        // グロウエフェクト
-        const targetCard = realCards[targetIdx];
-        targetCard?.classList.add('selecting');
-        setTimeout(() => targetCard?.classList.remove('selecting'), 600);
+        targetCard.classList.add('selecting');
+        setTimeout(() => targetCard.classList.remove('selecting'), 600);
       }
     };
 
@@ -247,6 +195,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const def = getContentById(contentId);
     if (!def) return contentId;
     return def.name[lang] || def.name.ja;
+  };
+
+  // 零式は短縮名（1層、2層...）、絶は正式名称
+  const getCardLabel = (contentId: string): string => {
+    const def = getContentById(contentId);
+    if (!def) return contentId;
+    if (def.category === 'ultimate') {
+      return def.name[lang] || def.name.ja;
+    }
+    return (lang === 'ja' ? def.shortName.ja : def.shortName.en).replace(/\n/g, ' ');
   };
 
   const getJobIcon = (jobId: string | null): string | null => {
@@ -508,63 +466,60 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             <div className="miti-body">
               {/* 左: OGPカードリスト */}
               <div className="miti-card-list no-scrollbar" ref={listRef}>
-                {/* 3セット描画: [コピー] [実体] [コピー] で無限循環 */}
-                {[0, 1, 2].map(setIdx =>
-                  contentIds.map(contentId => {
-                    const entry = popularData[contentId]?.plans?.[0];
-                    const isReal = setIdx === 1;
-                    const isSelected = isReal && selectedId === contentId;
-                    const isChecked = isReal && checkedIds.has(contentId);
+                {contentIds.map(contentId => {
+                  const entry = popularData[contentId]?.plans?.[0];
+                  const isSelected = selectedId === contentId;
+                  const isChecked = checkedIds.has(contentId);
 
-                    return (
-                      <div
-                        key={`${setIdx}-${contentId}`}
-                        data-content-id={isReal ? contentId : undefined}
-                        className="miti-card"
-                        data-selected={isSelected}
-                        onClick={isReal ? () => handleCardClick(contentId) : undefined}
-                        style={!isReal ? { pointerEvents: 'none' } : undefined}
-                      >
-                        {isReal && selectMode && (
-                          <div className="miti-check" data-checked={isChecked}>
-                            {isChecked && <Check size={11} />}
-                          </div>
-                        )}
-                        <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
-                        {entry ? (
-                          <>
-                            <img
-                              className="miti-ogp-img"
-                              src={getOgpUrl(entry.shareId)}
-                              alt={isReal ? entry.title : ''}
-                              loading="lazy"
-                            />
-                            {isReal && entry.partyMembers?.length > 0 && (
-                              <div className="miti-jobs-overlay">
-                                {entry.partyMembers.map((m, i) => {
-                                  const icon = getJobIcon(m.jobId);
-                                  return icon ? <img key={i} src={icon} alt="" /> : null;
-                                })}
-                              </div>
-                            )}
-                            <div className="miti-copies">
-                              {t('miti_sheet.copies', { count: entry.copyCount })}
-                            </div>
-                          </>
-                        ) : (
-                          <div
+                  return (
+                    <div
+                      key={contentId}
+                      data-content-id={contentId}
+                      className="miti-card"
+                      data-selected={isSelected}
+                      onClick={() => handleCardClick(contentId)}
+                    >
+                      {selectMode && (
+                        <div className="miti-check" data-checked={isChecked}>
+                          {isChecked && <Check size={11} />}
+                        </div>
+                      )}
+                      <div className="miti-floor-label">{getCardLabel(contentId)}</div>
+                      {entry ? (
+                        <>
+                          <img
                             className="miti-ogp-img"
-                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          >
-                            <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-                              {t('miti_sheet.no_data')}
-                            </span>
+                            src={getOgpUrl(entry.shareId)}
+                            alt={entry.title}
+                            loading="lazy"
+                          />
+                          {entry.partyMembers?.length > 0 && (
+                            <div className="miti-jobs-overlay">
+                              {entry.partyMembers.map((m, i) => {
+                                const icon = getJobIcon(m.jobId);
+                                return icon ? <img key={i} src={icon} alt="" /> : null;
+                              })}
+                            </div>
+                          )}
+                          <div className="miti-copies">
+                            {t('miti_sheet.copies', { count: entry.copyCount })}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
+                        </>
+                      ) : (
+                        <div
+                          className="miti-ogp-img"
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {t('miti_sheet.no_data')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                {/* エンドライン */}
+                <div className="miti-end-line" />
               </div>
 
               {/* 右: プレビュー */}
