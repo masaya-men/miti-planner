@@ -111,7 +111,10 @@ export const MITIGATION_DISPLAY_ORDER = [
     'hallowed_ground',
     'holmgang',
     'living_dead',
-    'superbolide'
+    'superbolide',
+    'tank_lb1',
+    'tank_lb2',
+    'tank_lb3'
 ];
 
 export function getMitigationPriority(mitigationId: string): number {
@@ -236,6 +239,20 @@ export const MITIGATIONS: Mitigation[] = [
         id: "passage_of_arms", jobId: "pld", name: { ja: "パッセージ・オブ・アームズ", en: "Passage of Arms", zh: "武装戍卫", ko: "결연한 수호자" }, icon: "/icons/Passage_of_Arms.png",
         recast: 120, duration: 5, type: "all", value: 15, isShield: false, scope: "party", minLevel: 70, family: "tank_party_miti_sub"
     },
+
+    // --- Tank Limit Break ---
+    { id: "tank_lb1_pld", jobId: "pld", name: { ja: "リミットブレイク Ⅰ", en: "Limit Break Ⅰ", zh: "极限技 Ⅰ", ko: "리미트 브레이크 Ⅰ" }, icon: "/icons/Limit_Break_1.png", recast: 1, duration: 10, type: "all", value: 20, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb2_pld", jobId: "pld", name: { ja: "リミットブレイク Ⅱ", en: "Limit Break Ⅱ", zh: "极限技 Ⅱ", ko: "리미트 브레이크 Ⅱ" }, icon: "/icons/Limit_Break_2.png", recast: 1, duration: 15, type: "all", value: 40, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb3_pld", jobId: "pld", name: { ja: "リミットブレイク Ⅲ", en: "Limit Break Ⅲ", zh: "极限技 Ⅲ", ko: "리미트 브레이크 Ⅲ" }, icon: "/icons/Limit_Break_3.png", recast: 1, duration: 8, type: "all", value: 80, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb1_war", jobId: "war", name: { ja: "リミットブレイク Ⅰ", en: "Limit Break Ⅰ", zh: "极限技 Ⅰ", ko: "리미트 브레이크 Ⅰ" }, icon: "/icons/Limit_Break_1.png", recast: 1, duration: 10, type: "all", value: 20, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb2_war", jobId: "war", name: { ja: "リミットブレイク Ⅱ", en: "Limit Break Ⅱ", zh: "极限技 Ⅱ", ko: "리미트 브레이크 Ⅱ" }, icon: "/icons/Limit_Break_2.png", recast: 1, duration: 15, type: "all", value: 40, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb3_war", jobId: "war", name: { ja: "リミットブレイク Ⅲ", en: "Limit Break Ⅲ", zh: "极限技 Ⅲ", ko: "리미트 브레이크 Ⅲ" }, icon: "/icons/Limit_Break_3.png", recast: 1, duration: 8, type: "all", value: 80, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb1_drk", jobId: "drk", name: { ja: "リミットブレイク Ⅰ", en: "Limit Break Ⅰ", zh: "极限技 Ⅰ", ko: "리미트 브레이크 Ⅰ" }, icon: "/icons/Limit_Break_1.png", recast: 1, duration: 10, type: "all", value: 20, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb2_drk", jobId: "drk", name: { ja: "リミットブレイク Ⅱ", en: "Limit Break Ⅱ", zh: "极限技 Ⅱ", ko: "리미트 브레이크 Ⅱ" }, icon: "/icons/Limit_Break_2.png", recast: 1, duration: 15, type: "all", value: 40, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb3_drk", jobId: "drk", name: { ja: "リミットブレイク Ⅲ", en: "Limit Break Ⅲ", zh: "极限技 Ⅲ", ko: "리미트 브레이크 Ⅲ" }, icon: "/icons/Limit_Break_3.png", recast: 1, duration: 8, type: "all", value: 80, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb1_gnb", jobId: "gnb", name: { ja: "リミットブレイク Ⅰ", en: "Limit Break Ⅰ", zh: "极限技 Ⅰ", ko: "리미트 브레이크 Ⅰ" }, icon: "/icons/Limit_Break_1.png", recast: 1, duration: 10, type: "all", value: 20, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb2_gnb", jobId: "gnb", name: { ja: "リミットブレイク Ⅱ", en: "Limit Break Ⅱ", zh: "极限技 Ⅱ", ko: "리미트 브레이크 Ⅱ" }, icon: "/icons/Limit_Break_2.png", recast: 1, duration: 15, type: "all", value: 40, isShield: false, scope: "party", family: "tank_lb" },
+    { id: "tank_lb3_gnb", jobId: "gnb", name: { ja: "リミットブレイク Ⅲ", en: "Limit Break Ⅲ", zh: "极限技 Ⅲ", ko: "리미트 브레이크 Ⅲ" }, icon: "/icons/Limit_Break_3.png", recast: 1, duration: 8, type: "all", value: 80, isShield: false, scope: "party", family: "tank_lb" },
 
     // --- Pictomancer ---
     {
