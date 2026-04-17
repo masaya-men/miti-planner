@@ -314,6 +314,9 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
   }, [isOpen]);
 
+  // 初期ローディング判定: popularData未取得 or プレビュー取得中
+  const isInitialLoading = (Object.keys(popularData).length === 0) || previewLoading;
+
   // 現在のコンテンツ名
   const currentContentName = currentContentId ? getContentName(currentContentId) : '';
 
@@ -508,6 +511,43 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                   loading={previewLoading || !drumrollDone}
                 />
               </div>
+
+              {/* 初期ローディングオーバーレイ */}
+              <AnimatePresence>
+                {isInitialLoading && (
+                  <motion.div
+                    className="miti-loading-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <motion.svg
+                      className="miti-loading-spinner"
+                      viewBox="0 0 32 32"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <circle
+                        cx="16" cy="16" r="13"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeOpacity="0.15"
+                      />
+                      <circle
+                        cx="16" cy="16" r="13"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeDasharray="20 81.7"
+                      />
+                    </motion.svg>
+                    <span className="miti-loading-text">{t('miti_sheet.loading')}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* コピーオーバーレイ */}
