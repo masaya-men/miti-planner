@@ -153,9 +153,10 @@ export default async function handler(req: any, res: any) {
             };
 
             // 各コンテンツIDについて上位2件 + featured を並列取得
+            const windowStart = dayKeyDaysBefore(6);  // 今日を含めて7日間
             const results = await Promise.all(
                 ids.map(async (id) => {
-                    // featured プランを取得
+                    // featured プランを取得（変更なし）
                     const featuredSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
@@ -163,21 +164,28 @@ export default async function handler(req: any, res: any) {
                         .limit(1)
                         .get();
 
-                    // viewCount降順で上位3件を取得
-                    const popularSnap = await db
+                    // 全プラン取得（orderBy なし、メモリ上で直近7日スコアでソート）
+                    const allSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
-                        .orderBy('viewCount', 'desc')
-                        .limit(3)
                         .get();
 
-                    // ランキング: viewCount順の上位2件（featuredかどうかに関係なく純粋な人気順）
-                    const plans: any[] = [];
-                    for (const doc of popularSnap.docs) {
-                        if (plans.length < 2) {
-                            plans.push(mapDoc(doc));
+                    const scored = allSnap.docs.map(doc => {
+                        const data = doc.data();
+                        const byDay: Record<string, number> = data.copyCountByDay || {};
+                        let score7d = 0;
+                        for (const [key, n] of Object.entries(byDay)) {
+                            if (key >= windowStart) score7d += n;
                         }
-                    }
+                        return { doc, score7d, copyCount: data.copyCount ?? 0 };
+                    });
+
+                    // スコア降順、tie-break は生涯copyCount降順
+                    scored.sort((a, b) =>
+                        b.score7d - a.score7d || b.copyCount - a.copyCount
+                    );
+
+                    const plans = scored.slice(0, 2).map(s => mapDoc(s.doc));
 
                     // featured: 存在すればそのまま返す（フロントで重複判定する）
                     const featured = featuredSnap.docs.length > 0
