@@ -75,7 +75,11 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const [selectMode, setSelectMode] = useState(false);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [drumrollDone, setDrumrollDone] = useState(false);
-  const [copyProgress, setCopyProgress] = useState<{ current: number; total: number } | null>(null);
+  const [copyState, setCopyState] = useState<
+    | null
+    | { phase: 'copying'; current: number; total: number }
+    | { phase: 'done'; count: number }
+  >(null);
 
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -211,58 +215,58 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
   }, [plans, t]);
 
+  // 共通コピー: オーバーレイ表示 → 完了アニメ → シート閉じ
+  const runCopy = useCallback(async (entries: PopularEntry[]) => {
+    if (entries.length === 0) return;
+    setCopyState({ phase: 'copying', current: 0, total: entries.length });
+
+    let copied = 0;
+    for (let i = 0; i < entries.length; i++) {
+      setCopyState({ phase: 'copying', current: i + 1, total: entries.length });
+      const ok = await copyPlan(entries[i]);
+      if (ok) copied++;
+      // 1件でも最低400ms見せる（体感フィードバック）
+      if (entries.length === 1) await new Promise(r => setTimeout(r, 400));
+    }
+
+    setCopyState({ phase: 'done', count: copied });
+    await new Promise(r => setTimeout(r, 900));
+    setCopyState(null);
+    onClose();
+  }, [copyPlan, onClose]);
+
   // カード直接コピー（モバイル用）
   const handleCardCopy = useCallback(async (entry: PopularEntry, e: React.MouseEvent) => {
     e.stopPropagation();
-    const ok = await copyPlan(entry);
-    if (ok) showToast(t('miti_sheet.copied_toast'));
-  }, [copyPlan, t]);
+    await runCopy([entry]);
+  }, [runCopy]);
 
   // 単体コピー
   const handleCopyThis = useCallback(async () => {
     if (!selectedId) return;
-    const d = popularData[selectedId];
-    const entry = d?.plans?.[0] ?? null;
+    const entry = popularData[selectedId]?.plans?.[0];
     if (!entry) return;
-    const ok = await copyPlan(entry);
-    if (ok) showToast(t('miti_sheet.copied_toast'));
-  }, [selectedId, popularData, copyPlan, t]);
+    await runCopy([entry]);
+  }, [selectedId, popularData, runCopy]);
 
-  // バッチコピー共通ロジック（プログレスバー表示 → 完了時シート閉じ）
-  const batchCopy = useCallback(async (entries: PopularEntry[]) => {
-    if (entries.length === 0) return;
-    setCopyProgress({ current: 0, total: entries.length });
-
-    let copied = 0;
-    for (let i = 0; i < entries.length; i++) {
-      setCopyProgress({ current: i + 1, total: entries.length });
-      const ok = await copyPlan(entries[i]);
-      if (ok) copied++;
-    }
-
-    setCopyProgress(null);
-    showToast(t('miti_sheet.copied_n_toast', { count: copied }));
-    onClose();
-  }, [copyPlan, t, onClose]);
-
-  // まとめてコピー（現在のタブの全1位プラン）
+  // まとめてコピー
   const handleCopyAll = useCallback(async () => {
     const ids = activeTab === 'savage' ? savageIds : ultimateIds;
     const entries = ids
       .map(id => popularData[id]?.plans?.[0])
       .filter((e): e is PopularEntry => !!e);
-    await batchCopy(entries);
-  }, [activeTab, popularData, batchCopy]);
+    await runCopy(entries);
+  }, [activeTab, popularData, runCopy]);
 
   // 選択コピー
   const handleCopyChecked = useCallback(async () => {
     const entries = Array.from(checkedIds)
       .map(id => popularData[id]?.plans?.[0])
       .filter((e): e is PopularEntry => !!e);
-    await batchCopy(entries);
+    await runCopy(entries);
     setSelectMode(false);
     setCheckedIds(new Set());
-  }, [checkedIds, popularData, batchCopy]);
+  }, [checkedIds, popularData, runCopy]);
 
   // カードクリック
   const handleCardClick = (contentId: string) => {
@@ -493,20 +497,62 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
               </div>
             </div>
 
-            {/* プログレスバー */}
-            {copyProgress && (
-              <div className="miti-progress">
-                <div className="miti-progress-bar">
-                  <div
-                    className="miti-progress-fill"
-                    style={{ width: `${(copyProgress.current / copyProgress.total) * 100}%` }}
-                  />
-                </div>
-                <span className="miti-progress-text">
-                  {t('miti_sheet.copying_progress', { current: copyProgress.current, total: copyProgress.total })}
-                </span>
-              </div>
-            )}
+            {/* コピーオーバーレイ */}
+            <AnimatePresence>
+              {copyState && (
+                <motion.div
+                  className="miti-copy-overlay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <motion.div
+                    className="miti-copy-panel"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  >
+                    {copyState.phase === 'copying' ? (
+                      <>
+                        <div className="miti-copy-ring">
+                          <svg viewBox="0 0 36 36" className="miti-copy-ring-svg">
+                            <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
+                            <circle
+                              cx="18" cy="18" r="16" fill="none"
+                              stroke="#3b82f6"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeDasharray={`${(copyState.current / copyState.total) * 100.5} 100.5`}
+                              style={{ transition: 'stroke-dasharray 300ms ease-out' }}
+                            />
+                          </svg>
+                          <span className="miti-copy-count">{copyState.current}/{copyState.total}</span>
+                        </div>
+                        <span className="miti-copy-label">
+                          {t('miti_sheet.copying_progress', { current: copyState.current, total: copyState.total })}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <motion.div
+                          className="miti-copy-check"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                        >
+                          <Check size={28} />
+                        </motion.div>
+                        <span className="miti-copy-label">
+                          {t('miti_sheet.copied_n_toast', { count: copyState.count })}
+                        </span>
+                      </>
+                    )}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="miti-footer">{t('miti_sheet.footer_readonly')}</div>
           </motion.div>

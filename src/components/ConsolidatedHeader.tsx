@@ -312,14 +312,15 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                         <div className="flex items-center gap-1.5">
                             {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
-                            <button
-                                onClick={() => setIsMitiSheetOpen(true)}
-                                className={clsx(pillBtnBase, pillBtnDefault)}
-                                title={t('popular.open_popular_tooltip')}
-                            >
-                                <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
-                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
-                            </button>
+                            <Tooltip content={t('popular.open_popular_tooltip')}>
+                                <button
+                                    onClick={() => setIsMitiSheetOpen(true)}
+                                    className={clsx(pillBtnBase, pillBtnDefault)}
+                                >
+                                    <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
+                                </button>
+                            </Tooltip>
 
                             {/* My Job Highlight */}
                             <button

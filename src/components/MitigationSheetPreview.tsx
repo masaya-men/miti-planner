@@ -21,7 +21,8 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
     if (!jobId) return '-';
     const job = jobs.find(j => j.id === jobId);
     if (!job) return jobId.substring(0, 3).toUpperCase();
-    return (job.name.en ?? job.name.ja).substring(0, 3).toUpperCase();
+    const name = job.name[lang] ?? job.name.en ?? job.name.ja;
+    return name.substring(0, 3).toUpperCase();
   };
 
   const formatTime = (seconds: number): string => {
