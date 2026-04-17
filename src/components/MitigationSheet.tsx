@@ -11,6 +11,7 @@ import {
 } from '../data/contentRegistry';
 import { PLAN_LIMITS } from '../types/firebase';
 import { apiFetch } from '../lib/apiClient';
+import { getAnonCopyId } from '../lib/anonCopyId';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import type { PlanData, SavedPlan } from '../types';
 import './MitigationSheet.css';
@@ -217,7 +218,10 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
         apiFetch('/api/popular', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ shareId: entry.shareId }),
+          body: JSON.stringify({
+            shareId: entry.shareId,
+            anonId: getAnonCopyId(),
+          }),
         }).catch(() => {});
       }
       return true;
