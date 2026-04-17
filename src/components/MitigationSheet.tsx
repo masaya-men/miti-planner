@@ -152,27 +152,49 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       targetId = cards[0]?.dataset.contentId ?? contentIds[0];
     }
 
-    // ターゲットカードのトップ位置（ヘッダー直下に配置）
     const targetCard = cards[targetIdx];
     const targetTop = targetCard.offsetTop;
-    // スクロール限界を超えない（最後のカード対策）
+    // 実コンテンツの総高さ
+    const realHeight = list.scrollHeight;
+
+    // 1.5回転分のクローンを末尾に追加（スクロール距離確保）
+    const rotations = 1.5;
+    const cloneFragment = document.createDocumentFragment();
+    for (let i = 0; i < Math.ceil(rotations); i++) {
+      cards.forEach(card => {
+        const clone = card.cloneNode(true) as HTMLElement;
+        clone.removeAttribute('data-content-id');
+        clone.style.pointerEvents = 'none';
+        clone.style.opacity = '0.4';
+        clone.classList.add('drumroll-clone');
+        cloneFragment.appendChild(clone);
+      });
+    }
+    list.appendChild(cloneFragment);
+
+    // アニメーション距離: 1.5回転 + ターゲット位置
+    const totalDistance = Math.round(rotations * realHeight + targetTop);
+    // 最終位置は実カードエリア内の targetTop
     const maxScroll = list.scrollHeight - list.clientHeight;
     const finalScroll = Math.min(targetTop, maxScroll);
 
     list.scrollTop = 0;
-    const duration = 1800;
+    const duration = 2200;
     const startTime = performance.now();
     const easeOutExpo = (x: number) => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      list.scrollTop = easeOutExpo(progress) * finalScroll;
+      list.scrollTop = Math.round(easeOutExpo(progress) * totalDistance);
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
+        // 実カードエリアにスナップしてからクローン除去（視覚的に同一）
         list.scrollTop = finalScroll;
+        list.querySelectorAll('.drumroll-clone').forEach(c => c.remove());
+
         setSelectedId(targetId);
         setDrumrollDone(true);
 
@@ -465,7 +487,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             {/* メイン */}
             <div className="miti-body">
               {/* 左: OGPカードリスト */}
-              <div className="miti-card-list no-scrollbar" ref={listRef}>
+              <div className="miti-card-list" ref={listRef}>
                 {contentIds.map(contentId => {
                   const entry = popularData[contentId]?.plans?.[0];
                   const isSelected = selectedId === contentId;
