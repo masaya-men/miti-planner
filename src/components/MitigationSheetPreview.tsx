@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PlanData, TimelineEvent, AppliedMitigation, PartyMember, Phase } from '../types';
+import type { PlanData, AppliedMitigation, PartyMember } from '../types';
 import { getPhaseName } from '../types';
 import { useJobs } from '../hooks/useSkillsData';
 
