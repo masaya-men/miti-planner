@@ -14,11 +14,9 @@
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること
-- **野良主流ランキング再設計 Phase 1（最優先・次セッションで実装）**
-  - プラン: `docs/superpowers/plans/2026-04-17-popular-ranking-phase1-stop-bleed.md`
-  - 内容: `/api/share?preview=true` で viewCount 自己強化ループを止血（5タスク・1.5時間）
-  - 進め方: superpowers:subagent-driven-development
-  - デプロイ後に Firebase Console で viewCount が増えないことを観察
+- **Phase 1 本番観察（デプロイ直後）**
+  - Firebase Console で人気プランの `viewCount` を1件メモ → ボトムシート開いてプレビュー → 値が変化しないことを確認
+  - `/share/<id>` 直接アクセスで従来通り +1 されることも確認
 - **Phase 2（Phase 1 本番確認後）**
   - プラン: `docs/superpowers/plans/2026-04-17-popular-ranking-phase2-anon-trending-featured.md`
   - 内容: 匿名ID集計 + 日別バケット旬ランキング + featured活性化 + ポリシー更新4言語（13タスク・6〜7時間、別セッション推奨）
@@ -33,6 +31,7 @@
   - ✅ ボトムシートUX改善（初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms、本番確認済み）
   - ✅ 通知音パス修正（FFXIV_SE/FFXIV_Notification.mp3 へ更新）
   - ✅ 野良主流ランキング再設計: 設計書 + Phase 1/Phase 2 実装プラン作成
+  - ✅ 野良主流ランキング Phase 1: viewCount 自己強化ループ止血（`/api/share?preview=true` 実装、ボトムシート側フラグ付与、PopularPageは対象なし）
   - ✅ ボトムシート初期タブ選択修正（Reactバッチ更新問題）
   - ✅ ライトモード時ジョブ移行モーダル背景色修正
   - ✅ タンクLBスキル追加（Lv1/2/3 × 4ジョブ、アイコン3種、Firestore+Storage同期）
