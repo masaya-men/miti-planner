@@ -570,25 +570,39 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     {(copyState.phase === 'crawl' || copyState.phase === 'surge') ? (
                       <>
                         <div className="miti-copy-ring">
-                          <svg viewBox="0 0 36 36" className="miti-copy-ring-svg">
-                            <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
-                            <motion.circle
-                              cx="18" cy="18" r="16" fill="none"
-                              stroke="#3b82f6"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                              pathLength={1}
-                              initial={false}
-                              animate={{
-                                pathLength: copyState.phase === 'crawl' ? 0.2 : 1,
-                              }}
-                              transition={
-                                copyState.phase === 'crawl'
-                                  ? { duration: 6, ease: [0.1, 0, 0.2, 1] }
-                                  : { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }
-                              }
-                            />
-                          </svg>
+                          {copyState.phase === 'crawl' ? (
+                            // 不確定スピナー（円弧が回転し続ける）
+                            <motion.svg
+                              viewBox="0 0 36 36"
+                              className="miti-copy-ring-svg"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                            >
+                              <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
+                              <circle
+                                cx="18" cy="18" r="16" fill="none"
+                                stroke="#3b82f6"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeDasharray="25 100"
+                              />
+                            </motion.svg>
+                          ) : (
+                            // surge: 0.2 → 1 にぐいーん
+                            <svg viewBox="0 0 36 36" className="miti-copy-ring-svg">
+                              <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
+                              <motion.circle
+                                cx="18" cy="18" r="16" fill="none"
+                                stroke="#3b82f6"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                pathLength={1}
+                                initial={{ pathLength: 0.2 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+                              />
+                            </svg>
+                          )}
                           <span className="miti-copy-count">
                             {copyState.phase === 'surge' ? `${copyState.total}/${copyState.total}` : `…/${copyState.total}`}
                           </span>
