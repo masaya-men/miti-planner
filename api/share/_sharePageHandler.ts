@@ -86,7 +86,10 @@ export default async function handler(req: any, res: any) {
                     || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
                 const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
-                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}${hasLogo ? '&showLogo=true' : ''}`;
+                // クエリパラメータの順序はクライアント側（src/components/ShareModal.tsx の buildOgUrl）と
+                // 一致させること。Vercel edge cache は URL 文字列単位でキーを作るため、
+                // 順序が違うとモーダルのプレビューで温めたキャッシュを OGP クローラーが使えない。
+                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}${hasLogo ? '&showLogo=true' : ''}&lang=${lang}`;
             }
         }
     } catch (err) {
