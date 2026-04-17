@@ -137,12 +137,6 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   };
 
   // --- ヘルパー ---
-  const getFloorLabel = (contentId: string): string => {
-    const def = getContentById(contentId);
-    if (!def) return contentId;
-    return (lang === 'ja' ? def.shortName.ja : def.shortName.en).replace(/\n/g, ' ');
-  };
-
   const getContentName = (contentId: string): string => {
     const def = getContentById(contentId);
     if (!def) return contentId;
