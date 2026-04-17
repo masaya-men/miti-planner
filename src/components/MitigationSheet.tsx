@@ -124,39 +124,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     if (currentContentId && ultimateIds.includes(currentContentId)) {
       setActiveTab('ultimate');
     }
-    // DOM描画後にターゲットへスクロール
-    requestAnimationFrame(() => {
-      scrollToTarget();
-    });
+    initSelection();
   }, [isOpen, drumrollDone, activeTab]);
 
-  const scrollToTarget = () => {
-    const list = listRef.current;
-    if (!list) { setDrumrollDone(true); return; }
-
-    const cards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
-    if (cards.length === 0) { setDrumrollDone(true); return; }
-
+  const initSelection = () => {
     let targetId = currentContentId;
-    let targetIdx = targetId ? cards.findIndex(c => c.dataset.contentId === targetId) : -1;
-    if (targetIdx < 0) {
-      targetIdx = 0;
-      targetId = cards[0]?.dataset.contentId ?? contentIds[0];
+    if (!targetId || !contentIds.includes(targetId)) {
+      targetId = contentIds[0] ?? null;
     }
-
-    const targetCard = cards[targetIdx];
-
-    // カード上端をリスト表示領域の先頭に正確に配置
-    const cardTop = targetCard.getBoundingClientRect().top;
-    const listTop = list.getBoundingClientRect().top;
-    list.scrollTop = list.scrollTop + (cardTop - listTop);
-
     setSelectedId(targetId);
     setDrumrollDone(true);
-
-    // グロウエフェクト
-    targetCard.classList.add('selecting');
-    setTimeout(() => targetCard.classList.remove('selecting'), 600);
   };
 
   // --- ヘルパー ---
@@ -306,13 +283,6 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       return;
     }
     setSelectedId(contentId);
-    // グロウ + スクロール
-    const card = listRef.current?.querySelector(`[data-content-id="${contentId}"]`) as HTMLElement | null;
-    if (card) {
-      card.classList.add('selecting');
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => card.classList.remove('selecting'), 600);
-    }
   };
 
   // ESCで閉じる
