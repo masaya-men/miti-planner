@@ -121,7 +121,7 @@
 
 ## 完了（2026-04-01）
 - [x] **管理者ログインモード** — LoginModalにisAdmin時のみ黄色の管理画面ボタン表示。メアドやUID漏洩なし（Firebase Custom Claims判定）
-- [x] **フォントサイズ全体拡大** — data-font-scale="1"、最低12px、表エリア・フッター・Ko-fi除外
+- [x] **フォントサイズ全体拡大** — data-font-scale="1"、最低12px、表エリア・フッター除外
 - [x] **チュートリアル全面刷新** — mainマージ+デプロイ済み
 - [x] **テンプレート管理画面リデザイン設計書** — 承認済み（`docs/superpowers/specs/2026-04-01-template-editor-redesign.md`）
 - [x] **βフィードバック整理** — `docs/BETA_FEEDBACK.md` に11項目を対応状況付きでまとめ
@@ -203,8 +203,7 @@
 
 ## 完了（第44セッション 2026-03-30）
 - [x] **Googleログイン画面のドメイン表示修正** — auth.lopoly.appサブドメインをFirebase Hosting+Cloudflare DNSで設定、authDomainを変更（DNS反映待ち）
-- [x] **Stripe審査** — Ko-fiはPayPalのみに変更。Stripe不要
-- [x] **サイドバー畳み時のKo-fiロゴ化** — isOpen判定で☕のみ表示
+- [x] **サイドバー畳み時のアイコン化** — isOpen判定で☕のみ表示
 - [x] **全モーダル×ボタンの反転ホバー統一** — 15ファイルの×ボタンにhover:bg-app-text hover:text-app-bgを適用
 - [x] **ステータス設定のタイトル統一** — 「パラメータ設定」→「ステータス設定」
 - [x] **TANK/HEALER/DPSラベルのライトモード視認性改善** — dark:修飾子で色分け
@@ -309,7 +308,7 @@
 - [x] **PWA: apple-touch-icon追加 / SW autoUpdate化**
 - [x] **共有モーダルがヘッダー下に隠れる問題修正**
 - [x] **パルス設定パネル全面リニューアル / グロー実装**
-- [x] **Stripe追加情報提出 / Google Cloud APIキー制限設定**
+- [x] **Google Cloud APIキー制限設定**
 
 ## 完了（進行中セクションから）
 - [x] **Firestoreプラン保存の実装** — ログインユーザーのプランをクラウドに永続化（2026-03-25）

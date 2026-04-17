@@ -99,7 +99,7 @@
   - 著作権表記（SQUARE ENIX）
   - ファンツール免責事項
   - Xシェアボタン、URLコピーボタン
-  - リンク: Discord / X公式 / Ko-fi / Privacy / Terms / Commercial Disclosure
+  - リンク: Discord / X公式 / Privacy / Terms / Commercial Disclosure
 
 ## テーマ対応
 

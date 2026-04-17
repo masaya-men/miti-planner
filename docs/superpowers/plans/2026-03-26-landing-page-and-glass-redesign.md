@@ -25,7 +25,7 @@ src/components/landing/
 ├── MitiSection.tsx          — 軽減プランナー紹介（左テキスト + 右デモ画面）
 ├── FeaturesSection.tsx      — 機能ハイライト4枚カード（2x2グリッド）
 ├── HousingSection.tsx       — ハウジングツアー予告（Coming Soon）
-├── CTASection.tsx           — 行動喚起（CTAボタン + Ko-fi）
+├── CTASection.tsx           — 行動喚起（CTAボタン）
 └── LandingFooter.tsx        — フッター（SE権利表記）
 src/hooks/
 └── useSmoothScroll.ts       — Lenis + GSAP ScrollTrigger統合フック
@@ -529,7 +529,6 @@ git commit -m "feat: WebGL背景にマウス追従を追加"
     "heading": "今すぐ、始めよう。",
     "sub": "完全無料。アカウント登録なしですぐ使えます。",
     "button": "軽減プランナーを使う",
-    "kofi": "気に入ったら → Ko-fiで応援する"
   },
   "footer": {
     "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -601,7 +600,6 @@ git commit -m "feat: WebGL背景にマウス追従を追加"
     "heading": "Get started now.",
     "sub": "Completely free. No registration required.",
     "button": "Open Mitigation Planner",
-    "kofi": "Like it? → Support on Ko-fi"
   },
   "footer": {
     "copyright": "© SQUARE ENIX CO., LTD. All Rights Reserved.",
@@ -1277,11 +1275,6 @@ export function CTASection() {
       >
         {t('portal.cta.button')}
       </button>
-      <div className="mt-5 text-xs text-white/25">
-        ☕ <a href="https://ko-fi.com/lopoly" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/40 transition-colors">
-          {t('portal.cta.kofi')}
-        </a>
-      </div>
     </section>
   );
 }

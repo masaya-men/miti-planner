@@ -96,7 +96,6 @@ git reset --soft HEAD~1
 | GitHub | https://github.com/masaya-men/miti-planner | ソースコード管理 |
 | GitHub Actions | https://github.com/masaya-men/miti-planner/actions | 自動処理の実行状況 |
 | Firebase Console | https://console.firebase.google.com/ | データベース・認証管理 |
-| Ko-fi | https://ko-fi.com/lopoly | 支援ページ |
 
 ---
 

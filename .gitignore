@@ -1,6 +1,9 @@
 # 管理者リファレンス（秘密鍵情報を含むため非公開）
 ADMIN_REFERENCE.md
 
+# Private docs (monetization strategy etc. — local only)
+docs/.private/
+
 # Superpowers brainstorm files
 .superpowers/
 
