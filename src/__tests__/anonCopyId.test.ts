@@ -21,7 +21,7 @@ describe('getAnonCopyId', () => {
   });
 
   it('localStorage が使えない環境では null を返す', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+    vi.spyOn(localStorage, 'getItem').mockImplementation(() => {
       throw new Error('Storage disabled');
     });
     expect(getAnonCopyId()).toBeNull();

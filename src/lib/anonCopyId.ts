@@ -8,15 +8,13 @@ const STORAGE_KEY = 'lopo_anon_copy_id';
 
 export function getAnonCopyId(): string | null {
   try {
-    // Storage.prototype 経由で呼び出すことでテスト時のスパイが確実に反映される
-    let id = Storage.prototype.getItem.call(localStorage, STORAGE_KEY);
+    let id = localStorage.getItem(STORAGE_KEY);
     if (!id) {
       id = crypto.randomUUID();
-      Storage.prototype.setItem.call(localStorage, STORAGE_KEY, id);
+      localStorage.setItem(STORAGE_KEY, id);
     }
     return id;
   } catch {
-    // localStorage 無効環境（プライベートブラウジング等）
     return null;
   }
 }
