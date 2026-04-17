@@ -85,7 +85,8 @@ export default async function handler(req: any, res: any) {
                     || (ogPreviewPattern.test(ogRawHost) ? ogRawHost : null)
                     || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
-                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}`;
+                const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
+                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}&lang=${lang}${hasLogo ? '&showLogo=true' : ''}`;
             }
         }
     } catch (err) {
