@@ -229,10 +229,23 @@ export default async function handler(req: any, res: any) {
                 if (existing.exists) {
                     alreadyCounted = true;
                 } else {
-                    // バッチ書き込み: copiedBy記録 + copyCount増加
+                    // バッチ書き込み: copiedBy記録 + copyCount増加 + 日別バケット更新
                     const batch = db.batch();
                     batch.set(copiedByRef, { copiedAt: FieldValue.serverTimestamp() });
-                    batch.update(docRef, { copyCount: FieldValue.increment(1) });
+                    // copyCount 全期間 + 今日のバケット を同時更新、7日より古いキーは間引く
+                    const today = todayKey();
+                    const updates: Record<string, any> = {
+                        copyCount: FieldValue.increment(1),
+                        [`copyCountByDay.${today}`]: FieldValue.increment(1),
+                    };
+                    const byDay: Record<string, number> = snap.data()?.copyCountByDay ?? {};
+                    const pruneCutoff = dayKeyDaysBefore(7);
+                    for (const key of Object.keys(byDay)) {
+                        if (key < pruneCutoff) {
+                            updates[`copyCountByDay.${key}`] = FieldValue.delete();
+                        }
+                    }
+                    batch.update(docRef, updates);
                     await batch.commit();
                 }
             } else if (typeof anonId === 'string' && UUID_V4_REGEX.test(anonId)) {
@@ -241,10 +254,23 @@ export default async function handler(req: any, res: any) {
                 if (existing.exists) {
                     alreadyCounted = true;
                 } else {
-                    // バッチ書き込み: anonCopiedBy記録 + copyCount増加
+                    // バッチ書き込み: anonCopiedBy記録 + copyCount増加 + 日別バケット更新
                     const batch = db.batch();
                     batch.set(anonCopiedByRef, { copiedAt: FieldValue.serverTimestamp() });
-                    batch.update(docRef, { copyCount: FieldValue.increment(1) });
+                    // copyCount 全期間 + 今日のバケット を同時更新、7日より古いキーは間引く
+                    const today = todayKey();
+                    const updates: Record<string, any> = {
+                        copyCount: FieldValue.increment(1),
+                        [`copyCountByDay.${today}`]: FieldValue.increment(1),
+                    };
+                    const byDay: Record<string, number> = snap.data()?.copyCountByDay ?? {};
+                    const pruneCutoff = dayKeyDaysBefore(7);
+                    for (const key of Object.keys(byDay)) {
+                        if (key < pruneCutoff) {
+                            updates[`copyCountByDay.${key}`] = FieldValue.delete();
+                        }
+                    }
+                    batch.update(docRef, updates);
                     await batch.commit();
                 }
             } else {
