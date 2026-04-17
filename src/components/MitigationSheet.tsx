@@ -146,8 +146,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
 
     const targetCard = cards[targetIdx];
 
-    // ターゲットをリスト上端にスクロール（最後のカードはスクロール限界まで）
-    targetCard.scrollIntoView({ block: 'start', behavior: 'instant' });
+    // ターゲットの上端をリストの上端にぴったり合わせる
+    list.scrollTop = targetCard.offsetTop - list.offsetTop;
 
     setSelectedId(targetId);
     setDrumrollDone(true);
