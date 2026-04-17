@@ -87,6 +87,13 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
 
   const contentIds = activeTab === 'savage' ? savageIds : ultimateIds;
 
+  // featured があればそれを優先、なければ自動ランキング1位を返す（UIでの視覚的区別なし）
+  const getRepresentativeEntry = (contentId: string): PopularEntry | null => {
+    const d = popularData[contentId];
+    if (!d) return null;
+    return d.featured ?? d.plans?.[0] ?? null;
+  };
+
   // --- データ取得 ---
   useEffect(() => {
     if (!isOpen) return;
@@ -108,8 +115,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   // --- 選択中プランのプレビュー取得 ---
   useEffect(() => {
     if (!selectedId) { setPreviewData(null); return; }
-    const d = popularData[selectedId];
-    const entry = d?.plans?.[0] ?? null;
+    const entry = getRepresentativeEntry(selectedId);
     if (!entry) return;
 
     // preview=true: プレビュー表示は受動的閲覧なのでviewCountをスキップ
@@ -271,7 +277,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   // 単体コピー
   const handleCopyThis = useCallback(async () => {
     if (!selectedId) return;
-    const entry = popularData[selectedId]?.plans?.[0];
+    const entry = getRepresentativeEntry(selectedId);
     if (!entry) return;
     await runCopy([entry]);
   }, [selectedId, popularData, runCopy]);
@@ -280,7 +286,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const handleCopyAll = useCallback(async () => {
     const ids = activeTab === 'savage' ? savageIds : ultimateIds;
     const entries = ids
-      .map(id => popularData[id]?.plans?.[0])
+      .map(id => getRepresentativeEntry(id))
       .filter((e): e is PopularEntry => !!e);
     await runCopy(entries);
   }, [activeTab, popularData, runCopy]);
@@ -288,7 +294,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   // 選択コピー
   const handleCopyChecked = useCallback(async () => {
     const entries = Array.from(checkedIds)
-      .map(id => popularData[id]?.plans?.[0])
+      .map(id => getRepresentativeEntry(id))
       .filter((e): e is PopularEntry => !!e);
     await runCopy(entries);
     setSelectMode(false);
@@ -439,7 +445,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
               {/* 左: OGPカードリスト */}
               <div className="miti-card-list" ref={listRef}>
                 {contentIds.map(contentId => {
-                  const entry = popularData[contentId]?.plans?.[0];
+                  const entry = getRepresentativeEntry(contentId);
                   const isSelected = selectedId === contentId;
                   const isChecked = checkedIds.has(contentId);
 
