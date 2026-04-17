@@ -112,7 +112,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     if (!entry) return;
 
     setPreviewLoading(true);
-    apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`)
+    apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}&preview=true`)
       .then(res => res.ok ? res.json() : Promise.reject())
       .then(shared => {
         setPreviewData(shared.planData ?? shared.data ?? null);
