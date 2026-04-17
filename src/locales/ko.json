@@ -578,7 +578,7 @@
         "privacy_section6_col_location": "저장 위치",
         "privacy_section6_col_period": "보관 기간",
         "privacy_section6_data_types": "계정 정보 및 경감 계획,팀 로고 이미지,공유된 계획,조회 기록(비가역적으로 변환됨),익명 복사 집계 ID(무작위 문자열),익명 복사 기록 및 일별 복사 집계,접근 빈도 기록,로그인 쿠키,브라우저 캐시",
-        "privacy_section6_data_locations": "Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),Google Firebase(도쿄),사용자의 브라우저,Google Firebase(도쿄),Upstash(미국 동부),브라우저,브라우저",
+        "privacy_section6_data_locations": "Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),Google Firebase(도쿄),브라우저,Google Firebase(도쿄),Upstash(미국 동부),브라우저,브라우저",
         "privacy_section6_data_periods": "계정 삭제 시까지,삭제할 때까지,무기한,무기한(원본 IP 주소 복원 불가),브라우저에서 직접 삭제할 때까지,일별 집계는 8일 이상 지난 것은 자동 삭제,최대 1분 이내 자동 삭제,5분 이내 자동 삭제,삭제할 때까지",
         "privacy_section6_note": "로그인하지 않은 경우, 본 서비스에 경감 플랜이 저장되지 않습니다. 다만, 공유 플랜을 복사할 때에 한해, 집계의 중복 카운트를 방지하기 위한 익명 ID(개인을 식별할 수 없는 문자열)가 서버로 전송됩니다.",
 
