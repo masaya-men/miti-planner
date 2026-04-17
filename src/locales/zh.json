@@ -535,7 +535,7 @@
     },
     "legal": {
         "privacy_title": "隐私政策",
-        "privacy_last_updated": "最后更新：2026年3月30日",
+        "privacy_last_updated": "最后更新日期：2026年4月17日",
         "privacy_intro": "LoPo（以下称「本服务」）是为《最终幻想XIV》提供粉丝制作工具的非官方网络服务，与 SQUARE ENIX 无关。本页面以简明易懂的方式说明本服务处理哪些信息以及如何保护这些信息。",
 
         "privacy_section1_title": "1. 我们收集的信息",
@@ -545,14 +545,14 @@
         "privacy_section1_plan_title": "您创建的数据",
         "privacy_section1_plan_items": "减伤方案内容（时间轴、队伍配置、减伤配置等）,方案标题和创建日期,团队标志图片（仅在您主动上传时）",
         "privacy_section1_auto_title": "自动收集的信息",
-        "privacy_section1_auto_items": "为准确统计共享方案的浏览人数，我们记录经过转换且无法还原为原始地址的 IP 地址版本,为防止滥用，我们临时记录 IP 地址（最多 1 分钟内自动删除）",
+        "privacy_section1_auto_items": "为准确统计共享方案的浏览人数，我们记录经过转换且无法还原为原始地址的 IP 地址版本,为防止滥用，我们临时记录 IP 地址（最多 1 分钟内自动删除）,为了准确统计人气计划，我们会接收您浏览器生成的随机匿名ID（不能识别个人的字符串）",
 
         "privacy_section2_title": "2. 我们不收集的信息",
         "privacy_section2_body": "本服务不收集以下任何信息：",
         "privacy_section2_items": "电子邮件地址（仅存在于登录系统内部，从不存储在我们的数据库中）,真实姓名、家庭住址、电话号码或其他个人信息,支付信息（捐赠通过 Ko-fi 处理——本服务从不接触您的支付信息）,游戏内角色名称或游玩数据",
 
         "privacy_section3_title": "3. 信息的使用方式",
-        "privacy_section3_items": "登录和账户管理,保存、跨设备同步和分享减伤方案,防止未经授权的访问和滥用,了解服务的使用情况以便改进",
+        "privacy_section3_items": "登录和账户管理,保存、跨设备同步和分享减伤方案,统计人气计划（了解哪些计划被频繁参考）,防止未经授权的访问和滥用,了解服务的使用情况以便改进",
 
         "privacy_section4_title": "4. 我们使用的外部服务",
         "privacy_section4_body": "本服务依赖多个外部服务来运作。以下是各服务的用途：",
@@ -569,18 +569,18 @@
         "privacy_section5_cookie_title": "关于 Cookie",
         "privacy_section5_cookie_items": "通过 Discord 或 X 登录时，会使用临时安全 Cookie（5 分钟内自动删除）,我们不使用任何广告 Cookie",
         "privacy_section5_storage_title": "关于浏览器存储",
-        "privacy_section5_storage_items": "缓存的方案数据（加快加载速度）,主题偏好（深色/浅色模式）,临时登录状态",
-        "privacy_section5_storage_note": "这些数据仅存储在您的浏览器中，不会自动发送到我们的服务器。",
+        "privacy_section5_storage_items": "缓存的方案数据（加快加载速度）,主题偏好（深色/浅色模式）,临时登录状态,用于人气计划统计的匿名ID（随机字符串）",
+        "privacy_section5_storage_note": "这些数据基本上只保存在您的浏览器中。但是「用于人气计划统计的匿名ID」会在您复制共享计划时发送到服务器（这是一个不能识别个人的字符串，仅用于防止统计重复计数）。",
 
         "privacy_section6_title": "6. 数据存储位置和保留期限",
         "privacy_section6_body": "存储位置和保留期限因数据类型而异：",
         "privacy_section6_col_data": "数据类型",
         "privacy_section6_col_location": "存储位置",
         "privacy_section6_col_period": "保留时间",
-        "privacy_section6_data_types": "账户信息和减伤方案,团队标志图片,共享方案,浏览记录（不可逆转换）,访问频率记录,登录 Cookie,浏览器缓存",
-        "privacy_section6_data_locations": "Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,Google Firebase（东京）,Upstash（美国东部）,您的浏览器,您的浏览器",
-        "privacy_section6_data_periods": "直到您删除账户,直到您删除,永久保留,永久保留（原始 IP 地址无法恢复）,1 分钟内自动删除,5 分钟内自动删除,直到您删除",
-        "privacy_section6_note": "如果您未登录，数据仅存储在浏览器中，不会发送到我们的服务器。",
+        "privacy_section6_data_types": "账户信息和减伤方案,团队标志图片,共享方案,浏览记录（不可逆转换）,匿名复制统计ID（随机字符串）,匿名复制记录与每日复制汇总,访问频率记录,登录 Cookie,浏览器缓存",
+        "privacy_section6_data_locations": "Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,Google Firebase（东京）,您的浏览器,Google Firebase（东京）,Upstash（美国东部）,您的浏览器,您的浏览器",
+        "privacy_section6_data_periods": "直到您删除账户,直到您删除,永久保留,永久保留（原始 IP 地址无法恢复）,直到您从浏览器中删除,每日汇总数据8天以上自动删除,1 分钟内自动删除,5 分钟内自动删除,直到您删除",
+        "privacy_section6_note": "未登录时，本服务不会保存您的减伤计划。但是，仅当您复制共享计划时，为了防止统计的重复计数，会向服务器发送匿名ID（不能识别个人的字符串）。",
 
         "privacy_section7_title": "7. 向第三方共享信息",
         "privacy_section7_body": "我们不会向任何人提供或出售您的信息。唯一的例外是运营第 4 节所列外部服务所需的技术数据交换，以及法律要求的信息披露。",
