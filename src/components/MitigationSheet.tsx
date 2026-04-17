@@ -118,21 +118,25 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       });
   }, [selectedId, popularData]);
 
-  // --- ドラムロール ---
+  // --- タブ自動選択（現在のコンテンツに合わせる） ---
   useEffect(() => {
-    if (!isOpen || drumrollDone || Object.keys(popularData).length === 0) return;
-
-    // 現在編集中のコンテンツがどのタブか判定
+    if (!isOpen || drumrollDone) return;
     if (currentContentId && ultimateIds.includes(currentContentId)) {
       setActiveTab('ultimate');
     }
+  }, [isOpen, currentContentId, drumrollDone]);
 
+  // --- ドラムロール ---
+  useEffect(() => {
+    if (!isOpen || drumrollDone) return;
+
+    // DOMが描画されるまで少し待つ
     const timer = setTimeout(() => {
       runDrumroll();
-    }, 600);
+    }, 700);
 
     return () => clearTimeout(timer);
-  }, [isOpen, popularData, drumrollDone, currentContentId]);
+  }, [isOpen, drumrollDone, activeTab]);
 
   const runDrumroll = () => {
     const list = listRef.current;
@@ -141,9 +145,13 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const cards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
     if (cards.length === 0) { setDrumrollDone(true); return; }
 
-    const targetId = currentContentId ?? contentIds[0];
-    const targetIdx = cards.findIndex(c => c.dataset.contentId === targetId);
-    if (targetIdx < 0) { setDrumrollDone(true); return; }
+    // 現在のコンテンツを探す。見つからなければ先頭にフォールバック
+    let targetId = currentContentId;
+    let targetIdx = targetId ? cards.findIndex(c => c.dataset.contentId === targetId) : -1;
+    if (targetIdx < 0) {
+      targetIdx = 0;
+      targetId = cards[0]?.dataset.contentId ?? contentIds[0];
+    }
 
     const cardHeight = cards[0].offsetHeight + 8; // gap
     const listHeight = list.clientHeight;
@@ -389,8 +397,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
           {currentContentName && (
             <motion.div
               className="miti-capsule"
-              initial={{ opacity: 0, y: -20, x: '-50%', scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
+              initial={{ opacity: 0, y: -20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{
                 type: 'spring',
@@ -454,7 +462,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                   )}
                   {!selectMode && (
                     <button
-                      className="miti-btn miti-btn-primary"
+                      className="miti-btn"
                       onClick={handleCopyThis}
                       disabled={!selectedId}
                     >
