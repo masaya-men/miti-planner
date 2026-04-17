@@ -227,7 +227,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   // 共通コピー: 擬似プログレス → 完了ぐいーん → シート閉じ
   const runCopy = useCallback(async (entries: PopularEntry[]) => {
     if (entries.length === 0) return;
-    // phase: 'crawl' = ゆっくり20%まで這う, 'surge' = ぐいーんと100%, 'done' = チェック
+    const startedAt = Date.now();
     setCopyState({ phase: 'crawl', current: 0, total: entries.length });
 
     // 裏でコピー実行
@@ -235,6 +235,14 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     for (const entry of entries) {
       const ok = await copyPlan(entry);
       if (ok) copied++;
+      // 1件完了ごとに current を進める
+      setCopyState({ phase: 'crawl', current: copied, total: entries.length });
+    }
+
+    // 最低表示時間 400ms（瞬殺ケースでも crawl が見えるように）
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < 400) {
+      await new Promise(r => setTimeout(r, 400 - elapsed));
     }
 
     // コピー完了 → ぐいーんと100%
@@ -604,12 +612,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                             </svg>
                           )}
                           <span className="miti-copy-count">
-                            {copyState.phase === 'surge' ? `${copyState.total}/${copyState.total}` : `…/${copyState.total}`}
+                            {copyState.current}/{copyState.total}
                           </span>
                         </div>
-                        <span className="miti-copy-label">
-                          {t('miti_sheet.copying_progress', { current: copyState.phase === 'surge' ? copyState.total : '…', total: copyState.total })}
-                        </span>
+                        <motion.span
+                          className="miti-copy-label"
+                          animate={{ opacity: [0.6, 1, 0.6] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          {t('miti_sheet.copying_progress', { current: copyState.current, total: copyState.total })}
+                        </motion.span>
                       </>
                     ) : (
                       <>
