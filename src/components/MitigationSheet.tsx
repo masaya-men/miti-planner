@@ -124,23 +124,31 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       });
   }, [selectedId, popularData]);
 
-  // --- タブ自動選択 + 初期スクロール ---
+  // --- タブ自動選択 + 初期選択（シート開時1回だけ） ---
   useEffect(() => {
     if (!isOpen || drumrollDone) return;
-    if (currentContentId && ultimateIds.includes(currentContentId)) {
-      setActiveTab('ultimate');
-    }
-    initSelection();
-  }, [isOpen, drumrollDone, activeTab]);
 
-  const initSelection = () => {
-    let targetId = currentContentId;
-    if (!targetId || !contentIds.includes(targetId)) {
-      targetId = contentIds[0] ?? null;
+    // currentContentId に基づいてタブとカードを同時に決定する
+    // （setActiveTab後も contentIds は旧activeTabの値なので依存しない）
+    let targetTab: 'savage' | 'ultimate' = 'savage';
+    let targetId: string | null = currentContentId;
+
+    if (currentContentId && ultimateIds.includes(currentContentId)) {
+      targetTab = 'ultimate';
+    } else if (currentContentId && savageIds.includes(currentContentId)) {
+      targetTab = 'savage';
     }
+
+    // フォールバック: どちらのリストにもない場合は先頭を選択
+    const resolvedIds = targetTab === 'savage' ? savageIds : ultimateIds;
+    if (!targetId || !resolvedIds.includes(targetId)) {
+      targetId = resolvedIds[0] ?? null;
+    }
+
+    setActiveTab(targetTab);
     setSelectedId(targetId);
     setDrumrollDone(true);
-  };
+  }, [isOpen, drumrollDone, currentContentId]);
 
   // --- ヘルパー ---
   const getContentName = (contentId: string): string => {
