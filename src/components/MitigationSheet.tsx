@@ -327,7 +327,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
               className="miti-capsule"
               initial={{ opacity: 0, y: -20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0.15, delay: 0 } }}
               transition={{
                 type: 'spring',
                 stiffness: 300,
@@ -519,16 +519,26 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                         <div className="miti-copy-ring">
                           <svg viewBox="0 0 36 36" className="miti-copy-ring-svg">
                             <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" />
-                            <circle
+                            <motion.circle
                               cx="18" cy="18" r="16" fill="none"
                               stroke="#3b82f6"
                               strokeWidth="2.5"
                               strokeLinecap="round"
-                              strokeDasharray={`${(copyState.current / copyState.total) * 100.5} 100.5`}
-                              style={{ transition: 'stroke-dasharray 300ms ease-out' }}
+                              pathLength={1}
+                              initial={{ pathLength: 0 }}
+                              animate={{ pathLength: copyState.current / copyState.total }}
+                              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                             />
                           </svg>
-                          <span className="miti-copy-count">{copyState.current}/{copyState.total}</span>
+                          <motion.span
+                            className="miti-copy-count"
+                            key={copyState.current}
+                            initial={{ scale: 1.3, opacity: 0.5 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {copyState.current}/{copyState.total}
+                          </motion.span>
                         </div>
                         <span className="miti-copy-label">
                           {t('miti_sheet.copying_progress', { current: copyState.current, total: copyState.total })}

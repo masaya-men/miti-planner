@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlanData, AppliedMitigation, PartyMember } from '../types';
 import { getPhaseName } from '../types';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
+import { useThemeStore } from '../store/useThemeStore';
 
 interface Props {
   planData: PlanData | null;
@@ -15,7 +16,8 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
   const jobs = useJobs();
   const mitigationDefs = useMitigations();
   const { i18n } = useTranslation();
-  const lang = i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en';
+  const contentLanguage = useThemeStore(s => s.contentLanguage);
+  const lang = contentLanguage || (i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en');
 
   const getJobLabel = (jobId: string | null): string => {
     if (!jobId) return '-';
@@ -68,9 +70,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
       if (showPhase) lastPhaseId = phaseId;
       const phaseName = showPhase && phase ? getPhaseName(phase.name, lang) : '';
 
-      const eventName = typeof event.name === 'string'
-        ? event.name
-        : (event.name[lang as keyof typeof event.name] ?? event.name.en ?? event.name.ja ?? '');
+      const eventName = getPhaseName(event.name, lang);
 
       return { event, phaseName, time: formatTime(event.time), name: eventName };
     });
