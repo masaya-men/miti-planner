@@ -535,7 +535,7 @@
     },
     "legal": {
         "privacy_title": "개인정보처리방침",
-        "privacy_last_updated": "최종 수정일: 2026년 3월 30일",
+        "privacy_last_updated": "최종 업데이트: 2026년 4월 17일",
         "privacy_intro": "LoPo(\"본 서비스\")는 파이널 판타지 XIV를 위한 팬 제작 도구를 제공하는 비공식 웹 서비스입니다. SQUARE ENIX와 제휴 관계가 없습니다. 이 페이지에서는 본 서비스가 어떤 정보를 처리하고 어떻게 보호하는지 알기 쉽게 설명합니다.",
 
         "privacy_section1_title": "1. 수집하는 정보",
@@ -545,14 +545,14 @@
         "privacy_section1_plan_title": "사용자가 생성하는 데이터",
         "privacy_section1_plan_items": "경감 계획 콘텐츠(타임라인, 파티 구성, 경감 배치 등),계획 제목 및 생성일,팀 로고 이미지(직접 업로드한 경우에만)",
         "privacy_section1_auto_title": "자동으로 수집되는 정보",
-        "privacy_section1_auto_items": "공유 계획의 조회수를 정확히 집계하기 위해 원본으로 복원할 수 없는 변환된 IP 주소를 기록합니다,악용 방지를 위해 IP 주소를 일시적으로 기록합니다(최대 1분 이내에 자동 삭제)",
+        "privacy_section1_auto_items": "공유 계획의 조회수를 정확히 집계하기 위해 원본으로 복원할 수 없는 변환된 IP 주소를 기록합니다,악용 방지를 위해 IP 주소를 일시적으로 기록합니다(최대 1분 이내에 자동 삭제),인기 플랜을 정확하게 집계하기 위해, 브라우저에서 생성된 무작위 익명 ID(개인을 식별할 수 없는 문자열)를 수신합니다",
 
         "privacy_section2_title": "2. 수집하지 않는 정보",
         "privacy_section2_body": "본 서비스는 다음 정보를 수집하지 않습니다:",
         "privacy_section2_items": "이메일 주소(로그인 시스템 내부에만 존재하며 당사 데이터베이스에 저장되지 않음),실명, 주소, 전화번호 등 개인 정보,결제 정보(기부는 Ko-fi를 통해 처리 — 본 서비스는 결제 정보를 취급하지 않음),게임 내 캐릭터 이름 또는 플레이 데이터",
 
         "privacy_section3_title": "3. 정보의 이용 목적",
-        "privacy_section3_items": "로그인 및 계정 관리,경감 계획의 저장, 기기 간 동기화, 공유,무단 접근 및 악용 방지,서비스 이용 현황 파악 및 개선",
+        "privacy_section3_items": "로그인 및 계정 관리,경감 계획의 저장, 기기 간 동기화, 공유,인기 플랜의 집계(어떤 플랜이 자주 참조되는지 파악),무단 접근 및 악용 방지,서비스 이용 현황 파악 및 개선",
 
         "privacy_section4_title": "4. 이용하는 외부 서비스",
         "privacy_section4_body": "본 서비스는 운영을 위해 여러 외부 서비스를 이용합니다. 각 서비스의 역할은 다음과 같습니다:",
@@ -569,18 +569,18 @@
         "privacy_section5_cookie_title": "쿠키에 대해",
         "privacy_section5_cookie_items": "Discord 또는 X로 로그인 시 임시 보안 쿠키가 사용됩니다(5분 이내에 자동 삭제),광고 쿠키는 사용하지 않습니다",
         "privacy_section5_storage_title": "브라우저 저장소에 대해",
-        "privacy_section5_storage_items": "캐시된 계획 데이터(빠른 로딩용),테마 설정(다크/라이트 모드),임시 로그인 상태",
-        "privacy_section5_storage_note": "이 데이터는 브라우저에만 저장됩니다. 당사 서버로 자동 전송되지 않습니다.",
+        "privacy_section5_storage_items": "캐시된 계획 데이터(빠른 로딩용),테마 설정(다크/라이트 모드),임시 로그인 상태,인기 플랜 집계용 익명 ID(무작위 문자열)",
+        "privacy_section5_storage_note": "이 데이터는 기본적으로 브라우저 내부에만 저장됩니다. 다만 「인기 플랜 집계용 익명 ID」만은, 공유 플랜을 복사할 때 서버로 전송됩니다(개인을 식별할 수 없는 문자열이며, 집계의 중복 카운트를 방지하기 위해서만 사용됩니다).",
 
         "privacy_section6_title": "6. 데이터 저장 위치 및 보관 기간",
         "privacy_section6_body": "데이터 유형에 따라 저장 위치와 보관 기간이 다릅니다:",
         "privacy_section6_col_data": "데이터 유형",
         "privacy_section6_col_location": "저장 위치",
         "privacy_section6_col_period": "보관 기간",
-        "privacy_section6_data_types": "계정 정보 및 경감 계획,팀 로고 이미지,공유된 계획,조회 기록(비가역적으로 변환됨),접근 빈도 기록,로그인 쿠키,브라우저 캐시",
-        "privacy_section6_data_locations": "Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),Google Firebase(도쿄),Upstash(미국 동부),브라우저,브라우저",
-        "privacy_section6_data_periods": "계정 삭제 시까지,삭제할 때까지,무기한,무기한(원본 IP 주소 복원 불가),최대 1분 이내 자동 삭제,5분 이내 자동 삭제,삭제할 때까지",
-        "privacy_section6_note": "로그인하지 않은 경우 데이터는 브라우저에만 저장되며 당사 서버로 전송되지 않습니다.",
+        "privacy_section6_data_types": "계정 정보 및 경감 계획,팀 로고 이미지,공유된 계획,조회 기록(비가역적으로 변환됨),익명 복사 집계 ID(무작위 문자열),익명 복사 기록 및 일별 복사 집계,접근 빈도 기록,로그인 쿠키,브라우저 캐시",
+        "privacy_section6_data_locations": "Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),Google Firebase(도쿄),사용자의 브라우저,Google Firebase(도쿄),Upstash(미국 동부),브라우저,브라우저",
+        "privacy_section6_data_periods": "계정 삭제 시까지,삭제할 때까지,무기한,무기한(원본 IP 주소 복원 불가),브라우저에서 직접 삭제할 때까지,일별 집계는 8일 이상 지난 것은 자동 삭제,최대 1분 이내 자동 삭제,5분 이내 자동 삭제,삭제할 때까지",
+        "privacy_section6_note": "로그인하지 않은 경우, 본 서비스에 경감 플랜이 저장되지 않습니다. 다만, 공유 플랜을 복사할 때에 한해, 집계의 중복 카운트를 방지하기 위한 익명 ID(개인을 식별할 수 없는 문자열)가 서버로 전송됩니다.",
 
         "privacy_section7_title": "7. 제3자에게의 정보 제공",
         "privacy_section7_body": "당사는 귀하의 정보를 누구에게도 제공하거나 판매하지 않습니다. 유일한 예외는 제4항에 나열된 외부 서비스 운영에 필요한 기술적 데이터 교환과 법적으로 요구되는 공개입니다.",
