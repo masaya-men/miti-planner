@@ -1035,6 +1035,27 @@
         "share_link": "链接",
         "link_copied": "链接已复制"
     },
+    "miti_sheet": {
+        "editing_context": "正在编辑 {{content}}",
+        "tab_savage": "零式",
+        "tab_ultimate": "绝境",
+        "copy_selected": "选择复制",
+        "copy_all_savage": "零式全部复制",
+        "copy_all_ultimate": "绝境全部复制",
+        "copy_this": "复制使用",
+        "copy_n_items": "复制 {{count}} 项",
+        "copied_toast": "已复制！",
+        "copied_n_toast": "已复制 {{count}} 项",
+        "skipped_toast": "（跳过 {{count}} 项）",
+        "limit_reached_toast": "此内容的计划上限（{{max}}个）已达到。请删除不需要的计划后再复制",
+        "fetch_error_toast": "数据获取失败",
+        "info_compat": "职业构成不同也没关系 — 复制后更改队员，技能兼容配置可自动调整",
+        "info_new_plan": "将作为新计划添加（不会覆盖正在编辑的计划）· 每个内容最多{{max}}个",
+        "footer_readonly": "只读预览 · 复制后可作为自己的计划编辑",
+        "close": "关闭",
+        "copies": "{{count}} copies",
+        "no_data": "暂无数据"
+    },
     "admin": {
         "dashboard": "仪表盘",
         "back_to_app": "返回应用",

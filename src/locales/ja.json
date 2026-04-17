@@ -1059,6 +1059,27 @@
         "share_link": "リンク",
         "link_copied": "リンクをコピーしました"
     },
+    "miti_sheet": {
+        "editing_context": "現在 {{content}} を編集中",
+        "tab_savage": "零式",
+        "tab_ultimate": "絶",
+        "copy_selected": "選択コピー",
+        "copy_all_savage": "零式まとめてコピー",
+        "copy_all_ultimate": "絶まとめてコピー",
+        "copy_this": "コピーして使う",
+        "copy_n_items": "{{count}} 件をコピー",
+        "copied_toast": "コピーしました",
+        "copied_n_toast": "{{count}} 件コピーしました",
+        "skipped_toast": "（{{count}} 件はスキップ）",
+        "limit_reached_toast": "このコンテンツのプラン上限（{{max}}件）に達しています。不要なプランを削除してからコピーしてください",
+        "fetch_error_toast": "データの取得に失敗しました",
+        "info_compat": "ジョブ構成が違っても大丈夫 — コピー後にパーティメンバーを変更するとスキル互換配置で自動調整することもできます",
+        "info_new_plan": "新しいプランとして追加されます（編集中のプランは上書きされません）· 1コンテンツ最大{{max}}件",
+        "footer_readonly": "読み取り専用プレビュー · コピーすると自分のプランとして編集可能",
+        "close": "閉じる",
+        "copies": "{{count}} copies",
+        "no_data": "まだデータがありません"
+    },
     "admin": {
         "dashboard": "ダッシュボード",
         "back_to_app": "アプリに戻る",

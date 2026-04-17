@@ -1055,6 +1055,27 @@
         "share_link": "Link",
         "link_copied": "Link copied"
     },
+    "miti_sheet": {
+        "editing_context": "Currently editing {{content}}",
+        "tab_savage": "Savage",
+        "tab_ultimate": "Ultimate",
+        "copy_selected": "Select & Copy",
+        "copy_all_savage": "Copy All Savage",
+        "copy_all_ultimate": "Copy All Ultimate",
+        "copy_this": "Copy to Mine",
+        "copy_n_items": "Copy {{count}} items",
+        "copied_toast": "Copied!",
+        "copied_n_toast": "{{count}} items copied",
+        "skipped_toast": "({{count}} skipped)",
+        "limit_reached_toast": "Plan limit reached ({{max}}) for this content. Delete unused plans to copy.",
+        "fetch_error_toast": "Failed to fetch data",
+        "info_compat": "Different party comp? No problem — change members after copy and Skill Compatibility will auto-adjust",
+        "info_new_plan": "Added as a new plan (your current plan won't be overwritten) · Max {{max}} per content",
+        "footer_readonly": "Read-only preview · Copy to edit as your own plan",
+        "close": "Close",
+        "copies": "{{count}} copies",
+        "no_data": "No data yet"
+    },
     "admin": {
         "dashboard": "Dashboard",
         "back_to_app": "Back to app",

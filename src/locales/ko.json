@@ -1035,6 +1035,27 @@
         "share_link": "링크",
         "link_copied": "링크가 복사되었습니다"
     },
+    "miti_sheet": {
+        "editing_context": "현재 {{content}} 편집 중",
+        "tab_savage": "영식",
+        "tab_ultimate": "절",
+        "copy_selected": "선택 복사",
+        "copy_all_savage": "영식 전체 복사",
+        "copy_all_ultimate": "절 전체 복사",
+        "copy_this": "복사해서 사용",
+        "copy_n_items": "{{count}}건 복사",
+        "copied_toast": "복사 완료!",
+        "copied_n_toast": "{{count}}건 복사 완료",
+        "skipped_toast": "({{count}}건 건너뜀)",
+        "limit_reached_toast": "이 콘텐츠의 플랜 상한({{max}}건)에 도달했습니다. 불필요한 플랜을 삭제한 후 복사해 주세요",
+        "fetch_error_toast": "데이터를 가져오지 못했습니다",
+        "info_compat": "직업 구성이 달라도 괜찮습니다 — 복사 후 파티원을 변경하면 스킬 호환 배치로 자동 조정할 수 있습니다",
+        "info_new_plan": "새 플랜으로 추가됩니다(편집 중인 플랜은 덮어쓰지 않습니다) · 콘텐츠당 최대 {{max}}건",
+        "footer_readonly": "읽기 전용 미리보기 · 복사하면 자신의 플랜으로 편집 가능",
+        "close": "닫기",
+        "copies": "{{count}} copies",
+        "no_data": "아직 데이터가 없습니다"
+    },
     "admin": {
         "dashboard": "대시보드",
         "back_to_app": "앱으로 돌아가기",
