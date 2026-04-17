@@ -146,9 +146,10 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
 
     const targetCard = cards[targetIdx];
 
-    // ターゲットカードの上端がリストの見える領域の先頭に来るようにする
-    // paddingTop分を考慮して少し余白を持たせる
-    list.scrollTop = targetCard.offsetTop - 8;
+    // カード上端をリスト表示領域の先頭に正確に配置
+    const cardTop = targetCard.getBoundingClientRect().top;
+    const listTop = list.getBoundingClientRect().top;
+    list.scrollTop = list.scrollTop + (cardTop - listTop);
 
     setSelectedId(targetId);
     setDrumrollDone(true);
