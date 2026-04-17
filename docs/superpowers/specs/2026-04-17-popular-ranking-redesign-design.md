@@ -309,20 +309,9 @@ const entry =
 
 #### 2-C-3: カード一覧の表示順
 
-左カード列では現状通り `plans[0]` をサムネに使う（自動ランキング1位）。featured がある場合はカード上に **★** バッジを小さく表示して「管理人ピック」であることを示す:
+左カード列では現状通り、各コンテンツの代表プラン（featured があれば featured、無ければ自動ランキング1位）をサムネに使う。
 
-```tsx
-{popularData[contentId]?.featured && (
-  <span className="miti-featured-badge" title={t('miti_sheet.featured_tooltip')}>★</span>
-)}
-```
-
-i18n 新規キー:
-| キー | ja | en | zh | ko |
-|------|-----|-----|-----|-----|
-| `miti_sheet.featured_tooltip` | 管理人ピック | Editor's pick | 管理员精选 | 관리자 추천 |
-
-CSS: `.miti-featured-badge` を左上に絶対位置で配置、小さめ（16px程度）、色はアクセント黄系（`var(--color-yellow)` 等）。
+**重要（設計判断）**: featured であることをユーザーに明示するバッジ等は **設けない**。「野良主流」という入口の文脈で管理人介入の存在を表に出すと、自然なコミュニティ感が損なわれる。内部的に featured が優先される動作だけ実装し、見た目上は自動ランキングと区別しない。
 
 ---
 
@@ -379,8 +368,8 @@ ja 以外に en / zh / ko の同じキーも同様に更新する。機械翻訳
 
 **featured優先:**
 - [ ] Firestore で `featured: true` を立てたプランがボトムシートのプレビュー対象になる
-- [ ] `featured: true` があるカードには ★ バッジが表示される
 - [ ] `featured` を外すと自動ランキング1位に戻る
+- [ ] UI上、featured か自動ランキング1位かは見た目で区別されない（バッジ等なし）
 
 **プライバシーポリシー:**
 - [ ] 4言語（ja/en/zh/ko）で Section 1 / Section 5 が更新されている
@@ -421,33 +410,49 @@ ja 以外に en / zh / ko の同じキーも同様に更新する。機械翻訳
 
 ### 3-D: バックエンド
 
-**新規 API は作らない**。既存の `/api/popular` GET で一覧取得、Firestore への書き込みは既存の `/api/admin-featured` を **新設** する代わりに、**`/api/popular` に PATCH メソッドを追加** する案もあるが、REST的に綺麗なのは専用の admin endpoint。
+**採用方針**: **既存 `/api/popular` に PATCH メソッドを追加する**（新規ファイル無し）。
 
-**選択肢:**
+理由:
+- Vercel Hobby プラン 8/12 の関数数制約を維持
+- 新規ファイル無しでレビュー・修正リスクを最小化
+- 既存の CORS / AppCheck / Firebase Admin 初期化ロジックを流用可能
+- 追加コードは約50行（ハンドラ分岐1つ + トランザクション処理1つ）
 
-**A. 既存 `/api/popular` に PATCH を追加**:
-- Pros: 新規関数ゼロ（Vercel 8/12 制限維持）
-- Cons: popular API が責務混在
-
-**B. 新規 `/api/admin-featured`**:
-- Pros: 責務分離
-- Cons: Vercel関数 9/12 になる
-
-**採用**: **A (`/api/popular` に PATCH)**。理由は Vercel 関数数制約。
-
-実装:
+実装スケルトン:
 ```ts
 } else if (req.method === 'PATCH') {
   // 管理者のみ: featured フラグ切替
   if (!await verifyAdmin(req, res)) return;
   const { shareId, featured } = req.body;
-  // 同コンテンツの他 featured を解除してから、対象を設定
-  await transactionalSetFeatured(db, shareId, featured);
+  if (typeof shareId !== 'string' || typeof featured !== 'boolean') {
+    return res.status(400).json({ error: 'invalid body' });
+  }
+
+  const docRef = db.collection(COLLECTION).doc(shareId);
+  const snap = await docRef.get();
+  if (!snap.exists) return res.status(404).json({ error: 'not found' });
+  const contentId = snap.data()!.contentId;
+
+  // トランザクション: 同コンテンツの他 featured を全て外してから、対象を設定
+  await db.runTransaction(async (tx) => {
+    if (featured) {
+      const othersSnap = await tx.get(
+        db.collection(COLLECTION)
+          .where('contentId', '==', contentId)
+          .where('featured', '==', true)
+      );
+      othersSnap.forEach(doc => {
+        if (doc.id !== shareId) tx.update(doc.ref, { featured: false });
+      });
+    }
+    tx.update(docRef, { featured });
+  });
+
   return res.status(200).json({ ok: true });
 }
 ```
 
-管理者検証 `verifyAdmin` は既存の admin API（例: `/api/admin-templates`）と同じロジックを流用する。
+**`verifyAdmin` の実装**: 既存の admin API（`/api/admin-templates` など）で使われている管理者判定ロジックを共通化 or 流用する。実装計画時に既存コードを調査してパターンを合わせる。
 
 ### 3-E: Phase 3 の受け入れ基準
 - [ ] 管理画面から1クリックでfeatured設定/解除できる
@@ -487,8 +492,7 @@ ja 以外に en / zh / ko の同じキーも同様に更新する。機械翻訳
 - **日別バケット**: コピー → `shared_plans/{id}.copyCountByDay` に今日のキーが増えるか
 - **古いキー間引き**: 9日以上前のキーを手動で Firestore に入れてコピー → 消えるか
 - **旬ランキング**: 同コンテンツに複数プランを用意し、直近コピー数で並びが変わるか
-- **featured優先**: 手動で Firestore に `featured: true` を立てる → ボトムシートで優先されるか
-- **★バッジ**: featured ありのカードに表示されるか
+- **featured優先**: 手動で Firestore に `featured: true` を立てる → ボトムシートで優先されるか（見た目上は自動ランキング1位と区別されないこと）
 - **プライバシーポリシー**: `/privacy` で4言語すべて新文言が出るか
 
 ### 既存テスト
