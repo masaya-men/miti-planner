@@ -118,27 +118,19 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       });
   }, [selectedId, popularData]);
 
-  // --- タブ自動選択（現在のコンテンツに合わせる） ---
+  // --- タブ自動選択 + 初期スクロール ---
   useEffect(() => {
     if (!isOpen || drumrollDone) return;
     if (currentContentId && ultimateIds.includes(currentContentId)) {
       setActiveTab('ultimate');
     }
-  }, [isOpen, currentContentId, drumrollDone]);
-
-  // --- ドラムロール（シート登場と同時に開始） ---
-  useEffect(() => {
-    if (!isOpen || drumrollDone) return;
-
-    // 次フレームでDOM描画を待ってすぐ開始
-    const raf = requestAnimationFrame(() => {
-      runDrumroll();
+    // DOM描画後にターゲットへスクロール
+    requestAnimationFrame(() => {
+      scrollToTarget();
     });
-
-    return () => cancelAnimationFrame(raf);
   }, [isOpen, drumrollDone, activeTab]);
 
-  const runDrumroll = () => {
+  const scrollToTarget = () => {
     const list = listRef.current;
     if (!list) { setDrumrollDone(true); return; }
 
@@ -153,57 +145,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
 
     const targetCard = cards[targetIdx];
-    const targetTop = targetCard.offsetTop;
-    // 実コンテンツの総高さ
-    const realHeight = list.scrollHeight;
 
-    // 1.5回転分のクローンを末尾に追加（スクロール距離確保）
-    const rotations = 1.5;
-    const cloneFragment = document.createDocumentFragment();
-    for (let i = 0; i < Math.ceil(rotations); i++) {
-      cards.forEach(card => {
-        const clone = card.cloneNode(true) as HTMLElement;
-        clone.removeAttribute('data-content-id');
-        clone.style.pointerEvents = 'none';
-        clone.style.opacity = '0.4';
-        clone.classList.add('drumroll-clone');
-        cloneFragment.appendChild(clone);
-      });
-    }
-    list.appendChild(cloneFragment);
+    // ターゲットをリスト上端にスクロール（最後のカードはスクロール限界まで）
+    targetCard.scrollIntoView({ block: 'start', behavior: 'instant' });
 
-    // アニメーション距離: 1.5回転 + ターゲット位置
-    const totalDistance = Math.round(rotations * realHeight + targetTop);
-    // 最終位置は実カードエリア内の targetTop
-    const maxScroll = list.scrollHeight - list.clientHeight;
-    const finalScroll = Math.min(targetTop, maxScroll);
+    setSelectedId(targetId);
+    setDrumrollDone(true);
 
-    list.scrollTop = 0;
-    const duration = 2200;
-    const startTime = performance.now();
-    const easeOutExpo = (x: number) => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
-
-    const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      list.scrollTop = Math.round(easeOutExpo(progress) * totalDistance);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // 実カードエリアにスナップしてからクローン除去（視覚的に同一）
-        list.scrollTop = finalScroll;
-        list.querySelectorAll('.drumroll-clone').forEach(c => c.remove());
-
-        setSelectedId(targetId);
-        setDrumrollDone(true);
-
-        targetCard.classList.add('selecting');
-        setTimeout(() => targetCard.classList.remove('selecting'), 600);
-      }
-    };
-
-    requestAnimationFrame(animate);
+    // グロウエフェクト
+    targetCard.classList.add('selecting');
+    setTimeout(() => targetCard.classList.remove('selecting'), 600);
   };
 
   // --- ヘルパー ---
