@@ -75,6 +75,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const [selectMode, setSelectMode] = useState(false);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [drumrollDone, setDrumrollDone] = useState(false);
+  const [copyProgress, setCopyProgress] = useState<{ current: number; total: number } | null>(null);
 
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -227,50 +228,41 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     if (ok) showToast(t('miti_sheet.copied_toast'));
   }, [selectedId, popularData, copyPlan, t]);
 
+  // バッチコピー共通ロジック（プログレスバー表示 → 完了時シート閉じ）
+  const batchCopy = useCallback(async (entries: PopularEntry[]) => {
+    if (entries.length === 0) return;
+    setCopyProgress({ current: 0, total: entries.length });
+
+    let copied = 0;
+    for (let i = 0; i < entries.length; i++) {
+      setCopyProgress({ current: i + 1, total: entries.length });
+      const ok = await copyPlan(entries[i]);
+      if (ok) copied++;
+    }
+
+    setCopyProgress(null);
+    showToast(t('miti_sheet.copied_n_toast', { count: copied }));
+    onClose();
+  }, [copyPlan, t, onClose]);
+
   // まとめてコピー（現在のタブの全1位プラン）
   const handleCopyAll = useCallback(async () => {
     const ids = activeTab === 'savage' ? savageIds : ultimateIds;
     const entries = ids
       .map(id => popularData[id]?.plans?.[0])
       .filter((e): e is PopularEntry => !!e);
-
-    if (entries.length === 0) return;
-
-    let copied = 0;
-    let skipped = 0;
-    for (const entry of entries) {
-      const ok = await copyPlan(entry);
-      if (ok) copied++;
-      else skipped++;
-    }
-
-    let msg = t('miti_sheet.copied_n_toast', { count: copied });
-    if (skipped > 0) msg += ' ' + t('miti_sheet.skipped_toast', { count: skipped });
-    showToast(msg);
-  }, [activeTab, popularData, copyPlan, t]);
+    await batchCopy(entries);
+  }, [activeTab, popularData, batchCopy]);
 
   // 選択コピー
   const handleCopyChecked = useCallback(async () => {
     const entries = Array.from(checkedIds)
       .map(id => popularData[id]?.plans?.[0])
       .filter((e): e is PopularEntry => !!e);
-
-    if (entries.length === 0) return;
-
-    let copied = 0;
-    let skipped = 0;
-    for (const entry of entries) {
-      const ok = await copyPlan(entry);
-      if (ok) copied++;
-      else skipped++;
-    }
-
-    let msg = t('miti_sheet.copied_n_toast', { count: copied });
-    if (skipped > 0) msg += ' ' + t('miti_sheet.skipped_toast', { count: skipped });
-    showToast(msg);
+    await batchCopy(entries);
     setSelectMode(false);
     setCheckedIds(new Set());
-  }, [checkedIds, popularData, copyPlan, t]);
+  }, [checkedIds, popularData, batchCopy]);
 
   // カードクリック
   const handleCardClick = (contentId: string) => {
@@ -402,7 +394,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     </button>
                   )}
                 </div>
-                <button className="miti-close" onClick={onClose} title={t('miti_sheet.close') + ' (ESC)'}>
+                <button className="miti-close" onClick={onClose}>
                   <X size={14} />
                 </button>
               </div>
@@ -448,6 +440,9 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                             </div>
                           )}
                           <div className="miti-card-bottom">
+                            <span className="miti-card-title" title={entry.title}>
+                              {entry.title}
+                            </span>
                             <span className="miti-copies">
                               {t('miti_sheet.copies', { count: entry.copyCount })}
                             </span>
@@ -497,6 +492,21 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                 />
               </div>
             </div>
+
+            {/* プログレスバー */}
+            {copyProgress && (
+              <div className="miti-progress">
+                <div className="miti-progress-bar">
+                  <div
+                    className="miti-progress-fill"
+                    style={{ width: `${(copyProgress.current / copyProgress.total) * 100}%` }}
+                  />
+                </div>
+                <span className="miti-progress-text">
+                  {t('miti_sheet.copying_progress', { current: copyProgress.current, total: copyProgress.total })}
+                </span>
+              </div>
+            )}
 
             <div className="miti-footer">{t('miti_sheet.footer_readonly')}</div>
           </motion.div>

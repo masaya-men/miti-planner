@@ -489,13 +489,25 @@
 .miti-card-bottom {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 3px 2px 2px;
+  gap: 6px;
+  padding: 3px 4px 2px;
+}
+
+.miti-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .miti-copies {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 
 /* ----------------------------------------------------------
@@ -651,7 +663,8 @@
   padding: 3px 5px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   vertical-align: middle;
-  overflow: hidden;
+  overflow: visible;
+  height: 22px;
 }
 
 .theme-light .miti-table td {
@@ -681,8 +694,64 @@
 }
 
 /* ----------------------------------------------------------
-   23. Skill pip
+   23. Progress bar
    ---------------------------------------------------------- */
+
+.miti-progress {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.miti-progress-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.theme-light .miti-progress-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.miti-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: #3b82f6;
+  transition: width 200ms ease-out;
+}
+
+.miti-progress-text {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   24. Skill icon + pip + duration bar
+   ---------------------------------------------------------- */
+
+.miti-icon-wrap {
+  display: inline-flex;
+  position: relative;
+  vertical-align: middle;
+  z-index: 1;
+}
+
+.miti-skill-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
 .miti-skill-pip {
   display: inline-block;
@@ -691,6 +760,20 @@
   border-radius: 3px;
   vertical-align: middle;
   object-fit: contain;
+}
+
+.miti-duration-bar {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  border-radius: 0 0 1.5px 1.5px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
 }
 
 /* ----------------------------------------------------------

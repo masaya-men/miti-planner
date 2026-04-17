@@ -1053,7 +1053,8 @@
         "no_data": "まだデータがありません",
         "no_data_desc": "軽減表を共有すると、ここに表示されます",
         "back_to_miti": "軽減表に戻る",
-        "open_popular": "みんなの軽減表",
+        "open_popular": "野良の主流が見つかるかもしれないボタン",
+        "open_popular_tooltip": "（そうなったらいいな）",
         "save_to_mine": "保存",
         "share_x": "X",
         "share_link": "リンク",
@@ -1079,7 +1080,8 @@
         "close": "閉じる",
         "copies": "{{count}} copies",
         "no_data": "まだデータがありません",
-        "copy_card": "コピー"
+        "copy_card": "コピー",
+        "copying_progress": "コピー中… {{current}}/{{total}}"
     },
     "admin": {
         "dashboard": "ダッシュボード",

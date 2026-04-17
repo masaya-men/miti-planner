@@ -1049,7 +1049,8 @@
         "no_data": "No data yet",
         "no_data_desc": "Share your plans to see them here",
         "back_to_miti": "Back to Planner",
-        "open_popular": "Popular Plans",
+        "open_popular": "The PUG Meta (maybe)",
+        "open_popular_tooltip": "(one can hope)",
         "save_to_mine": "Save",
         "share_x": "X",
         "share_link": "Link",
@@ -1075,7 +1076,8 @@
         "close": "Close",
         "copies": "{{count}} copies",
         "no_data": "No data yet",
-        "copy_card": "Copy"
+        "copy_card": "Copy",
+        "copying_progress": "Copying… {{current}}/{{total}}"
     },
     "admin": {
         "dashboard": "Dashboard",

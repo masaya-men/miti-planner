@@ -1029,7 +1029,8 @@
         "no_data": "暂无数据",
         "no_data_desc": "分享您的方案即可在此查看",
         "back_to_miti": "返回规划器",
-        "open_popular": "热门方案",
+        "open_popular": "也许能找到野队主流",
+        "open_popular_tooltip": "（希望如此）",
         "save_to_mine": "保存",
         "share_x": "X",
         "share_link": "链接",
@@ -1055,7 +1056,8 @@
         "close": "关闭",
         "copies": "{{count}} copies",
         "no_data": "暂无数据",
-        "copy_card": "复制"
+        "copy_card": "复制",
+        "copying_progress": "复制中… {{current}}/{{total}}"
     },
     "admin": {
         "dashboard": "仪表盘",
