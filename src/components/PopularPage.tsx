@@ -15,6 +15,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { LoPoButton } from './LoPoButton';
 import { PulseSettings } from './PulseSettings';
 import { apiFetch } from '../lib/apiClient';
+import { getAnonCopyId } from '../lib/anonCopyId';
 
 // --- 型定義 ---
 
@@ -165,7 +166,10 @@ export const PopularPage: React.FC = () => {
                 apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ shareId: entry.shareId }),
+                    body: JSON.stringify({
+                        shareId: entry.shareId,
+                        anonId: getAnonCopyId(),
+                    }),
                 }).catch(() => {});
             }
 
@@ -220,7 +224,10 @@ export const PopularPage: React.FC = () => {
                 apiFetch('/api/popular', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ shareId: entry.shareId }),
+                    body: JSON.stringify({
+                        shareId: entry.shareId,
+                        anonId: getAnonCopyId(),
+                    }),
                 }).catch(() => {});
             }
             copied++;
