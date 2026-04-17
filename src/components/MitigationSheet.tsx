@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check } from 'lucide-react';
@@ -41,7 +42,7 @@ interface Props {
 function showToast(msg: string) {
   const el = document.createElement('div');
   el.textContent = msg;
-  el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-toggle text-app-toggle-text px-4 py-2 rounded-full text-app-2xl font-bold z-[100]';
+  el.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-app-toggle text-app-toggle-text px-4 py-2 rounded-full text-app-2xl font-bold z-[99999]';
   document.body.appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 1500);
   setTimeout(() => el.remove(), 2000);
@@ -370,7 +371,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   // OGP画像URL
   const getOgpUrl = (shareId: string) => `/api/og?id=${encodeURIComponent(shareId)}`;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -551,6 +552,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
