@@ -1,8 +1,8 @@
 /**
  * Vercel Serverless Function — 人気プランAPI
  *
- * GET  /api/popular?contentIds=m9s,m10s,...  — コンテンツごとに上位2プラン + featured を取得（viewCount降順）
- * POST /api/popular  { shareId }             — copyCount を1増加
+ * GET  /api/popular?contentIds=m9s,m10s,...  — コンテンツごとに上位2プラン + featured を取得（直近7日 copyCount スコア降順、同点時は生涯copyCount→doc.id で決定）
+ * POST /api/popular  { shareId, anonId? }    — copyCount と copyCountByDay.{today} を +1（UID または匿名ID で重複排除）
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';

@@ -31,7 +31,7 @@ interface PopularEntry {
 
 interface ContentResult {
     contentId: string;
-    plans: PopularEntry[];       // viewCount順 top2
+    plans: PopularEntry[];       // 直近7日 copyCount スコア順 top2
     featured: PopularEntry | null; // ピックアップ（なければnull）
 }
 
