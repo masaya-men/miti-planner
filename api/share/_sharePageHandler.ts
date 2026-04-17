@@ -8,7 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
 
 const COLLECTION = 'shared_plans';
 
@@ -86,10 +86,16 @@ export default async function handler(req: any, res: any) {
                     || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
                 const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
-                // クエリパラメータの順序はクライアント側（src/components/ShareModal.tsx の buildOgUrl）と
-                // 一致させること。Vercel edge cache は URL 文字列単位でキーを作るため、
-                // 順序が違うとモーダルのプレビューで温めたキャッシュを OGP クローラーが使えない。
-                ogImageUrl = `${ogProtocol}://${ogHost}/api/og?id=${encodeURIComponent(shareId)}${hasLogo ? '&showLogo=true' : ''}&lang=${lang}`;
+                // showTitle は POST/PUT で永続化された値を読む。未設定は true（デフォルト）扱い。
+                const showTitleState = typeof data.showTitle === 'boolean' ? data.showTitle : true;
+                // 共通ビルダーで URL を生成。クライアント（ShareModal）、/api/share のプリウォーム、
+                // このサーバー OGP メタタグの3箇所で同じ関数を使うことで
+                // Vercel edge cache キーが完全一致する。
+                ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
+                    showTitle: showTitleState,
+                    showLogo: hasLogo,
+                    lang,
+                });
             }
         }
     } catch (err) {

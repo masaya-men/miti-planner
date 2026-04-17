@@ -17,6 +17,43 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
+import { buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
+
+/**
+ * OGP画像の同期プリウォーム。
+ *
+ * Firestore 保存直後にエッジキャッシュを温める。
+ * ユーザーが X にリンクを貼った瞬間、クローラーが直ちにキャッシュヒットできるよう、
+ * 共有作成／更新の応答を返す前にここで待つ。
+ *
+ * タイムアウト 5秒 / 失敗は握りつぶす（クリティカルでないため共有作成自体は成功させる）。
+ */
+async function prewarmOgImage(ogUrl: string): Promise<void> {
+    try {
+        await Promise.race([
+            fetch(ogUrl, { headers: { 'User-Agent': 'LoPo-Prewarm/1.0' } }),
+            new Promise((resolve) => setTimeout(resolve, 5000)),
+        ]);
+    } catch (err) {
+        console.warn('OGP prewarm failed (non-critical):', err);
+    }
+}
+
+/**
+ * ホストを req から算出して OGP オリジンを返す。
+ * allowlist 外は lopoly.app にフォールバックすることで
+ * Host ヘッダ偽装対策と開発環境の両立を図る。
+ */
+function resolveOgOrigin(req: any): string {
+    const allowed = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
+    const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
+    const raw = req.headers?.host || 'lopoly.app';
+    const host = allowed.find(h => raw.includes(h))
+        || (previewPattern.test(raw) ? raw : null)
+        || 'lopoly.app';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${host}`;
+}
 
 const COLLECTION = 'shared_plans';
 // リクエストボディの最大サイズ（500KB）
@@ -80,7 +117,10 @@ export default async function handler(req: any, res: any) {
             }
 
             // ── 保存 ──
-            const { planData, title, contentId, plans, logoStoragePath, lang } = req.body;
+            const { planData, title, contentId, plans, logoStoragePath, lang, showTitle } = req.body;
+            const normalizedLang: OgpLang = lang === 'en' ? 'en' : 'ja';
+            // showTitle の正規化（boolean 以外 / 未指定はデフォルト true）
+            const normalizedShowTitle = typeof showTitle === 'boolean' ? showTitle : true;
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
@@ -111,7 +151,8 @@ export default async function handler(req: any, res: any) {
                 const doc: any = {
                     shareId,
                     type: 'bundle',
-                    lang: lang === 'en' ? 'en' : 'ja',
+                    lang: normalizedLang,
+                    showTitle: normalizedShowTitle,
                     plans: plans.map((p: any) => ({
                         contentId: p.contentId || null,
                         title: p.title || '',
@@ -123,6 +164,13 @@ export default async function handler(req: any, res: any) {
                 };
                 if (logoBase64) doc.logoBase64 = logoBase64;
                 await db.collection(COLLECTION).doc(shareId).set(doc);
+                // OGP 画像のエッジキャッシュを同期プリウォーム
+                const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+                    showTitle: normalizedShowTitle,
+                    showLogo: !!logoBase64,
+                    lang: normalizedLang,
+                });
+                await prewarmOgImage(ogUrl);
                 return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
             }
 
@@ -134,7 +182,8 @@ export default async function handler(req: any, res: any) {
             const shareId = nanoid(8);
             const doc: any = {
                 shareId,
-                lang: lang === 'en' ? 'en' : 'ja',
+                lang: normalizedLang,
+                showTitle: normalizedShowTitle,
                 title: title || '',
                 contentId: contentId || null,
                 planData,
@@ -145,6 +194,13 @@ export default async function handler(req: any, res: any) {
             if (logoBase64) doc.logoBase64 = logoBase64;
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
+            // OGP 画像のエッジキャッシュを同期プリウォーム
+            const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+                showTitle: normalizedShowTitle,
+                showLogo: !!logoBase64,
+                lang: normalizedLang,
+            });
+            await prewarmOgImage(ogUrl);
 
             return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
 
@@ -152,8 +208,8 @@ export default async function handler(req: any, res: any) {
             // レート制限（1分あたり5回）
             if (!(await applyRateLimit(req, res, 5, 60_000))) return;
 
-            // ── 既存共有のロゴ更新 ──
-            const { shareId, logoStoragePath } = req.body;
+            // ── 既存共有のロゴ／showTitle 更新 ──
+            const { shareId, logoStoragePath, showTitle: putShowTitle } = req.body;
             if (!shareId || typeof shareId !== 'string') {
                 return res.status(400).json({ error: 'shareId is required' });
             }
@@ -194,6 +250,24 @@ export default async function handler(req: any, res: any) {
             } else {
                 await existingRef.update({ logoBase64: FieldValue.delete() });
             }
+
+            // showTitle が送られてきたら更新
+            if (typeof putShowTitle === 'boolean') {
+                await existingRef.update({ showTitle: putShowTitle });
+            }
+
+            // 更新後の状態で OGP URL を組み立て直してプリウォーム
+            const existingData = existingSnap.data() || {};
+            const effectiveShowTitle = typeof putShowTitle === 'boolean'
+                ? putShowTitle
+                : (typeof existingData.showTitle === 'boolean' ? existingData.showTitle : true);
+            const effectiveLang: OgpLang = existingData.lang === 'en' ? 'en' : 'ja';
+            const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+                showTitle: effectiveShowTitle,
+                showLogo: !!logoBase64,
+                lang: effectiveLang,
+            });
+            await prewarmOgImage(ogUrl);
 
             return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
 

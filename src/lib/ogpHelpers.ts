@@ -89,6 +89,28 @@ export function getCategoryTag(contentId: string | null): string {
 
 export type OgpLang = 'ja' | 'en';
 
+/**
+ * OGP画像URLを構築する共通関数（クライアント／サーバー共用）。
+ *
+ * 重要: Vercel edge cache は URL 文字列単位でキーを作るため、
+ *       モーダルプレビュー・サーバーOGPメタ・サーバー側プリウォームの
+ *       すべてでこの関数を使い、URL を完全一致させること。
+ *
+ * パラメータ順序（固定）:
+ *   id → showTitle? → showLogo? → lang
+ */
+export function buildOgImageUrl(
+    origin: string,
+    shareId: string,
+    opts: { showTitle: boolean; showLogo: boolean; lang: OgpLang },
+): string {
+    let url = `${origin}/api/og?id=${encodeURIComponent(shareId)}`;
+    if (!opts.showTitle) url += '&showTitle=false';
+    if (opts.showLogo) url += '&showLogo=true';
+    url += `&lang=${opts.lang}`;
+    return url;
+}
+
 export function getContentName(contentId: string | null, lang: OgpLang = 'ja'): string {
     if (!contentId) return '';
     const meta = CONTENT_META[contentId];

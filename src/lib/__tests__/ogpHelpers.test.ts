@@ -5,6 +5,7 @@ import {
     getCategoryTag,
     parseTier,
     trySeriesSummary,
+    buildOgImageUrl,
 } from '../ogpHelpers';
 
 // ========================================
@@ -251,5 +252,54 @@ describe('trySeriesSummary（多言語）', () => {
             { contentId: 'm10s', title: '' },
         ];
         expect(trySeriesSummary(plans)).not.toBeNull();
+    });
+});
+
+// ========================================
+// buildOgImageUrl: OGP 画像 URL 構築
+//
+// Vercel edge cache は URL 文字列キーでキャッシュするため、
+// クライアント（ShareModal）、サーバー OGP メタ（_sharePageHandler）、
+// サーバー側プリウォーム（/api/share POST）の3箇所で URL が1 byte 単位で一致する必要がある。
+// 以下4通り（showTitle x showLogo の全組み合わせ）と lang 切替で検証する。
+// ========================================
+describe('buildOgImageUrl', () => {
+    const ORIGIN = 'https://lopoly.app';
+    const SHARE_ID = 'abc12345';
+
+    it('showTitle=true, showLogo=true: id → showLogo → lang', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID, { showTitle: true, showLogo: true, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showLogo=true&lang=ja');
+    });
+
+    it('showTitle=true, showLogo=false: id → lang のみ', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID, { showTitle: true, showLogo: false, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&lang=ja');
+    });
+
+    it('showTitle=false, showLogo=true: id → showTitle=false → showLogo → lang', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID, { showTitle: false, showLogo: true, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showTitle=false&showLogo=true&lang=ja');
+    });
+
+    it('showTitle=false, showLogo=false: id → showTitle=false → lang', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID, { showTitle: false, showLogo: false, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showTitle=false&lang=ja');
+    });
+
+    it('lang=en に切り替わる', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID, { showTitle: true, showLogo: true, lang: 'en' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showLogo=true&lang=en');
+    });
+
+    it('shareId はURLエンコードされる', () => {
+        expect(buildOgImageUrl(ORIGIN, 'a/b c+d', { showTitle: true, showLogo: false, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=a%2Fb%20c%2Bd&lang=ja');
+    });
+
+    it('origin が変わっても URL 構造は同じ（プレビュー環境対応）', () => {
+        expect(buildOgImageUrl('https://lopo-miti-preview.vercel.app', SHARE_ID,
+            { showTitle: true, showLogo: true, lang: 'ja' }))
+            .toBe('https://lopo-miti-preview.vercel.app/api/og?id=abc12345&showLogo=true&lang=ja');
     });
 });

@@ -13,6 +13,7 @@ import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
 import type { SavedPlan } from '../types';
 import { useTutorialStore } from '../store/useTutorialStore';
+import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -47,17 +48,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
+    const lang: OgpLang = i18n.language === 'en' ? 'en' : 'ja';
+
     /**
-     * OGP画像URLを構築するヘルパー
-     * ロゴはshareデータに埋め込み済みなので、showLogoフラグのみ渡す
+     * OGP画像URLを構築するヘルパー（共通ビルダーの薄いラッパ）。
+     * 必ず共通の buildOgImageUrl を使い、サーバー側と URL を完全一致させる。
      */
-    const buildOgUrl = (id: string, planTitle: boolean, logo: boolean) => {
-        let url = `${window.location.origin}/api/og?id=${id}`;
-        if (!planTitle) url += '&showTitle=false';
-        if (logo) url += '&showLogo=true';
-        url += `&lang=${i18n.language === 'en' ? 'en' : 'ja'}`;
-        return url;
-    };
+    const buildOgUrl = (id: string, planTitle: boolean, logo: boolean) =>
+        buildOgImageUrl(window.location.origin, id, { showTitle: planTitle, showLogo: logo, lang });
 
     // モーダルが開いたら共有URLを生成
     useEffect(() => {
@@ -88,7 +86,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (showLogo && teamLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
-            body.lang = i18n.language === 'en' ? 'en' : 'ja';
+            body.lang = lang;
+            // showTitle を Firestore に永続化（サーバー側OGP URLの一致に必須）
+            body.showTitle = showPlanTitle;
 
             const res = await apiFetch('/api/share', {
                 method: 'POST',
@@ -141,12 +141,36 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     };
 
     // プラン名表示トグル変更時にOGP画像を再生成
-    const handleTogglePlanTitle = () => {
+    // showTitle は Firestore に永続化する必要があるため PUT で同期する。
+    // サーバー側もこの状態を読んで OGP URL を組み立てるので、
+    // クローラーが叩く URL とモーダルが温めた edge cache が一致する。
+    const handleTogglePlanTitle = async () => {
+        if (!shareIdRef) {
+            setShowPlanTitle(!showPlanTitle);
+            return;
+        }
         const next = !showPlanTitle;
         setShowPlanTitle(next);
-        if (shareIdRef) {
-            setImageLoaded(false);
+        setImageLoaded(false);
+        try {
+            const body: any = { shareId: shareIdRef, showTitle: next };
+            // 現在のロゴ状態を維持するために logoStoragePath を明示送信
+            // （サーバーは logoStoragePath 無しを「ロゴ削除」と解釈するため）
+            if (showLogo && teamLogoUrl && user) {
+                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
+            }
+            const res = await apiFetch('/api/share', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            // 成功後にプレビューを新URLで再読み込み
             setOgImageUrl(buildOgUrl(shareIdRef, next, showLogo));
+        } catch (err) {
+            console.error('Share title update failed:', err);
+            showToast(t('app.share_failed'));
+            setImageLoaded(true);
         }
     };
 

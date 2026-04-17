@@ -12,6 +12,7 @@
 
 import { ImageResponse } from '@vercel/og';
 import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { FAVICON_BASE64 } from './_faviconBase64.js';
 
 export const config = { runtime: 'edge' };
 
@@ -96,10 +97,8 @@ export default async function handler(req: Request) {
         // チームロゴ: 共有データに埋め込まれたbase64を使用（showLogoフラグで制御）
         const teamLogoSrc = (showLogo && logoBase64FromShare) ? logoBase64FromShare : null;
 
-        // ファビコンをBase64化
-        const faviconUrl = new URL('/icons/favicon-512x512.png', origin).toString();
-        const faviconBuffer = await fetch(faviconUrl).then(r => r.arrayBuffer());
-        const faviconBase64 = `data:image/png;base64,${arrayBufferToBase64(faviconBuffer)}`;
+        // ファビコンはビルド時にバンドル済み（ネットワーク往復を削減してコールドスタートを短縮）
+        const faviconBase64 = FAVICON_BASE64;
 
         // レイアウト選択
         const element = !shareId
@@ -115,15 +114,6 @@ export default async function handler(req: Request) {
         console.error('OG image error detail:', err.message);
         return new Response('OG image generation failed', { status: 500 });
     }
-}
-
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
 }
 
 // ========================================
