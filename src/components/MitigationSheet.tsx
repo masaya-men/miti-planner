@@ -418,14 +418,9 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
           >
             <div className="miti-handle" />
 
-            {/* ヘッダー */}
+            {/* ヘッダー（1行: タブ → コピー群 → ×） */}
             <div className="miti-header">
-              <div className="miti-header-top">
-                <button className="miti-close" onClick={onClose} title={t('miti_sheet.close') + ' (ESC)'}>
-                  <X size={14} />
-                </button>
-              </div>
-              <div className="miti-header-bottom">
+              <div className="miti-header-row">
                 <div className="miti-tabs">
                   <button
                     className="miti-tab"
@@ -467,6 +462,9 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     </button>
                   )}
                 </div>
+                <button className="miti-close" onClick={onClose} title={t('miti_sheet.close') + ' (ESC)'}>
+                  <X size={14} />
+                </button>
               </div>
             </div>
 
