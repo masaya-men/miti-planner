@@ -180,9 +180,11 @@ export default async function handler(req: any, res: any) {
                         return { doc, score7d, copyCount: data.copyCount ?? 0 };
                     });
 
-                    // スコア降順、tie-break は生涯copyCount降順
+                    // スコア降順、tie-break は生涯copyCount降順、さらに doc.id で決定性を担保
                     scored.sort((a, b) =>
-                        b.score7d - a.score7d || b.copyCount - a.copyCount
+                        b.score7d - a.score7d
+                        || b.copyCount - a.copyCount
+                        || (a.doc.id < b.doc.id ? -1 : a.doc.id > b.doc.id ? 1 : 0)
                     );
 
                     const plans = scored.slice(0, 2).map(s => mapDoc(s.doc));
@@ -197,6 +199,8 @@ export default async function handler(req: any, res: any) {
             );
 
             // キャッシュヘッダー設定
+            // 注意: このパスに Set-Cookie や Vary: Cookie を追加しないこと。
+            // edge cache が無効化されると全件取得 × 20 contentId の Firestore 読み取りがそのまま発生する。
             res.setHeader('Cache-Control', 'public, s-maxage=900, max-age=300');
             return res.status(200).json({ results });
 
