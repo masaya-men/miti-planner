@@ -77,8 +77,46 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const [drumrollDone, setDrumrollDone] = useState(false);
 
   const listRef = useRef<HTMLDivElement>(null);
+  const isScrollingRef = useRef(false); // ドラムロール中のスクロールイベント抑制
 
   const contentIds = activeTab === 'savage' ? savageIds : ultimateIds;
+
+  // --- 無限循環スクロール ---
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list || !drumrollDone) return;
+
+    const handleScroll = () => {
+      if (isScrollingRef.current) return;
+      const numCards = contentIds.length;
+      if (numCards === 0) return;
+
+      // カード1枚の高さ（最初の実カードから取得）
+      const firstReal = list.querySelector('[data-content-id]') as HTMLElement | null;
+      if (!firstReal) return;
+      const cardHeight = firstReal.offsetHeight + 8; // + gap
+      const sectionHeight = cardHeight * numCards;
+
+      // 3セット構成: [0..sectionHeight] [sectionHeight..2*sectionHeight] [2*sectionHeight..3*sectionHeight]
+      // 実体は中央セクション [sectionHeight..2*sectionHeight]
+      const scrollTop = list.scrollTop;
+
+      if (scrollTop < sectionHeight * 0.5) {
+        // 上端に近づいた → 中央セクションの同位置にジャンプ
+        isScrollingRef.current = true;
+        list.scrollTop = scrollTop + sectionHeight;
+        requestAnimationFrame(() => { isScrollingRef.current = false; });
+      } else if (scrollTop > sectionHeight * 2.5) {
+        // 下端に近づいた → 中央セクションの同位置にジャンプ
+        isScrollingRef.current = true;
+        list.scrollTop = scrollTop - sectionHeight;
+        requestAnimationFrame(() => { isScrollingRef.current = false; });
+      }
+    };
+
+    list.addEventListener('scroll', handleScroll, { passive: true });
+    return () => list.removeEventListener('scroll', handleScroll);
+  }, [drumrollDone, contentIds.length]);
 
   // --- データ取得 ---
   useEffect(() => {
@@ -145,7 +183,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const realCards = Array.from(list.querySelectorAll('[data-content-id]')) as HTMLElement[];
     if (realCards.length === 0) { setDrumrollDone(true); return; }
 
-    // 現在のコンテンツを探す。見つからなければ先頭にフォールバック
+    // 現在のコンテンツを探す
     let targetId = currentContentId;
     let targetIdx = targetId ? realCards.findIndex(c => c.dataset.contentId === targetId) : -1;
     if (targetIdx < 0) {
@@ -153,36 +191,20 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       targetId = realCards[0]?.dataset.contentId ?? contentIds[0];
     }
 
-    const cardHeight = realCards[0].offsetHeight + 8; // + gap
+    const cardHeight = realCards[0].offsetHeight + 8;
     const listHeight = list.clientHeight;
     const numCards = realCards.length;
-    // 上ゴーストカード分のオフセット（ゴーストはnumCards枚）
-    const ghostOffset = cardHeight * numCards;
+    const sectionHeight = cardHeight * numCards;
     const centerOffset = (listHeight / 2) - (cardHeight / 2);
 
-    // ターゲットの最終スクロール位置（実カードエリア内）
-    const targetTop = ghostOffset + (cardHeight * targetIdx);
-    const finalScroll = targetTop - centerOffset;
+    // 3セット構成: 実体は中央セクション (sectionHeight ~ 2*sectionHeight)
+    // ターゲットの最終スクロール位置
+    const finalScroll = sectionHeight + (cardHeight * targetIdx) - centerOffset;
 
-    // ドラムロール: 上端からスタート → 2回転分 + finalScrollまでスクロール
-    // アニメーション用クローンを下に追加
-    const fullRotations = 2;
-    const animDistance = (fullRotations * cardHeight * numCards) + finalScroll;
-
-    // 下端にクローン追加（ドラムロール用の追加スクロール領域）
-    for (let i = 0; i < fullRotations + 1; i++) {
-      realCards.forEach(card => {
-        const clone = card.cloneNode(true) as HTMLElement;
-        clone.style.pointerEvents = 'none';
-        clone.style.opacity = '0.35';
-        clone.removeAttribute('data-content-id');
-        clone.classList.add('drumroll-clone');
-        list.appendChild(clone);
-      });
-    }
-
+    // ドラムロール: 上端(0)からfinalScrollまで、途中で2回転分の距離を走る
+    isScrollingRef.current = true; // 循環ジャンプを抑制
     list.classList.add('drumroll');
-    list.scrollTop = 0; // 上端からスタート
+    list.scrollTop = 0;
 
     const duration = 2200;
     const startTime = performance.now();
@@ -191,18 +213,16 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      list.scrollTop = easeOutExpo(progress) * animDistance;
+      // 0 → finalScroll をイージングで（finalScroll自体が2セクション分の距離）
+      list.scrollTop = easeOutExpo(progress) * finalScroll;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        // アニメーション最終位置 = finalScroll（実カードエリア）
-        // まずスクロール位置を確定してからクローンを除去（瞬間移動防止）
         list.scrollTop = finalScroll;
-        list.querySelectorAll('.drumroll-clone').forEach(c => c.remove());
         list.classList.remove('drumroll');
+        isScrollingRef.current = false;
 
-        // ターゲット選択
         setSelectedId(targetId);
         setDrumrollDone(true);
 
@@ -487,88 +507,64 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
             {/* メイン */}
             <div className="miti-body">
               {/* 左: OGPカードリスト */}
-              <div className="miti-card-list" ref={listRef}>
-                {/* 上ゴースト: 循環ドラムの上端 */}
-                {contentIds.map(contentId => {
-                  const entry = popularData[contentId]?.plans?.[0];
-                  return (
-                    <div key={`ghost-top-${contentId}`} className="miti-card miti-ghost-card" aria-hidden>
-                      <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
-                      {entry ? (
-                        <img className="miti-ogp-img" src={getOgpUrl(entry.shareId)} alt="" loading="lazy" />
-                      ) : (
-                        <div className="miti-ogp-img" />
-                      )}
-                    </div>
-                  );
-                })}
-                {/* 実カード */}
-                {contentIds.map(contentId => {
-                  const entry = popularData[contentId]?.plans?.[0];
-                  const isSelected = selectedId === contentId;
-                  const isChecked = checkedIds.has(contentId);
+              <div className="miti-card-list no-scrollbar" ref={listRef}>
+                {/* 3セット描画: [コピー] [実体] [コピー] で無限循環 */}
+                {[0, 1, 2].map(setIdx =>
+                  contentIds.map(contentId => {
+                    const entry = popularData[contentId]?.plans?.[0];
+                    const isReal = setIdx === 1;
+                    const isSelected = isReal && selectedId === contentId;
+                    const isChecked = isReal && checkedIds.has(contentId);
 
-                  return (
-                    <div
-                      key={contentId}
-                      data-content-id={contentId}
-                      className="miti-card"
-                      data-selected={isSelected}
-                      onClick={() => handleCardClick(contentId)}
-                    >
-                      {selectMode && (
-                        <div className="miti-check" data-checked={isChecked}>
-                          {isChecked && <Check size={11} />}
-                        </div>
-                      )}
-                      <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
-                      {entry ? (
-                        <>
-                          <img
-                            className="miti-ogp-img"
-                            src={getOgpUrl(entry.shareId)}
-                            alt={entry.title}
-                            loading="lazy"
-                          />
-                          {entry.partyMembers?.length > 0 && (
-                            <div className="miti-jobs-overlay">
-                              {entry.partyMembers.map((m, i) => {
-                                const icon = getJobIcon(m.jobId);
-                                return icon ? <img key={i} src={icon} alt="" /> : null;
-                              })}
-                            </div>
-                          )}
-                          <div className="miti-copies">
-                            {t('miti_sheet.copies', { count: entry.copyCount })}
+                    return (
+                      <div
+                        key={`${setIdx}-${contentId}`}
+                        data-content-id={isReal ? contentId : undefined}
+                        className="miti-card"
+                        data-selected={isSelected}
+                        onClick={isReal ? () => handleCardClick(contentId) : undefined}
+                        style={!isReal ? { pointerEvents: 'none' } : undefined}
+                      >
+                        {isReal && selectMode && (
+                          <div className="miti-check" data-checked={isChecked}>
+                            {isChecked && <Check size={11} />}
                           </div>
-                        </>
-                      ) : (
-                        <div
-                          className="miti-ogp-img"
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                        >
-                          <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-                            {t('miti_sheet.no_data')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-                {/* 下ゴースト: 循環ドラムの下端 */}
-                {contentIds.map(contentId => {
-                  const entry = popularData[contentId]?.plans?.[0];
-                  return (
-                    <div key={`ghost-bot-${contentId}`} className="miti-card miti-ghost-card" aria-hidden>
-                      <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
-                      {entry ? (
-                        <img className="miti-ogp-img" src={getOgpUrl(entry.shareId)} alt="" loading="lazy" />
-                      ) : (
-                        <div className="miti-ogp-img" />
-                      )}
-                    </div>
-                  );
-                })}
+                        )}
+                        <div className="miti-floor-label">{getFloorLabel(contentId)}</div>
+                        {entry ? (
+                          <>
+                            <img
+                              className="miti-ogp-img"
+                              src={getOgpUrl(entry.shareId)}
+                              alt={isReal ? entry.title : ''}
+                              loading="lazy"
+                            />
+                            {isReal && entry.partyMembers?.length > 0 && (
+                              <div className="miti-jobs-overlay">
+                                {entry.partyMembers.map((m, i) => {
+                                  const icon = getJobIcon(m.jobId);
+                                  return icon ? <img key={i} src={icon} alt="" /> : null;
+                                })}
+                              </div>
+                            )}
+                            <div className="miti-copies">
+                              {t('miti_sheet.copies', { count: entry.copyCount })}
+                            </div>
+                          </>
+                        ) : (
+                          <div
+                            className="miti-ogp-img"
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                              {t('miti_sheet.no_data')}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {/* 右: プレビュー */}

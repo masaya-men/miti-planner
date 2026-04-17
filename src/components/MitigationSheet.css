@@ -345,13 +345,6 @@
   border-right: 1px solid var(--color-border);
 }
 
-/* ゴーストカード: 循環ドラムの上下端 */
-.miti-ghost-card {
-  opacity: 0.25;
-  pointer-events: none;
-  user-select: none;
-}
-
 /* Drumroll state — hide overflow during animation */
 .miti-card-list.drumroll {
   overflow: hidden;
