@@ -77,7 +77,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const [drumrollDone, setDrumrollDone] = useState(false);
   const [copyState, setCopyState] = useState<
     | null
-    | { phase: 'copying'; current: number; total: number }
+    | { phase: 'crawl'; current: number; total: number }
+    | { phase: 'surge'; current: number; total: number }
     | { phase: 'done'; count: number }
   >(null);
 
@@ -215,20 +216,24 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
     }
   }, [plans, t]);
 
-  // 共通コピー: オーバーレイ表示 → 完了アニメ → シート閉じ
+  // 共通コピー: 擬似プログレス → 完了ぐいーん → シート閉じ
   const runCopy = useCallback(async (entries: PopularEntry[]) => {
     if (entries.length === 0) return;
-    setCopyState({ phase: 'copying', current: 0, total: entries.length });
+    // phase: 'crawl' = ゆっくり20%まで這う, 'surge' = ぐいーんと100%, 'done' = チェック
+    setCopyState({ phase: 'crawl', current: 0, total: entries.length });
 
+    // 裏でコピー実行
     let copied = 0;
-    for (let i = 0; i < entries.length; i++) {
-      setCopyState({ phase: 'copying', current: i + 1, total: entries.length });
-      const ok = await copyPlan(entries[i]);
+    for (const entry of entries) {
+      const ok = await copyPlan(entry);
       if (ok) copied++;
-      // 1件でも最低400ms見せる（体感フィードバック）
-      if (entries.length === 1) await new Promise(r => setTimeout(r, 400));
     }
 
+    // コピー完了 → ぐいーんと100%
+    setCopyState({ phase: 'surge', current: entries.length, total: entries.length });
+    await new Promise(r => setTimeout(r, 700));
+
+    // チェックマーク
     setCopyState({ phase: 'done', count: copied });
     await new Promise(r => setTimeout(r, 900));
     setCopyState(null);
@@ -514,7 +519,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   >
-                    {copyState.phase === 'copying' ? (
+                    {(copyState.phase === 'crawl' || copyState.phase === 'surge') ? (
                       <>
                         <div className="miti-copy-ring">
                           <svg viewBox="0 0 36 36" className="miti-copy-ring-svg">
@@ -525,23 +530,23 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                               strokeWidth="2.5"
                               strokeLinecap="round"
                               pathLength={1}
-                              initial={{ pathLength: 0 }}
-                              animate={{ pathLength: copyState.current / copyState.total }}
-                              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                              initial={false}
+                              animate={{
+                                pathLength: copyState.phase === 'crawl' ? 0.2 : 1,
+                              }}
+                              transition={
+                                copyState.phase === 'crawl'
+                                  ? { duration: 6, ease: [0.1, 0, 0.2, 1] }
+                                  : { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }
+                              }
                             />
                           </svg>
-                          <motion.span
-                            className="miti-copy-count"
-                            key={copyState.current}
-                            initial={{ scale: 1.3, opacity: 0.5 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            {copyState.current}/{copyState.total}
-                          </motion.span>
+                          <span className="miti-copy-count">
+                            {copyState.phase === 'surge' ? `${copyState.total}/${copyState.total}` : `…/${copyState.total}`}
+                          </span>
                         </div>
                         <span className="miti-copy-label">
-                          {t('miti_sheet.copying_progress', { current: copyState.current, total: copyState.total })}
+                          {t('miti_sheet.copying_progress', { current: copyState.phase === 'surge' ? copyState.total : '…', total: copyState.total })}
                         </span>
                       </>
                     ) : (

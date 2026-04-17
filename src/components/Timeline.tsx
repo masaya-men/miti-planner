@@ -23,7 +23,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Crown, Rows3, Settings, Crosshair, PictureInPicture2
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
@@ -3288,7 +3288,6 @@ const Timeline: React.FC = () => {
                         }}
                         className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl border border-app-border hover:bg-app-surface2 transition-colors"
                     >
-                        <Crown size={18} className="text-app-text shrink-0" />
                         <div>
                             <p className="text-app-2xl font-bold text-app-text">{t('popular.open_popular')}</p>
                             <p className="text-app-lg text-app-text-muted">{t('popular.subtitle')}</p>

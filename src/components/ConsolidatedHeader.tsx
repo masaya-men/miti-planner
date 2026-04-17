@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Sun, Moon, FileDown,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn, Crown,
+    Users, Activity, Wand2, Star, LogIn,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -317,7 +317,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     onClick={() => setIsMitiSheetOpen(true)}
                                     className={clsx(pillBtnBase, pillBtnDefault)}
                                 >
-                                    <Crown size={14} className="shrink-0 group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
                                     <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
                                 </button>
                             </Tooltip>
