@@ -552,7 +552,7 @@
     },
     "legal": {
         "privacy_title": "Privacy Policy",
-        "privacy_last_updated": "Last updated: March 30, 2026",
+        "privacy_last_updated": "Last updated: April 17, 2026",
         "privacy_intro": "LoPo (\"the Service\") is an unofficial web service that provides fan-made tools for Final Fantasy XIV. It is not affiliated with SQUARE ENIX. This page explains what information the Service handles and how we protect it, in plain language.",
 
         "privacy_section1_title": "1. Information We Collect",
@@ -562,7 +562,7 @@
         "privacy_section1_plan_title": "Data you create",
         "privacy_section1_plan_items": "Mitigation plan content (timeline, party composition, mitigation placement, etc.),Plan titles and creation dates,Team logo image (only if you upload one yourself)",
         "privacy_section1_auto_title": "Information collected automatically",
-        "privacy_section1_auto_items": "To accurately count how many people viewed a shared plan, we record a transformed version of your IP address that cannot be reversed back to the original,To prevent abuse, we temporarily record IP addresses (automatically deleted within 1 minute at most)",
+        "privacy_section1_auto_items": "To accurately count how many people viewed a shared plan, we record a transformed version of your IP address that cannot be reversed back to the original,To prevent abuse, we temporarily record IP addresses (automatically deleted within 1 minute at most),To accurately count popular plans, we receive a random anonymous ID (a string that does not identify you personally) generated in your browser",
 
         "privacy_section1b_title": "About information received from external services during login",
         "privacy_section1b_body": "When you log in with Discord or X, the authentication process causes user account information (user ID, display name, icon URL, etc.) to briefly reach our server via the external service's API. However, we only extract the user ID and immediately discard all other information without storing or recording it. The display name and icon shown in the app are only those you set yourself.",
@@ -572,7 +572,7 @@
         "privacy_section2_items": "Email addresses (not received by our server even during Discord/X login),Real names, home addresses, phone numbers, or other personal information,Payment information (donations are handled through Ko-fi — the Service never touches your payment details),In-game character names or play data,Display names or icons from external services (Discord/X) — even if received via API they are immediately discarded",
 
         "privacy_section3_title": "3. How We Use Your Information",
-        "privacy_section3_items": "Login and account management,Saving, syncing across devices, and sharing mitigation plans,Preventing unauthorized access and abuse,Understanding how the Service is used so we can improve it",
+        "privacy_section3_items": "Login and account management,Saving, syncing across devices, and sharing mitigation plans,Counting popular plans (understanding which plans are most referenced),Preventing unauthorized access and abuse,Understanding how the Service is used so we can improve it",
 
         "privacy_section4_title": "4. External Services We Use",
         "privacy_section4_body": "The Service relies on several external services to function. Here is what each one does:",
@@ -589,18 +589,18 @@
         "privacy_section5_cookie_title": "About Cookies",
         "privacy_section5_cookie_items": "When logging in with Discord or X, temporary security cookies are used (automatically deleted within 5 minutes),We do not use any advertising cookies",
         "privacy_section5_storage_title": "About Browser Storage",
-        "privacy_section5_storage_items": "Cached plan data (for faster loading),Theme preference (dark/light mode),Temporary login state",
-        "privacy_section5_storage_note": "This data is stored only in your browser. It is never automatically sent to our servers.",
+        "privacy_section5_storage_items": "Cached plan data (for faster loading),Theme preference (dark/light mode),Temporary login state,A random anonymous ID used for popular-plan counting",
+        "privacy_section5_storage_note": "These data are primarily stored only within your browser. However, the \"anonymous ID for popular-plan counting\" is sent to our server when you copy a shared plan (it is a non-identifying string used only to prevent double-counting).",
 
         "privacy_section6_title": "6. Where Data Is Stored and How Long We Keep It",
         "privacy_section6_body": "Storage location and retention period vary by data type:",
         "privacy_section6_col_data": "Data type",
         "privacy_section6_col_location": "Stored in",
         "privacy_section6_col_period": "How long",
-        "privacy_section6_data_types": "Account info & mitigation plans,Team logo image,Shared plans,Viewer records (irreversibly transformed),Access frequency records,Login cookies,Browser cache",
-        "privacy_section6_data_locations": "Google Firebase (Tokyo),Google Firebase Storage (US),Google Firebase (Tokyo),Google Firebase (Tokyo),Upstash (US East),Your browser,Your browser",
-        "privacy_section6_data_periods": "Until you delete your account,Until you delete it,Indefinitely,Indefinitely (the original IP address cannot be recovered),Automatically deleted within 1 minute,Automatically deleted within 5 minutes,Until you delete it",
-        "privacy_section6_note": "If you are not logged in, your data is stored only in your browser and is never sent to our servers.",
+        "privacy_section6_data_types": "Account info & mitigation plans,Team logo image,Shared plans,Viewer records (irreversibly transformed),Anonymous copy-counting ID (random string),Anonymous copy records and daily copy aggregation,Access frequency records,Login cookies,Browser cache",
+        "privacy_section6_data_locations": "Google Firebase (Tokyo),Google Firebase Storage (US),Google Firebase (Tokyo),Google Firebase (Tokyo),Your browser,Google Firebase (Tokyo),Upstash (US East),Your browser,Your browser",
+        "privacy_section6_data_periods": "Until you delete your account,Until you delete it,Indefinitely,Indefinitely (the original IP address cannot be recovered),Until you clear your browser data,Daily aggregation entries older than 8 days are auto-deleted,Automatically deleted within 1 minute,Automatically deleted within 5 minutes,Until you delete it",
+        "privacy_section6_note": "If you are not logged in, no mitigation plan is stored on our service. However, only when you copy a shared plan, an anonymous ID (a non-identifying string) is sent to our server to prevent double-counting in the aggregation.",
 
         "privacy_section7_title": "7. Sharing Information with Third Parties",
         "privacy_section7_body": "We do not give or sell your information to anyone. The only exceptions are the technical data exchanges required to operate the external services listed in Section 4, and legally required disclosures.",
