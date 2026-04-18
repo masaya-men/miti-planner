@@ -1448,7 +1448,20 @@
         "tpl_target_mt": "MT",
         "tpl_target_st": "ST",
         "cancel": "Cancel",
-        "tpl_promote_fetching": "Fetching..."
+        "tpl_promote_fetching": "Fetching...",
+        "ugc_title": "UGC Management",
+        "ugc_description": "Paste a share URL to view and manage uploaded logo images.",
+        "ugc_placeholder": "Paste share URL or shareId",
+        "ugc_search": "Search",
+        "ugc_content": "Content",
+        "ugc_plan_title": "Plan Title",
+        "ugc_created": "Created",
+        "ugc_type": "Type",
+        "ugc_logo": "Logo Image",
+        "ugc_no_logo": "No logo",
+        "ugc_delete_logo": "Delete Logo",
+        "ugc_delete_confirm": "Delete this logo? This image will also be blocked from future shares. This action cannot be undone.",
+        "ugc_delete_success": "Logo deleted and added to blocklist"
     },
     "backup": {
         "backup_button": "Backup",
@@ -1475,20 +1488,7 @@
         "restore_confirm_2_execute": "Restore",
         "restore_confirm_2_cancel": "Cancel",
         "restore_success": "Restored {{count}} plan(s)",
-        "restore_syncing": "Syncing to cloud...",
-        "ugc_title": "UGC Management",
-        "ugc_description": "Paste a share URL to view and manage uploaded logo images.",
-        "ugc_placeholder": "Paste share URL or shareId",
-        "ugc_search": "Search",
-        "ugc_content": "Content",
-        "ugc_plan_title": "Plan Title",
-        "ugc_created": "Created",
-        "ugc_type": "Type",
-        "ugc_logo": "Logo Image",
-        "ugc_no_logo": "No logo",
-        "ugc_delete_logo": "Delete Logo",
-        "ugc_delete_confirm": "Delete this logo? This image will also be blocked from future shares. This action cannot be undone.",
-        "ugc_delete_success": "Logo deleted and added to blocklist"
+        "restore_syncing": "Syncing to cloud..."
     },
     "boundary_modal": {
         "add_phase": "Add Phase",
