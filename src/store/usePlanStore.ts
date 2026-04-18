@@ -130,6 +130,9 @@ export const usePlanStore = create<PlanState>()(
 
             createPlanFromTemplate: (contentId, templateData, title, initialData) => {
                 const newPlanId = `plan_${Date.now()}`;
+                const maxEventTime = templateData.timelineEvents.length > 0
+                    ? templateData.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+                    : undefined;
                 // ラベル変換: TemplateData.labels → Label[]
                 const labels = templateData.labels
                     ? ensureLabelEndTimes(templateData.labels.map(l => ({
@@ -137,7 +140,7 @@ export const usePlanStore = create<PlanState>()(
                         name: l.name,
                         startTime: l.startTimeSec,
                         ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
-                    })))
+                    })), maxEventTime)
                     : undefined;
                 const newPlan: SavedPlan = {
                     id: newPlanId,
@@ -166,7 +169,7 @@ export const usePlanStore = create<PlanState>()(
                                         })
                                     : { ja: '', en: '' },
                                 startTime: p.startTimeSec,
-                            }))) : [],
+                            })), maxEventTime) : [],
                         ...(labels ? { labels } : {}),
                     },
                     createdAt: Date.now(),
@@ -291,6 +294,9 @@ export const usePlanStore = create<PlanState>()(
                     try {
                         const tpl = await getTemplate(source.contentId);
                         if (tpl) {
+                            const tplMaxEventTime = tpl.timelineEvents.length > 0
+                                ? tpl.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+                                : undefined;
                             newPlan.data = {
                                 ...newPlan.data,
                                 timelineEvents: [...tpl.timelineEvents],
@@ -309,14 +315,14 @@ export const usePlanStore = create<PlanState>()(
                                                 })
                                             : { ja: '', en: '' },
                                         startTime: p.startTimeSec,
-                                    }))) : [],
+                                    })), tplMaxEventTime) : [],
                                 labels: tpl.labels
                                     ? ensureLabelEndTimes(tpl.labels.map(l => ({
                                         id: crypto.randomUUID(),
                                         name: l.name,
                                         startTime: l.startTimeSec,
                                         ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
-                                    })))
+                                    })), tplMaxEventTime)
                                     : newPlan.data.labels,
                             };
                         }
