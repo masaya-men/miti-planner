@@ -51,11 +51,14 @@ function deriveLabelsFromEvents(
   const hasLegacy = isLegacyLabelFormat({ labels: undefined, timelineEvents: events });
   if (!hasLegacy) return [];
 
+  const maxEventTime = events.length > 0
+    ? events.reduce((max, e) => Math.max(max, e.time), 0)
+    : undefined;
   const phasesForMigration = ensurePhaseEndTimes((phases || []).map(p => ({
     id: `phase_${p.id}`,
     name: p.name || { ja: '', en: '' },
     startTime: p.startTimeSec,
-  })));
+  })), maxEventTime);
   const migrated = migrateLabels(events, phasesForMigration);
 
   return migrated.map((label, i) => ({

@@ -51,11 +51,14 @@ function ensureLabels(tpl: TemplateData): TemplateData {
   if (!hasLegacy) return tpl;
 
   // migrateLabelsはPhase[]形式を期待するので変換
+  const maxEventTime = tpl.timelineEvents.length > 0
+    ? tpl.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+    : undefined;
   const phasesForMigration = ensurePhaseEndTimes((tpl.phases || []).map(p => ({
     id: `phase_${p.id}`,
     name: p.name || { ja: '', en: '' },
     startTime: p.startTimeSec,
-  })));
+  })), maxEventTime);
   const migratedLabels = migrateLabels(tpl.timelineEvents, phasesForMigration);
 
   if (migratedLabels.length === 0) return tpl;

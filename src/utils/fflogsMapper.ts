@@ -160,7 +160,10 @@ export function mapFFLogsToTimeline(
         addNonDamageCasts(tl, castEn, castJp, jpNameMap, enNameMap, damageGuids, ref, isEnglishOnly);
         tl.sort((a, b) => a.time - b.time);
         const phases = buildPhases(fight);
-        const phasesForLabels = ensurePhaseEndTimes(phases.map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec })));
+        const tlMaxEventTime = tl.length > 0
+            ? tl.reduce((max, e) => Math.max(max, e.time), 0)
+            : undefined;
+        const phasesForLabels = ensurePhaseEndTimes(phases.map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec })), tlMaxEventTime);
         const labels = migrateLabels(tl, phasesForLabels);
         return {
             events: tl, phases, labels,
@@ -407,11 +410,14 @@ export function mapFFLogsToTimeline(
     const phases = buildPhases(fight);
 
     // ── Step 10: ラベル生成（mechanicGroupからLabel[]を生成） ──
+    const tlMaxEventTime = tl.length > 0
+        ? tl.reduce((max, e) => Math.max(max, e.time), 0)
+        : undefined;
     const phasesForLabels = ensurePhaseEndTimes(phases.map(p => ({
         id: `phase_${p.id}`,
         name: p.name,
         startTime: p.startTimeSec,
-    })));
+    })), tlMaxEventTime);
     const labels = migrateLabels(tl, phasesForLabels);
 
     return {
