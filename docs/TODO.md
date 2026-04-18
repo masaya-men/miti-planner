@@ -19,8 +19,11 @@
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
-- **Phase 3（野良主流に実データ蓄積後）**
-  - 管理画面 featured 設定UI。Phase 2 の観察は完了したのでいつでも着手可
+- **Phase 3 + OGP 高速化 + 削除防止（設計＆計画完了、新セッションで実装）**
+  - 設計書: `docs/superpowers/specs/2026-04-18-admin-featured-and-ogp-preservation-design.md`
+  - 実装計画: `docs/superpowers/plans/2026-04-18-admin-featured-and-ogp-preservation-plan.md`
+  - 新セッションで `superpowers:executing-plans` または `superpowers:subagent-driven-development` を起動し、計画書の 13 タスクを順に実行
+  - 手動検証（Task 12）と TODO.md 更新（Task 13）まで含めて 1 セッション完結の想定
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
   - 前セッションで一度着手したが複雑・影響範囲大のため撤回
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
