@@ -15,6 +15,7 @@
 - **Phase 2 本番観察: 完了（2026-04-18、copyCount/copyCountByDay/匿名ID重複排除すべて動作確認）**
 - **shared_plans クリーンアップ済み: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存、管理人テスト 179件削除**
 - **シークレット漏洩 3層防御 導入済み（2026-04-18）**: SessionStart フック / gitleaks pre-commit / GitHub Secret Scanning + Push Protection
+- **3層防御の自動診断を全プロジェクトで有効化（2026-04-18）**: SessionStart hook `check-secret-defense-layers.sh` が毎セッション診断し不完全なら警告。`setup-secret-defense.sh` は Layer C まで自動適用。Booklage にも 3 層適用完了。
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
@@ -27,6 +28,15 @@
   - セッション初頭に**一緒に安全な計画**を立ててから着手
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### 今セッションの完了事項（2026-04-18 追加分）
+- ✅ **3層防御の自動診断を全プロジェクト対応に拡張**
+  - 新 hook: `~/.claude/hooks/check-secret-defense-layers.sh`（SessionStart で毎回診断、不完全なら context に警告）
+  - `~/.claude/settings.json` の SessionStart に診断 hook を追加
+  - `~/.claude/hooks/setup-secret-defense.sh` に Layer C 自動適用を追加（`gh api -X PATCH`）
+  - グローバル CLAUDE.md（`~/.claude/CLAUDE.md`）に「セキュリティ標準」セクション追加
+  - **Booklage（マイコラージュ）に 3 層適用完了**: Layer B pre-commit 導入 + Layer C Secret Scanning/Push Protection 有効化
+  - これで新プロジェクトでも、初回セッションで自動警告 → `bash ~/.claude/hooks/setup-secret-defense.sh` 一発で揃う
 
 ### 今セッションの完了事項（2026-04-18）
 - ✅ **シークレット漏洩 3層防御 導入**
