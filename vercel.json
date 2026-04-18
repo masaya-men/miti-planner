@@ -2,11 +2,15 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/share/:id", "destination": "/api/share?type=page&id=:id" },
+    { "source": "/og/:hash.png", "destination": "/api/og-cache?h=:hash" },
     {
       "source": "/icons/:path",
       "destination": "https://firebasestorage.googleapis.com/v0/b/lopo-7793e.firebasestorage.app/o/icons%2F:path?alt=media"
     },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/cron/cleanup-og-images", "schedule": "0 3 * * 0" }
   ],
   "headers": [
     {
