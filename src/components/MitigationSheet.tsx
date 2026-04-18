@@ -25,6 +25,7 @@ interface PopularEntry {
   viewCount: number;
   featured: boolean;
   partyMembers: { jobId: string | null }[];
+  imageHash: string | null;
 }
 
 interface ContentResult {
