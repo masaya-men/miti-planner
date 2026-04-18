@@ -101,4 +101,40 @@ describe('migratePhases', () => {
         expect(result[1].startTime).toBe(60);
         expect(result[1].endTime).toBe(61);
     });
+
+    it('maxTime を渡すと最終フェーズの endTime がそれになる', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
+        ];
+        const result = migratePhases(newFormat, 500);
+        expect(result[0].endTime).toBe(60);
+        expect(result[1].endTime).toBe(500);
+    });
+
+    it('maxTime が startTime 以下の場合、最終フェーズは startTime + 1 に下限クリップされる', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 100 },
+        ];
+        const result = migratePhases(newFormat, 50);
+        expect(result[0].endTime).toBe(101);
+    });
+
+    it('maxTime 未指定時は既存の startTime + 1 フォールバックが使われる', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
+        ];
+        const result = migratePhases(newFormat);
+        expect(result[0].endTime).toBe(60);
+        expect(result[1].endTime).toBe(61);
+    });
+
+    it('既に endTime がある最終フェーズは maxTime で上書きされない', () => {
+        const newFormat = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 200 },
+        ];
+        const result = migratePhases(newFormat, 500);
+        expect(result[0].endTime).toBe(200);
+    });
 });

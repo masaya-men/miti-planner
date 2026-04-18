@@ -28,24 +28,31 @@ function normalizePhaseName(name: any): LocalizedString {
 /**
  * endTimeが未定義のフェーズにendTimeを補完する。
  * - 中間フェーズ: 次のフェーズのstartTime
- * - 最終フェーズ: startTime + 1
+ * - 最終フェーズ: maxTime が指定されていれば max(maxTime, startTime+1)、未指定なら startTime + 1
  */
-export function ensurePhaseEndTimes(phases: Array<Omit<Phase, 'endTime'> & { endTime?: number }>): Phase[] {
+export function ensurePhaseEndTimes(
+    phases: Array<Omit<Phase, 'endTime'> & { endTime?: number }>,
+    maxTime?: number,
+): Phase[] {
     if (phases.length === 0) return [];
     const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
     return sorted.map((p, i) => {
         if (p.endTime !== undefined) return p as Phase;
         const next = sorted[i + 1];
-        return { ...p, endTime: next ? next.startTime : p.startTime + 1 } as Phase;
+        if (next) return { ...p, endTime: next.startTime } as Phase;
+        const fallback = maxTime !== undefined
+            ? Math.max(maxTime, p.startTime + 1)
+            : p.startTime + 1;
+        return { ...p, endTime: fallback } as Phase;
     });
 }
 
 /**
  * 旧Phase（endTimeベース）→ 新Phase（startTimeベース）に変換。
  * 新形式のデータはそのまま返す。純粋関数。
- * endTimeが未設定の場合は自動補完する。
+ * endTimeが未設定の場合は自動補完する。maxTime を渡すと最終フェーズのフォールバックに使われる。
  */
-export function migratePhases(phases: any[]): Phase[] {
+export function migratePhases(phases: any[], maxTime?: number): Phase[] {
     if (phases.length === 0) return [];
 
     let result: Array<Omit<Phase, 'endTime'> & { endTime?: number }>;
@@ -67,5 +74,5 @@ export function migratePhases(phases: any[]): Phase[] {
         }));
     }
 
-    return ensurePhaseEndTimes(result);
+    return ensurePhaseEndTimes(result, maxTime);
 }
