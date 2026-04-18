@@ -342,7 +342,10 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   const currentContentName = currentContentId ? getContentName(currentContentId) : '';
 
   // OGP画像URL
-  const getOgpUrl = (shareId: string) => `/api/og?id=${encodeURIComponent(shareId)}`;
+  const getOgpUrl = (entry: PopularEntry) =>
+    entry.imageHash
+      ? `/og/${entry.imageHash}.png`
+      : `/api/og?id=${encodeURIComponent(entry.shareId)}`;
 
   return createPortal(
     <AnimatePresence>
@@ -468,7 +471,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                         <>
                           <img
                             className="miti-ogp-img"
-                            src={getOgpUrl(entry.shareId)}
+                            src={getOgpUrl(entry)}
                             alt={entry.title}
                             loading="lazy"
                           />
