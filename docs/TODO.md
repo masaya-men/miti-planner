@@ -12,30 +12,31 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12（og-cache・cron追加で+2）、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 - **OGP 画像 X 表示問題: 完全解決（2026-04-18、プライベート X でカード表示確認済み）**
+- **Phase 2 本番観察: 完了（2026-04-18、copyCount/copyCountByDay/匿名ID重複排除すべて動作確認）**
+- **shared_plans クリーンアップ済み: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存、管理人テスト 179件削除**
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
-### 🔴 次セッション最優先: Phase 2 本番観察（旬ランキング動作確認）
-
-OGP 問題が解決したので、Phase 2 の本番動作確認に進む。
-
-- `scripts/_tmp_check_viewcount.ts` で top10 を一度スナップショット（copyCount, viewCount）
-- 本番で人気ボタン→ボトムシート→コピーまで実行 → Firestore `shared_plans/{id}.copyCountByDay` に今日のキーが増えることを確認
-- 別ブラウザ/シークレットでも同様にコピー → 匿名IDで重複排除されていることを確認（同一ブラウザから2回コピー → copyCount が1しか増えない）
-- `/privacy` を4言語で切り替えて「匿名ID集計」「日別コピー集計」文言が出ることを確認
-
-### 次にやること（Phase 2 観察の後）
-- **Phase 3（Phase 2 本番確認後）**
-  - 管理画面 featured 設定UI。プランは Phase 2 本番確認後に作成
+### 次にやること（優先順）
+- **Phase 3（野良主流に実データ蓄積後）**
+  - 管理画面 featured 設定UI。Phase 2 の観察は完了したのでいつでも着手可
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
   - 前セッションで一度着手したが複雑・影響範囲大のため撤回
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
   - `addPhase`の`containingPhase`判定・`BoundaryEditModal` 等多数参照あり
   - セッション初頭に**一緒に安全な計画**を立ててから着手
-- 残り: shared_plansテストデータをFirebase Consoleで削除 → 正式な1件を共有
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
 
 ### 今セッションの完了事項（2026-04-18）
+- ✅ **Phase 2 本番観察完了**
+  - 通常ブラウザ（ログイン中）→ UID 重複排除で alreadyCounted、ランキング不変
+  - シークレット（未ログイン）→ 新規 anonId で `anonCopiedBy` + `copyCountByDay.今日` に正しく記録、copyCount +1
+  - `/privacy` の4言語（ja/en/zh/ko）で「匿名ID集計」「日別コピー集計」文言確認（コード側）
+  - クライアント `localStorage.lopo_copied_shares` による同一ブラウザ内 dedup 動作確認
+  - サーバー App Check 強制動作確認（直接 POST で 403 "App Check token missing"）
+- ✅ **shared_plans 管理人テスト 179件を一括削除**（ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存）
+  - 連鎖削除: copiedBy 11件、anonCopiedBy 3件
+  - これで野良主流は FRU のみ 1位表示、他コンテンツは空表示
 - ✅ **OGP 画像 X 表示問題を最終解決**（Firebase Storage 静的キャッシュ + Lazy 生成 + 週次 Cron）
   - 新 URL `lopoly.app/og/{hash}.png`（imageHash ベース、同一オリジン静的配信）
   - `og_image_meta/{hash}` Firestore コレクションに生成パラメータ保存
@@ -62,6 +63,7 @@ OGP 問題が解決したので、Phase 2 の本番動作確認に進む。
 - [ ] `api/popular/index.ts` `mapDoc` と `PopularEntry` 型の `viewCount` フィールドは Phase 2 以降未使用 → 削除整理
 - [ ] en/ko の `privacy_section1_auto_items` 既存翻訳でインラインコンマが bullet 分割される pre-existing バグ（Phase 2 で追加した末尾項目は影響なし、既存項目のみ軽微表示崩れ）
 - [ ] `PopularPage.tsx` `handleCopyAllRank` の localStorage persist がループ外（途中でタブ閉じると client dedupe list が保存されない、匿名ID サーバ側 dedup でカバー済み・影響軽微）
+- [ ] **クライアント dedup の書き込みタイミング問題**: `MitigationSheet.tsx` の `copyPlan` で `localStorage.lopo_copied_shares` を POST **前** に書いている → POST が失敗（App Check エラー等）しても localStorage には残るため、そのブラウザは二度とカウントされない。改善案: POST 成功の 2xx レスポンス確認後に localStorage 更新。影響軽微（App Check 失敗は稀、普通は 1 ブラウザ 1 カウントで正常）
 
 ---
 

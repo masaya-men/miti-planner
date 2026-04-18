@@ -71,6 +71,12 @@ analyze_sheet.*
 tmp_parser.cjs
 update_data.cjs
 
+# 調査用一時スクリプト（使い捨て）
+scripts/_tmp_*.ts
+
+# Claude ローカルキャッシュ
+.claude/scheduled_tasks.lock
+
 # Data files
 *.xlsx
 
