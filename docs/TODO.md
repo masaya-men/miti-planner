@@ -16,14 +16,16 @@
 - **shared_plans クリーンアップ済み: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存、管理人テスト 179件削除**
 - **シークレット漏洩 3層防御 導入済み（2026-04-18）**: SessionStart フック / gitleaks pre-commit / GitHub Secret Scanning + Push Protection
 - **3層防御の自動診断を全プロジェクトで有効化（2026-04-18）**: SessionStart hook `check-secret-defense-layers.sh` が毎セッション診断し不完全なら警告。`setup-secret-defense.sh` は Layer C まで自動適用。Booklage にも 3 層適用完了。
+- **Phase 3 + OGP 高速化 + 削除防止 実装完了（2026-04-18）**: 管理画面 `/admin/featured` で URL 貼り付け式の Featured 指定UI、ボトムシート OGP を `/og/{hash}.png` 経路に高速化、Featured 指定中の OGP は cron で削除されない（`keepForever: true`）
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
-- **Phase 3 + OGP 高速化 + 削除防止（設計＆計画完了、新セッションで実装）**
-  - 設計書: `docs/superpowers/specs/2026-04-18-admin-featured-and-ogp-preservation-design.md`
-  - 実装計画: `docs/superpowers/plans/2026-04-18-admin-featured-and-ogp-preservation-plan.md`
-  - 新セッションで `superpowers:executing-plans` または `superpowers:subagent-driven-development` を起動し、計画書の 13 タスクを順に実行
-  - 手動検証（Task 12）と TODO.md 更新（Task 13）まで含めて 1 セッション完結の想定
+- **本番検証（Vercel デプロイ後 / ユーザーが実施）**
+  - `lopoly.app/admin/featured` で FRU テスト shareId（`5lCMACDB`）を検索 → サムネ・情報が出る
+  - `[Featuredにする]` → 確認ダイアログ → Firestore で `shared_plans/5lCMACDB.featured: true` と `og_image_meta/{hash}.keepForever: true` 確認
+  - `lopoly.app/miti` のボトムシートで OGP が `/og/{hash}.png` 経由で表示されること確認
+  - `[Featuredを解除]` → Firestore で `featured: false` と `keepForever` 削除確認
+  - 非管理者 DevTools から PATCH 叩き → 403 確認
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
   - 前セッションで一度着手したが複雑・影響範囲大のため撤回
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
@@ -31,6 +33,18 @@
   - セッション初頭に**一緒に安全な計画**を立ててから着手
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### 今セッションの完了事項（2026-04-18 Phase 3 実装）
+- ✅ **Phase 3: 管理画面 Featured 設定UI + OGP 高速化 + 削除防止 実装完了**
+  - `PATCH /api/popular` 追加: 管理者専用、トランザクションで同コンテンツの既存 Featured を自動解除、`og_image_meta.keepForever` を set/clear（best-effort）
+  - `/api/popular` GET と `/api/admin?resource=ugc` GET のレスポンスに `imageHash` を追加
+  - `MitigationSheet.tsx`: OGP URL を `imageHash` ありなら `/og/{hash}.png`、なければ従来 `/api/og?id=X` にフォールバック
+  - `AdminFeatured.tsx` 新規作成: URL/shareId 貼り付け式、検索 → Featured 切替、確認ダイアログ付き
+  - `/admin/featured` ルート + サイドナビ追加
+  - `cleanup-og-images` cron: `keepForever: true` の画像を削除対象から除外（ハッシュ抽出をループ先頭に移動）
+  - `ja.json` に `admin.featured_*` 17キー追加（en/zh/ko はフォールバック、将来対応）
+  - 全 171 テスト PASS、本番ビルド成功
+  - 11 commits: (Phase 3 シリーズ)
 
 ### 今セッションの完了事項（2026-04-18 追加分）
 - ✅ **3層防御の自動診断を全プロジェクト対応に拡張**
