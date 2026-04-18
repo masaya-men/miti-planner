@@ -91,15 +91,23 @@ export default async function handler(req: any, res: any) {
                 // logoHash: ロゴ内容変更時に URL を変えて CDN キャッシュを別エントリにするためのバージョン子。
                 // 旧シェア（logoHash 未保存）は undefined のまま → URL に lh は付かず後方互換。
                 const logoHashStr = typeof data.logoHash === 'string' ? data.logoHash : undefined;
-                // 共通ビルダーで URL を生成。クライアント（ShareModal）、/api/share のプリウォーム、
-                // このサーバー OGP メタタグの3箇所で同じ関数を使うことで
-                // Vercel edge cache キーが完全一致する。
-                ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
-                    showTitle: showTitleState,
-                    showLogo: hasLogo,
-                    logoHash: hasLogo ? logoHashStr : undefined,
-                    lang,
-                });
+
+                // OGP 画像 URL:
+                //   新仕様（imageHash あり）: /og/{hash}.png （同一オリジン静的画像、Firebase Storage キャッシュ）
+                //   旧仕様（imageHash なし）: /api/og?... （動的生成、後方互換）
+                // X クローラーが /api/ プレフィックスを嫌う問題を回避するため、新共有は必ず新仕様を使う。
+                const imageHashFromDoc = typeof data.imageHash === 'string' ? data.imageHash : '';
+                if (/^[a-f0-9]{16}$/.test(imageHashFromDoc)) {
+                    ogImageUrl = `${ogProtocol}://${ogHost}/og/${imageHashFromDoc}.png`;
+                } else {
+                    // 後方互換: 旧共有は buildOgImageUrl で従来の /api/og?... を使う
+                    ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
+                        showTitle: showTitleState,
+                        showLogo: hasLogo,
+                        logoHash: hasLogo ? logoHashStr : undefined,
+                        lang,
+                    });
+                }
             }
         }
     } catch (err) {
