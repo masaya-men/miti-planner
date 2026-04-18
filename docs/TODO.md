@@ -19,6 +19,7 @@
 - **Phase 3 + OGP 高速化 + 削除防止 実装完了（2026-04-18）**: 管理画面 `/admin/featured` で URL 貼り付け式の Featured 指定UI、ボトムシート OGP を `/og/{hash}.png` 経路に高速化、Featured 指定中の OGP は cron で削除されない（`keepForever: true`）
 - **最終フェーズ/ラベル endTime 修正 実装完了（2026-04-18）**: `ensurePhaseEndTimes` / `ensureLabelEndTimes` に optional `maxTime` 引数追加、15 呼び出し箇所で timelineEvents 最大時刻を渡す
 - **隣接フェーズ/ラベルの境界追従 実装完了（2026-04-18）**: `updatePhase*Time` / `updateLabel*Time` 4関数で、被せた側が隣の境界を新値に追従させる挙動に統一。巻き戻しバグも解消、最低幅1秒を確保。
+- **フェーズ/ラベル隣接規約の本質修正 実装完了（2026-04-18）**: 描画仕様 (endTime+1) とデータ規約を整合。旧規約 `endTime === next.startTime` → 新規約 `endTime + 1 === next.startTime`。境界の罫線が消えるバグ解消。loadSnapshot で既存プラン自動修復。
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
@@ -34,6 +35,22 @@
   - 新規プラン作成 / BoundaryEditModal / Timeline Select Mode が壊れていないか
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### 今セッションの完了事項（2026-04-18 追加 フェーズ/ラベル隣接規約の本質修正）
+- ✅ **境界の罫線が消えるバグを根本解消**
+  - 症状: 新規プランでフェーズを 2 個追加すると、境界の罫線が描画されない
+  - 根本原因: 描画仕様は `endTime inclusive + 描画時 +1` なのに、データ規約は `endTime === next.startTime` で 1 行オーバーラップ → sort 順で次フェーズが上に被り、前フェーズの下辺罫線が覆い隠される
+  - 新規約: **`phase[i].endTime + 1 === phase[i+1].startTime`**（描画と整合）
+  - ユーザーが指定した値は尊重、追従される側が `±1` ずれる（EndTime 後ろ移動 → 次 startTime = final+1、StartTime 前移動 → 前 endTime = final-1）
+  - 修正箇所:
+    - `updatePhase*Time` / `updateLabel*Time` 4 関数: 衝突時の追従を +1 / -1 ずらす、最低幅確保を `next.endTime - 2` / `prev.startTime + 2` に
+    - `addPhase` / `addLabel`: clippedPhases/Labels を `endTime = startTime - 1`、nextPhase ありで `endTime = nextStart - 1`
+    - `ensurePhase/LabelEndTimes`: 中間の endTime を `next.startTime - 1` に
+    - 新規 `repairAdjacentPhaseBoundaries` / `repairAdjacentLabelBoundaries`: 旧規約データを自動修復
+    - `loadSnapshot`: 修復関数を都度呼び出し、既存プランを自動修復
+  - 描画ロジック (Timeline.tsx) は無変更で温存
+  - 全 219 テスト PASS（新規 boundary テスト 22 + 修復関数テスト 8）、本番ビルド成功
+  - 空白は残せる仕様のまま（意図的な gap を作りたいユーザー向け）
 
 ### 今セッションの完了事項（2026-04-18 追加 隣接フェーズ/ラベル境界追従）
 - ✅ **フェーズ/ラベルの境界編集挙動を統一、被せた側が隣を追従**

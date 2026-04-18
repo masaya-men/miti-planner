@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
-import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime } from '../utils/phaseMigration';
-import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime } from '../utils/labelMigration';
+import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
+import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 
 import { calculateMemberValues } from '../utils/calculator';
 import {
@@ -302,12 +302,16 @@ export const useMitigationStore = create<MitigationState>()(
                         : ensureLabelEndTimes((snapshot as any).labels ?? [], maxEventTime);
 
                     // 過去バグ（最終フェーズ/ラベルの endTime が startTime+1 で保存されている）を修復
-                    const finalPhases = maxEventTime !== undefined
+                    const lastRepairedPhases = maxEventTime !== undefined
                         ? repairLastPhaseEndTime(migratedPhases, snapshot.timelineEvents, maxEventTime)
                         : migratedPhases;
-                    const finalLabels = maxEventTime !== undefined
+                    const lastRepairedLabels = maxEventTime !== undefined
                         ? repairLastLabelEndTime(labels, snapshot.timelineEvents, maxEventTime)
                         : labels;
+
+                    // 旧隣接規約 (endTime === next.startTime) を新規約 (endTime + 1 === next.startTime) に修復
+                    const finalPhases = repairAdjacentPhaseBoundaries(lastRepairedPhases);
+                    const finalLabels = repairAdjacentLabelBoundaries(lastRepairedLabels);
 
                     set({
                         currentLevel: snapshot.currentLevel,
@@ -516,10 +520,11 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
                         const nextPhase = sorted.find(p => p.startTime > startTime);
-                        const containingPhase = sorted.find(p => p.startTime <= startTime && p.endTime > startTime);
+                        // 新規約: endTime === startTime でも含有とみなす（描画は endTime+1 まで）
+                        const containingPhase = sorted.find(p => p.startTime <= startTime && p.endTime >= startTime);
                         let endTime: number;
                         if (nextPhase) {
-                            endTime = nextPhase.startTime;
+                            endTime = nextPhase.startTime - 1;
                         } else if (containingPhase) {
                             endTime = containingPhase.endTime;
                         } else {
@@ -533,8 +538,9 @@ export const useMitigationStore = create<MitigationState>()(
                             endTime,
                         };
                         const clippedPhases = state.phases.map(p => {
-                            if (p.endTime > startTime && p.startTime < startTime) {
-                                return { ...p, endTime: startTime };
+                            // 含有フェーズを新 startTime の 1 秒前で終わらせる（gap は意図的に残せる仕様）
+                            if (p.endTime >= startTime && p.startTime < startTime) {
+                                return { ...p, endTime: startTime - 1 };
                             }
                             return p;
                         });
@@ -565,12 +571,13 @@ export const useMitigationStore = create<MitigationState>()(
                         const self = sorted[idx];
                         const nextPhase = sorted[idx + 1];
                         let final = Math.max(newEndTime, self.startTime + 1);
-                        if (nextPhase && final > nextPhase.startTime) {
-                            final = Math.min(final, nextPhase.endTime - 1);
+                        if (nextPhase && final >= nextPhase.startTime) {
+                            // 新規約: next.startTime = final + 1。next の最低幅 1 秒確保のため final ≤ next.endTime - 2
+                            final = Math.min(final, nextPhase.endTime - 2);
                             return {
                                 phases: state.phases.map(p => {
                                     if (p.id === id) return { ...p, endTime: final };
-                                    if (p.id === nextPhase.id) return { ...p, startTime: final };
+                                    if (p.id === nextPhase.id) return { ...p, startTime: final + 1 };
                                     return p;
                                 })
                             };
@@ -591,12 +598,13 @@ export const useMitigationStore = create<MitigationState>()(
                         const prevPhase = idx > 0 ? sorted[idx - 1] : null;
                         let final = Math.max(newStartTime, 0);
                         final = Math.min(final, self.endTime - 1);
-                        if (prevPhase && final < prevPhase.endTime) {
-                            final = Math.max(final, prevPhase.startTime + 1);
+                        if (prevPhase && final <= prevPhase.endTime) {
+                            // 新規約: prev.endTime = final - 1。prev の最低幅 1 秒確保のため final ≥ prev.startTime + 2
+                            final = Math.max(final, prevPhase.startTime + 2);
                             return {
                                 phases: state.phases.map(p => {
                                     if (p.id === id) return { ...p, startTime: final };
-                                    if (p.id === prevPhase.id) return { ...p, endTime: final };
+                                    if (p.id === prevPhase.id) return { ...p, endTime: final - 1 };
                                     return p;
                                 })
                             };
@@ -614,10 +622,10 @@ export const useMitigationStore = create<MitigationState>()(
                     set((state) => {
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
                         const nextLabel = sorted.find(l => l.startTime > startTime);
-                        const containingLabel = sorted.find(l => l.startTime <= startTime && l.endTime > startTime);
+                        const containingLabel = sorted.find(l => l.startTime <= startTime && l.endTime >= startTime);
                         let endTime: number;
                         if (nextLabel) {
-                            endTime = nextLabel.startTime;
+                            endTime = nextLabel.startTime - 1;
                         } else if (containingLabel) {
                             endTime = containingLabel.endTime;
                         } else {
@@ -631,8 +639,8 @@ export const useMitigationStore = create<MitigationState>()(
                             endTime,
                         };
                         const clippedLabels = state.labels.map(l => {
-                            if (l.endTime > startTime && l.startTime < startTime) {
-                                return { ...l, endTime: startTime };
+                            if (l.endTime >= startTime && l.startTime < startTime) {
+                                return { ...l, endTime: startTime - 1 };
                             }
                             return l;
                         });
@@ -663,12 +671,12 @@ export const useMitigationStore = create<MitigationState>()(
                         const self = sorted[idx];
                         const nextLabel = sorted[idx + 1];
                         let final = Math.max(newEndTime, self.startTime + 1);
-                        if (nextLabel && final > nextLabel.startTime) {
-                            final = Math.min(final, nextLabel.endTime - 1);
+                        if (nextLabel && final >= nextLabel.startTime) {
+                            final = Math.min(final, nextLabel.endTime - 2);
                             return {
                                 labels: state.labels.map(l => {
                                     if (l.id === id) return { ...l, endTime: final };
-                                    if (l.id === nextLabel.id) return { ...l, startTime: final };
+                                    if (l.id === nextLabel.id) return { ...l, startTime: final + 1 };
                                     return l;
                                 })
                             };
@@ -689,12 +697,12 @@ export const useMitigationStore = create<MitigationState>()(
                         const prevLabel = idx > 0 ? sorted[idx - 1] : null;
                         let final = Math.max(newStartTime, 0);
                         final = Math.min(final, self.endTime - 1);
-                        if (prevLabel && final < prevLabel.endTime) {
-                            final = Math.max(final, prevLabel.startTime + 1);
+                        if (prevLabel && final <= prevLabel.endTime) {
+                            final = Math.max(final, prevLabel.startTime + 2);
                             return {
                                 labels: state.labels.map(l => {
                                     if (l.id === id) return { ...l, startTime: final };
-                                    if (l.id === prevLabel.id) return { ...l, endTime: final };
+                                    if (l.id === prevLabel.id) return { ...l, endTime: final - 1 };
                                     return l;
                                 })
                             };

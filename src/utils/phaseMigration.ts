@@ -27,7 +27,7 @@ function normalizePhaseName(name: any): LocalizedString {
 
 /**
  * endTimeが未定義のフェーズにendTimeを補完する。
- * - 中間フェーズ: 次のフェーズのstartTime
+ * - 中間フェーズ: 次のフェーズのstartTime - 1（描画 endTime+1 と整合する隣接規約）
  * - 最終フェーズ: maxTime が指定されていれば max(maxTime, startTime+1)、未指定なら startTime + 1
  */
 export function ensurePhaseEndTimes(
@@ -39,7 +39,7 @@ export function ensurePhaseEndTimes(
     return sorted.map((p, i) => {
         if (p.endTime !== undefined) return p as Phase;
         const next = sorted[i + 1];
-        if (next) return { ...p, endTime: next.startTime } as Phase;
+        if (next) return { ...p, endTime: next.startTime - 1 } as Phase;
         const fallback = maxTime !== undefined
             ? Math.max(maxTime, p.startTime + 1)
             : p.startTime + 1;
@@ -101,4 +101,23 @@ export function repairLastPhaseEndTime(
         endTime: Math.max(maxTime, last.startTime + 1),
     };
     return repaired;
+}
+
+/**
+ * 旧隣接規約（phase[i].endTime === phase[i+1].startTime）で保存された
+ * プランを新規約（phase[i].endTime + 1 === phase[i+1].startTime）に修復する。
+ *
+ * 描画仕様（Timeline.tsx: endTime + 1 まで描画）と整合させ、境界の罫線が
+ * 覆い隠される問題を解消する。厳密な等号のみ修復し、gap やオーバーラップは触らない。
+ */
+export function repairAdjacentPhaseBoundaries(phases: Phase[]): Phase[] {
+    if (phases.length < 2) return phases;
+    const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+    return sorted.map((p, i) => {
+        const next = sorted[i + 1];
+        if (next && p.endTime === next.startTime) {
+            return { ...p, endTime: p.endTime - 1 };
+        }
+        return p;
+    });
 }

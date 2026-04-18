@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { isLegacyLabelFormat, migrateLabels, ensureLabelEndTimes, repairLastLabelEndTime } from '../labelMigration';
+import { isLegacyLabelFormat, migrateLabels, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../labelMigration';
+import type { Label } from '../../types';
 
 // テスト用のヘルパー型
 type TEvent = {
@@ -130,7 +131,7 @@ describe('migrateLabels', () => {
             { id: 'e3', time: 20, name: { ja: 'C', en: 'C' }, damageType: 'magical', mechanicGroup: { ja: '展開', en: 'Spread' } },
         ];
         const result = migrateLabels(events, []);
-        expect(result[0].endTime).toBe(20);
+        expect(result[0].endTime).toBe(19);
         expect(result[1].endTime).toBe(21);
     });
 
@@ -164,7 +165,7 @@ describe('ensureLabelEndTimes', () => {
             { id: 'l2', name: { ja: 'B', en: 'B' }, startTime: 30 },
         ];
         const result = ensureLabelEndTimes(labels, 200);
-        expect(result[0].endTime).toBe(30);
+        expect(result[0].endTime).toBe(29);
         expect(result[1].endTime).toBe(200);
     });
 
@@ -174,7 +175,7 @@ describe('ensureLabelEndTimes', () => {
             { id: 'l2', name: { ja: 'B', en: 'B' }, startTime: 30 },
         ];
         const result = ensureLabelEndTimes(labels);
-        expect(result[0].endTime).toBe(30);
+        expect(result[0].endTime).toBe(29);
         expect(result[1].endTime).toBe(31);
     });
 
@@ -193,22 +194,22 @@ describe('repairLastLabelEndTime', () => {
     });
 
     it('最終ラベルの endTime が startTime+1 かつ後続イベントがあれば修復する', () => {
-        const labels = [label('l1', 0, 30), label('l2', 30, 31)];
+        const labels = [label('l1', 0, 29), label('l2', 30, 31)];
         const events = [{ id: 'e1', time: 500 }] as any;
         const result = repairLastLabelEndTime(labels, events, 500);
-        expect(result[0].endTime).toBe(30);
+        expect(result[0].endTime).toBe(29);
         expect(result[1].endTime).toBe(500);
     });
 
     it('最終ラベルの endTime が startTime+1 でも後続イベントが無ければ修復しない', () => {
-        const labels = [label('l1', 0, 30), label('l2', 30, 31)];
+        const labels = [label('l1', 0, 29), label('l2', 30, 31)];
         const events = [{ id: 'e1', time: 20 }] as any;
         const result = repairLastLabelEndTime(labels, events, 20);
         expect(result[1].endTime).toBe(31);
     });
 
     it('最終ラベルの endTime が startTime+1 でない場合は修復しない', () => {
-        const labels = [label('l1', 0, 30), label('l2', 30, 50)];
+        const labels = [label('l1', 0, 29), label('l2', 30, 50)];
         const events = [{ id: 'e1', time: 500 }] as any;
         const result = repairLastLabelEndTime(labels, events, 500);
         expect(result[1].endTime).toBe(50);
@@ -216,5 +217,32 @@ describe('repairLastLabelEndTime', () => {
 
     it('空配列を受け取ると空配列を返す', () => {
         expect(repairLastLabelEndTime([], [], 100)).toEqual([]);
+    });
+});
+
+describe('repairAdjacentLabelBoundaries', () => {
+    it('隣接ラベルで endTime === next.startTime を検出して endTime を 1 引く', () => {
+        const labels: Label[] = [
+            { id: 'l1', name: { ja: 'L1', en: 'L1' }, startTime: 0, endTime: 30 },
+            { id: 'l2', name: { ja: 'L2', en: 'L2' }, startTime: 30, endTime: 60 },
+        ];
+        const result = repairAdjacentLabelBoundaries(labels);
+        expect(result[0].endTime).toBe(29);
+        expect(result[1].endTime).toBe(60);
+    });
+
+    it('gap があるラベルは変更しない', () => {
+        const labels: Label[] = [
+            { id: 'l1', name: { ja: 'L1', en: 'L1' }, startTime: 0, endTime: 20 },
+            { id: 'l2', name: { ja: 'L2', en: 'L2' }, startTime: 30, endTime: 60 },
+        ];
+        const result = repairAdjacentLabelBoundaries(labels);
+        expect(result).toEqual(labels);
+    });
+
+    it('空配列 / 1 個はそのまま返す', () => {
+        expect(repairAdjacentLabelBoundaries([])).toEqual([]);
+        const one: Label[] = [{ id: 'l1', name: { ja: 'L1', en: 'L1' }, startTime: 0, endTime: 60 }];
+        expect(repairAdjacentLabelBoundaries(one)).toEqual(one);
     });
 });

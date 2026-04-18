@@ -63,7 +63,7 @@ export function migrateLabels(timelineEvents: TimelineEvent[], phases: Phase[]):
 
 /**
  * endTimeが未定義のラベルにendTimeを補完する。
- * - 中間ラベル: 次のラベルのstartTime
+ * - 中間ラベル: 次のラベルのstartTime - 1（描画 endTime+1 と整合する隣接規約）
  * - 最終ラベル: maxTime が指定されていれば max(maxTime, startTime+1)、未指定なら startTime + 1
  */
 export function ensureLabelEndTimes(
@@ -75,7 +75,7 @@ export function ensureLabelEndTimes(
     return sorted.map((l, i) => {
         if (l.endTime !== undefined) return l as Label;
         const next = sorted[i + 1];
-        if (next) return { ...l, endTime: next.startTime } as Label;
+        if (next) return { ...l, endTime: next.startTime - 1 } as Label;
         const fallback = maxTime !== undefined
             ? Math.max(maxTime, l.startTime + 1)
             : l.startTime + 1;
@@ -106,6 +106,25 @@ export function repairLastLabelEndTime(
         endTime: Math.max(maxTime, last.startTime + 1),
     };
     return repaired;
+}
+
+/**
+ * 旧隣接規約（label[i].endTime === label[i+1].startTime）で保存された
+ * プランを新規約（label[i].endTime + 1 === label[i+1].startTime）に修復する。
+ *
+ * 描画仕様（Timeline.tsx: endTime + 1 まで描画）と整合させ、境界の罫線が
+ * 覆い隠される問題を解消する。厳密な等号のみ修復し、gap やオーバーラップは触らない。
+ */
+export function repairAdjacentLabelBoundaries(labels: Label[]): Label[] {
+    if (labels.length < 2) return labels;
+    const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
+    return sorted.map((l, i) => {
+        const next = sorted[i + 1];
+        if (next && l.endTime === next.startTime) {
+            return { ...l, endTime: l.endTime - 1 };
+        }
+        return l;
+    });
 }
 
 /** イベントの時刻がどのフェーズに属するかをIDで返す。フェーズがない場合はnull */

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { migratePhases, isLegacyPhaseFormat, repairLastPhaseEndTime } from '../phaseMigration';
+import { migratePhases, isLegacyPhaseFormat, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../phaseMigration';
+import type { Phase } from '../../types';
 
 describe('isLegacyPhaseFormat', () => {
     it('endTimeがありstartTimeがないフェーズを旧形式と判定する', () => {
@@ -25,7 +26,7 @@ describe('migratePhases', () => {
         ];
         const result = migratePhases(legacy);
         expect(result).toHaveLength(2);
-        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Phase 1', en: '' }, startTime: 0, endTime: 60 });
+        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'Phase 1', en: '' }, startTime: 0, endTime: 59 });
         expect(result[1]).toEqual({ id: 'p2', name: { ja: 'Phase 2', en: '' }, startTime: 60, endTime: 61 });
     });
 
@@ -35,7 +36,7 @@ describe('migratePhases', () => {
             { id: 'p2', name: { ja: 'フェーズ2', en: 'Phase 2' }, endTime: 90 },
         ];
         const result = migratePhases(legacy);
-        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'フェーズ1', en: 'Phase 1' }, startTime: 0, endTime: 30 });
+        expect(result[0]).toEqual({ id: 'p1', name: { ja: 'フェーズ1', en: 'Phase 1' }, startTime: 0, endTime: 29 });
         expect(result[1]).toEqual({ id: 'p2', name: { ja: 'フェーズ2', en: 'Phase 2' }, startTime: 30, endTime: 31 });
     });
 
@@ -59,7 +60,7 @@ describe('migratePhases', () => {
         ];
         const result = migratePhases(newFormat);
         expect(result).toEqual([
-            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 60 },
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 59 },
             { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60, endTime: 61 },
         ]);
     });
@@ -75,8 +76,8 @@ describe('migratePhases', () => {
             { id: 'p3', name: { ja: 'P3', en: 'P3' }, startTime: 120 },
         ];
         const result = migratePhases(newFormat);
-        expect(result[0].endTime).toBe(60);
-        expect(result[1].endTime).toBe(120);
+        expect(result[0].endTime).toBe(59);
+        expect(result[1].endTime).toBe(119);
         expect(result[2].endTime).toBe(121);
     });
 
@@ -97,7 +98,7 @@ describe('migratePhases', () => {
         ];
         const result = migratePhases(legacy);
         expect(result[0].startTime).toBe(0);
-        expect(result[0].endTime).toBe(60);
+        expect(result[0].endTime).toBe(59);
         expect(result[1].startTime).toBe(60);
         expect(result[1].endTime).toBe(61);
     });
@@ -108,7 +109,7 @@ describe('migratePhases', () => {
             { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
         ];
         const result = migratePhases(newFormat, 500);
-        expect(result[0].endTime).toBe(60);
+        expect(result[0].endTime).toBe(59);
         expect(result[1].endTime).toBe(500);
     });
 
@@ -126,7 +127,7 @@ describe('migratePhases', () => {
             { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 60 },
         ];
         const result = migratePhases(newFormat);
-        expect(result[0].endTime).toBe(60);
+        expect(result[0].endTime).toBe(59);
         expect(result[1].endTime).toBe(61);
     });
 
@@ -145,22 +146,22 @@ describe('repairLastPhaseEndTime', () => {
     });
 
     it('最終フェーズの endTime が startTime+1 かつ後続イベントがあれば修復する', () => {
-        const phases = [phase('p1', 0, 60), phase('p2', 60, 61)];
+        const phases = [phase('p1', 0, 59), phase('p2', 60, 61)];
         const events = [{ id: 'e1', time: 500 }] as any;
         const result = repairLastPhaseEndTime(phases, events, 500);
-        expect(result[0].endTime).toBe(60);
+        expect(result[0].endTime).toBe(59);
         expect(result[1].endTime).toBe(500);
     });
 
     it('最終フェーズの endTime が startTime+1 でも後続イベントが無ければ修復しない', () => {
-        const phases = [phase('p1', 0, 60), phase('p2', 60, 61)];
+        const phases = [phase('p1', 0, 59), phase('p2', 60, 61)];
         const events = [{ id: 'e1', time: 30 }] as any;
         const result = repairLastPhaseEndTime(phases, events, 30);
         expect(result[1].endTime).toBe(61);
     });
 
     it('最終フェーズの endTime が startTime+1 でない場合は修復しない（ユーザー指定値を尊重）', () => {
-        const phases = [phase('p1', 0, 60), phase('p2', 60, 100)];
+        const phases = [phase('p1', 0, 59), phase('p2', 60, 100)];
         const events = [{ id: 'e1', time: 500 }] as any;
         const result = repairLastPhaseEndTime(phases, events, 500);
         expect(result[1].endTime).toBe(100);
@@ -177,5 +178,48 @@ describe('repairLastPhaseEndTime', () => {
         // 50 < startTime (100) → 修復対象だが、maxTime<startTime+1 なので下限クリップ
         // ただし後続イベントが無いので修復対象外
         expect(result[1].endTime).toBe(101);
+    });
+});
+
+describe('repairAdjacentPhaseBoundaries', () => {
+    it('隣接フェーズで endTime === next.startTime を検出して endTime を 1 引く', () => {
+        const phases: Phase[] = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 30 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 30, endTime: 60 },
+            { id: 'p3', name: { ja: 'P3', en: 'P3' }, startTime: 60, endTime: 100 },
+        ];
+        const result = repairAdjacentPhaseBoundaries(phases);
+        expect(result[0].endTime).toBe(29);
+        expect(result[1].endTime).toBe(59);
+        expect(result[2].endTime).toBe(100); // 最終は変更なし
+    });
+
+    it('既に規約を満たしている（endTime + 1 === next.startTime）なら変更しない', () => {
+        const phases: Phase[] = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 29 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 30, endTime: 59 },
+        ];
+        const result = repairAdjacentPhaseBoundaries(phases);
+        expect(result).toEqual(phases);
+    });
+
+    it('gap がある（endTime + 1 < next.startTime）ケースは変更しない', () => {
+        const phases: Phase[] = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 20 },
+            { id: 'p2', name: { ja: 'P2', en: 'P2' }, startTime: 30, endTime: 60 },
+        ];
+        const result = repairAdjacentPhaseBoundaries(phases);
+        expect(result).toEqual(phases);
+    });
+
+    it('空配列ならそのまま返す', () => {
+        expect(repairAdjacentPhaseBoundaries([])).toEqual([]);
+    });
+
+    it('1 個だけならそのまま返す', () => {
+        const phases: Phase[] = [
+            { id: 'p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 60 },
+        ];
+        expect(repairAdjacentPhaseBoundaries(phases)).toEqual(phases);
     });
 });
