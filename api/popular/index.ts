@@ -11,6 +11,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { verifyAdmin } from '../../src/lib/adminAuth.js';
 
 const COLLECTION = 'shared_plans';
+const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -347,8 +348,25 @@ export default async function handler(req: any, res: any) {
                 tx.update(docRef, { featured });
             });
 
-            // og_image_meta の keepForever 制御（Task 6 で追加）
-            // ここは Task 6 で埋める（今は空のまま）
+            // og_image_meta.keepForever の制御（トランザクション外で best-effort）
+            const metaCol = db.collection(OG_IMAGE_META_COLLECTION);
+            if (featured) {
+                if (newImageHash) {
+                    await metaCol.doc(newImageHash).update({ keepForever: true })
+                        .catch(() => { /* meta が無い古いプランは無視 */ });
+                }
+                for (const entry of oldFeaturedEntries) {
+                    if (entry.imageHash && entry.imageHash !== newImageHash) {
+                        await metaCol.doc(entry.imageHash).update({ keepForever: FieldValue.delete() })
+                            .catch(() => {});
+                    }
+                }
+            } else {
+                if (newImageHash) {
+                    await metaCol.doc(newImageHash).update({ keepForever: FieldValue.delete() })
+                        .catch(() => {});
+                }
+            }
 
             return res.status(200).json({ ok: true });
 
