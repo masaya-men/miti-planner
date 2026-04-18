@@ -17,48 +17,48 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
-import { buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
-
-/**
- * OGP画像の同期プリウォーム。
- *
- * Firestore 保存直後にエッジキャッシュを温める。
- * ユーザーが X にリンクを貼った瞬間、クローラーが直ちにキャッシュヒットできるよう、
- * 共有作成／更新の応答を返す前にここで待つ。
- *
- * タイムアウト 5秒 / 失敗は握りつぶす（クリティカルでないため共有作成自体は成功させる）。
- */
-async function prewarmOgImage(ogUrl: string): Promise<void> {
-    try {
-        await Promise.race([
-            fetch(ogUrl, { headers: { 'User-Agent': 'LoPo-Prewarm/1.0' } }),
-            new Promise((resolve) => setTimeout(resolve, 5000)),
-        ]);
-    } catch (err) {
-        console.warn('OGP prewarm failed (non-critical):', err);
-    }
-}
-
-/**
- * ホストを req から算出して OGP オリジンを返す。
- * allowlist 外は lopoly.app にフォールバックすることで
- * Host ヘッダ偽装対策と開発環境の両立を図る。
- */
-function resolveOgOrigin(req: any): string {
-    const allowed = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
-    const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
-    const raw = req.headers?.host || 'lopoly.app';
-    const host = allowed.find(h => raw.includes(h))
-        || (previewPattern.test(raw) ? raw : null)
-        || 'lopoly.app';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    return `${protocol}://${host}`;
-}
+import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 
 const COLLECTION = 'shared_plans';
+const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 // リクエストボディの最大サイズ（500KB）
 const MAX_BODY_SIZE = 500 * 1024;
 const BLOCKED_LOGOS = 'blocked_logos';
+
+/**
+ * バンドル共有の contentName / planTitle を hash 入力用に合成する。
+ * contentId とタイトルを決定的な順序で連結し、
+ * 同じ構成のバンドルが同じ hash になるようにする。
+ */
+function composeBundleHashInput(plans: { contentId: string | null; title: string }[]): { contentName: string; planTitle: string } {
+    const contentName = 'bundle:' + plans.map(p => p.contentId || '').join(',');
+    const planTitle = plans.map(p => p.title || '').join('|');
+    return { contentName, planTitle };
+}
+
+/**
+ * og_image_meta/{hash} に生成パラメータを保存する。
+ * /api/og-cache が MISS 時にこのパラメータで /api/og を叩いて画像を生成する。
+ * 同じ hash のドキュメントが既にある場合は set で上書き（最新の代表 shareId に更新）。
+ */
+async function upsertOgImageMeta(
+    db: FirebaseFirestore.Firestore,
+    imageHash: string,
+    params: { shareId: string; showTitle: boolean; showLogo: boolean; logoHash: string | null; lang: OgpLang },
+): Promise<void> {
+    try {
+        await db.collection(OG_IMAGE_META_COLLECTION).doc(imageHash).set({
+            ...params,
+            createdAt: Date.now(),
+            lastAccessedAt: Date.now(),
+        });
+    } catch (err) {
+        // og_image_meta 保存失敗は致命的でない（画像生成にはならないが、共有自体は成功させる）。
+        // /api/og-cache は 404 を返すことになり、旧 /api/og?id=... URL へのフォールバックが効く。
+        console.warn('og_image_meta upsert failed (non-critical):', err);
+    }
+}
 
 function initAdmin() {
     if (!getApps().length) {
@@ -153,6 +153,19 @@ export default async function handler(req: any, res: any) {
             // バンドル共有（複数プランまとめて）
             if (Array.isArray(plans) && plans.length > 0) {
                 const shareId = nanoid(8);
+                const planRefs = plans.map((p: any) => ({
+                    contentId: p.contentId || null,
+                    title: p.title || '',
+                }));
+                const bundleHashInput = composeBundleHashInput(planRefs);
+                const imageHash = computeImageHash({
+                    contentName: bundleHashInput.contentName,
+                    planTitle: bundleHashInput.planTitle,
+                    showTitle: normalizedShowTitle,
+                    showLogo: !!logoBase64,
+                    logoHash: logoHashStr,
+                    lang: normalizedLang,
+                });
                 const doc: any = {
                     shareId,
                     type: 'bundle',
@@ -163,6 +176,7 @@ export default async function handler(req: any, res: any) {
                         title: p.title || '',
                         planData: p.planData,
                     })),
+                    imageHash,
                     copyCount: 0,
                     viewCount: 0,
                     createdAt: Date.now(),
@@ -172,16 +186,16 @@ export default async function handler(req: any, res: any) {
                     doc.logoHash = logoHashStr;
                 }
                 await db.collection(COLLECTION).doc(shareId).set(doc);
-                // OGP 画像のエッジキャッシュを同期プリウォーム
-                const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+                await upsertOgImageMeta(db, imageHash, {
+                    shareId,
                     showTitle: normalizedShowTitle,
                     showLogo: !!logoBase64,
-                    logoHash: logoHashStr || undefined,
+                    logoHash: logoHashStr,
                     lang: normalizedLang,
                 });
-                await prewarmOgImage(ogUrl);
                 return res.status(200).json({
                     shareId,
+                    imageHash,
                     ...(logoHashStr && { logoHash: logoHashStr }),
                     ...(logoBlocked && { logoBlocked: true }),
                 });
@@ -193,6 +207,14 @@ export default async function handler(req: any, res: any) {
             }
 
             const shareId = nanoid(8);
+            const imageHash = computeImageHash({
+                contentName: getContentName(contentId || null, normalizedLang),
+                planTitle: title || '',
+                showTitle: normalizedShowTitle,
+                showLogo: !!logoBase64,
+                logoHash: logoHashStr,
+                lang: normalizedLang,
+            });
             const doc: any = {
                 shareId,
                 lang: normalizedLang,
@@ -200,6 +222,7 @@ export default async function handler(req: any, res: any) {
                 title: title || '',
                 contentId: contentId || null,
                 planData,
+                imageHash,
                 copyCount: 0,
                 viewCount: 0,
                 createdAt: Date.now(),
@@ -210,17 +233,17 @@ export default async function handler(req: any, res: any) {
             }
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
-            // OGP 画像のエッジキャッシュを同期プリウォーム
-            const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+            await upsertOgImageMeta(db, imageHash, {
+                shareId,
                 showTitle: normalizedShowTitle,
                 showLogo: !!logoBase64,
-                logoHash: logoHashStr || undefined,
+                logoHash: logoHashStr,
                 lang: normalizedLang,
             });
-            await prewarmOgImage(ogUrl);
 
             return res.status(200).json({
                 shareId,
+                imageHash,
                 ...(logoHashStr && { logoHash: logoHashStr }),
                 ...(logoBlocked && { logoBlocked: true }),
             });
@@ -282,22 +305,48 @@ export default async function handler(req: any, res: any) {
                 await existingRef.update({ showTitle: putShowTitle });
             }
 
-            // 更新後の状態で OGP URL を組み立て直してプリウォーム
+            // 更新後の状態で imageHash を再計算し、share doc と og_image_meta を更新
             const existingData = existingSnap.data() || {};
             const effectiveShowTitle = typeof putShowTitle === 'boolean'
                 ? putShowTitle
                 : (typeof existingData.showTitle === 'boolean' ? existingData.showTitle : true);
             const effectiveLang: OgpLang = existingData.lang === 'en' ? 'en' : 'ja';
-            const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
+
+            let hashInputContentName: string;
+            let hashInputPlanTitle: string;
+            if (existingData.type === 'bundle' && Array.isArray(existingData.plans)) {
+                const planRefs = existingData.plans.map((p: any) => ({
+                    contentId: p.contentId || null,
+                    title: p.title || '',
+                }));
+                const bundleHashInput = composeBundleHashInput(planRefs);
+                hashInputContentName = bundleHashInput.contentName;
+                hashInputPlanTitle = bundleHashInput.planTitle;
+            } else {
+                hashInputContentName = getContentName(existingData.contentId || null, effectiveLang);
+                hashInputPlanTitle = existingData.title || '';
+            }
+
+            const newImageHash = computeImageHash({
+                contentName: hashInputContentName,
+                planTitle: hashInputPlanTitle,
                 showTitle: effectiveShowTitle,
                 showLogo: !!logoBase64,
-                logoHash: logoHashStr || undefined,
+                logoHash: logoHashStr,
                 lang: effectiveLang,
             });
-            await prewarmOgImage(ogUrl);
+            await existingRef.update({ imageHash: newImageHash });
+            await upsertOgImageMeta(db, newImageHash, {
+                shareId,
+                showTitle: effectiveShowTitle,
+                showLogo: !!logoBase64,
+                logoHash: logoHashStr,
+                lang: effectiveLang,
+            });
 
             return res.status(200).json({
                 shareId,
+                imageHash: newImageHash,
                 // logoHash は logo 削除時 null、設定時は新ハッシュ。
                 // クライアントは null/undefined を「ロゴ無し状態」として処理する。
                 logoHash: logoHashStr,
