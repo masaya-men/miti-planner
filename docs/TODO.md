@@ -9,39 +9,21 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数8/12、月100ビルド制限
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12（og-cache・cron追加で+2）、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
+- **OGP 画像 X 表示問題: 完全解決（2026-04-18、プライベート X でカード表示確認済み）**
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
-### 🔴 次セッション最優先: OGP 画像が X で表示されない問題の最終解決
+### 🔴 次セッション最優先: Phase 2 本番観察（旬ランキング動作確認）
 
-**状況**: X 上で OGP 画像カードが画像なしの summary card で表示される問題。
-このセッション内で 6 commit 投入したが完全解決に至らず。
+OGP 問題が解決したので、Phase 2 の本番動作確認に進む。
 
-**解決策の計画書（次セッションで実装）**:
-[docs/superpowers/plans/2026-04-18-ogp-static-cache-with-auto-cleanup.md](./superpowers/plans/2026-04-18-ogp-static-cache-with-auto-cleanup.md)
+- `scripts/_tmp_check_viewcount.ts` で top10 を一度スナップショット（copyCount, viewCount）
+- 本番で人気ボタン→ボトムシート→コピーまで実行 → Firestore `shared_plans/{id}.copyCountByDay` に今日のキーが増えることを確認
+- 別ブラウザ/シークレットでも同様にコピー → 匿名IDで重複排除されていることを確認（同一ブラウザから2回コピー → copyCount が1しか増えない）
+- `/privacy` を4言語で切り替えて「匿名ID集計」「日別コピー集計」文言が出ることを確認
 
-**方針**: Lazy 生成 + Firebase Storage 永続キャッシュ + Vercel Cron 自動クリーンアップ
-- URL: `lopoly.app/og/{hash}.png`（同一オリジン静的画像、/api/ 非経由）
-- 重複排除: imageHash で同内容は 1 ファイル
-- 自動クリーンアップ: 週次 Cron で 30 日未使用を削除
-- 工数: 約 3 時間
-- 制約: 既存機能を壊さない、ハードコーディング禁止、後方互換維持
-
-**このセッションで本番投入済みの 6 commits**:
-- `461023e` showLogo フラグ伝播
-- `675b1ca` クエリパラメータ順序統一
-- `6dd7249` 多層防御（showTitle 永続化、サーバー側プリウォーム、favicon バンドル化）
-- `c35cc3c` robots.txt で /api/og 許可（X クローラーブロック解除）
-- `9ee744e` og:url 修正
-- `628f526` logoHash で内容バージョン付与（モーダル内ロゴ更新時の CDN 陳腐化対策）
-
-### 次にやること（OGP 解決の後）
-- **Phase 2 本番観察（デプロイ直後）**
-  - `scripts/_tmp_check_viewcount.ts` で top10 を一度スナップショット（copyCount, viewCount）
-  - 本番で人気ボタン→ボトムシート→コピーまで実行 → Firestore `shared_plans/{id}.copyCountByDay` に今日のキーが増えることを確認
-  - 別ブラウザ/シークレットでも同様にコピー → 匿名IDで重複排除されていることを確認（同一ブラウザから2回コピー → copyCount が1しか増えない）
-  - `/privacy` を4言語で切り替えて「匿名ID集計」「日別コピー集計」文言が出ることを確認
+### 次にやること（Phase 2 観察の後）
 - **Phase 3（Phase 2 本番確認後）**
   - 管理画面 featured 設定UI。プランは Phase 2 本番確認後に作成
 - **フェーズ表示の最後のフェーズが壊れて見える件（未着手・要設計）**
@@ -49,19 +31,32 @@
   - `ensurePhaseEndTimes` が最後フェーズに `startTime+1` を設定する根本原因あり
   - `addPhase`の`containingPhase`判定・`BoundaryEditModal` 等多数参照あり
   - セッション初頭に**一緒に安全な計画**を立ててから着手
-- **今セッションの完了事項**（2026-04-17）
-  - ✅ ボトムシートUX改善（初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms、本番確認済み）
-  - ✅ 通知音パス修正（FFXIV_SE/FFXIV_Notification.mp3 へ更新）
-  - ✅ 野良主流ランキング再設計: 設計書 + Phase 1/Phase 2 実装プラン作成
-  - ✅ 野良主流ランキング Phase 1: viewCount 自己強化ループ止血（`/api/share?preview=true` 実装、ボトムシート側フラグ付与、PopularPageは対象なし）
-  - ✅ 野良主流ランキング Phase 2: 匿名ID集計 + 日別バケット旬ランキング + featured活性化 + ポリシー4言語更新（Task 1-12 + レビュー指摘 fix 2件、151/151 テスト通過）
-  - ✅ ボトムシート初期タブ選択修正（Reactバッチ更新問題）
-  - ✅ ライトモード時ジョブ移行モーダル背景色修正
-  - ✅ タンクLBスキル追加（Lv1/2/3 × 4ジョブ、アイコン3種、Firestore+Storage同期）
-  - ✅ feedback_icon_firebase_upload.md メモリ追加（アイコン追加時はStorageアップロード必須）
 - 残り: shared_plansテストデータをFirebase Consoleで削除 → 正式な1件を共有
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### 今セッションの完了事項（2026-04-18）
+- ✅ **OGP 画像 X 表示問題を最終解決**（Firebase Storage 静的キャッシュ + Lazy 生成 + 週次 Cron）
+  - 新 URL `lopoly.app/og/{hash}.png`（imageHash ベース、同一オリジン静的配信）
+  - `og_image_meta/{hash}` Firestore コレクションに生成パラメータ保存
+  - /api/og-cache で Storage HIT/MISS 配信、/api/cron/cleanup-og-images で 30日未使用削除
+  - 後方互換: 旧 share doc (imageHash 無し) は従来 /api/og?... URL で動作
+  - 4 言語 Privacy Policy に `privacy_section6` 1項目追加
+  - CRON_SECRET を Vercel 環境変数に設定済み（All Environments）
+  - 10 commits: cf56d6f 〜 b5acd18
+  - プライベート X `@lopoly_app` で画像カード表示を実機確認
+  - モーダルプレビューは Storage キャッシュ HIT で 60ms 以内に配信
+- ✅ OGP 実装関連の仕様:
+  - imageHash は `sha256(contentName + planTitle + showTitle + showLogo + logoHash + lang)` 先頭 16 hex
+  - バンドル共有は `'bundle:' + contentId 連結 + title 連結` で hash 計算
+  - Storage rule で og-images/ 直接書き込みはクライアントから禁止（admin SDK のみ）
+  - hash バリデーション `^[a-f0-9]{16}$` で SSRF 類縁攻撃対策
+
+### 前セッション（2026-04-17）の完了事項
+- ✅ ボトムシートUX改善（初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms、本番確認済み）
+- ✅ 通知音パス修正（FFXIV_SE/FFXIV_Notification.mp3 へ更新）
+- ✅ 野良主流ランキング再設計 + Phase 1/Phase 2 実装（本番観察未実施）
+- ✅ タンクLBスキル追加（Lv1/2/3 × 4ジョブ）
 
 ### Phase 2 後の follow-up（優先度低・時間あるとき）
 - [ ] `api/popular/index.ts` `mapDoc` と `PopularEntry` 型の `viewCount` フィールドは Phase 2 以降未使用 → 削除整理
