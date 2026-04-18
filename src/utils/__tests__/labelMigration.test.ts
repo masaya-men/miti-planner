@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLegacyLabelFormat, migrateLabels, ensureLabelEndTimes } from '../labelMigration';
+import { isLegacyLabelFormat, migrateLabels, ensureLabelEndTimes, repairLastLabelEndTime } from '../labelMigration';
 
 // テスト用のヘルパー型
 type TEvent = {
@@ -184,5 +184,37 @@ describe('ensureLabelEndTimes', () => {
         ];
         const result = ensureLabelEndTimes(labels, 500);
         expect(result[0].endTime).toBe(100);
+    });
+});
+
+describe('repairLastLabelEndTime', () => {
+    const label = (id: string, startTime: number, endTime: number) => ({
+        id, name: { ja: id, en: id }, startTime, endTime,
+    });
+
+    it('最終ラベルの endTime が startTime+1 かつ後続イベントがあれば修復する', () => {
+        const labels = [label('l1', 0, 30), label('l2', 30, 31)];
+        const events = [{ id: 'e1', time: 500 }] as any;
+        const result = repairLastLabelEndTime(labels, events, 500);
+        expect(result[0].endTime).toBe(30);
+        expect(result[1].endTime).toBe(500);
+    });
+
+    it('最終ラベルの endTime が startTime+1 でも後続イベントが無ければ修復しない', () => {
+        const labels = [label('l1', 0, 30), label('l2', 30, 31)];
+        const events = [{ id: 'e1', time: 20 }] as any;
+        const result = repairLastLabelEndTime(labels, events, 20);
+        expect(result[1].endTime).toBe(31);
+    });
+
+    it('最終ラベルの endTime が startTime+1 でない場合は修復しない', () => {
+        const labels = [label('l1', 0, 30), label('l2', 30, 50)];
+        const events = [{ id: 'e1', time: 500 }] as any;
+        const result = repairLastLabelEndTime(labels, events, 500);
+        expect(result[1].endTime).toBe(50);
+    });
+
+    it('空配列を受け取ると空配列を返す', () => {
+        expect(repairLastLabelEndTime([], [], 100)).toEqual([]);
     });
 });

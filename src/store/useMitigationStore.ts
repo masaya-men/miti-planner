@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
-import { migratePhases, ensurePhaseEndTimes } from '../utils/phaseMigration';
-import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes } from '../utils/labelMigration';
+import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime } from '../utils/phaseMigration';
+import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime } from '../utils/labelMigration';
 
 import { calculateMemberValues } from '../utils/calculator';
 import {
@@ -301,12 +301,20 @@ export const useMitigationStore = create<MitigationState>()(
                         ? migrateLabels(snapshot.timelineEvents, migratedPhases)
                         : ensureLabelEndTimes((snapshot as any).labels ?? [], maxEventTime);
 
+                    // 過去バグ（最終フェーズ/ラベルの endTime が startTime+1 で保存されている）を修復
+                    const finalPhases = maxEventTime !== undefined
+                        ? repairLastPhaseEndTime(migratedPhases, snapshot.timelineEvents, maxEventTime)
+                        : migratedPhases;
+                    const finalLabels = maxEventTime !== undefined
+                        ? repairLastLabelEndTime(labels, snapshot.timelineEvents, maxEventTime)
+                        : labels;
+
                     set({
                         currentLevel: snapshot.currentLevel,
                         timelineEvents: snapshot.timelineEvents,
                         timelineMitigations: snapshot.timelineMitigations,
-                        phases: migratedPhases,
-                        labels,
+                        phases: finalPhases,
+                        labels: finalLabels,
                         partyMembers: membersWithComputed,
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,

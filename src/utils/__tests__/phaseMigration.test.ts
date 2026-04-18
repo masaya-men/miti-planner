@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { migratePhases, isLegacyPhaseFormat } from '../phaseMigration';
+import { migratePhases, isLegacyPhaseFormat, repairLastPhaseEndTime } from '../phaseMigration';
 
 describe('isLegacyPhaseFormat', () => {
     it('endTimeがありstartTimeがないフェーズを旧形式と判定する', () => {
@@ -136,5 +136,46 @@ describe('migratePhases', () => {
         ];
         const result = migratePhases(newFormat, 500);
         expect(result[0].endTime).toBe(200);
+    });
+});
+
+describe('repairLastPhaseEndTime', () => {
+    const phase = (id: string, startTime: number, endTime: number) => ({
+        id, name: { ja: id, en: id }, startTime, endTime,
+    });
+
+    it('最終フェーズの endTime が startTime+1 かつ後続イベントがあれば修復する', () => {
+        const phases = [phase('p1', 0, 60), phase('p2', 60, 61)];
+        const events = [{ id: 'e1', time: 500 }] as any;
+        const result = repairLastPhaseEndTime(phases, events, 500);
+        expect(result[0].endTime).toBe(60);
+        expect(result[1].endTime).toBe(500);
+    });
+
+    it('最終フェーズの endTime が startTime+1 でも後続イベントが無ければ修復しない', () => {
+        const phases = [phase('p1', 0, 60), phase('p2', 60, 61)];
+        const events = [{ id: 'e1', time: 30 }] as any;
+        const result = repairLastPhaseEndTime(phases, events, 30);
+        expect(result[1].endTime).toBe(61);
+    });
+
+    it('最終フェーズの endTime が startTime+1 でない場合は修復しない（ユーザー指定値を尊重）', () => {
+        const phases = [phase('p1', 0, 60), phase('p2', 60, 100)];
+        const events = [{ id: 'e1', time: 500 }] as any;
+        const result = repairLastPhaseEndTime(phases, events, 500);
+        expect(result[1].endTime).toBe(100);
+    });
+
+    it('空配列を受け取ると空配列を返す', () => {
+        expect(repairLastPhaseEndTime([], [], 100)).toEqual([]);
+    });
+
+    it('修復値は max(maxTime, startTime+1) で下限クリップされる', () => {
+        const phases = [phase('p1', 0, 60), phase('p2', 100, 101)];
+        const events = [{ id: 'e1', time: 50 }] as any;
+        const result = repairLastPhaseEndTime(phases, events, 50);
+        // 50 < startTime (100) → 修復対象だが、maxTime<startTime+1 なので下限クリップ
+        // ただし後続イベントが無いので修復対象外
+        expect(result[1].endTime).toBe(101);
     });
 });

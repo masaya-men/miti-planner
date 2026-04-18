@@ -83,6 +83,31 @@ export function ensureLabelEndTimes(
     });
 }
 
+/**
+ * 過去のバグ（ensureLabelEndTimes が最終ラベルの endTime を startTime+1 に設定していた）で
+ * 保存されたプランを修復する。
+ * 条件: 最終ラベルの endTime が startTime+1（バグ値）かつ、その後にイベントがある。
+ */
+export function repairLastLabelEndTime(
+    labels: Label[],
+    timelineEvents: Pick<TimelineEvent, 'time'>[],
+    maxTime: number,
+): Label[] {
+    if (labels.length === 0) return labels;
+    const lastIdx = labels.length - 1;
+    const last = labels[lastIdx];
+    const isBugValue = last.endTime === last.startTime + 1;
+    if (!isBugValue) return labels;
+    const hasEventsAfter = timelineEvents.some(e => e.time > last.endTime);
+    if (!hasEventsAfter) return labels;
+    const repaired = [...labels];
+    repaired[lastIdx] = {
+        ...last,
+        endTime: Math.max(maxTime, last.startTime + 1),
+    };
+    return repaired;
+}
+
 /** イベントの時刻がどのフェーズに属するかをIDで返す。フェーズがない場合はnull */
 function getPhaseIdForTime(time: number, phases: Phase[]): string | null {
     if (phases.length === 0) return null;

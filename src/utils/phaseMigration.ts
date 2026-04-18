@@ -1,4 +1,4 @@
-import type { Phase, LocalizedString } from '../types';
+import type { Phase, LocalizedString, TimelineEvent } from '../types';
 
 /** 旧形式（endTimeベース）かどうかを判定 */
 export function isLegacyPhaseFormat(phases: any[]): boolean {
@@ -75,4 +75,30 @@ export function migratePhases(phases: any[], maxTime?: number): Phase[] {
     }
 
     return ensurePhaseEndTimes(result, maxTime);
+}
+
+/**
+ * 過去のバグ（ensurePhaseEndTimes が最終フェーズの endTime を startTime+1 に設定していた）で
+ * 保存されたプランを修復する。
+ * 条件: 最終フェーズの endTime が startTime+1（バグ値）かつ、その後にイベントがある。
+ * ユーザーが意図的に 1 秒幅のフェーズを設定したケースでは後続イベントが無いため修復されない。
+ */
+export function repairLastPhaseEndTime(
+    phases: Phase[],
+    timelineEvents: Pick<TimelineEvent, 'time'>[],
+    maxTime: number,
+): Phase[] {
+    if (phases.length === 0) return phases;
+    const lastIdx = phases.length - 1;
+    const last = phases[lastIdx];
+    const isBugValue = last.endTime === last.startTime + 1;
+    if (!isBugValue) return phases;
+    const hasEventsAfter = timelineEvents.some(e => e.time > last.endTime);
+    if (!hasEventsAfter) return phases;
+    const repaired = [...phases];
+    repaired[lastIdx] = {
+        ...last,
+        endTime: Math.max(maxTime, last.startTime + 1),
+    };
+    return repaired;
 }
