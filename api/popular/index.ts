@@ -8,6 +8,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { verifyAdmin } from '../../src/lib/adminAuth.js';
 
 const COLLECTION = 'shared_plans';
 
@@ -110,7 +111,7 @@ export default async function handler(req: any, res: any) {
     ];
     const isAllowed = allowedOrigins.includes(origin) || /^https:\/\/lopo-miti(-[a-z0-9]+)?\.vercel\.app$/.test(origin);
     res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : allowedOrigins[0]);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -297,6 +298,59 @@ export default async function handler(req: any, res: any) {
             }
 
             return res.status(200).json({ ok: true, alreadyCounted });
+
+        } else if (req.method === 'PATCH') {
+            // ── 管理者専用: featured フラグ切替 ──
+            const adminUid = await verifyAdmin(req);
+            if (!adminUid) {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            const { shareId, featured } = req.body ?? {};
+            if (typeof shareId !== 'string' || typeof featured !== 'boolean') {
+                return res.status(400).json({ error: 'shareId (string) and featured (boolean) required' });
+            }
+
+            const docRef = db.collection(COLLECTION).doc(shareId);
+            const snap = await docRef.get();
+            if (!snap.exists) {
+                return res.status(404).json({ error: 'not found' });
+            }
+            const data = snap.data()!;
+            const contentId = data.contentId;
+            if (!contentId) {
+                return res.status(400).json({ error: 'plan has no contentId' });
+            }
+            const newImageHash = (data.imageHash as string) ?? null;
+
+            // トランザクション前に同コンテンツの既存 featured を取得
+            const oldFeaturedSnap = await db
+                .collection(COLLECTION)
+                .where('contentId', '==', contentId)
+                .where('featured', '==', true)
+                .get();
+            const oldFeaturedEntries: { shareId: string; imageHash: string | null }[] =
+                oldFeaturedSnap.docs
+                    .filter(d => d.id !== shareId)
+                    .map(d => ({
+                        shareId: d.id,
+                        imageHash: (d.data().imageHash as string) ?? null,
+                    }));
+
+            // トランザクション: shared_plans のみ一貫更新
+            await db.runTransaction(async (tx) => {
+                if (featured) {
+                    for (const entry of oldFeaturedEntries) {
+                        tx.update(db.collection(COLLECTION).doc(entry.shareId), { featured: false });
+                    }
+                }
+                tx.update(docRef, { featured });
+            });
+
+            // og_image_meta の keepForever 制御（Task 6 で追加）
+            // ここは Task 6 で埋める（今は空のまま）
+
+            return res.status(200).json({ ok: true });
 
         } else {
             return res.status(405).json({ error: 'Method not allowed' });
