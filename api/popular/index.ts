@@ -149,6 +149,7 @@ export default async function handler(req: any, res: any) {
                     featured: data.featured === true,
                     createdAt: data.createdAt,
                     partyMembers,
+                    imageHash: data.imageHash ?? null,
                 };
             };
 
