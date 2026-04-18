@@ -32,6 +32,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'adloquium',
     'deployment_tactics',
     'dissipation',
+    'aetherflow',
     'whispering_dawn',
     'fey_blessing',
     'indomitability',
@@ -347,6 +348,10 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "dissipation", jobId: "sch", name: { ja: "転化", en: "Dissipation", zh: "转化", ko: "에테르 전환" }, icon: "/icons/Dissipation.png",
         recast: 180, duration: 30, type: "all", value: 0, isShield: false, healingIncrease: 20, healingIncreaseSelfOnly: true, minLevel: 60, family: "sch_dissipation"
+    },
+    {
+        id: "aetherflow", jobId: "sch", name: { ja: "エーテルフロー", en: "Aetherflow", zh: "以太超流", ko: "에테르 순환" }, icon: "/icons/Aetherflow.png",
+        recast: 60, duration: 1, type: "all", value: 0, isShield: false, minLevel: 45, family: "sch_aetherflow"
     },
     {
         id: "expedient", jobId: "sch", name: { ja: "疾風怒濤の計", en: "Expedient", zh: "疾风怒涛之计", ko: "질풍노도계" }, icon: "/icons/Expedient.png",

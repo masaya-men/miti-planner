@@ -26,6 +26,7 @@ import { MobileHeader } from './MobileHeader';
 import { MobileFAB } from './MobileFAB';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
+import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -615,6 +616,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     ))}
                 </div>
             </motion.div>
+
+            {/* エーテルフロー連鎖配置プロンプト（SCH が手動で aetherflow を置いたとき） */}
+            <AetherflowChainPromptModal />
 
             {/* Mobile FAB — テーマ/同期/言語/ナビ（チュートリアル中は非表示） */}
             {!isTutorialActive && isMobile && (

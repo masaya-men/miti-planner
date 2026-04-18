@@ -2,48 +2,24 @@ import type { AppliedMitigation, Mitigation } from '../types';
 import { getMitigationsFromStore } from '../hooks/useSkillsData';
 
 /**
- * Aetherflow (SCH) - Pattern timings
- * Pattern 1 (転化先): 転化 at t=1 → 3 stacks, AF at t=13, 73, 133...  Seraph from t=31
- * Pattern 2 (転化後): AF at t=0, 60, 120...   Seraph from t=44
+ * Aetherflow (SCH) - Gain times come from placed skills
+ * - `aetherflow` (60s recast) and `dissipation` (180s recast) both give 3 stacks on use.
+ * - Auto-insert on SCH join places 転化@t=1 + エーテルフロー@t=13, 73, 133...
+ * - ユーザーが手動で配置/削除/ドラッグしたものも素直に gain times に反映される。
  */
 
-function getAetherflowGainTimes(pattern: 1 | 2, upToTime: number, placedMitigations: AppliedMitigation[]): number[] {
-    const times: number[] = [];
-    if (pattern === 1) {
-        // 転化 (Dissipation) at t=1 gives 3 stacks
-        if (1 <= upToTime) times.push(1);
-        // AF ability at t=13, then every 60s
-        let t = 13;
-        while (t <= upToTime) {
-            times.push(t);
-            t += 60;
-        }
-    } else {
-        // AF at t=0, then every 60s
-        let t = 0;
-        while (t <= upToTime) {
-            times.push(t);
-            t += 60;
-        }
-    }
-
-    // Add manually placed dissipation times
-    const dissipationUses = placedMitigations.filter(m => m.mitigationId === 'dissipation' && m.time <= upToTime);
-    for (const d of dissipationUses) {
-        if (!times.includes(d.time)) {
-            times.push(d.time);
-        }
-    }
-
-    return times.sort((a, b) => a - b);
+function getAetherflowGainTimes(upToTime: number, placedMitigations: AppliedMitigation[]): number[] {
+    const times = placedMitigations
+        .filter(m => (m.mitigationId === 'aetherflow' || m.mitigationId === 'dissipation') && m.time <= upToTime)
+        .map(m => m.time);
+    return Array.from(new Set(times)).sort((a, b) => a - b);
 }
 
 export function getAetherflowStacks(
     time: number,
-    pattern: 1 | 2,
     placedMitigations: AppliedMitigation[]
 ): number {
-    const gainTimes = getAetherflowGainTimes(pattern, time, placedMitigations);
+    const gainTimes = getAetherflowGainTimes(time, placedMitigations);
     if (gainTimes.length === 0) return 0;
 
     // Collect AF-consuming skills sorted by time
@@ -296,7 +272,6 @@ export function validateMitigationPlacement(
     m: Mitigation,
     selectedTime: number,
     activeMitigations: AppliedMitigation[],
-    schAetherflowPattern: 1 | 2,
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string
@@ -406,7 +381,7 @@ export function validateMitigationPlacement(
     if (m.resourceCost) {
         let stacks = 0;
         if (m.resourceCost.type === 'aetherflow') {
-            stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+            stacks = getAetherflowStacks(selectedTime, relevantMitigations);
         } else if (m.resourceCost.type === 'addersgall') {
             stacks = getAddersgallStacks(selectedTime, relevantMitigations);
         } else if (m.resourceCost.type === 'lily') {
@@ -480,7 +455,7 @@ export function validateMitigationPlacement(
                 // Get resource badge if applicable
                 const resourceBadge = m.resourceCost ? (() => {
                     let stacks = 0;
-                    if (m.resourceCost!.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+                    if (m.resourceCost!.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, relevantMitigations);
                     else if (m.resourceCost!.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
                     else if (m.resourceCost!.type === 'lily') stacks = getLilyStacks(selectedTime, relevantMitigations);
                     return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
@@ -493,7 +468,7 @@ export function validateMitigationPlacement(
     // If we have resource cost, return with badge (passed the resource check earlier)
     if (m.resourceCost) {
         let stacks = 0;
-        if (m.resourceCost.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, schAetherflowPattern, relevantMitigations);
+        if (m.resourceCost.type === 'aetherflow') stacks = getAetherflowStacks(selectedTime, relevantMitigations);
         else if (m.resourceCost.type === 'addersgall') stacks = getAddersgallStacks(selectedTime, relevantMitigations);
         else if (m.resourceCost.type === 'lily') stacks = getLilyStacks(selectedTime, relevantMitigations);
         const badge = `×${stacks}`;

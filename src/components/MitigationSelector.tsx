@@ -22,12 +22,11 @@ interface MitigationSelectorProps {
     position: { x: number; y: number };
     activeMitigations?: AppliedMitigation[];
     selectedTime?: number;
-    schAetherflowPattern?: 1 | 2;
     isCentered?: boolean; // 👈 追加：中央表示モードのフラグ
 }
 
 export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
-    isOpen, onClose, onSelect, onRemove, ownerId, jobId, position, activeMitigations = [], selectedTime = 0, schAetherflowPattern = 1,
+    isOpen, onClose, onSelect, onRemove, ownerId, jobId, position, activeMitigations = [], selectedTime = 0,
     isCentered = false // 👈 デフォルトはfalse（今まで通り）
 }) => {
     const { contentLanguage } = useThemeStore();
@@ -119,7 +118,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const allJobMitigations = jobId ? MITIGATIONS.filter(m => m.jobId === jobId) : [];
 
     const getResourceStatus = (m: Mitigation) => {
-        return validateMitigationPlacement(m, selectedTime, activeMitigations, schAetherflowPattern, t);
+        return validateMitigationPlacement(m, selectedTime, activeMitigations, t);
     };
 
     const isSeraphActive = jobId === 'sch' && activeMitigations.some(am =>

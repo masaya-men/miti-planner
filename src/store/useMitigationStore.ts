@@ -5,6 +5,7 @@ import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjac
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 
 import { calculateMemberValues } from '../utils/calculator';
+import { buildScholarAutoInserts, buildAetherflowChainFrom } from '../utils/scholarAutoInsert';
 import {
   getJobsFromStore,
   getMitigationsFromStore,
@@ -62,6 +63,9 @@ interface MitigationState {
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
     conflictingMitigationId: string | null;
+
+    /** 手動でエーテルフローを置いたあとの「リキャストごとに配置しますか？」ポップアップ制御 */
+    aetherflowChainPrompt: { memberId: string; startTime: number } | null;
 
     // Undo/Redo History (not persisted)
     _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
@@ -124,6 +128,11 @@ interface MitigationState {
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
     setConflictingMitigationId: (id: string | null) => void;
+
+    /** エーテルフロー連鎖配置プロンプト制御 */
+    dismissAetherflowChainPrompt: () => void;
+    /** プロンプトの startTime から 60s 間隔で最終イベントまで aetherflow を連続配置する */
+    confirmAetherflowChain: () => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -267,6 +276,7 @@ export const useMitigationStore = create<MitigationState>()(
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
                 conflictingMitigationId: null,
+                aetherflowChainPrompt: null,
                 _history: [],
                 _future: [],
 
@@ -313,10 +323,20 @@ export const useMitigationStore = create<MitigationState>()(
                     const finalPhases = repairAdjacentPhaseBoundaries(lastRepairedPhases);
                     const finalLabels = repairAdjacentLabelBoundaries(lastRepairedLabels);
 
+                    // 学者の aetherflow 自動挿入マイグレーション
+                    // 旧プラン (pattern 時代) は dissipation のみ配置されていて aetherflow が無い
+                    let migratedMitigations = [...snapshot.timelineMitigations];
+                    for (const member of membersWithComputed) {
+                        if (member.jobId === 'sch') {
+                            const inserts = buildScholarAutoInserts(member.id, migratedMitigations, snapshot.timelineEvents);
+                            migratedMitigations.push(...inserts);
+                        }
+                    }
+
                     set({
                         currentLevel: snapshot.currentLevel,
                         timelineEvents: snapshot.timelineEvents,
-                        timelineMitigations: snapshot.timelineMitigations,
+                        timelineMitigations: migratedMitigations,
                         phases: finalPhases,
                         labels: finalLabels,
                         partyMembers: membersWithComputed,
@@ -395,13 +415,23 @@ export const useMitigationStore = create<MitigationState>()(
                 // 👇追加：オートプラン用の一括上書き処理（履歴はここで「1回」だけ保存される）
                 applyAutoPlan: ({ mitigations, warnings }) => {
                     pushHistory();
-                    set(state => ({
-                        timelineMitigations: mitigations,
-                        timelineEvents: state.timelineEvents.map(e => ({
-                            ...e,
-                            warning: warnings.includes(e.id)
-                        }))
-                    }));
+                    set(state => {
+                        // オートプランは dissipation のみ置くので、SCH メンバーに aetherflow を自動補完
+                        let finalMitigations = [...mitigations];
+                        for (const member of state.partyMembers) {
+                            if (member.jobId === 'sch') {
+                                const inserts = buildScholarAutoInserts(member.id, finalMitigations, state.timelineEvents);
+                                finalMitigations.push(...inserts);
+                            }
+                        }
+                        return {
+                            timelineMitigations: finalMitigations,
+                            timelineEvents: state.timelineEvents.map(e => ({
+                                ...e,
+                                warning: warnings.includes(e.id)
+                            }))
+                        };
+                    });
                 },
 
                 setMyMemberId: (memberId) => {
@@ -462,6 +492,22 @@ export const useMitigationStore = create<MitigationState>()(
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
                 setConflictingMitigationId: (id) => set({ conflictingMitigationId: id }),
+
+                dismissAetherflowChainPrompt: () => set({ aetherflowChainPrompt: null }),
+
+                confirmAetherflowChain: () => {
+                    const state = get();
+                    if (!state.aetherflowChainPrompt) return;
+                    const { memberId, startTime } = state.aetherflowChainPrompt;
+                    pushHistory();
+                    set((s) => {
+                        const chain = buildAetherflowChainFrom(memberId, startTime, s.timelineMitigations, s.timelineEvents);
+                        return {
+                            timelineMitigations: [...s.timelineMitigations, ...chain],
+                            aetherflowChainPrompt: null,
+                        };
+                    });
+                },
 
                 addEvent: (event) => {
                     pushHistory();
@@ -736,8 +782,15 @@ export const useMitigationStore = create<MitigationState>()(
                         }
 
                         const newMitigations = [...currentMitigations, mitigation];
+
+                        // 手動で aetherflow を置いたときは「リキャストごと配置」確認プロンプトを表示
+                        const promptPatch = mitigation.mitigationId === 'aetherflow'
+                            ? { aetherflowChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time } }
+                            : {};
+
                         return {
-                            timelineMitigations: resolveShieldLinks(newMitigations, getMitigationsFromStore())
+                            timelineMitigations: resolveShieldLinks(newMitigations, getMitigationsFromStore()),
+                            ...promptPatch,
                         };
                     });
                     // Tutorial: notify that a mitigation has been added
@@ -863,19 +916,10 @@ export const useMitigationStore = create<MitigationState>()(
                             return acc;
                         }, []);
 
-                        // Auto-insert Dissipation for Scholar if missing
+                        // Auto-insert Dissipation + Aetherflow for Scholar
                         if (jobId === 'sch') {
-                            const pattern = state.schAetherflowPatterns[memberId] ?? 1;
-                            const hasInitialDissipation = filteredMitigations.some(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15);
-                            if (!hasInitialDissipation) {
-                                filteredMitigations.push({
-                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                    mitigationId: 'dissipation',
-                                    ownerId: memberId,
-                                    time: pattern === 1 ? 1 : 14,
-                                    duration: 30
-                                });
-                            }
+                            const inserts = buildScholarAutoInserts(memberId, filteredMitigations, state.timelineEvents);
+                            filteredMitigations.push(...inserts);
                         }
 
                         return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
@@ -907,20 +951,11 @@ export const useMitigationStore = create<MitigationState>()(
                         // Remove old mitigations for this member, and append the newly migrated ones
                         const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
 
-                        // Auto-insert Dissipation for Scholar if missing
+                        // Auto-insert Dissipation + Aetherflow for Scholar
                         const finalMitis = [...mitis];
                         if (jobId === 'sch') {
-                            const pattern = state.schAetherflowPatterns[memberId] ?? 1;
-                            const hasInitialDissipation = finalMitis.some(m => m.mitigationId === 'dissipation' && m.time <= 15);
-                            if (!hasInitialDissipation) {
-                                finalMitis.push({
-                                    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                    mitigationId: 'dissipation',
-                                    ownerId: memberId,
-                                    time: pattern === 1 ? 1 : 14,
-                                    duration: 30
-                                });
-                            }
+                            const inserts = buildScholarAutoInserts(memberId, finalMitis.map(m => ({ ...m, ownerId: memberId })), state.timelineEvents);
+                            finalMitis.push(...inserts);
                         }
 
                         return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
@@ -984,19 +1019,10 @@ export const useMitigationStore = create<MitigationState>()(
                                 }
                             }
 
-                            // 3. 学者の場合の転化自動挿入（既存ロジックと同期）
+                            // 3. 学者の場合の転化+エーテルフロー自動挿入
                             if (jobId === 'sch') {
-                                const pattern = state.schAetherflowPatterns[memberId] ?? 1;
-                                const hasInitialDissipation = currentMitigations.some(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15);
-                                if (!hasInitialDissipation) {
-                                    currentMitigations.push({
-                                        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                                        mitigationId: 'dissipation',
-                                        ownerId: memberId,
-                                        time: pattern === 1 ? 1 : 14,
-                                        duration: 30
-                                    });
-                                }
+                                const inserts = buildScholarAutoInserts(memberId, currentMitigations, state.timelineEvents);
+                                currentMitigations.push(...inserts);
                             }
                         });
 

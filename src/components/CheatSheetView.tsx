@@ -14,13 +14,12 @@ type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime
 
 export const CheatSheetView: React.FC = () => {
     const { contentLanguage } = useThemeStore();
-    const { timelineEvents, timelineMitigations, partyMembers, addMitigation, schAetherflowPatterns } = useMitigationStore(
+    const { timelineEvents, timelineMitigations, partyMembers, addMitigation } = useMitigationStore(
         useShallow(s => ({
             timelineEvents: s.timelineEvents,
             timelineMitigations: s.timelineMitigations,
             partyMembers: s.partyMembers,
             addMitigation: s.addMitigation,
-            schAetherflowPatterns: s.schAetherflowPatterns,
         }))
     );
     const { t } = useTranslation();
@@ -491,7 +490,6 @@ export const CheatSheetView: React.FC = () => {
                     position={selectorPosition}
                     activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
                     selectedTime={selectedMitigationTime}
-                    schAetherflowPattern={selectedMemberId ? (schAetherflowPatterns[selectedMemberId] ?? 1) : 1}
                     isCentered={true}
                 />
             </div>

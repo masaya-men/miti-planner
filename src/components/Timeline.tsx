@@ -63,7 +63,6 @@ interface MitigationItemProps {
     offsetTime: number;
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     activeMitigations: AppliedMitigation[];
-    schAetherflowPattern: 1 | 2;
     overlapOffset?: number;
     recastHeight?: number;
     timeToYMap: Map<number, number>;
@@ -140,7 +139,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, schAetherflowPattern, overlapOffset = 0, recastHeight, timeToYMap,
+        scrollContainerRef, activeMitigations, overlapOffset = 0, recastHeight, timeToYMap,
         isVirtual = false, iconOverride
     } = props;
 
@@ -364,7 +363,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         dragStartRef.current = null;
 
         if (newTime !== mitigation.time && def) {
-            const status = validateMitigationPlacement(def, newTime, activeMitigations, schAetherflowPattern, t, mitigation.id);
+            const status = validateMitigationPlacement(def, newTime, activeMitigations, t, mitigation.id);
 
             if (status.available) {
                 resetDragPosition(false);
@@ -546,12 +545,11 @@ const Timeline: React.FC = () => {
 
     // データ（useShallowで浅い比較 → 値が変わったときだけ再レンダー）
     const {
-        aaSettings, schAetherflowPatterns, partyMembers,
+        aaSettings, partyMembers,
         timelineMitigations, timelineEvents, phases,
         clipboardEvent, hideEmptyRows, currentLevel, showRowBorders,
     } = useMitigationStore(useShallow(s => ({
         aaSettings: s.aaSettings,
-        schAetherflowPatterns: s.schAetherflowPatterns,
         partyMembers: s.partyMembers,
         timelineMitigations: s.timelineMitigations,
         timelineEvents: s.timelineEvents,
@@ -572,7 +570,6 @@ const Timeline: React.FC = () => {
     const addMitigation = useMitigationStore(s => s.addMitigation);
     const setMemberJob = useMitigationStore(s => s.setMemberJob);
     const setAaSettings = useMitigationStore(s => s.setAaSettings);
-    const setSchAetherflowPattern = useMitigationStore(s => s.setSchAetherflowPattern);
     const removeMitigation = useMitigationStore(s => s.removeMitigation);
     const updateMitigationTime = useMitigationStore(s => s.updateMitigationTime);
     const addPhase = useMitigationStore(s => s.addPhase);
@@ -962,7 +959,6 @@ const Timeline: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
-    const schBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
 
     const handleScrollSync = () => {
@@ -973,7 +969,6 @@ const Timeline: React.FC = () => {
         const containers = [
             { ref: headerRef, id: 'timeline-header-inner' },
             { ref: controlBarRef, id: 'timeline-controls-inner' },
-            { ref: schBarRef, id: 'timeline-sch-inner' }
         ];
 
         containers.forEach(({ ref, id }) => {
@@ -995,7 +990,6 @@ const Timeline: React.FC = () => {
                 const scrollbarWidth = scrollContainerRef.current.offsetWidth - scrollContainerRef.current.clientWidth;
                 headerRef.current.style.paddingRight = `${scrollbarWidth}px`;
                 if (controlBarRef.current) controlBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
-                if (schBarRef.current) schBarRef.current.style.paddingRight = `${scrollbarWidth}px`;
             }
         };
 
@@ -2042,71 +2036,6 @@ const Timeline: React.FC = () => {
                     </div>
 
                     <div
-                        ref={schBarRef}
-                        className="pointer-events-none absolute left-0 right-0 h-7 z-[51] overflow-hidden"
-                    >
-                        <div id="timeline-sch-inner" className="relative h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {(() => {
-                                const schMembers = sortedPartyMembers
-                                    .map((m, idx) => ({ member: m, idx }))
-                                    .filter(({ member }) => member.jobId === 'sch');
-                                if (schMembers.length === 0) return null;
-                                const fixedColsWidth = 570;
-                                return schMembers.map(({ member, idx }) => {
-                                    let schLeft = fixedColsWidth;
-                                    for (let i = 0; i < idx; i++) {
-                                        schLeft += getColumnWidth(sortedPartyMembers[i].role);
-                                    }
-                                    const schWidth = getColumnWidth('healer');
-                                    const isPatternOne = (schAetherflowPatterns[member.id] ?? 1) === 1;
-                                    return (
-                                        <div
-                                            key={member.id}
-                                            className="absolute top-0 h-full flex items-center justify-center"
-                                            style={{ left: `${schLeft - 30}px`, width: `${schWidth + 60}px` }}
-                                        >
-                                            <Tooltip content={isPatternOne ? t('timeline.dissipation_to_post') : t('timeline.post_to_dissipation')} position="bottom" wrapperClassName="pointer-events-auto">
-                                            <button
-                                                onClick={() => setSchAetherflowPattern(member.id, isPatternOne ? 2 : 1)}
-                                                className={clsx(
-                                                    "flex items-center gap-1 px-2.5 py-0.5 rounded-full border transition-all duration-300 cursor-pointer group shadow-lg pointer-events-auto",
-                                                    "bg-app-surface border-app-border hover:border-app-text hover:bg-app-surface2"
-                                                )}
-                                            >
-                                                <span className="text-app-base font-bold text-app-text-muted uppercase tracking-widest mr-0.5">{t('common.start', 'START')}</span>
-                                                <div className="flex items-center gap-0.5">
-                                                    <div className={clsx(
-                                                        "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
-                                                        isPatternOne
-                                                            ? "ring-app-text/60"
-                                                            : "ring-white/10 opacity-60"
-                                                    )}>
-                                                        <img src="/icons/Dissipation.png" alt={t('mitigation.dissipation', 'Dissipation')} className="w-full h-full object-contain" />
-                                                    </div>
-                                                </div>
-                                                <div className="w-[1px] h-3.5 bg-app-border mx-0.5" />
-                                                <div className="flex items-center gap-0.5">
-                                                    <div className={clsx(
-                                                        "w-5 h-5 rounded-md overflow-hidden transition-all duration-300 ring-1",
-                                                        !isPatternOne
-                                                            ? "ring-app-text/60"
-                                                            : "ring-white/10 opacity-60"
-                                                    )}>
-                                                        <img src="/icons/Aetherflow.png" alt={t('mitigation.aetherflow', 'Aetherflow')} className="w-full h-full object-contain" />
-                                                    </div>
-                                                </div>
-                                            </button>
-                                            </Tooltip>
-                                        </div>
-                                    );
-                                });
-                            })()}
-                        </div>
-
-
-                    </div>
-
-                    <div
                         ref={headerRef}
                         className={clsx(
                             "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden",
@@ -2801,7 +2730,6 @@ const Timeline: React.FC = () => {
                                                             offsetTime={offsetTime}
                                                             scrollContainerRef={scrollContainerRef}
                                                             activeMitigations={ownerMitigations}
-                                                            schAetherflowPattern={schAetherflowPatterns[mitigation.ownerId] ?? 1}
                                                             overlapOffset={0}
                                                             timeToYMap={timeToYMap}
                                                             isVirtual={mitigation.isVirtual}
@@ -3085,8 +3013,7 @@ const Timeline: React.FC = () => {
                                         const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
                                         const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
                                         const status = validateMitigationPlacement(
-                                            mit, mobileMitiFlow.time, memberMitis,
-                                            schAetherflowPatterns[member.id] ?? 1, t
+                                            mit, mobileMitiFlow.time, memberMitis, t
                                         );
                                         // スマホ: 競合警告時も配置不可にする（PCではwarningでも配置可能）
                                         const isClickable = (status.available && !status.warning) || isAlreadyPlaced;
@@ -3172,7 +3099,6 @@ const Timeline: React.FC = () => {
                 position={selectorPosition}
                 activeMitigations={timelineMitigations.filter(m => m.ownerId === selectedMemberId)}
                 selectedTime={selectedMitigationTime}
-                schAetherflowPattern={(schAetherflowPatterns[selectedMemberId!] ?? 1)}
             />
 
             <JobPicker
