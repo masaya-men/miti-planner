@@ -291,10 +291,15 @@ export const useMitigationStore = create<MitigationState>()(
                         computedValues: calculateMemberValues(m, snapshot.currentLevel)
                     }));
 
-                    const migratedPhases = migratePhases(snapshot.phases ?? []);
+                    // timelineEvents の最大時刻を計算（最終フェーズ/ラベルの endTime フォールバックに使用）
+                    const maxEventTime = snapshot.timelineEvents.length > 0
+                        ? snapshot.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+                        : undefined;
+
+                    const migratedPhases = migratePhases(snapshot.phases ?? [], maxEventTime);
                     const labels: Label[] = isLegacyLabelFormat(snapshot as any)
                         ? migrateLabels(snapshot.timelineEvents, migratedPhases)
-                        : ensureLabelEndTimes((snapshot as any).labels ?? []);
+                        : ensureLabelEndTimes((snapshot as any).labels ?? [], maxEventTime);
 
                     set({
                         currentLevel: snapshot.currentLevel,
@@ -456,6 +461,9 @@ export const useMitigationStore = create<MitigationState>()(
 
                 importTimelineEvents: (events, importPhases, importLabels) => {
                     pushHistory();
+                    const maxEventTime = events.length > 0
+                        ? events.reduce((max, e) => Math.max(max, e.time), 0)
+                        : undefined;
                     const update: Partial<ReturnType<typeof get>> = {
                         timelineEvents: [...events].sort((a, b) => a.time - b.time),
                         timelineMitigations: [], // Clear old mitigations — they belong to a different fight
@@ -467,7 +475,7 @@ export const useMitigationStore = create<MitigationState>()(
                                 id: `phase_${p.id}`,
                                 name: p.name,
                                 startTime: p.startTimeSec,
-                            })));
+                            })), maxEventTime);
                     }
                     if (importLabels) {
                         update.labels = importLabels;
