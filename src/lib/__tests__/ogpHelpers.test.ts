@@ -302,4 +302,28 @@ describe('buildOgImageUrl', () => {
             { showTitle: true, showLogo: true, lang: 'ja' }))
             .toBe('https://lopo-miti-preview.vercel.app/api/og?id=abc12345&showLogo=true&lang=ja');
     });
+
+    it('logoHash 指定時は &lh=... が showLogo の直後に入る', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID,
+            { showTitle: true, showLogo: true, logoHash: 'abcdef0123456789', lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showLogo=true&lh=abcdef0123456789&lang=ja');
+    });
+
+    it('logoHash は showLogo=false なら無視される（URL に出ない）', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID,
+            { showTitle: true, showLogo: false, logoHash: 'abcdef0123456789', lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&lang=ja');
+    });
+
+    it('logoHash 未指定なら lh パラメータは付かない（旧シェアと互換）', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID,
+            { showTitle: true, showLogo: true, lang: 'ja' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showLogo=true&lang=ja');
+    });
+
+    it('showTitle=false + showLogo=true + logoHash の組み合わせ', () => {
+        expect(buildOgImageUrl(ORIGIN, SHARE_ID,
+            { showTitle: false, showLogo: true, logoHash: 'deadbeef12345678', lang: 'en' }))
+            .toBe('https://lopoly.app/api/og?id=abc12345&showTitle=false&showLogo=true&lh=deadbeef12345678&lang=en');
+    });
 });

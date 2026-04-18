@@ -88,12 +88,16 @@ export default async function handler(req: any, res: any) {
                 const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
                 // showTitle は POST/PUT で永続化された値を読む。未設定は true（デフォルト）扱い。
                 const showTitleState = typeof data.showTitle === 'boolean' ? data.showTitle : true;
+                // logoHash: ロゴ内容変更時に URL を変えて CDN キャッシュを別エントリにするためのバージョン子。
+                // 旧シェア（logoHash 未保存）は undefined のまま → URL に lh は付かず後方互換。
+                const logoHashStr = typeof data.logoHash === 'string' ? data.logoHash : undefined;
                 // 共通ビルダーで URL を生成。クライアント（ShareModal）、/api/share のプリウォーム、
                 // このサーバー OGP メタタグの3箇所で同じ関数を使うことで
                 // Vercel edge cache キーが完全一致する。
                 ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
                     showTitle: showTitleState,
                     showLogo: hasLogo,
+                    logoHash: hasLogo ? logoHashStr : undefined,
                     lang,
                 });
             }

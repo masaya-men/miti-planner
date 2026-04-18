@@ -96,17 +96,25 @@ export type OgpLang = 'ja' | 'en';
  *       モーダルプレビュー・サーバーOGPメタ・サーバー側プリウォームの
  *       すべてでこの関数を使い、URL を完全一致させること。
  *
+ * logoHash: ロゴ内容の SHA-256 先頭16文字。
+ *   ロゴ内容が変わるとハッシュが変わり URL も変わるため、
+ *   CDN キャッシュは別エントリ扱いになり常に最新ロゴ画像が生成される。
+ *   showLogo=true のときのみ意味を持つ。
+ *
  * パラメータ順序（固定）:
- *   id → showTitle? → showLogo? → lang
+ *   id → showTitle? → showLogo? → lh? → lang
  */
 export function buildOgImageUrl(
     origin: string,
     shareId: string,
-    opts: { showTitle: boolean; showLogo: boolean; lang: OgpLang },
+    opts: { showTitle: boolean; showLogo: boolean; logoHash?: string; lang: OgpLang },
 ): string {
     let url = `${origin}/api/og?id=${encodeURIComponent(shareId)}`;
     if (!opts.showTitle) url += '&showTitle=false';
-    if (opts.showLogo) url += '&showLogo=true';
+    if (opts.showLogo) {
+        url += '&showLogo=true';
+        if (opts.logoHash) url += `&lh=${encodeURIComponent(opts.logoHash)}`;
+    }
     url += `&lang=${opts.lang}`;
     return url;
 }

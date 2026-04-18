@@ -124,6 +124,10 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
+            // logoHash: ロゴ内容の SHA-256 先頭16文字。CDN キャッシュキーとして OGP URL に含めることで、
+            // 同じ shareId でロゴ内容のみ変わったケース（モーダル内で再アップロード等）でも
+            // 古いキャッシュ画像が配信される問題を回避する。
+            let logoHashStr: string | null = null;
             let logoBlocked = false;
             // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
             const logoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
@@ -139,6 +143,7 @@ export default async function handler(req: any, res: any) {
                         logoBlocked = true;
                     } else {
                         logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                        logoHashStr = hash.slice(0, 16);
                     }
                 } catch (err) {
                     console.error('Logo download failed:', err);
@@ -162,16 +167,24 @@ export default async function handler(req: any, res: any) {
                     viewCount: 0,
                     createdAt: Date.now(),
                 };
-                if (logoBase64) doc.logoBase64 = logoBase64;
+                if (logoBase64) {
+                    doc.logoBase64 = logoBase64;
+                    doc.logoHash = logoHashStr;
+                }
                 await db.collection(COLLECTION).doc(shareId).set(doc);
                 // OGP 画像のエッジキャッシュを同期プリウォーム
                 const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
                     showTitle: normalizedShowTitle,
                     showLogo: !!logoBase64,
+                    logoHash: logoHashStr || undefined,
                     lang: normalizedLang,
                 });
                 await prewarmOgImage(ogUrl);
-                return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
+                return res.status(200).json({
+                    shareId,
+                    ...(logoHashStr && { logoHash: logoHashStr }),
+                    ...(logoBlocked && { logoBlocked: true }),
+                });
             }
 
             // 単一プラン共有
@@ -191,18 +204,26 @@ export default async function handler(req: any, res: any) {
                 viewCount: 0,
                 createdAt: Date.now(),
             };
-            if (logoBase64) doc.logoBase64 = logoBase64;
+            if (logoBase64) {
+                doc.logoBase64 = logoBase64;
+                doc.logoHash = logoHashStr;
+            }
 
             await db.collection(COLLECTION).doc(shareId).set(doc);
             // OGP 画像のエッジキャッシュを同期プリウォーム
             const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
                 showTitle: normalizedShowTitle,
                 showLogo: !!logoBase64,
+                logoHash: logoHashStr || undefined,
                 lang: normalizedLang,
             });
             await prewarmOgImage(ogUrl);
 
-            return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
+            return res.status(200).json({
+                shareId,
+                ...(logoHashStr && { logoHash: logoHashStr }),
+                ...(logoBlocked && { logoBlocked: true }),
+            });
 
         } else if (req.method === 'PUT') {
             // レート制限（1分あたり5回）
@@ -223,6 +244,7 @@ export default async function handler(req: any, res: any) {
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
+            let logoHashStr: string | null = null;
             let logoBlocked = false;
             // Storageパスの厳格な検証（users/{uid}/team-logo.jpg のみ許可）
             const putLogoPathRegex = /^users\/[a-zA-Z0-9:_-]+\/team-logo\.jpg$/;
@@ -238,17 +260,21 @@ export default async function handler(req: any, res: any) {
                         logoBlocked = true;
                     } else {
                         logoBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+                        logoHashStr = hash.slice(0, 16);
                     }
                 } catch (err) {
                     console.error('Logo download failed:', err);
                 }
             }
 
-            // ロゴフィールドのみ更新（logoBase64がnullなら削除）
+            // ロゴフィールドのみ更新（logoBase64／logoHash 共に削除 or 設定）
             if (logoBase64) {
-                await existingRef.update({ logoBase64 });
+                await existingRef.update({ logoBase64, logoHash: logoHashStr });
             } else {
-                await existingRef.update({ logoBase64: FieldValue.delete() });
+                await existingRef.update({
+                    logoBase64: FieldValue.delete(),
+                    logoHash: FieldValue.delete(),
+                });
             }
 
             // showTitle が送られてきたら更新
@@ -265,11 +291,18 @@ export default async function handler(req: any, res: any) {
             const ogUrl = buildOgImageUrl(resolveOgOrigin(req), shareId, {
                 showTitle: effectiveShowTitle,
                 showLogo: !!logoBase64,
+                logoHash: logoHashStr || undefined,
                 lang: effectiveLang,
             });
             await prewarmOgImage(ogUrl);
 
-            return res.status(200).json({ shareId, ...(logoBlocked && { logoBlocked: true }) });
+            return res.status(200).json({
+                shareId,
+                // logoHash は logo 削除時 null、設定時は新ハッシュ。
+                // クライアントは null/undefined を「ロゴ無し状態」として処理する。
+                logoHash: logoHashStr,
+                ...(logoBlocked && { logoBlocked: true }),
+            });
 
         } else if (req.method === 'GET') {
             // ── 取得 ──
