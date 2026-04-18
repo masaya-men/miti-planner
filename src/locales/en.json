@@ -597,9 +597,9 @@
         "privacy_section6_col_data": "Data type",
         "privacy_section6_col_location": "Stored in",
         "privacy_section6_col_period": "How long",
-        "privacy_section6_data_types": "Account info & mitigation plans,Team logo image,Shared plans,Viewer records (irreversibly transformed),Anonymous copy-counting ID (random string),Anonymous copy records and daily copy aggregation,Access frequency records,Login cookies,Browser cache",
-        "privacy_section6_data_locations": "Google Firebase (Tokyo),Google Firebase Storage (US),Google Firebase (Tokyo),Google Firebase (Tokyo),Your browser,Google Firebase (Tokyo),Upstash (US East),Your browser,Your browser",
-        "privacy_section6_data_periods": "Until you delete your account,Until you delete it,Indefinitely,Indefinitely (the original IP address cannot be recovered),Until you clear your browser data,Daily aggregation entries older than 8 days are auto-deleted,Automatically deleted within 1 minute,Automatically deleted within 5 minutes,Until you delete it",
+        "privacy_section6_data_types": "Account info & mitigation plans,Team logo image,Shared plans,Share preview image (OGP),Viewer records (irreversibly transformed),Anonymous copy-counting ID (random string),Anonymous copy records and daily copy aggregation,Access frequency records,Login cookies,Browser cache",
+        "privacy_section6_data_locations": "Google Firebase (Tokyo),Google Firebase Storage (US),Google Firebase (Tokyo),Google Firebase Storage (US),Google Firebase (Tokyo),Your browser,Google Firebase (Tokyo),Upstash (US East),Your browser,Your browser",
+        "privacy_section6_data_periods": "Until you delete your account,Until you delete it,Indefinitely,Auto-deleted after 30 days of no access,Indefinitely (the original IP address cannot be recovered),Until you clear your browser data,Daily aggregation entries older than 8 days are auto-deleted,Automatically deleted within 1 minute,Automatically deleted within 5 minutes,Until you delete it",
         "privacy_section6_note": "If you are not logged in, no mitigation plan is stored on our service. However, only when you copy a shared plan, an anonymous ID (a non-identifying string) is sent to our server to prevent double-counting in the aggregation.",
 
         "privacy_section7_title": "7. Sharing Information with Third Parties",

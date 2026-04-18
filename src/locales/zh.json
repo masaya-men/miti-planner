@@ -577,9 +577,9 @@
         "privacy_section6_col_data": "数据类型",
         "privacy_section6_col_location": "存储位置",
         "privacy_section6_col_period": "保留时间",
-        "privacy_section6_data_types": "账户信息和减伤方案,团队标志图片,共享方案,浏览记录（不可逆转换）,匿名复制统计ID（随机字符串）,匿名复制记录与每日复制汇总,访问频率记录,登录 Cookie,浏览器缓存",
-        "privacy_section6_data_locations": "Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,Google Firebase（东京）,您的浏览器,Google Firebase（东京）,Upstash（美国东部）,您的浏览器,您的浏览器",
-        "privacy_section6_data_periods": "直到您删除账户,直到您删除,永久保留,永久保留（原始 IP 地址无法恢复）,直到您从浏览器中删除,每日汇总数据8天以上自动删除,1 分钟内自动删除,5 分钟内自动删除,直到您删除",
+        "privacy_section6_data_types": "账户信息和减伤方案,团队标志图片,共享方案,共享预览图（OGP）,浏览记录（不可逆转换）,匿名复制统计ID（随机字符串）,匿名复制记录与每日复制汇总,访问频率记录,登录 Cookie,浏览器缓存",
+        "privacy_section6_data_locations": "Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,您的浏览器,Google Firebase（东京）,Upstash（美国东部）,您的浏览器,您的浏览器",
+        "privacy_section6_data_periods": "直到您删除账户,直到您删除,永久保留,30天无访问后自动删除,永久保留（原始 IP 地址无法恢复）,直到您从浏览器中删除,每日汇总数据8天以上自动删除,1 分钟内自动删除,5 分钟内自动删除,直到您删除",
         "privacy_section6_note": "未登录时，本服务不会保存您的减伤计划。但是，仅当您复制共享计划时，为了防止统计的重复计数，会向服务器发送匿名ID（不能识别个人的字符串）。",
 
         "privacy_section7_title": "7. 向第三方共享信息",
