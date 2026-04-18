@@ -117,10 +117,14 @@ export default async function handler(req: any, res: any) {
         if (indexRes.ok) {
             let html = await indexRes.text();
 
+            // 共有ページの正規 URL（OGP の og:url を共有 URL に正しく差し替え）
+            const sharePageUrl = shareId ? `${protocol}://${host}/share/${encodeURIComponent(shareId)}` : `${protocol}://${host}`;
+
             html = html
                 .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(ogTitle)}</title>`)
                 .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(ogTitle)}" />`)
                 .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(ogDescription)}" />`)
+                .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(sharePageUrl)}" />`)
                 .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImageUrl)}" />`)
                 .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
                 .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
