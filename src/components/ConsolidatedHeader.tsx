@@ -213,12 +213,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
                             )}
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* チュートリアル */}
                             <TutorialMenu btnClassName={clsx(pillBtnBase, pillBtnDefault)} />
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* テーマ切替（チュートリアル中も常に操作可能） */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
@@ -334,7 +334,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
                             </button>
 
-                            <div className="h-5 w-[1px] dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
