@@ -54,17 +54,28 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const lang: OgpLang = i18n.language === 'en' ? 'en' : 'ja';
 
     /**
-     * OGP画像URLを構築するヘルパー（共通ビルダーの薄いラッパ）。
-     * 必ず共通の buildOgImageUrl を使い、サーバー側と URL を完全一致させる。
-     * logoHash はサーバーから返ってきた値をそのまま渡す（ロゴ無しなら null）。
+     * OGP画像URLを構築するヘルパー。
+     *   imageHash あり: /og/{hash}.png（同一オリジン静的キャッシュ、サーバー側 og:image と一致）
+     *   imageHash なし: 従来の /api/og?... URL（後方互換）
+     * サーバーから返ってきた imageHash を必ず渡すことでサーバーと URL が完全一致する。
      */
-    const buildOgUrl = (id: string, planTitle: boolean, logo: boolean, logoHash: string | null) =>
-        buildOgImageUrl(window.location.origin, id, {
+    const buildOgUrl = (
+        id: string,
+        planTitle: boolean,
+        logo: boolean,
+        logoHash: string | null,
+        imageHash?: string | null,
+    ) => {
+        if (imageHash && /^[a-f0-9]{16}$/.test(imageHash)) {
+            return `${window.location.origin}/og/${imageHash}.png`;
+        }
+        return buildOgImageUrl(window.location.origin, id, {
             showTitle: planTitle,
             showLogo: logo,
             logoHash: logoHash || undefined,
             lang,
         });
+    };
 
     // モーダルが開いたら共有URLを生成
     useEffect(() => {
@@ -108,9 +119,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             const data = await res.json();
             setShareIdRef(data.shareId);
             const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
+            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
             const url = `${window.location.origin}/share/${data.shareId}`;
             setShareUrl(url);
-            setOgImageUrl(buildOgUrl(data.shareId, showPlanTitle, showLogo, newLogoHash));
+            setOgImageUrl(buildOgUrl(data.shareId, showPlanTitle, showLogo, newLogoHash, newImageHash));
             if (data.logoBlocked) {
                 showToast(t('team_logo.logo_blocked'), 'error');
             }
@@ -141,12 +153,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (data.logoBlocked) {
                 showToast(t('team_logo.logo_blocked'), 'error');
             }
-            // サーバーから返ってきた logoHash で URL を組み立て直す。
-            // ロゴ内容が変われば logoHash も変わるため URL が自然に変化し、
-            // ブラウザもエッジキャッシュも別エントリとして新画像を取得する
+            // サーバーから返ってきた logoHash / imageHash で URL を組み立て直す。
+            // ロゴ内容が変われば imageHash も変わるため URL が自然に変化し、
+            // ブラウザも Storage キャッシュも別エントリとして新画像を取得する
             // （タイムスタンプ式キャッシュバスター不要でサーバーOGP URL と完全一致）。
             const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
-            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, withLogo, newLogoHash));
+            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
+            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, withLogo, newLogoHash, newImageHash));
         } catch (err) {
             console.error('Share logo update failed:', err);
             showToast(t('app.share_failed'));
@@ -183,8 +196,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             // showTitle トグルでも logo を再投入しているため、サーバーは現在の logoHash を返す。
             // 旧シェアで logoHash 未保存 → null が返る場合もある。いずれも素直に反映。
             const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
+            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
             // 成功後にプレビューを新URLで再読み込み
-            setOgImageUrl(buildOgUrl(shareIdRef, next, showLogo, newLogoHash));
+            setOgImageUrl(buildOgUrl(shareIdRef, next, showLogo, newLogoHash, newImageHash));
         } catch (err) {
             console.error('Share title update failed:', err);
             showToast(t('app.share_failed'));
