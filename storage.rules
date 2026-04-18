@@ -6,6 +6,13 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.token.role == 'admin';
     }
 
+    // OGP画像キャッシュ: 誰でも読み取り可能、書き込みはサーバー(admin SDK)のみ
+    // admin SDK は rule をバイパスするため、クライアントからの直接書き込みは全て拒否する
+    match /og-images/{hash} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ユーザーのチームロゴ・アバター: 誰でも読み取り可能、本人のみ書き込み・削除可能
     match /users/{userId}/{file} {
       allow read: if true;
