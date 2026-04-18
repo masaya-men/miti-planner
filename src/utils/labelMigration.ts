@@ -56,21 +56,30 @@ export function migrateLabels(timelineEvents: TimelineEvent[], phases: Phase[]):
         }
     }
 
-    return ensureLabelEndTimes(labels);
+    // 最終ラベルは最終イベント時刻まで伸ばす（startTime+1 の見切れ防止）
+    const maxEventTime = sorted[sorted.length - 1].time;
+    return ensureLabelEndTimes(labels, maxEventTime);
 }
 
 /**
  * endTimeが未定義のラベルにendTimeを補完する。
  * - 中間ラベル: 次のラベルのstartTime
- * - 最終ラベル: startTime + 1
+ * - 最終ラベル: maxTime が指定されていれば max(maxTime, startTime+1)、未指定なら startTime + 1
  */
-export function ensureLabelEndTimes(labels: Array<Omit<Label, 'endTime'> & { endTime?: number }>): Label[] {
+export function ensureLabelEndTimes(
+    labels: Array<Omit<Label, 'endTime'> & { endTime?: number }>,
+    maxTime?: number,
+): Label[] {
     if (labels.length === 0) return [];
     const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
     return sorted.map((l, i) => {
         if (l.endTime !== undefined) return l as Label;
         const next = sorted[i + 1];
-        return { ...l, endTime: next ? next.startTime : l.startTime + 1 } as Label;
+        if (next) return { ...l, endTime: next.startTime } as Label;
+        const fallback = maxTime !== undefined
+            ? Math.max(maxTime, l.startTime + 1)
+            : l.startTime + 1;
+        return { ...l, endTime: fallback } as Label;
     });
 }
 

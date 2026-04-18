@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isLegacyLabelFormat, migrateLabels } from '../labelMigration';
+import { isLegacyLabelFormat, migrateLabels, ensureLabelEndTimes } from '../labelMigration';
 
 // テスト用のヘルパー型
 type TEvent = {
@@ -132,5 +132,57 @@ describe('migrateLabels', () => {
         const result = migrateLabels(events, []);
         expect(result[0].endTime).toBe(20);
         expect(result[1].endTime).toBe(21);
+    });
+
+    it('最終ラベル startTime より後にイベントがある場合、endTime はそこまで伸びる', () => {
+        const events: TEvent[] = [
+            { id: 'e1', time: 0, name: { ja: 'A', en: 'A' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
+            { id: 'e2', time: 10, name: { ja: 'B', en: 'B' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
+            { id: 'e3', time: 50, name: { ja: 'C', en: 'C' }, damageType: 'magical' },
+        ];
+        const result = migrateLabels(events, []);
+        expect(result).toHaveLength(1);
+        expect(result[0].startTime).toBe(0);
+        expect(result[0].endTime).toBe(50);
+    });
+
+    it('最終ラベル startTime = 最終イベント時刻の場合、endTime は startTime + 1', () => {
+        const events: TEvent[] = [
+            { id: 'e1', time: 0, name: { ja: 'A', en: 'A' }, damageType: 'magical', mechanicGroup: { ja: '開幕', en: 'Opener' } },
+            { id: 'e2', time: 20, name: { ja: 'B', en: 'B' }, damageType: 'magical', mechanicGroup: { ja: '展開', en: 'Spread' } },
+        ];
+        const result = migrateLabels(events, []);
+        expect(result[1].startTime).toBe(20);
+        expect(result[1].endTime).toBe(21);
+    });
+});
+
+describe('ensureLabelEndTimes', () => {
+    it('maxTime を渡すと最終ラベルの endTime がそれになる', () => {
+        const labels = [
+            { id: 'l1', name: { ja: 'A', en: 'A' }, startTime: 0 },
+            { id: 'l2', name: { ja: 'B', en: 'B' }, startTime: 30 },
+        ];
+        const result = ensureLabelEndTimes(labels, 200);
+        expect(result[0].endTime).toBe(30);
+        expect(result[1].endTime).toBe(200);
+    });
+
+    it('maxTime 未指定時は startTime + 1 が使われる（後方互換）', () => {
+        const labels = [
+            { id: 'l1', name: { ja: 'A', en: 'A' }, startTime: 0 },
+            { id: 'l2', name: { ja: 'B', en: 'B' }, startTime: 30 },
+        ];
+        const result = ensureLabelEndTimes(labels);
+        expect(result[0].endTime).toBe(30);
+        expect(result[1].endTime).toBe(31);
+    });
+
+    it('既に endTime がある最終ラベルは maxTime で上書きされない', () => {
+        const labels = [
+            { id: 'l1', name: { ja: 'A', en: 'A' }, startTime: 0, endTime: 100 },
+        ];
+        const result = ensureLabelEndTimes(labels, 500);
+        expect(result[0].endTime).toBe(100);
     });
 });
