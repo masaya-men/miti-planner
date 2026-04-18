@@ -68,6 +68,18 @@ export default async function handler(req: any, res: any) {
             if (checked >= MAX_PROCESS) break;
             checked++;
             try {
+                // ハッシュ抽出（`og-images/{16hex}.png` 形式）
+                const match = file.name.match(/^og-images\/([a-f0-9]{16})\.png$/);
+                const hash = match?.[1];
+
+                // keepForever フラグ: Featured 指定中のプランは絶対に削除しない
+                if (hash) {
+                    const metaSnap = await db.collection(OG_IMAGE_META_COLLECTION).doc(hash).get();
+                    if (metaSnap.exists && metaSnap.data()?.keepForever === true) {
+                        continue;
+                    }
+                }
+
                 const [metadata] = await file.getMetadata();
                 const lastAccessedRaw = (metadata.metadata as any)?.lastAccessedAt;
                 const lastAccessed = typeof lastAccessedRaw === 'string' && /^\d+$/.test(lastAccessedRaw)
@@ -79,9 +91,7 @@ export default async function handler(req: any, res: any) {
                 deletedCount++;
 
                 // og_image_meta/{hash} も同時に削除
-                const match = file.name.match(/^og-images\/([a-f0-9]{16})\.png$/);
-                if (match) {
-                    const hash = match[1];
+                if (hash) {
                     try {
                         await db.collection(OG_IMAGE_META_COLLECTION).doc(hash).delete();
                     } catch { /* meta 削除失敗は致命的でない */ }
