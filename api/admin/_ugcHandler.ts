@@ -61,6 +61,9 @@ export default async function handler(req: any, res: any) {
         type: data.type || 'single',
         hasLogo: !!data.logoBase64,
         logoBase64: data.logoBase64 || null,
+        featured: data.featured === true,
+        copyCount: data.copyCount || 0,
+        imageHash: data.imageHash || null,
       });
 
     } else if (req.method === 'DELETE') {
