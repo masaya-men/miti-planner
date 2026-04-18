@@ -854,25 +854,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     );
     const { getSnapshot, loadSnapshot } = useMitigationStore();
 
-    // currentPlanIdが変わったらselectedContentIdも追従する（タブ復帰・プラン切替時）
-    // プラン未選択時（全削除後・初回起動）はデフォルト状態にリセット
+    // currentPlanId が切替わったときだけ selectedContentId / activeTab を追従させる。
+    // plans 配列の変化（削除・コピー等）では発火させない → ユーザー選択中のタブを保持する。
+    // currentPlanId === null への遷移時もタブを触らない（ユーザー意図を尊重）。
     React.useEffect(() => {
-        if (currentPlanId) {
-            const plan = plans.find(p => p.id === currentPlanId);
-            if (plan?.contentId) {
-                setSelectedContentId(plan.contentId);
-                const content = getContentById(plan.contentId);
-                if (content) {
-                    if (content.category === 'savage') setActiveTab('savage');
-                    else if (content.category === 'ultimate') setActiveTab('ultimate');
-                    else setActiveTab('other');
-                }
-            }
-        } else {
-            setActiveTab('savage');
-            setSelectedContentId(null);
+        if (!currentPlanId) return;
+        const plan = plans.find(p => p.id === currentPlanId);
+        if (!plan?.contentId) return;
+        setSelectedContentId(plan.contentId);
+        const content = getContentById(plan.contentId);
+        if (content) {
+            if (content.category === 'savage') setActiveTab('savage');
+            else if (content.category === 'ultimate') setActiveTab('ultimate');
+            else setActiveTab('other');
         }
-    }, [currentPlanId, plans]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentPlanId]);
 
     // 過去拡張の零式プランを自動アーカイブ（通知のみ）
     React.useEffect(() => {
