@@ -2,8 +2,26 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-04-18）
+- [x] **サイドバータブのリセットバグ修正**: プラン削除/コピー等の操作でタブが勝手に零式へ戻るバグを解消。useEffect 依存配列から `plans` を外し、`currentPlanId === null` の else 分岐を削除（ユーザー選択中のタブを保持）。旧サイドバーUI時代の名残。
+- [x] **ヘッダー縦罫線の太さ統一**: 3本の罫線を `w-px shrink-0` で統一（サブピクセル圧縮対策）。完全に揃わないケース残るが実害なしで放置判断。
+- [x] **フェーズ/ラベル隣接規約の本質修正**: 境界罫線消失バグを根本解消。新規約 `phase[i].endTime + 1 === phase[i+1].startTime` で描画仕様と整合。`loadSnapshot` 時に旧規約データを自動修復。全219テストPASS、実機検証済み。
+- [x] **隣接フェーズ/ラベル境界追従**: `updatePhase/Label*Time` 4関数で追従挙動を統一。被せた側が隣を追従、最低幅1秒で停止。新規テスト19ケース追加。
+- [x] **最終フェーズ/ラベル endTime 修正**: `ensurePhase/LabelEndTimes` に `maxTime` 引数追加、15呼び出し元で `timelineEvents` 最大時刻を渡すよう修正。
+- [x] **admin画面 i18n キー生表示修正**: ja/en/zh/ko 全4言語で `admin` オブジェクトの閉じ `}` 位置ズレ修正（`ugc_*`/`featured_*` キーが backup 内に誤配置）。
+- [x] **Phase 3 実装完了**: 管理画面 Featured 設定UI + OGP 高速化 + 削除防止。`PATCH /api/popular`、`AdminFeatured.tsx`、`/og/{hash}.png` 静的配信、`keepForever` で cron 削除除外。11 commits。
+- [x] **3層防御の自動診断 全プロジェクト対応**: `check-secret-defense-layers.sh`（SessionStart 診断）、`setup-secret-defense.sh` に Layer C 自動適用追加、グローバル CLAUDE.md にセキュリティ標準セクション追加、Booklage にも適用。
+- [x] **シークレット漏洩 3層防御 導入**: Layer A (SessionStart worktree scan) / Layer B (gitleaks pre-commit) / Layer C (GitHub Secret Scanning + Push Protection)。worktree に staged で残っていた `.env.vercel-check` が契機（commit/push 未遂、実害なし）。
+- [x] **Phase 2 本番観察完了**: UID 重複排除、anonId 新規記録、App Check 強制、クライアント dedup すべて動作確認。
+- [x] **shared_plans 管理人テスト 179件一括削除**（ツイート用 `5lCMACDB` のみ残存）。
+- [x] **OGP 画像 X 表示問題 最終解決**: Firebase Storage 静的キャッシュ + Lazy 生成 + 週次 Cron。`lopoly.app/og/{hash}.png`、30日未使用削除、4言語 Privacy Policy `privacy_section6` 追加。
+
 ## 完了（2026-04-17）
 - [x] フェーズ/ラベル追加: 強制2秒間バグ修正（endTime計算: containingPhase引き継ぎ+maxEventTimeフォールバック）
+- [x] ボトムシートUX改善: 初期ロード全面スピナー + コピー進捗実値・パルス・最低400ms（本番確認済み）
+- [x] 通知音パス修正: FFXIV_SE/FFXIV_Notification.mp3 へ更新
+- [x] 野良主流ランキング再設計 + Phase 1/Phase 2 実装
+- [x] タンクLBスキル追加（Lv1/2/3 × 4ジョブ）
 
 ## 完了（2026-04-16 後半）
 - [x] リタージーオブベル: 管理画面から追加→Firestoreデータ修正（ID正規化+family追加）→seed事故で消失→mockData.ts追加で復元
