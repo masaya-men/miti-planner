@@ -13,7 +13,30 @@
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
-### 次にやること
+### 🔴 次セッション最優先: OGP 画像が X で表示されない問題の最終解決
+
+**状況**: X 上で OGP 画像カードが画像なしの summary card で表示される問題。
+このセッション内で 6 commit 投入したが完全解決に至らず。
+
+**解決策の計画書（次セッションで実装）**:
+[docs/superpowers/plans/2026-04-18-ogp-static-cache-with-auto-cleanup.md](./superpowers/plans/2026-04-18-ogp-static-cache-with-auto-cleanup.md)
+
+**方針**: Lazy 生成 + Firebase Storage 永続キャッシュ + Vercel Cron 自動クリーンアップ
+- URL: `lopoly.app/og/{hash}.png`（同一オリジン静的画像、/api/ 非経由）
+- 重複排除: imageHash で同内容は 1 ファイル
+- 自動クリーンアップ: 週次 Cron で 30 日未使用を削除
+- 工数: 約 3 時間
+- 制約: 既存機能を壊さない、ハードコーディング禁止、後方互換維持
+
+**このセッションで本番投入済みの 6 commits**:
+- `461023e` showLogo フラグ伝播
+- `675b1ca` クエリパラメータ順序統一
+- `6dd7249` 多層防御（showTitle 永続化、サーバー側プリウォーム、favicon バンドル化）
+- `c35cc3c` robots.txt で /api/og 許可（X クローラーブロック解除）
+- `9ee744e` og:url 修正
+- `628f526` logoHash で内容バージョン付与（モーダル内ロゴ更新時の CDN 陳腐化対策）
+
+### 次にやること（OGP 解決の後）
 - **Phase 2 本番観察（デプロイ直後）**
   - `scripts/_tmp_check_viewcount.ts` で top10 を一度スナップショット（copyCount, viewCount）
   - 本番で人気ボタン→ボトムシート→コピーまで実行 → Firestore `shared_plans/{id}.copyCountByDay` に今日のキーが増えることを確認
