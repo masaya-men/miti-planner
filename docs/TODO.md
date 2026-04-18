@@ -14,6 +14,7 @@
 - **OGP 画像 X 表示問題: 完全解決（2026-04-18、プライベート X でカード表示確認済み）**
 - **Phase 2 本番観察: 完了（2026-04-18、copyCount/copyCountByDay/匿名ID重複排除すべて動作確認）**
 - **shared_plans クリーンアップ済み: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存、管理人テスト 179件削除**
+- **シークレット漏洩 3層防御 導入済み（2026-04-18）**: SessionStart フック / gitleaks pre-commit / GitHub Secret Scanning + Push Protection
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
@@ -28,6 +29,12 @@
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
 
 ### 今セッションの完了事項（2026-04-18）
+- ✅ **シークレット漏洩 3層防御 導入**
+  - Layer A: `~/.claude/settings.json` に SessionStart フック（`.claude/worktrees/` を毎回自動走査、検知時は Claude の context に警告）
+  - Layer B: `.husky/pre-commit` で gitleaks 自動スキャン（secret 検出時 commit 拒否、`--redact=100` で値は画面表示しない）
+  - Layer C: GitHub Secret Scanning + Push Protection 両方 enabled
+  - 汎用セットアップスクリプト: `~/.claude/hooks/setup-secret-defense.sh`（他プロジェクトで `bash ~/.claude/hooks/setup-secret-defense.sh` 一発）
+  - きっかけ: 過去のエージェント worktree に `.env.vercel-check` が staged で残留（**commit/push 未遂、全履歴スキャンで痕跡 0 件**、実害なし）。worktree 撤去 + リモートブランチ削除済み。
 - ✅ **Phase 2 本番観察完了**
   - 通常ブラウザ（ログイン中）→ UID 重複排除で alreadyCounted、ランキング不変
   - シークレット（未ログイン）→ 新規 anonId で `anonCopiedBy` + `copyCountByDay.今日` に正しく記録、copyCount +1
