@@ -203,7 +203,6 @@
         "aetherflow_chain_prompt_title": "以太超流",
         "aetherflow_chain_prompt_message": "每次冷却完成后自动放置？",
         "aetherflow_chain_prompt_yes": "是",
-        "aetherflow_chain_prompt_no": "否",
         "unavailable_dissipation": "不可用（转化中）",
         "unavailable_dissipation_dup": "不可用（转化中）",
         "no_aetherflow": "无以太超流",

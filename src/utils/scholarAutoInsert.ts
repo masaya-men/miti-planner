@@ -22,6 +22,20 @@ function genId(): string {
 }
 
 /**
+ * 該当 SCH メンバーが既にエーテルフローを 1 つでも持っているか。
+ * true なら「初回投入済み」とみなし、自動配置はスキップする
+ * （ユーザーが削除/移動した結果を尊重するため）。
+ */
+export function hasAnyAetherflow(
+    memberId: string,
+    mitigations: AppliedMitigation[]
+): boolean {
+    return mitigations.some(
+        m => m.ownerId === memberId && m.mitigationId === 'aetherflow'
+    );
+}
+
+/**
  * memberId の学者向けに必要な転化・エーテルフロー自動挿入分を返す。
  * 既存配置に追加する形で新規挿入分だけ返すので、呼び出し側は配列を結合すればよい。
  */

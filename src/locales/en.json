@@ -220,7 +220,6 @@
         "aetherflow_chain_prompt_title": "Aetherflow",
         "aetherflow_chain_prompt_message": "Place on every recast?",
         "aetherflow_chain_prompt_yes": "Yes",
-        "aetherflow_chain_prompt_no": "No",
         "unavailable_dissipation": "Unavailable (Dissipation)",
         "unavailable_dissipation_dup": "Unavailable (Dissipation)",
         "no_aetherflow": "No Aetherflow",

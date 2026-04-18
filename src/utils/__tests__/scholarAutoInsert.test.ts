@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildScholarAutoInserts, buildAetherflowChainFrom } from '../scholarAutoInsert';
+import { buildScholarAutoInserts, buildAetherflowChainFrom, hasAnyAetherflow } from '../scholarAutoInsert';
 import type { AppliedMitigation, TimelineEvent } from '../../types';
 
 const makeEvent = (time: number): TimelineEvent => ({
@@ -46,6 +46,30 @@ describe('buildScholarAutoInserts', () => {
         ];
         const inserts = buildScholarAutoInserts('H1', existing, [makeEvent(100)]);
         expect(inserts.filter(m => m.mitigationId === 'dissipation')).toHaveLength(1);
+    });
+});
+
+describe('hasAnyAetherflow', () => {
+    it('該当メンバーの aetherflow が無ければ false', () => {
+        expect(hasAnyAetherflow('H1', [])).toBe(false);
+        const existing: AppliedMitigation[] = [
+            { id: 'x', mitigationId: 'dissipation', ownerId: 'H1', time: 1, duration: 30 }
+        ];
+        expect(hasAnyAetherflow('H1', existing)).toBe(false);
+    });
+
+    it('該当メンバーの aetherflow が 1 つでもあれば true', () => {
+        const existing: AppliedMitigation[] = [
+            { id: 'y', mitigationId: 'aetherflow', ownerId: 'H1', time: 13, duration: 1 }
+        ];
+        expect(hasAnyAetherflow('H1', existing)).toBe(true);
+    });
+
+    it('他メンバーの aetherflow は無視する', () => {
+        const existing: AppliedMitigation[] = [
+            { id: 'z', mitigationId: 'aetherflow', ownerId: 'H2', time: 13, duration: 1 }
+        ];
+        expect(hasAnyAetherflow('H1', existing)).toBe(false);
     });
 });
 
