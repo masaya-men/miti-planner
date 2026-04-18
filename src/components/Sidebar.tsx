@@ -984,6 +984,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 const tpl = await getTemplate(content.id);
                 if (tpl) {
                     const snap = store.getSnapshot();
+                    const tplMaxEventTime = tpl.timelineEvents.length > 0
+                        ? tpl.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+                        : undefined;
                     // ラベル変換: TemplateData.labels → Label[]
                     const labels = tpl.labels
                         ? ensureLabelEndTimes(tpl.labels.map(l => ({
@@ -991,7 +994,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             name: l.name,
                             startTime: l.startTimeSec,
                             ...(l.endTimeSec !== undefined ? { endTime: l.endTimeSec } : {}),
-                        })))
+                        })), tplMaxEventTime)
                         : undefined;
                     store.loadSnapshot({
                         ...snap,
@@ -1012,7 +1015,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         })
                                     : { ja: '', en: '' },
                                 startTime: p.startTimeSec,
-                            }))) : [],
+                            })), tplMaxEventTime) : [],
                         ...(labels ? { labels } : {}),
                     });
                 } else {
