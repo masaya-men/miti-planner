@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+# OGP 画像生成エンドポイントは Twitter/X や Discord 等のクローラーが取得する必要があるため明示的に許可。
+# Disallow: /api/ より優先される（仕様: より具体的なルールが勝つ）。
+Allow: /api/og
 Disallow: /api/
 Disallow: /dev/
 
