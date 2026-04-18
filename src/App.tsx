@@ -25,6 +25,7 @@ import { StatsWizard } from './components/admin/wizard/StatsWizard';
 import { AdminBackups } from './components/admin/AdminBackups';
 import { AdminLogs } from './components/admin/AdminLogs';
 import { AdminUgc } from './components/admin/AdminUgc';
+import { AdminFeatured } from './components/admin/AdminFeatured';
 import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -136,6 +137,7 @@ function App() {
               <Route path="backups" element={<AdminBackups />} />
               <Route path="logs" element={<AdminLogs />} />
               <Route path="ugc" element={<AdminUgc />} />
+              <Route path="featured" element={<AdminFeatured />} />
             </Route>
             {/* Catch-all: redirect unknown paths to portal */}
             <Route path="*" element={<Navigate to="/" replace />} />
