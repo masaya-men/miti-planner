@@ -31,13 +31,32 @@ describe('buildScholarAutoInserts', () => {
         expect(inserts.filter(m => m.mitigationId === 'dissipation')).toHaveLength(0);
     });
 
-    it('既に近傍に aetherflow があれば重複挿入しない', () => {
+    it('既存 aetherflow とリキャスト 60s 衝突する位置にはスキップ（t=15 の場合 t=13/t=73 がスキップされ t=133, 193 のみ）', () => {
         const existing: AppliedMitigation[] = [
             { id: 'y', mitigationId: 'aetherflow', ownerId: 'H1', time: 15, duration: 1 }
+        ];
+        const inserts = buildScholarAutoInserts('H1', existing, [makeEvent(200)]);
+        const afTimes = inserts.filter(m => m.mitigationId === 'aetherflow').map(m => m.time);
+        expect(afTimes).toEqual([133, 193]);
+    });
+
+    it('既存 aetherflow とリキャスト 60s ちょうどの位置は配置 OK', () => {
+        // 既存 t=13、新規候補 t=73 → 差 60 → リキャスト切れる瞬間なので配置 OK
+        const existing: AppliedMitigation[] = [
+            { id: 'y', mitigationId: 'aetherflow', ownerId: 'H1', time: 13, duration: 1 }
         ];
         const inserts = buildScholarAutoInserts('H1', existing, [makeEvent(100)]);
         const afTimes = inserts.filter(m => m.mitigationId === 'aetherflow').map(m => m.time);
         expect(afTimes).toEqual([73]);
+    });
+
+    it('既存 dissipation がリキャスト 120s 衝突する位置にあれば開幕 t=1 はスキップ', () => {
+        // 既存 t=50、開幕候補 t=1 → 差 49 < 120 → スキップ
+        const existing: AppliedMitigation[] = [
+            { id: 'd', mitigationId: 'dissipation', ownerId: 'H1', time: 50, duration: 30 }
+        ];
+        const inserts = buildScholarAutoInserts('H1', existing, [makeEvent(100)]);
+        expect(inserts.filter(m => m.mitigationId === 'dissipation')).toHaveLength(0);
     });
 
     it('他メンバーの配置は無視する', () => {

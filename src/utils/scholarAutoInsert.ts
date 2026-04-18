@@ -4,16 +4,18 @@ import type { AppliedMitigation, TimelineEvent } from '../types';
  * 学者の転化＋エーテルフロー自動挿入ロジック。
  *
  * 仕様:
- * - 転化 (Dissipation): t=1 に 1 回だけ（既存配置があれば追加しない）
+ * - 転化 (Dissipation): t=1 に 1 回だけ（既存配置とリキャスト 120s 衝突する場合は追加しない）
  * - エーテルフロー (Aetherflow): t=13 から 60 秒毎に最終イベント時刻まで配置
- *   既存配置が近傍にある時刻はスキップ（±30 秒以内で重複判定）
+ *   既存配置とリキャスト 60s 衝突する時刻はスキップ（リキャスト違反になる位置には絶対配置しない）
  */
 
 const DISSIPATION_INITIAL_TIME = 1;
 const AETHERFLOW_INITIAL_TIME = 13;
 const AETHERFLOW_INTERVAL = 60;
-const AETHERFLOW_DUPLICATE_WINDOW = 30;
-const DISSIPATION_DUPLICATE_WINDOW = 15;
+// リキャスト未満（時刻差 < リキャスト秒数）の位置に新規配置しないことで、
+// 通常スキルと同様にリキャストを完全に守る。
+const AETHERFLOW_RECAST = 60;
+const DISSIPATION_RECAST = 120;
 
 function genId(): string {
     return (typeof crypto !== 'undefined' && crypto.randomUUID)
@@ -47,9 +49,9 @@ export function buildScholarAutoInserts(
     const memberMits = existingMitigations.filter(m => m.ownerId === memberId);
     const inserts: AppliedMitigation[] = [];
 
-    // 1. 転化: 開幕付近に既存があるならスキップ
+    // 1. 転化: 既存配置とリキャスト 120s 衝突するならスキップ
     const hasInitialDissipation = memberMits.some(
-        m => m.mitigationId === 'dissipation' && Math.abs(m.time - DISSIPATION_INITIAL_TIME) <= DISSIPATION_DUPLICATE_WINDOW
+        m => m.mitigationId === 'dissipation' && Math.abs(m.time - DISSIPATION_INITIAL_TIME) < DISSIPATION_RECAST
     );
     if (!hasInitialDissipation) {
         inserts.push({
@@ -68,7 +70,7 @@ export function buildScholarAutoInserts(
 
     for (let t = AETHERFLOW_INITIAL_TIME; t <= maxTime; t += AETHERFLOW_INTERVAL) {
         const existingAtTime = memberMits.some(
-            m => m.mitigationId === 'aetherflow' && Math.abs(m.time - t) <= AETHERFLOW_DUPLICATE_WINDOW
+            m => m.mitigationId === 'aetherflow' && Math.abs(m.time - t) < AETHERFLOW_RECAST
         );
         if (existingAtTime) continue;
         inserts.push({
@@ -101,7 +103,7 @@ export function buildAetherflowChainFrom(
 
     for (let t = startTime + AETHERFLOW_INTERVAL; t <= maxTime; t += AETHERFLOW_INTERVAL) {
         const dup = memberMits.some(
-            m => m.mitigationId === 'aetherflow' && Math.abs(m.time - t) <= AETHERFLOW_DUPLICATE_WINDOW
+            m => m.mitigationId === 'aetherflow' && Math.abs(m.time - t) < AETHERFLOW_RECAST
         );
         if (dup) continue;
         inserts.push({
