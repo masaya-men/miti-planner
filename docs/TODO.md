@@ -18,6 +18,7 @@
 - **3層防御の自動診断を全プロジェクトで有効化（2026-04-18）**: SessionStart hook `check-secret-defense-layers.sh` が毎セッション診断し不完全なら警告。`setup-secret-defense.sh` は Layer C まで自動適用。Booklage にも 3 層適用完了。
 - **Phase 3 + OGP 高速化 + 削除防止 実装完了（2026-04-18）**: 管理画面 `/admin/featured` で URL 貼り付け式の Featured 指定UI、ボトムシート OGP を `/og/{hash}.png` 経路に高速化、Featured 指定中の OGP は cron で削除されない（`keepForever: true`）
 - **最終フェーズ/ラベル endTime 修正 実装完了（2026-04-18）**: `ensurePhaseEndTimes` / `ensureLabelEndTimes` に optional `maxTime` 引数追加、15 呼び出し箇所で timelineEvents 最大時刻を渡す
+- **隣接フェーズ/ラベルの境界追従 実装完了（2026-04-18）**: `updatePhase*Time` / `updateLabel*Time` 4関数で、被せた側が隣の境界を新値に追従させる挙動に統一。巻き戻しバグも解消、最低幅1秒を確保。
 - 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
 
 ### 次にやること（優先順）
@@ -33,6 +34,22 @@
   - 新規プラン作成 / BoundaryEditModal / Timeline Select Mode が壊れていないか
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+
+### 今セッションの完了事項（2026-04-18 追加 隣接フェーズ/ラベル境界追従）
+- ✅ **フェーズ/ラベルの境界編集挙動を統一、被せた側が隣を追従**
+  - 対象: `updatePhaseEndTime` / `updatePhaseStartTime` / `updateLabelEndTime` / `updateLabelStartTime`（4関数）
+  - 旧挙動の問題:
+    - `updatePhaseEndTime`: 次フェーズ `startTime` でクリップして止まる → 後ろへ動かせない
+    - `updatePhaseStartTime`: 前フェーズ endTime を `oldStartTime` に巻き戻すバグ（後退時のみ、前が勝手に伸びる）
+    - `updateLabelEndTime`: 何もクリップしない → 重なって表示崩れ
+    - `updateLabelStartTime`: updatePhaseStartTime と同じ巻き戻しバグ
+  - 新挙動（4関数で統一）:
+    - EndTime を後ろへ動かす → 衝突する「次」の `startTime` を新 endTime に追従
+    - StartTime を前へ動かす → 衝突する「前」の `endTime` を新 startTime に追従
+    - 隣接 1 個だけ追従、複数またぎは最低幅 1 秒確保で止まる
+  - 調査で UI 側の事前クリップなしを確認、store 4 関数のみ改修で完結
+  - 新規テスト 19 ケース追加、全 208 テスト PASS、本番ビルド成功
+  - vitest setup で `self` / `localStorage` の polyfill 追加（store 直接テストに必要）
 
 ### 今セッションの完了事項（2026-04-18 追加 最終フェーズ/ラベル endTime 修正）
 - ✅ **最終フェーズ/ラベルの endTime バグを根本修正**

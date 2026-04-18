@@ -562,9 +562,19 @@ export const useMitigationStore = create<MitigationState>()(
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(p => p.id === id);
                         if (idx < 0) return {};
+                        const self = sorted[idx];
                         const nextPhase = sorted[idx + 1];
-                        const clipped = nextPhase ? Math.min(newEndTime, nextPhase.startTime) : newEndTime;
-                        const final = Math.max(clipped, sorted[idx].startTime + 1);
+                        let final = Math.max(newEndTime, self.startTime + 1);
+                        if (nextPhase && final > nextPhase.startTime) {
+                            final = Math.min(final, nextPhase.endTime - 1);
+                            return {
+                                phases: state.phases.map(p => {
+                                    if (p.id === id) return { ...p, endTime: final };
+                                    if (p.id === nextPhase.id) return { ...p, startTime: final };
+                                    return p;
+                                })
+                            };
+                        }
                         return {
                             phases: state.phases.map(p => p.id === id ? { ...p, endTime: final } : p)
                         };
@@ -574,22 +584,25 @@ export const useMitigationStore = create<MitigationState>()(
                 updatePhaseStartTime: (id, newStartTime) => {
                     pushHistory();
                     set((state) => {
-                        const phase = state.phases.find(p => p.id === id);
-                        if (!phase) return {};
-                        let final = Math.max(newStartTime, 0);
-                        final = Math.min(final, phase.endTime - 1);
-                        const oldStartTime = phase.startTime;
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(p => p.id === id);
+                        if (idx < 0) return {};
+                        const self = sorted[idx];
                         const prevPhase = idx > 0 ? sorted[idx - 1] : null;
+                        let final = Math.max(newStartTime, 0);
+                        final = Math.min(final, self.endTime - 1);
+                        if (prevPhase && final < prevPhase.endTime) {
+                            final = Math.max(final, prevPhase.startTime + 1);
+                            return {
+                                phases: state.phases.map(p => {
+                                    if (p.id === id) return { ...p, startTime: final };
+                                    if (p.id === prevPhase.id) return { ...p, endTime: final };
+                                    return p;
+                                })
+                            };
+                        }
                         return {
-                            phases: state.phases.map(p => {
-                                if (p.id === id) return { ...p, startTime: final };
-                                if (prevPhase && p.id === prevPhase.id && final > oldStartTime) {
-                                    return { ...p, endTime: oldStartTime };
-                                }
-                                return p;
-                            })
+                            phases: state.phases.map(p => p.id === id ? { ...p, startTime: final } : p)
                         };
                     });
                 },
@@ -643,30 +656,51 @@ export const useMitigationStore = create<MitigationState>()(
 
                 updateLabelEndTime: (id, newEndTime) => {
                     pushHistory();
-                    set((state) => ({
-                        labels: state.labels.map(l => l.id === id ? { ...l, endTime: newEndTime } : l)
-                    }));
+                    set((state) => {
+                        const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(l => l.id === id);
+                        if (idx < 0) return {};
+                        const self = sorted[idx];
+                        const nextLabel = sorted[idx + 1];
+                        let final = Math.max(newEndTime, self.startTime + 1);
+                        if (nextLabel && final > nextLabel.startTime) {
+                            final = Math.min(final, nextLabel.endTime - 1);
+                            return {
+                                labels: state.labels.map(l => {
+                                    if (l.id === id) return { ...l, endTime: final };
+                                    if (l.id === nextLabel.id) return { ...l, startTime: final };
+                                    return l;
+                                })
+                            };
+                        }
+                        return {
+                            labels: state.labels.map(l => l.id === id ? { ...l, endTime: final } : l)
+                        };
+                    });
                 },
 
                 updateLabelStartTime: (id, newStartTime) => {
                     pushHistory();
                     set((state) => {
-                        const label = state.labels.find(l => l.id === id);
-                        if (!label) return {};
-                        let final = Math.max(newStartTime, 0);
-                        final = Math.min(final, label.endTime - 1);
-                        const oldStartTime = label.startTime;
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(l => l.id === id);
+                        if (idx < 0) return {};
+                        const self = sorted[idx];
                         const prevLabel = idx > 0 ? sorted[idx - 1] : null;
+                        let final = Math.max(newStartTime, 0);
+                        final = Math.min(final, self.endTime - 1);
+                        if (prevLabel && final < prevLabel.endTime) {
+                            final = Math.max(final, prevLabel.startTime + 1);
+                            return {
+                                labels: state.labels.map(l => {
+                                    if (l.id === id) return { ...l, startTime: final };
+                                    if (l.id === prevLabel.id) return { ...l, endTime: final };
+                                    return l;
+                                })
+                            };
+                        }
                         return {
-                            labels: state.labels.map(l => {
-                                if (l.id === id) return { ...l, startTime: final };
-                                if (prevLabel && l.id === prevLabel.id && final > oldStartTime) {
-                                    return { ...l, endTime: oldStartTime };
-                                }
-                                return l;
-                            })
+                            labels: state.labels.map(l => l.id === id ? { ...l, startTime: final } : l)
                         };
                     });
                 },
