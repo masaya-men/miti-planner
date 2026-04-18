@@ -9,32 +9,18 @@
 ## 現在の状態（次セッションはここから読む）
 
 - **ブランチ**: main直接
-- **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12（og-cache・cron追加で+2）、月100ビルド制限
+- **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **OGP 画像 X 表示問題: 完全解決（2026-04-18、プライベート X でカード表示確認済み）**
-- **Phase 2 本番観察: 完了（2026-04-18、copyCount/copyCountByDay/匿名ID重複排除すべて動作確認）**
-- **shared_plans クリーンアップ済み: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存、管理人テスト 179件削除**
-- **シークレット漏洩 3層防御 導入済み（2026-04-18）**: SessionStart フック / gitleaks pre-commit / GitHub Secret Scanning + Push Protection
-- **3層防御の自動診断を全プロジェクトで有効化（2026-04-18）**: SessionStart hook `check-secret-defense-layers.sh` が毎セッション診断し不完全なら警告。`setup-secret-defense.sh` は Layer C まで自動適用。Booklage にも 3 層適用完了。
-- **Phase 3 + OGP 高速化 + 削除防止 実装完了（2026-04-18）**: 管理画面 `/admin/featured` で URL 貼り付け式の Featured 指定UI、ボトムシート OGP を `/og/{hash}.png` 経路に高速化、Featured 指定中の OGP は cron で削除されない（`keepForever: true`）
-- **最終フェーズ/ラベル endTime 修正 実装完了（2026-04-18）**: `ensurePhaseEndTimes` / `ensureLabelEndTimes` に optional `maxTime` 引数追加、15 呼び出し箇所で timelineEvents 最大時刻を渡す
-- **隣接フェーズ/ラベルの境界追従 実装完了（2026-04-18）**: `updatePhase*Time` / `updateLabel*Time` 4関数で、被せた側が隣の境界を新値に追従させる挙動に統一。巻き戻しバグも解消、最低幅1秒を確保。
-- **フェーズ/ラベル隣接規約の本質修正 実装完了（2026-04-18）**: 描画仕様 (endTime+1) とデータ規約を整合。旧規約 `endTime === next.startTime` → 新規約 `endTime + 1 === next.startTime`。境界の罫線が消えるバグ解消。loadSnapshot で既存プラン自動修復。
-- 残タスクはバグ修正・多言語・将来機能のみ（下記参照）
+- **フェーズ/ラベル境界系の本質修正 完了（2026-04-18）**: 描画仕様 (endTime+1) とデータ規約を整合、境界罫線が消えるバグ解消、ユーザー実機検証で意図どおり動作確認済み。`loadSnapshot` で既存プラン自動修復。
+- **前セッションの本番検証**: Phase 3 Featured / 最終フェーズ/ラベル endTime / 境界追従 すべてデプロイ・動作確認済み
+- **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**: SessionStart フック / gitleaks pre-commit / GitHub Secret Scanning + Push Protection
+- **OGP 画像 X 表示問題: 完全解決**
+- **shared_plans クリーンアップ済み**: ツイート用 `5lCMACDB "FRU_LoPo"` のみ残存
 
 ### 次にやること（優先順）
-- **本番検証（Vercel デプロイ後 / ユーザーが実施）**
-  - `lopoly.app/admin/featured` で FRU テスト shareId（`5lCMACDB`）を検索 → サムネ・情報が出る
-  - `[Featuredにする]` → 確認ダイアログ → Firestore で `shared_plans/5lCMACDB.featured: true` と `og_image_meta/{hash}.keepForever: true` 確認
-  - `lopoly.app/miti` のボトムシートで OGP が `/og/{hash}.png` 経由で表示されること確認
-  - `[Featuredを解除]` → Firestore で `featured: false` と `keepForever` 削除確認
-  - 非管理者 DevTools から PATCH 叩き → 403 確認
-- **最終フェーズ/ラベル修正の本番検証（ユーザー実施）**
-  - FRU プラン (`5lCMACDB`) でフェーズ帯が最終イベントまで伸びているか
-  - ラベル帯も最終イベントまで伸びているか
-  - 新規プラン作成 / BoundaryEditModal / Timeline Select Mode が壊れていないか
-- デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
+- **次セッションの予定**: 軽微な修正（詳細は着手時に指定）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始)
+- デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 
 ### 今セッションの完了事項（2026-04-18 追加 フェーズ/ラベル隣接規約の本質修正）
 - ✅ **境界の罫線が消えるバグを根本解消**
