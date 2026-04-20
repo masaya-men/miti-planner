@@ -98,7 +98,8 @@
         "toggle_theme_dark": "Switch to Dark Theme",
         "switch_language": "Language",
         "page_title_planner": "LoPo | Mitigation Planner",
-        "page_title_landing": "LoPo — FFXIV Tool Portal"
+        "page_title_landing": "LoPo｜FFXIV Mitigation Sheet Simulator｜Mobile-Friendly",
+        "page_description_landing": "Build your FFXIV mitigation sheet on mobile or desktop. Place mitigation skills on a timeline and see damage calculated automatically. Share plans via URL."
     },
     "login": {
         "title": "Sign In",

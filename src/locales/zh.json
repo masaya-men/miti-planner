@@ -98,7 +98,8 @@
         "toggle_theme_dark": "切换到深色主题",
         "switch_language": "语言切换",
         "page_title_planner": "LoPo | 减伤规划器",
-        "page_title_landing": "LoPo — FFXIV 工具门户"
+        "page_title_landing": "LoPo｜FF14 减伤轴模拟器｜移动端支持",
+        "page_description_landing": "在手机上也能制作FF14减伤轴的模拟器。在时间轴上放置减伤技能，自动计算伤害。制作的方案可通过URL分享。"
     },
     "login": {
         "title": "登录",

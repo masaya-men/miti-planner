@@ -146,8 +146,21 @@ export function LandingPage() {
   }, []);
 
   useEffect(() => {
-    document.title = t('app.page_title_landing');
-  }, [t]);
+    const title = t('app.page_title_landing');
+    const description = t('app.page_description_landing');
+
+    document.title = title;
+
+    const setMeta = (selector: string, content: string) => {
+      const el = document.querySelector(selector);
+      if (el) el.setAttribute('content', content);
+    };
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
+  }, [t, i18n.language]);
 
   useEffect(() => {
     if (!showComingSoon) return;
