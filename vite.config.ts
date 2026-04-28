@@ -48,6 +48,13 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
             }
+          },
+          // OGP プレビュー画像は SW を経由せず直接 fetch する。
+          // 過去デプロイの古い SW が /og/ リクエストを呑んで「生成中」のまま固まる
+          // 事象が発生したため、明示的に NetworkOnly を指定して将来の SW でも安全にする。
+          {
+            urlPattern: /\/og\/[a-f0-9]{16}\.png$/,
+            handler: 'NetworkOnly'
           }
         ]
       }
