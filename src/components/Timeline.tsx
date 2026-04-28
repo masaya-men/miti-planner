@@ -940,12 +940,13 @@ const Timeline: React.FC = () => {
     }, []);
 
 
-    // プラン切替時にスクロール位置をトップにリセット
+    // プラン切替時に縦横スクロールをトップ・左端へ、空行非表示をデフォルト(コンパクト)にリセット
     const currentPlanId = usePlanStore(s => s.currentPlanId);
     useEffect(() => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTo({ top: 0 });
+            scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
+        useMitigationStore.getState().setHideEmptyRows(true);
     }, [currentPlanId]);
 
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
