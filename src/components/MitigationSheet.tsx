@@ -12,6 +12,7 @@ import {
 import { PLAN_LIMITS } from '../types/firebase';
 import { apiFetch } from '../lib/apiClient';
 import { getAnonCopyId } from '../lib/anonCopyId';
+import { generateUniqueTitle } from '../utils/planTitle';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import type { PlanData, SavedPlan } from '../types';
 import './MitigationSheet.css';
@@ -203,9 +204,9 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
 
       const newPlan: SavedPlan = {
         id: crypto.randomUUID?.() ?? `plan_${Date.now()}`,
-        ownerId: '',
-        ownerDisplayName: '',
-        title: entry.title,
+        ownerId: 'local',
+        ownerDisplayName: 'Guest',
+        title: generateUniqueTitle(entry.title, plans, entry.contentId),
         contentId: entry.contentId,
         isPublic: false,
         copyCount: 0,

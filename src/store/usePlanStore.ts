@@ -11,6 +11,7 @@ import { getContentById } from '../data/contentRegistry';
 import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
+import { generateUniqueTitle } from '../utils/planTitle';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -263,15 +264,8 @@ export const usePlanStore = create<PlanState>()(
                 }
 
                 // 連番サフィックス生成: "M1S" → "M1S (2)", "M1S (2)" → "M1S (3)"
-                const baseTitle = source.title.replace(/\s*\(\d+\)$/, '');
-                const existingNumbers = get().plans
-                    .filter(p => p.title.startsWith(baseTitle))
-                    .map(p => {
-                        const match = p.title.match(/\((\d+)\)$/);
-                        return match ? parseInt(match[1], 10) : 1;
-                    });
-                const nextNumber = Math.max(...existingNumbers, 1) + 1;
-                const newTitle = `${baseTitle} (${nextNumber})`;
+                // 同コンテンツ内のみで重複判定する
+                const newTitle = generateUniqueTitle(source.title, get().plans, source.contentId);
 
                 const newPlan: SavedPlan = {
                     ...structuredClone(source),
