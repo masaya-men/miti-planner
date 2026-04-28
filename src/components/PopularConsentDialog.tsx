@@ -22,6 +22,7 @@ export const PopularConsentDialog: React.FC<Props> = ({ isOpen, onCancel, onAcce
         >
             <div
                 className="relative glass-tier3 rounded-2xl shadow-2xl w-[400px] max-w-[90vw] p-6"
+                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                 onClick={e => e.stopPropagation()}
             >
                 <h3 className="text-app-2xl font-bold text-app-text mb-3">
