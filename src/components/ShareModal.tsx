@@ -14,6 +14,8 @@ import { apiFetch } from '../lib/apiClient';
 import type { SavedPlan } from '../types';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
+import { PopularConsentDialog } from './PopularConsentDialog';
+import { hasPopularConsent, setPopularConsent } from '../lib/popularConsent';
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -47,6 +49,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const dragCountRef = useRef(0);
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [consentOpen, setConsentOpen] = useState(false);
+    const pendingPostRef = useRef<(() => void) | null>(null);
 
     const isBundle = bundlePlans && bundlePlans.length > 0;
 
@@ -82,7 +86,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         setOgImageUrl(null);
         setImageLoaded(false);
         setCopied(false);
-        generateShareUrl();
+
+        if (hasPopularConsent()) {
+            generateShareUrl();
+        } else {
+            pendingPostRef.current = generateShareUrl;
+            setConsentOpen(true);
+        }
     }, [isOpen]);
 
     const generateShareUrl = async () => {
@@ -216,6 +226,20 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         } catch {
             showToast(t('team_logo.error_remove_failed'), 'error');
         }
+    };
+
+    const handleConsentAccept = () => {
+        setPopularConsent();
+        setConsentOpen(false);
+        const fn = pendingPostRef.current;
+        pendingPostRef.current = null;
+        if (fn) fn();
+    };
+
+    const handleConsentCancel = () => {
+        setConsentOpen(false);
+        pendingPostRef.current = null;
+        onClose(); // モーダル全体を閉じる（共有を中止）
     };
 
     const handleCopy = async () => {
@@ -514,5 +538,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         document.body
         )}
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+        <PopularConsentDialog
+            isOpen={consentOpen}
+            onAccept={handleConsentAccept}
+            onCancel={handleConsentCancel}
+        />
     </>);
 };
