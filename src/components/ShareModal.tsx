@@ -337,7 +337,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                             </div>
                         )}
                         {ogImageUrl && (
+                            // key に URL を渡すことで、ogImageUrl が変わるたびに <img> を
+                            // 完全に再マウントする。これにより古い img のロード状態が引き継がれず、
+                            // 新 src で確実に新規 fetch + onLoad/onError が発火する。
+                            // （src だけ書き換わっても新規ロードがトリガーされず「永遠に生成中」に
+                            //  なる事象への対策）
                             <img
+                                key={ogImageUrl}
                                 src={ogImageUrl}
                                 alt="OGP Preview"
                                 className={clsx("w-full h-full object-contain transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
