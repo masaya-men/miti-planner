@@ -28,6 +28,7 @@
         "copy_link": "Copy Link",
         "link_copied": "Link copied",
         "share_failed": "Failed to generate share link",
+        "popular_display_notice": "Shared plans are aggregated anonymously and may appear on the Popular page. If logo is on, it will also be shown there.",
         "plan_deleted_remotely": "Synced: a table was deleted on another device",
         "plan_conflict_detected": "Changes detected on another device. Both versions have been saved.",
         "share_modal_title": "Share",
@@ -1034,6 +1035,13 @@
         "deleteAccountConfirm": "Delete permanently",
         "tab_party": "Party",
         "tab_status": "Status"
+    },
+    "popular_consent": {
+        "title": "About sharing",
+        "body_1": "Shared plans are aggregated anonymously and may appear on the Popular page if they become widely used.",
+        "body_2": "If your logo is enabled, it will also appear on the Popular page (good for team promotion). To stay anonymous, turn off the logo before sharing.",
+        "cancel": "Cancel",
+        "accept": "I understand, share"
     },
     "popular": {
         "title": "Popular Plans",

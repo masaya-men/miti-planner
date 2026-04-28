@@ -472,6 +472,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                     </div>
                 )}
 
+                {/* 野良主流掲載に関する常駐通知 */}
+                <div className="px-5 pb-3 flex items-start gap-1.5 text-app-xs text-app-text-muted leading-relaxed">
+                    <span className="shrink-0 mt-px">ⓘ</span>
+                    <p>{t('app.popular_display_notice')}</p>
+                </div>
+
                 {/* アクションボタン */}
                 <div className="px-5 pb-5 flex flex-col gap-2">
                     {/* 生成中の状態表示 */}

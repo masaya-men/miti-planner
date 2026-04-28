@@ -28,6 +28,7 @@
         "copy_link": "링크 복사",
         "link_copied": "링크가 복사되었습니다",
         "share_failed": "공유 링크 생성에 실패했습니다",
+        "popular_display_notice": "공유한 플랜은 익명으로 집계되며, 야라 주류 페이지에 게재될 수 있습니다. 로고 ON일 때는 로고도 함께 표시됩니다.",
         "plan_deleted_remotely": "동기화됨: 다른 기기에서 테이블이 삭제되었습니다",
         "plan_conflict_detected": "다른 기기에서 변경 사항이 감지되었습니다. 두 버전이 모두 저장되었습니다.",
         "share_modal_title": "공유",
@@ -1014,6 +1015,13 @@
         "deleteAccountConfirm": "영구 삭제",
         "tab_party": "파티",
         "tab_status": "스탯"
+    },
+    "popular_consent": {
+        "title": "공유에 대해",
+        "body_1": "공유한 플랜은 개인을 특정할 수 없는 형태로 집계되며, 인기를 얻으면 야라 주류 페이지에 표시될 수 있습니다.",
+        "body_2": "로고를 ON으로 설정한 경우, 야라 주류 페이지에도 로고가 함께 표시됩니다 (팀 홍보용). 익명으로 유지하려면 로고를 OFF로 한 후 공유해 주세요.",
+        "cancel": "취소",
+        "accept": "이해하고 공유"
     },
     "popular": {
         "title": "인기 계획",

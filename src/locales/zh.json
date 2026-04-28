@@ -28,6 +28,7 @@
         "copy_link": "复制链接",
         "link_copied": "链接已复制",
         "share_failed": "生成分享链接失败",
+        "popular_display_notice": "分享的方案会以匿名方式汇总，可能会显示在野良主流页面上。开启标志时，标志也将一同显示。",
         "plan_deleted_remotely": "已同步：一张表格在其他设备上被删除",
         "plan_conflict_detected": "在其他设备上检测到更改。两个版本均已保存。",
         "share_modal_title": "分享",
@@ -1014,6 +1015,13 @@
         "deleteAccountConfirm": "永久删除",
         "tab_party": "队伍",
         "tab_status": "属性"
+    },
+    "popular_consent": {
+        "title": "关于分享",
+        "body_1": "分享的方案将以无法识别个人的形式进行汇总，受欢迎时可能会显示在野良主流页面上。",
+        "body_2": "如果开启了标志显示，标志也会一同出现在野良主流页面上（适合团队宣传）。希望保持匿名时，请关闭标志后再分享。",
+        "cancel": "取消",
+        "accept": "我已了解，分享"
     },
     "popular": {
         "title": "热门方案",
