@@ -1290,10 +1290,17 @@ const Timeline: React.FC = () => {
         setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
     }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
 
-    const handleMobileLongPress = useCallback((event: TimelineEvent, time: number) => {
+    const handleMobileLongPress = useCallback((event: TimelineEvent | null, time: number) => {
         setMobilePartyOpen(false);
         setMobileToolsOpen(false);
         setMobileMenuOpen(false);
+        if (event === null) {
+            // 空行の長押し: PC の `+` ボタン相当として直接 EventModal を開く
+            setSelectedEvent(null);
+            setSelectedTime(time);
+            setIsModalOpen(true);
+            return;
+        }
         setMobileContextMenu({ isOpen: true, event, time });
     }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
 

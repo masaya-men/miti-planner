@@ -26,7 +26,7 @@ interface MobileTimelineRowProps {
     partyMembers: PartyMember[];
     activeMitigations: AppliedMitigation[];
     onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
-    onLongPress?: (event: TimelineEvent, time: number) => void;
+    onLongPress?: (event: TimelineEvent | null, time: number) => void;
     phaseColumnCollapsed?: boolean;
     hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
@@ -166,9 +166,9 @@ export const MobileTimelineRow = memo(({
         longPressTimerRef.current = setTimeout(() => {
             isLongPressRef.current = true;
             setIsPressed(false);
-            if (onLongPress && events.length > 0) {
+            if (onLongPress) {
                 try { navigator.vibrate(10); } catch {}
-                onLongPress(events[0], time);
+                onLongPress(events[0] ?? null, time);
             }
         }, 300);
     };
@@ -206,7 +206,7 @@ export const MobileTimelineRow = memo(({
             e.stopPropagation();
             return;
         }
-        if (onMobileDamageClick && events.length > 0) {
+        if (onMobileDamageClick) {
             onMobileDamageClick(time, e);
         }
     };
