@@ -140,7 +140,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     };
 
     // 既存shareIdのロゴを更新（PUT）
-    const updateShareLogo = async (withLogo: boolean) => {
+    // logoUrlOverride: setTeamLogoUrl 直後に呼ぶ場合、closure 内の古い teamLogoUrl
+    // (null のまま) を使うとサーバーがロゴ無しで PUT してしまい imageHash が過去と
+    // 同一になって React が bail-out する事象が発生する。最新の URL を引数で渡すことで
+    // closure を回避し、サーバーに必ず最新ロゴ状態を伝える。
+    const updateShareLogo = async (withLogo: boolean, logoUrlOverride?: string | null) => {
         if (!shareIdRef) return;
         setImageLoaded(false);
         // ogImageUrl を一度 null にすることで <img> を確実にアンマウントする。
@@ -151,7 +155,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         setOgImageUrl(null);
         try {
             const body: any = { shareId: shareIdRef };
-            if (withLogo && teamLogoUrl && user) {
+            const effectiveLogoUrl = logoUrlOverride !== undefined ? logoUrlOverride : teamLogoUrl;
+            if (withLogo && effectiveLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
             const res = await apiFetch('/api/share', {
@@ -203,7 +208,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             showToast(t('team_logo.upload_success'));
             setShowLogo(true);
             // 既存shareデータのロゴを上書き更新
-            await updateShareLogo(true);
+            // setTeamLogoUrl 直後の closure では teamLogoUrl がまだ null なので、
+            // 引数で最新の url を直接渡す
+            await updateShareLogo(true, url);
         } catch (err) {
             console.error('[LogoUpload] アップロードエラー詳細:', err);
             showToast(t('team_logo.error_upload_failed'), 'error');
@@ -227,8 +234,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             setTeamLogoUrl(null);
             setShowLogo(false);
             showToast(t('team_logo.remove_success'));
-            // 既存shareデータからロゴを削除
-            await updateShareLogo(false);
+            // 既存shareデータからロゴを削除（closure 古い値回避のため null を明示渡し）
+            await updateShareLogo(false, null);
         } catch {
             showToast(t('team_logo.error_remove_failed'), 'error');
         }
