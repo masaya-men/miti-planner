@@ -1,4 +1,4 @@
-import type { Job, Mitigation } from '../types';
+import type { Job, Mitigation } from '../types/index.js';
 
 export const MITIGATION_DISPLAY_ORDER = [
     'reprisal_base',

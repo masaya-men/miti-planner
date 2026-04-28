@@ -1,4 +1,4 @@
-import type { TemplateStats } from '../types';
+import type { TemplateStats } from '../types/index.js';
 
 export type { TemplateStats };
 

@@ -1,4 +1,4 @@
-import type { LevelModifier } from '../types';
+import type { LevelModifier } from '../types/index.js';
 
 export type { LevelModifier };
 
