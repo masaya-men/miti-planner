@@ -11,7 +11,8 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-28 終盤・4 段目）**: 3 段目でも治らない真の根本原因を特定。**React closure 問題**だった。`processLogoFile` で `setTeamLogoUrl(url)` 直後に `await updateShareLogo(true)` を呼んでいたが、updateShareLogo の closure 内では teamLogoUrl がまだ古い null のまま。結果サーバーに「ロゴ無し PUT」を送ってしまい同じロゴ無し imageHash が返ってきて React bail-out。「右上の更新ボタンで動く」のは次の render 後で closure が更新されているから。**updateShareLogo に `logoUrlOverride` 引数を追加**して `processLogoFile` から最新 url を直接渡し、closure を回避。これが本質的修正。build+test 244 PASS。
+- **最新セッション（2026-04-28 終盤・5 段目）**: 4 段目で OGP プレビュー本体は治ったが「URL の生成に失敗」トーストがたまに発生。原因は **PUT /api/share のレート制限 5 回/分**で、ロゴ操作を連続でやると到達してしまうこと。共有モーダルでのロゴ追加・削除・トグルは正常な使い方なので、レート制限を **5 → 15 回/分に緩和**。PUT は既存共有のロゴ差し替えのみで破壊的でなく、サーバーコストも軽量で安全。build+test 244 PASS。
+- **前セッション（2026-04-28 終盤・4 段目）**: 3 段目でも治らない真の根本原因を特定。**React closure 問題**だった。`processLogoFile` で `setTeamLogoUrl(url)` 直後に `await updateShareLogo(true)` を呼んでいたが、updateShareLogo の closure 内では teamLogoUrl がまだ古い null のまま。結果サーバーに「ロゴ無し PUT」を送ってしまい同じロゴ無し imageHash が返ってきて React bail-out。「右上の更新ボタンで動く」のは次の render 後で closure が更新されているから。**updateShareLogo に `logoUrlOverride` 引数を追加**して `processLogoFile` から最新 url を直接渡し、closure を回避。これが本質的修正。
 - **前セッション（2026-04-28 終盤・3 段目）**: `updateShareLogo` 冒頭で `setOgImageUrl(null)` を挟んで `<img>` を確実にアンマウント→マウント。state bail-out 対策。closure 問題が真因だったため、3 段目だけでは不十分だが保険として有効。
 - **前セッション（2026-04-28 終盤・2 段目）**: ShareModal の `<img>` に `key={ogImageUrl}` を追加して URL 変更時に強制再マウント。サーバー側 PUT 200 成功しても /og/ リクエストが発行されない事象への対策。Vercel ログで判明。
 - **前セッション（2026-04-28 終盤）**: 共有モーダル OGP プレビュー「永遠に生成中」バグ修正 1 段目。原因は **古い PWA Service Worker が `/og/{hash}.png` のフェッチを呑んで永遠 Pending にする** 事象。systematic-debugging で `<img>` 要素は DOM 存在 + src 正しい→ブラウザがリクエスト未発行→SW unregister で復活、を順に検証して特定。`vite.config.ts` の workbox `runtimeCaching` に `/og/[a-f0-9]{16}.png` を **NetworkOnly** で明示追加。新版デプロイ後に新 SW が `clientsClaim` で即時切替される。

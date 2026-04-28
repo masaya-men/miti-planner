@@ -241,8 +241,11 @@ export default async function handler(req: any, res: any) {
             });
 
         } else if (req.method === 'PUT') {
-            // レート制限（1分あたり5回）
-            if (!(await applyRateLimit(req, res, 5, 60_000))) return;
+            // レート制限（1分あたり15回）
+            // 共有モーダルでロゴ追加・削除・トグルを連続で操作する正常な使い方を
+            // カバーするため、5→15 に緩和。PUT は既存共有のロゴ差し替えのみで
+            // 破壊的でなく、サーバー側コストも軽量なため安全。
+            if (!(await applyRateLimit(req, res, 15, 60_000))) return;
 
             // ── 既存共有のロゴ更新 ──
             const { shareId, logoStoragePath } = req.body;
