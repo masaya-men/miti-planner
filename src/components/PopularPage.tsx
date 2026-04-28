@@ -296,15 +296,13 @@ export const PopularPage: React.FC = () => {
     const handleShareX = useCallback((entry: PopularEntry) => {
         const url = getShareUrl(entry.shareId);
         const contentName = getContentName(entry.contentId);
-        const text = contentName
-            ? `${contentName} - ${entry.title}`
-            : entry.title;
+        const text = contentName || t('popular.title');
         window.open(
             `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
             '_blank',
             'noopener'
         );
-    }, [lang]);
+    }, [lang, t]);
 
     // --- リンクコピー ---
     const handleCopyLink = useCallback((entry: PopularEntry) => {
@@ -326,7 +324,6 @@ export const PopularPage: React.FC = () => {
             <div className="glass-card-corner glass-card-corner-br" />
             <div className="glass-card-sheen" />
             <span className="text-app-md font-bold text-app-text-muted truncate">{label}</span>
-            <p className="text-app-lg text-app-text truncate font-semibold">{entry.title}</p>
             {entry.partyMembers?.length > 0 && renderJobIcons(entry.partyMembers)}
             {/* アクションボタン: 保存 / X / リンク */}
             <div className="mt-auto flex gap-1.5">
