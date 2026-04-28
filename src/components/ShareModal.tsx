@@ -143,6 +143,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const updateShareLogo = async (withLogo: boolean) => {
         if (!shareIdRef) return;
         setImageLoaded(false);
+        // ogImageUrl を一度 null にすることで <img> を確実にアンマウントする。
+        // 同じロゴで再追加する等で imageHash が過去と完全一致した場合、
+        // setOgImageUrl(同値) では React が bail-out して再レンダリングせず、
+        // ブラウザも新規ロードを開始しないため「永遠に生成中」になる事象への対策。
+        // await fetch をまたぐので React は途中で render を走らせ、<img> が消える。
+        setOgImageUrl(null);
         try {
             const body: any = { shareId: shareIdRef };
             if (withLogo && teamLogoUrl && user) {
