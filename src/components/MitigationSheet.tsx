@@ -484,9 +484,6 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
                             </div>
                           )}
                           <div className="miti-card-bottom">
-                            <span className="miti-card-title" title={entry.title}>
-                              {entry.title}
-                            </span>
                             <span className="miti-copies">
                               {t('miti_sheet.copies', { count: entry.copyCount })}
                             </span>

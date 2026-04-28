@@ -493,17 +493,6 @@
   padding: 3px 4px 2px;
 }
 
-.miti-card-title {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .miti-copies {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
