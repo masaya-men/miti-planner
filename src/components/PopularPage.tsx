@@ -16,6 +16,7 @@ import { LoPoButton } from './LoPoButton';
 import { PulseSettings } from './PulseSettings';
 import { apiFetch } from '../lib/apiClient';
 import { getAnonCopyId } from '../lib/anonCopyId';
+import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 
 // --- 型定義 ---
 
@@ -82,6 +83,7 @@ const getFloorLabel = (contentId: string, lang: 'ja' | 'en'): string => {
 // --- コンポーネント ---
 
 export const PopularPage: React.FC = () => {
+    useCanonicalUrl('/popular');
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useThemeStore();
     const JOBS = useJobs();

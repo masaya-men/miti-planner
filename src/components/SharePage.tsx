@@ -10,6 +10,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
 import { getAnonCopyId } from '../lib/anonCopyId';
+import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PlanData } from '../types';
@@ -44,6 +45,7 @@ function isBundle(data: SharedData): data is SharedBundle {
 
 export const SharePage: React.FC = () => {
     const { shareId } = useParams<{ shareId: string }>();
+    useCanonicalUrl(shareId ? `/share/${shareId}` : '/');
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [state, setState] = useState<LoadState>('loading');

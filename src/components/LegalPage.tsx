@@ -9,6 +9,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 
 /** i18nキーで「,」区切りのリストを配列に変換 */
 function splitItems(value: string): string[] {
@@ -79,6 +80,7 @@ const Note: React.FC<{ text: string }> = ({ text }) => (
 // ========================================
 
 export const PrivacyPolicyPage: React.FC = () => {
+    useCanonicalUrl('/privacy');
     const { t } = useTranslation();
     return (
         <LegalPageLayout>
@@ -177,6 +179,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 // ========================================
 
 export const TermsPage: React.FC = () => {
+    useCanonicalUrl('/terms');
     const { t } = useTranslation();
     return (
         <LegalPageLayout>
@@ -236,6 +239,7 @@ const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
 );
 
 export const CommercialDisclosurePage: React.FC = () => {
+    useCanonicalUrl('/commercial');
     const { t } = useTranslation();
     const rows: [string, string][] = [
         [t('legal.commercial_seller'), t('legal.commercial_seller_value')],

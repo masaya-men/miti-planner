@@ -8,6 +8,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { MobileGuide } from './MobileGuide';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
@@ -19,6 +20,7 @@ const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
  * Timeline を表示する。
  */
 export const MitiPlannerPage: React.FC = () => {
+    useCanonicalUrl('/miti');
     const { t } = useTranslation();
     const [mobileGuideOpen, setMobileGuideOpen] = useState(false);
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useThemeStore } from '../../store/useThemeStore';
+import { useCanonicalUrl } from '../../hooks/useCanonicalUrl';
 import { LangToggle } from './LangToggle';
 import { LandingFooter } from './LandingFooter';
 
@@ -127,6 +128,7 @@ function ProjectCard({
 }
 
 export function LandingPage() {
+  useCanonicalUrl('/');
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [showComingSoon, setShowComingSoon] = useState(false);
