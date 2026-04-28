@@ -86,8 +86,6 @@ export default async function handler(req: any, res: any) {
                     || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
                 const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
-                // showTitle は POST/PUT で永続化された値を読む。未設定は true（デフォルト）扱い。
-                const showTitleState = typeof data.showTitle === 'boolean' ? data.showTitle : true;
                 // logoHash: ロゴ内容変更時に URL を変えて CDN キャッシュを別エントリにするためのバージョン子。
                 // 旧シェア（logoHash 未保存）は undefined のまま → URL に lh は付かず後方互換。
                 const logoHashStr = typeof data.logoHash === 'string' ? data.logoHash : undefined;
@@ -102,7 +100,6 @@ export default async function handler(req: any, res: any) {
                 } else {
                     // 後方互換: 旧共有は buildOgImageUrl で従来の /api/og?... を使う
                     ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
-                        showTitle: showTitleState,
                         showLogo: hasLogo,
                         logoHash: hasLogo ? logoHashStr : undefined,
                         lang,

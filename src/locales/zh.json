@@ -39,7 +39,6 @@
         "share_url_only": "不带图片分享",
         "share_refresh_preview": "刷新预览",
         "share_guest_hint": "<login>登录</login>以跨设备同步数据并自定义分享图片。",
-        "include_plan_title": "在分享图片中显示表名",
         "loading_plan": "加载中...",
         "share_loading": "加载中...",
         "share_not_found": "未找到此分享方案",

@@ -45,7 +45,6 @@
         "share_url_only": "画像無しで共有",
         "share_refresh_preview": "プレビューを更新",
         "share_guest_hint": "<login>ログイン</login>すると、端末間のデータ同期や共有画像のカスタマイズができます。",
-        "include_plan_title": "表の名前を共有画像に表示",
         "loading_plan": "読み込み中...",
         "share_loading": "読み込み中...",
         "share_not_found": "この共有リンクは見つかりませんでした",

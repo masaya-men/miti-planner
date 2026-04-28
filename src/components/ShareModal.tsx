@@ -34,7 +34,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     const [, setLoading] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [copied, setCopied] = useState(false);
-    const [showPlanTitle, setShowPlanTitle] = useState(true);
     const [shareIdRef, setShareIdRef] = useState<string | null>(null);
     // logoHash はサーバーから返ってくる SHA-256 先頭16文字。OGP URL の lh パラメータ用で、
     // 各 PUT/POST 直後にレスポンスから取り出して buildOgUrl に渡す。
@@ -61,7 +60,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
      */
     const buildOgUrl = (
         id: string,
-        planTitle: boolean,
         logo: boolean,
         logoHash: string | null,
         imageHash?: string | null,
@@ -70,7 +68,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             return `${window.location.origin}/og/${imageHash}.png`;
         }
         return buildOgImageUrl(window.location.origin, id, {
-            showTitle: planTitle,
             showLogo: logo,
             logoHash: logoHash || undefined,
             lang,
@@ -107,8 +104,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
             body.lang = lang;
-            // showTitle を Firestore に永続化（サーバー側OGP URLの一致に必須）
-            body.showTitle = showPlanTitle;
 
             const res = await apiFetch('/api/share', {
                 method: 'POST',
@@ -122,7 +117,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
             const url = `${window.location.origin}/share/${data.shareId}`;
             setShareUrl(url);
-            setOgImageUrl(buildOgUrl(data.shareId, showPlanTitle, showLogo, newLogoHash, newImageHash));
+            setOgImageUrl(buildOgUrl(data.shareId, showLogo, newLogoHash, newImageHash));
             if (data.logoBlocked) {
                 showToast(t('team_logo.logo_blocked'), 'error');
             }
@@ -159,50 +154,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             // （タイムスタンプ式キャッシュバスター不要でサーバーOGP URL と完全一致）。
             const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
             const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
-            setOgImageUrl(buildOgUrl(shareIdRef, showPlanTitle, withLogo, newLogoHash, newImageHash));
+            setOgImageUrl(buildOgUrl(shareIdRef, withLogo, newLogoHash, newImageHash));
         } catch (err) {
             console.error('Share logo update failed:', err);
             showToast(t('app.share_failed'));
             setImageLoaded(true); // エラー時にボタンを再有効化
-        }
-    };
-
-    // プラン名表示トグル変更時にOGP画像を再生成
-    // showTitle は Firestore に永続化する必要があるため PUT で同期する。
-    // サーバー側もこの状態を読んで OGP URL を組み立てるので、
-    // クローラーが叩く URL とモーダルが温めた edge cache が一致する。
-    const handleTogglePlanTitle = async () => {
-        if (!shareIdRef) {
-            setShowPlanTitle(!showPlanTitle);
-            return;
-        }
-        const next = !showPlanTitle;
-        setShowPlanTitle(next);
-        setImageLoaded(false);
-        try {
-            const body: any = { shareId: shareIdRef, showTitle: next };
-            // 現在のロゴ状態を維持するために logoStoragePath を明示送信
-            // （サーバーは logoStoragePath 無しを「ロゴ削除」と解釈するため）
-            if (showLogo && teamLogoUrl && user) {
-                body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
-            }
-            const res = await apiFetch('/api/share', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            // showTitle トグルでも logo を再投入しているため、サーバーは現在の logoHash を返す。
-            // 旧シェアで logoHash 未保存 → null が返る場合もある。いずれも素直に反映。
-            const newLogoHash: string | null = typeof data.logoHash === 'string' ? data.logoHash : null;
-            const newImageHash: string | null = typeof data.imageHash === 'string' ? data.imageHash : null;
-            // 成功後にプレビューを新URLで再読み込み
-            setOgImageUrl(buildOgUrl(shareIdRef, next, showLogo, newLogoHash, newImageHash));
-        } catch (err) {
-            console.error('Share title update failed:', err);
-            showToast(t('app.share_failed'));
-            setImageLoaded(true);
         }
     };
 
@@ -380,29 +336,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
                         )}
                     </div>
                 </div>
-
-                {/* プラン名表示トグル（バンドルでない場合のみ） */}
-                {!isBundle && (
-                    <div className="px-5 pb-2">
-                        <button
-                            onClick={handleTogglePlanTitle}
-                            className="flex items-center gap-2.5 w-full py-1.5 text-left group cursor-pointer"
-                        >
-                            <div className={clsx(
-                                "w-8 h-[18px] rounded-full transition-colors duration-200 relative shrink-0",
-                                showPlanTitle ? "bg-app-text" : "bg-app-surface2 border border-app-border"
-                            )}>
-                                <div className={clsx(
-                                    "absolute top-[2px] w-[14px] h-[14px] rounded-full transition-all duration-200",
-                                    showPlanTitle ? "left-[15px] bg-app-bg" : "left-[2px] bg-app-text-muted"
-                                )} />
-                            </div>
-                            <span className="text-app-lg text-app-text-muted group-hover:text-app-text transition-colors">
-                                {t('app.include_plan_title')}
-                            </span>
-                        </button>
-                    </div>
-                )}
 
                 {/* 非ログイン時のさりげない案内 */}
                 {!user && (

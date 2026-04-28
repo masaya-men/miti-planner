@@ -45,7 +45,7 @@ function composeBundleHashInput(plans: { contentId: string | null; title: string
 async function upsertOgImageMeta(
     db: FirebaseFirestore.Firestore,
     imageHash: string,
-    params: { shareId: string; showTitle: boolean; showLogo: boolean; logoHash: string | null; lang: OgpLang },
+    params: { shareId: string; showLogo: boolean; logoHash: string | null; lang: OgpLang },
 ): Promise<void> {
     try {
         await db.collection(OG_IMAGE_META_COLLECTION).doc(imageHash).set({
@@ -117,10 +117,8 @@ export default async function handler(req: any, res: any) {
             }
 
             // ── 保存 ──
-            const { planData, title, contentId, plans, logoStoragePath, lang, showTitle } = req.body;
+            const { planData, title, contentId, plans, logoStoragePath, lang } = req.body;
             const normalizedLang: OgpLang = lang === 'en' ? 'en' : 'ja';
-            // showTitle の正規化（boolean 以外 / 未指定はデフォルト true）
-            const normalizedShowTitle = typeof showTitle === 'boolean' ? showTitle : true;
 
             // firebase-adminでロゴをダウンロードしてbase64に変換
             let logoBase64: string | null = null;
@@ -161,7 +159,6 @@ export default async function handler(req: any, res: any) {
                 const imageHash = computeImageHash({
                     contentName: bundleHashInput.contentName,
                     planTitle: bundleHashInput.planTitle,
-                    showTitle: normalizedShowTitle,
                     showLogo: !!logoBase64,
                     logoHash: logoHashStr,
                     lang: normalizedLang,
@@ -170,7 +167,6 @@ export default async function handler(req: any, res: any) {
                     shareId,
                     type: 'bundle',
                     lang: normalizedLang,
-                    showTitle: normalizedShowTitle,
                     plans: plans.map((p: any) => ({
                         contentId: p.contentId || null,
                         title: p.title || '',
@@ -188,7 +184,6 @@ export default async function handler(req: any, res: any) {
                 await db.collection(COLLECTION).doc(shareId).set(doc);
                 await upsertOgImageMeta(db, imageHash, {
                     shareId,
-                    showTitle: normalizedShowTitle,
                     showLogo: !!logoBase64,
                     logoHash: logoHashStr,
                     lang: normalizedLang,
@@ -210,7 +205,6 @@ export default async function handler(req: any, res: any) {
             const imageHash = computeImageHash({
                 contentName: getContentName(contentId || null, normalizedLang),
                 planTitle: title || '',
-                showTitle: normalizedShowTitle,
                 showLogo: !!logoBase64,
                 logoHash: logoHashStr,
                 lang: normalizedLang,
@@ -218,7 +212,6 @@ export default async function handler(req: any, res: any) {
             const doc: any = {
                 shareId,
                 lang: normalizedLang,
-                showTitle: normalizedShowTitle,
                 title: title || '',
                 contentId: contentId || null,
                 planData,
@@ -235,7 +228,6 @@ export default async function handler(req: any, res: any) {
             await db.collection(COLLECTION).doc(shareId).set(doc);
             await upsertOgImageMeta(db, imageHash, {
                 shareId,
-                showTitle: normalizedShowTitle,
                 showLogo: !!logoBase64,
                 logoHash: logoHashStr,
                 lang: normalizedLang,
@@ -252,8 +244,8 @@ export default async function handler(req: any, res: any) {
             // レート制限（1分あたり5回）
             if (!(await applyRateLimit(req, res, 5, 60_000))) return;
 
-            // ── 既存共有のロゴ／showTitle 更新 ──
-            const { shareId, logoStoragePath, showTitle: putShowTitle } = req.body;
+            // ── 既存共有のロゴ更新 ──
+            const { shareId, logoStoragePath } = req.body;
             if (!shareId || typeof shareId !== 'string') {
                 return res.status(400).json({ error: 'shareId is required' });
             }
@@ -300,16 +292,8 @@ export default async function handler(req: any, res: any) {
                 });
             }
 
-            // showTitle が送られてきたら更新
-            if (typeof putShowTitle === 'boolean') {
-                await existingRef.update({ showTitle: putShowTitle });
-            }
-
             // 更新後の状態で imageHash を再計算し、share doc と og_image_meta を更新
             const existingData = existingSnap.data() || {};
-            const effectiveShowTitle = typeof putShowTitle === 'boolean'
-                ? putShowTitle
-                : (typeof existingData.showTitle === 'boolean' ? existingData.showTitle : true);
             const effectiveLang: OgpLang = existingData.lang === 'en' ? 'en' : 'ja';
 
             let hashInputContentName: string;
@@ -330,7 +314,6 @@ export default async function handler(req: any, res: any) {
             const newImageHash = computeImageHash({
                 contentName: hashInputContentName,
                 planTitle: hashInputPlanTitle,
-                showTitle: effectiveShowTitle,
                 showLogo: !!logoBase64,
                 logoHash: logoHashStr,
                 lang: effectiveLang,
@@ -338,7 +321,6 @@ export default async function handler(req: any, res: any) {
             await existingRef.update({ imageHash: newImageHash });
             await upsertOgImageMeta(db, newImageHash, {
                 shareId,
-                showTitle: effectiveShowTitle,
                 showLogo: !!logoBase64,
                 logoHash: logoHashStr,
                 lang: effectiveLang,

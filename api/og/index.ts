@@ -27,7 +27,6 @@ export default async function handler(req: Request) {
     try {
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
-        const showTitle = searchParams.get('showTitle') !== 'false';
         const showLogo = searchParams.get('showLogo') === 'true';
         const lang: OgpLang = searchParams.get('lang') === 'en' ? 'en' : 'ja';
 
@@ -105,7 +104,7 @@ export default async function handler(req: Request) {
             ? buildFallbackLayout()
             : isBundle
                 ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc, lang)
-                : buildSingleLayout(contentName, showTitle ? planTitle : '', categoryTag, faviconBase64, teamLogoSrc);
+                : buildSingleLayout(contentName, '', categoryTag, faviconBase64, teamLogoSrc);
 
         return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
 

@@ -4,7 +4,6 @@ import { computeImageHash, type ImageHashInput } from '../ogpImageHash';
 const baseInput: ImageHashInput = {
     contentName: '絶もうひとつの未来',
     planTitle: 'ヒラ軽減プラン',
-    showTitle: true,
     showLogo: false,
     logoHash: null,
     lang: 'ja',
@@ -31,12 +30,6 @@ describe('computeImageHash', () => {
     it('planTitle が変われば hash も変わる', () => {
         const a = computeImageHash(baseInput);
         const b = computeImageHash({ ...baseInput, planTitle: '別タイトル' });
-        expect(a).not.toBe(b);
-    });
-
-    it('showTitle のフラグ差で hash が変わる', () => {
-        const a = computeImageHash({ ...baseInput, showTitle: true });
-        const b = computeImageHash({ ...baseInput, showTitle: false });
         expect(a).not.toBe(b);
     });
 

@@ -14,7 +14,6 @@ import type { OgpLang } from './ogpHelpers.js';
 export interface ImageHashInput {
     contentName: string;
     planTitle: string;
-    showTitle: boolean;
     showLogo: boolean;
     logoHash: string | null;
     lang: OgpLang;
@@ -24,7 +23,6 @@ export function computeImageHash(input: ImageHashInput): string {
     const normalized: ImageHashInput = {
         contentName: input.contentName || '',
         planTitle: input.planTitle || '',
-        showTitle: !!input.showTitle,
         showLogo: !!input.showLogo,
         logoHash: input.logoHash || null,
         lang: input.lang,

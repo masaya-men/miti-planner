@@ -102,15 +102,14 @@ export type OgpLang = 'ja' | 'en';
  *   showLogo=true のときのみ意味を持つ。
  *
  * パラメータ順序（固定）:
- *   id → showTitle? → showLogo? → lh? → lang
+ *   id → showLogo? → lh? → lang
  */
 export function buildOgImageUrl(
     origin: string,
     shareId: string,
-    opts: { showTitle: boolean; showLogo: boolean; logoHash?: string; lang: OgpLang },
+    opts: { showLogo: boolean; logoHash?: string; lang: OgpLang },
 ): string {
     let url = `${origin}/api/og?id=${encodeURIComponent(shareId)}`;
-    if (!opts.showTitle) url += '&showTitle=false';
     if (opts.showLogo) {
         url += '&showLogo=true';
         if (opts.logoHash) url += `&lh=${encodeURIComponent(opts.logoHash)}`;

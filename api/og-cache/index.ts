@@ -57,14 +57,13 @@ function resolveOgOrigin(req: any): string {
 
 /**
  * og_image_meta のパラメータから /api/og の URL を組み立てる。
- * buildOgImageUrl と同じパラメータ順序で生成（buildOgImageUrl は id → showTitle → showLogo → lh → lang）。
+ * buildOgImageUrl と同じパラメータ順序で生成（buildOgImageUrl は id → showLogo → lh → lang）。
  */
 function buildInternalOgUrl(
     origin: string,
-    meta: { shareId: string; showTitle: boolean; showLogo: boolean; logoHash: string | null; lang: 'ja' | 'en' },
+    meta: { shareId: string; showLogo: boolean; logoHash: string | null; lang: 'ja' | 'en' },
 ): string {
     let url = `${origin}/api/og?id=${encodeURIComponent(meta.shareId)}`;
-    if (!meta.showTitle) url += '&showTitle=false';
     if (meta.showLogo) {
         url += '&showLogo=true';
         if (meta.logoHash) url += `&lh=${encodeURIComponent(meta.logoHash)}`;
@@ -118,7 +117,6 @@ export default async function handler(req: any, res: any) {
         const origin = resolveOgOrigin(req);
         const ogUrl = buildInternalOgUrl(origin, {
             shareId: meta.shareId,
-            showTitle: !!meta.showTitle,
             showLogo: !!meta.showLogo,
             logoHash: meta.logoHash || null,
             lang: meta.lang === 'en' ? 'en' : 'ja',
