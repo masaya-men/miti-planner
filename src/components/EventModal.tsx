@@ -196,18 +196,35 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     // グループ 0: 全体軽減 (scope: 'party' or undefined) → T/H/D → ジョブ順 → リキャスト短→長
     // グループ 1: タンクLB (id 'tank_lb' 始まり) → LB1→LB2→LB3 → ジョブ順
     // グループ 2: 個別軽減 (scope: 'self' or 'target') → T/H/D → ジョブ順 → self→target → リキャスト短→長
+    const EXCLUDED_IDS = [
+        'aurora', 'thrill_of_battle', 'holmgang', 'living_dead', 'superbolide', 'hallowed_ground',
+        'helios_conjunction', 'summon_seraph', 'seraphism', 'philosophia', 'macrocosmos',
+        'aspected_helios', 'riddle_of_earth'
+    ];
+
     const getSortKey = (mit: typeof MITIGATIONS[0]) => {
-        const job = JOBS.find(j => j.id === mit.jobId);
+        // requires チェック: 前提スキルがあり、それが除外されていなければ親のキーで配置（親の直後に並ぶ）
+        let effectiveMit = mit;
+        let recastOffset = 0;
+        if (mit.requires && !EXCLUDED_IDS.includes(mit.requires)) {
+            const parent = MITIGATIONS.find(m => m.id === mit.requires);
+            if (parent) {
+                effectiveMit = parent;
+                recastOffset = 0.5;
+            }
+        }
+
+        const job = JOBS.find(j => j.id === effectiveMit.jobId);
         const role = job?.role || 'dps';
         const roleOrder = role === 'tank' ? 0 : role === 'healer' ? 1 : 2;
-        const jobOrder = JOBS.findIndex(j => j.id === mit.jobId);
+        const jobOrder = JOBS.findIndex(j => j.id === effectiveMit.jobId);
         const safeJobOrder = jobOrder === -1 ? 999 : jobOrder;
 
         // グループ判定
         let groupOrder: number;
-        if (mit.id.startsWith('tank_lb')) {
+        if (effectiveMit.id.startsWith('tank_lb')) {
             groupOrder = 1;
-        } else if (mit.scope === 'self' || mit.scope === 'target') {
+        } else if (effectiveMit.scope === 'self' || effectiveMit.scope === 'target') {
             groupOrder = 2;
         } else {
             // scope === 'party' または scope === undefined
@@ -217,23 +234,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         // LB レベル (1/2/3)
         let lbLevel = 0;
         if (groupOrder === 1) {
-            const m = mit.id.match(/tank_lb(\d)/);
+            const m = effectiveMit.id.match(/tank_lb(\d)/);
             lbLevel = m ? parseInt(m[1], 10) : 0;
         }
 
         // scope 内順序: グループ 2 でのみ意味あり（self=0, target=1）
-        const scopeInnerOrder = mit.scope === 'self' ? 0 : mit.scope === 'target' ? 1 : 0;
+        const scopeInnerOrder = effectiveMit.scope === 'self' ? 0 : effectiveMit.scope === 'target' ? 1 : 0;
 
-        const recast = mit.recast ?? 999;
+        const recast = (effectiveMit.recast ?? 999) + recastOffset;
 
         return { groupOrder, roleOrder, safeJobOrder, scopeInnerOrder, lbLevel, recast };
     };
-
-    const EXCLUDED_IDS = [
-        'aurora', 'thrill_of_battle', 'holmgang', 'living_dead', 'superbolide', 'hallowed_ground',
-        'helios_conjunction', 'summon_seraph', 'seraphism', 'philosophia', 'macrocosmos',
-        'aspected_helios'
-    ];
 
     const isPureHealOnly = (mit: typeof MITIGATIONS[0]): boolean => {
         return (
@@ -895,7 +906,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                             )}
                                                         >
                                                             <Tooltip content={
-                                                                variant.deployVariant === 'plain' ? '展開戦術（素打ち）' :
+                                                                variant.deployVariant === 'plain' ? '展開戦術' :
                                                                 variant.deployVariant === 'crit' ? '展開戦術 ＋ 秘策' :
                                                                 variant.deployVariant === 'crit_protraction' ? '展開戦術 ＋ 秘策 ＋ 生命回生法' :
                                                                 getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')
@@ -927,6 +938,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                                                 className="absolute inset-0 w-7 h-7 object-contain drop-shadow"
                                                                                 style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}
                                                                             />
+                                                                            {/* 対角線: 2 アイコンの境界を視覚化 */}
+                                                                            <svg
+                                                                                className="absolute inset-0 w-full h-full pointer-events-none text-app-text"
+                                                                                viewBox="0 0 28 28"
+                                                                                preserveAspectRatio="none"
+                                                                            >
+                                                                                <line x1="28" y1="0" x2="0" y2="28" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
+                                                                            </svg>
                                                                             {variant.deployVariant === 'crit_protraction' && (
                                                                                 <img
                                                                                     src={protractionIcon}
