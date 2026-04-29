@@ -29,6 +29,9 @@ const stripVariantSuffix = (id: string): string => {
     return id.replace(/:(burst|crit|crit_protraction)$/, '');
 };
 
+// 鼓舞展開の秘策クリティカル倍率（calculator.ts の CRIT_MULTIPLIER と同値）
+const CRIT_MULTIPLIER = 1.60;
+
 interface EventModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -285,6 +288,26 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             const baseId = stripVariantSuffix(mitId);
             const def = MITIGATIONS.find(m => m.id === baseId);
             if (!def) return;
+
+            // 鼓舞展開バリアント分岐 (deployment_tactics / :crit / :crit_protraction)
+            if (baseId === 'deployment_tactics') {
+                const variant = mitId.includes(':') ? mitId.split(':')[1] : 'plain';
+                const schMember = partyMembers.find(m => m.jobId === 'sch');
+                const baseShield = schMember?.computedValues['鼓舞激励の策'] ?? 0;
+                if (baseShield > 0) {
+                    let shield = baseShield;
+                    if (variant === 'crit' || variant === 'crit_protraction') {
+                        shield *= CRIT_MULTIPLIER;
+                    }
+                    if (variant === 'crit_protraction') {
+                        const protractionDef = MITIGATIONS.find(m => m.id === 'protraction');
+                        const hi = protractionDef?.healingIncrease ?? 10;
+                        shield *= (1 + hi / 100);
+                    }
+                    shieldTotal += Math.floor(shield * healingMultiplier);
+                }
+                return; // 通常の value/isShield 集計をスキップ
+            }
 
             // Scope filtering: AoE attacks only use party-wide mitigations
             if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
