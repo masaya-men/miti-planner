@@ -136,6 +136,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const [inputMode, setInputMode] = useState<'direct' | 'reverse'>('reverse');
     const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
     const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
+    const [mitigationTargets, setMitigationTargets] = useState<Record<string, 'MT' | 'ST'>>({});
 
     const { partyMembers, currentLevel } = useMitigationStore();
     const MITIGATIONS = useMitigations();
@@ -166,6 +167,10 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             const counterpart = isBurst ? baseId : `${id}:burst`;
             return [...prev.filter(m => m !== counterpart), id];
         });
+    };
+
+    const setMitigationTarget = (id: string, target: 'MT' | 'ST') => {
+        setMitigationTargets(prev => ({ ...prev, [id]: target }));
     };
 
     // Sorting Logic
@@ -736,36 +741,58 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
 
                                                 return (
-                                                    <button
-                                                        key={variant.id}
-                                                        data-mitigation-id={variant.id}
-                                                        data-tutorial={
-                                                            !variant.burst && isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
-                                                                ? 'tutorial-skill-reprisal'
-                                                                : shouldHighlight ? 'tutorial-skill-target' : undefined
-                                                        }
-                                                        type="button"
-                                                        onClick={() => toggleMitigation(variant.id)}
-                                                        className={clsx(
-                                                            "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer",
-                                                            selectedMitigations.includes(variant.id)
-                                                                ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
-                                                                : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
-                                                        )}
-                                                    >
-                                                        <Tooltip content={getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')}>
-                                                            <div className="relative">
-                                                                <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
-                                                                {variant.burst && (
-                                                                    <img
-                                                                        src={mit.icon}
-                                                                        alt=""
-                                                                        className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
-                                                                    />
-                                                                )}
+                                                    <div key={variant.id} className="flex flex-col items-center gap-0.5">
+                                                        <button
+                                                            data-mitigation-id={variant.id}
+                                                            data-tutorial={
+                                                                !variant.burst && isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
+                                                                    ? 'tutorial-skill-reprisal'
+                                                                    : shouldHighlight ? 'tutorial-skill-target' : undefined
+                                                            }
+                                                            type="button"
+                                                            onClick={() => toggleMitigation(variant.id)}
+                                                            className={clsx(
+                                                                "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer w-full",
+                                                                selectedMitigations.includes(variant.id)
+                                                                    ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
+                                                                    : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
+                                                            )}
+                                                        >
+                                                            <Tooltip content={getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')}>
+                                                                <div className="relative">
+                                                                    <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
+                                                                    {variant.burst && (
+                                                                        <img
+                                                                            src={mit.icon}
+                                                                            alt=""
+                                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </Tooltip>
+                                                        </button>
+                                                        {/* MT/ST トグル: 単体バフ選択時のみ表示 */}
+                                                        {mit.scope === 'target' && selectedMitigations.includes(variant.id) && (
+                                                            <div className="flex gap-px text-[9px] font-bold rounded overflow-hidden border border-app-border" onClick={(e) => e.stopPropagation()}>
+                                                                {(['MT', 'ST'] as const).map(tgt => {
+                                                                    const isActive = (mitigationTargets[variant.id] ?? 'MT') === tgt;
+                                                                    return (
+                                                                        <button
+                                                                            key={tgt}
+                                                                            type="button"
+                                                                            onClick={() => setMitigationTarget(variant.id, tgt)}
+                                                                            className={clsx(
+                                                                                "px-1.5 py-0.5 transition-colors cursor-pointer",
+                                                                                isActive ? "bg-app-text text-app-bg" : "bg-app-surface text-app-text-muted hover:bg-app-surface2"
+                                                                            )}
+                                                                        >
+                                                                            {tgt}
+                                                                        </button>
+                                                                    );
+                                                                })}
                                                             </div>
-                                                        </Tooltip>
-                                                    </button>
+                                                        )}
+                                                    </div>
                                                 );
                                             });
                                         })}
