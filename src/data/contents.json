@@ -117,6 +117,17 @@
     "phaseNames": { "1": { "ja": "", "en": "Fatebreaker" }, "2": { "ja": "", "en": "Usurper of Frost" }, "3": { "ja": "", "en": "Oracle of Darkness" }, "4": { "ja": "", "en": "Enter the Dragon" }, "5": { "ja": "", "en": "Pandora" } }
   },
   {
+    "id": "dmu",
+    "category": "ultimate",
+    "level": 100,
+    "patch": "7.51",
+    "ja": "絶妖星乱舞",
+    "en": "Dancing Mad (Ultimate)",
+    "zh": "妖星乱舞绝境战",
+    "shortNameJa": "DMU",
+    "phaseNames": {}
+  },
+  {
     "id": "m1s",
     "category": "savage",
     "level": 100,
