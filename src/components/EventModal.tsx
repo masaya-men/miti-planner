@@ -924,33 +924,25 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                                             )}
                                                                         </>
                                                                     ) : (
-                                                                        // 鼓舞展開バリアント: 対角線分割融合 (秘策=左上三角 / 展開戦術=右下三角)
+                                                                        // 鼓舞展開バリアント: 展開戦術ベース + 右上に秘策バッジ (+ crit_protraction なら右下に生命回生バッジ)
                                                                         <div className="relative w-7 h-7">
-                                                                            <img
-                                                                                src={recitationIcon}
-                                                                                alt=""
-                                                                                className="absolute inset-0 w-7 h-7 object-contain drop-shadow"
-                                                                                style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}
-                                                                            />
                                                                             <img
                                                                                 src={deploymentIcon}
                                                                                 alt={getPhaseName(mit.name, contentLanguage)}
-                                                                                className="absolute inset-0 w-7 h-7 object-contain drop-shadow"
-                                                                                style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}
+                                                                                className="w-7 h-7 object-contain drop-shadow"
                                                                             />
-                                                                            {/* 対角線: 2 アイコンの境界を視覚化 */}
-                                                                            <svg
-                                                                                className="absolute inset-0 w-full h-full pointer-events-none text-app-text"
-                                                                                viewBox="0 0 28 28"
-                                                                                preserveAspectRatio="none"
-                                                                            >
-                                                                                <line x1="28" y1="0" x2="0" y2="28" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
-                                                                            </svg>
+                                                                            {/* 右上: 秘策（crit と crit_protraction の両方） */}
+                                                                            <img
+                                                                                src={recitationIcon}
+                                                                                alt=""
+                                                                                className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                            />
+                                                                            {/* 右下: 生命回生法（crit_protraction のみ） */}
                                                                             {variant.deployVariant === 'crit_protraction' && (
                                                                                 <img
                                                                                     src={protractionIcon}
                                                                                     alt=""
-                                                                                    className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                                    className="absolute -bottom-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
                                                                                 />
                                                                             )}
                                                                         </div>
