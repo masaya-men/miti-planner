@@ -1,0 +1,44 @@
+/* ダメージ値変化アニメーション
+   設計書: docs/superpowers/specs/2026-04-30-damage-value-animation-design.md
+   GPU合成のみ使用 (transform / opacity)、JS補間ゼロ */
+
+.dmg-slot {
+    height: 22px;
+    overflow: hidden;
+    display: flex;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dmg-slot .ch {
+    display: inline-block;
+}
+
+.dmg-slot .ch.enter {
+    will-change: transform, opacity;
+    animation: dmgEnter 150ms cubic-bezier(0.18, 1, 0.32, 1) both;
+    animation-delay: calc(22ms * var(--i, 0));
+}
+
+.dmg-slot .ch.exit {
+    will-change: transform, opacity;
+    animation: dmgExit 120ms cubic-bezier(0.7, 0, 0.84, 0) both;
+    animation-delay: calc(10ms * var(--i, 0));
+}
+
+@keyframes dmgEnter {
+    from { transform: translateY(15px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes dmgExit {
+    from { transform: translateY(0);    opacity: 1; }
+    to   { transform: translateY(-3px); opacity: 0; }
+}
+
+/* A11y: モーション低減希望ユーザー */
+@media (prefers-reduced-motion: reduce) {
+    .dmg-slot .ch.enter,
+    .dmg-slot .ch.exit {
+        animation: none !important;
+    }
+}
