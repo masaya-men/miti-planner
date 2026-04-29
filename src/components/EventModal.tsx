@@ -192,26 +192,41 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         setMitigationTargets(prev => ({ ...prev, [id]: target }));
     };
 
-    // Sorting Logic
-    // 3段階ソートキー: [roleOrder, jobOrder, scopeOrder]
-    const getSortKey = (mit: typeof MITIGATIONS[0]): [number, number, number] => {
+    // 並び順ソートキー
+    // グループ 0: 全体軽減 (scope: 'party' or undefined) → T/H/D → ジョブ順 → リキャスト短→長
+    // グループ 1: タンクLB (id 'tank_lb' 始まり) → LB1→LB2→LB3 → ジョブ順
+    // グループ 2: 個別軽減 (scope: 'self' or 'target') → T/H/D → ジョブ順 → self→target → リキャスト短→長
+    const getSortKey = (mit: typeof MITIGATIONS[0]) => {
         const job = JOBS.find(j => j.id === mit.jobId);
         const role = job?.role || 'dps';
-
-        // 1段目: ロール順 (tank=0, healer=1, dps=2)
         const roleOrder = role === 'tank' ? 0 : role === 'healer' ? 1 : 2;
-
-        // 2段目: JOBS 配列での出現順（同ロール内のジョブ順）
         const jobOrder = JOBS.findIndex(j => j.id === mit.jobId);
         const safeJobOrder = jobOrder === -1 ? 999 : jobOrder;
 
-        // 3段目: scope 順 (party=0, self=1, target=2, undefined=3)
-        const scopeOrder =
-            mit.scope === 'party' ? 0 :
-            mit.scope === 'self' ? 1 :
-            mit.scope === 'target' ? 2 : 3;
+        // グループ判定
+        let groupOrder: number;
+        if (mit.id.startsWith('tank_lb')) {
+            groupOrder = 1;
+        } else if (mit.scope === 'self' || mit.scope === 'target') {
+            groupOrder = 2;
+        } else {
+            // scope === 'party' または scope === undefined
+            groupOrder = 0;
+        }
 
-        return [roleOrder, safeJobOrder, scopeOrder];
+        // LB レベル (1/2/3)
+        let lbLevel = 0;
+        if (groupOrder === 1) {
+            const m = mit.id.match(/tank_lb(\d)/);
+            lbLevel = m ? parseInt(m[1], 10) : 0;
+        }
+
+        // scope 内順序: グループ 2 でのみ意味あり（self=0, target=1）
+        const scopeInnerOrder = mit.scope === 'self' ? 0 : mit.scope === 'target' ? 1 : 0;
+
+        const recast = mit.recast ?? 999;
+
+        return { groupOrder, roleOrder, safeJobOrder, scopeInnerOrder, lbLevel, recast };
     };
 
     const EXCLUDED_IDS = [
@@ -267,11 +282,24 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     const sortedMitigations = useMemo(() => {
         return [...uniqueMitigations].sort((a, b) => {
-            const [ra, ja, sa] = getSortKey(a);
-            const [rb, jb, sb] = getSortKey(b);
-            if (ra !== rb) return ra - rb;
-            if (ja !== jb) return ja - jb;
-            if (sa !== sb) return sa - sb;
+            const ka = getSortKey(a);
+            const kb = getSortKey(b);
+
+            // グループ
+            if (ka.groupOrder !== kb.groupOrder) return ka.groupOrder - kb.groupOrder;
+
+            // グループ 1 (LB): lbLevel → jobOrder
+            if (ka.groupOrder === 1) {
+                if (ka.lbLevel !== kb.lbLevel) return ka.lbLevel - kb.lbLevel;
+                if (ka.safeJobOrder !== kb.safeJobOrder) return ka.safeJobOrder - kb.safeJobOrder;
+                return (a.name.ja || "").localeCompare(b.name.ja || "");
+            }
+
+            // グループ 0 / 2: ロール → ジョブ順 → scope内順 → リキャスト順
+            if (ka.roleOrder !== kb.roleOrder) return ka.roleOrder - kb.roleOrder;
+            if (ka.safeJobOrder !== kb.safeJobOrder) return ka.safeJobOrder - kb.safeJobOrder;
+            if (ka.scopeInnerOrder !== kb.scopeInnerOrder) return ka.scopeInnerOrder - kb.scopeInnerOrder;
+            if (ka.recast !== kb.recast) return ka.recast - kb.recast;
             return (a.name.ja || "").localeCompare(b.name.ja || "");
         });
     }, [uniqueMitigations, JOBS]);
