@@ -947,11 +947,14 @@ const Timeline: React.FC = () => {
             scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
         // チュートリアル中: NewPlanModal が hideEmptyRows を制御しているのでスキップ
-        // 空プラン (新規作成直後等): 展開状態がデフォルトなのでスキップ
+        // 空プラン (新規作成直後・テンプレ未整備コンテンツ等): 軽減配置時刻を見せたいので強制的に展開状態へ
         const isTutorial = useTutorialStore.getState().isActive;
         const plan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
         const isEmptyPlan = plan ? plan.data.timelineEvents.length === 0 : false;
-        if (!isTutorial && !isEmptyPlan) {
+        if (isTutorial) return;
+        if (isEmptyPlan) {
+            useMitigationStore.getState().setHideEmptyRows(false);
+        } else {
             useMitigationStore.getState().setHideEmptyRows(true);
         }
     }, [currentPlanId]);
