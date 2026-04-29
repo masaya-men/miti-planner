@@ -12,4 +12,13 @@ describe('AnimatedDamage', () => {
         expect(chars).toHaveLength(6);
         expect(slot!.textContent).toBe('10,000');
     });
+
+    it('does NOT replace DOM when value is unchanged', () => {
+        const { container, rerender } = render(<AnimatedDamage value={10000} />);
+        const firstSpan = container.querySelector('.ch');
+        rerender(<AnimatedDamage value={10000} />);
+        const sameSpan = container.querySelector('.ch');
+        // DOM 要素そのものが同一参照であること
+        expect(sameSpan).toBe(firstSpan);
+    });
 });
