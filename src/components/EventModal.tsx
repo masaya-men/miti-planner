@@ -200,7 +200,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const EXCLUDED_IDS = [
         'aurora', 'thrill_of_battle', 'holmgang', 'living_dead', 'superbolide', 'hallowed_ground',
         'helios_conjunction', 'summon_seraph', 'seraphism', 'philosophia', 'macrocosmos',
-        'mantra', 'nature_s_minne', 'deployment_tactics'
+        'mantra', 'nature_s_minne'
     ];
 
     const isPureHealOnly = (mit: typeof MITIGATIONS[0]): boolean => {
@@ -742,9 +742,18 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                     >
                                         {sortedMitigations.flatMap((mit: typeof MITIGATIONS[0]) => {
                                             const hasBurst = !!(mit.burstValue && mit.burstDuration);
-                                            const variants = hasBurst
-                                                ? [{ id: mit.id, burst: false }, { id: `${mit.id}:burst`, burst: true }]
-                                                : [{ id: mit.id, burst: false }];
+                                            const isDeployTactics = mit.id === 'deployment_tactics';
+
+                                            const variants: Array<{ id: string; burst: boolean; deployVariant?: 'plain' | 'crit' | 'crit_protraction' }> =
+                                                isDeployTactics
+                                                    ? [
+                                                        { id: 'deployment_tactics', burst: false, deployVariant: 'plain' },
+                                                        { id: 'deployment_tactics:crit', burst: false, deployVariant: 'crit' },
+                                                        { id: 'deployment_tactics:crit_protraction', burst: false, deployVariant: 'crit_protraction' },
+                                                    ]
+                                                    : hasBurst
+                                                        ? [{ id: mit.id, burst: false }, { id: `${mit.id}:burst`, burst: true }]
+                                                        : [{ id: mit.id, burst: false }];
 
                                             return variants.map(variant => {
                                                 const isTutorialTarget = isTutorialActive && !variant.burst && (
@@ -771,15 +780,28 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                                     : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
                                                             )}
                                                         >
-                                                            <Tooltip content={getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')}>
+                                                            <Tooltip content={
+                                                                variant.deployVariant === 'plain' ? '展開戦術（素打ち）' :
+                                                                variant.deployVariant === 'crit' ? '展開戦術 ＋ 秘策' :
+                                                                variant.deployVariant === 'crit_protraction' ? '展開戦術 ＋ 秘策 ＋ 生命回生法' :
+                                                                getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')
+                                                            }>
                                                                 <div className="relative">
-                                                                    <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
-                                                                    {variant.burst && (
-                                                                        <img
-                                                                            src={mit.icon}
-                                                                            alt=""
-                                                                            className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
-                                                                        />
+                                                                    {variant.deployVariant === 'plain' || variant.deployVariant === undefined ? (
+                                                                        <>
+                                                                            <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
+                                                                            {variant.burst && (
+                                                                                <img
+                                                                                    src={mit.icon}
+                                                                                    alt=""
+                                                                                    className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                                />
+                                                                            )}
+                                                                        </>
+                                                                    ) : (
+                                                                        // 鼓舞展開バリアント (crit / crit_protraction): 一旦展開戦術アイコンだけで仮置き
+                                                                        // Task 7 で秘策との斜め融合 + 生命回生バッジを実装
+                                                                        <img src={mit.icon} alt="" className="w-7 h-7 object-contain drop-shadow" />
                                                                     )}
                                                                 </div>
                                                             </Tooltip>
