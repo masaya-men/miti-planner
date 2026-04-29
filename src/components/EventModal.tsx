@@ -230,6 +230,20 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         );
     };
 
+    // 鼓舞展開バリアント描画用のアイコンパス
+    const recitationIcon = useMemo(
+        () => MITIGATIONS.find(m => m.id === 'recitation')?.icon ?? '',
+        [MITIGATIONS]
+    );
+    const protractionIcon = useMemo(
+        () => MITIGATIONS.find(m => m.id === 'protraction')?.icon ?? '',
+        [MITIGATIONS]
+    );
+    const deploymentIcon = useMemo(
+        () => MITIGATIONS.find(m => m.id === 'deployment_tactics')?.icon ?? '',
+        [MITIGATIONS]
+    );
+
     // Deduplicate mitigations by English name so role actions (Addle, Feint, Reprisal) only appear once
     const uniqueMitigations = useMemo(() => {
         const seenNames = new Set<string>();
@@ -836,9 +850,28 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                                             )}
                                                                         </>
                                                                     ) : (
-                                                                        // 鼓舞展開バリアント (crit / crit_protraction): 一旦展開戦術アイコンだけで仮置き
-                                                                        // Task 7 で秘策との斜め融合 + 生命回生バッジを実装
-                                                                        <img src={mit.icon} alt="" className="w-7 h-7 object-contain drop-shadow" />
+                                                                        // 鼓舞展開バリアント: 対角線分割融合 (秘策=左上三角 / 展開戦術=右下三角)
+                                                                        <div className="relative w-7 h-7">
+                                                                            <img
+                                                                                src={recitationIcon}
+                                                                                alt=""
+                                                                                className="absolute inset-0 w-7 h-7 object-contain drop-shadow"
+                                                                                style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}
+                                                                            />
+                                                                            <img
+                                                                                src={deploymentIcon}
+                                                                                alt={getPhaseName(mit.name, contentLanguage)}
+                                                                                className="absolute inset-0 w-7 h-7 object-contain drop-shadow"
+                                                                                style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}
+                                                                            />
+                                                                            {variant.deployVariant === 'crit_protraction' && (
+                                                                                <img
+                                                                                    src={protractionIcon}
+                                                                                    alt=""
+                                                                                    className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
+                                                                                />
+                                                                            )}
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             </Tooltip>
