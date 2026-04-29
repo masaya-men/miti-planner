@@ -64,6 +64,18 @@ const SAVAGE_TIERS = [
   { value: 6, ja: '4層 後半', en: 'Floor 4 Phase 2' },
 ] as const;
 
+/**
+ * FFLogs URL から encounter ID を抽出する。
+ * 対応パターン:
+ *   https://www.fflogs.com/zone/rankings/65#encounter=1079
+ *   https://www.fflogs.com/zone/statistics/encounter/1079/...
+ *   https://www.fflogs.com/encounter/1079
+ */
+function extractEncounterIdFromUrl(input: string): number | null {
+  const match = input.match(/encounter[=/](\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
 /** 空のフォームデータ */
 export function emptyContent(): ContentData {
   return {
@@ -99,6 +111,23 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [newSeriesMode, setNewSeriesMode] = useState(false);
   const [newSeriesId, setNewSeriesId] = useState('');
+  const [fflogsUrlInput, setFflogsUrlInput] = useState('');
+  const [fflogsUrlStatus, setFflogsUrlStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleFflogsUrlInput = (value: string) => {
+    setFflogsUrlInput(value);
+    if (!value.trim()) {
+      setFflogsUrlStatus('idle');
+      return;
+    }
+    const id = extractEncounterIdFromUrl(value);
+    if (id !== null) {
+      setForm((prev) => ({ ...prev, fflogsEncounterId: id }));
+      setFflogsUrlStatus('success');
+    } else {
+      setFflogsUrlStatus('error');
+    }
+  };
 
   useEffect(() => {
     setForm(initial ?? emptyContent());
@@ -375,8 +404,31 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
             {/* FFLogs エンカウンターID */}
             <div>
               <label className={labelClass}>
+                FFLogs URL を貼り付け（ID を自動抽出）
+                <span className={`${exampleClass} ml-2 font-normal`}>例: https://www.fflogs.com/zone/rankings/65#encounter=1079</span>
+              </label>
+              <input
+                className={inputClass}
+                type="text"
+                placeholder="FFLogs の URL を貼り付けると下の ID 欄が自動で埋まります"
+                value={fflogsUrlInput}
+                onChange={(e) => handleFflogsUrlInput(e.target.value)}
+              />
+              {fflogsUrlStatus === 'success' && (
+                <p className="mt-1 text-app-sm text-app-blue">
+                  ID を取得しました: {form.fflogsEncounterId}
+                </p>
+              )}
+              {fflogsUrlStatus === 'error' && (
+                <p className="mt-1 text-app-sm text-app-yellow">
+                  この URL から ID を抽出できませんでした。FFLogs のランキングページ等の URL（encounter=数字 を含むもの）を貼り付けてください
+                </p>
+              )}
+            </div>
+            <div>
+              <label className={labelClass}>
                 FFLogs エンカウンターID
-                <span className={`${exampleClass} ml-2 font-normal`}>わからなければ空欄でOK（開発者が後から設定します）</span>
+                <span className={`${exampleClass} ml-2 font-normal`}>わからなければ空欄でOK（上の URL 貼付で自動入力されます）</span>
               </label>
               <input
                 className={inputClass}
