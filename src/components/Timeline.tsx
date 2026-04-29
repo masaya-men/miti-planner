@@ -946,7 +946,10 @@ const Timeline: React.FC = () => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
-        useMitigationStore.getState().setHideEmptyRows(true);
+        // チュートリアル中は NewPlanModal が hideEmptyRows を制御しているのでスキップ
+        if (!useTutorialStore.getState().isActive) {
+            useMitigationStore.getState().setHideEmptyRows(true);
+        }
     }, [currentPlanId]);
 
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
