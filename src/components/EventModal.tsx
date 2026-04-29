@@ -169,30 +169,25 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     };
 
     // Sorting Logic
-    const TANK_AOE_IDS = [
-        'heart_of_light', 'dark_missionary', 'shake_it_off', 'divine_veil', 'passage_of_arms'
-    ];
+    // 3段階ソートキー: [roleOrder, jobOrder, scopeOrder]
+    const getSortKey = (mit: typeof MITIGATIONS[0]): [number, number, number] => {
+        const job = JOBS.find(j => j.id === mit.jobId);
+        const role = job?.role || 'dps';
 
-    const getMitigationRole = (jobId: string) => {
-        const job = JOBS.find(j => j.id === jobId);
-        return job?.role || 'dps';
-    };
+        // 1段目: ロール順 (tank=0, healer=1, dps=2)
+        const roleOrder = role === 'tank' ? 0 : role === 'healer' ? 1 : 2;
 
-    const getSortPriority = (mit: typeof MITIGATIONS[0]) => {
-        const role = getMitigationRole(mit.jobId);
+        // 2段目: JOBS 配列での出現順（同ロール内のジョブ順）
+        const jobOrder = JOBS.findIndex(j => j.id === mit.jobId);
+        const safeJobOrder = jobOrder === -1 ? 999 : jobOrder;
 
-        // 1. Tank
-        if (role === 'tank') {
-            const isAoE = TANK_AOE_IDS.includes(mit.id) || mit.name.ja.includes('リプライザル');
-            // Tank AoE (0) -> Tank Single (1)
-            return isAoE ? 0 : 1;
-        }
+        // 3段目: scope 順 (party=0, self=1, target=2, undefined=3)
+        const scopeOrder =
+            mit.scope === 'party' ? 0 :
+            mit.scope === 'self' ? 1 :
+            mit.scope === 'target' ? 2 : 3;
 
-        // 2. Healer (2)
-        if (role === 'healer') return 2;
-
-        // 3. DPS (3)
-        return 3;
+        return [roleOrder, safeJobOrder, scopeOrder];
     };
 
     const EXCLUDED_IDS = [
@@ -221,15 +216,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
     const sortedMitigations = useMemo(() => {
         return [...uniqueMitigations].sort((a, b) => {
-            const prioA = getSortPriority(a);
-            const prioB = getSortPriority(b);
-
-            if (prioA !== prioB) return prioA - prioB;
-
-            // If same priority, sort by display order if possible, else name.ja
+            const [ra, ja, sa] = getSortKey(a);
+            const [rb, jb, sb] = getSortKey(b);
+            if (ra !== rb) return ra - rb;
+            if (ja !== jb) return ja - jb;
+            if (sa !== sb) return sa - sb;
             return (a.name.ja || "").localeCompare(b.name.ja || "");
         });
-    }, [uniqueMitigations]);
+    }, [uniqueMitigations, JOBS]);
 
     // Calculate Raw Damage
     const handleCalculate = () => {
