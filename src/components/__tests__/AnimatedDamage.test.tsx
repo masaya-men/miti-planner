@@ -50,4 +50,13 @@ describe('AnimatedDamage', () => {
             vi.useRealTimers();
         }
     });
+
+    it('does not animate on initial mount', () => {
+        const { container } = render(<AnimatedDamage value={10000} />);
+        // 初回マウント: enter クラスは付かない（即静止表示）
+        expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
+        expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
+        // 文字は表示されている
+        expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
+    });
 });
