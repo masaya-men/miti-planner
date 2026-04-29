@@ -196,6 +196,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         'mantra', 'nature_s_minne', 'deployment_tactics'
     ];
 
+    const isPureHealOnly = (mit: typeof MITIGATIONS[0]): boolean => {
+        return (
+            mit.value === 0 &&
+            !mit.isShield &&
+            !mit.healingIncrease &&
+            mit.valueMagical === undefined &&
+            mit.valuePhysical === undefined
+        );
+    };
+
     // Deduplicate mitigations by English name so role actions (Addle, Feint, Reprisal) only appear once
     const uniqueMitigations = useMemo(() => {
         const seenNames = new Set<string>();
@@ -207,12 +217,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             // Filter out excluded IDs first
             if (EXCLUDED_IDS.includes(mit.id)) return false;
 
+            // Filter out pure-heal-only skills (no mitigation value, no shield, no heal-up buff)
+            if (isPureHealOnly(mit)) return false;
+
             const nameEN = mit.name.en;
             if (seenNames.has(nameEN)) return false;
             seenNames.add(nameEN);
             return true;
         });
-    }, [currentLevel]);
+    }, [currentLevel, MITIGATIONS]);
 
     const sortedMitigations = useMemo(() => {
         return [...uniqueMitigations].sort((a, b) => {
