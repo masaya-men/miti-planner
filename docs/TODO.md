@@ -11,7 +11,9 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-29・イベント追加モーダル UI 全面改善）**: 設計書 `docs/superpowers/specs/2026-04-29-event-modal-mitigation-improvements-design.md` + 実装プラン `docs/superpowers/plans/2026-04-29-event-modal-mitigation-improvements.md` に基づき、PC/スマホ共通の EventModal.tsx を全面改善。20 コミットを EventModal.tsx ファイル内に閉じて他コンポーネントへの影響ゼロで実施: ①並び順を 3 グループ構成（全体軽減 → タンクLB → 個別軽減）に再構成、各グループ内ロール T→H→D → ジョブ順 → リキャスト短→長、前提スキル (requires) は親の直後に配置 ②純粋回復スキル自動除外ルール追加（healingIncrease なしを判定） ③mantra/nature_s_minne を EXCLUDED から復帰、riddle_of_earth と aspected_helios を追加 ④単体バフ (scope='target') 選択時に MT|ST トグル UI を直下に表示、計算で被対象者と突合 ⑤鼓舞展開 3 バリアント実装（展開戦術 / +秘策 / +秘策+生命回生法）、排他選択、CRIT_MULTIPLIER 1.60 と protraction.healingIncrease 動的取得で実シールド倍率計算、学者不在時 DEFAULT_HEALER_STATS フォールバック、アイコンは「展開戦術ベース＋右上秘策バッジ＋右下生命回生法バッジ」の重ね方式 ⑥ニュートラルセクト押下で lv96+ コンジャ／lv95- アスペクト・ヘリオスのバリアを自動加算（占星不在時もフォールバック）、SKILL_DATA キー名に揃えて修正 ⑦Timeline.tsx のプラン切替 useEffect で「チュートリアル中 or 空プラン」では hideEmptyRows リセットをスキップ。build+test 244 PASS、ユーザー実機 OK、デプロイ完了。
+- **最新セッション（2026-04-29・絶妖星乱舞 (DMU) 追加 + 関連 UX 改善）**: 7.51 で実装予定の新規絶コンテンツ「絶妖星乱舞 / Dancing Mad (Ultimate) / 妖星乱舞绝境战」を追加。①contents.json + Firestore（管理画面）両方に dmu 登録、ko 欄空欄で en→ja フォールバック ②管理画面のコンテンツ編集に「FFLogs URL 貼付→ID 自動抽出」機能追加（正規表現 /encounter[=/](\\d+)/、AdminContentForm.tsx に純粋関数 + state + JSX）③Sidebar の絶タブで正式名称が幅半分しか取れず省略されていた問題（flex-1 スペーサーが name と等分されていた古い設計）を、絶タブ時のみスペーサー非表示で修正 ④Sidebar の韓国語フォールバックを ja 直行から en→ja の順に統一（他画面 getPhaseName と整合）⑤Timeline.tsx で空プラン (timelineEvents.length===0) を開いたとき hideEmptyRows=false で強制展開（テンプレ未整備の新規コンテンツで時刻軸が見えない問題を解消）⑥鼓舞展開バリアント Tooltip i18n 化、CRIT_MULTIPLIER 集約も完了。build+test 244 PASS、ユーザー実機 OK、デプロイ完了。
+
+- **前セッション（2026-04-29・イベント追加モーダル UI 全面改善）**: 設計書 `docs/superpowers/specs/2026-04-29-event-modal-mitigation-improvements-design.md` + 実装プラン `docs/superpowers/plans/2026-04-29-event-modal-mitigation-improvements.md` に基づき、PC/スマホ共通の EventModal.tsx を全面改善。20 コミットを EventModal.tsx ファイル内に閉じて他コンポーネントへの影響ゼロで実施: ①並び順を 3 グループ構成（全体軽減 → タンクLB → 個別軽減）に再構成、各グループ内ロール T→H→D → ジョブ順 → リキャスト短→長、前提スキル (requires) は親の直後に配置 ②純粋回復スキル自動除外ルール追加（healingIncrease なしを判定） ③mantra/nature_s_minne を EXCLUDED から復帰、riddle_of_earth と aspected_helios を追加 ④単体バフ (scope='target') 選択時に MT|ST トグル UI を直下に表示、計算で被対象者と突合 ⑤鼓舞展開 3 バリアント実装（展開戦術 / +秘策 / +秘策+生命回生法）、排他選択、CRIT_MULTIPLIER 1.60 と protraction.healingIncrease 動的取得で実シールド倍率計算、学者不在時 DEFAULT_HEALER_STATS フォールバック、アイコンは「展開戦術ベース＋右上秘策バッジ＋右下生命回生法バッジ」の重ね方式 ⑥ニュートラルセクト押下で lv96+ コンジャ／lv95- アスペクト・ヘリオスのバリアを自動加算（占星不在時もフォールバック）、SKILL_DATA キー名に揃えて修正 ⑦Timeline.tsx のプラン切替 useEffect で「チュートリアル中 or 空プラン」では hideEmptyRows リセットをスキップ。build+test 244 PASS、ユーザー実機 OK、デプロイ完了。
 - **前セッション（2026-04-29・PC イベントモーダル軽減プレビュー）**: PC のイベント追加モーダル「使用された軽減・バリア」横の選択軽減プレビューが `slice(0, 4)` ハードコードで 4 個固定 + `+N` 省略になっていた問題を修正。`flex-wrap` で全件表示・右寄せ・必要に応じて折り返し、`+N` 省略を撤去、ラベル側に `shrink-0` で折り返し防止。スマホ側（MobileTimelineRow）は別実装のため影響なし。build+test 244 PASS、ユーザー実機 OK 確認済み。
 - **前セッション（2026-04-29・離脱ダイアログ廃止 → revert）**: タブ離脱ダイアログを削除する変更を入れたが、ユーザー報告で別端末同期不整合・PC のデータが古い状態に戻る等の症状が判明。原因仮説は「旧コードはダイアログ表示の数秒間で Firestore SDK の async write が完了していたのが、削除後は完了前にタブが閉じる」。被害最小化のため 2 コミット即 revert して元の挙動に戻した。離脱ダイアログは復活、データ同期は元の信頼性に戻る。build+test 244 PASS、デプロイ完了。
 - **前セッション（2026-04-29・SEO canonical 追加）**: Search Console「ページにリダイレクトがあります」通知の調査。対象は `http://lopoly.app/` のみで HTTP→HTTPS の正常 308、対処不要と判明。あわせて SEO 改善の基礎固めとして `useCanonicalUrl` フックを新設、全公開ページ（/、/miti、/share/:id、/popular、/privacy、/terms、/commercial）に `<link rel="canonical">` を動的注入。SPA で utm パラメータ・末尾スラッシュ違いが重複ページ判定されるのを防ぐ。build+test 244 PASS、デプロイ完了。次は Search Console URL 検査での再クロール要求。
@@ -34,6 +36,12 @@
 ### 次にやること（優先順）
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始）
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
+
+### 絶妖星乱舞 (DMU) フォローアップ — 6月実装前後で対応
+- [ ] **patchStats['7.51'] の追加**: SE が 7.50/7.51 パッチノートで IL 上限・装備ステータスを公開したら、管理画面 → ステータス → patchStats に 7.51 用の tank/other ステータスを登録。`defaultStatsByLevel: { 100: '7.40' }` の 100 を 7.51 に切り替えるかは要検討（既存 Lv100 コンテンツへの影響あり）
+- [ ] **FFLogs Encounter ID 追加**: 6月実装後、FFLogs 側で encounter ID が割り当てられたら、管理画面 → コンテンツ → 絶妖星乱舞 → 上級者設定 → 「FFLogs URL を貼り付け」欄に FFLogs ランキングページ URL を貼ると自動で ID 入力される
+- [ ] **韓国語正式名称追加**: 韓国版 FF14 で 7.51 対応・公式名公開後、管理画面 → コンテンツ → 絶妖星乱舞 → 名前（韓国語）欄に入力
+- [ ] **テンプレート整備**: 6月実装後、ACT 持ちユーザーから FFLogs ログが集まったら管理画面 → テンプレートで攻撃タイムライン整備（自動で蓄積されるわけではなく管理者の手動作業）
 
 ### スマホ空行への軽減配置・イベント追加 2026-04-29 — 実機 OK 確認済み
 
