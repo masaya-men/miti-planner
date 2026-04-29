@@ -217,7 +217,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const EXCLUDED_IDS = [
         'aurora', 'thrill_of_battle', 'holmgang', 'living_dead', 'superbolide', 'hallowed_ground',
         'helios_conjunction', 'summon_seraph', 'seraphism', 'philosophia', 'macrocosmos',
-        'mantra', 'nature_s_minne'
+        'aspected_helios'
     ];
 
     const isPureHealOnly = (mit: typeof MITIGATIONS[0]): boolean => {
@@ -307,7 +307,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             if (baseId === 'deployment_tactics') {
                 const variant = mitId.includes(':') ? mitId.split(':')[1] : 'plain';
                 const schMember = partyMembers.find(m => m.jobId === 'sch');
-                const baseShield = schMember?.computedValues['鼓舞激励の策'] ?? 0;
+                let baseShield = schMember?.computedValues['鼓舞激励の策'] ?? 0;
+
+                // フォールバック: 学者不在 or computedValues 未生成のとき、デフォルトステータスで計算
+                if (baseShield === 0) {
+                    const tempComputed = calculateMemberValues(
+                        { id: 'temp', jobId: 'sch', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
+                        currentLevel
+                    );
+                    baseShield = tempComputed['鼓舞激励の策'] ?? 0;
+                }
+
                 if (baseShield > 0) {
                     let shield = baseShield;
                     if (variant === 'crit' || variant === 'crit_protraction') {
@@ -321,6 +331,32 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     shieldTotal += Math.floor(shield * healingMultiplier);
                 }
                 return; // 通常の value/isShield 集計をスキップ
+            }
+
+            // ニュートラルセクト分岐: 押下時にコンジャ/アスペクト・ヘリオスのバリアを自動加算
+            // healingIncrease (selfOnly: 20%) は既存ロジックで自動適用される
+            if (baseId === 'neutral_sect') {
+                const heliosId = currentLevel >= 96 ? 'helios_conjunction' : 'aspected_helios';
+                const heliosDef = MITIGATIONS.find(m => m.id === heliosId);
+                const heliosName = heliosDef?.name.ja;
+                if (heliosName) {
+                    const astMember = partyMembers.find(m => m.jobId === 'ast');
+                    let baseShield = astMember?.computedValues[heliosName] ?? 0;
+
+                    // フォールバック: 占星不在 or computedValues 未生成のときデフォルトステータス計算
+                    if (baseShield === 0) {
+                        const tempComputed = calculateMemberValues(
+                            { id: 'temp', jobId: 'ast', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
+                            currentLevel
+                        );
+                        baseShield = tempComputed[heliosName] ?? 0;
+                    }
+
+                    if (baseShield > 0) {
+                        shieldTotal += Math.floor(baseShield * healingMultiplier);
+                    }
+                }
+                return;
             }
 
             // Scope filtering: AoE attacks only use party-wide mitigations
