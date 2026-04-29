@@ -102,8 +102,8 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
     // 共有モードのみ10件制限、削除モードは無制限
     const isDisabled = multiSelect.isEnabled && multiSelect.mode === 'share' && !hasSelectedPlan && multiSelect.selectedIds.length >= 10;
 
-    const floorName = content.name[lang as ContentLanguage] || content.name.ja;
-    const shortName = content.shortName[lang as ContentLanguage] || content.shortName.ja;
+    const floorName = content.name[lang as ContentLanguage] || content.name.en || content.name.ja;
+    const shortName = content.shortName[lang as ContentLanguage] || content.shortName.en || content.shortName.ja;
     // 選択モード中にプラン0件のコンテンツは選択不可
     const hasNoPlans = contentPlans.length === 0;
     const isUnavailable = multiSelect.isEnabled && hasNoPlans;
@@ -252,8 +252,8 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                             />
                         )}
 
-                        {/* クリック領域を維持するための flex-1 スペーサー */}
-                        <div className="flex-1 min-w-0" />
+                        {/* クリック領域を維持するための flex-1 スペーサー（絶タブは正式名称が flex-1 で広がるため不要） */}
+                        {!showFullName && <div className="flex-1 min-w-0" />}
                     </button>
                 </Tooltip>
 
