@@ -60,10 +60,13 @@
 - [ ] ポップアップが ×/Esc/背景クリックで閉じる、ライトモードで白背景になっているか
 
 ### イベント追加モーダル 残課題
-- **Tooltip 文言の i18n 化**: 鼓舞展開バリアント Tooltip「展開戦術 / 展開戦術 ＋ 秘策 / 展開戦術 ＋ 秘策 ＋ 生命回生法」が日本語ハードコード。プロジェクト i18n ルールに従い `t('mechanic_modal.deployment_variants.*')` 等に置換すべき。英語/中国語/韓国語モードでの表示崩れ防止
-- **Phase 3（理想形・別セッションで設計）**: パーティメンバー個別 (H1/H2/D1-D4) の target 指定 / 鼓舞インスタンス選択 UI / Timeline と同じ owner/targetId モデル統合
-- **計算ロジック責務肥大**: `handleCalculate` が healingIncrease 集計 / scope フィルタ / MT-ST 突合 / 鼓舞展開 / ニュートラルセクト分岐 / value mitigation / shield calc など 8 段階を担う。将来 `applyHealingIncrease` / `applyMitigationFilters` / `applyShieldCalc` 等への分割を検討
-- **CRIT_MULTIPLIER の二重定義**: EventModal.tsx と calculator.ts の両方に 1.60 を持つ。calculator.ts 値変更時に drift する潜在バグ。将来 import に集約する小タスク
+
+#### 優先度: 高
+- **計算ロジック責務肥大（リファクタ）**: `EventModal.tsx` の `handleCalculate` が healingIncrease 集計 / scope フィルタ / MT-ST 突合 / 鼓舞展開 / ニュートラルセクト分岐 / value mitigation / shield calc など 8 段階を担う。`applyHealingIncrease` / `applyMitigationFilters` / `applyShieldCalc` 等への分割を検討。Timeline 本体側の同種計算（calculator.ts）と重複している部分は将来共通化すべき
+- **CRIT 倍率のステータス連動**: 現状 `calculator.ts` の `CRIT_MULTIPLIER = 1.60` は固定値（コメントにも "approx 1.60 for now"）。本来 FF14 のクリティカル倍率は装備のクリダメステータスから `1.40 + (CRIT - 420) × 200 / 100000` で算出される。IL/装備帯ごとに 1.55〜1.65 程度で変動。`getCritMultiplier(level, ilv?)` 関数化 + 設定画面での IL 切替 UI が理想。calculator.ts の CRIT 計算箇所すべてに波及するため中規模の機能追加
+
+#### 優先度: 最低（やらない判断もアリ）
+- **Phase 3（理想形・別セッションで設計）**: パーティメンバー個別 (H1/H2/D1-D4) の target 指定 / 鼓舞インスタンス選択 UI / Timeline と同じ owner/targetId モデル統合。実用上は MT/ST トグルで足りているため優先度最低
 
 ### 既知の残課題
 - **同期不安定（2026-04-29 報告）**: 軽減配置直後にタブを閉じて別端末で開くと出ない / 同期ボタンを押しても出ない / 同期競合コピーが作られる / PC データが古い状態に戻る等の複合症状。離脱ダイアログ廃止が悪化させた可能性が高く revert 済みだが、症状が「前から起きていた」可能性もユーザー認識あり。根本対応案: (1) sendBeacon ベースの独自同期エンドポイント新設、(2) `syncDirtyPlans` の競合判定ロジック見直し（updatedAt のクライアント時計依存）、(3) PULL 時の上書き条件を `updatedAt` だけでなくバージョン番号併用に変更。中規模工数、別セッションで設計から検討。

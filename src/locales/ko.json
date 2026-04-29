@@ -822,7 +822,12 @@
         "estimated_raw": "추정 순수 데미지",
         "calc_mitigations": "적용된 경감 및 보호막 (선택)",
         "scroll_hint": "스크롤하여 찾기",
-        "add_button": "추가"
+        "add_button": "추가",
+        "deployment_variants": {
+            "plain": "전개전술",
+            "crit": "전개전술 ＋ 비책",
+            "crit_protraction": "전개전술 ＋ 비책 ＋ 생명회생법"
+        }
     },
     "content": {
         "m9s": "AAC 헤비급 M1 (영식)",

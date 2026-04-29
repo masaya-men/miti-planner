@@ -8,7 +8,7 @@ import type { TimelineEvent } from '../types';
 import { getPhaseName } from '../types';
 import { useMitigationStore, DEFAULT_TANK_STATS, DEFAULT_HEALER_STATS } from '../store/useMitigationStore';
 import { useMitigations, useJobs } from '../hooks/useSkillsData';
-import { calculateMemberValues } from '../utils/calculator';
+import { calculateMemberValues, CRIT_MULTIPLIER } from '../utils/calculator';
 import { useThemeStore } from '../store/useThemeStore';
 import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
@@ -28,9 +28,6 @@ function toHalfWidthNumber(str: string): string {
 const stripVariantSuffix = (id: string): string => {
     return id.replace(/:(burst|crit|crit_protraction)$/, '');
 };
-
-// 鼓舞展開の秘策クリティカル倍率（calculator.ts の CRIT_MULTIPLIER と同値）
-const CRIT_MULTIPLIER = 1.60;
 
 interface EventModalProps {
     isOpen: boolean;
@@ -906,9 +903,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                             )}
                                                         >
                                                             <Tooltip content={
-                                                                variant.deployVariant === 'plain' ? '展開戦術' :
-                                                                variant.deployVariant === 'crit' ? '展開戦術 ＋ 秘策' :
-                                                                variant.deployVariant === 'crit_protraction' ? '展開戦術 ＋ 秘策 ＋ 生命回生法' :
+                                                                variant.deployVariant === 'plain' ? t('mechanic_modal.deployment_variants.plain') :
+                                                                variant.deployVariant === 'crit' ? t('mechanic_modal.deployment_variants.crit') :
+                                                                variant.deployVariant === 'crit_protraction' ? t('mechanic_modal.deployment_variants.crit_protraction') :
                                                                 getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')
                                                             }>
                                                                 <div className="relative">

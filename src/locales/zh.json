@@ -822,7 +822,12 @@
         "estimated_raw": "估算原始伤害",
         "calc_mitigations": "使用的减伤和屏障（选择）",
         "scroll_hint": "滚动查找",
-        "add_button": "添加"
+        "add_button": "添加",
+        "deployment_variants": {
+            "plain": "展开战术",
+            "crit": "展开战术 ＋ 秘策",
+            "crit_protraction": "展开战术 ＋ 秘策 ＋ 生命回生法"
+        }
     },
     "content": {
         "m9s": "异闻亚历山大重量级 M1（零式）",

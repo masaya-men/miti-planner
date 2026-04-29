@@ -842,7 +842,12 @@
         "estimated_raw": "Estimated Raw Damage",
         "calc_mitigations": "Mitigations & Barriers used (Select)",
         "scroll_hint": "Scroll to find",
-        "add_button": "Add"
+        "add_button": "Add",
+        "deployment_variants": {
+            "plain": "Deployment Tactics",
+            "crit": "Deployment Tactics + Recitation",
+            "crit_protraction": "Deployment Tactics + Recitation + Protraction"
+        }
     },
     "content": {
         "m9s": "AAC Heavyweight M1 (Savage)",

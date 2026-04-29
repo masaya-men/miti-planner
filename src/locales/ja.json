@@ -846,7 +846,12 @@
         "estimated_raw": "推定ダメージ（軽減なし）",
         "calc_mitigations": "使用された軽減・バリア (選択)",
         "scroll_hint": "スクロールして探す",
-        "add_button": "追加"
+        "add_button": "追加",
+        "deployment_variants": {
+            "plain": "展開戦術",
+            "crit": "展開戦術 ＋ 秘策",
+            "crit_protraction": "展開戦術 ＋ 秘策 ＋ 生命回生法"
+        }
     },
     "content": {
         "m9s": "至天の座アルカディア零式：ヘビー級1",
