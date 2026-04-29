@@ -258,6 +258,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             const def = MITIGATIONS.find(m => m.id === baseId);
             if (!def || !def.healingIncrease) return;
             if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
+            // 新規: target=MT/ST のとき、scope='target' のバフは投げ先と一致するときだけ採用
+            if ((target === 'MT' || target === 'ST') && def.scope === 'target') {
+                const assignedTarget = mitigationTargets[mitId] ?? 'MT';
+                if (assignedTarget !== target) return;
+            }
             healingMultiplier += (def.healingIncrease / 100);
         });
 
@@ -269,6 +274,12 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
             // Scope filtering: AoE attacks only use party-wide mitigations
             if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
+
+            // 新規: target=MT/ST のとき、scope='target' のバフは投げ先と一致するときだけ採用
+            if ((target === 'MT' || target === 'ST') && def.scope === 'target') {
+                const assignedTarget = mitigationTargets[mitId] ?? 'MT';
+                if (assignedTarget !== target) return;
+            }
 
             // Percentage Mitigation (apply for ALL skills with value > 0, including shield+mitigation hybrids)
             if (def.value > 0) {
@@ -342,7 +353,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             const calculated = handleCalculate();
             setDamageAmount(calculated);
         }
-    }, [calcActualDamage, selectedMitigations, damageType, inputMode, target]);
+    }, [calcActualDamage, selectedMitigations, mitigationTargets, damageType, inputMode, target]);
 
     // --- Tutorial Progression Logic ---
     const [targetActualDamage, setTargetActualDamage] = useState(0);
