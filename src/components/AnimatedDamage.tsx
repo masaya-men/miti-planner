@@ -38,6 +38,15 @@ export function AnimatedDamage({ value, className }: AnimatedDamageProps) {
         const newChars = value.toLocaleString().split('');
         hasChangedOnceRef.current = true;
 
+        // mid-swap 中の割り込み: 既存タイマーをキャンセルし、即 enter フェーズへ
+        if (timerRef.current !== null) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+            setRenderState({ exiting: [], entering: newChars });
+            return;
+        }
+
+        // 通常の swap: 旧 chars を exit に移し、タイマーで enter
         setRenderState(prev => ({
             exiting: prev.entering,
             entering: [],
@@ -50,14 +59,17 @@ export function AnimatedDamage({ value, className }: AnimatedDamageProps) {
             setRenderState({ exiting: [], entering: newChars });
             timerRef.current = null;
         }, totalExit);
+    }, [value]); // renderState.entering は意図的に依存配列に含めない（無限ループ回避）
 
+    // Cleanup timer on unmount
+    useEffect(() => {
         return () => {
             if (timerRef.current !== null) {
                 clearTimeout(timerRef.current);
                 timerRef.current = null;
             }
         };
-    }, [value]); // renderState.entering は意图的に依存配列に含めない（無限ループ回避）
+    }, []);
 
     return (
         <div className={`dmg-slot ${className ?? ''}`.trim()}>

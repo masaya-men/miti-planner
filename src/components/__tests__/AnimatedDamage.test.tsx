@@ -59,4 +59,39 @@ describe('AnimatedDamage', () => {
         // 文字は表示されている
         expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
     });
+
+    it('cancels mid-swap and jumps to latest value on rapid changes', () => {
+        vi.useFakeTimers();
+        try {
+            const { container, rerender } = render(<AnimatedDamage value={10000} />);
+            expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
+
+            // 1 回目の変更（mid-swap 状態に入る）
+            act(() => {
+                rerender(<AnimatedDamage value={7000} />);
+            });
+            // 直後: exiting に旧値、entering は空
+            expect(container.querySelectorAll('.ch.exit')).toHaveLength(6);
+            expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
+
+            act(() => {
+                vi.advanceTimersByTime(50); // exit 中
+            });
+
+            // 2 回目の変更（mid-swap 中の割り込み）
+            act(() => {
+                rerender(<AnimatedDamage value={5000} />);
+            });
+
+            // exit クラスは消え、即 enter で 5000 が表示される
+            // （実装上は exiting=[], entering=[5,000] の即遷移）
+            expect(container.querySelector('.dmg-slot')!.textContent).toBe('5,000');
+            // 古い "7,000" は残っていない
+            const allText = container.textContent;
+            expect(allText).not.toContain('7,000');
+            expect(allText).not.toContain('10,000');
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });
