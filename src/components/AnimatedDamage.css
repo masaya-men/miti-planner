@@ -26,6 +26,12 @@
     animation-delay: calc(10ms * var(--i, 0));
 }
 
+.dmg-slot.lethal {
+    /* 色は親側 (TimelineRow / MobileTimelineRow) のクラスで上書きされるため、
+       ここでは weight のみ強調 */
+    font-weight: 900;
+}
+
 @keyframes dmgEnter {
     from { transform: translateY(15px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }

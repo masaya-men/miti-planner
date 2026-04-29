@@ -21,7 +21,7 @@ function exitTotalMs(charCount: number): number {
     return EXIT_DURATION_MS + Math.max(0, charCount - 1) * EXIT_STAGGER_MS;
 }
 
-export function AnimatedDamage({ value, className }: AnimatedDamageProps) {
+export function AnimatedDamage({ value, isLethal = false, className }: AnimatedDamageProps) {
     const initialChars = value.toLocaleString().split('');
     const [renderState, setRenderState] = useState<RenderState>({
         exiting: [],
@@ -72,7 +72,7 @@ export function AnimatedDamage({ value, className }: AnimatedDamageProps) {
     }, []);
 
     return (
-        <div className={`dmg-slot ${className ?? ''}`.trim()}>
+        <div className={`dmg-slot ${isLethal ? 'lethal' : ''} ${className ?? ''}`.trim().replace(/\s+/g, ' ')}>
             {renderState.exiting.map((ch, i) => (
                 <span key={`exit-${i}`} className="ch exit" style={{ ['--i' as never]: i }}>
                     {ch}

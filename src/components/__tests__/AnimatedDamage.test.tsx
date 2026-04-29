@@ -94,4 +94,16 @@ describe('AnimatedDamage', () => {
             vi.useRealTimers();
         }
     });
+
+    it('applies lethal styling when isLethal=true', () => {
+        const { container } = render(<AnimatedDamage value={50000} isLethal />);
+        const slot = container.querySelector('.dmg-slot');
+        expect(slot?.classList.contains('lethal')).toBe(true);
+    });
+
+    it('applies passed className', () => {
+        const { container } = render(<AnimatedDamage value={50000} className="my-extra" />);
+        const slot = container.querySelector('.dmg-slot');
+        expect(slot?.classList.contains('my-extra')).toBe(true);
+    });
 });
