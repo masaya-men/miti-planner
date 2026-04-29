@@ -9,6 +9,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Tooltip } from './ui/Tooltip';
+import { AnimatedDamage } from './AnimatedDamage';
 
 /** 攻撃名スパン — 省略時にスタイル付きツールチップ表示 */
 const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
@@ -526,20 +527,19 @@ export const TimelineRow = memo(({
                     })())}>
                         {damages[0] && (damages[0].unmitigated > 0 || damages[0].isInvincible) ? (
                             <>
-                                <span className={clsx(
-                                    (() => {
-                                        const evt = events[0];
-                                        const dmg = damages[0];
-                                        let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                        if (evt.target === 'MT' || evt.target === 'ST') {
-                                            maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                        }
-                                        const isLethal = dmg.mitigated >= maxHp;
-                                        return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
-                                    })()
-                                )}>
-                                    {formatDmg(damages[0].mitigated)}
-                                </span>
+                                {(() => {
+                                    const evt = events[0];
+                                    const dmg = damages[0];
+                                    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+                                    if (evt.target === 'MT' || evt.target === 'ST') {
+                                        maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                    }
+                                    const isLethal = dmg.mitigated >= maxHp;
+                                    const colorClass = isLethal
+                                        ? "text-red-600 dark:text-red-400 shadow-sm"
+                                        : "text-green-600 dark:text-green-400";
+                                    return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
+                                })()}
                                 {damages[0].isInvincible ? (
                                     <div className="text-app-sm text-app-text-sec font-black tracking-tighter scale-90 whitespace-nowrap">
                                         {t('timeline.invuln', 'Invuln')}
@@ -578,20 +578,19 @@ export const TimelineRow = memo(({
                             )}>
                                 {damages[idx] && (damages[idx].unmitigated > 0 || damages[idx].isInvincible) ? (
                                     <>
-                                        <span className={clsx(
-                                            (() => {
-                                                const evt = events[idx];
-                                                const dmg = damages[idx];
-                                                let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                                if (evt.target === 'MT' || evt.target === 'ST') {
-                                                    maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                                }
-                                                const isLethal = dmg.mitigated >= maxHp;
-                                                return isLethal ? "text-red-600 dark:text-red-400 font-black shadow-sm" : "text-green-600 dark:text-green-400";
-                                            })()
-                                        )}>
-                                            {formatDmg(damages[idx].mitigated)}
-                                        </span>
+                                        {(() => {
+                                            const evt = events[idx];
+                                            const dmg = damages[idx];
+                                            let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
+                                            if (evt.target === 'MT' || evt.target === 'ST') {
+                                                maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                            }
+                                            const isLethal = dmg.mitigated >= maxHp;
+                                            const colorClass = isLethal
+                                                ? "text-red-600 dark:text-red-400 shadow-sm"
+                                                : "text-green-600 dark:text-green-400";
+                                            return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
+                                        })()}
                                         {damages[idx].isInvincible ? (
                                             <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
                                                 {t('timeline.invuln', 'Invuln')}
