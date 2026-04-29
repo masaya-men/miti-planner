@@ -117,6 +117,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 }
                 setCalcActualDamage(0);
                 setSelectedMitigations([]);
+                setMitigationTargets({});
             } else {
                 setName({ ja: '', en: '' });
                 setTime(initialTime || 0);
@@ -127,6 +128,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 setInputMode('reverse');
                 setCalcActualDamage(0);
                 setSelectedMitigations([]);
+                setMitigationTargets({});
             }
             mitiPresetDoneRef.current = false;
         }
