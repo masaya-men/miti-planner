@@ -37,10 +37,11 @@ describe('AnimatedDamage', () => {
             expect(exitChars).toHaveLength(6); // "10,000"
             expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
 
-            // exit 完了 + micro_delay 経過後
+            // exit 完了 + micro_delay + rAF 経過後
             // exit 120ms + stagger 10ms × 5 = 170ms + delay 10ms = 180ms
+            // + requestAnimationFrame 1 frame (~16ms) を吸収するため余裕を持って 200ms
             act(() => {
-                vi.advanceTimersByTime(180);
+                vi.advanceTimersByTime(200);
             });
 
             const enterChars = container.querySelectorAll('.ch.enter');
@@ -86,6 +87,8 @@ describe('AnimatedDamage', () => {
             // exit クラスは消え、即 enter で 5000 が表示される
             // （実装上は exiting=[], entering=[5,000] の即遷移）
             expect(container.querySelector('.dmg-slot')!.textContent).toBe('5,000');
+            // 新しい文字列に enter クラスが付いていること
+            expect(container.querySelectorAll('.ch.enter')).toHaveLength(5); // "5,000"
             // 古い "7,000" は残っていない
             const allText = container.textContent;
             expect(allText).not.toContain('7,000');

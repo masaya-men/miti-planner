@@ -56,8 +56,11 @@ export function AnimatedDamage({ value, isLethal = false, className }: AnimatedD
         const totalExit = exitTotalMs(oldCharCount) + SWAP_DELAY_MS;
 
         timerRef.current = window.setTimeout(() => {
-            setRenderState({ exiting: [], entering: newChars });
-            timerRef.current = null;
+            // requestAnimationFrame でフレーム境界に揃える（spec 6.4 ルール 2）
+            requestAnimationFrame(() => {
+                setRenderState({ exiting: [], entering: newChars });
+                timerRef.current = null;
+            });
         }, totalExit);
     }, [value]); // renderState.entering は意図的に依存配列に含めない（無限ループ回避）
 
