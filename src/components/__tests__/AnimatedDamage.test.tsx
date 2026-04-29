@@ -18,81 +18,93 @@ describe('AnimatedDamage', () => {
         const firstSpan = container.querySelector('.ch');
         rerender(<AnimatedDamage value={10000} />);
         const sameSpan = container.querySelector('.ch');
-        // DOM 要素そのものが同一参照であること
         expect(sameSpan).toBe(firstSpan);
     });
 
-    it('on value change, transitions through exit then enter phases', () => {
+    it('does NOT animate on initial mount', () => {
+        const { container } = render(<AnimatedDamage value={10000} />);
+        expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
+        expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
+        expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
+    });
+
+    it('does NOT animate when value changes but isLethal stays the same', () => {
+        const { container, rerender } = render(<AnimatedDamage value={10000} isLethal={false} />);
+        rerender(<AnimatedDamage value={7000} isLethal={false} />);
+        // サイレント更新: アニメクラスは付かない
+        expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
+        expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
+        // テキストは新値に更新されている
+        expect(container.querySelector('.dmg-slot')!.textContent).toBe('7,000');
+    });
+
+    it('animates with overlap when isLethal flips', () => {
         vi.useFakeTimers();
         try {
-            const { container, rerender } = render(<AnimatedDamage value={10000} />);
-            // 初回: exit / enter クラスは無し
+            const { container, rerender } = render(<AnimatedDamage value={50000} isLethal={false} />);
+            // 初回: アニメクラス無し
+            expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
             expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
-            expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
 
-            rerender(<AnimatedDamage value={7000} />);
+            // 致死状態反転: false → true（同時に値も変化）
+            rerender(<AnimatedDamage value={60000} isLethal={true} />);
 
-            // 値変化直後: 旧文字列が exit クラス、新文字列はまだ無し
+            // オーバーラップ: exit と enter が同時に存在する
             const exitChars = container.querySelectorAll('.ch.exit');
-            expect(exitChars).toHaveLength(6); // "10,000"
-            expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
+            const enterChars = container.querySelectorAll('.ch.enter');
+            expect(exitChars).toHaveLength(6); // "50,000"
+            expect(enterChars).toHaveLength(6); // "60,000"
 
-            // exit 完了 + micro_delay + rAF 経過後
-            // exit 120ms + stagger 10ms × 5 = 170ms + delay 10ms = 180ms
-            // + requestAnimationFrame 1 frame (~16ms) を吸収するため余裕を持って 200ms
+            // exit 完了 + rAF
+            // exit 120ms + stagger 10ms × 5 = 170ms に rAF (~16ms) を加味して 200ms
             act(() => {
                 vi.advanceTimersByTime(200);
             });
 
-            const enterChars = container.querySelectorAll('.ch.enter');
-            expect(enterChars).toHaveLength(5); // "7,000"
+            // exit-layer は DOM から除去されている
             expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
+            // enter は残る
+            expect(container.querySelectorAll('.ch.enter')).toHaveLength(6);
         } finally {
             vi.useRealTimers();
         }
     });
 
-    it('does not animate on initial mount', () => {
-        const { container } = render(<AnimatedDamage value={10000} />);
-        // 初回マウント: enter クラスは付かない（即静止表示）
-        expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
-        expect(container.querySelectorAll('.ch.exit')).toHaveLength(0);
-        // 文字は表示されている
-        expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
-    });
-
-    it('cancels mid-swap and jumps to latest value on rapid changes', () => {
+    it('animates when isLethal flips even if value is unchanged', () => {
         vi.useFakeTimers();
         try {
-            const { container, rerender } = render(<AnimatedDamage value={10000} />);
-            expect(container.querySelector('.dmg-slot')!.textContent).toBe('10,000');
+            const { container, rerender } = render(<AnimatedDamage value={50000} isLethal={false} />);
+            // value 同じ、isLethal だけ反転（HP 変化等で起こる）
+            rerender(<AnimatedDamage value={50000} isLethal={true} />);
 
-            // 1 回目の変更（mid-swap 状態に入る）
+            // 値変化していないが、致死反転したのでアニメ起動
+            expect(container.querySelectorAll('.ch.exit').length).toBeGreaterThan(0);
+            expect(container.querySelectorAll('.ch.enter').length).toBeGreaterThan(0);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('cancels mid-swap and overlaps with new value when isLethal flips again rapidly', () => {
+        vi.useFakeTimers();
+        try {
+            const { container, rerender } = render(<AnimatedDamage value={50000} isLethal={false} />);
+            // 1 回目: false → true で swap 起動
+            rerender(<AnimatedDamage value={60000} isLethal={true} />);
             act(() => {
-                rerender(<AnimatedDamage value={7000} />);
+                vi.advanceTimersByTime(50); // 半分だけ進める
             });
-            // 直後: exiting に旧値、entering は空
-            expect(container.querySelectorAll('.ch.exit')).toHaveLength(6);
-            expect(container.querySelectorAll('.ch.enter')).toHaveLength(0);
 
+            // 2 回目: true → false で再 swap（mid-swap 割り込み）
             act(() => {
-                vi.advanceTimersByTime(50); // exit 中
+                rerender(<AnimatedDamage value={30000} isLethal={false} />);
             });
 
-            // 2 回目の変更（mid-swap 中の割り込み）
-            act(() => {
-                rerender(<AnimatedDamage value={5000} />);
-            });
-
-            // exit クラスは消え、即 enter で 5000 が表示される
-            // （実装上は exiting=[], entering=[5,000] の即遷移）
-            expect(container.querySelector('.dmg-slot')!.textContent).toBe('5,000');
-            // 新しい文字列に enter クラスが付いていること
-            expect(container.querySelectorAll('.ch.enter')).toHaveLength(5); // "5,000"
-            // 古い "7,000" は残っていない
-            const allText = container.textContent;
-            expect(allText).not.toContain('7,000');
-            expect(allText).not.toContain('10,000');
+            // 直近の値が表示されている
+            expect(container.querySelector('.dmg-layer-enter')!.textContent).toBe('30,000');
+            // 中間値の "60,000" は exit 中か消えている、entering には無いことを確認
+            const enterText = container.querySelector('.dmg-layer-enter')!.textContent;
+            expect(enterText).toBe('30,000');
         } finally {
             vi.useRealTimers();
         }

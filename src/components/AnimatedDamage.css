@@ -1,26 +1,41 @@
-/* ダメージ値変化アニメーション
+/* ダメージ値変化アニメーション（Revision 2: overlap + lethal-only）
    設計書: docs/superpowers/specs/2026-04-30-damage-value-animation-design.md
    GPU合成のみ使用 (transform / opacity)、JS補間ゼロ */
 
 .dmg-slot {
+    position: relative;
     height: 22px;
     overflow: hidden;
-    display: flex;
+    display: inline-flex;
     line-height: 1;
     font-variant-numeric: tabular-nums;
 }
 
-.dmg-slot .ch {
+/* enter-layer: 通常 flow、slot サイズの根拠 */
+.dmg-layer-enter {
+    display: flex;
+}
+
+/* exit-layer: absolute で enter-layer に重なる（overlap） */
+.dmg-layer-exit {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ch {
     display: inline-block;
 }
 
-/* will-change はブラウザの自動レイヤー昇格に任せる（永続的な GPU メモリ確保を避けるため CSS では明示しない） */
-.dmg-slot .ch.enter {
+/* will-change はブラウザの自動レイヤー昇格に任せる（永続化を避けるため CSS では明示しない） */
+.ch.enter {
     animation: dmgEnter 150ms cubic-bezier(0.18, 1, 0.32, 1) both;
     animation-delay: calc(22ms * var(--i, 0));
 }
 
-.dmg-slot .ch.exit {
+.ch.exit {
     animation: dmgExit 120ms cubic-bezier(0.7, 0, 0.84, 0) both;
     animation-delay: calc(10ms * var(--i, 0));
 }
@@ -42,8 +57,8 @@
 
 /* A11y: モーション低減希望ユーザー */
 @media (prefers-reduced-motion: reduce) {
-    .dmg-slot .ch.enter,
-    .dmg-slot .ch.exit {
+    .ch.enter,
+    .ch.exit {
         animation: none !important;
     }
 }
