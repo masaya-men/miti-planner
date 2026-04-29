@@ -64,20 +64,20 @@
 | 枠 | 概念 | 内部 ID | アイコン構成 | 効果 |
 |----|------|---------|-------------|------|
 | 1 | 素の鼓舞展開 | `deployment_tactics` | 展開戦術アイコンのみ | 鼓舞バリア値 ×1.0 |
-| 2 | 秘策鼓舞展開 | `deployment_tactics:crit` | 展開戦術 + 秘策アイコンを 1 枠内に CSS 斜め融合 | 鼓舞バリア値 × CRIT_MULTIPLIER (1.60) |
-| 3 | 回生秘策鼓舞展開 | `deployment_tactics:crit_zoe` | 上記融合 + 右上に生命回生法ミニバッジ | 鼓舞バリア値 × 1.60 × (1 + healingIncrease/100) |
+| 2 | 秘策鼓舞展開 | `deployment_tactics:crit` | 1 枠内に「秘策（左上三角）+ 展開戦術（右下三角）」を CSS 対角線分割で融合 | 鼓舞バリア値 × CRIT_MULTIPLIER (1.60) |
+| 3 | 回生秘策鼓舞展開 | `deployment_tactics:crit_protraction` | 上記融合 + 右上に生命回生法（Protraction）ミニバッジ | 鼓舞バリア値 × 1.60 × (1 + 10/100) = ×1.76 |
 
 **3 つは排他選択**（どれか 1 個だけ ON、再クリックで OFF）。バーストの :burst パターンと同じ仕組みを応用。
 
-**斜め融合の CSS 実装**:
-- 親 `<div>` の中に 2 つの `<img>` を配置
-- 1 枚目（秘策）: `clip-path: polygon(0 0, 60% 0, 40% 100%, 0 100%)` で左下の三角に切る
-- 2 枚目（展開戦術）: `clip-path: polygon(60% 0, 100% 0, 100% 100%, 40% 100%)` で右上の三角に切る
-- 重ね合わせて 1 アイコン枠 (w-16 h-16 等) に収める
+**斜め融合の CSS 実装**（左上=秘策、右下=展開戦術 で対角線分割）:
+- 親 `<div class="relative">` の中に 2 つの `<img>` を `absolute inset-0` で重ねる
+- 1 枚目（秘策アイコン）: `clip-path: polygon(0 0, 100% 0, 0 100%)` で **左上三角** に切る
+- 2 枚目（展開戦術アイコン）: `clip-path: polygon(100% 0, 100% 100%, 0 100%)` で **右下三角** に切る
+- アイコン枠サイズは既存の他スキルアイコンと同等
 
 **生命回生法バッジ**:
-- 上記融合アイコンの右上隅に `absolute` 配置
-- サイズ `w-5 h-5` rounded、ボーダー有り
+- 上記融合アイコンの右上隅に `absolute top-0 right-0` 配置
+- 生命回生法（Protraction）アイコン (`/icons/Protraction.png`) を `w-5 h-5` rounded、ボーダー付きで表示
 
 **MT/ST 切替**: 不要（`scope: 'party'` でパーティ全体に効くため）
 
@@ -109,12 +109,15 @@ selectedMitigations.forEach(mitId => {
 
 ```ts
 if (baseId === 'deployment_tactics') {
-  const variant = mitId.split(':')[1]; // undefined | 'crit' | 'crit_zoe'
+  const variant = mitId.split(':')[1]; // undefined | 'crit' | 'crit_protraction'
   const member = partyMembers.find(m => m.jobId === 'sch');
   const baseShield = member?.computedValues['鼓舞激励の策'] ?? 0;
   let shield = baseShield;
-  if (variant === 'crit' || variant === 'crit_zoe') shield *= CRIT_MULTIPLIER;
-  if (variant === 'crit_zoe') shield *= (1 + ZOE_HEALING_INCREASE / 100);
+  if (variant === 'crit' || variant === 'crit_protraction') shield *= CRIT_MULTIPLIER;
+  if (variant === 'crit_protraction') {
+    const protractionDef = MITIGATIONS.find(m => m.id === 'protraction');
+    shield *= (1 + (protractionDef?.healingIncrease ?? 10) / 100);
+  }
   shieldTotal += Math.floor(shield * healingMultiplier);
   return; // この後の汎用シールド計算をスキップ
 }
@@ -122,7 +125,7 @@ if (baseId === 'deployment_tactics') {
 
 **定数値**:
 - `CRIT_MULTIPLIER = 1.60`（`calculator.ts` の値を EventModal 内に複製定義。calculator.ts は触らないため）
-- `ZOE_HEALING_INCREASE`: 生命回生法の healingIncrease 値（実装時に mockData から確認、ユーザー要相談）
+- 生命回生法の倍率は `MITIGATIONS` データから動的取得（現状値: `protraction.healingIncrease = 10` → 1.10倍）。データ更新時に自動追従
 
 ---
 
@@ -177,9 +180,7 @@ if (baseId === 'deployment_tactics') {
 - Timeline と同じ owner/targetId モデル統合
 - `targetCannotBeSelf` 制約の UI 表示
 
-**生命回生法の倍率値**:
-- 実装時に mockData から正確な healingIncrease 値を確認
-- 学者で healingIncrease を持つスキルが複数ある場合（recitation/dissipation/fey_illumination 等）、ユーザーに「生命回生法 = どのスキル」を確認
+**生命回生法の倍率値**: 確定済（`protraction` の `healingIncrease: 10` を動的参照、現状 ×1.10）
 
 ---
 
