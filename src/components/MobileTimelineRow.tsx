@@ -8,6 +8,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { SCALE, SPRING } from '../tokens/motionTokens';
+import { AnimatedDamage } from './AnimatedDamage';
 
 interface DamageInfo {
     unmitigated: number;
@@ -288,14 +289,14 @@ export const MobileTimelineRow = memo(({
                             <span className="text-app-text-muted opacity-30 text-[11px] flex-shrink-0">→</span>
 
                             {/* 軽減後ダメージ */}
-                            <span className={clsx(
-                                "font-mono text-[13px] font-black leading-none flex-shrink-0",
-                                isLethal
-                                    ? "text-red-500"
-                                    : "text-green-500"
-                            )}>
-                                {formatDmg(damage.mitigated)}
-                            </span>
+                            <AnimatedDamage
+                                value={damage.mitigated}
+                                isLethal={isLethal}
+                                className={clsx(
+                                    "font-mono text-[13px] font-black leading-none flex-shrink-0",
+                                    isLethal ? "text-red-500" : "text-green-500"
+                                )}
+                            />
 
                             {/* 致死バッジ */}
                             {/* 軽減% */}
