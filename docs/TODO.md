@@ -11,7 +11,8 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-29・PC イベントモーダル軽減プレビュー）**: PC のイベント追加モーダル「使用された軽減・バリア」横の選択軽減プレビューが `slice(0, 4)` ハードコードで 4 個固定 + `+N` 省略になっていた問題を修正。`flex-wrap` で全件表示・右寄せ・必要に応じて折り返し、`+N` 省略を撤去、ラベル側に `shrink-0` で折り返し防止。スマホ側（MobileTimelineRow）は別実装のため影響なし。build+test 244 PASS、ユーザー実機 OK 確認済み。
+- **最新セッション（2026-04-29・イベント追加モーダル UI 全面改善）**: 設計書 `docs/superpowers/specs/2026-04-29-event-modal-mitigation-improvements-design.md` + 実装プラン `docs/superpowers/plans/2026-04-29-event-modal-mitigation-improvements.md` に基づき、PC/スマホ共通の EventModal.tsx を全面改善。20 コミットを EventModal.tsx ファイル内に閉じて他コンポーネントへの影響ゼロで実施: ①並び順を 3 グループ構成（全体軽減 → タンクLB → 個別軽減）に再構成、各グループ内ロール T→H→D → ジョブ順 → リキャスト短→長、前提スキル (requires) は親の直後に配置 ②純粋回復スキル自動除外ルール追加（healingIncrease なしを判定） ③mantra/nature_s_minne を EXCLUDED から復帰、riddle_of_earth と aspected_helios を追加 ④単体バフ (scope='target') 選択時に MT|ST トグル UI を直下に表示、計算で被対象者と突合 ⑤鼓舞展開 3 バリアント実装（展開戦術 / +秘策 / +秘策+生命回生法）、排他選択、CRIT_MULTIPLIER 1.60 と protraction.healingIncrease 動的取得で実シールド倍率計算、学者不在時 DEFAULT_HEALER_STATS フォールバック、アイコンは「展開戦術ベース＋右上秘策バッジ＋右下生命回生法バッジ」の重ね方式 ⑥ニュートラルセクト押下で lv96+ コンジャ／lv95- アスペクト・ヘリオスのバリアを自動加算（占星不在時もフォールバック）、SKILL_DATA キー名に揃えて修正 ⑦Timeline.tsx のプラン切替 useEffect で「チュートリアル中 or 空プラン」では hideEmptyRows リセットをスキップ。build+test 244 PASS、ユーザー実機 OK、デプロイ完了。
+- **前セッション（2026-04-29・PC イベントモーダル軽減プレビュー）**: PC のイベント追加モーダル「使用された軽減・バリア」横の選択軽減プレビューが `slice(0, 4)` ハードコードで 4 個固定 + `+N` 省略になっていた問題を修正。`flex-wrap` で全件表示・右寄せ・必要に応じて折り返し、`+N` 省略を撤去、ラベル側に `shrink-0` で折り返し防止。スマホ側（MobileTimelineRow）は別実装のため影響なし。build+test 244 PASS、ユーザー実機 OK 確認済み。
 - **前セッション（2026-04-29・離脱ダイアログ廃止 → revert）**: タブ離脱ダイアログを削除する変更を入れたが、ユーザー報告で別端末同期不整合・PC のデータが古い状態に戻る等の症状が判明。原因仮説は「旧コードはダイアログ表示の数秒間で Firestore SDK の async write が完了していたのが、削除後は完了前にタブが閉じる」。被害最小化のため 2 コミット即 revert して元の挙動に戻した。離脱ダイアログは復活、データ同期は元の信頼性に戻る。build+test 244 PASS、デプロイ完了。
 - **前セッション（2026-04-29・SEO canonical 追加）**: Search Console「ページにリダイレクトがあります」通知の調査。対象は `http://lopoly.app/` のみで HTTP→HTTPS の正常 308、対処不要と判明。あわせて SEO 改善の基礎固めとして `useCanonicalUrl` フックを新設、全公開ページ（/、/miti、/share/:id、/popular、/privacy、/terms、/commercial）に `<link rel="canonical">` を動的注入。SPA で utm パラメータ・末尾スラッシュ違いが重複ページ判定されるのを防ぐ。build+test 244 PASS、デプロイ完了。次は Search Console URL 検査での再クロール要求。
 - **前セッション（2026-04-29・プラン切替リセット）**: ユーザー報告「別プランを開いても横スクロール位置と空行非表示トグルが引き継がれる」を修正。`Timeline.tsx` のプラン切替 `useEffect` が `scrollTo({ top: 0 })` で縦のみリセットしていた点を `top: 0, left: 0` に拡張、加えて `setHideEmptyRows(true)` を呼びコンパクト表示に戻す。フェーズ列・ラベル列の折りたたみはユーザー操作の状態を維持する判断で意図的に触らない。build+test 119 PASS、デプロイ完了、実機 OK（チュートリアル含む）確認済み。
@@ -57,6 +58,12 @@
 - [ ] 編集後保存→再読込でユーザー編集が保持されるか
 - [ ] 「野良主流」ボタンから popular プラン（旧 Pattern 2）を開くと migration が走るか
 - [ ] ポップアップが ×/Esc/背景クリックで閉じる、ライトモードで白背景になっているか
+
+### イベント追加モーダル 残課題
+- **Tooltip 文言の i18n 化**: 鼓舞展開バリアント Tooltip「展開戦術 / 展開戦術 ＋ 秘策 / 展開戦術 ＋ 秘策 ＋ 生命回生法」が日本語ハードコード。プロジェクト i18n ルールに従い `t('mechanic_modal.deployment_variants.*')` 等に置換すべき。英語/中国語/韓国語モードでの表示崩れ防止
+- **Phase 3（理想形・別セッションで設計）**: パーティメンバー個別 (H1/H2/D1-D4) の target 指定 / 鼓舞インスタンス選択 UI / Timeline と同じ owner/targetId モデル統合
+- **計算ロジック責務肥大**: `handleCalculate` が healingIncrease 集計 / scope フィルタ / MT-ST 突合 / 鼓舞展開 / ニュートラルセクト分岐 / value mitigation / shield calc など 8 段階を担う。将来 `applyHealingIncrease` / `applyMitigationFilters` / `applyShieldCalc` 等への分割を検討
+- **CRIT_MULTIPLIER の二重定義**: EventModal.tsx と calculator.ts の両方に 1.60 を持つ。calculator.ts 値変更時に drift する潜在バグ。将来 import に集約する小タスク
 
 ### 既知の残課題
 - **同期不安定（2026-04-29 報告）**: 軽減配置直後にタブを閉じて別端末で開くと出ない / 同期ボタンを押しても出ない / 同期競合コピーが作られる / PC データが古い状態に戻る等の複合症状。離脱ダイアログ廃止が悪化させた可能性が高く revert 済みだが、症状が「前から起きていた」可能性もユーザー認識あり。根本対応案: (1) sendBeacon ベースの独自同期エンドポイント新設、(2) `syncDirtyPlans` の競合判定ロジック見直し（updatedAt のクライアント時計依存）、(3) PULL 時の上書き条件を `updatedAt` だけでなくバージョン番号併用に変更。中規模工数、別セッションで設計から検討。
