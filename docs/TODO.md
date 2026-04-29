@@ -11,7 +11,8 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-29・離脱ダイアログ廃止 → revert）**: タブ離脱ダイアログを削除する変更を入れたが、ユーザー報告で別端末同期不整合・PC のデータが古い状態に戻る等の症状が判明。原因仮説は「旧コードはダイアログ表示の数秒間で Firestore SDK の async write が完了していたのが、削除後は完了前にタブが閉じる」。被害最小化のため 2 コミット即 revert して元の挙動に戻した。離脱ダイアログは復活、データ同期は元の信頼性に戻る。build+test 244 PASS、デプロイ完了。
+- **最新セッション（2026-04-29・PC イベントモーダル軽減プレビュー）**: PC のイベント追加モーダル「使用された軽減・バリア」横の選択軽減プレビューが `slice(0, 4)` ハードコードで 4 個固定 + `+N` 省略になっていた問題を修正。`flex-wrap` で全件表示・右寄せ・必要に応じて折り返し、`+N` 省略を撤去、ラベル側に `shrink-0` で折り返し防止。スマホ側（MobileTimelineRow）は別実装のため影響なし。build+test 244 PASS、ユーザー実機 OK 確認済み。
+- **前セッション（2026-04-29・離脱ダイアログ廃止 → revert）**: タブ離脱ダイアログを削除する変更を入れたが、ユーザー報告で別端末同期不整合・PC のデータが古い状態に戻る等の症状が判明。原因仮説は「旧コードはダイアログ表示の数秒間で Firestore SDK の async write が完了していたのが、削除後は完了前にタブが閉じる」。被害最小化のため 2 コミット即 revert して元の挙動に戻した。離脱ダイアログは復活、データ同期は元の信頼性に戻る。build+test 244 PASS、デプロイ完了。
 - **前セッション（2026-04-29・SEO canonical 追加）**: Search Console「ページにリダイレクトがあります」通知の調査。対象は `http://lopoly.app/` のみで HTTP→HTTPS の正常 308、対処不要と判明。あわせて SEO 改善の基礎固めとして `useCanonicalUrl` フックを新設、全公開ページ（/、/miti、/share/:id、/popular、/privacy、/terms、/commercial）に `<link rel="canonical">` を動的注入。SPA で utm パラメータ・末尾スラッシュ違いが重複ページ判定されるのを防ぐ。build+test 244 PASS、デプロイ完了。次は Search Console URL 検査での再クロール要求。
 - **前セッション（2026-04-29・プラン切替リセット）**: ユーザー報告「別プランを開いても横スクロール位置と空行非表示トグルが引き継がれる」を修正。`Timeline.tsx` のプラン切替 `useEffect` が `scrollTo({ top: 0 })` で縦のみリセットしていた点を `top: 0, left: 0` に拡張、加えて `setHideEmptyRows(true)` を呼びコンパクト表示に戻す。フェーズ列・ラベル列の折りたたみはユーザー操作の状態を維持する判断で意図的に触らない。build+test 119 PASS、デプロイ完了、実機 OK（チュートリアル含む）確認済み。
 - **前セッション（2026-04-28 深夜・スマホ空行操作）**: スマホでイベントの無い行にも軽減配置・イベント追加できるように改修。`MobileTimelineRow.tsx` の長押し／タップ両方の `events.length > 0` ガードを撤去、`onLongPress` 引数を `TimelineEvent | null` に拡張。`Timeline.tsx` `handleMobileLongPress` で event=null のとき直接 EventModal を開く（PC の `+` ボタン相当）。空行表示は既存の `hideEmptyRows` トグル（FAB）に依存、変更なし。build+test 244 PASS。

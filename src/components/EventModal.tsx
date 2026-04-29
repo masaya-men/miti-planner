@@ -687,11 +687,11 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                 </div>
 
                                 <div>
-                                    <div className="flex items-center justify-between mb-3">
-                                        <label className="block text-app-lg font-medium text-app-text">{t('mechanic_modal.calc_mitigations')}</label>
+                                    <div className="flex items-start justify-between gap-3 mb-3">
+                                        <label className="block text-app-lg font-medium text-app-text shrink-0">{t('mechanic_modal.calc_mitigations')}</label>
                                         {selectedMitigations.length > 0 && (
-                                          <div className="flex items-center gap-0.5">
-                                            {selectedMitigations.slice(0, 4).map(mitId => {
+                                          <div className="flex flex-wrap items-center justify-end gap-x-0.5 gap-y-1 min-w-0">
+                                            {selectedMitigations.map(mitId => {
                                               const baseId = mitId.replace(/:burst$/, '');
                                               const mit = MITIGATIONS.find(m => m.id === baseId);
                                               if (!mit) return null;
@@ -705,11 +705,6 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                                 />
                                               );
                                             })}
-                                            {selectedMitigations.length > 4 && (
-                                              <span className="text-app-base text-app-text-muted ml-0.5">
-                                                +{selectedMitigations.length - 4}
-                                              </span>
-                                            )}
                                           </div>
                                         )}
                                     </div>
