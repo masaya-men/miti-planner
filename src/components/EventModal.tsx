@@ -24,6 +24,11 @@ function toHalfWidthNumber(str: string): string {
               .replace(/[^0-9.]/g, '');
 }
 
+// 軽減 ID から burst / crit / crit_protraction の接尾辞を剥がして base ID を返す
+const stripVariantSuffix = (id: string): string => {
+    return id.replace(/:(burst|crit|crit_protraction)$/, '');
+};
+
 interface EventModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -152,7 +157,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
         if (isTutorialActive && (currentStep?.id === 'add-3-miti' || currentStep?.id === 'create-8-miti')) {
-            const baseId = id.replace(/:burst$/, '');
+            const baseId = stripVariantSuffix(id);
             const mit = MITIGATIONS.find(m => m.id === baseId);
             if (currentStep?.id === 'create-8-miti') {
                 if (!mit || mit.name.en !== 'Reprisal') return;
@@ -163,8 +168,17 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         }
         setSelectedMitigations(prev => {
             if (prev.includes(id)) return prev.filter(m => m !== id);
-            // Burst variants are mutually exclusive with their base
-            const baseId = id.replace(/:burst$/, '');
+            const baseId = stripVariantSuffix(id);
+
+            // deployment_tactics ファミリー (素 / 秘策 / 秘策+生命回生): 3 バリアント排他選択
+            if (baseId === 'deployment_tactics') {
+                return [
+                    ...prev.filter(m => stripVariantSuffix(m) !== 'deployment_tactics'),
+                    id,
+                ];
+            }
+
+            // burst バリアント: base/burst を排他
             const isBurst = id.endsWith(':burst');
             const counterpart = isBurst ? baseId : `${id}:burst`;
             return [...prev.filter(m => m !== counterpart), id];
@@ -254,7 +268,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         // healingIncrease: 選択スキル中の回復効果アップを先に集計
         let healingMultiplier = 1;
         selectedMitigations.forEach(mitId => {
-            const baseId = mitId.endsWith(':burst') ? mitId.replace(/:burst$/, '') : mitId;
+            const baseId = stripVariantSuffix(mitId);
             const def = MITIGATIONS.find(m => m.id === baseId);
             if (!def || !def.healingIncrease) return;
             if (target === 'AoE' && (def.scope === 'self' || def.scope === 'target')) return;
@@ -268,7 +282,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
         selectedMitigations.forEach(mitId => {
             const isBurst = mitId.endsWith(':burst');
-            const baseId = isBurst ? mitId.replace(/:burst$/, '') : mitId;
+            const baseId = stripVariantSuffix(mitId);
             const def = MITIGATIONS.find(m => m.id === baseId);
             if (!def) return;
 
@@ -717,7 +731,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         {selectedMitigations.length > 0 && (
                                           <div className="flex flex-wrap items-center justify-end gap-x-0.5 gap-y-1 min-w-0">
                                             {selectedMitigations.map(mitId => {
-                                              const baseId = mitId.replace(/:burst$/, '');
+                                              const baseId = stripVariantSuffix(mitId);
                                               const mit = MITIGATIONS.find(m => m.id === baseId);
                                               if (!mit) return null;
                                               const lang = t('app.language') === 'English' ? 'en' : 'ja';
