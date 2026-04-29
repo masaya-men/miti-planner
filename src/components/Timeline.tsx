@@ -946,8 +946,12 @@ const Timeline: React.FC = () => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
-        // チュートリアル中は NewPlanModal が hideEmptyRows を制御しているのでスキップ
-        if (!useTutorialStore.getState().isActive) {
+        // チュートリアル中: NewPlanModal が hideEmptyRows を制御しているのでスキップ
+        // 空プラン (新規作成直後等): 展開状態がデフォルトなのでスキップ
+        const isTutorial = useTutorialStore.getState().isActive;
+        const plan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
+        const isEmptyPlan = plan ? plan.data.timelineEvents.length === 0 : false;
+        if (!isTutorial && !isEmptyPlan) {
             useMitigationStore.getState().setHideEmptyRows(true);
         }
     }, [currentPlanId]);
