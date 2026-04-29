@@ -335,26 +335,25 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
 
             // ニュートラルセクト分岐: 押下時にコンジャ/アスペクト・ヘリオスのバリアを自動加算
             // healingIncrease (selfOnly: 20%) は既存ロジックで自動適用される
+            // 注: キー名は calculator.ts の SKILL_DATA で「(Nセクト)」付きで登録されている
             if (baseId === 'neutral_sect') {
-                const heliosId = currentLevel >= 96 ? 'helios_conjunction' : 'aspected_helios';
-                const heliosDef = MITIGATIONS.find(m => m.id === heliosId);
-                const heliosName = heliosDef?.name.ja;
-                if (heliosName) {
-                    const astMember = partyMembers.find(m => m.jobId === 'ast');
-                    let baseShield = astMember?.computedValues[heliosName] ?? 0;
+                const heliosName = currentLevel >= 96
+                    ? 'コンジャンクション・ヘリオス (Nセクト)'
+                    : 'アスペクト・ヘリオス (Nセクト)';
+                const astMember = partyMembers.find(m => m.jobId === 'ast');
+                let baseShield = astMember?.computedValues[heliosName] ?? 0;
 
-                    // フォールバック: 占星不在 or computedValues 未生成のときデフォルトステータス計算
-                    if (baseShield === 0) {
-                        const tempComputed = calculateMemberValues(
-                            { id: 'temp', jobId: 'ast', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
-                            currentLevel
-                        );
-                        baseShield = tempComputed[heliosName] ?? 0;
-                    }
+                // フォールバック: 占星不在 or computedValues 未生成のときデフォルトステータス計算
+                if (baseShield === 0) {
+                    const tempComputed = calculateMemberValues(
+                        { id: 'temp', jobId: 'ast', role: 'healer', stats: DEFAULT_HEALER_STATS, computedValues: {} } as any,
+                        currentLevel
+                    );
+                    baseShield = tempComputed[heliosName] ?? 0;
+                }
 
-                    if (baseShield > 0) {
-                        shieldTotal += Math.floor(baseShield * healingMultiplier);
-                    }
+                if (baseShield > 0) {
+                    shieldTotal += Math.floor(baseShield * healingMultiplier);
                 }
                 return;
             }
