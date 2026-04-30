@@ -811,6 +811,8 @@ export const useMitigationStore = create<MitigationState>()(
                         const removedDef = getMitigationsFromStore().find(d => d.id === removed.mitigationId);
                         if (!removedDef) return { timelineMitigations: resolveShieldLinks(state.timelineMitigations.filter(m => m.id !== id), getMitigationsFromStore()) };
 
+                        // requires チェックは ID 比較のみで Mitigation の値（value/recast 等）を読まないため、
+                        // モード解決不要。詳細は spec 参照。
                         // Find skills that depend on the removed skill
                         const dependentIds = getMitigationsFromStore().filter(d => d.requires === removed.mitigationId).map(d => d.id);
 
@@ -1007,6 +1009,7 @@ export const useMitigationStore = create<MitigationState>()(
                                             acc.push(mit);
                                             return acc;
                                         }
+                                        // job 移行は jobId / id の比較のみで、Mitigation の値を読まないためモード解決不要。
                                         const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
                                         if (def?.jobId === jobId) {
                                             acc.push(mit);
