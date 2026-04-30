@@ -11,7 +11,9 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-30・スキルモード切替インフラ Phase 1-5 完了）**: 8.0 でエヴォルヴモード実装確定情報を受け、リボーン/エヴォルヴ切替の土台を 8 コミット（Phase 1=型 / 2=resolveMitigation 実装 / 3.1=autoPlanner 配線 / 3.2-3.3=コメントのみ / 4=INITIAL_PARTY mode 注入 / 5.1-5.2=互換性ガード+想定外ケーステスト 21 件）で構築。subagent-driven-development（implementer + spec/quality 2 段階レビュー）で全 Phase 進行、main 直接、UI / admin / Firestore / api 一切触らず。`Mitigation.modes?` と `PartyMember.mode?` Optional 追加 → `resolveMitigation(m, mode)` 単一動線で差分マージ → 既存プランは `getMode()` フォールバックで永久に reborn 扱い、新規プランは `DEFAULT_NEW_MODE`（現状 `'reborn'`、8.0 時に 1 行で `'evolved'` に切替）が `INITIAL_PARTY` で書き込まれる。設計書: `docs/superpowers/specs/2026-04-30-skill-mode-infrastructure-design.md`、プラン: `docs/superpowers/plans/2026-04-30-skill-mode-infrastructure.md`。build+test 289 PASS（既存 253 + 新規 36）、tsc --noEmit clean、snapshot diff ゼロ、push→Vercel デプロイ済み。Final code reviewer 指摘は 2 件とも spec の YAGNI 線内（usePlanStore.ts 138-144 はラベル変換で PartyMember 生成ではなく実害なし、autoPlanner.ts isAvail/place の raw getMiti は 8.0 で実 evolved データ投入時に対応で十分）。
+- **最新セッション（2026-04-30 終盤・Phase 5.4 実機 OK + Discord アプデ作成）**: スキルモード切替インフラ Phase 5.4 実機確認 → ユーザー目視で UI 変化ゼロ確認、土台確定。8.0 アナウンス時の残作業は admin の差分入力 UI / `DEFAULT_NEW_MODE` 1 行切替 / autoPlanner mode 解決対応の 3 点（既に follow-up に記載）。続いて 4 月中旬〜下旬のユーザー向け変更を Discord アプデ用に集約（絶妖星乱舞追加、イベントモーダル UI 刷新、ダメージ値スプリング演出、スマホ空行操作、共有モーダル OGP プレビュー修正、致命バグ修正、自動採番、LP SEO 多言語、8.0 裏側準備）。3D アイコンアニメ拡充は brainstorming 開始したが「現状の完成度で十分」とユーザー判断で見送り（地球儀アイコン回転等の案あり、将来余力があれば再検討）。
+
+- **前セッション（2026-04-30・スキルモード切替インフラ Phase 1-5 完了）**: 8.0 でエヴォルヴモード実装確定情報を受け、リボーン/エヴォルヴ切替の土台を 8 コミット（Phase 1=型 / 2=resolveMitigation 実装 / 3.1=autoPlanner 配線 / 3.2-3.3=コメントのみ / 4=INITIAL_PARTY mode 注入 / 5.1-5.2=互換性ガード+想定外ケーステスト 21 件）で構築。subagent-driven-development（implementer + spec/quality 2 段階レビュー）で全 Phase 進行、main 直接、UI / admin / Firestore / api 一切触らず。`Mitigation.modes?` と `PartyMember.mode?` Optional 追加 → `resolveMitigation(m, mode)` 単一動線で差分マージ → 既存プランは `getMode()` フォールバックで永久に reborn 扱い、新規プランは `DEFAULT_NEW_MODE`（現状 `'reborn'`、8.0 時に 1 行で `'evolved'` に切替）が `INITIAL_PARTY` で書き込まれる。設計書: `docs/superpowers/specs/2026-04-30-skill-mode-infrastructure-design.md`、プラン: `docs/superpowers/plans/2026-04-30-skill-mode-infrastructure.md`。build+test 289 PASS（既存 253 + 新規 36）、tsc --noEmit clean、snapshot diff ゼロ、push→Vercel デプロイ済み。Final code reviewer 指摘は 2 件とも spec の YAGNI 線内（usePlanStore.ts 138-144 はラベル変換で PartyMember 生成ではなく実害なし、autoPlanner.ts isAvail/place の raw getMiti は 8.0 で実 evolved データ投入時に対応で十分）。
 
 - **前セッション（2026-04-30 翌日・ダメージアニメ Revision 3「ゆったり化」）**: Revision 2 で頻度が約 95% 削減された結果「たまに出るアニメをもっとドラマチックに」したいユーザー要望に対応。プレビュー HTML を再 tuning しやすく拡張（Reset 値を実装値に同期、スライダー上限拡大、ドラマチック試案/スプリング試案のプリセットボタン追加）→ ユーザーがブラウザで複数案を比較 → **スプリング(out-back)案を採用**。Enter 150ms/15px/22ms out-expo → **380ms/26px/32ms out-back**（軽くオーバーシュートでぴょこっと乗る感じ）、Exit 120ms/-3px/10ms → **150ms/-6px/12ms**。AnimatedDamage.css/tsx の数値更新、テストの `advanceTimersByTime` を 200→240 に同期。設計書 Revision 3 セクション追記。build+test 253 PASS、commit→push→Vercel デプロイ済み。
 
@@ -40,10 +42,16 @@
 - **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**
 
 ### 次にやること（優先順）
-- **スキルモード切替インフラ 実機確認（Phase 5.4 引き継ぎ）**: デプロイ後に実機（PC/スマホ）で UI に変化ゼロを目視確認 → ①既存プランをロードしてエラー無し、②軽減配置・削除・移動が従来通り、③ジョブ変更が従来通り、④シールド表示・オートプラン・学者エーテルフロー自動配置が従来通り、⑤共有リンク作成・OGP プレビューが従来通り。違和感あれば 8 コミット (`5d55d90`〜`e0ce96e`) を revert で巻き戻せる。
+- **ハウジングツアープランナー着手（次セッション）**: 要件定義済み・Pretext 採用決定。docs/ 内の関連設計書から再開。
 - **Revision 3 実機確認**: デプロイ後に実機（PC/スマホ）で軽減操作 → 致死クロス時のみスプリング演出が出ること、out-back の overshoot で文字が slot からはみ出さないこと、連続クロスで乱れないこと、`prefers-reduced-motion` ON で消えること。違和感あれば数値調整 or Revision 2 に巻き戻し。
-- ハウジングツアープランナー着手（別プロジェクト作業後に開始）
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
+
+### スキルモード切替インフラ Phase 5.4 実機 OK 確認済み 2026-04-30 終盤
+- [x] 既存プランをロードしてエラー無し
+- [x] 軽減配置・削除・移動が従来通り
+- [x] ジョブ変更が従来通り
+- [x] シールド表示・オートプラン・学者エーテルフロー自動配置が従来通り
+- [x] 共有リンク作成・OGP プレビューが従来通り
 
 ### スキルモード切替インフラ 8.0 アナウンス時 follow-up
 - [ ] **`DEFAULT_NEW_MODE` を `'evolved'` に切替**: `src/utils/mitigationResolver.ts` の 1 行変更で新規プランのデフォルトモードを切替。既存プランは `mode` 未指定 → `getMode()` フォールバックで `'reborn'` を維持
