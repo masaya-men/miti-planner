@@ -8,6 +8,15 @@ import { getMitigationsFromStore } from '../hooks/useSkillsData';
  * - ユーザーが手動で配置/削除/ドラッグしたものも素直に gain times に反映される。
  */
 
+/**
+ * MODE 解決について:
+ * 現在 resourceCost 構造（type / amount）はモード差分対象外と判断し、
+ * 生 Mitigation の resourceCost を直接読んでいる。
+ * 8.0 で resourceCost 構造が分岐する場合、関数シグネチャに party を追加し
+ * resolveMitigation(def, getMode(owner)) 経由に切り替える。
+ * Spec: docs/superpowers/specs/2026-04-30-skill-mode-infrastructure-design.md
+ */
+
 function getAetherflowGainTimes(upToTime: number, placedMitigations: AppliedMitigation[]): number[] {
     const times = placedMitigations
         .filter(m => (m.mitigationId === 'aetherflow' || m.mitigationId === 'dissipation') && m.time <= upToTime)
