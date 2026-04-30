@@ -283,8 +283,10 @@ export const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ child
     const toggleTheme = () => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme');
 
     // body の overflow-hidden を一時的に解除（index.cssでグローバル設定されている）
+    // + マウント時にスクロール位置を上端へリセット（前ページのスクロールが引き継がれるバグ対策）
     React.useEffect(() => {
         document.body.style.overflow = 'auto';
+        window.scrollTo(0, 0);
         return () => { document.body.style.overflow = ''; };
     }, []);
 
