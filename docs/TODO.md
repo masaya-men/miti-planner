@@ -11,7 +11,9 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-30・ダメージ値変化アニメーション追加）**: 軽減表の軽減後ダメージ値に per-character bottom-up アニメーション追加。pixel-point/animate-text の `bottom-up-letters` 仕様を参考（コードはコピーせず数値レシピのみ参考、ライセンス安全策）。①新規 `AnimatedDamage` コンポーネント (.tsx + .css + 9 tests)、TimelineRow.tsx (PC) と MobileTimelineRow.tsx (スマホ) に統合 ②スライダー付きプレビュー HTML (`tmp/damage-anim-preview.html`) でユーザーが数値を tuning（Enter 150ms/15px/22ms stagger out-expo, Exit 120ms/-3px/10ms stagger in-expo） ③`prefers-reduced-motion` 完全対応 ④**Revision 2 適用**: 「アニメ前に一瞬全体が消える」問題と「常時アニメは過剰」のフィードバックを受けて、(a) 致死状態 (isLethal) 反転時のみアニメ起動（値変化は致死維持ならサイレント更新）、(b) Sequential → Overlap 方式に変更（exit-layer と enter-layer を `position: absolute` で重ねて並行実行）、SWAP_DELAY_MS 撤廃。同時アニメ件数約 95% 削減でパフォーマンス劇的向上＆視覚的にも控えめで上品。設計書: `docs/superpowers/specs/2026-04-30-damage-value-animation-design.md`、実装プラン: `docs/superpowers/plans/2026-04-30-damage-value-animation.md`、セーフティタグ `pre-damage-anim` 残置。build+test 253 PASS、デプロイ完了。
+- **最新セッション（2026-04-30 翌日・ダメージアニメ Revision 3「ゆったり化」）**: Revision 2 で頻度が約 95% 削減された結果「たまに出るアニメをもっとドラマチックに」したいユーザー要望に対応。プレビュー HTML を再 tuning しやすく拡張（Reset 値を実装値に同期、スライダー上限拡大、ドラマチック試案/スプリング試案のプリセットボタン追加）→ ユーザーがブラウザで複数案を比較 → **スプリング(out-back)案を採用**。Enter 150ms/15px/22ms out-expo → **380ms/26px/32ms out-back**（軽くオーバーシュートでぴょこっと乗る感じ）、Exit 120ms/-3px/10ms → **150ms/-6px/12ms**。AnimatedDamage.css/tsx の数値更新、テストの `advanceTimersByTime` を 200→240 に同期。設計書 Revision 3 セクション追記。build+test 253 PASS、commit→push→Vercel デプロイ済み。
+
+- **前セッション（2026-04-30・ダメージ値変化アニメーション追加）**: 軽減表の軽減後ダメージ値に per-character bottom-up アニメーション追加。pixel-point/animate-text の `bottom-up-letters` 仕様を参考（コードはコピーせず数値レシピのみ参考、ライセンス安全策）。①新規 `AnimatedDamage` コンポーネント (.tsx + .css + 9 tests)、TimelineRow.tsx (PC) と MobileTimelineRow.tsx (スマホ) に統合 ②スライダー付きプレビュー HTML (`tmp/damage-anim-preview.html`) でユーザーが数値を tuning ③`prefers-reduced-motion` 完全対応 ④**Revision 2 適用**: 「アニメ前に一瞬全体が消える」問題と「常時アニメは過剰」のフィードバックを受けて、(a) 致死状態 (isLethal) 反転時のみアニメ起動（値変化は致死維持ならサイレント更新）、(b) Sequential → Overlap 方式に変更（exit-layer と enter-layer を `position: absolute` で重ねて並行実行）、SWAP_DELAY_MS 撤廃。同時アニメ件数約 95% 削減でパフォーマンス劇的向上。設計書: `docs/superpowers/specs/2026-04-30-damage-value-animation-design.md`、セーフティタグ `pre-damage-anim` 残置。
 
 - **前セッション（2026-04-29・絶妖星乱舞 (DMU) 追加 + 関連 UX 改善）**: 7.51 で実装予定の新規絶コンテンツ「絶妖星乱舞 / Dancing Mad (Ultimate) / 妖星乱舞绝境战」を追加。①contents.json + Firestore（管理画面）両方に dmu 登録、ko 欄空欄で en→ja フォールバック ②管理画面のコンテンツ編集に「FFLogs URL 貼付→ID 自動抽出」機能追加（正規表現 /encounter[=/](\\d+)/、AdminContentForm.tsx に純粋関数 + state + JSX）③Sidebar の絶タブで正式名称が幅半分しか取れず省略されていた問題（flex-1 スペーサーが name と等分されていた古い設計）を、絶タブ時のみスペーサー非表示で修正 ④Sidebar の韓国語フォールバックを ja 直行から en→ja の順に統一（他画面 getPhaseName と整合）⑤Timeline.tsx で空プラン (timelineEvents.length===0) を開いたとき hideEmptyRows=false で強制展開（テンプレ未整備の新規コンテンツで時刻軸が見えない問題を解消）⑥鼓舞展開バリアント Tooltip i18n 化、CRIT_MULTIPLIER 集約も完了。build+test 244 PASS、ユーザー実機 OK、デプロイ完了。
 
@@ -36,7 +38,7 @@
 - **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**
 
 ### 次にやること（優先順）
-- **ダメージアニメ ゆったり化（次セッション最優先）**: Revision 2 で頻度が約 95% 削減されたので、たまにしか出ないアニメをもっとドラマチック・ゆったり見せる方向で再 tuning。`tmp/damage-anim-preview.html` のスライダーで数値検討 → Enter duration/distance/stagger を大きめに（例: 250-350ms / 18-22px / 30-40ms stagger）試す。設計書 Revision 3 として記録。
+- **Revision 3 実機確認**: デプロイ後に実機（PC/スマホ）で軽減操作 → 致死クロス時のみスプリング演出が出ること、out-back の overshoot で文字が slot からはみ出さないこと、連続クロスで乱れないこと、`prefers-reduced-motion` ON で消えること。違和感あれば数値調整 or Revision 2 に巻き戻し。
 - ハウジングツアープランナー着手（別プロジェクト作業後に開始）
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
 
