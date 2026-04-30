@@ -554,6 +554,18 @@
         "commercial": "Commercial Disclosure",
         "legal": "Legal"
     },
+    "support": {
+        "title": "Support LoPo",
+        "subtitle": "Help keep LoPo running",
+        "about_heading": "About LoPo",
+        "about_body": "LoPo is a personally-run fan tool for FF14. The mitigation planner is currently public, and a housing tour planner and other tools are planned for the future.",
+        "usage_heading": "How your support is used",
+        "usage_items": "Server costs (Vercel, Firebase),Storage costs (shared plan storage, OGP image generation),Development and operation time",
+        "kofi_heading": "Support on Ko-fi",
+        "kofi_note": "Ko-fi is a donation platform. You can support with any amount, starting from about ¥500 (a cup of coffee).",
+        "disclaimer": "This site is not an official SQUARE ENIX website and is not affiliated with SQUARE ENIX CO., LTD.",
+        "back": "← Back"
+    },
     "legal": {
         "privacy_title": "Privacy Policy",
         "privacy_last_updated": "Last updated: April 17, 2026",

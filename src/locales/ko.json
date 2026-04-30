@@ -537,6 +537,18 @@
         "commercial": "특정상거래법 표시",
         "legal": "법적 고지"
     },
+    "support": {
+        "title": "LoPo 후원하기",
+        "subtitle": "LoPo 운영을 지원해 주세요",
+        "about_heading": "LoPo 소개",
+        "about_body": "LoPo는 개인이 운영하는 FF14 팬 툴입니다. 현재는 경감 플래너를 공개 중이며, 향후 하우징 투어 플래너 등도 추가 예정입니다.",
+        "usage_heading": "후원금의 사용처",
+        "usage_items": "서버 비용 (Vercel·Firebase),스토리지 비용 (공유 플랜 보관·OGP 이미지 생성),개발·운영 시간",
+        "kofi_heading": "Ko-fi에서 후원하기",
+        "kofi_note": "Ko-fi는 후원 플랫폼입니다. 약 ¥500부터 원하는 금액으로 후원할 수 있습니다.",
+        "disclaimer": "본 사이트는 SQUARE ENIX의 공식 사이트가 아니며, SQUARE ENIX 사와 관련이 없습니다.",
+        "back": "← 돌아가기"
+    },
     "legal": {
         "privacy_title": "개인정보처리방침",
         "privacy_last_updated": "최종 업데이트: 2026년 4월 17일",

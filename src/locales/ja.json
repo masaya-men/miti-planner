@@ -558,6 +558,18 @@
         "commercial": "特定商取引法に基づく表記",
         "legal": "法的情報"
     },
+    "support": {
+        "title": "LoPo を応援する",
+        "subtitle": "LoPo の運営支援はこちらから",
+        "about_heading": "LoPo について",
+        "about_body": "LoPo は個人で運営している FF14 のファンツールです。現在は軽減プランナーを公開中で、今後ハウジングツアープランナー等も追加予定です。",
+        "usage_heading": "資金の使い道",
+        "usage_items": "サーバー費（Vercel・Firebase）,ストレージ費（共有プランの保存・OGP 画像生成）,開発・運用にかける時間",
+        "kofi_heading": "Ko-fi で支援する",
+        "kofi_note": "Ko-fi は寄付プラットフォームです。1 杯 ¥500 から、任意金額で支援できます。",
+        "disclaimer": "本サイトは SQUARE ENIX の公式サイトではありません。SQUARE ENIX 社と関係はありません。",
+        "back": "← 戻る"
+    },
     "legal": {
         "privacy_title": "プライバシーポリシー",
         "privacy_last_updated": "最終更新日: 2026年4月17日",

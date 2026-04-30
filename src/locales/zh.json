@@ -537,6 +537,18 @@
         "commercial": "特定商业交易法标示",
         "legal": "法律信息"
     },
+    "support": {
+        "title": "支持 LoPo",
+        "subtitle": "支持 LoPo 的运营从这里开始",
+        "about_heading": "关于 LoPo",
+        "about_body": "LoPo 是个人运营的 FF14 同人工具。目前公开了减伤规划工具，未来还计划添加房屋导览工具等。",
+        "usage_heading": "资金用途",
+        "usage_items": "服务器费用（Vercel·Firebase）,存储费用（共享方案保存·OGP 图像生成）,开发与运营时间",
+        "kofi_heading": "在 Ko-fi 上支持",
+        "kofi_note": "Ko-fi 是一个捐赠平台。可以从约 ¥500（一杯咖啡）开始,以任意金额进行支持。",
+        "disclaimer": "本网站不是 SQUARE ENIX 的官方网站,与 SQUARE ENIX 公司无关。",
+        "back": "← 返回"
+    },
     "legal": {
         "privacy_title": "隐私政策",
         "privacy_last_updated": "最后更新日期：2026年4月17日",
