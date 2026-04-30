@@ -67,6 +67,16 @@ export interface Mitigation {
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
     targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves
     copiesShield?: string; // Shield copy source skill ID (e.g. 'adloquium' for deployment_tactics)
+    /**
+     * スキルモード別の差分。Optional。
+     * 未指定: 両モードで基本データを使用（互換）
+     * `evolved` キーに Partial<Mitigation> を指定で上書きマージ
+     * `evolved: { disabled: true }` でエヴォルヴモードでは存在しないスキル扱い
+     * 詳細: docs/superpowers/specs/2026-04-30-skill-mode-infrastructure-design.md
+     */
+    modes?: {
+        evolved?: Partial<Mitigation> | { disabled: true };
+    };
 }
 
 export interface AppliedMitigation {
@@ -141,6 +151,12 @@ export interface PartyMember {
     role: Role;
     stats: PlayerStats;
     computedValues: Record<string, number>; // "Adloquium": 5000, "TBN": 30000
+    /**
+     * このメンバーのスキルモード。Optional。
+     * 未指定時は 'reborn' フォールバック（既存プラン互換性のため永久に reborn 固定）。
+     * 新規作成時は DEFAULT_NEW_MODE（src/utils/mitigationResolver.ts）が書き込まれる。
+     */
+    mode?: 'reborn' | 'evolved';
 }
 
 // ─────────────────────────────────────────────
