@@ -14,6 +14,7 @@ import {
   getPatchStatsFromStore,
 } from '../hooks/useSkillsData';
 import { useTutorialStore } from './useTutorialStore';
+import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
 
 export interface AASettings {
     damage: number;
@@ -165,14 +166,14 @@ export const DEFAULT_HEALER_STATS: PlayerStats = getDefaultHealerStats();
 
 // Initial Party Slots
 const INITIAL_PARTY: PartyMember[] = [
-    { id: 'MT', jobId: null, role: 'tank', stats: { ...getDefaultTankStats() }, computedValues: {} },
-    { id: 'ST', jobId: null, role: 'tank', stats: { ...getDefaultTankStats() }, computedValues: {} },
-    { id: 'H1', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {} },
-    { id: 'H2', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {} },
-    { id: 'D1', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
-    { id: 'D2', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
-    { id: 'D3', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
-    { id: 'D4', jobId: null, role: 'dps', stats: { ...getDefaultHealerStats() }, computedValues: {} },
+    { id: 'MT', jobId: null, role: 'tank',   stats: { ...getDefaultTankStats() },   computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'ST', jobId: null, role: 'tank',   stats: { ...getDefaultTankStats() },   computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'H1', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'H2', jobId: null, role: 'healer', stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'D1', jobId: null, role: 'dps',    stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'D2', jobId: null, role: 'dps',    stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'D3', jobId: null, role: 'dps',    stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
+    { id: 'D4', jobId: null, role: 'dps',    stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
 ];
 
 /**
