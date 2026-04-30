@@ -1,4 +1,4 @@
-/* ダメージ値変化アニメーション（Revision 2: overlap + lethal-only）
+/* ダメージ値変化アニメーション（Revision 3: スプリング + ゆったり化）
    設計書: docs/superpowers/specs/2026-04-30-damage-value-animation-design.md
    GPU合成のみ使用 (transform / opacity)、JS補間ゼロ */
 
@@ -31,13 +31,13 @@
 
 /* will-change はブラウザの自動レイヤー昇格に任せる（永続化を避けるため CSS では明示しない） */
 .ch.enter {
-    animation: dmgEnter 150ms cubic-bezier(0.18, 1, 0.32, 1) both;
-    animation-delay: calc(22ms * var(--i, 0));
+    animation: dmgEnter 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: calc(32ms * var(--i, 0));
 }
 
 .ch.exit {
-    animation: dmgExit 120ms cubic-bezier(0.7, 0, 0.84, 0) both;
-    animation-delay: calc(10ms * var(--i, 0));
+    animation: dmgExit 150ms cubic-bezier(0.7, 0, 0.84, 0) both;
+    animation-delay: calc(12ms * var(--i, 0));
 }
 
 .dmg-slot.lethal {
@@ -47,12 +47,12 @@
 }
 
 @keyframes dmgEnter {
-    from { transform: translateY(15px); opacity: 0; }
+    from { transform: translateY(26px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
 }
 @keyframes dmgExit {
     from { transform: translateY(0);    opacity: 1; }
-    to   { transform: translateY(-3px); opacity: 0; }
+    to   { transform: translateY(-6px); opacity: 0; }
 }
 
 /* A11y: モーション低減希望ユーザー */

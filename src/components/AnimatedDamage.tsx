@@ -13,9 +13,9 @@ interface RenderState {
     animating: boolean; // true → entering chars get .enter class (animated), false → static .ch only
 }
 
-// 設計書 Revision 2 の値（変えるなら spec も同期更新）
-const EXIT_DURATION_MS = 120;
-const EXIT_STAGGER_MS = 10;
+// 設計書 Revision 3 の値（変えるなら spec も同期更新）
+const EXIT_DURATION_MS = 150;
+const EXIT_STAGGER_MS = 12;
 
 function exitTotalMs(charCount: number): number {
     return EXIT_DURATION_MS + Math.max(0, charCount - 1) * EXIT_STAGGER_MS;

@@ -56,9 +56,9 @@ describe('AnimatedDamage', () => {
             expect(enterChars).toHaveLength(6); // "60,000"
 
             // exit 完了 + rAF
-            // exit 120ms + stagger 10ms × 5 = 170ms に rAF (~16ms) を加味して 200ms
+            // exit 150ms + stagger 12ms × 5 = 210ms に rAF (~16ms) を加味して 240ms
             act(() => {
-                vi.advanceTimersByTime(200);
+                vi.advanceTimersByTime(240);
             });
 
             // exit-layer は DOM から除去されている

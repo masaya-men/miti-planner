@@ -1,8 +1,49 @@
 # ダメージ値変化アニメーション 設計書
 
 **日付**: 2026-04-30
-**ステータス**: 実装済み（Revision 2 適用）
+**ステータス**: 実装済み（Revision 3 適用）
 **対象**: 軽減表（Timeline）の軽減後ダメージ値表示
+
+---
+
+## ⚠️ Revision 3（2026-04-30 翌日）— 「ゆったり化」スプリング採用
+
+Revision 2 で発動条件を「致死クロス時のみ」に絞った結果、同時アニメ件数が約 95% 削減され、たまにしか出ない演出になった。「たまに出るアニメをもっとドラマチックに見せたい」というユーザー要望を受けて、easing をスプリング（out-back）に変更し、duration / 距離 / stagger をすべて拡大。
+
+### 変更後の数値（プレビュー tuning で確定）
+
+#### Enter（新値の登場）
+```
+y_px:        26px（下から）→ 0
+opacity:     0 → 1
+duration:    380ms
+stagger:     32ms（桁ごと）
+easing:      cubic-bezier(0.34, 1.56, 0.64, 1)  # out-back（軽くオーバーシュート）
+```
+
+#### Exit（旧値の退場）
+```
+y_px:        0 → -6px（上へ）
+opacity:     1 → 0
+duration:    150ms
+stagger:     12ms（桁ごと）
+easing:      cubic-bezier(0.7, 0, 0.84, 0)   # in-expo（変更なし）
+```
+
+#### 7 桁時の合計（overlap 方式）
+exit 150 + 12×6 = 222ms と enter 380 + 32×6 = 572ms が並行。退場・登場が重なり、画面表現としては約 572ms（enter 完了まで）。
+
+### 設計判断メモ
+
+- **out-back の overshoot 量**: cubic-bezier(0.34, 1.56, 0.64, 1) は終点で +10% 弱の overshoot。translateY(26px) → -2.6px 程度の上方向はみ出しがあるが、`.dmg-slot { overflow: hidden; height: 22px }` の slot 内に収まる範囲（文字 line-height:1 で配置）。実機で違和感なし。
+- **致死シグナルとして派手寄り OK**: 「軽減が足りなくなった／足りた」セマンティックな瞬間だけ出るため、ゲーム的なキビキビ感を強めても煩くならない。
+- **Exit はあえて控えめのまま**: enter 主役、exit は古い値が静かに上へ退く役割分担。distance/stagger を Enter ほど大きくしない。
+
+### 実装更新箇所
+
+- `src/components/AnimatedDamage.css`: keyframes / .ch.enter / .ch.exit の数値、Revision 3 コメント
+- `src/components/AnimatedDamage.tsx`: `EXIT_DURATION_MS = 150`, `EXIT_STAGGER_MS = 12`
+- `src/components/__tests__/AnimatedDamage.test.tsx`: `advanceTimersByTime(200 → 240)`、コメント数値同期
 
 ---
 
