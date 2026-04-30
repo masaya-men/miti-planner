@@ -1,5 +1,6 @@
 import type { TimelineEvent, PartyMember, AppliedMitigation, Mitigation } from '../types';
 import { getMitigationsFromStore } from '../hooks/useSkillsData';
+import { resolveMitigation, getMode } from './mitigationResolver';
 
 export interface AutoPlannerResult {
     mitigations: AppliedMitigation[];
@@ -61,14 +62,19 @@ export function generateAutoPlan(
     // パッセージ・オブ・アームズはオート配置から除外
     const EXCLUDED = new Set(['passage_of_arms']);
 
-    // メンバーごとの所持スキル（レベル・ジョブでフィルタ）
+    // メンバーごとの所持スキル（レベル・ジョブ・モードでフィルタ）
     const memberSkills = new Map<string, Mitigation[]>();
     for (const member of party) {
-        const skills = mitigations.filter(m => {
-            if (m.minLevel !== undefined && level < m.minLevel) return false;
-            if (m.maxLevel !== undefined && level > m.maxLevel) return false;
-            return m.jobId === member.jobId || m.jobId === member.role || m.jobId === 'role_action';
-        }).filter(m => !EXCLUDED.has(m.id));
+        const mode = getMode(member);
+        const skills = mitigations
+            .filter(m => {
+                if (m.minLevel !== undefined && level < m.minLevel) return false;
+                if (m.maxLevel !== undefined && level > m.maxLevel) return false;
+                return m.jobId === member.jobId || m.jobId === member.role || m.jobId === 'role_action';
+            })
+            .filter(m => !EXCLUDED.has(m.id))
+            .map(m => resolveMitigation(m, mode))
+            .filter((m): m is Mitigation => m !== null); // disabled スキル除外
         memberSkills.set(member.id, skills);
     }
 
@@ -97,8 +103,13 @@ export function generateAutoPlan(
         let mult = 1;
         let shield = 0;
         for (const a of state) {
-            const m = getMiti(a.mitigationId);
-            if (!m) continue;
+            const rawMiti = getMiti(a.mitigationId);
+            if (!rawMiti) continue;
+            // owner のモードで解決
+            const owner = party.find(p => p.id === a.ownerId);
+            const mode = owner ? getMode(owner) : 'reborn';
+            const m = resolveMitigation(rawMiti, mode);
+            if (!m) continue; // disabled
             if (eventTime < a.time || eventTime > a.time + a.duration) continue;
 
             // 無敵スキル判定
