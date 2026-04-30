@@ -4,6 +4,7 @@ import { useThemeStore } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
+import { SupportPage } from './components/SupportPage';
 
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
@@ -113,6 +114,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/miti" element={<MitiPlannerPage />} />
             <Route path="/share/:shareId" element={<SharePage />} />
+            <Route path="/support" element={<SupportPage />} />
 
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
