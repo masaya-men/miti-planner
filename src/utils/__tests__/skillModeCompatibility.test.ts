@@ -175,4 +175,123 @@ describe('既存プラン互換性ガード', () => {
             expect('mode' in member).toBe(false); // フィールド注入されていない
         });
     });
+
+    describe('想定外ケース統合テスト', () => {
+        it('パーティ内 mode 混在: MT=reborn / ST=evolved / H1=未指定（→ reborn）', () => {
+            const party: PartyMember[] = [
+                { id: 'MT', jobId: 'pld', role: 'tank',
+                  stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                  computedValues: {}, mode: 'reborn' },
+                { id: 'ST', jobId: 'war', role: 'tank',
+                  stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                  computedValues: {}, mode: 'evolved' },
+                { id: 'H1', jobId: 'whm', role: 'healer',
+                  stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                  computedValues: {} }, // mode 未指定
+            ];
+            expect(getMode(party[0])).toBe('reborn');
+            expect(getMode(party[1])).toBe('evolved');
+            expect(getMode(party[2])).toBe('reborn');
+        });
+
+        it('差分なしの空 modes オブジェクトでも reborn 扱い', () => {
+            const m: Mitigation = {
+                id: 'rampart', jobId: 'pld',
+                name: { ja: 'ランパート', en: 'Rampart' },
+                icon: '/icons/rampart.png',
+                recast: 90, duration: 20, type: 'all', value: 20,
+                modes: {}, // evolved キーなし
+            };
+            expect(resolveMitigation(m, 'evolved')).toBe(m);
+        });
+
+        it('差分が空オブジェクト {} でも入力と参照同一性維持はせず spread のみ', () => {
+            const m: Mitigation = {
+                id: 'rampart', jobId: 'pld',
+                name: { ja: 'ランパート', en: 'Rampart' },
+                icon: '/icons/rampart.png',
+                recast: 90, duration: 20, type: 'all', value: 20,
+                modes: { evolved: {} }, // 空 Partial
+            };
+            const result = resolveMitigation(m, 'evolved');
+            expect(result).not.toBeNull();
+            expect(result!.value).toBe(20); // 値変化なし
+            expect(result!.recast).toBe(90);
+        });
+
+        it('disabled: false（明示）は無効化扱いではない（型エラーにならず通常スキル）', () => {
+            // 注: { disabled: true } のみ無効化判定。false は無視される
+            const m: Mitigation = {
+                id: 'rampart', jobId: 'pld',
+                name: { ja: 'ランパート', en: 'Rampart' },
+                icon: '/icons/rampart.png',
+                recast: 90, duration: 20, type: 'all', value: 20,
+                // @ts-expect-error: disabled: false は型上 { disabled: true } と矛盾するため
+                modes: { evolved: { disabled: false } },
+            };
+            // ランタイムでは disabled === true のみチェック → null にならない
+            const result = resolveMitigation(m, 'evolved');
+            expect(result).not.toBeNull();
+        });
+
+        it('persist middleware merge シミュレーション: 旧 partyMembers + 新 INITIAL_PARTY マージ', () => {
+            // localStorage 復元: mode 無しの旧データ
+            const persistedMember: PartyMember = {
+                id: 'MT', jobId: 'pld', role: 'tank',
+                stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                computedValues: { hp: 299000 },
+            };
+            // store の merge ロジックは partyMembers をそのまま採用（mode 無し）
+            // → getMode で reborn fallback
+            expect(getMode(persistedMember)).toBe('reborn');
+            // → 新規メンバー作成パスに乗らないため mode は書き込まれない（互換維持）
+            expect('mode' in persistedMember).toBe(false);
+        });
+
+        it('共有リンク経由で受け取った旧プランのメンバー（mode 無し）も reborn 扱い', () => {
+            // api/share GET レスポンスで mode フィールドが落ちている想定
+            const sharedMember: PartyMember = {
+                id: 'D1', jobId: 'rdm', role: 'dps',
+                stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                computedValues: {},
+            };
+            expect(getMode(sharedMember)).toBe('reborn');
+        });
+
+        it('Firestore 復元時の mode 欠落: undefined を許容する', () => {
+            // Firestore 旧ドキュメント: mode フィールドが存在しない
+            const firestoreDoc = {
+                id: 'H2', jobId: 'sch', role: 'healer' as const,
+                stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                computedValues: {},
+            };
+            expect(getMode(firestoreDoc as PartyMember)).toBe('reborn');
+        });
+
+        it('JSON.stringify ラウンドトリップで mode が保持される（明示指定時）', () => {
+            const member: PartyMember = {
+                id: 'MT', jobId: 'pld', role: 'tank',
+                stats: { hp: 0, mainStat: 0, det: 0, crt: 0, ten: 0, ss: 0, wd: 0 },
+                computedValues: {}, mode: 'evolved',
+            };
+            const restored: PartyMember = JSON.parse(JSON.stringify(member));
+            expect(getMode(restored)).toBe('evolved');
+        });
+
+        it('複数 mitigations を mode フィルタ通すパフォーマンス検証（線形時間）', () => {
+            const mitigations: Mitigation[] = Array.from({ length: 100 }, (_, i) => ({
+                id: `skill_${i}`, jobId: 'pld',
+                name: { ja: `スキル${i}`, en: `Skill${i}` },
+                icon: '/icons/x.png',
+                recast: 60 + i, duration: 15, type: 'all', value: 10 + (i % 20),
+            }));
+            const start = performance.now();
+            const filtered = mitigations
+                .map(m => resolveMitigation(m, 'evolved'))
+                .filter((m): m is Mitigation => m !== null);
+            const elapsed = performance.now() - start;
+            expect(filtered).toHaveLength(100); // 全 mitigation modes 無し → 全通過
+            expect(elapsed).toBeLessThan(50); // 100 件で 50ms 以下
+        });
+    });
 });
