@@ -276,7 +276,7 @@ export const CommercialDisclosurePage: React.FC = () => {
 // 共通レイアウト
 // ========================================
 
-const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LegalPageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const navigate = useNavigate();
     const { theme, setTheme } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
