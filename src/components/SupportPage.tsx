@@ -5,12 +5,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
-import { LegalPageLayout } from './LegalPage';
-
-/** i18n キーで「,」区切りのリストを配列に変換 */
-function splitItems(value: string): string[] {
-    return value.split(',').map((s) => s.trim()).filter(Boolean);
-}
+import { LegalPageLayout, splitItems } from './LegalPage';
 
 const KOFI_URL = 'https://ko-fi.com/lopoly';
 

@@ -12,7 +12,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 
 /** i18nキーで「,」区切りのリストを配列に変換 */
-function splitItems(value: string): string[] {
+export function splitItems(value: string): string[] {
     return value.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
