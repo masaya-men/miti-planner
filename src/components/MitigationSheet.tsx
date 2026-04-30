@@ -8,6 +8,7 @@ import { useJobs } from '../hooks/useSkillsData';
 import {
   getContentDefinitions,
   getContentById,
+  getAllUltimates,
 } from '../data/contentRegistry';
 import { PLAN_LIMITS } from '../types/firebase';
 import { apiFetch } from '../lib/apiClient';
@@ -41,7 +42,7 @@ interface Props {
   currentContentId: string | null;
 }
 
-// --- トースト（PopularPage.tsxと同じパターン） ---
+// --- トースト ---
 function showToast(msg: string) {
   const el = document.createElement('div');
   el.textContent = msg;
@@ -51,7 +52,7 @@ function showToast(msg: string) {
   setTimeout(() => el.remove(), 2000);
 }
 
-// --- コンテンツID算出（PopularPage.tsxから移植） ---
+// --- コンテンツID算出 ---
 const savageContents = getContentDefinitions().filter(c => c.category === 'savage');
 const latestPatch = savageContents.reduce((max, c) => c.patch > max ? c.patch : max, '0');
 const savageIds = savageContents
@@ -59,8 +60,8 @@ const savageIds = savageContents
   .sort((a, b) => a.order - b.order)
   .map(c => c.id);
 
-const ultimateIds = getContentDefinitions()
-  .filter(c => c.category === 'ultimate' && c.id !== 'dsr_p1')
+const ultimateIds = getAllUltimates()
+  .filter(c => c.id !== 'dsr_p1')
   .map(c => c.id);
 
 export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentContentId }) => {
