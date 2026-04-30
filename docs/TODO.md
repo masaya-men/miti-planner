@@ -122,7 +122,6 @@
 ### Phase 2 後の follow-up（優先度低）
 - [ ] `api/popular/index.ts` `mapDoc` と `PopularEntry` 型の `viewCount` フィールドは Phase 2 以降未使用 → 削除整理
 - [ ] en/ko の `privacy_section1_auto_items` 既存翻訳でインラインコンマが bullet 分割される pre-existing バグ
-- [ ] `PopularPage.tsx` `handleCopyAllRank` の localStorage persist がループ外（影響軽微）
 - [ ] クライアント dedup の書き込みタイミング問題（`MitigationSheet.tsx` `copyPlan`）: POST 失敗でも localStorage に残る
 
 ---
