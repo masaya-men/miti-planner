@@ -11,7 +11,9 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-04-30 終盤・Phase 5.4 実機 OK + Discord アプデ作成）**: スキルモード切替インフラ Phase 5.4 実機確認 → ユーザー目視で UI 変化ゼロ確認、土台確定。8.0 アナウンス時の残作業は admin の差分入力 UI / `DEFAULT_NEW_MODE` 1 行切替 / autoPlanner mode 解決対応の 3 点（既に follow-up に記載）。続いて 4 月中旬〜下旬のユーザー向け変更を Discord アプデ用に集約（絶妖星乱舞追加、イベントモーダル UI 刷新、ダメージ値スプリング演出、スマホ空行操作、共有モーダル OGP プレビュー修正、致命バグ修正、自動採番、LP SEO 多言語、8.0 裏側準備）。3D アイコンアニメ拡充は brainstorming 開始したが「現状の完成度で十分」とユーザー判断で見送り（地球儀アイコン回転等の案あり、将来余力があれば再検討）。
+- **最新セッション（2026-05-01・LoPo Support Page (/support) 公開 + 順序バグ修正 + PopularPage 削除）**: 3 トピックを 1 セッションで完了。①ボトムシート「絶」タブの順序がサイドバーと不一致だった bug を修正（`MitigationSheet.tsx` の `ultimateIds` を `getAllUltimates()` 経由に統一、patch 降順 + order 昇順ソートで DMU 先頭に）②未使用 `PopularPage.tsx` を削除（ボトムシート統合済みで動線ゼロ、`<Route path="*" → />` の fallback で /popular 直アクセスは LP リダイレクト、`api/popular` API・`PopularConsentDialog`・`popular.*` i18n は野良主流ボトムシートが使うため全部保持）③**LoPo Support Page (/support) 新設**: Ko-fi へ飛ぶ前に 4 言語で支援内容を説明する専用ページ。設計書 `docs/superpowers/specs/2026-04-30-lopo-support-page-design.md` Revision 2、実装プラン `docs/superpowers/plans/2026-04-30-lopo-support-page.md`。subagent-driven-development で 10 task 進行（i18n 4 言語 21 キー / LegalPageLayout export 化 / SupportPage TDD 4 vitest / Route 追加 / LP+Sidebar の Ko-fi 直リンク → /support 内部リンク化 / sitemap.xml / Playwright E2E 14/14 PASS）。Revision 2 で大幅拡充: 私の想いセクション（ファーストビュー）/ Ko-fi とは（PayPal や Stripe 経由でカード情報が LoPo に届かないと明記、心理的ハードル下げ）/ 支援するとどうなるの？（¥500/1000/3000/5000/9000 の 5 段階プロテインユーモア + 維持費明記の冷静な注釈）/ 派手 CTA ボタン（☕ 大型化・shadow・ホバー浮き上がり）。LegalPageLayout に `window.scrollTo(0, 0)` 追加で /miti から遷移時のスクロール位置引き継ぎバグも解消（Privacy/Terms/Commercial にも副次的に効く）。Ko-fi 側プロフィール（カバー画像・アバター・About 4 言語・サンキュー 4 言語・Suggested 500/3000/9000・Minimum 500・Membership/Goal/Shop/Commission 全て無効化）もユーザー設定完了。本番実機確認 OK、リスク低の変更で完了。特典（バッジ/Discord ロール/ログインアイコン装飾等）は「個人情報取得を避ける LoPo 方針」で全て不採用。
+
+- **前セッション（2026-04-30 終盤・Phase 5.4 実機 OK + Discord アプデ作成）**: スキルモード切替インフラ Phase 5.4 実機確認 → ユーザー目視で UI 変化ゼロ確認、土台確定。8.0 アナウンス時の残作業は admin の差分入力 UI / `DEFAULT_NEW_MODE` 1 行切替 / autoPlanner mode 解決対応の 3 点（既に follow-up に記載）。続いて 4 月中旬〜下旬のユーザー向け変更を Discord アプデ用に集約（絶妖星乱舞追加、イベントモーダル UI 刷新、ダメージ値スプリング演出、スマホ空行操作、共有モーダル OGP プレビュー修正、致命バグ修正、自動採番、LP SEO 多言語、8.0 裏側準備）。3D アイコンアニメ拡充は brainstorming 開始したが「現状の完成度で十分」とユーザー判断で見送り（地球儀アイコン回転等の案あり、将来余力があれば再検討）。
 
 - **前セッション（2026-04-30・スキルモード切替インフラ Phase 1-5 完了）**: 8.0 でエヴォルヴモード実装確定情報を受け、リボーン/エヴォルヴ切替の土台を 8 コミット（Phase 1=型 / 2=resolveMitigation 実装 / 3.1=autoPlanner 配線 / 3.2-3.3=コメントのみ / 4=INITIAL_PARTY mode 注入 / 5.1-5.2=互換性ガード+想定外ケーステスト 21 件）で構築。subagent-driven-development（implementer + spec/quality 2 段階レビュー）で全 Phase 進行、main 直接、UI / admin / Firestore / api 一切触らず。`Mitigation.modes?` と `PartyMember.mode?` Optional 追加 → `resolveMitigation(m, mode)` 単一動線で差分マージ → 既存プランは `getMode()` フォールバックで永久に reborn 扱い、新規プランは `DEFAULT_NEW_MODE`（現状 `'reborn'`、8.0 時に 1 行で `'evolved'` に切替）が `INITIAL_PARTY` で書き込まれる。設計書: `docs/superpowers/specs/2026-04-30-skill-mode-infrastructure-design.md`、プラン: `docs/superpowers/plans/2026-04-30-skill-mode-infrastructure.md`。build+test 289 PASS（既存 253 + 新規 36）、tsc --noEmit clean、snapshot diff ゼロ、push→Vercel デプロイ済み。Final code reviewer 指摘は 2 件とも spec の YAGNI 線内（usePlanStore.ts 138-144 はラベル変換で PartyMember 生成ではなく実害なし、autoPlanner.ts isAvail/place の raw getMiti は 8.0 で実 evolved データ投入時に対応で十分）。
 
@@ -42,9 +44,22 @@
 - **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**
 
 ### 次にやること（優先順）
-- **ハウジングツアープランナー着手（次セッション）**: 要件定義済み・Pretext 採用決定。docs/ 内の関連設計書から再開。
-- **Revision 3 実機確認**: デプロイ後に実機（PC/スマホ）で軽減操作 → 致死クロス時のみスプリング演出が出ること、out-back の overshoot で文字が slot からはみ出さないこと、連続クロスで乱れないこと、`prefers-reduced-motion` ON で消えること。違和感あれば数値調整 or Revision 2 に巻き戻し。
+- **野良主流の管理画面確認（次セッション最優先）**: 「野良主流ページ」関連を管理画面から自由に消せる機能があったか、現状の `AdminFeatured.tsx` 等で何ができるかを調査して整理する（PopularPage 削除に伴って機能の所在を確認したい）
+- **PiP（Floating Timeline）が戻せる状態か確認**: 過去に作って中止した PiP 実装が、別ブランチや revert 履歴から復元できる状態か git log を確認。`docs/superpowers/plans/2026-04-09-pip-cue-sheet.md` あたりが該当
+- **ハウジングツアープランナー着手**: 上記 2 つ片付いてから着手。要件定義済み・Pretext 採用決定。docs/ 内の関連設計書から再開
+- **Revision 3 実機確認（ダメージアニメ）**: 致死クロス時のみスプリング演出が出ること、out-back の overshoot で文字が slot からはみ出さないこと、連続クロスで乱れないこと、`prefers-reduced-motion` ON で消えること
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
+
+### LoPo Support Page (/support) 完了 2026-05-01
+- [x] /support ページ新規追加（4 言語、Revision 2 で想い・Ko-fi 説明・5 段階金額表・派手 CTA まで実装）
+- [x] LegalPageLayout 経由でスクロール位置リセット修正（Privacy/Terms/Commercial にも副次効果）
+- [x] LP フッター + サイドバー下部の Ko-fi 直リンクを /support 経由に変更
+- [x] Ko-fi 側プロフィール（カバー・アバター・About 4 言語・サンキュー 4 言語・Suggested 500/3000/9000・Minimum 500）設定完了
+- [x] 本番実機確認済み（直アクセス / LP・サイドバーから遷移 / スクロール修正 / ダーク&ライト / 4 言語 / Ko-fi ボタンで ko-fi.com/lopoly が開く）
+
+### 順序バグ + PopularPage 削除 完了 2026-04-30 終盤
+- [x] ボトムシート絶タブで DMU が一番上に来るよう修正（getAllUltimates() 経由に統一）
+- [x] 未使用 PopularPage.tsx 削除（API・同意ダイアログ・i18n は保持、SPA fallback で /popular 直アクセスは LP リダイレクト）
 
 ### スキルモード切替インフラ Phase 5.4 実機 OK 確認済み 2026-04-30 終盤
 - [x] 既存プランをロードしてエラー無し
