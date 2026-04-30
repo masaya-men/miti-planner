@@ -115,7 +115,7 @@ export function LandingFooter() {
             <FooterLink href="https://x.com/lopoly_app" external>
               {t('footer.x_official')}
             </FooterLink>
-            <FooterLink href="https://ko-fi.com/lopoly" external>
+            <FooterLink href="/support">
               {t('footer.kofi')}
             </FooterLink>
             <FooterLink href="/privacy">

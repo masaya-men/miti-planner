@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -1527,14 +1528,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {!multiSelect.isEnabled && (
                         <div className="shrink-0 flex flex-col items-center py-2">
                             <div className="border-t border-glass-border w-full mb-2" />
-                            <a
-                                href="https://ko-fi.com/lopoly"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <Link
+                                to="/support"
                                 className="text-app-sm text-app-text-muted hover:text-app-text transition-colors font-scale-exclude"
                             >
                                 {isOpen ? <>☕ {t('footer.support')}</> : '☕'}
-                            </a>
+                            </Link>
                         </div>
                     )}
                 </div>
