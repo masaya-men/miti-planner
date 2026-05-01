@@ -347,6 +347,7 @@
         "pip_edit_hint": "双击编辑名称",
         "pip_bg_color": "背景颜色",
         "pip_reset_color": "恢复默认颜色",
+        "pip_switch_event": "切换到其他事件",
         "undo": "撤销 (Ctrl+Z)",
         "redo": "重做 (Ctrl+Shift+Z)",
         "clear_mitigations": "移除减伤",

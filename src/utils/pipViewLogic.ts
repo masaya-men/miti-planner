@@ -1,32 +1,55 @@
 import type { TimelineEvent, AppliedMitigation } from '../types';
 
-export interface CueItem {
-    event: TimelineEvent;
+export interface CueGroup {
+    /** イベントの発生時刻（同じ時刻のイベントは 1 グループにまとまる） */
+    time: number;
+    /** 優先度順に並んだイベント（先頭が主表示）。AoE > 単体(MT/ST) > target未設定、同優先度内は id 昇順 */
+    events: TimelineEvent[];
+    /** 同時刻に配置された軽減（選択メンバー分のみ） */
     mitigations: AppliedMitigation[];
+}
+
+/** 同時刻イベントの表示優先度。0=AoE 最優先、1=単体、2=未設定 */
+function eventPriority(e: TimelineEvent): number {
+    if (e.target === 'AoE') return 0;
+    if (e.target === 'MT' || e.target === 'ST') return 1;
+    return 2;
 }
 
 /**
  * 選択メンバー集合に紐づく軽減を時刻ごとにマージし、
- * 軽減が配置されたイベントだけを時刻昇順で返す。
+ * 軽減が配置された時刻だけをグループ化して時刻昇順で返す。
+ * 同時刻に複数イベントがある場合、優先度順（AoE > 単体 > 未設定、同列は id 昇順）で events に並べる。
  */
 export function computeCueItems(
     events: TimelineEvent[],
     mitigations: AppliedMitigation[],
     selectedMemberIds: Set<string>,
-): CueItem[] {
+): CueGroup[] {
     if (selectedMemberIds.size === 0) return [];
 
     const filteredMitis = mitigations.filter(m => selectedMemberIds.has(m.ownerId));
     if (filteredMitis.length === 0) return [];
 
     const mitiTimes = new Set(filteredMitis.map(m => m.time));
+    const eventsByTime = new Map<number, TimelineEvent[]>();
+    for (const e of events) {
+        if (!mitiTimes.has(e.time)) continue;
+        const list = eventsByTime.get(e.time) ?? [];
+        list.push(e);
+        eventsByTime.set(e.time, list);
+    }
 
-    return events
-        .filter(e => mitiTimes.has(e.time))
-        .sort((a, b) => a.time - b.time)
-        .map(event => ({
-            event,
-            mitigations: filteredMitis.filter(m => m.time === event.time),
+    return [...eventsByTime.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([time, evs]) => ({
+            time,
+            events: [...evs].sort((a, b) => {
+                const pd = eventPriority(a) - eventPriority(b);
+                if (pd !== 0) return pd;
+                return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+            }),
+            mitigations: filteredMitis.filter(m => m.time === time),
         }));
 }
 

@@ -368,6 +368,7 @@
         "pip_edit_hint": "ダブルタップで名前を編集",
         "pip_bg_color": "背景色",
         "pip_reset_color": "デフォルト色に戻す",
+        "pip_switch_event": "別のイベントに切り替え",
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",
         "clear_mitigations": "軽減を削除",

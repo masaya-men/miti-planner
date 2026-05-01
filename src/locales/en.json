@@ -364,6 +364,7 @@
         "pip_edit_hint": "Double-tap to edit name",
         "pip_bg_color": "Background color",
         "pip_reset_color": "Reset to default color",
+        "pip_switch_event": "Switch to another event",
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
         "clear_mitigations": "Remove mitigations",

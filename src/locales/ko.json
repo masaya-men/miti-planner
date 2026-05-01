@@ -347,6 +347,7 @@
         "pip_edit_hint": "더블탭으로 이름 편집",
         "pip_bg_color": "배경색",
         "pip_reset_color": "기본 색상으로 되돌리기",
+        "pip_switch_event": "다른 이벤트로 전환",
         "undo": "되돌리기 (Ctrl+Z)",
         "redo": "다시 실행 (Ctrl+Shift+Z)",
         "clear_mitigations": "경감 제거",

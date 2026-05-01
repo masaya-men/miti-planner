@@ -2,11 +2,17 @@ import { describe, it, expect } from 'vitest';
 import { computeCueItems, computeInitialSelection, getDefaultBgColor } from '../utils/pipViewLogic';
 import type { TimelineEvent, AppliedMitigation } from '../types';
 
-const evt = (id: string, time: number, name = id): TimelineEvent => ({
+const evt = (
+    id: string,
+    time: number,
+    target?: 'AoE' | 'MT' | 'ST',
+    name = id,
+): TimelineEvent => ({
     id,
     time,
     name: { ja: name, en: name, ko: name, zh: name },
     damageType: 'magical',
+    target,
 } as TimelineEvent);
 
 const miti = (id: string, time: number, ownerId: string, mitigationId: string): AppliedMitigation => ({
@@ -24,7 +30,7 @@ describe('computeCueItems', () => {
         expect(computeCueItems(events, mitigations, new Set())).toEqual([]);
     });
 
-    it('returns only events that have mitigations from selected members', () => {
+    it('returns only times that have mitigations from selected members', () => {
         const events = [evt('e1', 10), evt('e2', 20), evt('e3', 30)];
         const mitigations = [
             miti('m1', 10, 'MT', 'rampart'),
@@ -32,7 +38,7 @@ describe('computeCueItems', () => {
             miti('m3', 30, 'D1', 'feint'),
         ];
         const result = computeCueItems(events, mitigations, new Set(['MT', 'H1']));
-        expect(result.map(r => r.event.id)).toEqual(['e1', 'e2']);
+        expect(result.map(r => r.events[0].id)).toEqual(['e1', 'e2']);
     });
 
     it('merges mitigations from multiple selected members at the same time', () => {
@@ -57,7 +63,7 @@ describe('computeCueItems', () => {
         expect(result[0].mitigations.map(m => m.mitigationId)).toEqual(['rampart']);
     });
 
-    it('sorts events by time ascending', () => {
+    it('sorts groups by time ascending', () => {
         const events = [evt('e1', 30), evt('e2', 10), evt('e3', 20)];
         const mitigations = [
             miti('m1', 30, 'MT', 'rampart'),
@@ -65,7 +71,7 @@ describe('computeCueItems', () => {
             miti('m3', 20, 'MT', 'arms_length'),
         ];
         const result = computeCueItems(events, mitigations, new Set(['MT']));
-        expect(result.map(r => r.event.time)).toEqual([10, 20, 30]);
+        expect(result.map(r => r.time)).toEqual([10, 20, 30]);
     });
 
     it('handles event with no mitigation owner match (skipped)', () => {
@@ -73,6 +79,39 @@ describe('computeCueItems', () => {
         const mitigations = [miti('m1', 10, 'MT', 'rampart')];
         const result = computeCueItems(events, mitigations, new Set(['H1']));
         expect(result).toEqual([]);
+    });
+
+    it('groups multiple events at the same time into one group', () => {
+        const events = [
+            evt('e1', 10, 'MT'),
+            evt('e2', 10, 'AoE'),
+        ];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+        const result = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(result).toHaveLength(1);
+        expect(result[0].events.map(e => e.id)).toEqual(['e2', 'e1']);
+    });
+
+    it('orders same-time events by priority: AoE > single-target > undefined', () => {
+        const events = [
+            evt('a-undef', 10, undefined),
+            evt('b-st', 10, 'ST'),
+            evt('c-aoe', 10, 'AoE'),
+            evt('d-mt', 10, 'MT'),
+        ];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+        const result = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(result[0].events.map(e => e.id)).toEqual(['c-aoe', 'b-st', 'd-mt', 'a-undef']);
+    });
+
+    it('orders same-priority events by id ascending', () => {
+        const events = [
+            evt('z-aoe', 10, 'AoE'),
+            evt('a-aoe', 10, 'AoE'),
+        ];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+        const result = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(result[0].events.map(e => e.id)).toEqual(['a-aoe', 'z-aoe']);
     });
 });
 

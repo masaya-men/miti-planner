@@ -120,21 +120,31 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         }
     }, [allSelected, activeMembers]);
 
-    // ── cueItems（純粋関数で多選フィルタ → hydrate） ──
-    const cueItemsRaw = useMemo(
+    // ── cueGroups（純粋関数で多選フィルタ → hydrate） ──
+    const cueGroupsRaw = useMemo(
         () => computeCueItems(timelineEvents, timelineMitigations, selectedMemberIds),
         [timelineEvents, timelineMitigations, selectedMemberIds],
     );
 
-    const cueItems = useMemo(() => cueItemsRaw.map(({ event, mitigations }) => ({
-        event,
+    const cueGroups = useMemo(() => cueGroupsRaw.map(({ time, events, mitigations }) => ({
+        time,
+        events,
         mitigations: mitigations
             .map(m => {
                 const def = MITIGATIONS.find(d => d.id === m.mitigationId);
                 return def ? { applied: m, definition: def } : null;
             })
             .filter(Boolean) as { applied: AppliedMitigation; definition: typeof MITIGATIONS[number] }[],
-    })), [cueItemsRaw, MITIGATIONS]);
+    })), [cueGroupsRaw, MITIGATIONS]);
+
+    // ── 同時刻イベントの表示切替 state（time → 表示中の event index） ──
+    const [eventIndexByTime, setEventIndexByTime] = useState<Record<number, number>>({});
+    const cycleEventAtTime = useCallback((time: number, total: number) => {
+        setEventIndexByTime(prev => ({
+            ...prev,
+            [time]: ((prev[time] ?? 0) + 1) % total,
+        }));
+    }, []);
 
     return (
         <div
@@ -230,64 +240,80 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 className="flex-1 overflow-y-auto px-1.5 py-1 [&::-webkit-scrollbar]:hidden"
                 style={{ scrollbarWidth: 'none' }}
             >
-                {cueItems.length === 0 ? (
+                {cueGroups.length === 0 ? (
                     <p className="text-white/40 text-[10px] text-center mt-4">
                         {t('timeline.pip_no_mitigations')}
                     </p>
                 ) : (
                     <div className="flex flex-col">
-                        {cueItems.map(({ event, mitigations }, i) => (
-                            <div
-                                key={event.id}
-                                className={clsx(
-                                    "flex items-center gap-1 py-0.5 px-1",
-                                    i % 2 === 0 && "bg-white/[0.03]"
-                                )}
-                            >
-                                {/* 時間 */}
-                                <span className="text-white/40 text-[10px] font-mono w-8 shrink-0 text-right">
-                                    {formatTime(event.time)}
-                                </span>
-
-                                {/* 攻撃名（ダブルクリックで編集） */}
-                                {editingEventId === event.id ? (
-                                    <input
-                                        ref={editInputRef}
-                                        defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                        onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
-                                            if (e.key === 'Escape') setEditingEventId(null);
-                                        }}
-                                        className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
-                                    />
-                                ) : (
-                                    <span
-                                        onDoubleClick={() => handleDoubleClick(event.id)}
-                                        className={clsx(
-                                            "flex-1 min-w-0 text-[10px] truncate cursor-default leading-tight",
-                                            notes[event.id] ? "text-yellow-300" : "text-white/80"
-                                        )}
-                                        title={t('timeline.pip_edit_hint')}
-                                    >
-                                        {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                        {cueGroups.map(({ time, events, mitigations }, i) => {
+                            const idx = (eventIndexByTime[time] ?? 0) % events.length;
+                            const event = events[idx];
+                            const hasExtra = events.length > 1;
+                            return (
+                                <div
+                                    key={time}
+                                    className={clsx(
+                                        "flex items-center gap-1 py-0.5 px-1",
+                                        i % 2 === 0 && "bg-white/[0.03]"
+                                    )}
+                                >
+                                    {/* 時間 */}
+                                    <span className="text-white/40 text-[10px] font-mono w-8 shrink-0 text-right">
+                                        {formatTime(time)}
                                     </span>
-                                )}
 
-                                {/* 軽減スキルアイコン */}
-                                <div className="flex items-center shrink-0">
-                                    {mitigations.map(({ applied, definition }) => (
-                                        <img
-                                            key={applied.id}
-                                            src={definition.icon}
-                                            className="w-4 h-4 object-contain"
-                                            title={definition.name[lang] || definition.name.ja || definition.name.en || ''}
-                                            alt=""
+                                    {/* 攻撃名（ダブルクリックで編集） */}
+                                    {editingEventId === event.id ? (
+                                        <input
+                                            ref={editInputRef}
+                                            defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                            onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
+                                                if (e.key === 'Escape') setEditingEventId(null);
+                                            }}
+                                            className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
                                         />
-                                    ))}
+                                    ) : (
+                                        <span
+                                            onDoubleClick={() => handleDoubleClick(event.id)}
+                                            className={clsx(
+                                                "flex-1 min-w-0 text-[10px] truncate cursor-default leading-tight",
+                                                notes[event.id] ? "text-yellow-300" : "text-white/80"
+                                            )}
+                                            title={t('timeline.pip_edit_hint')}
+                                        >
+                                            {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                        </span>
+                                    )}
+
+                                    {/* +1 切替バッジ（同時刻に他のイベントがあるとき） */}
+                                    {hasExtra && (
+                                        <button
+                                            onClick={() => cycleEventAtTime(time, events.length)}
+                                            className="shrink-0 px-1 rounded bg-white/10 hover:bg-white/25 text-white/60 hover:text-white text-[8px] font-mono cursor-pointer transition-colors"
+                                            title={t('timeline.pip_switch_event')}
+                                        >
+                                            +{events.length - 1}
+                                        </button>
+                                    )}
+
+                                    {/* 軽減スキルアイコン */}
+                                    <div className="flex items-center shrink-0">
+                                        {mitigations.map(({ applied, definition }) => (
+                                            <img
+                                                key={applied.id}
+                                                src={definition.icon}
+                                                className="w-4 h-4 object-contain"
+                                                title={definition.name[lang] || definition.name.ja || definition.name.en || ''}
+                                                alt=""
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
