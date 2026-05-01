@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeCueItems, computeInitialSelection } from '../utils/pipViewLogic';
+import { computeCueItems, computeInitialSelection, getDefaultBgColor } from '../utils/pipViewLogic';
 import type { TimelineEvent, AppliedMitigation } from '../types';
 
 const evt = (id: string, time: number, name = id): TimelineEvent => ({
@@ -110,5 +110,26 @@ describe('computeInitialSelection', () => {
             { id: 'ST', jobId: null },
         ];
         expect(computeInitialSelection(null, partial as any)).toEqual(new Set(['MT']));
+    });
+});
+
+describe('getDefaultBgColor', () => {
+    it('returns dark default when theme=dark and no stored color', () => {
+        expect(getDefaultBgColor('dark', null)).toBe('#0F0F10');
+    });
+
+    it('returns light default when theme=light and no stored color', () => {
+        expect(getDefaultBgColor('light', null)).toBe('#FAFAFA');
+    });
+
+    it('prefers stored color over theme default', () => {
+        expect(getDefaultBgColor('dark', '#445566')).toBe('#445566');
+        expect(getDefaultBgColor('light', '#112233')).toBe('#112233');
+    });
+
+    it('falls back to theme default when stored value is invalid', () => {
+        expect(getDefaultBgColor('dark', 'not-a-color')).toBe('#0F0F10');
+        expect(getDefaultBgColor('light', '#XYZ')).toBe('#FAFAFA');
+        expect(getDefaultBgColor('dark', '')).toBe('#0F0F10');
     });
 });

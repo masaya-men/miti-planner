@@ -50,3 +50,15 @@ export function computeInitialSelection(
     }
     return new Set(activeIds);
 }
+
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
+
+/**
+ * PiP 背景色のデフォルト値を返す。
+ * localStorage に有効な色が保存されていればそれを優先、
+ * なければテーマに応じてダーク/ライト用デフォルトを返す。
+ */
+export function getDefaultBgColor(theme: 'dark' | 'light', stored: string | null): string {
+    if (stored && HEX_COLOR_RE.test(stored)) return stored;
+    return theme === 'light' ? '#FAFAFA' : '#0F0F10';
+}
