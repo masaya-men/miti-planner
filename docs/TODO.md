@@ -11,7 +11,9 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-05-01・LoPo Support Page (/support) 公開 + 順序バグ修正 + PopularPage 削除）**: 3 トピックを 1 セッションで完了。①ボトムシート「絶」タブの順序がサイドバーと不一致だった bug を修正（`MitigationSheet.tsx` の `ultimateIds` を `getAllUltimates()` 経由に統一、patch 降順 + order 昇順ソートで DMU 先頭に）②未使用 `PopularPage.tsx` を削除（ボトムシート統合済みで動線ゼロ、`<Route path="*" → />` の fallback で /popular 直アクセスは LP リダイレクト、`api/popular` API・`PopularConsentDialog`・`popular.*` i18n は野良主流ボトムシートが使うため全部保持）③**LoPo Support Page (/support) 新設**: Ko-fi へ飛ぶ前に 4 言語で支援内容を説明する専用ページ。設計書 `docs/superpowers/specs/2026-04-30-lopo-support-page-design.md` Revision 2、実装プラン `docs/superpowers/plans/2026-04-30-lopo-support-page.md`。subagent-driven-development で 10 task 進行（i18n 4 言語 21 キー / LegalPageLayout export 化 / SupportPage TDD 4 vitest / Route 追加 / LP+Sidebar の Ko-fi 直リンク → /support 内部リンク化 / sitemap.xml / Playwright E2E 14/14 PASS）。Revision 2 で大幅拡充: 私の想いセクション（ファーストビュー）/ Ko-fi とは（PayPal や Stripe 経由でカード情報が LoPo に届かないと明記、心理的ハードル下げ）/ 支援するとどうなるの？（¥500/1000/3000/5000/9000 の 5 段階プロテインユーモア + 維持費明記の冷静な注釈）/ 派手 CTA ボタン（☕ 大型化・shadow・ホバー浮き上がり）。LegalPageLayout に `window.scrollTo(0, 0)` 追加で /miti から遷移時のスクロール位置引き継ぎバグも解消（Privacy/Terms/Commercial にも副次的に効く）。Ko-fi 側プロフィール（カバー画像・アバター・About 4 言語・サンキュー 4 言語・Suggested 500/3000/9000・Minimum 500・Membership/Goal/Shop/Commission 全て無効化）もユーザー設定完了。本番実機確認 OK、リスク低の変更で完了。特典（バッジ/Discord ロール/ログインアイコン装飾等）は「個人情報取得を避ける LoPo 方針」で全て不採用。
+- **最新セッション（2026-05-01・野良主流 管理画面拡張）**: ボトムシートの「野良主流」カードを管理画面から個別に非表示にできる機能を新設。背景: 共有プランが少ないコンテンツ（M9S・オメガ系等）でコピー数 0 でも自動 1 位として運営テストプランが顔を出していた問題を解消。設計書 `docs/superpowers/specs/2026-05-01-popular-admin-management-design.md`、実装プラン `docs/superpowers/plans/2026-05-01-popular-admin-management.md`、subagent-driven-development で 8 task 進行（フィルタ純粋関数 + scoring helper extract / GET フィルタ / PATCH hidden 切替 + 不整合ガード / admin GET endpoint defense-in-depth / i18n 88 キー / PopularBrowseView コンポーネント TDD / AdminFeatured セグメント切替 / final review fix 3 件）。Firestore に `shared_plans/{id}.hidden` フィールド追加（undefined OK で既存 1300+ ドキュメント無影響）、`hidden=true` 時に `featured` 強制 false の不整合ガード（body 経由 + 現在値経由 両対応）、og_image_meta.keepForever は featured→false 遷移時に自動解除（hidden 経由含む）。管理画面: AdminFeatured.tsx に「野良主流ビュー / URL 検索」セグメント追加、デフォルト browse。野良主流ビューは零式/絶タブ + コンテンツ選択 + 上位 10 件カード（#1 に「⭐ 表示中（自動）」バッジ、★ Featured / 🚫 Hidden 状態バッジ、半透明非表示）+ 詳細ペイン（OGP / タイトル / 7d / 生涯 / 作成日 / オーナー UID 末尾4文字 + 操作 2 ボタン）。confirm ダイアログに「全ユーザーから……」影響明記、操作後 toast + 自動再取得。Cache-Control はコスト節約のため既存 `s-maxage=900` 維持（管理者テスト時は `?t=Date.now()` で bypass）。312 tests PASS（既存 299 + 新規 popularFilters 9 + PopularBrowseView 4）、tsc clean、@testing-library/jest-dom 追加 + happy-dom 環境化。Final reviewer 指摘 3 件全 fix（featured-only PATCH on hidden の symmetric guard / Featured ボタン hidden 時 disable / `_ugcHandler` GET レスポンスに hidden 追加）。
+
+- **前セッション（2026-05-01・LoPo Support Page (/support) 公開 + 順序バグ修正 + PopularPage 削除）**: 3 トピックを 1 セッションで完了。①ボトムシート「絶」タブの順序がサイドバーと不一致だった bug を修正（`MitigationSheet.tsx` の `ultimateIds` を `getAllUltimates()` 経由に統一、patch 降順 + order 昇順ソートで DMU 先頭に）②未使用 `PopularPage.tsx` を削除（ボトムシート統合済みで動線ゼロ、`<Route path="*" → />` の fallback で /popular 直アクセスは LP リダイレクト、`api/popular` API・`PopularConsentDialog`・`popular.*` i18n は野良主流ボトムシートが使うため全部保持）③**LoPo Support Page (/support) 新設**: Ko-fi へ飛ぶ前に 4 言語で支援内容を説明する専用ページ。設計書 `docs/superpowers/specs/2026-04-30-lopo-support-page-design.md` Revision 2、実装プラン `docs/superpowers/plans/2026-04-30-lopo-support-page.md`。subagent-driven-development で 10 task 進行（i18n 4 言語 21 キー / LegalPageLayout export 化 / SupportPage TDD 4 vitest / Route 追加 / LP+Sidebar の Ko-fi 直リンク → /support 内部リンク化 / sitemap.xml / Playwright E2E 14/14 PASS）。Revision 2 で大幅拡充: 私の想いセクション（ファーストビュー）/ Ko-fi とは（PayPal や Stripe 経由でカード情報が LoPo に届かないと明記、心理的ハードル下げ）/ 支援するとどうなるの？（¥500/1000/3000/5000/9000 の 5 段階プロテインユーモア + 維持費明記の冷静な注釈）/ 派手 CTA ボタン（☕ 大型化・shadow・ホバー浮き上がり）。LegalPageLayout に `window.scrollTo(0, 0)` 追加で /miti から遷移時のスクロール位置引き継ぎバグも解消（Privacy/Terms/Commercial にも副次的に効く）。Ko-fi 側プロフィール（カバー画像・アバター・About 4 言語・サンキュー 4 言語・Suggested 500/3000/9000・Minimum 500・Membership/Goal/Shop/Commission 全て無効化）もユーザー設定完了。本番実機確認 OK、リスク低の変更で完了。特典（バッジ/Discord ロール/ログインアイコン装飾等）は「個人情報取得を避ける LoPo 方針」で全て不採用。
 
 - **前セッション（2026-04-30 終盤・Phase 5.4 実機 OK + Discord アプデ作成）**: スキルモード切替インフラ Phase 5.4 実機確認 → ユーザー目視で UI 変化ゼロ確認、土台確定。8.0 アナウンス時の残作業は admin の差分入力 UI / `DEFAULT_NEW_MODE` 1 行切替 / autoPlanner mode 解決対応の 3 点（既に follow-up に記載）。続いて 4 月中旬〜下旬のユーザー向け変更を Discord アプデ用に集約（絶妖星乱舞追加、イベントモーダル UI 刷新、ダメージ値スプリング演出、スマホ空行操作、共有モーダル OGP プレビュー修正、致命バグ修正、自動採番、LP SEO 多言語、8.0 裏側準備）。3D アイコンアニメ拡充は brainstorming 開始したが「現状の完成度で十分」とユーザー判断で見送り（地球儀アイコン回転等の案あり、将来余力があれば再検討）。
 
@@ -44,11 +46,22 @@
 - **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**
 
 ### 次にやること（優先順）
-- **野良主流の管理画面確認（次セッション最優先）**: 「野良主流ページ」関連を管理画面から自由に消せる機能があったか、現状の `AdminFeatured.tsx` 等で何ができるかを調査して整理する（PopularPage 削除に伴って機能の所在を確認したい）
-- **PiP（Floating Timeline）が戻せる状態か確認**: 過去に作って中止した PiP 実装が、別ブランチや revert 履歴から復元できる状態か git log を確認。`docs/superpowers/plans/2026-04-09-pip-cue-sheet.md` あたりが該当
+- **野良主流 管理画面拡張 実機確認（次セッション最優先）**: /admin/featured で「野良主流ビュー」が開けるか、零式/絶タブ切替・コンテンツ選択・上位10件カード表示・カードクリック詳細ペイン・★ Featured トグル・🚫 Hidden トグル・confirm ダイアログ・操作後 toast + 再取得・hidden カード半透明 + バッジ・URL 検索ビューに切替も既存挙動維持・Hidden ボタン追加で URL 検索からも非表示にできるか・実際にボトムシート野良主流から消える（最大 15 分キャッシュ反映、`?t=Date.now()` で即時確認可）
+- **PiP（Floating Timeline）復活 実装着手**: コードはほぼ全部残存（透過不可で UI 非表示保留中）。Plan: 3 表示モード（個別/全員/選択）統合 → ジョブピッカーで複数選択 / 自ジョブ未設定時 全員表示 / 透過スライダー撤去 / スマホは下からシート全画面 / PC は別ウィンドウ。仕様詰め完了、実装開始するだけ
 - **ハウジングツアープランナー着手**: 上記 2 つ片付いてから着手。要件定義済み・Pretext 採用決定。docs/ 内の関連設計書から再開
 - **Revision 3 実機確認（ダメージアニメ）**: 致死クロス時のみスプリング演出が出ること、out-back の overshoot で文字が slot からはみ出さないこと、連続クロスで乱れないこと、`prefers-reduced-motion` ON で消えること
 - デプロイ確認: サイレント圧縮の実動作（2026-04-20以降に確認）
+
+### 野良主流 管理画面拡張 完了 2026-05-01
+- [x] `shared_plans/{id}.hidden` フィールド追加（undefined OK、既存ドキュメント無影響）
+- [x] GET /api/popular: hidden=true プランをスコア / featured 両方から除外
+- [x] PATCH /api/popular: `{shareId, featured?, hidden?}` 受付、不整合ガード（body + 現在値 両対応）、hiddenAt/hiddenBy 監査フィールド、og_image_meta.keepForever cleanup
+- [x] GET /api/admin?resource=popular: 上位 10 件 + hidden 含む全件、defense-in-depth (CORS + AppCheck + rateLimit + try-catch)、ownerUidSuffix プライバシー
+- [x] `popularFilters.ts` に scoring helper extract（公開/管理画面で drift 防止）
+- [x] i18n 22 キー × 4 言語 = 88 キー追加
+- [x] PopularBrowseView コンポーネント (4 vitest test、@testing-library/react + happy-dom)
+- [x] AdminFeatured セグメント化（野良主流ビュー デフォルト / URL 検索）
+- [x] URL 検索ビューに Hidden トグル追加 + Status 行で featured/hidden 同時表示
 
 ### LoPo Support Page (/support) 完了 2026-05-01
 - [x] /support ページ新規追加（4 言語、Revision 2 で想い・Ko-fi 説明・5 段階金額表・派手 CTA まで実装）
