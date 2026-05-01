@@ -1,3 +1,11 @@
+// @testing-library/jest-dom のカスタムマッチャーを有効化（toBeInTheDocument 等）
+import '@testing-library/jest-dom';
+
+// happy-dom では window.confirm が未定義のため、テスト用にポリフィル
+if (typeof (globalThis as any).window !== 'undefined' && typeof (globalThis as any).window.confirm === 'undefined') {
+    (globalThis as any).window.confirm = () => true;
+}
+
 // node 環境のテストでブラウザグローバル `self` を参照するコード
 // （例: Firebase App Check 初期化）のためのポリフィル。
 if (typeof (globalThis as any).self === 'undefined') {
