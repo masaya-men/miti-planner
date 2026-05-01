@@ -196,13 +196,13 @@ const PipView: React.FC<PipViewProps> = ({ onClose }) => {
                             <div className="flex gap-1 mb-1.5">
                                 <button
                                     onClick={selectAllMembers}
-                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors"
+                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors cursor-pointer"
                                 >
                                     {t('timeline.pip_select_all')}
                                 </button>
                                 <button
                                     onClick={deselectAllMembers}
-                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors"
+                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors cursor-pointer"
                                 >
                                     {t('timeline.pip_deselect_all')}
                                 </button>
