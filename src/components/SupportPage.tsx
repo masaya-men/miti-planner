@@ -21,6 +21,10 @@ export const SupportPage: React.FC = () => {
     useCanonicalUrl('/support');
     const { t } = useTranslation();
 
+    React.useEffect(() => {
+        document.title = t('app.page_title_support');
+    }, [t]);
+
     const usageItems = splitItems(t('support.usage_items'));
 
     return (

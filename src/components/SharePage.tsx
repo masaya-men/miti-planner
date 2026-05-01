@@ -107,11 +107,11 @@ export const SharePage: React.FC = () => {
                     return def ? def.name[lang] || def.name.ja : p.title;
                 })
                 .filter(Boolean);
-            document.title = `${names.join(' / ') || 'LoPo'} - ${t('app.shared_plan')}`;
+            document.title = `${names.join(' / ') || 'LoPo'} | ${t('app.shared_plan')}`;
         } else {
             const contentDef = sharedData.contentId ? getContentById(sharedData.contentId) : null;
             const contentName = contentDef ? (contentDef.name[lang] || contentDef.name.ja) : '';
-            document.title = `${contentName || sharedData.title || 'LoPo'} - ${t('app.shared_plan')}`;
+            document.title = `${contentName || sharedData.title || 'LoPo'} | ${t('app.shared_plan')}`;
         }
     }, [sharedData, lang, t]);
 

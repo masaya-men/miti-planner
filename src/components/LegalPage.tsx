@@ -82,6 +82,9 @@ const Note: React.FC<{ text: string }> = ({ text }) => (
 export const PrivacyPolicyPage: React.FC = () => {
     useCanonicalUrl('/privacy');
     const { t } = useTranslation();
+    React.useEffect(() => {
+        document.title = t('app.page_title_privacy');
+    }, [t]);
     return (
         <LegalPageLayout>
             <h1 className="text-app-4xl font-bold mb-1">{t('legal.privacy_title')}</h1>
@@ -181,6 +184,9 @@ export const PrivacyPolicyPage: React.FC = () => {
 export const TermsPage: React.FC = () => {
     useCanonicalUrl('/terms');
     const { t } = useTranslation();
+    React.useEffect(() => {
+        document.title = t('app.page_title_terms');
+    }, [t]);
     return (
         <LegalPageLayout>
             <h1 className="text-app-4xl font-bold mb-1">{t('legal.terms_title')}</h1>
@@ -241,6 +247,9 @@ const InfoRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
 export const CommercialDisclosurePage: React.FC = () => {
     useCanonicalUrl('/commercial');
     const { t } = useTranslation();
+    React.useEffect(() => {
+        document.title = t('app.page_title_commercial');
+    }, [t]);
     const rows: [string, string][] = [
         [t('legal.commercial_seller'), t('legal.commercial_seller_value')],
         [t('legal.commercial_address'), t('legal.commercial_address_value')],

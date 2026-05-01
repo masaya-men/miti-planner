@@ -98,7 +98,11 @@
         "toggle_theme_dark": "切换到深色主题",
         "switch_language": "语言切换",
         "page_title_planner": "LoPo | 减伤规划器",
-        "page_title_landing": "LoPo｜FF14 减伤轴模拟器｜移动端支持",
+        "page_title_landing": "LoPo | FF14 减伤轴 & 房屋 | 移动端支持",
+        "page_title_support": "支持 LoPo | LoPo",
+        "page_title_privacy": "隐私政策 | LoPo",
+        "page_title_terms": "使用条款 | LoPo",
+        "page_title_commercial": "特定商业交易法标识 | LoPo",
         "page_description_landing": "在手机上也能制作FF14减伤轴的模拟器。在时间轴上放置减伤技能，自动计算伤害。制作的方案可通过URL分享。"
     },
     "login": {
@@ -1143,7 +1147,7 @@
         "error_save": "保存失败",
         "stats_contents": "副本",
         "stats_templates": "模板",
-        "page_title": "管理│LoPo",
+        "page_title": "管理 | LoPo",
         "form_example_header": "示例（来自现有副本）：",
         "hint_content_id": "简短字母数字 ID（例：m9s、ucob、tea）。创建后无法更改",
         "hint_category": "选择：零式 / 绝本 / 迷宫挑战 / 大型任务 / 其他",

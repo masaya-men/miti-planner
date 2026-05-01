@@ -98,7 +98,11 @@
         "toggle_theme_dark": "다크 테마로 전환",
         "switch_language": "언어 전환",
         "page_title_planner": "LoPo | 경감 플래너",
-        "page_title_landing": "LoPo｜FF14 경감 시트 시뮬레이터｜모바일 지원",
+        "page_title_landing": "LoPo | FF14 경감 시트 & 하우징 | 모바일 지원",
+        "page_title_support": "LoPo 후원하기 | LoPo",
+        "page_title_privacy": "개인정보처리방침 | LoPo",
+        "page_title_terms": "이용약관 | LoPo",
+        "page_title_commercial": "특정상거래법 표기 | LoPo",
         "page_description_landing": "FF14 경감 시트를 모바일에서도 만들 수 있는 시뮬레이터. 타임라인에 경감기를 배치하면 데미지가 자동 계산됩니다. 작성한 플랜은 URL로 공유할 수 있습니다."
     },
     "login": {
@@ -1143,7 +1147,7 @@
         "error_save": "저장에 실패했습니다",
         "stats_contents": "콘텐츠",
         "stats_templates": "템플릿",
-        "page_title": "관리자│LoPo",
+        "page_title": "관리자 | LoPo",
         "form_example_header": "예시 (기존 콘텐츠에서):",
         "hint_content_id": "짧은 영숫자 ID (예: m9s, ucob, tea). 나중에 변경할 수 없습니다",
         "hint_category": "선택: Savage / Ultimate / Dungeon / Raid / Misc",

@@ -98,7 +98,11 @@
         "toggle_theme_dark": "Switch to Dark Theme",
         "switch_language": "Language",
         "page_title_planner": "LoPo | Mitigation Planner",
-        "page_title_landing": "LoPo｜FFXIV Mitigation Sheet Simulator｜Mobile-Friendly",
+        "page_title_landing": "LoPo | FFXIV Mitigation Sheet & Housing | Mobile-Friendly",
+        "page_title_support": "Support LoPo | LoPo",
+        "page_title_privacy": "Privacy Policy | LoPo",
+        "page_title_terms": "Terms of Service | LoPo",
+        "page_title_commercial": "Commercial Disclosure | LoPo",
         "page_description_landing": "Build your FFXIV mitigation sheet on mobile or desktop. Place mitigation skills on a timeline and see damage calculated automatically. Share plans via URL."
     },
     "login": {
@@ -1163,7 +1167,7 @@
         "error_save": "Failed to save",
         "stats_contents": "Contents",
         "stats_templates": "Templates",
-        "page_title": "Admin│LoPo",
+        "page_title": "Admin | LoPo",
         "form_example_header": "Example (from existing content):",
         "hint_content_id": "Short alphanumeric ID (e.g. m9s, ucob, tea). Cannot be changed later",
         "hint_category": "Choose: Savage / Ultimate / Dungeon / Raid / Misc",
