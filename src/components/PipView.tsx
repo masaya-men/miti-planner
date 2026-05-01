@@ -14,6 +14,7 @@ import {
     computeCueItems,
     computeInitialSelection,
     getDefaultBgColor,
+    isBgLight,
 } from '../utils/pipViewLogic';
 
 /** 時間(秒)を mm:ss 形式に変換 */
@@ -152,21 +153,24 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         }));
     }, []);
 
+    // ── 背景色から文字色を自動切替（ライト bg → 暗文字、ダーク bg → 明文字） ──
+    const fgColor = isBgLight(bgColor) ? '#171717' : '#F0F0F0';
+
     return (
         <div
             className="flex flex-col h-full select-none"
-            style={{ background: bgColor }}
+            style={{ background: bgColor, color: fgColor }}
         >
             {/* ── ツールバー（1 段構成） ── */}
-            <div className="shrink-0 border-b border-white/10 flex items-center gap-1 px-1.5 py-1">
+            <div className="shrink-0 border-b border-current/10 flex items-center gap-1 px-1.5 py-1">
                 {/* ALL ボタン */}
                 <button
                     onClick={onAllClick}
                     className={clsx(
                         "h-5 px-1.5 rounded text-[9px] font-bold tracking-wider cursor-pointer transition-colors shrink-0",
                         allSelected
-                            ? "bg-white/30 text-white"
-                            : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white/90"
+                            ? "bg-current/30 text-current"
+                            : "bg-current/10 text-current/60 hover:bg-current/20 hover:text-current/90"
                     )}
                 >
                     ALL
@@ -233,10 +237,10 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                             onClick={resetBgColor}
                             disabled={isAtDefault}
                             className={clsx(
-                                "w-4 h-4 rounded-full border border-white/30 transition-opacity shrink-0",
+                                "w-5 h-5 rounded-full border border-current/30 transition-opacity shrink-0",
                                 isAtDefault
                                     ? "opacity-30 cursor-default"
-                                    : "opacity-90 hover:opacity-100 hover:border-white/60 cursor-pointer"
+                                    : "opacity-90 hover:opacity-100 hover:border-current/60 cursor-pointer"
                             )}
                             style={{ background: defaultColor }}
                             title={t('timeline.pip_reset_color')}
@@ -248,7 +252,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {mode === 'fullscreen' && (
                     <button
                         onClick={onClose}
-                        className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                        className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-current/40 hover:text-current hover:bg-current/10 transition-colors shrink-0"
                         title={t('timeline.pip_close')}
                     >
                         <X size={12} />
@@ -262,7 +266,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 style={{ scrollbarWidth: 'none' }}
             >
                 {cueGroups.length === 0 ? (
-                    <p className="text-white/40 text-[10px] text-center mt-4">
+                    <p className="text-current/40 text-[10px] text-center mt-4">
                         {t('timeline.pip_no_mitigations')}
                     </p>
                 ) : (
@@ -276,11 +280,11 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                     key={time}
                                     className={clsx(
                                         "flex items-center gap-1 py-0.5 px-1",
-                                        i % 2 === 0 && "bg-white/[0.03]"
+                                        i % 2 === 0 && "bg-current/[0.03]"
                                     )}
                                 >
                                     {/* 時間 */}
-                                    <span className="text-white/40 text-[10px] font-mono w-8 shrink-0 text-right">
+                                    <span className="text-current/40 text-[10px] font-mono w-8 shrink-0 text-right">
                                         {formatTime(time)}
                                     </span>
 
@@ -295,14 +299,15 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                     if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
                                                     if (e.key === 'Escape') setEditingEventId(null);
                                                 }}
-                                                className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
+                                                className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded px-1 py-0 text-[10px] text-current outline-none"
+                                                style={{ color: fgColor }}
                                             />
                                         ) : (
                                             <span
                                                 onDoubleClick={() => handleDoubleClick(event.id)}
                                                 className={clsx(
                                                     "min-w-0 text-[10px] truncate cursor-default leading-tight",
-                                                    notes[event.id] ? "text-yellow-300" : "text-white/80"
+                                                    notes[event.id] ? "text-yellow-500" : "text-current/80"
                                                 )}
                                                 title={t('timeline.pip_edit_hint')}
                                             >
@@ -314,7 +319,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                         {hasExtra && (
                                             <button
                                                 onClick={() => cycleEventAtTime(time, events.length)}
-                                                className="shrink-0 px-1 rounded bg-white/10 hover:bg-white/25 text-white/60 hover:text-white text-[8px] font-mono cursor-pointer transition-colors"
+                                                className="shrink-0 px-1 rounded bg-current/10 hover:bg-current/25 text-current/60 hover:text-current text-[8px] font-mono cursor-pointer transition-colors"
                                                 title={t('timeline.pip_switch_event')}
                                             >
                                                 +{events.length - 1}

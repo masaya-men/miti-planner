@@ -85,3 +85,16 @@ export function getDefaultBgColor(theme: 'dark' | 'light', stored: string | null
     if (stored && HEX_COLOR_RE.test(stored)) return stored;
     return theme === 'light' ? '#FAFAFA' : '#0F0F10';
 }
+
+/**
+ * 背景色が明るい（白寄り）かどうかを YIQ 輝度で判定する。
+ * 明るい背景なら文字色を暗色（#171717）に、暗い背景なら明色（#F0F0F0）に切り替える用途。
+ * 不正な値は false（暗い扱い）にフォールバック。
+ */
+export function isBgLight(hex: string): boolean {
+    if (!HEX_COLOR_RE.test(hex)) return false;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+}

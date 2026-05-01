@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeCueItems, computeInitialSelection, getDefaultBgColor } from '../utils/pipViewLogic';
+import { computeCueItems, computeInitialSelection, getDefaultBgColor, isBgLight } from '../utils/pipViewLogic';
 import type { TimelineEvent, AppliedMitigation } from '../types';
 
 const evt = (
@@ -170,5 +170,34 @@ describe('getDefaultBgColor', () => {
         expect(getDefaultBgColor('dark', 'not-a-color')).toBe('#0F0F10');
         expect(getDefaultBgColor('light', '#XYZ')).toBe('#FAFAFA');
         expect(getDefaultBgColor('dark', '')).toBe('#0F0F10');
+    });
+});
+
+describe('isBgLight', () => {
+    it('returns true for light backgrounds (#FAFAFA, #FFFFFF)', () => {
+        expect(isBgLight('#FAFAFA')).toBe(true);
+        expect(isBgLight('#FFFFFF')).toBe(true);
+    });
+
+    it('returns false for dark backgrounds (#0F0F10, #000000)', () => {
+        expect(isBgLight('#0F0F10')).toBe(false);
+        expect(isBgLight('#000000')).toBe(false);
+    });
+
+    it('discriminates around the 128 luminance threshold', () => {
+        // pure red R=255 → YIQ Y = 76.5 (dark)
+        expect(isBgLight('#FF0000')).toBe(false);
+        // pure yellow Y = 226.0 (light)
+        expect(isBgLight('#FFFF00')).toBe(true);
+        // mid-gray #808080 → 128.0, NOT > 128 → false
+        expect(isBgLight('#808080')).toBe(false);
+        // slightly brighter than mid-gray → true
+        expect(isBgLight('#909090')).toBe(true);
+    });
+
+    it('returns false for invalid hex (defensive fallback)', () => {
+        expect(isBgLight('not-a-color')).toBe(false);
+        expect(isBgLight('#XYZ')).toBe(false);
+        expect(isBgLight('')).toBe(false);
     });
 });

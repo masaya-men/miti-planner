@@ -824,9 +824,10 @@ const Timeline: React.FC = () => {
         if (!pipSupported) return;
         try {
             const dpip = (window as any).documentPictureInPicture;
+            // 初回サイズ: ツールバー (~28px) + 8.5 行 (~170px) ≈ 200px / 横は ALL+8 ジョブ+操作系最小幅 ~240px
             const win: Window = await dpip.requestWindow({
-                width: 320,
-                height: 400,
+                width: 240,
+                height: 200,
             });
 
             // スタイルをPiPウィンドウにコピー
