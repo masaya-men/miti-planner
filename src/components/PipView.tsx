@@ -302,16 +302,26 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                 style={{ color: fgColor }}
                                             />
                                         ) : (
-                                            <span
-                                                onDoubleClick={() => handleDoubleClick(event.id)}
-                                                className={clsx(
-                                                    "min-w-0 text-[10px] truncate cursor-default leading-tight",
-                                                    notes[event.id] ? "text-yellow-500" : "text-current/80"
+                                            <>
+                                                <span
+                                                    onDoubleClick={() => handleDoubleClick(event.id)}
+                                                    className="min-w-0 text-[10px] truncate cursor-text leading-tight text-current/80"
+                                                    title={t('timeline.pip_edit_hint')}
+                                                >
+                                                    {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                                </span>
+                                                {/* メモあり時のリセットボタン（× クリックで元の名前に戻る） */}
+                                                {notes[event.id] && (
+                                                    <button
+                                                        onClick={() => updateNote(event.id, '')}
+                                                        className="shrink-0 p-0.5 rounded opacity-50 hover:opacity-100 hover:bg-current/10 text-current/70 transition-opacity cursor-pointer"
+                                                        title={t('timeline.pip_reset_note')}
+                                                        aria-label={t('timeline.pip_reset_note')}
+                                                    >
+                                                        <X size={10} />
+                                                    </button>
                                                 )}
-                                                title={t('timeline.pip_edit_hint')}
-                                            >
-                                                {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                            </span>
+                                            </>
                                         )}
 
                                         {/* +N 切替バッジ（イベント名のおしり、同時刻に他のイベントがあるとき） */}

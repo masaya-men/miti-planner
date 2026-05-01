@@ -366,6 +366,7 @@
         "pip_switch_job": "Switch job",
         "pip_no_mitigations": "No mitigations placed",
         "pip_edit_hint": "Double-tap to edit name",
+        "pip_reset_note": "Clear note and restore original name",
         "pip_bg_color": "Background color",
         "pip_reset_color": "Reset to default color",
         "pip_switch_event": "Switch to another event",

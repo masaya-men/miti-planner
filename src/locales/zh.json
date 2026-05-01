@@ -349,6 +349,7 @@
         "pip_switch_job": "切换职业",
         "pip_no_mitigations": "未配置减伤",
         "pip_edit_hint": "双击编辑名称",
+        "pip_reset_note": "清除备注恢复原名",
         "pip_bg_color": "背景颜色",
         "pip_reset_color": "恢复默认颜色",
         "pip_switch_event": "切换到其他事件",

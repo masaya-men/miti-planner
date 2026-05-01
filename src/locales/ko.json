@@ -349,6 +349,7 @@
         "pip_switch_job": "직업 변경",
         "pip_no_mitigations": "경감이 배치되지 않았습니다",
         "pip_edit_hint": "더블탭으로 이름 편집",
+        "pip_reset_note": "메모를 지우고 원래 이름으로 되돌리기",
         "pip_bg_color": "배경색",
         "pip_reset_color": "기본 색상으로 되돌리기",
         "pip_switch_event": "다른 이벤트로 전환",

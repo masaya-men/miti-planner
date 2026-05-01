@@ -370,6 +370,7 @@
         "pip_switch_job": "ジョブを切り替え",
         "pip_no_mitigations": "軽減が配置されていません",
         "pip_edit_hint": "ダブルタップで名前を編集",
+        "pip_reset_note": "メモを消して元の名前に戻す",
         "pip_bg_color": "背景色",
         "pip_reset_color": "デフォルト色に戻す",
         "pip_switch_event": "別のイベントに切り替え",
