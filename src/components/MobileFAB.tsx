@@ -131,6 +131,28 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
 
+    // メニューのスクロール可否（端のフェード表示用）
+    const menuRef = React.useRef<HTMLDivElement>(null);
+    const [canScrollUp, setCanScrollUp] = React.useState(false);
+    const [canScrollDown, setCanScrollDown] = React.useState(false);
+    const updateScrollState = React.useCallback(() => {
+        const el = menuRef.current;
+        if (!el) return;
+        setCanScrollUp(el.scrollTop > 0);
+        setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+    }, []);
+    React.useEffect(() => {
+        if (!open) return;
+        // 開いた直後の初期スクロール状態確認（次フレームで DOM 計測）
+        const timer = setTimeout(updateScrollState, 50);
+        return () => clearTimeout(timer);
+    }, [open, updateScrollState]);
+    const menuMaskImage = React.useMemo(() => {
+        const top = canScrollUp ? 'transparent 0, black 16px' : 'black 0';
+        const bottom = canScrollDown ? 'black calc(100% - 16px), transparent 100%' : 'black 100%';
+        return `linear-gradient(to bottom, ${top}, ${bottom})`;
+    }, [canScrollUp, canScrollDown]);
+
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
         return () => {
@@ -315,8 +337,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 {open && (
                     <motion.div
                         key="fab-menu"
+                        ref={menuRef}
+                        onScroll={updateScrollState}
                         className="flex flex-col items-end gap-2 mb-3 max-h-[calc(100svh-180px)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
-                        style={{ scrollbarWidth: 'none' }}
+                        style={{
+                            scrollbarWidth: 'none',
+                            maskImage: menuMaskImage,
+                            WebkitMaskImage: menuMaskImage,
+                        }}
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
@@ -340,7 +368,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     custom={idx}
                                     variants={itemVariants}
                                     className="flex items-center gap-2.5"
-                                    style={isLang ? { position: 'relative' } : undefined}
+                                    style={isLang ? { position: 'relative', zIndex: 50 } : undefined}
                                 >
                                     {/* ラベル（ボタンの左） */}
                                     <span className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
