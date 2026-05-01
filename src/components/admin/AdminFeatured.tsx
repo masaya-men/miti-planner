@@ -1,11 +1,13 @@
 /**
  * Featured 設定ページ
- * 共有URLを貼り付けて検索 → プランを野良主流 Featured に指定/解除
+ * 既定: 野良主流ビュー（PopularBrowseView）
+ * 補助: URL 検索ビュー（共有 URL から shareId を抽出して直接操作）
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { Search, Star, Loader2 } from 'lucide-react';
+import { PopularBrowseView } from './PopularBrowseView';
 
 /** 共有URLまたはshareIdからshareId部分を抽出 */
 function extractShareId(input: string): string {
@@ -22,6 +24,7 @@ interface PlanInfo {
   contentId: string | null;
   createdAt: number | null;
   featured: boolean;
+  hidden: boolean;
   copyCount: number;
   imageHash: string | null;
 }
@@ -32,7 +35,7 @@ function getOgpUrl(plan: PlanInfo): string {
     : `/api/og?id=${encodeURIComponent(plan.shareId)}`;
 }
 
-export function AdminFeatured() {
+function PopularSearchView() {
   const { t } = useTranslation();
 
   const [input, setInput] = useState('');
@@ -69,6 +72,7 @@ export function AdminFeatured() {
         contentId: data.contentId || null,
         createdAt: data.createdAt || null,
         featured: data.featured === true,
+        hidden: data.hidden === true,
         copyCount: data.copyCount || 0,
         imageHash: data.imageHash || null,
       });
@@ -79,31 +83,29 @@ export function AdminFeatured() {
     }
   };
 
-  const handleToggleFeatured = async (next: boolean) => {
+  const handlePatch = async (body: Record<string, unknown>, successMsgKey: string) => {
     if (!plan) return;
-    const contentIdStr = plan.contentId || '(未設定)';
-    const confirmMsg = next
-      ? t('admin.featured_confirm_set', { content: contentIdStr })
-      : t('admin.featured_confirm_unset');
-    if (!confirm(confirmMsg)) return;
-
     setPatching(true);
     setError(null);
     setToast(null);
-
     try {
       const res = await apiFetch('/api/popular', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shareId: plan.shareId, featured: next }),
+        body: JSON.stringify({ shareId: plan.shareId, ...body }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(body.error || `Error: ${res.status}`);
+        const errBody = await res.json().catch(() => ({}));
+        setError(errBody.error || `Error: ${res.status}`);
         return;
       }
-      setPlan({ ...plan, featured: next });
-      setToast(next ? t('admin.featured_set_success') : t('admin.featured_unset_success'));
+      const result = await res.json();
+      setPlan({
+        ...plan,
+        featured: typeof result.featured === 'boolean' ? result.featured : plan.featured,
+        hidden: typeof result.hidden === 'boolean' ? result.hidden : plan.hidden,
+      });
+      setToast(t(successMsgKey));
     } catch (err: any) {
       setError(err.message || 'Network error');
     } finally {
@@ -111,11 +113,27 @@ export function AdminFeatured() {
     }
   };
 
+  const handleToggleFeatured = async (next: boolean) => {
+    if (!plan) return;
+    const contentIdStr = plan.contentId || '(未設定)';
+    const confirmMsg = next
+      ? t('admin.featured_confirm_set', { content: contentIdStr })
+      : t('admin.featured_confirm_unset');
+    if (!confirm(confirmMsg)) return;
+    await handlePatch({ featured: next }, next ? 'admin.featured_set_success' : 'admin.featured_unset_success');
+  };
+
+  const handleToggleHidden = async (next: boolean) => {
+    if (!plan) return;
+    const confirmMsg = t(next ? 'admin.popular_hide_confirm' : 'admin.popular_unhide_confirm', {
+      title: plan.title || plan.shareId,
+    });
+    if (!confirm(confirmMsg)) return;
+    await handlePatch({ hidden: next }, next ? 'admin.popular_hide_success' : 'admin.popular_unhide_success');
+  };
+
   return (
     <div className="max-w-2xl">
-      <h1 className="text-app-3xl font-bold mb-4">{t('admin.featured_title')}</h1>
-      <p className="text-app-lg text-app-text-muted mb-4">{t('admin.featured_description')}</p>
-
       <div className="flex gap-2 mb-6">
         <input
           type="text"
@@ -185,13 +203,17 @@ export function AdminFeatured() {
                   </tr>
                   <tr>
                     <th className="text-left font-semibold py-1 pr-3 text-app-text-muted">Status</th>
-                    <td className="py-1 font-semibold">
-                      {plan.featured ? (
-                        <span className="text-app-yellow flex items-center gap-1.5">
+                    <td className="py-1 font-semibold flex flex-wrap gap-2">
+                      {plan.featured && (
+                        <span className="text-app-yellow flex items-center gap-1">
                           <Star size={14} fill="currentColor" />
                           {t('admin.featured_status_on')}
                         </span>
-                      ) : (
+                      )}
+                      {plan.hidden && (
+                        <span className="text-app-red">{t('admin.popular_hidden_badge')}</span>
+                      )}
+                      {!plan.featured && !plan.hidden && (
                         <span className="text-app-text-muted">
                           {t('admin.featured_status_off')}
                         </span>
@@ -203,29 +225,61 @@ export function AdminFeatured() {
             </div>
           </div>
 
-          <div className="border-t border-app-border pt-4 flex justify-end">
-            {plan.featured ? (
-              <button
-                onClick={() => handleToggleFeatured(false)}
-                disabled={patching}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-md text-app-lg font-semibold text-app-red hover:bg-app-red-dim transition-colors disabled:opacity-40"
-              >
-                {patching ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} />}
-                {t('admin.featured_unset_button')}
-              </button>
-            ) : (
-              <button
-                onClick={() => handleToggleFeatured(true)}
-                disabled={patching}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-app-blue text-white text-app-lg font-semibold hover:bg-app-blue-hover transition-colors disabled:opacity-40"
-              >
-                {patching ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} fill="currentColor" />}
-                {t('admin.featured_set_button')}
-              </button>
-            )}
+          <div className="border-t border-app-border pt-4 flex flex-wrap justify-end gap-2">
+            <button
+              onClick={() => handleToggleFeatured(!plan.featured)}
+              disabled={patching}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-app-lg font-semibold transition-colors disabled:opacity-40 ${
+                plan.featured
+                  ? 'text-app-red hover:bg-app-red-dim'
+                  : 'bg-app-blue text-white hover:bg-app-blue-hover'
+              }`}
+            >
+              {patching ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} fill={plan.featured ? 'currentColor' : 'none'} />}
+              {plan.featured ? t('admin.featured_unset_button') : t('admin.featured_set_button')}
+            </button>
+            <button
+              onClick={() => handleToggleHidden(!plan.hidden)}
+              disabled={patching}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-app-lg font-semibold transition-colors disabled:opacity-40 ${
+                plan.hidden
+                  ? 'text-app-text border border-app-text hover:bg-app-surface2'
+                  : 'text-app-red border border-app-red-border hover:bg-app-red-dim'
+              }`}
+            >
+              {plan.hidden ? t('admin.popular_unhide_button') : t('admin.popular_hide_button')}
+            </button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function AdminFeatured() {
+  const { t } = useTranslation();
+  const [view, setView] = useState<'browse' | 'search'>('browse');
+
+  return (
+    <div>
+      {/* セグメントコントロール */}
+      <div className="inline-flex p-1 bg-app-surface2 rounded-lg border border-app-border mb-4">
+        {(['browse', 'search'] as const).map(v => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`px-4 py-1.5 rounded-md text-app-lg font-semibold transition-colors ${
+              view === v
+                ? 'bg-app-text text-app-bg'
+                : 'text-app-text-muted hover:text-app-text'
+            }`}
+          >
+            {t(v === 'browse' ? 'admin.popular_view_tab' : 'admin.popular_search_tab')}
+          </button>
+        ))}
+      </div>
+
+      {view === 'browse' ? <PopularBrowseView /> : <PopularSearchView />}
     </div>
   );
 }
