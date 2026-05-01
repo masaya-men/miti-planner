@@ -5,7 +5,7 @@ import {
     MoreHorizontal, X, List, Tag, Search,
     Cloud, CloudCheck, CloudUpload, CloudAlert,
     Globe, Sun, Moon,
-    Rows3, AlignJustify,
+    Rows3, AlignJustify, PictureInPicture2,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -130,7 +130,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
-    // const myMemberId = useMitigationStore(s => s.myMemberId); // PiP復活時に使用
 
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
@@ -233,15 +232,13 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             onClick: handleSearch,
             accent: false,
         },
-        // PiP カンペビュー — 透過ウィンドウ未実現のため非表示（コードは保持）
-        // {
-        //     key: 'cueSheet',
-        //     label: t('app.fab_cue_sheet'),
-        //     icon: <PictureInPicture2 size={20} />,
-        //     onClick: () => { close(); window.dispatchEvent(new Event('mobile:open-cue-sheet')); },
-        //     accent: false,
-        //     disabled: !myMemberId,
-        // },
+        {
+            key: 'cueSheet',
+            label: t('app.fab_cue_sheet'),
+            icon: <PictureInPicture2 size={20} />,
+            onClick: () => { close(); window.dispatchEvent(new Event('mobile:open-cue-sheet')); },
+            accent: false,
+        },
     ];
 
     const settingsItems = [
