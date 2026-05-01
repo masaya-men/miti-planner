@@ -7,7 +7,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { usePipNotes } from '../hooks/usePipNotes';
 import { useShallow } from 'zustand/react/shallow';
-import { X, RotateCcw } from 'lucide-react';
+import { X } from 'lucide-react';
 import clsx from 'clsx';
 import type { AppliedMitigation } from '../types';
 import {
@@ -172,21 +172,25 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     ALL
                 </button>
 
-                {/* ジョブアイコン横並び（狭いとき省略） */}
+                {/* ジョブアイコン横並び（狭いとき省略 / アイコンのみ ON/OFF） */}
                 <div className="flex items-center min-w-0 overflow-hidden">
                     {activeMembers.map(m => (
                         <button
                             key={m.id}
                             onClick={() => toggleMemberSelection(m.id)}
-                            className={clsx(
-                                "w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all shrink-0",
-                                selectedMemberIds.has(m.id)
-                                    ? "bg-white/25 ring-1 ring-white/40"
-                                    : "opacity-40 hover:opacity-100 hover:bg-white/10"
-                            )}
+                            className="w-5 h-5 flex items-center justify-center cursor-pointer shrink-0"
                             title={m.id}
                         >
-                            {m.job && <img src={m.job.icon} className="w-[18px] h-[18px] object-contain" alt="" />}
+                            {m.job && (
+                                <img
+                                    src={m.job.icon}
+                                    className={clsx(
+                                        "w-[18px] h-[18px] object-contain transition-opacity",
+                                        selectedMemberIds.has(m.id) ? "opacity-100" : "opacity-30 hover:opacity-60",
+                                    )}
+                                    alt=""
+                                />
+                            )}
                         </button>
                     ))}
                 </div>
@@ -194,7 +198,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {/* スペーサー */}
                 <div className="flex-1 min-w-0" />
 
-                {/* カラーピッカー: 色相環 + 中央に現在色 */}
+                {/* カラーピッカー: 細リム色相環 + 中央に現在色 */}
                 <div className="relative shrink-0">
                     <button
                         onClick={() => colorInputRef.current?.click()}
@@ -205,7 +209,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                         title={t('timeline.pip_bg_color')}
                     >
                         <span
-                            className="absolute inset-1 rounded-full border border-white/30 block"
+                            className="absolute inset-[2px] rounded-full block"
                             style={{ background: bgColor }}
                         />
                     </button>
@@ -220,14 +224,25 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     />
                 </div>
 
-                {/* リセットボタン */}
-                <button
-                    onClick={resetBgColor}
-                    className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white/90 hover:bg-white/10 transition-colors shrink-0"
-                    title={t('timeline.pip_reset_color')}
-                >
-                    <RotateCcw size={11} />
-                </button>
+                {/* デフォルト色スウォッチ（クリックでリセット）。現在色 === デフォルトのとき半透明 */}
+                {(() => {
+                    const defaultColor = getDefaultBgColor(theme, null);
+                    const isAtDefault = bgColor.toLowerCase() === defaultColor.toLowerCase();
+                    return (
+                        <button
+                            onClick={resetBgColor}
+                            disabled={isAtDefault}
+                            className={clsx(
+                                "w-4 h-4 rounded-full border border-white/30 transition-opacity shrink-0",
+                                isAtDefault
+                                    ? "opacity-30 cursor-default"
+                                    : "opacity-90 hover:opacity-100 hover:border-white/60 cursor-pointer"
+                            )}
+                            style={{ background: defaultColor }}
+                            title={t('timeline.pip_reset_color')}
+                        />
+                    );
+                })()}
 
                 {/* 閉じるボタン（fullscreen のみ。PC PiP は Chrome ネイティブ閉じるに任せる） */}
                 {mode === 'fullscreen' && (
