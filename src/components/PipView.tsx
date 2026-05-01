@@ -202,31 +202,30 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {/* スペーサー */}
                 <div className="flex-1 min-w-0" />
 
-                {/* カラーピッカー: 細リム色相環 + 中央に現在色 */}
-                <div className="relative shrink-0">
-                    <button
-                        onClick={() => colorInputRef.current?.click()}
-                        className="relative w-5 h-5 rounded-full cursor-pointer hover:scale-110 transition-transform"
-                        style={{
-                            background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                        }}
-                        title={t('timeline.pip_bg_color')}
-                    >
-                        <span
-                            className="absolute inset-[2px] rounded-full block"
-                            style={{ background: bgColor }}
-                        />
-                    </button>
-                    <input
-                        ref={colorInputRef}
-                        type="color"
-                        value={bgColor}
-                        onChange={e => handleBgColorChange(e.target.value)}
-                        className="absolute opacity-0 w-0 h-0 pointer-events-none"
-                        tabIndex={-1}
-                        aria-hidden
+                {/* カラーピッカー: 細リム色相環 + 中央に現在色（ラッパー div 廃止で flex 直下に） */}
+                <button
+                    onClick={() => colorInputRef.current?.click()}
+                    className="relative w-5 h-5 rounded-full cursor-pointer hover:scale-110 transition-transform shrink-0"
+                    style={{
+                        background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                    }}
+                    title={t('timeline.pip_bg_color')}
+                >
+                    <span
+                        className="absolute inset-[2px] rounded-full block"
+                        style={{ background: bgColor }}
                     />
-                </div>
+                </button>
+                <input
+                    ref={colorInputRef}
+                    type="color"
+                    value={bgColor}
+                    onChange={e => handleBgColorChange(e.target.value)}
+                    className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                    tabIndex={-1}
+                    aria-hidden
+                />
+                {/* ↑ input は absolute + opacity-0 + w-0 h-0 で flex layout に影響しない */}
 
                 {/* デフォルト色スウォッチ（クリックでリセット）。現在色 === デフォルトのとき半透明 */}
                 {(() => {
