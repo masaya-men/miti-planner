@@ -20,6 +20,7 @@ interface PlanInfo {
     hiddenAt: number | null;
     createdAt: number | null;
     ownerUidSuffix: string;
+    isOwn: boolean;
     partyMembers: { id: string; jobId: string | null; role: string | null }[];
     imageHash: string | null;
 }
@@ -220,10 +221,15 @@ export function PopularBrowseView() {
                                     : 'border-app-border hover:bg-app-surface2'
                             } ${p.hidden ? 'opacity-50' : ''}`}
                         >
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
                                 <span className="text-app-text-muted text-app-base font-mono w-6 shrink-0">
                                     #{idx + 1}
                                 </span>
+                                {p.isOwn && (
+                                    <span className="text-app-text text-app-sm font-bold border border-app-text rounded px-1.5 py-0.5">
+                                        {t('admin.popular_own_badge')}
+                                    </span>
+                                )}
                                 {p.featured && (
                                     <span className="text-app-yellow text-app-sm font-bold">
                                         {t('admin.popular_featured_badge')}

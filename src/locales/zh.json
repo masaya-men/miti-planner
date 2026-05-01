@@ -1477,7 +1477,8 @@
         "popular_tab_savage": "零式",
         "popular_tab_ultimate": "绝境战",
         "popular_select_a_card": "请选择左侧卡片",
-        "popular_no_owner": "（未知）"
+        "popular_no_owner": "（未知）",
+        "popular_own_badge": "✓ 我的方案"
     },
     "backup": {
         "backup_button": "备份",

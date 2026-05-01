@@ -1543,7 +1543,8 @@
         "popular_tab_savage": "零式",
         "popular_tab_ultimate": "絶",
         "popular_select_a_card": "左のカードを選択してください",
-        "popular_no_owner": "（不明）"
+        "popular_no_owner": "（不明）",
+        "popular_own_badge": "✓ 自分のプラン"
     },
     "backup": {
         "backup_button": "バックアップ",

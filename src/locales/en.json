@@ -1522,7 +1522,8 @@
         "popular_tab_savage": "Savage",
         "popular_tab_ultimate": "Ultimate",
         "popular_select_a_card": "Select a card on the left",
-        "popular_no_owner": "(unknown)"
+        "popular_no_owner": "(unknown)",
+        "popular_own_badge": "✓ My plan"
     },
     "backup": {
         "backup_button": "Backup",

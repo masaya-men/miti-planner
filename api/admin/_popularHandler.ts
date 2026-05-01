@@ -85,6 +85,8 @@ export default async function handler(req: any, res: any) {
             })) ?? [];
             const ownerId: string = data.ownerId ?? '';
             const ownerUidSuffix = ownerId.length >= 4 ? ownerId.slice(-4) : ownerId;
+            // 「自分（管理者本人）のプランか」だけ判定。他人の UID は ownerUidSuffix の 4 文字に切り詰められる。
+            const isOwn = ownerId !== '' && ownerId === adminUid;
             return {
                 shareId: doc.id,
                 title: data.title ?? '',
@@ -96,6 +98,7 @@ export default async function handler(req: any, res: any) {
                 hiddenAt: data.hiddenAt ?? null,
                 createdAt: data.createdAt ?? null,
                 ownerUidSuffix,
+                isOwn,
                 partyMembers,
                 imageHash: data.imageHash ?? null,
             };
