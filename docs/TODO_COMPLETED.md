@@ -2,6 +2,10 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-01）
+- [x] **PiP（Floating Timeline）復活**: 過去に「Chrome の Document Picture-in-Picture API は OS レベル透過不可」で UI 非表示にしていたカンペビューを復活。仕様変更: ①透過機能完全撤去（将来 Chrome 透過対応で再検討）②単一選択 → 多選（個別/全員/任意組合せをジョブピッカー多選で統合）③自ジョブ未設定時 全員フォールバック ④透過の代わりに背景カラーピッカー追加（テーマ別デフォルト #0F0F10/#FAFAFA + localStorage `pip-bg-color` 永続化、HTML5 native input[type=color] + LoPo 風小色丸ボタン）⑤PC 起動ボタン disable 撤廃（自ジョブ未設定でも開ける）⑥モバイル FAB「カンペ」項目復活。設計書 `docs/superpowers/specs/2026-05-01-pip-revival-design.md`、実装プラン `docs/superpowers/plans/2026-05-01-pip-revival.md`、subagent-driven-development で 8 task + 最終レビュー進行。純粋関数 3 つ（`computeCueItems` / `computeInitialSelection` / `getDefaultBgColor`）を `src/utils/pipViewLogic.ts` に TDD 抽出（16 tests）し、PipView.tsx 本体改修。i18n 4 言語で 3 キー追加 / 2 キー削除。最終 328 tests PASS（既存 312 + 新規 16）、tsc clean、`npm run build` 成功。最終レビューで Important 1 件（cursor-pointer 欠落）fix 済み、Minor 3 件は本番実機確認で判断、Nice-to-have 2 件は次タスクで対応可。
+- [x] **「自分のプラン」バッジ機能 諦め決定**: 共有 API が ownerId を Firestore に書き込んでいないため動作不能。LoPo は個人特定情報を一切収集しない方針 → ownerId 書き込みは仕様禁止。今後は公式ロゴ OGP で自分のプランを識別する運用に切替。バッジ実装コードは残置（_popularHandler.ts と PopularBrowseView.tsx）、撤去するかは別途相談。
+
 ## 完了（2026-04-28）
 - [x] **OGP プレビュー「永遠に生成中」5 段階修正**: ①SW NetworkOnly で `/og/` を SW 介入から除外 ②`<img>` に key 追加で URL 変更時の再マウント保険 ③`setOgImageUrl(null)` 挟みで bail-out 回避 ④closure 回避で `processLogoFile` から logoUrl 引数化（真の根本原因） ⑤PUT レート制限 5→15 で連続操作の失敗トースト解消。
 - [x] **野良主流 OGP 表示ポリシー整理**: プラン名 OGP 焼き込み機能を全削除、ボトムシート/X 共有テキストからプラン名撤去、共有モーダル初回 POST 直前に同意ダイアログ、ロゴトグル＝身元公開意思の明確化、4 言語常駐キャプション。
