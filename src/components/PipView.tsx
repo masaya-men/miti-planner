@@ -248,6 +248,7 @@ const PipView: React.FC<PipViewProps> = ({ onClose }) => {
                         onChange={e => handleBgColorChange(e.target.value)}
                         className="absolute opacity-0 w-0 h-0 pointer-events-none"
                         tabIndex={-1}
+                        aria-hidden
                     />
                 </div>
 
