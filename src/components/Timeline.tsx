@@ -585,7 +585,6 @@ const Timeline: React.FC = () => {
     const updateLabelStartTime = useMitigationStore(s => s.updateLabelStartTime);
     const changeMemberJobWithMitigations = useMitigationStore(s => s.changeMemberJobWithMitigations);
     const setClipboardEvent = useMitigationStore(s => s.setClipboardEvent);
-    const myMemberId = useMitigationStore(s => s.myMemberId);
 
     // PiP カンペビュー
     const [pipWindow, setPipWindow] = useState<Window | null>(null);
