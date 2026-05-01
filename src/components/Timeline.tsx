@@ -1969,19 +1969,16 @@ const Timeline: React.FC = () => {
                                         <Rows3 size={12} />
                                     </button>
                                 </Tooltip>
-                                {/* PiP カンペビュー — 透過ウィンドウ未実現のため非表示（コードは保持） */}
-                                {false && pipSupported && (
-                                    <Tooltip content={myMemberId ? t('timeline.pip_open') : t('timeline.pip_open_disabled')}>
+                                {/* PiP カンペビュー */}
+                                {pipSupported && (
+                                    <Tooltip content={t('timeline.pip_open')}>
                                         <button
                                             onClick={pipWindow ? handleClosePip : handleOpenPip}
-                                            disabled={!myMemberId}
                                             className={clsx(
-                                                "p-1 rounded transition-all duration-150",
-                                                !myMemberId
-                                                    ? "text-app-text-muted cursor-default opacity-40"
-                                                    : pipWindow
-                                                        ? "text-app-blue cursor-pointer hover:bg-app-blue/10"
-                                                        : "text-app-text-muted cursor-pointer hover:bg-app-surface2 hover:text-app-text"
+                                                "p-1 rounded transition-all duration-150 cursor-pointer",
+                                                pipWindow
+                                                    ? "text-app-blue hover:bg-app-blue/10"
+                                                    : "text-app-text-muted hover:bg-app-surface2 hover:text-app-text"
                                             )}
                                         >
                                             <PictureInPicture2 size={12} />
