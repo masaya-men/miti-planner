@@ -6,6 +6,7 @@
  * ?resource=sync      → データ同期 (POST)
  * ?resource=dashboard → ダッシュボード統計 (GET)
  * ?resource=ugc       → UGC管理 (GET/DELETE)
+ * ?resource=popular   → 野良主流ランキング (GET)
  */
 import contentsHandler from './_contentsHandler.js';
 import roleHandler from './_roleHandler.js';
@@ -13,6 +14,7 @@ import templatesHandler from './_templatesHandler.js';
 import syncHandler from './_syncHandler.js';
 import dashboardHandler from './_dashboardHandler.js';
 import ugcHandler from './_ugcHandler.js';
+import popularHandler from './_popularHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -30,7 +32,9 @@ export default async function handler(req: any, res: any) {
       return dashboardHandler(req, res);
     case 'ugc':
       return ugcHandler(req, res);
+    case 'popular':
+      return popularHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular' });
   }
 }

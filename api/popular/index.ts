@@ -9,24 +9,12 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { verifyAdmin } from '../../src/lib/adminAuth.js';
-import { isVisible } from './popularFilters.js';
+import { isVisible, todayKey, dayKeyDaysBefore, calculateScore7d } from './popularFilters.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-/** 今日の日付キー "YYYYMMDD" (UTC基準) */
-function todayKey(): string {
-    return new Date().toISOString().slice(0, 10).replace(/-/g, '');
-}
-
-/** today から n 日前の日付キー */
-function dayKeyDaysBefore(n: number): string {
-    const d = new Date();
-    d.setUTCDate(d.getUTCDate() - n);
-    return d.toISOString().slice(0, 10).replace(/-/g, '');
-}
 
 function initAdmin() {
     if (!getApps().length) {
@@ -182,12 +170,11 @@ export default async function handler(req: any, res: any) {
                         .filter(doc => isVisible(doc.data() as { hidden?: boolean }))
                         .map(doc => {
                             const data = doc.data();
-                            const byDay: Record<string, number> = data.copyCountByDay || {};
-                            let score7d = 0;
-                            for (const [key, n] of Object.entries(byDay)) {
-                                if (key >= windowStart) score7d += n;
-                            }
-                            return { doc, score7d, copyCount: data.copyCount ?? 0 };
+                            return {
+                                doc,
+                                score7d: calculateScore7d(data.copyCountByDay, windowStart),
+                                copyCount: data.copyCount ?? 0,
+                            };
                         });
 
                     // スコア降順、tie-break は生涯copyCount降順、さらに doc.id で決定性を担保
