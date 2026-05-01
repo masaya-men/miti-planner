@@ -29,3 +29,24 @@ export function computeCueItems(
             mitigations: filteredMitis.filter(m => m.time === event.time),
         }));
 }
+
+export interface MemberLike {
+    id: string;
+    jobId: string | null;
+}
+
+/**
+ * 初期選択メンバー集合を決定する。
+ * myMemberId がアクティブメンバー（jobId 設定済み）と一致すれば自分のみ、
+ * そうでなければ全アクティブメンバーを返す。
+ */
+export function computeInitialSelection(
+    myMemberId: string | null,
+    members: MemberLike[],
+): Set<string> {
+    const activeIds = members.filter(m => m.jobId).map(m => m.id);
+    if (myMemberId && activeIds.includes(myMemberId)) {
+        return new Set([myMemberId]);
+    }
+    return new Set(activeIds);
+}

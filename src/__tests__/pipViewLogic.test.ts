@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeCueItems } from '../utils/pipViewLogic';
+import { computeCueItems, computeInitialSelection } from '../utils/pipViewLogic';
 import type { TimelineEvent, AppliedMitigation } from '../types';
 
 const evt = (id: string, time: number, name = id): TimelineEvent => ({
@@ -73,5 +73,42 @@ describe('computeCueItems', () => {
         const mitigations = [miti('m1', 10, 'MT', 'rampart')];
         const result = computeCueItems(events, mitigations, new Set(['H1']));
         expect(result).toEqual([]);
+    });
+});
+
+describe('computeInitialSelection', () => {
+    const activeMembers = [
+        { id: 'MT', jobId: 'PLD' },
+        { id: 'ST', jobId: 'WAR' },
+        { id: 'H1', jobId: 'WHM' },
+        { id: 'D1', jobId: 'NIN' },
+    ];
+
+    it('returns set with myMemberId when it matches an active member', () => {
+        expect(computeInitialSelection('H1', activeMembers)).toEqual(new Set(['H1']));
+    });
+
+    it('returns all active member ids when myMemberId is null', () => {
+        expect(computeInitialSelection(null, activeMembers)).toEqual(new Set(['MT', 'ST', 'H1', 'D1']));
+    });
+
+    it('returns all active member ids when myMemberId is empty string', () => {
+        expect(computeInitialSelection('', activeMembers)).toEqual(new Set(['MT', 'ST', 'H1', 'D1']));
+    });
+
+    it('returns all active member ids when myMemberId does not match any active member', () => {
+        expect(computeInitialSelection('UNKNOWN', activeMembers)).toEqual(new Set(['MT', 'ST', 'H1', 'D1']));
+    });
+
+    it('returns empty set when no active members and no myMemberId', () => {
+        expect(computeInitialSelection(null, [])).toEqual(new Set());
+    });
+
+    it('skips members without jobId (treated as not active)', () => {
+        const partial = [
+            { id: 'MT', jobId: 'PLD' },
+            { id: 'ST', jobId: null },
+        ];
+        expect(computeInitialSelection(null, partial as any)).toEqual(new Set(['MT']));
     });
 });
