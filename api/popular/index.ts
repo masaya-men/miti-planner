@@ -306,15 +306,20 @@ export default async function handler(req: any, res: any) {
             return res.status(200).json({ ok: true, alreadyCounted });
 
         } else if (req.method === 'PATCH') {
-            // ── 管理者専用: featured フラグ切替 ──
+            // ── 管理者専用: featured / hidden フラグ切替 ──
             const adminUid = await verifyAdmin(req);
             if (!adminUid) {
                 return res.status(403).json({ error: 'Forbidden' });
             }
 
-            const { shareId, featured } = req.body ?? {};
-            if (typeof shareId !== 'string' || typeof featured !== 'boolean') {
-                return res.status(400).json({ error: 'shareId (string) and featured (boolean) required' });
+            const { shareId, featured, hidden } = req.body ?? {};
+            if (typeof shareId !== 'string') {
+                return res.status(400).json({ error: 'shareId (string) required' });
+            }
+            const hasFeatured = typeof featured === 'boolean';
+            const hasHidden = typeof hidden === 'boolean';
+            if (!hasFeatured && !hasHidden) {
+                return res.status(400).json({ error: 'featured (boolean) or hidden (boolean) required' });
             }
 
             const docRef = db.collection(COLLECTION).doc(shareId);
@@ -329,36 +334,58 @@ export default async function handler(req: any, res: any) {
             }
             const newImageHash = (data.imageHash as string) ?? null;
 
-            // トランザクション前に同コンテンツの既存 featured を取得
-            const oldFeaturedSnap = await db
-                .collection(COLLECTION)
-                .where('contentId', '==', contentId)
-                .where('featured', '==', true)
-                .get();
-            const oldFeaturedEntries: { shareId: string; imageHash: string | null }[] =
-                oldFeaturedSnap.docs
+            // 不整合ガード: hidden=true なら featured も強制 false に
+            let effectiveFeatured = hasFeatured ? featured : (data.featured === true);
+            if (hasHidden && hidden === true) {
+                effectiveFeatured = false;
+            }
+
+            // featured を true にする場合、同コンテンツの他 featured を取得（hidden=true は弾く）
+            let oldFeaturedEntries: { shareId: string; imageHash: string | null }[] = [];
+            if (effectiveFeatured && (hasFeatured || hasHidden)) {
+                const oldFeaturedSnap = await db
+                    .collection(COLLECTION)
+                    .where('contentId', '==', contentId)
+                    .where('featured', '==', true)
+                    .get();
+                oldFeaturedEntries = oldFeaturedSnap.docs
                     .filter(d => d.id !== shareId)
                     .map(d => ({
                         shareId: d.id,
                         imageHash: (d.data().imageHash as string) ?? null,
                     }));
+            }
 
             // トランザクション: shared_plans のみ一貫更新
             await db.runTransaction(async (tx) => {
-                if (featured) {
+                const updates: Record<string, any> = {};
+
+                if (hasFeatured || hasHidden) {
+                    updates.featured = effectiveFeatured;
+                }
+                if (hasHidden) {
+                    updates.hidden = hidden;
+                    updates.hiddenAt = hidden ? Date.now() : FieldValue.delete();
+                    updates.hiddenBy = hidden ? adminUid : FieldValue.delete();
+                }
+
+                if (effectiveFeatured) {
                     for (const entry of oldFeaturedEntries) {
                         tx.update(db.collection(COLLECTION).doc(entry.shareId), { featured: false });
                     }
                 }
-                tx.update(docRef, { featured });
+                tx.update(docRef, updates);
             });
 
-            // og_image_meta.keepForever の制御（トランザクション外で best-effort）
+            // og_image_meta.keepForever は featured 連動。
+            // hidden=true で featured が強制 false に切り替わった場合も cleanup 対象。
+            const wasFeatured = data.featured === true;
+            const becameUnfeatured = wasFeatured && !effectiveFeatured;
             const metaCol = db.collection(OG_IMAGE_META_COLLECTION);
-            if (featured) {
+            if (effectiveFeatured) {
                 if (newImageHash) {
                     await metaCol.doc(newImageHash).update({ keepForever: true })
-                        .catch(() => { /* meta が無い古いプランは無視 */ });
+                        .catch(() => {});
                 }
                 for (const entry of oldFeaturedEntries) {
                     if (entry.imageHash && entry.imageHash !== newImageHash) {
@@ -366,14 +393,19 @@ export default async function handler(req: any, res: any) {
                             .catch(() => {});
                     }
                 }
-            } else {
+            } else if (becameUnfeatured) {
+                // featured: true → false の遷移時に keepForever を解除（明示的 unfeatured / hidden 経由 両対応）
                 if (newImageHash) {
                     await metaCol.doc(newImageHash).update({ keepForever: FieldValue.delete() })
                         .catch(() => {});
                 }
             }
 
-            return res.status(200).json({ ok: true });
+            return res.status(200).json({
+                ok: true,
+                featured: effectiveFeatured,
+                hidden: hasHidden ? hidden : (data.hidden === true),
+            });
 
         } else {
             return res.status(405).json({ error: 'Method not allowed' });
