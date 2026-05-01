@@ -1,11 +1,12 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
     MoreHorizontal, X, List, Tag, Search,
     Cloud, CloudCheck, CloudUpload, CloudAlert,
     Globe, Sun, Moon,
-    Rows3, AlignJustify, PictureInPicture2,
+    Rows3, AlignJustify, PictureInPicture2, ChevronDown,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -131,7 +132,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const { canSync, cloudStatus, handleSync } = useSyncState();
 
-    // メニューのスクロール可否（端のフェード表示用）
+    // メニューのスクロール可否（端のフェード + ↓ アイコン表示用）
     const menuRef = React.useRef<HTMLDivElement>(null);
     const [canScrollUp, setCanScrollUp] = React.useState(false);
     const [canScrollDown, setCanScrollDown] = React.useState(false);
@@ -143,15 +144,39 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     }, []);
     React.useEffect(() => {
         if (!open) return;
-        // 開いた直後の初期スクロール状態確認（次フレームで DOM 計測）
         const timer = setTimeout(updateScrollState, 50);
         return () => clearTimeout(timer);
     }, [open, updateScrollState]);
     const menuMaskImage = React.useMemo(() => {
-        const top = canScrollUp ? 'transparent 0, black 16px' : 'black 0';
-        const bottom = canScrollDown ? 'black calc(100% - 16px), transparent 100%' : 'black 100%';
+        const top = canScrollUp ? 'transparent 0, black 40px' : 'black 0';
+        const bottom = canScrollDown ? 'black calc(100% - 40px), transparent 100%' : 'black 100%';
         return `linear-gradient(to bottom, ${top}, ${bottom})`;
     }, [canScrollUp, canScrollDown]);
+
+    // 言語ボタンの位置を取得（言語チップを Portal で body に出すため）
+    // overflow-y-auto のメニュー内では横方向に展開するチップが clip されるので Portal 化が必須
+    const langButtonRef = React.useRef<HTMLButtonElement>(null);
+    const [langButtonRect, setLangButtonRect] = React.useState<DOMRect | null>(null);
+    React.useEffect(() => {
+        if (!langOpen) {
+            setLangButtonRect(null);
+            return;
+        }
+        const update = () => {
+            if (langButtonRef.current) {
+                setLangButtonRect(langButtonRef.current.getBoundingClientRect());
+            }
+        };
+        update();
+        const onChange = () => update();
+        // capture phase でメニュー内 scroll も拾う
+        window.addEventListener('scroll', onChange, true);
+        window.addEventListener('resize', onChange);
+        return () => {
+            window.removeEventListener('scroll', onChange, true);
+            window.removeEventListener('resize', onChange);
+        };
+    }, [langOpen]);
 
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
@@ -378,6 +403,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     {/* ボタン */}
                                     {isLang ? (
                                         <motion.button
+                                            ref={langButtonRef}
                                             onClick={item.onClick}
                                             className={clsx(
                                                 "flex items-center justify-center border",
@@ -423,44 +449,57 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                         </button>
                                     )}
 
-                                    {/* 言語チップ — 「言語」ラベルの左に一直線展開 */}
-                                    {isLang && (
-                                        <AnimatePresence>
-                                            {langOpen && LANG_DISPLAY_ORDER.map((lang: ContentLanguage, i: number) => (
-                                                <motion.button
-                                                    key={lang}
-                                                    custom={{ i, lang, selectedLang, targetX: langChipX(i) }}
-                                                    variants={langChipVariants}
-                                                    initial="hidden"
-                                                    animate="visible"
-                                                    exit="exit"
-                                                    whileTap="tap"
-                                                    onClick={() => handleLanguageSelect(lang)}
-                                                    className={clsx(
-                                                        "absolute flex items-center justify-center rounded-full",
-                                                        "font-semibold text-[13px] shadow-lg select-none",
-                                                        lang === (i18n.language as ContentLanguage)
-                                                            ? "bg-app-blue text-white shadow-app-blue/30"
-                                                            : "bg-black/70 text-white/90 backdrop-blur-sm"
-                                                    )}
-                                                    style={{
-                                                        width: LANG_CHIP_SIZE,
-                                                        height: LANG_CHIP_SIZE,
-                                                        right: (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
-                                                        top: (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
-                                                    }}
-                                                >
-                                                    {LANG_LABELS[lang]}
-                                                </motion.button>
-                                            ))}
-                                        </AnimatePresence>
-                                    )}
                                 </motion.div>
                             );
                         })}
+
+                        {/* スクロール可能ヒント: ↓ アイコン（canScrollDown のみ。sticky bottom でメニュー下端に常駐） */}
+                        {canScrollDown && (
+                            <div
+                                className="sticky bottom-0 self-center pointer-events-none -mt-1"
+                                aria-hidden
+                            >
+                                <ChevronDown size={20} className="text-white drop-shadow-md animate-bounce" />
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* 言語チップ — Portal で body に出して、メニューの overflow に縛られず左に展開できる */}
+            {langButtonRect && createPortal(
+                <AnimatePresence>
+                    {langOpen && LANG_DISPLAY_ORDER.map((lang: ContentLanguage, i: number) => (
+                        <motion.button
+                            key={lang}
+                            custom={{ i, lang, selectedLang, targetX: langChipX(i) }}
+                            variants={langChipVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            whileTap="tap"
+                            onClick={() => handleLanguageSelect(lang)}
+                            className={clsx(
+                                "fixed flex items-center justify-center rounded-full",
+                                "font-semibold text-[13px] shadow-lg select-none",
+                                lang === (i18n.language as ContentLanguage)
+                                    ? "bg-app-blue text-white shadow-app-blue/30"
+                                    : "bg-black/70 text-white/90 backdrop-blur-sm"
+                            )}
+                            style={{
+                                width: LANG_CHIP_SIZE,
+                                height: LANG_CHIP_SIZE,
+                                left: langButtonRect.left + (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
+                                top: langButtonRect.top + (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
+                                zIndex: 9999,
+                            }}
+                        >
+                            {LANG_LABELS[lang]}
+                        </motion.button>
+                    ))}
+                </AnimatePresence>,
+                document.body
+            )}
 
             {/* メインFABボタン */}
             <motion.button
