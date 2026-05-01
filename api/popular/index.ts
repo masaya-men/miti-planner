@@ -321,9 +321,13 @@ export default async function handler(req: any, res: any) {
             }
             const newImageHash = (data.imageHash as string) ?? null;
 
-            // 不整合ガード: hidden=true なら featured も強制 false に
+            // 不整合ガード:
+            //   1) body で hidden=true を送った場合は featured を強制 false
+            //   2) Firestore の現在値が hidden=true なら、body で featured=true を送られても強制 false
+            //      （非表示中プランに featured を後付けで戻す経路を塞ぐ）
             let effectiveFeatured = hasFeatured ? featured : (data.featured === true);
-            if (hasHidden && hidden === true) {
+            const isCurrentlyHidden = hasHidden ? hidden : (data.hidden === true);
+            if (isCurrentlyHidden) {
                 effectiveFeatured = false;
             }
 

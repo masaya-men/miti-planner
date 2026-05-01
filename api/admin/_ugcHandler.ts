@@ -62,6 +62,7 @@ export default async function handler(req: any, res: any) {
         hasLogo: !!data.logoBase64,
         logoBase64: data.logoBase64 || null,
         featured: data.featured === true,
+        hidden: data.hidden === true,
         copyCount: data.copyCount || 0,
         imageHash: data.imageHash || null,
       });

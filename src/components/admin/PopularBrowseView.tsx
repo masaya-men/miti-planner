@@ -306,7 +306,7 @@ export function PopularBrowseView() {
                             <div className="border-t border-app-border pt-4 flex flex-wrap gap-2">
                                 <button
                                     onClick={() => handleToggle(selected, 'featured', !selected.featured)}
-                                    disabled={patching}
+                                    disabled={patching || selected.hidden}
                                     className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-app-lg font-semibold transition-colors disabled:opacity-40 ${
                                         selected.featured
                                             ? 'text-app-yellow hover:bg-app-yellow-dim'
