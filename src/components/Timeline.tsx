@@ -824,9 +824,10 @@ const Timeline: React.FC = () => {
         if (!pipSupported) return;
         try {
             const dpip = (window as any).documentPictureInPicture;
-            // 初回サイズ: ツールバー (~28px) + 8.5 行 (~170px) ≈ 200px / 横は ALL+8 ジョブ+操作系最小幅 ~240px
+            // 初回サイズ: 横は Chrome の Document PiP 最小値にブラウザ補正させる（width: 1 を指定）。
+            // 高さはツールバー (~28px) + 8.5 行 (~170px) ≈ 200px。
             const win: Window = await dpip.requestWindow({
-                width: 240,
+                width: 1,
                 height: 200,
             });
 
