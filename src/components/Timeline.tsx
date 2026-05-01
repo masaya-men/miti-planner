@@ -836,7 +836,9 @@ const Timeline: React.FC = () => {
             // ダークテーマclass をコピー + 透過背景
             win.document.documentElement.classList.add(...document.documentElement.classList);
             win.document.documentElement.style.background = 'transparent';
+            win.document.documentElement.style.height = '100%';
             win.document.body.style.margin = '0';
+            win.document.body.style.height = '100%';
             win.document.body.style.overflow = 'hidden';
             win.document.body.style.background = 'transparent';
 
