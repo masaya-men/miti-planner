@@ -315,7 +315,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 {open && (
                     <motion.div
                         key="fab-menu"
-                        className="flex flex-col items-end gap-2 mb-3"
+                        className="flex flex-col items-end gap-2 mb-3 max-h-[calc(100svh-180px)] overflow-y-auto [&::-webkit-scrollbar]:hidden"
+                        style={{ scrollbarWidth: 'none' }}
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
