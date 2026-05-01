@@ -3,12 +3,18 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { usePipNotes } from '../hooks/usePipNotes';
 import { useShallow } from 'zustand/react/shallow';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import type { AppliedMitigation } from '../types';
+import {
+    computeCueItems,
+    computeInitialSelection,
+    getDefaultBgColor,
+} from '../utils/pipViewLogic';
 
 /** 時間(秒)を mm:ss 形式に変換 */
 function formatTime(seconds: number): string {
@@ -18,15 +24,16 @@ function formatTime(seconds: number): string {
 }
 
 interface PipViewProps {
-    /** PC版: 透過率スライダーと閉じるボタンを表示 */
+    /** PC版: 閉じるボタンを表示（mode prop は呼び出し側互換性のため維持） */
     mode: 'pip' | 'fullscreen';
     onClose: () => void;
 }
 
-const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
+const PipView: React.FC<PipViewProps> = ({ onClose }) => {
     const { t, i18n } = useTranslation();
     const JOBS = useJobs();
     const MITIGATIONS = useMitigations();
+    const theme = useThemeStore(s => s.theme);
 
     const { timelineEvents, timelineMitigations, partyMembers, myMemberId } = useMitigationStore(
         useShallow(s => ({
@@ -41,43 +48,47 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
     const { notes, updateNote } = usePipNotes(currentPlanId);
     const lang = (i18n.language || 'ja') as 'ja' | 'en' | 'zh' | 'ko';
 
-    // 表示中のメンバーID（デフォルトは自分のジョブ）
-    const [selectedMemberId, setSelectedMemberId] = useState<string>(myMemberId || 'MT');
-    const [opacity, setOpacity] = useState(0.85);
+    // ── 多選 state ──
+    const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(
+        () => computeInitialSelection(myMemberId, partyMembers),
+    );
+
+    // ── 背景色 state ──
+    const [bgColor, setBgColor] = useState<string>(() => {
+        const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('pip-bg-color') : null;
+        return getDefaultBgColor(theme, stored);
+    });
+    const colorInputRef = useRef<HTMLInputElement>(null);
+
+    const handleBgColorChange = useCallback((color: string) => {
+        setBgColor(color);
+        try { localStorage.setItem('pip-bg-color', color); } catch { /* quota */ }
+    }, []);
+
+    // ── メンバー選択トグル ──
+    const toggleMemberSelection = useCallback((memberId: string) => {
+        setSelectedMemberIds(prev => {
+            const next = new Set(prev);
+            if (next.has(memberId)) next.delete(memberId);
+            else next.add(memberId);
+            return next;
+        });
+    }, []);
+
+    const selectAllMembers = useCallback(() => {
+        setSelectedMemberIds(new Set(partyMembers.filter(m => m.jobId).map(m => m.id)));
+    }, [partyMembers]);
+
+    const deselectAllMembers = useCallback(() => {
+        setSelectedMemberIds(new Set());
+    }, []);
+
+    // ── ジョブメニュー ──
     const [jobMenuOpen, setJobMenuOpen] = useState(false);
+
+    // ── メモ編集 ──
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
     const editInputRef = useRef<HTMLInputElement>(null);
-
-    // 選択中メンバーのジョブ
-    const selectedJob = useMemo(() => {
-        const member = partyMembers.find(m => m.id === selectedMemberId);
-        return member ? JOBS.find(j => j.id === member.jobId) : null;
-    }, [partyMembers, selectedMemberId, JOBS]);
-
-    // 選択メンバーの軽減 → 該当イベントだけ抽出
-    const cueItems = useMemo(() => {
-        const memberMitis = timelineMitigations.filter(m => m.ownerId === selectedMemberId);
-        if (memberMitis.length === 0) return [];
-
-        // 軽減が配置されているイベント時間のセットを作る
-        const mitiTimes = new Set(memberMitis.map(m => m.time));
-
-        // イベントを時間順にフィルタ
-        const events = timelineEvents
-            .filter(e => mitiTimes.has(e.time))
-            .sort((a, b) => a.time - b.time);
-
-        return events.map(event => ({
-            event,
-            mitigations: memberMitis
-                .filter(m => m.time === event.time)
-                .map(m => {
-                    const mitDef = MITIGATIONS.find(d => d.id === m.mitigationId);
-                    return mitDef ? { applied: m, definition: mitDef } : null;
-                })
-                .filter(Boolean) as { applied: AppliedMitigation; definition: typeof MITIGATIONS[number] }[],
-        }));
-    }, [timelineEvents, timelineMitigations, selectedMemberId, MITIGATIONS]);
 
     // 攻撃名のダブルクリック → 編集モードに
     const handleDoubleClick = useCallback((eventId: string) => {
@@ -98,7 +109,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         }
     }, [editingEventId]);
 
-    // ジョブがセットされているメンバーだけ切替対象
+    // ── アクティブメンバー（jobId 設定済み）──
     const activeMembers = useMemo(() =>
         partyMembers.filter(m => m.jobId).map(m => ({
             ...m,
@@ -107,7 +118,34 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         [partyMembers, JOBS]
     );
 
-    // ジョブメニュー外クリックで閉じる
+    // ── 代表ジョブ（ボタン表示用）──
+    const representativeJob = useMemo(() => {
+        const firstId = [...selectedMemberIds][0];
+        if (!firstId) return null;
+        const member = partyMembers.find(m => m.id === firstId);
+        return member ? JOBS.find(j => j.id === member.jobId) ?? null : null;
+    }, [partyMembers, selectedMemberIds, JOBS]);
+
+    // 追加選択数（2人目以降の数）
+    const extraCount = selectedMemberIds.size > 1 ? selectedMemberIds.size - 1 : 0;
+
+    // ── cueItems（純粋関数で多選フィルタ → hydrate）──
+    const cueItemsRaw = useMemo(
+        () => computeCueItems(timelineEvents, timelineMitigations, selectedMemberIds),
+        [timelineEvents, timelineMitigations, selectedMemberIds],
+    );
+
+    const cueItems = useMemo(() => cueItemsRaw.map(({ event, mitigations }) => ({
+        event,
+        mitigations: mitigations
+            .map(m => {
+                const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+                return def ? { applied: m, definition: def } : null;
+            })
+            .filter(Boolean) as { applied: AppliedMitigation; definition: typeof MITIGATIONS[number] }[],
+    })), [cueItemsRaw, MITIGATIONS]);
+
+    // ── ジョブメニュー外クリックで閉じる ──
     const menuRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         if (!jobMenuOpen) return;
@@ -123,68 +161,101 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
     return (
         <div
             className="flex flex-col h-full select-none"
-            style={mode === 'pip' ? { background: `rgba(15, 15, 16, ${opacity})` } : { background: '#0F0F10' }}
+            style={{ background: bgColor }}
         >
             {/* ── ツールバー ── */}
             <div className="flex items-center gap-1.5 px-2 py-1 shrink-0 border-b border-white/10">
-                {/* ジョブアイコン + Popover切替 */}
+
+                {/* ジョブピッカーボタン + Popover */}
                 <div className="relative" ref={menuRef}>
                     <button
                         onClick={() => setJobMenuOpen(!jobMenuOpen)}
-                        className="w-6 h-6 rounded border border-white/20 flex items-center justify-center cursor-pointer hover:border-white/40 transition-colors"
+                        className="h-6 px-1 rounded border border-white/20 flex items-center gap-0.5 cursor-pointer hover:border-white/40 transition-colors"
+                        title={t('timeline.pip_switch_job')}
                     >
-                        {selectedJob ? (
-                            <img src={selectedJob.icon} className="w-4 h-4 object-contain" />
-                        ) : (
+                        {selectedMemberIds.size === 0 ? (
                             <span className="text-[9px] text-white/50">?</span>
+                        ) : (
+                            <>
+                                {representativeJob ? (
+                                    <img src={representativeJob.icon} className="w-4 h-4 object-contain" />
+                                ) : (
+                                    <span className="text-[9px] text-white/50">?</span>
+                                )}
+                                {extraCount > 0 && (
+                                    <span className="text-[8px] text-white/60 font-mono">+{extraCount}</span>
+                                )}
+                            </>
                         )}
                     </button>
 
-                    {/* ジョブ切替メニュー */}
+                    {/* 多選 Popover メニュー */}
                     {jobMenuOpen && (
-                        <div className="absolute top-7 left-0 z-50 bg-black/95 border border-white/20 rounded-md p-1 flex flex-wrap gap-0.5 w-[140px]">
-                            {activeMembers.map(m => (
+                        <div className="absolute top-7 left-0 z-50 bg-black/95 border border-white/20 rounded-md p-1.5 w-[160px]">
+                            {/* 全員 / 解除 ボタン */}
+                            <div className="flex gap-1 mb-1.5">
                                 <button
-                                    key={m.id}
-                                    onClick={() => { setSelectedMemberId(m.id); setJobMenuOpen(false); }}
-                                    className={clsx(
-                                        "w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors",
-                                        m.id === selectedMemberId
-                                            ? "bg-white/25 ring-1 ring-white/40"
-                                            : "hover:bg-white/10"
-                                    )}
-                                    title={m.id}
+                                    onClick={selectAllMembers}
+                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors"
                                 >
-                                    {m.job && <img src={m.job.icon} className="w-4 h-4 object-contain" />}
+                                    {t('timeline.pip_select_all')}
                                 </button>
-                            ))}
+                                <button
+                                    onClick={deselectAllMembers}
+                                    className="flex-1 text-[9px] text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded px-1 py-0.5 transition-colors"
+                                >
+                                    {t('timeline.pip_deselect_all')}
+                                </button>
+                            </div>
+
+                            {/* メンバートグル */}
+                            <div className="flex flex-wrap gap-0.5">
+                                {activeMembers.map(m => (
+                                    <button
+                                        key={m.id}
+                                        onClick={() => toggleMemberSelection(m.id)}
+                                        className={clsx(
+                                            "w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-colors",
+                                            selectedMemberIds.has(m.id)
+                                                ? "bg-white/25 ring-1 ring-white/40"
+                                                : "hover:bg-white/10"
+                                        )}
+                                        title={m.id}
+                                    >
+                                        {m.job && <img src={m.job.icon} className="w-4 h-4 object-contain" />}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* 選択中メンバーID */}
-                <span className="text-[9px] font-bold text-white/50 w-5">{selectedMemberId}</span>
+                {/* スペーサー */}
+                <div className="flex-1" />
 
-                {/* 透過率スライダー（PC PiPモードのみ） */}
-                {mode === 'pip' && (
-                    <input
-                        type="range"
-                        min={0.1}
-                        max={1}
-                        step={0.05}
-                        value={opacity}
-                        onChange={(e) => setOpacity(Number(e.target.value))}
-                        className="flex-1 h-0.5 accent-white/60 cursor-pointer"
+                {/* 背景カラーピッカー（小色丸ボタン + 隠し input） */}
+                <div className="relative">
+                    <button
+                        onClick={() => colorInputRef.current?.click()}
+                        className="w-4 h-4 rounded-full border border-white/40 cursor-pointer hover:border-white/70 transition-colors shrink-0"
+                        style={{ background: bgColor }}
+                        title={t('timeline.pip_bg_color')}
                     />
-                )}
-
-                {/* スマホモードではスペーサー */}
-                {mode === 'fullscreen' && <div className="flex-1" />}
+                    <input
+                        ref={colorInputRef}
+                        type="color"
+                        value={bgColor}
+                        onChange={e => handleBgColorChange(e.target.value)}
+                        className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                        tabIndex={-1}
+                    />
+                </div>
 
                 {/* 閉じるボタン */}
                 <button
                     onClick={onClose}
                     className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                    title={t('timeline.pip_close')}
                 >
                     <X size={10} />
                 </button>
