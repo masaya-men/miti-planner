@@ -120,10 +120,16 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         }
     }, [allSelected, activeMembers]);
 
+    // ── PiP 非表示の軽減（自動配置の常駐スキル）──
+    const filteredMitigations = useMemo(
+        () => timelineMitigations.filter(m => m.mitigationId !== 'aetherflow'),
+        [timelineMitigations],
+    );
+
     // ── cueGroups（純粋関数で多選フィルタ → hydrate） ──
     const cueGroupsRaw = useMemo(
-        () => computeCueItems(timelineEvents, timelineMitigations, selectedMemberIds),
-        [timelineEvents, timelineMitigations, selectedMemberIds],
+        () => computeCueItems(timelineEvents, filteredMitigations, selectedMemberIds),
+        [timelineEvents, filteredMitigations, selectedMemberIds],
     );
 
     const cueGroups = useMemo(() => cueGroupsRaw.map(({ time, events, mitigations }) => ({
@@ -151,88 +157,88 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
             className="flex flex-col h-full select-none"
             style={{ background: bgColor }}
         >
-            {/* ── ツールバー（2 段構成） ── */}
-            <div className="shrink-0 border-b border-white/10">
-                {/* 1 段目: ALL + アクティブメンバージョブアイコン横並び */}
-                <div className="flex items-center gap-1 px-2 pt-1.5 pb-1 overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
-                    <button
-                        onClick={onAllClick}
-                        className={clsx(
-                            "h-6 px-2 rounded text-[9px] font-bold tracking-wider cursor-pointer transition-colors shrink-0",
-                            allSelected
-                                ? "bg-white/30 text-white"
-                                : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white/90"
-                        )}
-                    >
-                        ALL
-                    </button>
+            {/* ── ツールバー（1 段構成） ── */}
+            <div className="shrink-0 border-b border-white/10 flex items-center gap-1 px-1.5 py-1">
+                {/* ALL ボタン */}
+                <button
+                    onClick={onAllClick}
+                    className={clsx(
+                        "h-5 px-1.5 rounded text-[9px] font-bold tracking-wider cursor-pointer transition-colors shrink-0",
+                        allSelected
+                            ? "bg-white/30 text-white"
+                            : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white/90"
+                    )}
+                >
+                    ALL
+                </button>
+
+                {/* ジョブアイコン横並び（狭いとき省略） */}
+                <div className="flex items-center min-w-0 overflow-hidden">
                     {activeMembers.map(m => (
                         <button
                             key={m.id}
                             onClick={() => toggleMemberSelection(m.id)}
                             className={clsx(
-                                "w-6 h-6 rounded flex items-center justify-center cursor-pointer transition-all shrink-0",
+                                "w-5 h-5 rounded flex items-center justify-center cursor-pointer transition-all shrink-0",
                                 selectedMemberIds.has(m.id)
                                     ? "bg-white/25 ring-1 ring-white/40"
                                     : "opacity-40 hover:opacity-100 hover:bg-white/10"
                             )}
                             title={m.id}
                         >
-                            {m.job && <img src={m.job.icon} className="w-4 h-4 object-contain" alt="" />}
+                            {m.job && <img src={m.job.icon} className="w-[18px] h-[18px] object-contain" alt="" />}
                         </button>
                     ))}
                 </div>
 
-                {/* 2 段目: スペーサー + カラーピッカー + リセット + (fullscreen のみ閉じる) */}
-                <div className="flex items-center gap-1 px-2 pb-1.5">
-                    <div className="flex-1" />
+                {/* スペーサー */}
+                <div className="flex-1 min-w-0" />
 
-                    {/* カラーピッカー: 色相環 + 中央に現在色 */}
-                    <div className="relative shrink-0">
-                        <button
-                            onClick={() => colorInputRef.current?.click()}
-                            className="relative w-5 h-5 rounded-full cursor-pointer hover:scale-110 transition-transform"
-                            style={{
-                                background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                            }}
-                            title={t('timeline.pip_bg_color')}
-                        >
-                            <span
-                                className="absolute inset-1 rounded-full border border-white/30 block"
-                                style={{ background: bgColor }}
-                            />
-                        </button>
-                        <input
-                            ref={colorInputRef}
-                            type="color"
-                            value={bgColor}
-                            onChange={e => handleBgColorChange(e.target.value)}
-                            className="absolute opacity-0 w-0 h-0 pointer-events-none"
-                            tabIndex={-1}
-                            aria-hidden
-                        />
-                    </div>
-
-                    {/* リセットボタン */}
+                {/* カラーピッカー: 色相環 + 中央に現在色 */}
+                <div className="relative shrink-0">
                     <button
-                        onClick={resetBgColor}
-                        className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white/90 hover:bg-white/10 transition-colors shrink-0"
-                        title={t('timeline.pip_reset_color')}
+                        onClick={() => colorInputRef.current?.click()}
+                        className="relative w-5 h-5 rounded-full cursor-pointer hover:scale-110 transition-transform"
+                        style={{
+                            background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                        }}
+                        title={t('timeline.pip_bg_color')}
                     >
-                        <RotateCcw size={11} />
+                        <span
+                            className="absolute inset-1 rounded-full border border-white/30 block"
+                            style={{ background: bgColor }}
+                        />
                     </button>
-
-                    {/* 閉じるボタン（fullscreen のみ。PC PiP は Chrome ネイティブ閉じるに任せる） */}
-                    {mode === 'fullscreen' && (
-                        <button
-                            onClick={onClose}
-                            className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0"
-                            title={t('timeline.pip_close')}
-                        >
-                            <X size={12} />
-                        </button>
-                    )}
+                    <input
+                        ref={colorInputRef}
+                        type="color"
+                        value={bgColor}
+                        onChange={e => handleBgColorChange(e.target.value)}
+                        className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                        tabIndex={-1}
+                        aria-hidden
+                    />
                 </div>
+
+                {/* リセットボタン */}
+                <button
+                    onClick={resetBgColor}
+                    className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white/90 hover:bg-white/10 transition-colors shrink-0"
+                    title={t('timeline.pip_reset_color')}
+                >
+                    <RotateCcw size={11} />
+                </button>
+
+                {/* 閉じるボタン（fullscreen のみ。PC PiP は Chrome ネイティブ閉じるに任せる） */}
+                {mode === 'fullscreen' && (
+                    <button
+                        onClick={onClose}
+                        className="w-5 h-5 rounded flex items-center justify-center cursor-pointer text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                        title={t('timeline.pip_close')}
+                    >
+                        <X size={12} />
+                    </button>
+                )}
             </div>
 
             {/* ── カンペリスト（スクロールバー非表示） ── */}
@@ -263,41 +269,43 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                         {formatTime(time)}
                                     </span>
 
-                                    {/* 攻撃名（ダブルクリックで編集） */}
-                                    {editingEventId === event.id ? (
-                                        <input
-                                            ref={editInputRef}
-                                            defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                            onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
-                                                if (e.key === 'Escape') setEditingEventId(null);
-                                            }}
-                                            className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
-                                        />
-                                    ) : (
-                                        <span
-                                            onDoubleClick={() => handleDoubleClick(event.id)}
-                                            className={clsx(
-                                                "flex-1 min-w-0 text-[10px] truncate cursor-default leading-tight",
-                                                notes[event.id] ? "text-yellow-300" : "text-white/80"
-                                            )}
-                                            title={t('timeline.pip_edit_hint')}
-                                        >
-                                            {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                        </span>
-                                    )}
+                                    {/* 攻撃名 + 切替バッジ（ダブルクリックで編集） */}
+                                    <div className="flex-1 min-w-0 flex items-center gap-1">
+                                        {editingEventId === event.id ? (
+                                            <input
+                                                ref={editInputRef}
+                                                defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                                onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
+                                                    if (e.key === 'Escape') setEditingEventId(null);
+                                                }}
+                                                className="flex-1 min-w-0 bg-white/10 border border-white/30 rounded px-1 py-0 text-[10px] text-white outline-none"
+                                            />
+                                        ) : (
+                                            <span
+                                                onDoubleClick={() => handleDoubleClick(event.id)}
+                                                className={clsx(
+                                                    "min-w-0 text-[10px] truncate cursor-default leading-tight",
+                                                    notes[event.id] ? "text-yellow-300" : "text-white/80"
+                                                )}
+                                                title={t('timeline.pip_edit_hint')}
+                                            >
+                                                {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                            </span>
+                                        )}
 
-                                    {/* +1 切替バッジ（同時刻に他のイベントがあるとき） */}
-                                    {hasExtra && (
-                                        <button
-                                            onClick={() => cycleEventAtTime(time, events.length)}
-                                            className="shrink-0 px-1 rounded bg-white/10 hover:bg-white/25 text-white/60 hover:text-white text-[8px] font-mono cursor-pointer transition-colors"
-                                            title={t('timeline.pip_switch_event')}
-                                        >
-                                            +{events.length - 1}
-                                        </button>
-                                    )}
+                                        {/* +N 切替バッジ（イベント名のおしり、同時刻に他のイベントがあるとき） */}
+                                        {hasExtra && (
+                                            <button
+                                                onClick={() => cycleEventAtTime(time, events.length)}
+                                                className="shrink-0 px-1 rounded bg-white/10 hover:bg-white/25 text-white/60 hover:text-white text-[8px] font-mono cursor-pointer transition-colors"
+                                                title={t('timeline.pip_switch_event')}
+                                            >
+                                                +{events.length - 1}
+                                            </button>
+                                        )}
+                                    </div>
 
                                     {/* 軽減スキルアイコン */}
                                     <div className="flex items-center shrink-0">
