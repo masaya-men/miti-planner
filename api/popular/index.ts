@@ -9,6 +9,7 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { verifyAdmin } from '../../src/lib/adminAuth.js';
+import { isVisible } from './popularFilters.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -159,13 +160,17 @@ export default async function handler(req: any, res: any) {
             const windowStart = dayKeyDaysBefore(6);  // 今日を含めて7日間
             const results = await Promise.all(
                 ids.map(async (id) => {
-                    // featured プランを取得（変更なし）
+                    // featured プランを取得（hidden=true は弾く。limit を 2 にして hidden で 1 件目が
+                    // 弾かれてもフォールバックできるようにする）
                     const featuredSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
                         .where('featured', '==', true)
-                        .limit(1)
+                        .limit(2)
                         .get();
+                    const validFeaturedDoc = featuredSnap.docs.find(
+                        d => isVisible(d.data() as { hidden?: boolean })
+                    );
 
                     // 全プラン取得（orderBy なし、メモリ上で直近7日スコアでソート）
                     const allSnap = await db
@@ -173,15 +178,17 @@ export default async function handler(req: any, res: any) {
                         .where('contentId', '==', id)
                         .get();
 
-                    const scored = allSnap.docs.map(doc => {
-                        const data = doc.data();
-                        const byDay: Record<string, number> = data.copyCountByDay || {};
-                        let score7d = 0;
-                        for (const [key, n] of Object.entries(byDay)) {
-                            if (key >= windowStart) score7d += n;
-                        }
-                        return { doc, score7d, copyCount: data.copyCount ?? 0 };
-                    });
+                    const scored = allSnap.docs
+                        .filter(doc => isVisible(doc.data() as { hidden?: boolean }))
+                        .map(doc => {
+                            const data = doc.data();
+                            const byDay: Record<string, number> = data.copyCountByDay || {};
+                            let score7d = 0;
+                            for (const [key, n] of Object.entries(byDay)) {
+                                if (key >= windowStart) score7d += n;
+                            }
+                            return { doc, score7d, copyCount: data.copyCount ?? 0 };
+                        });
 
                     // スコア降順、tie-break は生涯copyCount降順、さらに doc.id で決定性を担保
                     scored.sort((a, b) =>
@@ -193,9 +200,7 @@ export default async function handler(req: any, res: any) {
                     const plans = scored.slice(0, 2).map(s => mapDoc(s.doc));
 
                     // featured: 存在すればそのまま返す（フロントで重複判定する）
-                    const featured = featuredSnap.docs.length > 0
-                        ? mapDoc(featuredSnap.docs[0])
-                        : null;
+                    const featured = validFeaturedDoc ? mapDoc(validFeaturedDoc) : null;
 
                     return { contentId: id, plans, featured };
                 })
