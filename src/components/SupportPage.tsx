@@ -75,6 +75,41 @@ export const SupportPage: React.FC = () => {
                 </p>
             </section>
 
+            {/* 支援時に届く情報 */}
+            <section className="mb-8">
+                <h2 className="text-app-2xl-plus font-bold mb-3 border-b border-app-border pb-1">
+                    {t('support.data_heading')}
+                </h2>
+                <p className="text-app-2xl text-app-text-muted mb-3 leading-relaxed">
+                    {t('support.data_intro')}
+                </p>
+
+                <h3 className="text-app-2xl font-semibold mb-1 mt-3">{t('support.data_kofi_title')}</h3>
+                <ul className="list-disc list-inside space-y-1 text-app-2xl text-app-text-muted mb-3">
+                    {splitItems(t('support.data_kofi_items')).map((item, i) => (
+                        <li key={i}>{item}</li>
+                    ))}
+                </ul>
+
+                <h3 className="text-app-2xl font-semibold mb-1 mt-3">{t('support.data_paypal_title')}</h3>
+                <ul className="list-disc list-inside space-y-1 text-app-2xl text-app-text-muted mb-4">
+                    {splitItems(t('support.data_paypal_items')).map((item, i) => (
+                        <li key={i}>{item}</li>
+                    ))}
+                </ul>
+
+                <p className="text-app-2xl text-app-text-muted mb-3 leading-relaxed">
+                    {t('support.data_promise')}
+                </p>
+
+                <h3 className="text-app-2xl font-semibold mb-1 mt-3">{t('support.data_tips_title')}</h3>
+                <ul className="list-disc list-inside space-y-1 text-app-2xl text-app-text-muted">
+                    {splitItems(t('support.data_tips_items')).map((item, i) => (
+                        <li key={i}>{item}</li>
+                    ))}
+                </ul>
+            </section>
+
             {/* 支援するとどうなるの？ */}
             <section className="mb-8">
                 <h2 className="text-app-2xl-plus font-bold mb-3 border-b border-app-border pb-1">
@@ -100,6 +135,9 @@ export const SupportPage: React.FC = () => {
                 <h2 className="text-app-2xl-plus font-bold mb-6 border-b border-app-border pb-1 text-left">
                     {t('support.kofi_heading')}
                 </h2>
+                <p className="text-app-lg text-app-text-muted mb-4 leading-relaxed">
+                    {t('support.kofi_button_note')}
+                </p>
                 <div className="flex flex-col items-center gap-2">
                     <a
                         href={KOFI_URL}

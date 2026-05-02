@@ -104,6 +104,15 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section1b_body')}</p>
             </Section>
 
+            {/* 1c. 支援(Ko-fi)を通じて受け取る情報 */}
+            <Section title={t('legal.privacy_section1c_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section1c_body')}</p>
+                <SubSection title={t('legal.privacy_section1c_kofi_title')} items={splitItems(t('legal.privacy_section1c_kofi_items'))} />
+                <SubSection title={t('legal.privacy_section1c_paypal_title')} items={splitItems(t('legal.privacy_section1c_paypal_items'))} />
+                <SubSection title={t('legal.privacy_section1c_promise_title')} items={splitItems(t('legal.privacy_section1c_promise_items'))} />
+                <SubSection title={t('legal.privacy_section1c_tips_title')} items={splitItems(t('legal.privacy_section1c_tips_items'))} />
+            </Section>
+
             {/* 2. 集めない情報 */}
             <Section title={t('legal.privacy_section2_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section2_body')}</p>
@@ -126,6 +135,7 @@ export const PrivacyPolicyPage: React.FC = () => {
                 />
                 <Note text={t('legal.privacy_section4_analytics_note')} />
                 <Note text={t('legal.privacy_section4_recaptcha_note')} />
+                <Note text={t('legal.privacy_section4_kofi_note')} />
             </Section>
 
             {/* 5. Cookieとブラウザへのデータ保存 */}
