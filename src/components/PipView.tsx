@@ -337,7 +337,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                         "flex-1 min-w-0 flex items-center",
                                         isFs ? "gap-1.5" : "gap-1",
                                     )}>
-                                        {editingEventId === event.id ? (
+                                        {!isFs && editingEventId === event.id ? (
                                             <input
                                                 ref={editInputRef}
                                                 defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
@@ -346,10 +346,7 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                     if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
                                                     if (e.key === 'Escape') setEditingEventId(null);
                                                 }}
-                                                className={clsx(
-                                                    "flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none",
-                                                    isFs ? "text-[17px] px-1.5 py-1" : "text-[10px] px-1 py-0",
-                                                )}
+                                                className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-[10px] px-1 py-0"
                                                 style={{ color: fgColor }}
                                             />
                                         ) : (
