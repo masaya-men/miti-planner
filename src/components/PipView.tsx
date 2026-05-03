@@ -294,7 +294,13 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     "flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden",
                     isFs ? "px-2 py-1" : "px-1.5 py-1",
                 )}
-                style={{ scrollbarWidth: 'none' }}
+                style={{
+                    scrollbarWidth: 'none',
+                    ...(isFs && {
+                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent)',
+                        maskImage: 'linear-gradient(to bottom, transparent 0, black 24px, black calc(100% - 24px), transparent)',
+                    }),
+                }}
             >
                 {cueGroups.length === 0 ? (
                     <p className={clsx(
