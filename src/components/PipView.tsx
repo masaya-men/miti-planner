@@ -7,7 +7,7 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { usePipNotes } from '../hooks/usePipNotes';
 import { useShallow } from 'zustand/react/shallow';
-import { X } from 'lucide-react';
+import { X, Pencil } from 'lucide-react';
 import clsx from 'clsx';
 import type { AppliedMitigation } from '../types';
 import {
@@ -453,19 +453,51 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                                 isCurrentlyShown ? "bg-current/10" : "hover:bg-current/5",
                                             )}
                                         >
-                                            <button
-                                                onClick={() => {
-                                                    if (!isCurrentlyShown) {
-                                                        setEventIndexByTime(prev => ({ ...prev, [group.time]: evIdx }));
-                                                    }
-                                                    closeMenu();
-                                                }}
-                                                className="flex-1 min-w-0 text-left text-[17px] font-bold text-current/90 truncate cursor-pointer"
-                                                title={isCurrentlyShown ? t('timeline.pip_already_shown', '表示中') : t('timeline.pip_switch_to', 'この攻撃に切替')}
-                                            >
-                                                {displayName}
-                                            </button>
-                                            {/* TODO: Task 3 で編集ボタンを追加 */}
+                                            {editingEventId === ev.id ? (
+                                                <input
+                                                    ref={editInputRef}
+                                                    defaultValue={displayName}
+                                                    onBlur={(e) => {
+                                                        handleEditConfirm(ev.id, e.target.value);
+                                                        closeMenu();
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleEditConfirm(ev.id, (e.target as HTMLInputElement).value);
+                                                            closeMenu();
+                                                        }
+                                                        if (e.key === 'Escape') {
+                                                            e.stopPropagation();
+                                                            setEditingEventId(null);
+                                                        }
+                                                    }}
+                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded px-2 py-1 text-[17px] outline-none"
+                                                    style={{ color: fgColor }}
+                                                />
+                                            ) : (
+                                                <>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!isCurrentlyShown) {
+                                                                setEventIndexByTime(prev => ({ ...prev, [group.time]: evIdx }));
+                                                            }
+                                                            closeMenu();
+                                                        }}
+                                                        className="flex-1 min-w-0 text-left text-[17px] font-bold text-current/90 truncate cursor-pointer"
+                                                        title={isCurrentlyShown ? t('timeline.pip_already_shown', '表示中') : t('timeline.pip_switch_to', 'この攻撃に切替')}
+                                                    >
+                                                        {displayName}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingEventId(ev.id)}
+                                                        className="shrink-0 w-9 h-9 rounded flex items-center justify-center cursor-pointer text-current/60 hover:text-current hover:bg-current/10 transition-colors"
+                                                        title={t('timeline.pip_edit_hint')}
+                                                        aria-label={t('timeline.pip_edit_hint')}
+                                                    >
+                                                        <Pencil size={16} />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     );
                                 })}
