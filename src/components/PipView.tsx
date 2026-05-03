@@ -230,57 +230,51 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                 {/* スペーサー */}
                 <div className="flex-1 min-w-0" />
 
-                {/* カラーピッカー: 細リム色相環 + 中央に現在色（ラッパー div 廃止で flex 直下に） */}
-                <button
-                    onClick={() => colorInputRef.current?.click()}
-                    className={clsx(
-                        "relative rounded-full cursor-pointer hover:scale-110 transition-transform shrink-0",
-                        isFs ? "w-8 h-8" : "w-5 h-5",
-                    )}
-                    style={{
-                        background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-                    }}
-                    title={t('timeline.pip_bg_color')}
-                >
-                    <span
-                        className={clsx(
-                            "absolute rounded-full block",
-                            isFs ? "inset-[3px]" : "inset-[2px]",
-                        )}
-                        style={{ background: bgColor }}
-                    />
-                </button>
-                <input
-                    ref={colorInputRef}
-                    type="color"
-                    value={bgColor}
-                    onChange={e => handleBgColorChange(e.target.value)}
-                    className="absolute opacity-0 w-0 h-0 pointer-events-none"
-                    tabIndex={-1}
-                    aria-hidden
-                />
-                {/* ↑ input は absolute + opacity-0 + w-0 h-0 で flex layout に影響しない */}
-
-                {/* デフォルト色スウォッチ（クリックでリセット）。現在色 === デフォルトのとき半透明 */}
-                {(() => {
-                    const defaultColor = getDefaultBgColor(theme, null);
-                    const isAtDefault = bgColor.toLowerCase() === defaultColor.toLowerCase();
-                    return (
+                {/* カラーピッカー & デフォルト色スウォッチ: PC のみ（iOS Safari で input type="color" が動かないためスマホ非表示） */}
+                {!isFs && (
+                    <>
                         <button
-                            onClick={resetBgColor}
-                            disabled={isAtDefault}
-                            className={clsx(
-                                "rounded-full border border-current/30 transition-opacity shrink-0",
-                                isFs ? "w-8 h-8" : "w-5 h-5",
-                                isAtDefault
-                                    ? "opacity-30 cursor-default"
-                                    : "opacity-90 hover:opacity-100 hover:border-current/60 cursor-pointer"
-                            )}
-                            style={{ background: defaultColor }}
-                            title={t('timeline.pip_reset_color')}
+                            onClick={() => colorInputRef.current?.click()}
+                            className="relative rounded-full cursor-pointer hover:scale-110 transition-transform shrink-0 w-5 h-5"
+                            style={{
+                                background: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                            }}
+                            title={t('timeline.pip_bg_color')}
+                        >
+                            <span
+                                className="absolute rounded-full block inset-[2px]"
+                                style={{ background: bgColor }}
+                            />
+                        </button>
+                        <input
+                            ref={colorInputRef}
+                            type="color"
+                            value={bgColor}
+                            onChange={e => handleBgColorChange(e.target.value)}
+                            className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                            tabIndex={-1}
+                            aria-hidden
                         />
-                    );
-                })()}
+                        {(() => {
+                            const defaultColor = getDefaultBgColor(theme, null);
+                            const isAtDefault = bgColor.toLowerCase() === defaultColor.toLowerCase();
+                            return (
+                                <button
+                                    onClick={resetBgColor}
+                                    disabled={isAtDefault}
+                                    className={clsx(
+                                        "rounded-full border border-current/30 transition-opacity shrink-0 w-5 h-5",
+                                        isAtDefault
+                                            ? "opacity-30 cursor-default"
+                                            : "opacity-90 hover:opacity-100 hover:border-current/60 cursor-pointer"
+                                    )}
+                                    style={{ background: defaultColor }}
+                                    title={t('timeline.pip_reset_color')}
+                                />
+                            );
+                        })()}
+                    </>
+                )}
 
                 {/* 閉じるボタン（fullscreen のみ。PC PiP は Chrome ネイティブ閉じるに任せる） */}
                 {mode === 'fullscreen' && (
