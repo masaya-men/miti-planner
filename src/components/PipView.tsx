@@ -85,6 +85,14 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
     const editInputRef = useRef<HTMLInputElement>(null);
 
+    // ── モーダル開閉 state（スマホ時のみ。null = 閉じている） ──
+    const [menuTime, setMenuTime] = useState<number | null>(null);
+
+    const closeMenu = useCallback(() => {
+        setMenuTime(null);
+        setEditingEventId(null);
+    }, []);
+
     const handleDoubleClick = useCallback((eventId: string) => {
         setEditingEventId(eventId);
     }, []);
@@ -347,10 +355,11 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                         ) : (
                                             <>
                                                 <span
-                                                    onDoubleClick={() => handleDoubleClick(event.id)}
+                                                    onDoubleClick={!isFs ? () => handleDoubleClick(event.id) : undefined}
+                                                    onClick={isFs ? () => setMenuTime(time) : undefined}
                                                     className={clsx(
-                                                        "min-w-0 truncate cursor-text leading-tight text-current/80",
-                                                        isFs ? "text-[17px] font-bold" : "text-[10px]",
+                                                        "min-w-0 truncate leading-tight text-current/80",
+                                                        isFs ? "text-[17px] font-bold cursor-pointer" : "text-[10px] cursor-text",
                                                     )}
                                                     title={t('timeline.pip_edit_hint')}
                                                 >
@@ -409,6 +418,37 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     </div>
                 )}
             </div>
+
+            {/* スマホ全画面: 編集モーダル */}
+            {isFs && menuTime !== null && (() => {
+                const group = cueGroups.find(g => g.time === menuTime);
+                if (!group) return null;
+                return (
+                    <div
+                        className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 px-4"
+                        onClick={closeMenu}
+                    >
+                        <div
+                            className="relative glass-tier3 rounded-xl shadow-2xl w-full max-w-[360px] py-4 px-3"
+                            onClick={e => e.stopPropagation()}
+                            style={{ color: fgColor }}
+                        >
+                            <button
+                                onClick={closeMenu}
+                                className="absolute top-2 right-2 w-8 h-8 rounded flex items-center justify-center cursor-pointer text-current/40 hover:text-current hover:bg-current/10 transition-colors"
+                                title={t('timeline.pip_close')}
+                                aria-label={t('timeline.pip_close')}
+                            >
+                                <X size={18} />
+                            </button>
+                            {/* TODO: Task 2 で攻撃リストを描画 */}
+                            <div className="text-center text-current/60 py-8 text-sm">
+                                {group.events.length} event(s) at {formatTime(group.time)}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 };
