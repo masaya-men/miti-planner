@@ -183,8 +183,11 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     ALL
                 </button>
 
-                {/* ジョブアイコン横並び（狭いとき省略 / アイコンのみ ON/OFF） */}
-                <div className="flex items-center min-w-0 overflow-hidden">
+                {/* ジョブアイコン横並び（横スクロール可、スクロールバー非表示） */}
+                <div
+                    className="flex items-center min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden"
+                    style={{ scrollbarWidth: 'none' }}
+                >
                     {activeMembers.map(m => (
                         <button
                             key={m.id}
