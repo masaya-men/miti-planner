@@ -183,10 +183,16 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                     ALL
                 </button>
 
-                {/* ジョブアイコン横並び（横スクロール可、スクロールバー非表示） */}
+                {/* ジョブアイコン横並び（横スクロール可、スクロールバー非表示、右端フェード） */}
                 <div
                     className="flex items-center min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden"
-                    style={{ scrollbarWidth: 'none' }}
+                    style={{
+                        scrollbarWidth: 'none',
+                        ...(isFs && {
+                            WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 50px), transparent)',
+                            maskImage: 'linear-gradient(to right, black calc(100% - 50px), transparent)',
+                        }),
+                    }}
                 >
                     {activeMembers.map(m => (
                         <button
