@@ -441,9 +441,34 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                             >
                                 <X size={18} />
                             </button>
-                            {/* TODO: Task 2 で攻撃リストを描画 */}
-                            <div className="text-center text-current/60 py-8 text-sm">
-                                {group.events.length} event(s) at {formatTime(group.time)}
+                            <div className="flex flex-col gap-1 mt-2 pr-8">
+                                {group.events.map((ev, evIdx) => {
+                                    const displayName = notes[ev.id] || ev.name[lang] || ev.name.ja || ev.name.en || '';
+                                    const isCurrentlyShown = evIdx === ((eventIndexByTime[group.time] ?? 0) % group.events.length);
+                                    return (
+                                        <div
+                                            key={ev.id}
+                                            className={clsx(
+                                                "flex items-center gap-2 rounded-lg px-3 py-2 min-h-[44px]",
+                                                isCurrentlyShown ? "bg-current/10" : "hover:bg-current/5",
+                                            )}
+                                        >
+                                            <button
+                                                onClick={() => {
+                                                    if (!isCurrentlyShown) {
+                                                        setEventIndexByTime(prev => ({ ...prev, [group.time]: evIdx }));
+                                                    }
+                                                    closeMenu();
+                                                }}
+                                                className="flex-1 min-w-0 text-left text-[17px] font-bold text-current/90 truncate cursor-pointer"
+                                                title={isCurrentlyShown ? t('timeline.pip_already_shown', '表示中') : t('timeline.pip_switch_to', 'この攻撃に切替')}
+                                            >
+                                                {displayName}
+                                            </button>
+                                            {/* TODO: Task 3 で編集ボタンを追加 */}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
