@@ -4,7 +4,13 @@ import {
   isValidHousingSize,
   isValidImageMode,
   isValidReportReason,
+  isValidFeatureTool,
   type HousingListing,
+  type HousingReport,
+  type HousingTour,
+  type HousingFavorite,
+  type HousingUserMeta,
+  type FeatureSession,
 } from '../../types/housing';
 
 describe('housingTypes', () => {
@@ -54,6 +60,19 @@ describe('housingTypes', () => {
       expect(isValidReportReason('sold')).toBe(true);
       expect(isValidReportReason('other')).toBe(true);
     });
+    it('returns false for unknown reasons', () => {
+      expect(isValidReportReason('spam')).toBe(false);
+    });
+  });
+
+  describe('isValidFeatureTool', () => {
+    it('returns true for miti and housing', () => {
+      expect(isValidFeatureTool('miti')).toBe(true);
+      expect(isValidFeatureTool('housing')).toBe(true);
+    });
+    it('returns false for unknown tools', () => {
+      expect(isValidFeatureTool('admin')).toBe(false);
+    });
   });
 
   it('HousingListing type can be constructed (compile-time check)', () => {
@@ -74,5 +93,55 @@ describe('housingTypes', () => {
       reportCount: 0,
     };
     expect(listing.area).toBe('Shirogane');
+  });
+
+  it('HousingReport type can be constructed (compile-time check)', () => {
+    const report: HousingReport = {
+      reporterUid: 'uid2',
+      reason: 'wrong_info',
+      comment: '情報が古い',
+      createdAt: Date.now(),
+    };
+    expect(report.reason).toBe('wrong_info');
+  });
+
+  it('HousingTour type can be constructed (compile-time check)', () => {
+    const tour: HousingTour = {
+      id: 'tour1',
+      ownerUid: 'uid3',
+      title: 'おすすめツアー',
+      listingIds: ['a', 'b'],
+      isPublic: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    expect(tour.listingIds).toEqual(['a', 'b']);
+  });
+
+  it('HousingFavorite type can be constructed (compile-time check)', () => {
+    const favorite: HousingFavorite = {
+      listingId: 'listing1',
+      addedAt: Date.now(),
+    };
+    expect(favorite.listingId).toBe('listing1');
+  });
+
+  it('HousingUserMeta type can be constructed (compile-time check)', () => {
+    const meta: HousingUserMeta = {
+      registrationCount: 3,
+      dailyQuota: {
+        remaining: 5,
+        lastReset: Date.now(),
+      },
+    };
+    expect(meta.dailyQuota.remaining).toBe(5);
+  });
+
+  it('FeatureSession type can be constructed (compile-time check)', () => {
+    const session: FeatureSession = {
+      activated: true,
+      activatedAt: Date.now(),
+    };
+    expect(session.activated).toBe(true);
   });
 });
