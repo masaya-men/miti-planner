@@ -103,6 +103,7 @@
         "page_title_privacy": "隐私政策 | LoPo",
         "page_title_terms": "使用条款 | LoPo",
         "page_title_commercial": "特定商业交易法标识 | LoPo",
+        "page_title_housing": "房屋导览（准备中） | LoPo",
         "page_description_landing": "在手机上也能制作FF14减伤轴的模拟器。在时间轴上放置减伤技能，自动计算伤害。制作的方案可通过URL分享。"
     },
     "login": {
@@ -1547,5 +1548,14 @@
         "select_on_timeline": "在时间轴上选择",
         "select_banner": "点击选择结束位置（Esc取消）",
         "select_banner_start": "点击选择开始位置（Esc取消）"
+    },
+    "housing": {
+        "coming_soon": {
+            "eyebrow": "房屋导览",
+            "title": "即将上线",
+            "lead": "我们正在准备 FF14 房屋导览功能。",
+            "detail": "照片画廊、收藏导览、URL 分享等，专为热爱房屋装饰的玩家打造。",
+            "back_to_top": "返回顶部"
+        }
     }
 }

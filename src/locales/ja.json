@@ -29,6 +29,7 @@
         "page_title_privacy": "プライバシーポリシー | LoPo",
         "page_title_terms": "利用規約 | LoPo",
         "page_title_commercial": "特定商取引法に基づく表記 | LoPo",
+        "page_title_housing": "ハウジングツアー（準備中） | LoPo",
         "page_description_landing": "FF14の軽減表をスマホでも作れるシミュレーター。タイムライン上に軽減スキルを配置して、ダメージを自動計算。作成したプランはURLで共有できます。",
         "sign_in": "ログイン",
         "sign_out": "ログアウト",
@@ -1613,5 +1614,14 @@
         "select_on_timeline": "タイムラインで選択",
         "select_banner": "終了位置をクリックで選択（Escでキャンセル）",
         "select_banner_start": "開始位置をクリックで選択（Escでキャンセル）"
+    },
+    "housing": {
+        "coming_soon": {
+            "eyebrow": "ハウジングツアー",
+            "title": "もうすぐ来ます",
+            "lead": "FF14 のハウジングを巡るツアー機能を準備しています。",
+            "detail": "投稿写真ギャラリー、お気に入りツアー作成、URL シェアなど、ハウジングを愛するすべての方のための機能を作っています。",
+            "back_to_top": "トップに戻る"
+        }
     }
 }

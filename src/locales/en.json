@@ -103,6 +103,7 @@
         "page_title_privacy": "Privacy Policy | LoPo",
         "page_title_terms": "Terms of Service | LoPo",
         "page_title_commercial": "Commercial Disclosure | LoPo",
+        "page_title_housing": "Housing Tour (Coming Soon) | LoPo",
         "page_description_landing": "Build your FFXIV mitigation sheet on mobile or desktop. Place mitigation skills on a timeline and see damage calculated automatically. Share plans via URL."
     },
     "login": {
@@ -1592,5 +1593,14 @@
         "select_on_timeline": "Select on timeline",
         "select_banner": "Click to select end position (Esc to cancel)",
         "select_banner_start": "Click to select start position (Esc to cancel)"
+    },
+    "housing": {
+        "coming_soon": {
+            "eyebrow": "Housing Tour",
+            "title": "Coming Soon",
+            "lead": "We're building a tour feature for exploring FF14 housing.",
+            "detail": "Photo galleries, favorite tour playlists, shareable URLs — everything for housing enthusiasts is on the way.",
+            "back_to_top": "Back to top"
+        }
     }
 }

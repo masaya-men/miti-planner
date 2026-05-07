@@ -103,6 +103,7 @@
         "page_title_privacy": "개인정보처리방침 | LoPo",
         "page_title_terms": "이용약관 | LoPo",
         "page_title_commercial": "특정상거래법 표기 | LoPo",
+        "page_title_housing": "하우징 투어 (준비 중) | LoPo",
         "page_description_landing": "FF14 경감 시트를 모바일에서도 만들 수 있는 시뮬레이터. 타임라인에 경감기를 배치하면 데미지가 자동 계산됩니다. 작성한 플랜은 URL로 공유할 수 있습니다."
     },
     "login": {
@@ -1547,5 +1548,14 @@
         "select_on_timeline": "타임라인에서 선택",
         "select_banner": "클릭하여 종료 위치 선택 (Esc로 취소)",
         "select_banner_start": "클릭하여 시작 위치 선택 (Esc로 취소)"
+    },
+    "housing": {
+        "coming_soon": {
+            "eyebrow": "하우징 투어",
+            "title": "곧 출시",
+            "lead": "FF14 하우징을 둘러보는 투어 기능을 준비 중입니다.",
+            "detail": "사진 갤러리, 즐겨찾기 투어, URL 공유 등 하우징을 사랑하는 모든 분을 위한 기능을 만들고 있습니다.",
+            "back_to_top": "상단으로"
+        }
     }
 }
