@@ -9,6 +9,14 @@
  * - LoPo 個人情報を持たない原則準拠（screen_name 等保存しない）
  */
 
+/**
+ * **Note on timestamp fields**: All `*At`, `lastReset`, etc. timestamp fields in
+ * this file are typed as `number` (Unix epoch milliseconds) rather than Firestore
+ * `Timestamp`. This keeps the types layer free of Firebase SDK imports.
+ * Conversion happens at the read/write adapter layer (e.g., `serverTimestamp()`
+ * is converted to `Date.now()` on read).
+ */
+
 // ─────────────────────────────────────────────
 // Enum-like Union Types
 // ─────────────────────────────────────────────
@@ -68,10 +76,10 @@ export interface HousingListing {
   dc: string;
   server: string;
   area: HousingArea;
-  ward: number;
-  plot: number;
+  ward: number;        // 1-30 (FF14 spec)
+  plot: number;        // 1-60 (FF14 spec)
   size: HousingSize;
-  apartmentRoom?: number;
+  apartmentRoom?: number; // 1-90, only when size='Apartment'
 
   // 画像（3 択のいずれか）
   imageMode: ImageMode;
@@ -80,8 +88,8 @@ export interface HousingListing {
   thumbnailPath?: string;
 
   // ユーザー入力
-  tags: string[];
-  description?: string;
+  tags: string[];      // max 5 items, defined values from housingTags master
+  description?: string;// max 200 chars
 
   // システム
   createdAt: number;
@@ -109,7 +117,7 @@ export interface HousingReport {
 export interface HousingTour {
   id: string;
   ownerUid: string;
-  title: string;
+  title: string;       // max 50 chars (validated at write time)
   listingIds: string[];
   startId?: string;
   isPublic: boolean;
