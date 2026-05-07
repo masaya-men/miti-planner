@@ -13,19 +13,23 @@ import {
 } from '../../constants/housing';
 
 describe('housingConstants', () => {
-  it('限度値定数が論理整合性を持つ', () => {
-    expect(HOUSING_LIMITS.MAX_TAGS_PER_LISTING).toBeGreaterThan(0);
-    expect(HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH).toBeGreaterThan(0);
-    expect(HOUSING_LIMITS.MAX_TOUR_TITLE_LENGTH).toBeGreaterThan(0);
+  it('HOUSING_LIMITS の値が固定されている', () => {
+    expect(HOUSING_LIMITS.MAX_TAGS_PER_LISTING).toBe(5);
+    expect(HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH).toBe(200);
+    expect(HOUSING_LIMITS.MAX_TOUR_TITLE_LENGTH).toBe(50);
+    expect(HOUSING_LIMITS.MAX_THUMBNAIL_BYTES).toBe(100 * 1024);
+    expect(HOUSING_LIMITS.THUMBNAIL_DIMENSION_PX).toBe(400);
+    expect(HOUSING_LIMITS.MAX_TOUR_LISTINGS).toBe(100);
+    expect(HOUSING_LIMITS.MAX_FAVORITES_PER_USER).toBe(100);
   });
 
-  it('Ward / Plot 範囲が現実的', () => {
+  it('Ward / Plot 範囲', () => {
     expect(WARD_RANGE.min).toBe(1);
-    expect(WARD_RANGE.max).toBeGreaterThanOrEqual(30);
+    expect(WARD_RANGE.max).toBe(30);
     expect(PLOT_RANGE.min).toBe(1);
-    expect(PLOT_RANGE.max).toBeGreaterThanOrEqual(60);
+    expect(PLOT_RANGE.max).toBe(60);
     expect(APARTMENT_ROOM_RANGE.min).toBe(1);
-    expect(APARTMENT_ROOM_RANGE.max).toBeGreaterThanOrEqual(90);
+    expect(APARTMENT_ROOM_RANGE.max).toBe(90);
   });
 
   it('通報自動非表示閾値は設計書通り 3', () => {
