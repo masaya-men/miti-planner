@@ -11,7 +11,7 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-05-07・ハウジングツアー Phase 1 Sub-spec 1 Foundation 実装）**: ハウジングツアー機能の基礎を裏側まで完成。`/housing` ルート登録 + Coming Soon ページ（4 言語対応・テーマ統一・デザイントークン徹底）、Firestore 型定義 (`src/types/housing.ts`)、定数モジュール (`src/constants/housing.ts`)、セキュリティルール（housing_listings / housing_tours / housing_favorites / housing_user_meta / featureSessions、reportCount/isHidden 改ざん防止 + helper 6 関数）、4 言語 i18n 追加、3 ルート登録 (/housing, /housing/p/:id, /housing/tour/:id) を 10 タスクで完了。subagent-driven-development で各タスク TDD + 2 段階レビュー。359 tests PASS、tsc clean、build 成功、Firestore rules 本番デプロイ済み。設計書 `docs/superpowers/specs/2026-05-07-housing-tour-phase1-design.md`、実装プラン `docs/superpowers/plans/2026-05-07-housing-foundation.md`、リキッドレンズ技術書 `docs/tech-notes/liquid-lens-effect.md` も並行作成。次は Sub-spec 2 (Registration & Gallery) のプラン作成。**手動確認待ち**: `/housing` ブラウザ直アクセスで Coming Soon 表示 + Firestore 未認証書き込み拒否の確認（DevTools コンソール）。
+- **最新セッション（2026-05-08・ハウジング Sub-spec 2A 実装プラン作成完了、明日実装着手予定）**: 設計書 §18 の Sub-spec 2「Registration & Gallery」(工数 2-3 週) を「機能優先・デザイン後回し」方針で 3 つに分割: **2A=登録 (画像なしモード固定)、2B=ギャラリー & 検索、2C=画像 3 択 + リキッドグラス**。本日は 2A の実装プラン `docs/superpowers/plans/2026-05-08-housing-sub-spec-2a-registration.md` を完成 (26 タスク、3,682 行、想定工数 3-5 日)。中身: タグマスタ約 147 件 4 言語 / バリデーション・登録枠 D 案・重複住所キーの純粋関数群 / Firestore listings service / `/api/housing` 3 アクション (can-register / register-listing / check-duplicate) / 登録フォーム本体 + 重複警告ダイアログ + オンボーディング + ログインプロンプト / `/housing` 3 タブ (探す/回る/登録) 切替。デザインは Tailwind プリミティブのみで仮置き、リキッドグラス・ルーペは 2C へ先送り。spec 網羅性 + 型一貫性 + Placeholders ゼロを self-review 済。**明日のセッション最優先: プラン task 1 から `subagent-driven-development` で実装開始**。Foundation の自動確認 (2026-05-07) は Playwright 25/25 PASS + Firestore 未認証書き込み 403 拒否で完了済。
 
 - **前セッション（2026-05-03・カンペ スマホ UX 改善 + 共同編集の比較検討）**: 朝に共同編集機能の実装難度・コスト試算を依頼され、現状アーキテクチャを実コード調査（usePlanStore / useMitigationStore / planService.ts / firestore.rules）。「カーソル先勝ち + 終了時保存」方式なら 2-3 週・月 6,000-10,000 円程度、「スプシ式（非同期共同編集）」なら 1-2 週・追加コストほぼゼロと算出。ユーザー判断「完全同時編集以外は意味薄いので後回し」で着手見送り。代わりにスマホカンペの UX 全面改善に着手: ①PipView スマホ全画面サイズアップ（攻撃名 17px font-bold / 軽減アイコン 26px / ジョブアイコン 28px / ALL カラー閉じるボタン 32×32 / 行 padding py-2 / 時間カラム幅 44px）②ジョブアイコン横並びを overflow-x-auto + 右端 50px linear-gradient mask（強めフェード）でスクロール可アフォーダンス ③brainstorming → writing-plans → executing-plans の skill チェーンで「タップ → 中央モーダル → 攻撃切替+編集」を実装（B-2 採用、+N バッジ残置、ダブルタップ廃止スマホ時のみ、editingEventId state を行内とモーダル両方で流用、editInputRef 共有）④ iOS Safari で動かないカラーピッカー & デフォルト色スウォッチをスマホ時のみ非表示 ⑤ リスト本体に上下 24px の linear-gradient mask（弱めフェード）。設計書 `docs/superpowers/specs/2026-05-03-pip-mobile-edit-modal-design.md`、実装プラン `docs/superpowers/plans/2026-05-03-pip-mobile-edit-modal.md`。335 tests PASS、tsc clean、build 成功、push+デプロイ済み。実機 OK 確認待ち（スマホ全画面で 7.2 のチェックリスト + PC PiP の 7.3 で既存挙動変化なし）。
 
@@ -54,11 +54,14 @@
 - **シークレット漏洩 3層防御 導入済み（全プロジェクト自動診断）**
 
 ### 次にやること（優先順）
+- **【最優先・明日】Sub-spec 2A 実装着手**: プラン `docs/superpowers/plans/2026-05-08-housing-sub-spec-2a-registration.md` の Task 1 から `subagent-driven-development` で順番実装。デザインは仮置きで OK。完了後の引き継ぎは TODO.md「現在の状態」更新 + push + Vercel デプロイまで。
 - **【完了 2026-05-07】方針議論**: 業界調査の上、LoPo / ハウジングツアー両方の運営方針を確定。詳細は `docs/.private/` と memory 参照
 - **マイコラージュ（別プロジェクト）**: ユーザー優先指示継続、並行進行
-- **ハウジングツアー実装**（マイコラと並行で着手 OK）:
-  - 段階リリース: Phase 1 マップ以外（ギャラリー + 登録 + 検索 + 削除依頼フロー） → Phase 2 マップ + ツアー進行 → Phase 3 キラー機能
-  - 計画書 `docs/housing-tour-planner-requirements.md` から実装プラン作成
+- **ハウジングツアー実装ロードマップ** (Sub-spec 2A 完了後):
+  - **Sub-spec 2B (Gallery & Search)**: 登録済みデータの一覧表示・検索フィルタ・URL クエリ反映・お気に入り。画像はまだ「画像なし」プレースホルダで OK。工数 3-5 日
+  - **Sub-spec 2C (Image 3-modes & Liquid Effects)**: SNS URL OGP 取得 / サムネアップロード Cloud Function / 画像 3 択 UI / リキッドグラス + ルーペエフェクト最終仕上げ。工数 1-2 週
+  - **Sub-spec 3 (Tour & Deletion & Reports)**: ツアー機能 (DC 分割・移動カード・URL 共有) / 削除依頼 keyword verification / 通報フロー。工数 2-3 週
+  - 段階リリース: Phase 1 (Sub-spec 1-3) マップ以外完成 → Phase 2 マップ + ツアー進行 → Phase 3 リアルタイム連動・信用スコア
   - 詳細な技術判断は memory `project_lopo_mul_constraint.md` 参照
 - **PWA UX 改善（後回し決定 2026-05-03）**: ①iOS Safari でのインストール案内バナー（現状 beforeinstallprompt も独自バナーも無し）②アプデ通知トースト（自動更新は動作中だが完全終了→再起動が必要なことをユーザーに伝える UI 無し）③ログイン前の注意ガイド（PWA で「Safari で開く」を押すと state mismatch になる旨）。実装規模 2-3 日
 - **プライバシー §1c + support /support 実機確認**: Ko-fi/PayPal の届く情報 / 私のお約束 / 自衛策 / ☕ ボタン直前注釈 / cta_subtext「単発のみ」/ 特商法ページ PayPal 表記 / 4 言語表示（ja/en/ko/zh、ko の §1b は en フォールバック）
