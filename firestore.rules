@@ -218,6 +218,18 @@ service cloud.firestore {
       return tags is list && tags.size() <= 5;
     }
 
+    function isValidDescription(desc) {
+      return desc is string && desc.size() <= 200;
+    }
+
+    function isValidApartmentRoom(room) {
+      return room is int && room >= 1 && room <= 90;
+    }
+
+    function isValidTourListings(listings) {
+      return listings is list && listings.size() <= 100;
+    }
+
     // ========================================
     // housing_listings コレクション
     // 読み取り: 公開（誰でも閲覧可、isHidden=true は UI 側でフィルタ）
@@ -236,6 +248,8 @@ service cloud.firestore {
                     && isValidHousingSize(request.resource.data.size)
                     && isValidImageMode(request.resource.data.imageMode)
                     && isValidTags(request.resource.data.tags)
+                    && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
+                    && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
                     && request.resource.data.reportCount == 0
                     && request.resource.data.isHidden == false;
 
@@ -247,6 +261,8 @@ service cloud.firestore {
                     && isValidHousingSize(request.resource.data.size)
                     && isValidImageMode(request.resource.data.imageMode)
                     && isValidTags(request.resource.data.tags)
+                    && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
+                    && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
                     // reportCount / isHidden はクライアントから直接変更不可（Cloud Function 経由のみ）
                     && request.resource.data.reportCount == resource.data.reportCount
                     && request.resource.data.isHidden == resource.data.isHidden;
@@ -276,12 +292,13 @@ service cloud.firestore {
       allow create: if isAuthenticated()
                     && request.auth.uid == request.resource.data.ownerUid
                     && isValidString(request.resource.data.title, 50)
-                    && request.resource.data.listingIds is list
+                    && isValidTourListings(request.resource.data.listingIds)
                     && request.resource.data.isPublic is bool;
 
       allow update: if isOwner(resource.data.ownerUid)
                     && request.resource.data.ownerUid == resource.data.ownerUid
-                    && isValidString(request.resource.data.title, 50);
+                    && isValidString(request.resource.data.title, 50)
+                    && isValidTourListings(request.resource.data.listingIds);
 
       allow delete: if isOwner(resource.data.ownerUid);
     }
@@ -289,6 +306,7 @@ service cloud.firestore {
     // ========================================
     // housing_favorites コレクション
     // /housing_favorites/{uid}/items/{listingId}
+    // 100 件上限は Cloud Function で集計（rules では direct 検証不可）
     // ========================================
     match /housing_favorites/{uid}/items/{listingId} {
       allow read: if isOwner(uid);
