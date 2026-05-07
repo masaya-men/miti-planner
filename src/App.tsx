@@ -5,7 +5,11 @@ import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
 import { SupportPage } from './components/SupportPage';
-
+import {
+  HousingComingSoonPage,
+  HousingDetailPagePlaceholder,
+  HousingTourPagePlaceholder,
+} from './components/housing';
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
 import { AdminGuard } from './components/admin/AdminGuard';
@@ -115,6 +119,10 @@ function App() {
             <Route path="/miti" element={<MitiPlannerPage />} />
             <Route path="/share/:shareId" element={<SharePage />} />
             <Route path="/support" element={<SupportPage />} />
+
+            <Route path="/housing" element={<HousingComingSoonPage />} />
+            <Route path="/housing/p/:id" element={<HousingDetailPagePlaceholder />} />
+            <Route path="/housing/tour/:id" element={<HousingTourPagePlaceholder />} />
 
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
