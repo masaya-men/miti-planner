@@ -191,6 +191,132 @@ service cloud.firestore {
     }
 
     // ========================================
+    // ハウジング: helper 関数
+    // ========================================
+
+    function isValidHousingArea(area) {
+      return area in ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'];
+    }
+
+    function isValidHousingSize(size) {
+      return size in ['S', 'M', 'L', 'Apartment', 'PrivateRoom'];
+    }
+
+    function isValidImageMode(mode) {
+      return mode in ['sns', 'thumbnail', 'none'];
+    }
+
+    function isValidWard(ward) {
+      return ward is int && ward >= 1 && ward <= 30;
+    }
+
+    function isValidPlot(plot) {
+      return plot is int && plot >= 1 && plot <= 60;
+    }
+
+    function isValidTags(tags) {
+      return tags is list && tags.size() <= 5;
+    }
+
+    // ========================================
+    // housing_listings コレクション
+    // 読み取り: 公開（誰でも閲覧可、isHidden=true は UI 側でフィルタ）
+    // 書き込み: 認証済み + 所有者のみ
+    // ========================================
+    match /housing_listings/{listingId} {
+      allow read: if true;
+
+      allow create: if isAuthenticated()
+                    && request.auth.uid == request.resource.data.ownerUid
+                    && request.resource.data.dc is string
+                    && request.resource.data.server is string
+                    && isValidHousingArea(request.resource.data.area)
+                    && isValidWard(request.resource.data.ward)
+                    && isValidPlot(request.resource.data.plot)
+                    && isValidHousingSize(request.resource.data.size)
+                    && isValidImageMode(request.resource.data.imageMode)
+                    && isValidTags(request.resource.data.tags)
+                    && request.resource.data.reportCount == 0
+                    && request.resource.data.isHidden == false;
+
+      allow update: if isOwner(resource.data.ownerUid)
+                    && request.resource.data.ownerUid == resource.data.ownerUid
+                    && isValidHousingArea(request.resource.data.area)
+                    && isValidWard(request.resource.data.ward)
+                    && isValidPlot(request.resource.data.plot)
+                    && isValidHousingSize(request.resource.data.size)
+                    && isValidImageMode(request.resource.data.imageMode)
+                    && isValidTags(request.resource.data.tags)
+                    // reportCount / isHidden はクライアントから直接変更不可（Cloud Function 経由のみ）
+                    && request.resource.data.reportCount == resource.data.reportCount
+                    && request.resource.data.isHidden == resource.data.isHidden;
+
+      allow delete: if isOwner(resource.data.ownerUid);
+
+      // 通報サブコレクション
+      match /reports/{reportId} {
+        allow read: if false;  // 管理者のみ Admin SDK 経由で読む
+        allow create: if isAuthenticated()
+                      && request.auth.uid == request.resource.data.reporterUid
+                      && request.resource.data.reason in ['wrong_info', 'griefing', 'nsfw', 'sold', 'other'];
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // ========================================
+    // housing_tours コレクション
+    // 読み取り: 公開ツアー OR 所有者
+    // 書き込み: 所有者のみ
+    // ========================================
+    match /housing_tours/{tourId} {
+      allow read: if (resource != null && resource.data.isPublic == true)
+                  || isOwner(resource.data.ownerUid);
+
+      allow create: if isAuthenticated()
+                    && request.auth.uid == request.resource.data.ownerUid
+                    && isValidString(request.resource.data.title, 50)
+                    && request.resource.data.listingIds is list
+                    && request.resource.data.isPublic is bool;
+
+      allow update: if isOwner(resource.data.ownerUid)
+                    && request.resource.data.ownerUid == resource.data.ownerUid
+                    && isValidString(request.resource.data.title, 50);
+
+      allow delete: if isOwner(resource.data.ownerUid);
+    }
+
+    // ========================================
+    // housing_favorites コレクション
+    // /housing_favorites/{uid}/items/{listingId}
+    // ========================================
+    match /housing_favorites/{uid}/items/{listingId} {
+      allow read: if isOwner(uid);
+      allow write: if isOwner(uid);
+    }
+
+    // ========================================
+    // housing_user_meta コレクション
+    // 書き込みは Cloud Function 経由のみ（クライアントは登録枠改ざん不可）
+    // ========================================
+    match /housing_user_meta/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    // ========================================
+    // users/{uid}/featureSessions/{tool}
+    // ツール毎 opt-in フラグ
+    // ========================================
+    match /users/{uid}/featureSessions/{tool} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+                            && tool in ['miti', 'housing']
+                            && request.resource.data.activated is bool;
+      allow delete: if isOwner(uid);
+    }
+
+    // ========================================
     // その他すべてのパスへのアクセスを拒否
     // ========================================
     match /{document=**} {
