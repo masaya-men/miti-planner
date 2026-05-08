@@ -111,6 +111,10 @@ export const usePlanStore = create<PlanState>()(
                     contentId: plan.contentId,
                     title: plan.title,
                     plansBefore: get().plans.length,
+                    dataExists: plan.data !== undefined && plan.data !== null,
+                    dataKeys: plan.data && typeof plan.data === 'object' ? Object.keys(plan.data).sort() : [],
+                    timelineEventsLen: plan.data?.timelineEvents?.length ?? -1,
+                    partyMembersLen: plan.data?.partyMembers?.length ?? -1,
                 });
                 set((state) => ({
                     plans: [plan, ...state.plans],
@@ -614,9 +618,54 @@ export const usePlanStore = create<PlanState>()(
                         continue;
                     }
                     onProgress?.({ id: planId, status: 'uploading' });
-                    dlog('store', 'executeLocalImport createPlan attempt', { id: planId, contentId: plan.contentId });
+                    dlog('store', 'executeLocalImport createPlan attempt', {
+                        id: planId,
+                        contentId: plan.contentId,
+                        planKeys: Object.keys(plan).sort(),
+                        dataExists: plan.data !== undefined && plan.data !== null,
+                        dataIsObject: typeof plan.data === 'object' && plan.data !== null,
+                        dataKeys: plan.data && typeof plan.data === 'object' ? Object.keys(plan.data).sort() : [],
+                        timelineEventsLen: plan.data?.timelineEvents?.length ?? -1,
+                        partyMembersLen: plan.data?.partyMembers?.length ?? -1,
+                        archived: plan.archived,
+                        compressedDataExists: plan.compressedData !== undefined && plan.compressedData !== null,
+                    });
+
+                    // 防御: data が無いプランは createPlan しても Rules で弾かれる
+                    // 圧縮済みなら decompress を試みる、それ以外は失敗扱いで次へ
+                    if (!plan.data || typeof plan.data !== 'object' || Object.keys(plan.data).length === 0) {
+                        let recovered = false;
+                        if (plan.compressedData) {
+                            try {
+                                const decompressed = await get().decompressArchivedPlan(planId);
+                                if (decompressed && Object.keys(decompressed).length > 0) {
+                                    set(state => ({
+                                        plans: state.plans.map(p =>
+                                            p.id === planId ? { ...p, data: decompressed } : p
+                                        ),
+                                    }));
+                                    recovered = true;
+                                    dlog('store', 'executeLocalImport recovered compressed data', { id: planId });
+                                }
+                            } catch (err) {
+                                dlog('store', 'executeLocalImport decompress failed', {
+                                    id: planId,
+                                    msg: err instanceof Error ? err.message : String(err),
+                                });
+                            }
+                        }
+                        if (!recovered) {
+                            dlog('store', 'executeLocalImport SKIP - no data', { id: planId });
+                            results.push({ id: planId, status: 'failed', error: 'NO_DATA' });
+                            onProgress?.({ id: planId, status: 'failed', error: 'NO_DATA' });
+                            continue;
+                        }
+                    }
+
+                    // 最新の plan オブジェクトを取得（decompress で書き換えた可能性に追従）
+                    const planForUpload = get().plans.find(p => p.id === planId)!;
                     try {
-                        await planService.createPlan(plan, uid, displayName);
+                        await planService.createPlan(planForUpload, uid, displayName);
                         // 成功 → state 内の ownerId を 'local' → uid に書き換え
                         set(state => ({
                             plans: state.plans.map(p =>
