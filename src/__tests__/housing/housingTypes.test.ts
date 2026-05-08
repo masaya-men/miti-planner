@@ -85,6 +85,7 @@ describe('housingTypes', () => {
       ward: 3,
       plot: 12,
       size: 'M',
+      addressKey: 'Mana|Pandaemonium|Shirogane|W3|P12|M',
       imageMode: 'none',
       tags: [],
       createdAt: Date.now(),
@@ -93,6 +94,22 @@ describe('housingTypes', () => {
       reportCount: 0,
     };
     expect(listing.area).toBe('Shirogane');
+  });
+
+  describe('HousingListing.addressKey', () => {
+    it('listing 型は addressKey フィールドを持つ', () => {
+      const listing: HousingListing = {
+        id: 'abc', ownerUid: 'u1',
+        dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
+        ward: 3, plot: 12, size: 'M',
+        addressKey: 'Mana|Pandaemonium|Shirogane|W3|P12|M',
+        imageMode: 'none',
+        tags: ['modern'],
+        createdAt: 0, updatedAt: 0,
+        isHidden: false, reportCount: 0,
+      };
+      expect(listing.addressKey).toBeDefined();
+    });
   });
 
   it('HousingReport type can be constructed (compile-time check)', () => {

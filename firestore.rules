@@ -250,6 +250,8 @@ service cloud.firestore {
                     && isValidTags(request.resource.data.tags)
                     && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
                     && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
+                    && request.resource.data.addressKey is string
+                    && request.resource.data.addressKey.size() <= 200
                     && request.resource.data.reportCount == 0
                     && request.resource.data.isHidden == false;
 
@@ -263,6 +265,7 @@ service cloud.firestore {
                     && isValidTags(request.resource.data.tags)
                     && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
                     && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
+                    && request.resource.data.addressKey == resource.data.addressKey
                     // reportCount / isHidden はクライアントから直接変更不可（Cloud Function 経由のみ）
                     && request.resource.data.reportCount == resource.data.reportCount
                     && request.resource.data.isHidden == resource.data.isHidden;

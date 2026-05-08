@@ -81,6 +81,9 @@ export interface HousingListing {
   size: HousingSize;
   apartmentRoom?: number; // 1-90, only when size='Apartment'
 
+  // 同住所検索用 denormalized key (サーバー側で生成、クライアント書き換え不可)
+  addressKey: string;
+
   // 画像（3 択のいずれか）
   imageMode: ImageMode;
   postUrl?: string;
