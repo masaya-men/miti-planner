@@ -138,7 +138,8 @@
         "delete_confirm_yes": "削除する",
         "toast_uploaded": "アイコンを変更しました",
         "toast_deleted": "アイコンを削除しました",
-        "toast_upload_error": "アップロードに失敗しました"
+        "toast_upload_error": "アップロードに失敗しました",
+        "toast_delete_error": "削除に失敗しました"
     },
     "profile": {
         "edit_display_name": "表示名を編集",

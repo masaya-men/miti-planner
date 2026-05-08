@@ -138,7 +138,8 @@
         "delete_confirm_yes": "Remove",
         "toast_uploaded": "Avatar updated",
         "toast_deleted": "Avatar removed",
-        "toast_upload_error": "Upload failed"
+        "toast_upload_error": "Upload failed",
+        "toast_delete_error": "Failed to remove avatar"
     },
     "profile": {
         "edit_display_name": "Edit display name",

@@ -130,7 +130,8 @@
         "delete_confirm_yes": "삭제",
         "toast_uploaded": "아이콘이 변경되었습니다",
         "toast_deleted": "아이콘이 삭제되었습니다",
-        "toast_upload_error": "업로드에 실패했습니다"
+        "toast_upload_error": "업로드에 실패했습니다",
+        "toast_delete_error": "삭제에 실패했습니다"
     },
     "profile": {
         "edit_display_name": "표시 이름 편집",

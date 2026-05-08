@@ -130,7 +130,8 @@
         "delete_confirm_yes": "删除",
         "toast_uploaded": "头像已更新",
         "toast_deleted": "头像已删除",
-        "toast_upload_error": "上传失败"
+        "toast_upload_error": "上传失败",
+        "toast_delete_error": "删除失败"
     },
     "profile": {
         "edit_display_name": "编辑昵称",

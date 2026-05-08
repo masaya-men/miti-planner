@@ -99,7 +99,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             showToast(t('avatar.toast_deleted'));
         } catch (err) {
             console.error('Avatar delete error:', err);
-            showToast(t('avatar.toast_upload_error'), 'error');
+            showToast(t('avatar.toast_delete_error'), 'error');
         } finally {
             setIsAvatarBusy(false);
         }
