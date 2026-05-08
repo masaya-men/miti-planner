@@ -19,14 +19,16 @@ export function setLastOpened(planId: string, timestamp: number): void {
 }
 
 /**
- * 指定日数以上開かれていないプランIDを返す
- * lastOpenedAt が未記録のプランも対象
+ * 指定日数以上開かれていないプランIDを返す。
+ * `lastOpenedAt` が **未記録のプランは対象外**（新規作成直後のプランを誤って
+ * 圧縮しないため）。記録は addPlan / Sidebar クリックで行われる。
  */
 export function getStalePlanIds(planIds: string[], days: number): string[] {
     const map = getLastOpenedMap();
     const threshold = Date.now() - days * 24 * 60 * 60 * 1000;
     return planIds.filter(id => {
         const lastOpened = map[id];
-        return lastOpened === undefined || lastOpened < threshold;
+        if (lastOpened === undefined) return false;
+        return lastOpened < threshold;
     });
 }

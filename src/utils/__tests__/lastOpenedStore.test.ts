@@ -45,9 +45,10 @@ describe('lastOpenedStore', () => {
         expect(stale).not.toContain('recent_plan');
     });
 
-    it('getStalePlanIds: 記録がないプランは期限超過とみなす', () => {
+    it('getStalePlanIds: 記録がないプランは期限超過とみなさない (新規作成プランを誤圧縮しないため)', () => {
         const stale = getStalePlanIds(['unknown_plan'], 7);
-        expect(stale).toContain('unknown_plan');
+        expect(stale).not.toContain('unknown_plan');
+        expect(stale).toEqual([]);
     });
 
     it('localStorage破損時は空オブジェクトを返す', () => {

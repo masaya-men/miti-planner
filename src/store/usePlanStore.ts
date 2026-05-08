@@ -15,6 +15,7 @@ import { generateUniqueTitle } from '../utils/planTitle';
 import { dlog } from '../utils/debugLog';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
+import { setLastOpened } from '../utils/lastOpenedStore';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -112,10 +113,11 @@ export const usePlanStore = create<PlanState>()(
                     title: plan.title,
                     plansBefore: get().plans.length,
                     dataExists: plan.data !== undefined && plan.data !== null,
-                    dataKeys: plan.data && typeof plan.data === 'object' ? Object.keys(plan.data).sort() : [],
-                    timelineEventsLen: plan.data?.timelineEvents?.length ?? -1,
-                    partyMembersLen: plan.data?.partyMembers?.length ?? -1,
                 });
+                // 新規作成プランの lastOpened を即記録: silentCompressStale が
+                // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
+                // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
+                setLastOpened(plan.id, Date.now());
                 set((state) => ({
                     plans: [plan, ...state.plans],
                     _dirtyPlanIds: new Set([...state._dirtyPlanIds, plan.id]),
