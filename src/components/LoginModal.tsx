@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { X, LogOut, Shield, Pencil } from 'lucide-react';
+import { X, LogOut, Shield, Pencil, Camera } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DisplayNameEditor } from './DisplayNameEditor';
+import { AvatarCropModal } from './AvatarCropModal';
+import { uploadAvatar, deleteAvatar } from '../utils/avatarUpload';
 import { showToast } from './Toast';
 
 interface LoginModalProps {
@@ -64,6 +66,42 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             showToast(t('profile.toast_name_error'), 'error');
         } finally {
             setIsSavingName(false);
+        }
+    };
+
+    const [showAvatarCrop, setShowAvatarCrop] = React.useState(false);
+    const [showDeleteAvatarConfirm, setShowDeleteAvatarConfirm] = React.useState(false);
+    const [isAvatarBusy, setIsAvatarBusy] = React.useState(false);
+
+    const handleAvatarComplete = async (blob: Blob) => {
+        if (!user) return;
+        setIsAvatarBusy(true);
+        setShowAvatarCrop(false);
+        try {
+            const url = await uploadAvatar(user.uid, blob);
+            useAuthStore.setState({ profileAvatarUrl: url });
+            showToast(t('avatar.toast_uploaded'));
+        } catch (err) {
+            console.error('Avatar upload error:', err);
+            showToast(t('avatar.toast_upload_error'), 'error');
+        } finally {
+            setIsAvatarBusy(false);
+        }
+    };
+
+    const handleDeleteAvatar = async () => {
+        if (!user) return;
+        setIsAvatarBusy(true);
+        setShowDeleteAvatarConfirm(false);
+        try {
+            await deleteAvatar(user.uid);
+            useAuthStore.setState({ profileAvatarUrl: null });
+            showToast(t('avatar.toast_deleted'));
+        } catch (err) {
+            console.error('Avatar delete error:', err);
+            showToast(t('avatar.toast_upload_error'), 'error');
+        } finally {
+            setIsAvatarBusy(false);
         }
     };
 
@@ -126,13 +164,41 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         {user && (
                             <div className="px-6 pb-6 pt-2">
                                 <div className="flex items-center gap-3 mb-5 p-3 rounded-xl bg-app-surface2/50 border border-app-border">
-                                    {profileAvatarUrl ? (
-                                        <img src={profileAvatarUrl} alt="" className="w-10 h-10 rounded-full shrink-0" />
-                                    ) : (
-                                        <div className="w-10 h-10 rounded-full bg-app-surface2 flex items-center justify-center shrink-0">
-                                            <span className="text-app-xl font-bold text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>
-                                        </div>
-                                    )}
+                                        <div className="flex flex-col items-center gap-1 shrink-0">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowAvatarCrop(true)}
+                                            disabled={isAvatarBusy}
+                                            aria-label={t('avatar.change')}
+                                            title={t('avatar.change')}
+                                            className={clsx(
+                                                "relative w-10 h-10 rounded-full overflow-hidden cursor-pointer group",
+                                                "border border-app-border hover:border-app-text/40 transition-colors",
+                                                "disabled:opacity-50 disabled:cursor-not-allowed"
+                                            )}
+                                        >
+                                            {profileAvatarUrl ? (
+                                                <img src={profileAvatarUrl} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-app-surface2 flex items-center justify-center">
+                                                    <span className="text-app-xl font-bold text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Camera size={14} className="text-white" />
+                                            </div>
+                                        </button>
+                                        {profileAvatarUrl && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDeleteAvatarConfirm(true)}
+                                                disabled={isAvatarBusy}
+                                                className="text-[10px] text-app-text-muted/50 hover:text-app-text-muted transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {t('avatar.delete_button')}
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="min-w-0 flex-1">
                                         {editingName ? (
                                             <DisplayNameEditor
@@ -207,6 +273,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     title={t('nav.deleteAccountTitle')}
                                     message={isDeleting ? '...' : t('nav.deleteAccountMessage')}
                                     confirmLabel={t('nav.deleteAccountConfirm')}
+                                    variant="danger"
+                                />
+                                <AvatarCropModal
+                                    isOpen={showAvatarCrop}
+                                    onClose={() => setShowAvatarCrop(false)}
+                                    onComplete={handleAvatarComplete}
+                                />
+                                <ConfirmDialog
+                                    isOpen={showDeleteAvatarConfirm}
+                                    onConfirm={handleDeleteAvatar}
+                                    onCancel={() => setShowDeleteAvatarConfirm(false)}
+                                    title={t('avatar.delete_confirm_title')}
+                                    message={t('avatar.delete_confirm_body')}
+                                    confirmLabel={t('avatar.delete_confirm_yes')}
                                     variant="danger"
                                 />
                             </div>
