@@ -27,6 +27,8 @@ import { MobileFAB } from './MobileFAB';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
+import { LocalImportDialog } from './LocalImportDialog';
+import { useLocalImportDialog } from '../store/useLocalImportDialog';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -349,6 +351,57 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const authUser = useAuthStore((s) => s.user);
     const authLoading = useAuthStore((s) => s.loading);
     const [hasMigrated, setHasMigrated] = React.useState(false);
+
+    // B-1: ローカル取り込みダイアログ
+    const localImportOpen = useLocalImportDialog(s => s.isOpen);
+    const localImportIgnoreDontShow = useLocalImportDialog(s => s.ignoreDontShow);
+    const closeLocalImportDialog = useLocalImportDialog(s => s.close);
+    const localImportCount = usePlanStore(s =>
+        s.plans.filter(p => p.ownerId === 'local').length,
+    );
+
+    const handleLocalImportConfirm = React.useCallback(
+        async ({ dontShow }: { dontShow: boolean }) => {
+            closeLocalImportDialog();
+            if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
+
+            const currentUser = useAuthStore.getState().user;
+            if (!currentUser) return;
+            const profileName = useAuthStore.getState().profileDisplayName || 'User';
+            try {
+                const result = await usePlanStore.getState().importLocalPlans(
+                    currentUser.uid,
+                    profileName,
+                );
+                if (result.imported > 0 && result.skipped === 0) {
+                    showToast(t('local_import.toast_success', { count: result.imported }));
+                } else if (result.imported > 0 && result.skipped > 0) {
+                    showToast(t('local_import.toast_partial', {
+                        imported: result.imported,
+                        skipped: result.skipped,
+                    }));
+                } else if (result.skipped > 0) {
+                    showToast(t('local_import.toast_partial', {
+                        imported: 0,
+                        skipped: result.skipped,
+                    }), 'info');
+                }
+            } catch (err) {
+                console.error('Local import failed:', err);
+                showToast(t('local_import.toast_error'), 'error');
+            }
+        },
+        [closeLocalImportDialog, t],
+    );
+
+    const handleLocalImportCancel = React.useCallback(
+        ({ dontShow }: { dontShow: boolean }) => {
+            closeLocalImportDialog();
+            if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
+        },
+        [closeLocalImportDialog],
+    );
+
     // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
     React.useEffect(() => {
         if (!authUser) {
@@ -381,7 +434,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         }).finally(() => {
             usePlanStore.setState({ _migrationDone: true });
             // マイグレーション成功・失敗いずれでもPULL実行（他端末の変更を確実に取得）
-            planStore.pullFromFirestore(authUser.uid);
+            planStore.pullFromFirestore(authUser.uid).then(() => {
+                // B-1: ローカル取り込みダイアログ自動トリガー
+                const localCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
+                const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
+                if (localCount > 0 && !dontShow) {
+                    useLocalImportDialog.getState().open(false);
+                }
+            });
         });
     }, [authUser, authLoading, hasMigrated]);
 
@@ -691,6 +751,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </React.Suspense>
                 </div>
             )}
+
+            {/* B-1: ローカル取り込みダイアログ */}
+            <LocalImportDialog
+                isOpen={localImportOpen}
+                count={localImportCount}
+                ignoreDontShow={localImportIgnoreDontShow}
+                onConfirm={handleLocalImportConfirm}
+                onCancel={handleLocalImportCancel}
+            />
         </div>
     );
 };
