@@ -6,8 +6,6 @@ import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
 import { SupportPage } from './components/SupportPage';
 import {
-  // HousingComingSoonPage は将来の fallback として保持（現在は /housing で HousingPage を使用）
-  // HousingComingSoonPage,
   HousingPage,
   HousingDetailPagePlaceholder,
   HousingTourPagePlaceholder,
