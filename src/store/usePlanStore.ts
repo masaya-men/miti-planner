@@ -604,6 +604,11 @@ export const usePlanStore = create<PlanState>()(
              * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
              */
             migrateOnLogin: async (uid, displayName) => {
+                // 並行する syncDirtyPlans 経路を抑制 (二重 createPlan + 競合コピー生成防止)
+                // - _isSyncing=true で syncToFirestore を即 return させる
+                // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
+                //   migrateLocalPlansToFirestore と同じ ID を再 upload するのを防ぐ
+                set({ _isSyncing: true, _dirtyPlanIds: new Set<string>() });
                 try {
                     const { merged, dirtyIds, uploadedIds } = await planService.migrateLocalPlansToFirestore(
                         get().plans,
@@ -621,6 +626,8 @@ export const usePlanStore = create<PlanState>()(
                     });
                 } catch (err) {
                     console.error('マイグレーションエラー:', err);
+                } finally {
+                    set({ _isSyncing: false });
                 }
             },
 
