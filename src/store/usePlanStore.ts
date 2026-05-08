@@ -145,7 +145,8 @@ export const usePlanStore = create<PlanState>()(
             getPlan: (id: string) => get().plans.find((p) => p.id === id),
 
             createPlanFromTemplate: (contentId, templateData, title, initialData) => {
-                const newPlanId = `plan_${Date.now()}`;
+                // 同一 ms 内の連続呼び出しでも衝突しないよう crypto.randomUUID で確実にユニーク化
+                const newPlanId = `plan_${crypto.randomUUID()}`;
                 const maxEventTime = templateData.timelineEvents.length > 0
                     ? templateData.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
                     : undefined;
@@ -284,7 +285,7 @@ export const usePlanStore = create<PlanState>()(
 
                 const newPlan: SavedPlan = {
                     ...structuredClone(source),
-                    id: `plan_${Date.now()}`,
+                    id: `plan_${crypto.randomUUID()}`,
                     ownerId: 'local',
                     ownerDisplayName: 'Guest',
                     title: newTitle,

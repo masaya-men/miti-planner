@@ -1026,7 +1026,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 }
             }
 
-            const newPlanId = `plan_${Date.now()}`;
+            // crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止
+            const newPlanId = `plan_${crypto.randomUUID()}`;
             planStore.addPlan({
                 id: newPlanId,
                 ownerId: 'local',

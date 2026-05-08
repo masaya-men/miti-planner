@@ -152,8 +152,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         // 零式・絶: 既存のコンテンツID / それ以外: ユーザー入力名をそのまま使う
         const contentId = boss?.id || (hasContentRegistry(category) ? null : title.trim());
 
-        // 5. プラン保存
-        const newPlanId = `plan_${Date.now()}`;
+        // 5. プラン保存 (crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止)
+        const newPlanId = `plan_${crypto.randomUUID()}`;
         const finalSnapshot = store.getSnapshot();
         addPlan({
             id: newPlanId,
