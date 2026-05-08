@@ -583,16 +583,26 @@ export const usePlanStore = create<PlanState>()(
 
             executeLocalImport: async (uid, displayName, planIds, onProgress) => {
                 // App Check + Auth トークンを揃えてから書き込む (post-OAuth で未準備な場合に備える)
+                // forceRefresh: true で確実に新規トークン取得 (キャッシュが空 / 期限切れでも動く)
+                const appCheckExists = !!appCheck;
+                const authUserExists = !!auth.currentUser;
+                dlog('store', 'executeLocalImport token preflight', { appCheckExists, authUserExists });
                 try {
-                    const tokenWaits: Promise<unknown>[] = [];
-                    if (appCheck) tokenWaits.push(getToken(appCheck, false));
-                    if (auth.currentUser) tokenWaits.push(auth.currentUser.getIdToken(false));
-                    await Promise.all(tokenWaits);
-                    dlog('store', 'executeLocalImport tokens ready');
+                    const tokenResults: { source: string; tokenLen: number }[] = [];
+                    if (appCheck) {
+                        const r = await getToken(appCheck, true);
+                        tokenResults.push({ source: 'appCheck', tokenLen: r?.token?.length ?? 0 });
+                    }
+                    if (auth.currentUser) {
+                        const t = await auth.currentUser.getIdToken(true);
+                        tokenResults.push({ source: 'idToken', tokenLen: t?.length ?? 0 });
+                    }
+                    dlog('store', 'executeLocalImport tokens ready', { tokenResults });
                 } catch (err) {
                     dlog('store', 'executeLocalImport token wait FAILED', {
                         err,
                         msg: err instanceof Error ? err.message : String(err),
+                        code: (err as any)?.code,
                     });
                 }
 

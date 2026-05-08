@@ -463,16 +463,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // B-1 Revision 3: ローカル取り込みダイアログを開く前に App Check + ID トークンを揃える
             // - OAuth リダイレクト直後は reCAPTCHA Enterprise トークン未取得で createPlan が permission-denied になる
             // - ダイアログを開く時点でトークン完備にしておけば、ユーザーが「取り込む」押下した瞬間に成功する
+            const appCheckExists = !!appCheck;
+            const authUserExists = !!auth.currentUser;
+            dlog('layout', 'token preflight', { appCheckExists, authUserExists });
             try {
-                const tokenWaits: Promise<unknown>[] = [];
-                if (appCheck) tokenWaits.push(getToken(appCheck, false));
-                if (auth.currentUser) tokenWaits.push(auth.currentUser.getIdToken(false));
-                await Promise.all(tokenWaits);
-                dlog('layout', 'tokens ready');
+                const tokenResults: { source: string; tokenLen: number }[] = [];
+                if (appCheck) {
+                    // forceRefresh: true で確実に新規トークン取得 (post-OAuth キャッシュ空対策)
+                    const r = await getToken(appCheck, true);
+                    tokenResults.push({ source: 'appCheck', tokenLen: r?.token?.length ?? 0 });
+                }
+                if (auth.currentUser) {
+                    const t = await auth.currentUser.getIdToken(true);
+                    tokenResults.push({ source: 'idToken', tokenLen: t?.length ?? 0 });
+                }
+                dlog('layout', 'tokens ready', { tokenResults });
             } catch (err) {
                 dlog('layout', 'token wait FAILED (continuing)', {
                     err,
                     msg: err instanceof Error ? err.message : String(err),
+                    code: (err as any)?.code,
                 });
                 // トークン取得失敗でもダイアログは出す (executeLocalImport で再試行可能)
             }
