@@ -11,7 +11,11 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **Phase B-1 Revision 3 実装完了 (2026-05-08 終盤、実機検証待ち)**: Rev2 の silent upload 設計が App Check トークン初期化と相性悪く `permission-denied` で全 createPlan 失敗 → ログアウトでデータ消失する真因が診断ログで確定。設計を全面刷新: ログイン直後の暗黙書き込みを撤去し、ユーザーが「取り込む」ボタン押下したタイミングで 1 件ずつ Firestore へ書き込み + 進捗 UI 表示 + 失敗時再試行。`signOut` も `ownerId='local'` プランは保持に変更。設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。471/471 vitest PASS、tsc clean、build 成功。次セッションでユーザー実機検証 → 問題なければ診断ログ削除コミットでクリーンアップ。
+- **【最優先・実機検証待ち】Phase B-1 Revision 3 真因解決 (2026-05-09 未明)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に **新規作成プランを誤って圧縮** → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。原因は `getStalePlanIds` が「`lastOpened` 未記録 = stale」と扱い、かつ `addPlan` で `setLastOpened` を呼んでいなかったため。修正コミット **cf6d1df**: (1) `lastOpenedStore.getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番デプロイ済 (バンドル `index-BhHvFGDR.js`)。**次セッション最初**: ユーザー実機で「クリーン状態 → M9S+M10S 作成 → ログイン → ダイアログ → 取り込む」が完走するか検証。OK なら診断ログ撤去コミット → Phase B-2 着手。
+
+  **Rev3 設計刷新 (2026-05-08 ef3c2c9 + cf6d1df)**: silent upload 撤去、ログイン直後ローディングオーバーレイ → ダイアログ自動表示 → ユーザーが「取り込む」押下で 1 件ずつ進捗 UI 付きアップロード → 失敗時再試行。`signOut` も `ownerId='local'` プランは保持。設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。
+
+  **既知 UX 漏れ (実機検証 OK 後の別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚的に区別していないため、取り込み前後でプランが「最初から表示されてる」ように見える。「未取り込みバッジ」等を追加すべき。
 
   **現状コミット**: 92d42f0 (チュートリアル保険) → 7833011 (並行同期抑制) → 15de127 (ID 衝突修正) → ef3c2c9 (B-1 Rev2 リスト UI) → 70821ea (TODO)。
 
