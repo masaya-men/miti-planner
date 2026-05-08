@@ -34,7 +34,6 @@ describe('HousingRegisterAddressFields', () => {
   });
 
   it('DC を選ぶとサーバーリストが絞り込まれる', async () => {
-    const user = userEvent.setup();
     const onChange = vi.fn();
     render(<HousingRegisterAddressFields value={{ ...baseValue, dc: 'Mana' }} onChange={onChange} errors={{}} />);
     const serverSelect = screen.getByLabelText(/housing\.register\.server/i) as HTMLSelectElement;
