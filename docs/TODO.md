@@ -55,7 +55,7 @@
 
 ### 次にやること（優先順）
 - **【完了 2026-05-08】Sub-spec 2A Phase A 補完 (§5 認証モデル実装)**: commit d24031e、デプロイ済み。実機確認後 Phase B へ。
-- **【最優先・次セッション】Phase B アカウントリンク機能（旧次々セッション）**: Discord と Twitter の uid 紐付け。LoPo 認証プライバシー原則維持のため自前マッピングテーブル方式 (`account_links/{provider:id} → primaryUid`)。ユーザー UX は LoginModal に「他プロバイダ連携」ボタン → 30 秒で完了。バックエンド: 連携 API + 既存ログインの分岐 + 解除 API。フロントエンド: LoginModal 拡張。工数 1.5-2 日。Sub-spec 2B 着手前に実装が望ましい。
+- **【最優先・現在セッション中】Phase B 認証体験向上 (設計書 2026-05-08 完成)**: 設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b-account-link-design.md`。3 サブスペック構成: ①B-1 ローカル取り込み (未ログイン→ログイン時にローカルプランをクラウドへ自動取り込み、毎回確認 + 「次回から表示しない」、枠超過時は入る分だけ取り込み + 残りはローカルに残す、LoginModal 内に明示再取り込みボタン) ②B-2 アカウントリンク (Discord ↔ X、自前マッピング `account_links/{provider:id} → primaryUid`、既存ハンドラに `mode=link` 分岐追加、`/api/auth/links` GET/POST 統合エンドポイント新設) ③B-3 アバター + 表示名変更 (LoginModal でアバタークリック → 既存 AvatarCropModal、表示名インライン編集 + 鉛筆アイコン)。実装順 B-3 → B-1 → B-2 (土台→独立→高リスク統合)。i18n 4 言語必須、glass-tier3 トンマナ統一、ConfirmDialog/toast/spinner 既存流用。工数 2-3 日。次は writing-plans でサブスペック別実装プラン作成。
 - **Sub-spec 2B (Gallery & Search) のプラン作成 → 実装**: Phase B 完了後。登録済みデータをギャラリー表示・検索フィルタ (タグ / DC / エリア / サイズ) ・URL クエリ反映・お気に入り。画像はまだ「画像なし」プレースホルダで OK。リキッドグラスやルーペは Sub-spec 2C 以降。工数想定 3-5 日。
 - **Sub-spec 2A 残り実機確認**: ログイン後の登録フォームで 1 件登録成功 (DC=Mana / Server=Pandaemonium / Area=Shirogane / Ward=3 / Plot=12 / Size=M / タグ 1-2 件) / ward に 31 を入れるとバリデーションエラー / 同住所で 2 回目登録 → 重複警告ダイアログ。Phase A 完了後にまとめて実施。
 - **【完了 2026-05-07】方針議論**: 業界調査の上、LoPo / ハウジングツアー両方の運営方針を確定。詳細は `docs/.private/` と memory 参照
