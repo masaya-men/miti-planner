@@ -116,6 +116,31 @@
         "start_button": "시작하기",
         "authenticating": "로그인 중..."
     },
+    "avatar": {
+        "crop_title": "아이콘 설정",
+        "select_image": "이미지 선택",
+        "max_size": "PNG / JPEG / WebP (최대 50MB)",
+        "confirm": "이 이미지로 설정",
+        "change": "아이콘 변경",
+        "error_invalid_type": "PNG, JPEG, WebP 이미지만 지원됩니다",
+        "error_too_large": "50MB 이하의 이미지를 선택해 주세요",
+        "delete_button": "아이콘 삭제",
+        "delete_confirm_title": "아이콘을 삭제하시겠습니까?",
+        "delete_confirm_body": "삭제하면 표시 이름의 첫 글자가 대신 표시됩니다.",
+        "delete_confirm_yes": "삭제",
+        "toast_uploaded": "아이콘이 변경되었습니다",
+        "toast_deleted": "아이콘이 삭제되었습니다",
+        "toast_upload_error": "업로드에 실패했습니다"
+    },
+    "profile": {
+        "edit_display_name": "표시 이름 편집",
+        "save": "저장",
+        "cancel": "취소",
+        "name_too_short": "표시 이름을 입력해 주세요",
+        "name_too_long": "표시 이름은 30자 이내로 입력해 주세요",
+        "toast_name_updated": "표시 이름이 변경되었습니다",
+        "toast_name_error": "표시 이름 변경에 실패했습니다"
+    },
     "aa_settings": {
         "title": "AA 추가 모드",
         "popover_header": "오토어택 설정",

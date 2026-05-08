@@ -131,7 +131,23 @@
         "confirm": "この画像にする",
         "change": "アイコンを変更",
         "error_invalid_type": "PNG・JPEG・WebP画像のみ対応しています",
-        "error_too_large": "50MB以下の画像を選んでください"
+        "error_too_large": "50MB以下の画像を選んでください",
+        "delete_button": "アイコンを削除",
+        "delete_confirm_title": "アイコンを削除しますか?",
+        "delete_confirm_body": "削除すると、表示名の頭文字が代わりに表示されます。",
+        "delete_confirm_yes": "削除する",
+        "toast_uploaded": "アイコンを変更しました",
+        "toast_deleted": "アイコンを削除しました",
+        "toast_upload_error": "アップロードに失敗しました"
+    },
+    "profile": {
+        "edit_display_name": "表示名を編集",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "name_too_short": "表示名を入力してください",
+        "name_too_long": "表示名は30文字以内で入力してください",
+        "toast_name_updated": "表示名を変更しました",
+        "toast_name_error": "表示名の変更に失敗しました"
     },
     "aa_settings": {
         "title": "AA追加モード",

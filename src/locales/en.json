@@ -131,7 +131,23 @@
         "confirm": "Use this image",
         "change": "Change icon",
         "error_invalid_type": "Only PNG, JPEG, and WebP images are supported",
-        "error_too_large": "Please select an image under 50MB"
+        "error_too_large": "Please select an image under 50MB",
+        "delete_button": "Remove avatar",
+        "delete_confirm_title": "Remove avatar?",
+        "delete_confirm_body": "Your display name initial will be shown instead.",
+        "delete_confirm_yes": "Remove",
+        "toast_uploaded": "Avatar updated",
+        "toast_deleted": "Avatar removed",
+        "toast_upload_error": "Upload failed"
+    },
+    "profile": {
+        "edit_display_name": "Edit display name",
+        "save": "Save",
+        "cancel": "Cancel",
+        "name_too_short": "Display name is required",
+        "name_too_long": "Display name must be 30 characters or fewer",
+        "toast_name_updated": "Display name updated",
+        "toast_name_error": "Failed to update display name"
     },
     "aa_settings": {
         "title": "Add AA Mode",

@@ -116,6 +116,31 @@
         "start_button": "开始使用",
         "authenticating": "登录中..."
     },
+    "avatar": {
+        "crop_title": "设置头像",
+        "select_image": "选择图片",
+        "max_size": "PNG / JPEG / WebP（最大 50MB）",
+        "confirm": "使用此图片",
+        "change": "更换头像",
+        "error_invalid_type": "仅支持 PNG、JPEG 和 WebP 图片",
+        "error_too_large": "请选择 50MB 以下的图片",
+        "delete_button": "删除头像",
+        "delete_confirm_title": "确定要删除头像吗?",
+        "delete_confirm_body": "删除后将显示昵称首字符作为替代。",
+        "delete_confirm_yes": "删除",
+        "toast_uploaded": "头像已更新",
+        "toast_deleted": "头像已删除",
+        "toast_upload_error": "上传失败"
+    },
+    "profile": {
+        "edit_display_name": "编辑昵称",
+        "save": "保存",
+        "cancel": "取消",
+        "name_too_short": "请输入昵称",
+        "name_too_long": "昵称不能超过 30 个字符",
+        "toast_name_updated": "昵称已更新",
+        "toast_name_error": "昵称更新失败"
+    },
     "aa_settings": {
         "title": "添加自动攻击模式",
         "popover_header": "自动攻击设置",
