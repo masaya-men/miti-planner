@@ -66,7 +66,7 @@ export function computeImportPlan(args: ComputeImportPlanArgs): ImportPlan {
         const titlesForContent = liveTitles.get(cid) ?? [];
         const existingForTitleCheck = titlesForContent.map(title => ({ title, contentId: cid || null }));
         const finalTitle = generateUniqueTitle(plan.title, existingForTitleCheck, cid || null);
-        const newId = `plan_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const newId = `plan_${crypto.randomUUID()}`;
 
         toImport.push({ original: plan, newId, finalTitle });
         breakdown.imported += 1;
