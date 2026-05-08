@@ -200,13 +200,43 @@ async function createPlan(
     throw new Error(`PLAN_LIMIT_${limitCheck.reason}`);
   }
 
-  const batch = writeBatch(db);
-
-  // プランドキュメント
+  // 診断: バッチコミット直前に、プラン本体のみ単体で書き込みテスト → カウンター更新の問題か
+  // プラン書き込みの問題かを切り分ける。失敗時は単体エラーが見えるのでログに残す。
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
-  batch.set(planRef, toFirestoreCreate(plan, uid, displayName));
+  const planData = toFirestoreCreate(plan, uid, displayName);
 
-  // カウンター更新
+  // 投げるデータの内訳をログに残す (Rules 評価で何が弾かれるかの手がかり)
+  dlog('migrate', 'createPlan toFirestore detail', {
+    planId: plan.id,
+    fields: Object.keys(planData).sort(),
+    ownerId: planData.ownerId,
+    title: planData.title,
+    titleLen: typeof planData.title === 'string' ? planData.title.length : -1,
+    contentId: planData.contentId,
+    contentIdType: typeof planData.contentId,
+    isPublic: planData.isPublic,
+    isPublicType: typeof planData.isPublic,
+    version: planData.version,
+    copyCount: planData.copyCount,
+    useCount: planData.useCount,
+    dataExists: planData.data !== undefined && planData.data !== null,
+    dataIsObject: typeof planData.data === 'object' && planData.data !== null && !Array.isArray(planData.data),
+    dataKeys: planData.data && typeof planData.data === 'object' ? Object.keys(planData.data).sort() : [],
+  });
+
+  // 単独 setDoc で plan 単体の書き込みを試行 (バッチ操作の counter update 影響を排除)
+  try {
+    await setDoc(planRef, planData);
+    dlog('migrate', 'createPlan plan-only setDoc OK');
+  } catch (err) {
+    dlog('migrate', 'createPlan plan-only setDoc FAILED', {
+      msg: err instanceof Error ? err.message : String(err),
+      code: (err as any)?.code,
+    });
+    throw err;
+  }
+
+  // 成功したら counter のみ別途更新 (バッチが原因なら ここで分かる)
   const countRef = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
   const countUpdate: Record<string, any> = {
     total: increment(1),
@@ -215,9 +245,18 @@ async function createPlan(
   if (contentId) {
     countUpdate[`byContent.${contentId}`] = increment(1);
   }
-  batch.update(countRef, countUpdate);
-
-  await batch.commit();
+  try {
+    const counterBatch = writeBatch(db);
+    counterBatch.update(countRef, countUpdate);
+    await counterBatch.commit();
+    dlog('migrate', 'createPlan counter update OK');
+  } catch (err) {
+    dlog('migrate', 'createPlan counter update FAILED (plan was already written!)', {
+      msg: err instanceof Error ? err.message : String(err),
+      code: (err as any)?.code,
+    });
+    // プランは既に書き込み済みなので throw しない (整合性は repairPlanCounts で次回リカバリ)
+  }
 }
 
 /** プランを Firestore で更新（存在しない場合はエラーをthrow → 呼び出し側でcreateにフォールバック） */
