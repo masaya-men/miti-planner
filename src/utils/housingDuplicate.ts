@@ -5,7 +5,7 @@
  * housing_listings ドキュメントに addressKey フィールドを保存し、
  * `where('addressKey', '==', key)` で一致を検索する。
  */
-import type { AddressInput } from './housingValidation';
+import type { AddressInput } from './housingValidation.js';
 
 export function buildAddressKey(addr: AddressInput): string {
   const base = `${addr.dc}|${addr.server}|${addr.area}|W${addr.ward}|P${addr.plot}|${addr.size}`;

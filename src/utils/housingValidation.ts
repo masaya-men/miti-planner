@@ -9,14 +9,14 @@ import {
   isValidHousingSize,
   type HousingArea,
   type HousingSize,
-} from '../types/housing';
+} from '../types/housing.js';
 import {
   WARD_RANGE,
   PLOT_RANGE,
   APARTMENT_ROOM_RANGE,
   HOUSING_LIMITS,
-} from '../constants/housing';
-import { isValidTagId } from '../data/housingTags';
+} from '../constants/housing.js';
+import { isValidTagId } from '../data/housingTags.js';
 
 export interface AddressInput {
   dc: string;

@@ -7,8 +7,8 @@
  * - 30 件超過後は 1 日 5 件まで (UTC 日付ベース)
  * - 同日削除なら count を戻す (registrationCount が 30 を境に remaining も連動復活)
  */
-import type { HousingUserMeta } from '../types/housing';
-import { REGISTRATION_INITIAL_BONUS, REGISTRATION_DAILY_QUOTA } from '../constants/housing';
+import type { HousingUserMeta } from '../types/housing.js';
+import { REGISTRATION_INITIAL_BONUS, REGISTRATION_DAILY_QUOTA } from '../constants/housing.js';
 
 export function initialUserMeta(now: number): HousingUserMeta {
   return {
