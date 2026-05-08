@@ -385,6 +385,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         imported: 0,
                         skipped: result.skipped,
                     }), 'info');
+                } else {
+                    // 0件取り込み・0件 skip: ダイアログ表示後に状態が変化したエッジケース
+                    showToast(t('local_import.toast_success', { count: 0 }), 'info');
                 }
             } catch (err) {
                 console.error('Local import failed:', err);
