@@ -30,6 +30,8 @@ import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { dlog } from '../utils/debugLog';
+import { getToken } from 'firebase/app-check';
+import { appCheck, auth } from '../lib/firebase';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -449,36 +451,52 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         }).catch((err) => {
             dlog('layout', 'migrateOnLogin REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
             console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
-        }).finally(() => {
+        }).finally(async () => {
             usePlanStore.setState({ _migrationDone: true });
             // PULL: 他端末の変更を確実に取得
-            planStore.pullFromFirestore(authUser.uid).then(() => {
-                // B-1 Revision 3: ローカル取り込みダイアログ自動トリガー
-                // - state 内に `ownerId='local'` プランがあればダイアログを表示候補
-                // - dontShow フラグが立っていなければ実際に表示
-                const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
-                const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
-                const willOpen = localPlanCount > 0 && !dontShow;
-                dlog('layout', 'auto-trigger check', {
-                    localPlanCount,
-                    dontShow,
-                    willOpenDialog: willOpen,
-                    plansCountAfterPull: usePlanStore.getState().plans.length,
-                });
-                if (willOpen) {
-                    // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
-                    setTimeout(() => {
-                        dlog('layout', 'opening dialog');
-                        useLocalImportDialog.getState().open({ ignoreDontShow: false });
-                        setIsImportPreparing(false);
-                    }, 40);
-                } else {
-                    setIsImportPreparing(false);
-                }
-            }).catch(err => {
+            try {
+                await planStore.pullFromFirestore(authUser.uid);
+            } catch (err) {
                 dlog('layout', 'pullFromFirestore REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
-                setIsImportPreparing(false);
+            }
+
+            // B-1 Revision 3: ローカル取り込みダイアログを開く前に App Check + ID トークンを揃える
+            // - OAuth リダイレクト直後は reCAPTCHA Enterprise トークン未取得で createPlan が permission-denied になる
+            // - ダイアログを開く時点でトークン完備にしておけば、ユーザーが「取り込む」押下した瞬間に成功する
+            try {
+                const tokenWaits: Promise<unknown>[] = [];
+                if (appCheck) tokenWaits.push(getToken(appCheck, false));
+                if (auth.currentUser) tokenWaits.push(auth.currentUser.getIdToken(false));
+                await Promise.all(tokenWaits);
+                dlog('layout', 'tokens ready');
+            } catch (err) {
+                dlog('layout', 'token wait FAILED (continuing)', {
+                    err,
+                    msg: err instanceof Error ? err.message : String(err),
+                });
+                // トークン取得失敗でもダイアログは出す (executeLocalImport で再試行可能)
+            }
+
+            // 自動トリガー
+            const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
+            const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
+            const willOpen = localPlanCount > 0 && !dontShow;
+            dlog('layout', 'auto-trigger check', {
+                localPlanCount,
+                dontShow,
+                willOpenDialog: willOpen,
+                plansCountAfterPull: usePlanStore.getState().plans.length,
             });
+            if (willOpen) {
+                // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
+                setTimeout(() => {
+                    dlog('layout', 'opening dialog');
+                    useLocalImportDialog.getState().open({ ignoreDontShow: false });
+                    setIsImportPreparing(false);
+                }, 40);
+            } else {
+                setIsImportPreparing(false);
+            }
         });
     }, [authUser, authLoading, hasMigrated]);
 

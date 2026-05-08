@@ -13,6 +13,8 @@ import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
 import { dlog } from '../utils/debugLog';
+import { getToken } from 'firebase/app-check';
+import { appCheck, auth } from '../lib/firebase';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -580,6 +582,20 @@ export const usePlanStore = create<PlanState>()(
             getLocalPlanIds: () => get().plans.filter(p => p.ownerId === 'local').map(p => p.id),
 
             executeLocalImport: async (uid, displayName, planIds, onProgress) => {
+                // App Check + Auth トークンを揃えてから書き込む (post-OAuth で未準備な場合に備える)
+                try {
+                    const tokenWaits: Promise<unknown>[] = [];
+                    if (appCheck) tokenWaits.push(getToken(appCheck, false));
+                    if (auth.currentUser) tokenWaits.push(auth.currentUser.getIdToken(false));
+                    await Promise.all(tokenWaits);
+                    dlog('store', 'executeLocalImport tokens ready');
+                } catch (err) {
+                    dlog('store', 'executeLocalImport token wait FAILED', {
+                        err,
+                        msg: err instanceof Error ? err.message : String(err),
+                    });
+                }
+
                 const results: { id: string; status: 'success' | 'failed'; error?: string }[] = [];
                 for (const planId of planIds) {
                     const plan = get().plans.find(p => p.id === planId);
