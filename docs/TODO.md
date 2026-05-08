@@ -21,6 +21,8 @@
 
   3. **(次セッション扱い) 致命バグ修正の自動テスト追加**: addPlan 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest を追加。今セッションは時間制約で既存 471 テスト PASS で代替、実機検証で最終確認。
 
+  4. **🐛 ユーザー報告 (2026-05-09 深夜・要再現確認)**: 共有URLバグ修正の実機検証中、「シークレットウィンドウで非ログインコピー → 削除したつもり → ログインしたら『ローカルから取り込む?』ダイアログで同じプランを取り込まさせられた」現象。考えられる原因: (a) シークレットウィンドウの localStorage 分離による「削除したつもり」の誤認、(b) `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加せず Firestore 削除指示を出さない既知バグ ([TODO.md 既知残課題に記載済](#))、(c) LocalImportDialog の自動トリガー条件 `getLocalPlanIds` が削除済みプランも拾っている可能性。次セッションで再現手順を一緒に作って判定 → 該当箇所修正。
+
 - **【完了 2026-05-09 未明・実機 OK】Phase B-1 Revision 3 真因解決 (silentCompressStale 誤発動)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に新規作成プランを誤って圧縮 → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。修正 (cf6d1df): (1) `getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番バンドル `index-BhHvFGDR.js`。実機検証 OK 確認済 (2026-05-09)。Rev3 設計刷新は `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。**既知 UX 漏れ (別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚区別しない → 「未取り込みバッジ」追加すべき。**残作業**: 診断ログ撤去 (`debugLog.ts` + 各所 `dlog`、`scripts/inspect-user-plans.ts` は残す)。次の取り込みフロー Rev3 完了タスクと一緒に実施予定。
 
 - **【完了 2026-05-08 朝】Phase B-1 Revision 2 実装**: Revision 1 で実機テスト「ダイアログが見えないうちに取り込みが終わってる」問題が発覚し設計撤回。Revision 2 はアップロード自体は黙って実行し、ログイン後 700ms 待機後にダイアログを **リスト UI** で表示 → チェックボックスで取捨選択 → チェック OFF は裏で Firestore から削除 + ローカル `ownerId='local'` で残す方式。設計書 §5.0 Revision 2、ef3c2c9。**実装は完了したが上記重大バグで実機動作せず**。
