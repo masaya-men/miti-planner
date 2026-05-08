@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { X, LogOut, Shield, Pencil, Camera } from 'lucide-react';
+import { X, LogOut, Shield, Pencil, Camera, Download } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useLocalImportDialog } from '../store/useLocalImportDialog';
+import { usePlanStore } from '../store/usePlanStore';
 import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DisplayNameEditor } from './DisplayNameEditor';
@@ -54,6 +56,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [editingName, setEditingName] = React.useState(false);
     const [isSavingName, setIsSavingName] = React.useState(false);
     const updateDisplayName = useAuthStore(s => s.updateDisplayName);
+    const localPlanCount = usePlanStore(s =>
+        s.plans.filter(p => p.ownerId === 'local').length,
+    );
+    const openLocalImport = useLocalImportDialog(s => s.open);
 
     const handleSaveDisplayName = async (newName: string) => {
         setIsSavingName(true);
@@ -244,6 +250,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     >
                                         <Settings size={14} />
                                         {t('nav.adminPanel')}
+                                    </button>
+                                )}
+
+                                {localPlanCount > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            openLocalImport(true);
+                                            onClose();
+                                        }}
+                                        className={clsx(
+                                            "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer mb-2",
+                                            "text-app-toggle border border-app-toggle/40 hover:bg-app-toggle/10 hover:border-app-toggle"
+                                        )}
+                                    >
+                                        <Download size={14} />
+                                        {t('local_import.modal_button', { count: localPlanCount })}
                                     </button>
                                 )}
 
