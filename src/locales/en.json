@@ -150,6 +150,18 @@
         "toast_name_updated": "Display name updated",
         "toast_name_error": "Failed to update display name"
     },
+    "local_import": {
+        "title": "Import your local plans?",
+        "body": "You have {{count}} plan(s) saved while signed out. Save them to the cloud so you can access them from other devices?",
+        "dont_show_again": "Don't show this automatically next time",
+        "confirm": "Import",
+        "cancel": "Not now",
+        "toast_success": "Imported {{count}} plan(s)",
+        "toast_partial": "Imported {{imported}} ・ {{skipped}} skipped (quota full)",
+        "toast_error": "Failed to import",
+        "button_retry": "Retry",
+        "modal_button": "Import local plans ({{count}})"
+    },
     "aa_settings": {
         "title": "Add AA Mode",
         "popover_header": "Auto-Attack Settings",

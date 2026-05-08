@@ -142,6 +142,18 @@
         "toast_name_updated": "昵称已更新",
         "toast_name_error": "昵称更新失败"
     },
+    "local_import": {
+        "title": "导入本地方案?",
+        "body": "你在未登录时创建了 {{count}} 个方案。是否要保存到云端,以便在其他设备上查看?",
+        "dont_show_again": "下次起不再自动显示",
+        "confirm": "导入",
+        "cancel": "暂不导入",
+        "toast_success": "已导入 {{count}} 个方案",
+        "toast_partial": "已导入 {{imported}} 个 ・ {{skipped}} 个因配额不足保留在本地",
+        "toast_error": "导入失败",
+        "button_retry": "重试",
+        "modal_button": "导入本地方案 ({{count}}个)"
+    },
     "aa_settings": {
         "title": "添加自动攻击模式",
         "popover_header": "自动攻击设置",

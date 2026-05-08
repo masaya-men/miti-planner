@@ -150,6 +150,18 @@
         "toast_name_updated": "表示名を変更しました",
         "toast_name_error": "表示名の変更に失敗しました"
     },
+    "local_import": {
+        "title": "ローカルにあるプランを取り込みますか?",
+        "body": "ログインしていない時に作ったプランが {{count}} 件あります。クラウドに保存して、別の端末からも見られるようにしますか?",
+        "dont_show_again": "次回から自動で表示しない",
+        "confirm": "取り込む",
+        "cancel": "取り込まない",
+        "toast_success": "{{count}} 件のプランを取り込みました",
+        "toast_partial": "{{imported}} 件取り込みました ・ {{skipped}} 件は枠不足で残してあります",
+        "toast_error": "取り込みに失敗しました",
+        "button_retry": "再試行",
+        "modal_button": "ローカルプランを取り込む ({{count}}件)"
+    },
     "aa_settings": {
         "title": "AA追加モード",
         "popover_header": "オートアタック設定",

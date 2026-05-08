@@ -142,6 +142,18 @@
         "toast_name_updated": "표시 이름이 변경되었습니다",
         "toast_name_error": "표시 이름 변경에 실패했습니다"
     },
+    "local_import": {
+        "title": "로컬 플랜을 가져오시겠습니까?",
+        "body": "로그인하지 않은 상태에서 작성한 플랜이 {{count}}개 있습니다. 클라우드에 저장하여 다른 기기에서도 볼 수 있도록 하시겠습니까?",
+        "dont_show_again": "다음부터 자동으로 표시하지 않음",
+        "confirm": "가져오기",
+        "cancel": "가져오지 않음",
+        "toast_success": "{{count}}개의 플랜을 가져왔습니다",
+        "toast_partial": "{{imported}}개 가져옴 ・ {{skipped}}개는 한도 부족으로 남겨두었습니다",
+        "toast_error": "가져오기에 실패했습니다",
+        "button_retry": "다시 시도",
+        "modal_button": "로컬 플랜 가져오기 ({{count}}개)"
+    },
     "aa_settings": {
         "title": "AA 추가 모드",
         "popover_header": "오토어택 설정",
