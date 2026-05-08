@@ -4,6 +4,8 @@ import { useCanonicalUrl } from '../../hooks/useCanonicalUrl';
 import { HOUSING_ROUTES } from '../../constants/housing';
 import { HousingTabBar, type HousingTab } from './HousingTabBar';
 import { HousingPlaceholderView } from './HousingPlaceholderView';
+import { HousingRegisterView } from './register/HousingRegisterView';
+import { HousingOnboardingDialog, hasSeenHousingOnboarding } from './HousingOnboardingDialog';
 
 function readTabFromHash(): HousingTab {
   const hash = window.location.hash.replace('#', '');
@@ -15,10 +17,9 @@ export const HousingPage: React.FC = () => {
   useCanonicalUrl(HOUSING_ROUTES.TOP);
   const { t } = useTranslation();
   const [tab, setTab] = useState<HousingTab>(readTabFromHash);
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasSeenHousingOnboarding());
 
-  useEffect(() => {
-    document.title = t('app.page_title_housing');
-  }, [t]);
+  useEffect(() => { document.title = t('app.page_title_housing'); }, [t]);
 
   useEffect(() => {
     const onHashChange = () => setTab(readTabFromHash());
@@ -40,8 +41,12 @@ export const HousingPage: React.FC = () => {
       <div className="flex-1">
         {tab === 'search' && <HousingPlaceholderView i18nKey="housing.placeholder.search" />}
         {tab === 'tour' && <HousingPlaceholderView i18nKey="housing.placeholder.tour" />}
-        {tab === 'register' && <HousingPlaceholderView i18nKey="housing.placeholder.register_loading" />}
+        {tab === 'register' && <HousingRegisterView />}
       </div>
+      <HousingOnboardingDialog
+        open={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
     </main>
   );
 };

@@ -9,3 +9,7 @@ export { HousingTourPagePlaceholder } from './HousingTourPagePlaceholder';
 export { HousingPage } from './HousingPage';
 export { HousingTabBar } from './HousingTabBar';
 export { HousingPlaceholderView } from './HousingPlaceholderView';
+export { HousingOnboardingDialog, hasSeenHousingOnboarding } from './HousingOnboardingDialog';
+export { HousingDuplicateWarningDialog } from './HousingDuplicateWarningDialog';
+export { HousingLoginPrompt } from './HousingLoginPrompt';
+export { HousingRegisterView } from './register/HousingRegisterView';

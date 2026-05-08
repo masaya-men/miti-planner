@@ -6,7 +6,9 @@ import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
 import { SupportPage } from './components/SupportPage';
 import {
-  HousingComingSoonPage,
+  // HousingComingSoonPage は将来の fallback として保持（現在は /housing で HousingPage を使用）
+  // HousingComingSoonPage,
+  HousingPage,
   HousingDetailPagePlaceholder,
   HousingTourPagePlaceholder,
 } from './components/housing';
@@ -120,7 +122,7 @@ function App() {
             <Route path="/share/:shareId" element={<SharePage />} />
             <Route path="/support" element={<SupportPage />} />
 
-            <Route path="/housing" element={<HousingComingSoonPage />} />
+            <Route path="/housing" element={<HousingPage />} />
             <Route path="/housing/p/:id" element={<HousingDetailPagePlaceholder />} />
             <Route path="/housing/tour/:id" element={<HousingTourPagePlaceholder />} />
 
