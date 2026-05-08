@@ -12,6 +12,7 @@ import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
+import { dlog } from '../utils/debugLog';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -100,6 +101,13 @@ export const usePlanStore = create<PlanState>()(
             setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
+                dlog('store', 'addPlan', {
+                    id: plan.id,
+                    ownerId: plan.ownerId,
+                    contentId: plan.contentId,
+                    title: plan.title,
+                    plansBefore: get().plans.length,
+                });
                 set((state) => ({
                     plans: [plan, ...state.plans],
                     _dirtyPlanIds: new Set([...state._dirtyPlanIds, plan.id]),
@@ -205,7 +213,13 @@ export const usePlanStore = create<PlanState>()(
              */
             pullFromFirestore: async (uid) => {
                 const state = get();
-                if (state._isSyncing) return;
+                if (state._isSyncing) {
+                    dlog('store', 'pullFromFirestore SKIP (isSyncing=true)');
+                    return;
+                }
+                dlog('store', 'pullFromFirestore start', {
+                    plansCount: state.plans.length,
+                });
 
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
@@ -213,6 +227,10 @@ export const usePlanStore = create<PlanState>()(
                         state.plans,
                         uid,
                     );
+                    dlog('store', 'pullFromFirestore fetched', {
+                        mergedCount: merged.length,
+                        changed,
+                    });
                     if (changed) {
                         set({ plans: merged });
                         const currentPlanId = get().currentPlanId;
@@ -604,6 +622,11 @@ export const usePlanStore = create<PlanState>()(
              * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
              */
             migrateOnLogin: async (uid, displayName) => {
+                dlog('store', 'migrateOnLogin start', {
+                    uid,
+                    plansCount: get().plans.length,
+                    dirtyBefore: [...get()._dirtyPlanIds],
+                });
                 // 並行する syncDirtyPlans 経路を抑制 (二重 createPlan + 競合コピー生成防止)
                 // - _isSyncing=true で syncToFirestore を即 return させる
                 // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
@@ -624,10 +647,17 @@ export const usePlanStore = create<PlanState>()(
                         // B-1 Revision 2: 今回新規アップロードしたプラン ID をダイアログ表示用に保持
                         _lastUploadedLocalIds: uploadedIds,
                     });
+                    dlog('store', 'migrateOnLogin set state', {
+                        mergedCount: merged.length,
+                        uploadedIds,
+                        dirtyIds,
+                    });
                 } catch (err) {
+                    dlog('store', 'migrateOnLogin THREW', { err, msg: err instanceof Error ? err.message : String(err) });
                     console.error('マイグレーションエラー:', err);
                 } finally {
                     set({ _isSyncing: false });
+                    dlog('store', 'migrateOnLogin finally (isSyncing=false)');
                 }
             },
 

@@ -29,6 +29,7 @@ import { db } from './firebase';
 import { COLLECTIONS, PLAN_LIMITS } from '../types/firebase';
 import type { FirestorePlan, FirestoreUserPlanCounts } from '../types/firebase';
 import type { SavedPlan } from '../types';
+import { dlog } from '../utils/debugLog';
 
 // ========================================
 // 型変換ヘルパー
@@ -353,10 +354,24 @@ async function migrateLocalPlansToFirestore(
   uid: string,
   displayName: string,
 ): Promise<{ merged: SavedPlan[]; dirtyIds: string[]; uploadedIds: string[] }> {
+  dlog('migrate', 'start', {
+    uid,
+    localPlansCount: localPlans.length,
+    localPlanSummary: localPlans.map(p => ({
+      id: p.id,
+      ownerId: p.ownerId,
+      contentId: p.contentId,
+      title: p.title,
+      updatedAt: p.updatedAt,
+    })),
+  });
+
   // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
   try {
     await repairPlanCounts(uid);
+    dlog('migrate', 'repairPlanCounts ok');
   } catch (err) {
+    dlog('migrate', 'repairPlanCounts FAILED', { err });
     console.error('カウンター修復エラー（続行）:', err);
   }
 
@@ -364,24 +379,49 @@ async function migrateLocalPlansToFirestore(
   const remotePlans = await fetchUserPlans(uid);
   const remoteIds = new Set(remotePlans.map((p) => p.id));
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
+  dlog('migrate', 'fetched remote', {
+    remoteCount: remotePlans.length,
+    remoteIds: [...remoteIds],
+  });
 
   // ローカルにしかないプランをアップロード (B-1 Revision 2: ダイアログで取捨選択するため)
   const uploadedIds: string[] = [];
   const localOnly = localPlans.filter((p) => !remoteIds.has(p.id));
+  dlog('migrate', 'localOnly determined', {
+    localOnlyCount: localOnly.length,
+    localOnlyIds: localOnly.map(p => p.id),
+  });
   for (const plan of localOnly) {
-    if (plan.ownerId !== 'local') continue;
+    if (plan.ownerId !== 'local') {
+      dlog('migrate', 'skip non-local plan', { id: plan.id, ownerId: plan.ownerId });
+      continue;
+    }
+    dlog('migrate', 'createPlan attempt', {
+      id: plan.id,
+      contentId: plan.contentId,
+      title: plan.title,
+    });
     try {
       await createPlan(plan, uid, displayName);
       uploadedIds.push(plan.id);
+      dlog('migrate', 'createPlan ok', { id: plan.id });
     } catch (err) {
       // 上限に達した場合は残りをスキップ
       if (err instanceof Error && err.message.startsWith('PLAN_LIMIT_')) {
+        dlog('migrate', 'createPlan LIMIT_HIT - break', { id: plan.id, msg: err.message });
         console.warn('プラン上限に達したため、残りのローカルプランのアップロードをスキップ');
         break;
       }
+      dlog('migrate', 'createPlan FAILED - continue', {
+        id: plan.id,
+        err,
+        errMsg: err instanceof Error ? err.message : String(err),
+        errCode: (err as any)?.code,
+      });
       console.error('プランのアップロードに失敗:', err);
     }
   }
+  dlog('migrate', 'upload phase done', { uploadedIds });
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];
@@ -422,6 +462,12 @@ async function migrateLocalPlansToFirestore(
   // updatedAt降順でソート
   merged.sort((a, b) => b.updatedAt - a.updatedAt);
 
+  dlog('migrate', 'done', {
+    mergedCount: merged.length,
+    dirtyIds,
+    uploadedIds,
+    mergedSummary: merged.map(p => ({ id: p.id, ownerId: p.ownerId, contentId: p.contentId })),
+  });
   return { merged, dirtyIds, uploadedIds };
 }
 

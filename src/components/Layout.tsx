@@ -29,6 +29,7 @@ import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
+import { dlog } from '../utils/debugLog';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -422,12 +423,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
     React.useEffect(() => {
         if (!authUser) {
+            dlog('layout', 'logout detected (authUser=null)', {
+                plansCount: usePlanStore.getState().plans.length,
+                hasMigrated,
+            });
             setHasMigrated(false);
             usePlanStore.getState()._migrationDone && usePlanStore.setState({ _migrationDone: false });
         }
-    }, [authUser]);
+    }, [authUser, hasMigrated]);
     React.useEffect(() => {
         if (authLoading || !authUser || hasMigrated) return;
+        dlog('layout', 'login effect fired', {
+            uid: authUser.uid,
+            stateBeforeMigrate: {
+                plansCount: usePlanStore.getState().plans.length,
+                plansSummary: usePlanStore.getState().plans.map(p => ({
+                    id: p.id, ownerId: p.ownerId, contentId: p.contentId, title: p.title,
+                })),
+                currentPlanId: usePlanStore.getState().currentPlanId,
+                dirtyCount: usePlanStore.getState()._dirtyPlanIds.size,
+            },
+        });
         setHasMigrated(true);
         const planStore = usePlanStore.getState();
         const profileName = useAuthStore.getState().profileDisplayName || 'User';
@@ -438,6 +454,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
             // （localStorageのMitigationStoreは古いまま残るためここで強制更新）
             const { currentPlanId, plans } = usePlanStore.getState();
+            dlog('layout', 'migrateOnLogin resolved', {
+                plansCount: plans.length,
+                currentPlanId,
+                lastUploadedIds: usePlanStore.getState()._lastUploadedLocalIds,
+            });
             if (currentPlanId) {
                 const plan = plans.find(p => p.id === currentPlanId);
                 if (plan?.data) {
@@ -447,6 +468,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }
             }
         }).catch((err) => {
+            dlog('layout', 'migrateOnLogin REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
             console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
         }).finally(() => {
             usePlanStore.setState({ _migrationDone: true });
@@ -458,14 +480,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 // - 認証オーバーレイが消えてから 700ms 待機 → ダイアログ表示
                 const uploadedIds = usePlanStore.getState()._lastUploadedLocalIds;
                 const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
+                dlog('layout', 'auto-trigger check', {
+                    uploadedIds,
+                    uploadedCount: uploadedIds.length,
+                    dontShow,
+                    willOpenDialog: uploadedIds.length > 0 && !dontShow,
+                    plansCountAfterPull: usePlanStore.getState().plans.length,
+                });
                 if (uploadedIds.length > 0 && !dontShow) {
                     setTimeout(() => {
+                        dlog('layout', 'opening dialog (700ms timeout fired)', { uploadedIds });
                         useLocalImportDialog.getState().open({
                             ignoreDontShow: false,
                             targetPlanIds: uploadedIds,
                         });
                     }, 700);
                 }
+            }).catch(err => {
+                dlog('layout', 'pullFromFirestore REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
             });
         });
     }, [authUser, authLoading, hasMigrated]);

@@ -21,6 +21,7 @@ import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
+import { dlog } from '../utils/debugLog';
 
 type AuthProvider = 'discord' | 'twitter';
 
@@ -122,6 +123,17 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     signOut: async () => {
         const currentUser = auth.currentUser;
+        const planStateAtStart = usePlanStore.getState();
+        dlog('signout', 'start', {
+            uid: currentUser?.uid,
+            plansCount: planStateAtStart.plans.length,
+            plansSummary: planStateAtStart.plans.map(p => ({
+                id: p.id, ownerId: p.ownerId, contentId: p.contentId, title: p.title,
+            })),
+            dirtyCount: planStateAtStart._dirtyPlanIds.size,
+            dirtyIds: [...planStateAtStart._dirtyPlanIds],
+            deletedCount: planStateAtStart._deletedPlanIds.size,
+        });
         // ① ログアウト前にFirestoreに未同期の変更を全て反映
         if (currentUser) {
             try {
@@ -135,11 +147,16 @@ export const useAuthStore = create<AuthState>((set) => ({
                 }
                 // 全プランをFirestoreに強制同期（_isSyncingバイパス）
                 const profileName = useAuthStore.getState().profileDisplayName || 'User';
+                dlog('signout', 'forceSyncAll start', {
+                    dirtyCount: usePlanStore.getState()._dirtyPlanIds.size,
+                });
                 await planState.forceSyncAll(
                     currentUser.uid,
                     profileName,
                 );
+                dlog('signout', 'forceSyncAll done');
             } catch (err) {
+                dlog('signout', 'forceSyncAll FAILED', { err, msg: err instanceof Error ? err.message : String(err) });
                 console.error('ログアウト前の同期エラー:', err);
             }
         }
@@ -156,6 +173,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
 
         // ③ localStorageとZustandストアをクリア
+        dlog('signout', 'about to wipe local state', {
+            plansCount: usePlanStore.getState().plans.length,
+        });
         localStorage.removeItem('plan-storage');
         localStorage.removeItem('mitigation-storage');
         usePlanStore.setState({
@@ -166,6 +186,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             _deletedPlanIds: new Set(),
         });
         useMitigationStore.getState().resetForTutorial();
+        dlog('signout', 'wiped');
     },
 
     deleteAccount: async () => {
