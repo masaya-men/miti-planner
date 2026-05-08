@@ -8,17 +8,13 @@ interface LocalImportDialogState {
      * 自動トリガー (Layout) では false → チェックボックス表示。
      */
     ignoreDontShow: boolean;
-    /** 表示対象のプラン ID 一覧 (B-1 Revision 2: 既にFirestoreにアップロード済みのプラン) */
-    targetPlanIds: string[];
-    open: (params: { ignoreDontShow: boolean; targetPlanIds: string[] }) => void;
+    open: (params: { ignoreDontShow: boolean }) => void;
     close: () => void;
 }
 
 export const useLocalImportDialog = create<LocalImportDialogState>((set) => ({
     isOpen: false,
     ignoreDontShow: false,
-    targetPlanIds: [],
-    open: ({ ignoreDontShow, targetPlanIds }) =>
-        set({ isOpen: true, ignoreDontShow, targetPlanIds }),
+    open: ({ ignoreDontShow }) => set({ isOpen: true, ignoreDontShow }),
     close: () => set({ isOpen: false }),
 }));

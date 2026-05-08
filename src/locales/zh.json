@@ -143,16 +143,22 @@
         "toast_name_error": "昵称更新失败"
     },
     "local_import": {
-        "title": "方案已成功导入",
-        "subtitle": "要将哪些方案保存到云端?",
-        "help_text": "已勾选的方案将保存到云端。未勾选的方案仅保留在本设备上。",
+        "title": "导入本地方案",
+        "subtitle": "将本地的方案保存到您的账号吗?",
+        "help_text": "已勾选的方案将上传到云端。未勾选的方案仅保留在本设备上。",
         "dont_show_again": "下次起不再自动显示",
-        "confirm": "完成",
-        "cancel": "取消",
+        "confirm": "导入",
+        "cancel": "稍后",
+        "close": "关闭",
+        "preparing": "正在准备...",
+        "uploading_n_of_m": "正在上传 {{current}} / {{total}}…",
+        "uploading_in_progress": "正在上传,请稍候",
+        "partial_failure": "成功 {{success}} 个 ・ 失败 {{failed}} 个",
+        "retry_failed": "重试失败项",
         "toast_success": "已将 {{count}} 个方案保存到云端",
-        "toast_kept_local": "{{count}} 个方案仅保留在本设备上",
-        "toast_mixed": "保存 {{kept}} 个 ・ {{local}} 个仅保留在本设备",
-        "modal_button": "引入本地方案 ({{count}}个)"
+        "toast_partial": "保存 {{success}} 个 ・ 失败 {{failed}} 个",
+        "toast_all_failed": "全部 {{count}} 个上传失败,请重试",
+        "modal_button": "导入本地方案 ({{count}}个)"
     },
     "aa_settings": {
         "title": "添加自动攻击模式",

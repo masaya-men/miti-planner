@@ -172,21 +172,32 @@ export const useAuthStore = create<AuthState>((set) => ({
             isNewUser: false,
         });
 
-        // ③ localStorageとZustandストアをクリア
-        dlog('signout', 'about to wipe local state', {
-            plansCount: usePlanStore.getState().plans.length,
+        // ③ Zustand ストアの整理 (B-1 Revision 3: `ownerId='local'` プランは残す)
+        // 「ローカルにあるプラン」はユーザーの私物 → ログアウトしても消さない
+        // 「アカウントに紐づくプラン (ownerId=uid)」は logout でローカル state から外す → 再ログインで Firestore から復元
+        const localPlans = usePlanStore.getState().plans.filter(p => p.ownerId === 'local');
+        dlog('signout', 'about to filter state', {
+            beforeCount: usePlanStore.getState().plans.length,
+            keepingLocalCount: localPlans.length,
         });
-        localStorage.removeItem('plan-storage');
-        localStorage.removeItem('mitigation-storage');
+        const prevCurrentId = usePlanStore.getState().currentPlanId;
+        const newCurrentId = prevCurrentId && localPlans.some(p => p.id === prevCurrentId) ? prevCurrentId : null;
         usePlanStore.setState({
-            plans: [],
-            currentPlanId: null,
-            lastActivePlanId: null,
+            plans: localPlans,
+            currentPlanId: newCurrentId,
+            lastActivePlanId: newCurrentId,
             _dirtyPlanIds: new Set(),
             _deletedPlanIds: new Set(),
         });
-        useMitigationStore.getState().resetForTutorial();
-        dlog('signout', 'wiped');
+        // currentPlan が消えた場合のみ MitigationStore をリセット
+        if (newCurrentId === null) {
+            localStorage.removeItem('mitigation-storage');
+            useMitigationStore.getState().resetForTutorial();
+        }
+        dlog('signout', 'state filtered', {
+            afterCount: localPlans.length,
+            currentPlanId: newCurrentId,
+        });
     },
 
     deleteAccount: async () => {

@@ -256,15 +256,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 {localPlanCount > 0 && (
                                     <button
                                         type="button"
-                                        onClick={async () => {
+                                        onClick={() => {
                                             if (!user) return;
-                                            const profileName = useAuthStore.getState().profileDisplayName || 'User';
-                                            const targetIds = await usePlanStore.getState().prepareLocalImport(
-                                                user.uid,
-                                                profileName,
-                                            );
-                                            if (targetIds.length === 0) return;
-                                            openLocalImport({ ignoreDontShow: true, targetPlanIds: targetIds });
+                                            // B-1 Revision 3: ダイアログを開くだけ。実際のアップロードは
+                                            // ダイアログ内の「取り込む」ボタンで開始 (executeLocalImport)
+                                            openLocalImport({ ignoreDontShow: true });
                                             onClose();
                                         }}
                                         className={clsx(

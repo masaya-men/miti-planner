@@ -143,15 +143,21 @@
         "toast_name_error": "표시 이름 변경에 실패했습니다"
     },
     "local_import": {
-        "title": "플랜을 가져왔습니다",
-        "subtitle": "어떤 플랜을 클라우드에 저장하시겠습니까?",
-        "help_text": "체크한 플랜은 클라우드에 저장됩니다. 체크를 해제한 플랜은 이 기기에만 남습니다.",
+        "title": "로컬 플랜 가져오기",
+        "subtitle": "로컬 플랜을 계정에 저장하시겠습니까?",
+        "help_text": "체크한 플랜은 클라우드에 저장됩니다. 체크를 해제한 플랜은 이 기기에 남습니다.",
         "dont_show_again": "다음부터 자동으로 표시하지 않음",
-        "confirm": "확인",
-        "cancel": "취소",
+        "confirm": "가져오기",
+        "cancel": "나중에",
+        "close": "닫기",
+        "preparing": "준비 중...",
+        "uploading_n_of_m": "{{current}} / {{total}} 업로드 중…",
+        "uploading_in_progress": "업로드 중, 잠시만 기다려 주세요",
+        "partial_failure": "{{success}}개 성공 ・ {{failed}}개 실패",
+        "retry_failed": "실패한 항목 다시 시도",
         "toast_success": "{{count}}개의 플랜을 클라우드에 저장했습니다",
-        "toast_kept_local": "{{count}}개는 이 기기에만 남겨두었습니다",
-        "toast_mixed": "{{kept}}개 저장 ・ {{local}}개는 이 기기에만 남겨둠",
+        "toast_partial": "{{success}}개 저장 ・ {{failed}}개 실패",
+        "toast_all_failed": "{{count}}개 모두 실패했습니다. 다시 시도해 주세요.",
         "modal_button": "로컬 플랜 가져오기 ({{count}}개)"
     },
     "aa_settings": {

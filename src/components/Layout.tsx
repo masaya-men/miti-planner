@@ -353,67 +353,48 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const authLoading = useAuthStore((s) => s.loading);
     const [hasMigrated, setHasMigrated] = React.useState(false);
 
-    // B-1 Revision 2: ローカル取り込みダイアログ
+    // B-1 Revision 3: ローカル取り込みダイアログ
     const localImportOpen = useLocalImportDialog(s => s.isOpen);
     const localImportIgnoreDontShow = useLocalImportDialog(s => s.ignoreDontShow);
-    const localImportTargetIds = useLocalImportDialog(useShallow(s => s.targetPlanIds));
     const closeLocalImportDialog = useLocalImportDialog(s => s.close);
-    /** 表示対象のプラン (ダイアログに渡す: 既に Firestore にアップロード済みだが state 上は ownerId='local') */
+    /** 表示対象: state 内の `ownerId='local'` プランをそのまま渡す */
     const localImportPlans = usePlanStore(
-        useShallow(s => s.plans.filter(p => localImportTargetIds.includes(p.id))),
+        useShallow(s => s.plans.filter(p => p.ownerId === 'local')),
     );
+    /** 取り込み準備中（migrate + fetch + 700ms 待機）にローディングオーバーレイを表示 */
+    const [isImportPreparing, setIsImportPreparing] = React.useState(false);
 
-    const handleLocalImportConfirm = React.useCallback(
-        async ({ uncheckedPlanIds, dontShow }: { uncheckedPlanIds: string[]; dontShow: boolean }) => {
-            closeLocalImportDialog();
-            if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
-
+    const handleLocalImport = React.useCallback(
+        async (
+            planIds: string[],
+            onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed' }) => void,
+        ): Promise<{ id: string; status: 'success' | 'failed' }[]> => {
             const currentUser = useAuthStore.getState().user;
-            if (!currentUser) return;
-
-            // チェック ON のプラン: ownerId を 'local' → uid に書き換え (state 上で確定)
-            const checkedPlanIds = localImportTargetIds.filter(id => !uncheckedPlanIds.includes(id));
-            if (checkedPlanIds.length > 0) {
-                const profileName = useAuthStore.getState().profileDisplayName || 'User';
-                usePlanStore.setState(state => ({
-                    plans: state.plans.map(p =>
-                        checkedPlanIds.includes(p.id) && p.ownerId === 'local'
-                            ? { ...p, ownerId: currentUser.uid, ownerDisplayName: profileName }
-                            : p
-                    ),
-                }));
+            if (!currentUser) return [];
+            const profileName = useAuthStore.getState().profileDisplayName || 'User';
+            const results = await usePlanStore.getState().executeLocalImport(
+                currentUser.uid,
+                profileName,
+                planIds,
+                onProgress,
+            );
+            // サマリトースト
+            const successes = results.filter(r => r.status === 'success').length;
+            const failures = results.filter(r => r.status === 'failed').length;
+            if (successes > 0 && failures === 0) {
+                showToast(t('local_import.toast_success', { count: successes }));
+            } else if (successes > 0 && failures > 0) {
+                showToast(t('local_import.toast_partial', { success: successes, failed: failures }), 'error');
+            } else if (failures > 0) {
+                showToast(t('local_import.toast_all_failed', { count: failures }), 'error');
             }
-
-            // チェック OFF のプラン: Firestore から削除 + ローカルに ownerId='local' で残す (= Revision 2 の本質)
-            if (uncheckedPlanIds.length > 0) {
-                try {
-                    await usePlanStore.getState().applyLocalImportSelection(
-                        currentUser.uid,
-                        uncheckedPlanIds,
-                    );
-                } catch (err) {
-                    console.error('applyLocalImportSelection failed:', err);
-                }
-            }
-
-            // トースト出し分け
-            const keptCount = checkedPlanIds.length;
-            const localCount = uncheckedPlanIds.length;
-            if (keptCount > 0 && localCount === 0) {
-                showToast(t('local_import.toast_success', { count: keptCount }));
-            } else if (keptCount === 0 && localCount > 0) {
-                showToast(t('local_import.toast_kept_local', { count: localCount }), 'info');
-            } else if (keptCount > 0 && localCount > 0) {
-                showToast(t('local_import.toast_mixed', { kept: keptCount, local: localCount }));
-            }
+            return results;
         },
-        [closeLocalImportDialog, localImportTargetIds, t],
+        [t],
     );
 
-    const handleLocalImportCancel = React.useCallback(
+    const handleLocalImportClose = React.useCallback(
         ({ dontShow }: { dontShow: boolean }) => {
-            // キャンセル: 何もしない (チェック ON 扱いで全プランそのまま Firestore に残る)
-            // ローカル state も ownerId='local' のままだが、次回 syncToFirestore で uid に書き戻される
             closeLocalImportDialog();
             if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
         },
@@ -445,6 +426,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             },
         });
         setHasMigrated(true);
+        // 取り込みダイアログ表示 or 「ダイアログ不要」確定までローディングオーバーレイを出す
+        // (ユーザーが migrate/fetch 完了前に画面操作 → ダイアログとの競合 を防ぐ)
+        setIsImportPreparing(true);
         const planStore = usePlanStore.getState();
         const profileName = useAuthStore.getState().profileDisplayName || 'User';
         planStore.migrateOnLogin(
@@ -452,13 +436,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             profileName,
         ).then(() => {
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
-            // （localStorageのMitigationStoreは古いまま残るためここで強制更新）
             const { currentPlanId, plans } = usePlanStore.getState();
-            dlog('layout', 'migrateOnLogin resolved', {
-                plansCount: plans.length,
-                currentPlanId,
-                lastUploadedIds: usePlanStore.getState()._lastUploadedLocalIds,
-            });
+            dlog('layout', 'migrateOnLogin resolved', { plansCount: plans.length, currentPlanId });
             if (currentPlanId) {
                 const plan = plans.find(p => p.id === currentPlanId);
                 if (plan?.data) {
@@ -472,32 +451,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
         }).finally(() => {
             usePlanStore.setState({ _migrationDone: true });
-            // マイグレーション成功・失敗いずれでもPULL実行（他端末の変更を確実に取得）
+            // PULL: 他端末の変更を確実に取得
             planStore.pullFromFirestore(authUser.uid).then(() => {
-                // B-1 Revision 2: ローカル取り込みダイアログ自動トリガー
-                // - migrateOnLogin で ownerId='local' プランは既に Firestore にアップロード済み
-                // - _lastUploadedLocalIds で今回アップロードしたプラン ID を取得
-                // - 認証オーバーレイが消えてから 700ms 待機 → ダイアログ表示
-                const uploadedIds = usePlanStore.getState()._lastUploadedLocalIds;
+                // B-1 Revision 3: ローカル取り込みダイアログ自動トリガー
+                // - state 内に `ownerId='local'` プランがあればダイアログを表示候補
+                // - dontShow フラグが立っていなければ実際に表示
+                const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
                 const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
+                const willOpen = localPlanCount > 0 && !dontShow;
                 dlog('layout', 'auto-trigger check', {
-                    uploadedIds,
-                    uploadedCount: uploadedIds.length,
+                    localPlanCount,
                     dontShow,
-                    willOpenDialog: uploadedIds.length > 0 && !dontShow,
+                    willOpenDialog: willOpen,
                     plansCountAfterPull: usePlanStore.getState().plans.length,
                 });
-                if (uploadedIds.length > 0 && !dontShow) {
+                if (willOpen) {
+                    // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
                     setTimeout(() => {
-                        dlog('layout', 'opening dialog (700ms timeout fired)', { uploadedIds });
-                        useLocalImportDialog.getState().open({
-                            ignoreDontShow: false,
-                            targetPlanIds: uploadedIds,
-                        });
-                    }, 700);
+                        dlog('layout', 'opening dialog');
+                        useLocalImportDialog.getState().open({ ignoreDontShow: false });
+                        setIsImportPreparing(false);
+                    }, 40);
+                } else {
+                    setIsImportPreparing(false);
                 }
             }).catch(err => {
                 dlog('layout', 'pullFromFirestore REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
+                setIsImportPreparing(false);
             });
         });
     }, [authUser, authLoading, hasMigrated]);
@@ -532,6 +512,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 size={28} className="animate-spin text-app-text-muted" />
                         <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* B-1 Revision 3: 取り込みダイアログ準備中オーバーレイ
+                - migrateOnLogin / pullFromFirestore 完了 → ダイアログ open までの隙間を覆う
+                - ユーザーが「ログイン直後に画面操作 → ダイアログとの競合」を起こさないため */}
+            {isImportPreparing && !isAuthRedirecting && !localImportOpen && (
+                <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-app-bg">
+                    <div className="flex flex-col items-center gap-4">
+                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
+                        <p className="text-app-2xl font-medium text-app-text-muted">{t('local_import.preparing')}</p>
                     </div>
                 </div>
             )}
@@ -809,13 +801,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
             )}
 
-            {/* B-1 Revision 2: ローカル取り込みダイアログ */}
+            {/* B-1 Revision 3: ローカル取り込みダイアログ */}
             <LocalImportDialog
                 isOpen={localImportOpen}
                 plans={localImportPlans}
                 ignoreDontShow={localImportIgnoreDontShow}
-                onConfirm={handleLocalImportConfirm}
-                onCancel={handleLocalImportCancel}
+                onImport={handleLocalImport}
+                onClose={handleLocalImportClose}
             />
         </div>
     );

@@ -151,16 +151,22 @@
         "toast_name_error": "表示名の変更に失敗しました"
     },
     "local_import": {
-        "title": "プランを引き継ぎました",
-        "subtitle": "どのプランをクラウドに保存しますか?",
-        "help_text": "チェックを入れたプランがクラウドに保存されます。外したプランはローカルにだけ残ります。",
+        "title": "ローカルプランの取り込み",
+        "subtitle": "ローカルにあるプランをアカウントに保存しますか?",
+        "help_text": "チェックを入れたプランがクラウドに保存されます。外したプランはローカルに残ります。",
         "dont_show_again": "次回から自動で表示しない",
-        "confirm": "これで OK",
-        "cancel": "キャンセル",
+        "confirm": "取り込む",
+        "cancel": "あとで",
+        "close": "閉じる",
+        "preparing": "ご利用の準備中...",
+        "uploading_n_of_m": "{{current}} / {{total}} 件 アップロード中…",
+        "uploading_in_progress": "アップロード中、お待ちください",
+        "partial_failure": "{{success}} 件成功 ・ {{failed}} 件失敗",
+        "retry_failed": "失敗分を再試行",
         "toast_success": "{{count}} 件のプランをクラウドに保存しました",
-        "toast_kept_local": "{{count}} 件はローカルにだけ残しました",
-        "toast_mixed": "{{kept}} 件保存 ・ {{local}} 件はローカルにだけ残しました",
-        "modal_button": "ローカルプランを引き継ぐ ({{count}}件)"
+        "toast_partial": "{{success}} 件保存 ・ {{failed}} 件失敗",
+        "toast_all_failed": "{{count}} 件すべて失敗しました。再試行してください",
+        "modal_button": "ローカルプランを取り込む ({{count}}件)"
     },
     "aa_settings": {
         "title": "AA追加モード",

@@ -11,7 +11,7 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **【重大バグ未解決】Phase B-1 周辺 (2026-05-08 終盤)**: Revision 2 まで実装したが実機で複数の重大問題が再現。次セッションで徹底調査必須。コンテキスト肥大により今セッション内で原因特定困難と判断、切り替え。
+- **Phase B-1 Revision 3 実装完了 (2026-05-08 終盤、実機検証待ち)**: Rev2 の silent upload 設計が App Check トークン初期化と相性悪く `permission-denied` で全 createPlan 失敗 → ログアウトでデータ消失する真因が診断ログで確定。設計を全面刷新: ログイン直後の暗黙書き込みを撤去し、ユーザーが「取り込む」ボタン押下したタイミングで 1 件ずつ Firestore へ書き込み + 進捗 UI 表示 + 失敗時再試行。`signOut` も `ownerId='local'` プランは保持に変更。設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。471/471 vitest PASS、tsc clean、build 成功。次セッションでユーザー実機検証 → 問題なければ診断ログ削除コミットでクリーンアップ。
 
   **現状コミット**: 92d42f0 (チュートリアル保険) → 7833011 (並行同期抑制) → 15de127 (ID 衝突修正) → ef3c2c9 (B-1 Rev2 リスト UI) → 70821ea (TODO)。
 

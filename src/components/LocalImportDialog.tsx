@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SavedPlan } from '../types';
 import { useJobs } from '../hooks/useSkillsData';
@@ -10,38 +10,61 @@ import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import i18n from '../i18n';
 
-interface LocalImportListDialogProps {
+/** 各プランの取り込み進捗状態 */
+type PlanProgressStatus = 'pending' | 'uploading' | 'success' | 'failed';
+
+interface LocalImportDialogProps {
     isOpen: boolean;
-    /** 表示対象のプラン (Firestore に既にアップロード済み、ownerId='local' のままの状態) */
+    /** 表示対象のプラン (`ownerId='local'` のローカルプラン) */
     plans: SavedPlan[];
-    /** true のとき「次回から自動で表示しない」チェック非表示 (LoginModal 明示ボタン経由用) */
+    /** true のとき「次回から表示しない」チェック非表示 */
     ignoreDontShow: boolean;
-    /** 確定: チェックを外したプラン ID 配列 + dontShow フラグ */
-    onConfirm: (params: { uncheckedPlanIds: string[]; dontShow: boolean }) => void;
-    /** キャンセル: 何もしない (全プランそのまま Firestore に残る) */
-    onCancel: (params: { dontShow: boolean }) => void;
+    /**
+     * 取り込み実行コールバック。`onProgress` で 1 件ずつの進捗を通知してくる前提。
+     * Promise の解決を Dialog 側で待ち、全件結果に応じて UI を切り替える。
+     */
+    onImport: (
+        planIds: string[],
+        onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed' }) => void,
+    ) => Promise<{ id: string; status: 'success' | 'failed' }[]>;
+    /** ダイアログを閉じる (キャンセル / 完了後 / 諦める) */
+    onClose: (params: { dontShow: boolean }) => void;
 }
 
-export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
-    isOpen, plans, ignoreDontShow, onConfirm, onCancel,
+export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
+    isOpen, plans, ignoreDontShow, onImport, onClose,
 }) => {
     const { t } = useTranslation();
     const jobs = useJobs();
     // 全プラン ON で初期化
     const [checkedSet, setCheckedSet] = useState<Set<string>>(() => new Set(plans.map(p => p.id)));
     const [dontShow, setDontShow] = useState(false);
+    const [phase, setPhase] = useState<'idle' | 'uploading' | 'done'>('idle');
+    const [progressMap, setProgressMap] = useState<Map<string, PlanProgressStatus>>(new Map());
 
-    // plans が変わったら checkedSet を再初期化 (再オープン時のため)
+    // plans が変わったら state を再初期化 (再オープン時のため)
     useEffect(() => {
         if (isOpen) {
             setCheckedSet(new Set(plans.map(p => p.id)));
             setDontShow(false);
+            setPhase('idle');
+            setProgressMap(new Map());
         }
     }, [isOpen, plans]);
+
+    const successCount = useMemo(
+        () => [...progressMap.values()].filter(s => s === 'success').length,
+        [progressMap],
+    );
+    const failedCount = useMemo(
+        () => [...progressMap.values()].filter(s => s === 'failed').length,
+        [progressMap],
+    );
 
     if (!isOpen) return null;
 
     const toggle = (planId: string) => {
+        if (phase !== 'idle') return;
         setCheckedSet(prev => {
             const next = new Set(prev);
             if (next.has(planId)) next.delete(planId);
@@ -50,13 +73,57 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
         });
     };
 
-    const handleConfirm = () => {
-        const uncheckedPlanIds = plans.filter(p => !checkedSet.has(p.id)).map(p => p.id);
-        onConfirm({ uncheckedPlanIds, dontShow: ignoreDontShow ? false : dontShow });
+    const startImport = async (idsToImport: string[]) => {
+        if (idsToImport.length === 0) {
+            // 全部チェック外し → 何もせず閉じる (ローカルに残す扱い)
+            onClose({ dontShow: ignoreDontShow ? false : dontShow });
+            return;
+        }
+
+        setPhase('uploading');
+        // 待機状態で初期化
+        setProgressMap(new Map(idsToImport.map(id => [id, 'pending' as PlanProgressStatus])));
+
+        const handleProgress = (event: { id: string; status: 'uploading' | 'success' | 'failed' }) => {
+            setProgressMap(prev => {
+                const next = new Map(prev);
+                next.set(event.id, event.status);
+                return next;
+            });
+        };
+
+        const results = await onImport(idsToImport, handleProgress);
+        // 最終結果で progressMap を上書き (onProgress 漏れ・遅延に対する防御)
+        setProgressMap(prev => {
+            const next = new Map(prev);
+            for (const r of results) next.set(r.id, r.status);
+            return next;
+        });
+        const allSuccess = results.length > 0 && results.every(r => r.status === 'success');
+        setPhase('done');
+
+        if (allSuccess) {
+            // 全成功 → 短い遅延で自動クローズ (ユーザーに完了を見せてから)
+            setTimeout(() => onClose({ dontShow: ignoreDontShow ? false : dontShow }), 400);
+        }
     };
 
-    const handleCancel = () => {
-        onCancel({ dontShow: ignoreDontShow ? false : dontShow });
+    const handleStartImport = () => {
+        const idsToImport = plans.filter(p => checkedSet.has(p.id)).map(p => p.id);
+        void startImport(idsToImport);
+    };
+
+    const handleRetryFailed = () => {
+        const failedIds = [...progressMap.entries()]
+            .filter(([, status]) => status === 'failed')
+            .map(([id]) => id);
+        if (failedIds.length === 0) return;
+        void startImport(failedIds);
+    };
+
+    const handleClose = () => {
+        if (phase === 'uploading') return; // アップロード中は閉じさせない
+        onClose({ dontShow: ignoreDontShow ? false : dontShow });
     };
 
     const getContentLabel = (plan: SavedPlan): string => {
@@ -76,6 +143,19 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                 return { id: m.id, icon: job.icon, jobName: getPhaseName(job.name, i18n.language) };
             })
             .filter((x): x is { id: string; icon: string; jobName: string } => x !== null);
+    };
+
+    const renderStatusIcon = (status: PlanProgressStatus | undefined) => {
+        if (!status || status === 'pending') {
+            return <span className="w-4 h-4 rounded-full border border-app-border bg-app-surface2/40 shrink-0" />;
+        }
+        if (status === 'uploading') {
+            return <Loader2 size={16} className="animate-spin text-app-toggle shrink-0" />;
+        }
+        if (status === 'success') {
+            return <CheckCircle2 size={16} className="text-app-toggle shrink-0" />;
+        }
+        return <XCircle size={16} className="text-app-red shrink-0" />;
     };
 
     return createPortal(
@@ -108,7 +188,11 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                         </h3>
                     </div>
                     <p className="text-app-md text-app-text-muted ml-10">
-                        {t('local_import.subtitle')}
+                        {phase === 'uploading'
+                            ? t('local_import.uploading_n_of_m', { current: successCount + failedCount, total: progressMap.size })
+                            : phase === 'done' && failedCount > 0
+                                ? t('local_import.partial_failure', { success: successCount, failed: failedCount })
+                                : t('local_import.subtitle')}
                     </p>
                 </div>
 
@@ -118,8 +202,15 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                         <AnimatePresence>
                             {plans.map((plan, idx) => {
                                 const checked = checkedSet.has(plan.id);
+                                const status = progressMap.get(plan.id);
                                 const contentLabel = getContentLabel(plan);
                                 const jobIcons = getMemberJobIcons(plan);
+                                const isInProgress = phase !== 'idle';
+                                const isVisibleInProgress = isInProgress && status !== undefined;
+
+                                // アップロード中・完了フェーズではチェック外したプランを非表示
+                                if (isInProgress && !isVisibleInProgress) return null;
+
                                 return (
                                     <motion.li
                                         key={plan.id}
@@ -129,19 +220,25 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                                     >
                                         <label
                                             className={clsx(
-                                                "flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors select-none",
-                                                "border",
+                                                "flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors",
+                                                isInProgress ? "cursor-default" : "cursor-pointer",
                                                 checked
-                                                    ? "bg-app-toggle/8 border-app-toggle/30 hover:bg-app-toggle/12"
-                                                    : "bg-app-surface2/30 border-app-border hover:bg-app-surface2/50",
+                                                    ? "bg-app-toggle/8 border-app-toggle/30"
+                                                    : "bg-app-surface2/30 border-app-border",
+                                                !isInProgress && checked && "hover:bg-app-toggle/12",
+                                                !isInProgress && !checked && "hover:bg-app-surface2/50",
                                             )}
                                         >
-                                            <input
-                                                type="checkbox"
-                                                checked={checked}
-                                                onChange={() => toggle(plan.id)}
-                                                className="w-4 h-4 cursor-pointer accent-app-toggle shrink-0"
-                                            />
+                                            {isInProgress ? (
+                                                renderStatusIcon(status)
+                                            ) : (
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checked}
+                                                    onChange={() => toggle(plan.id)}
+                                                    className="w-4 h-4 cursor-pointer accent-app-toggle shrink-0"
+                                                />
+                                            )}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-baseline gap-2">
                                                     {contentLabel && (
@@ -175,30 +272,32 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                     </ul>
                 </div>
 
-                {/* Help text + dontShow checkbox */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 + plans.length * 0.08 + 0.1, duration: 0.3 }}
-                    className="px-6 pb-3"
-                >
-                    <p className="text-app-base text-app-text-muted leading-relaxed">
-                        {t('local_import.help_text')}
-                    </p>
-                    {!ignoreDontShow && (
-                        <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                checked={dontShow}
-                                onChange={e => setDontShow(e.target.checked)}
-                                className="w-4 h-4 cursor-pointer accent-app-toggle"
-                            />
-                            <span className="text-app-base text-app-text-muted">
-                                {t('local_import.dont_show_again')}
-                            </span>
-                        </label>
-                    )}
-                </motion.div>
+                {/* Help text + dontShow checkbox (idle のみ) */}
+                {phase === 'idle' && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 + plans.length * 0.08 + 0.1, duration: 0.3 }}
+                        className="px-6 pb-3"
+                    >
+                        <p className="text-app-base text-app-text-muted leading-relaxed">
+                            {t('local_import.help_text')}
+                        </p>
+                        {!ignoreDontShow && (
+                            <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    checked={dontShow}
+                                    onChange={e => setDontShow(e.target.checked)}
+                                    className="w-4 h-4 cursor-pointer accent-app-toggle"
+                                />
+                                <span className="text-app-base text-app-text-muted">
+                                    {t('local_import.dont_show_again')}
+                                </span>
+                            </label>
+                        )}
+                    </motion.div>
+                )}
 
                 {/* Footer */}
                 <motion.div
@@ -207,20 +306,49 @@ export const LocalImportDialog: React.FC<LocalImportListDialogProps> = ({
                     transition={{ delay: 0.4 + plans.length * 0.08 + 0.2, duration: 0.3 }}
                     className="flex items-center justify-end gap-2 px-6 py-4 border-t border-app-border"
                 >
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
-                    >
-                        {t('local_import.cancel')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleConfirm}
-                        className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
-                    >
-                        {t('local_import.confirm')}
-                    </button>
+                    {phase === 'idle' && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={handleClose}
+                                className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                            >
+                                {t('local_import.cancel')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleStartImport}
+                                className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
+                            >
+                                {t('local_import.confirm')}
+                            </button>
+                        </>
+                    )}
+
+                    {phase === 'uploading' && (
+                        <span className="text-app-md text-app-text-muted">
+                            {t('local_import.uploading_in_progress')}
+                        </span>
+                    )}
+
+                    {phase === 'done' && failedCount > 0 && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={handleClose}
+                                className="px-4 py-2 rounded-xl text-app-md font-black text-app-text-sec hover:text-app-text hover:bg-app-surface2 transition-colors border border-transparent hover:border-app-border cursor-pointer"
+                            >
+                                {t('local_import.close')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleRetryFailed}
+                                className="px-4 py-2 rounded-xl text-app-md font-bold text-white bg-app-blue hover:bg-app-blue-hover transition-all shadow-lg shadow-app-blue/25 cursor-pointer"
+                            >
+                                {t('local_import.retry_failed')}
+                            </button>
+                        </>
+                    )}
                 </motion.div>
             </motion.div>
         </div>,
