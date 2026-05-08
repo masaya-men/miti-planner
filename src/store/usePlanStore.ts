@@ -106,21 +106,28 @@ export const usePlanStore = create<PlanState>()(
             setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
+                // ownerId='' (空文字) は fetchAndMerge で「別端末で削除」と
+                // 誤判定されて localStorage から消える致命バグを起こす。
+                // 入口で 'local' に正規化して、どの呼び出し元でも安全に
+                const normalizedPlan: SavedPlan = plan.ownerId === ''
+                    ? { ...plan, ownerId: 'local' }
+                    : plan;
                 dlog('store', 'addPlan', {
-                    id: plan.id,
-                    ownerId: plan.ownerId,
-                    contentId: plan.contentId,
-                    title: plan.title,
+                    id: normalizedPlan.id,
+                    ownerId: normalizedPlan.ownerId,
+                    ownerIdNormalized: plan.ownerId !== normalizedPlan.ownerId,
+                    contentId: normalizedPlan.contentId,
+                    title: normalizedPlan.title,
                     plansBefore: get().plans.length,
-                    dataExists: plan.data !== undefined && plan.data !== null,
+                    dataExists: normalizedPlan.data !== undefined && normalizedPlan.data !== null,
                 });
                 // 新規作成プランの lastOpened を即記録: silentCompressStale が
                 // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
                 // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
-                setLastOpened(plan.id, Date.now());
+                setLastOpened(normalizedPlan.id, Date.now());
                 set((state) => ({
-                    plans: [plan, ...state.plans],
-                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, plan.id]),
+                    plans: [normalizedPlan, ...state.plans],
+                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, normalizedPlan.id]),
                 }));
             },
 

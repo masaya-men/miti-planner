@@ -134,7 +134,7 @@ export const SharePage: React.FC = () => {
                 const contentName = getContentName(plan.contentId, plan.title || 'Shared Plan');
                 const newPlan = {
                     id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                    ownerId: '',
+                    ownerId: 'local',
                     ownerDisplayName: '',
                     title: plan.title || contentName,
                     contentId: plan.contentId,
@@ -183,7 +183,7 @@ export const SharePage: React.FC = () => {
 
             const newPlan = {
                 id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).substring(2, 9),
-                ownerId: '',
+                ownerId: 'local',
                 ownerDisplayName: '',
                 title: sharedData.title || contentName || 'Shared Plan',
                 contentId: sharedData.contentId,
