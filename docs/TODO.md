@@ -11,7 +11,30 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **最新セッション（2026-05-08 Phase B-1 Revision 2 完了）**: Revision 1 で実機テスト「ダイアログが見えないうちに取り込みが終わってる」問題が発覚し設計撤回。Revision 2 はアップロード自体は黙って実行し、ログイン後オーバーレイ消去 + 700ms 待機後にダイアログを **リスト UI** で表示 → チェックボックスで取捨選択 → チェック OFF は裏で Firestore から削除 + ローカル `ownerId='local'` で残す方式に変更。文言は「削除」を使わず「ローカルにだけ残ります」で統一。失敗時自動リトライ (`_deletedPlanIds` キュー流用)、背景クリック/ESC/X 無効化で誤操作耐性、stagger アニメ (各 80ms) + dialogIn 400ms スプリング。設計書 §5.0 Revision 2 として記録。コミット ef3c2c9 で 15 ファイル / 594+ 584-。466 vitest PASS、tsc clean、build 成功。実機検証要 (ログアウト→プラン作成→ログイン→リストダイアログ表示→チェック取捨選択→4 言語)。
+- **【重大バグ未解決】Phase B-1 周辺 (2026-05-08 終盤)**: Revision 2 まで実装したが実機で複数の重大問題が再現。次セッションで徹底調査必須。コンテキスト肥大により今セッション内で原因特定困難と判断、切り替え。
+
+  **現状コミット**: 92d42f0 (チュートリアル保険) → 7833011 (並行同期抑制) → 15de127 (ID 衝突修正) → ef3c2c9 (B-1 Rev2 リスト UI) → 70821ea (TODO)。
+
+  **ユーザー実機で再現した症状** (SW 削除 + ローカル全消 + タブ再起動した完全クリーン状態):
+  1. 非ログインで M9S 2件 + M10S 1件 = 3件作成
+  2. ログイン → **B-1 Rev2 のリストダイアログがそもそも出ない** (PWA キャッシュ問題ではない、完全クリーン後)
+  3. プラン 3件あるのを確認後すぐログアウト
+  4. ローカルにプランが無いことを確認 → **でもチュートリアルが出ない** (本来出るはず)
+  5. ログイン → **3件のうち M10S 1件しか残っていない (M9S 2件消失)** + **チュートリアル発火** (チュートリアル保険入れたのに)
+
+  **疑うべき箇所**:
+  - `useLocalImportDialog` の自動トリガー条件 (`_lastUploadedLocalIds.length > 0` チェック) が機能していない
+  - `migrateLocalPlansToFirestore` の `localOnly` upload で 2件以上が連続で `createPlan` する時の race
+  - `crypto.randomUUID()` 修正が本当に効いているか (古いビルドキャッシュではないか)
+  - チュートリアル保険 (`!hasAnyPlan`) が `state.plans.length` を見ているが、`migrationDone` 完了直後に plans 反映タイミングずれの可能性
+
+  **次セッション推奨アクション**:
+  1. 今セッション全コミット (ef3c2c9 〜 92d42f0) を再レビュー、不整合を洗う
+  2. 場合によっては B-1 Revision 2 全体を revert して syncDirtyPlans + migrateLocalPlansToFirestore の挙動から再設計
+  3. ユーザーに DevTools で `console.log` 仕込んで実機ログ取ってもらう (どこでプランが消えるか追跡)
+  4. Firestore Console で残骸データのクリーンアップを admin 権限で実施
+
+- **【完了 2026-05-08 朝】Phase B-1 Revision 2 実装**: Revision 1 で実機テスト「ダイアログが見えないうちに取り込みが終わってる」問題が発覚し設計撤回。Revision 2 はアップロード自体は黙って実行し、ログイン後 700ms 待機後にダイアログを **リスト UI** で表示 → チェックボックスで取捨選択 → チェック OFF は裏で Firestore から削除 + ローカル `ownerId='local'` で残す方式。設計書 §5.0 Revision 2、ef3c2c9。**実装は完了したが上記重大バグで実機動作せず**。
 
 - **前セッション（2026-05-08 Phase B-1 Revision 1 完了 → 撤回）**: 未ログインで作ったプラン (`ownerId='local'`) をログイン後にダイアログ経由でクラウドへ取り込めるように実装。設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b-account-link-design.md` §5 + プラン `docs/superpowers/plans/2026-05-08-housing-b1-local-import.md`、subagent-driven-development で 8 タスク完走。①i18n 4 言語 10 キー追加 (local_import.*) ②`computeImportPlan` 純粋関数 (`src/utils/localImportPlanner.ts`、枠計算 + crypto.randomUUID 新ID + 同名採番、8 vitest) ③`planService.migrateLocalPlansToFirestore` からサイレントアップロード撤去 (リモートマージ・書き戻し・カウンター修復は維持) ④`usePlanStore.importLocalPlans(uid, displayName)` action (リモート fetch → 計画 → createPlan → state 更新、5 vitest、ソート順保持のため importStartedAt+i オフセット) ⑤`useLocalImportDialog` 小型 zustand ストア + `LocalImportDialog.tsx` (glass-tier3、「次回から表示しない」チェック ignoreDontShow=true で非表示、7 vitest) ⑥Layout.tsx に自動トリガー (migrateOnLogin → pullFromFirestore.then(...) で localCount > 0 && !dontShow ならダイアログ自動 open) + 結果別トースト 4 種出し分け (success / partial / partial-info / 0/0 エッジケース) ⑦LoginModal にローカルプラン件数 > 0 のときのみ「ローカルプランを取り込む (N件)」明示ボタン (Download アイコン、toggle カラー、open(true) でフラグ無視)。478/478 vitest PASS、tsc clean、build 成功。コミット 13 個 (i18n / planner / planner-fix / planService撤去 / コメント修正 / store / store-sort修正 / dialog+store / aria-label修正 / Layout統合 / Layoutエッジケース / LoginModal / TODO)。Vercel デプロイ予定。次は Phase B-2 (アカウントリンク Discord ↔ X、自前マッピング `account_links/{provider:id}`) のプラン作成 → 実装。設計書 §6 参照。
 
