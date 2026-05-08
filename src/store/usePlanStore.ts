@@ -534,21 +534,24 @@ export const usePlanStore = create<PlanState>()(
 
                 // 3. Firestore へ書き込み (失敗した個別プランは result から減算しローカル残存)
                 const successfullyImported: { localId: string; cloudPlan: SavedPlan }[] = [];
-                for (const item of toImport) {
+                const importStartedAt = Date.now();
+                for (const [i, item] of toImport.entries()) {
                     const cloudPlan: SavedPlan = {
                         ...item.original,
                         id: item.newId,
                         ownerId: uid,
                         ownerDisplayName: displayName,
                         title: item.finalTitle,
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
+                        // ループ内で同一 ms になり sort 順が不定になるのを防ぐため i オフセット
+                        createdAt: importStartedAt + i,
+                        updatedAt: importStartedAt + i,
                     };
                     try {
                         await planService.createPlan(cloudPlan, uid, displayName);
                         successfullyImported.push({ localId: item.original.id, cloudPlan });
                     } catch (err) {
                         console.error('Local import: createPlan failed', err);
+                        // result は computeImportPlan が返した新規オブジェクト。直接ミュートして caller に返す。
                         result.imported -= 1;
                         result.skipped += 1;
                         const cid = item.original.contentId ?? '';
