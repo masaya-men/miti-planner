@@ -12,6 +12,7 @@ import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
+import { computeImportPlan, type ImportResult } from '../utils/localImportPlanner';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -47,6 +48,8 @@ interface PlanState {
     pullFromFirestore: (uid: string) => Promise<void>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
+    /** B-1: ローカルプランをクラウドへ取り込み (新ID発行・部分取り込み・同名採番) */
+    importLocalPlans: (uid: string, displayName: string) => Promise<ImportResult>;
     migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
     /** 手動同期ボタン用: クールダウン無視で即座にPUSH + PULL */
@@ -499,6 +502,74 @@ export const usePlanStore = create<PlanState>()(
                         _isSyncing: false,
                     });
                 }
+            },
+
+            importLocalPlans: async (uid, displayName) => {
+                const localPlans = get().plans.filter(p => p.ownerId === 'local');
+                if (localPlans.length === 0) {
+                    return { imported: 0, skipped: 0, contentBreakdown: {} };
+                }
+
+                // 1. リモートプランを取得 (枠カウント・既存タイトル抽出)
+                const remotePlans = await planService.fetchUserPlans(uid);
+                const byContentCounts: Record<string, number> = {};
+                const existingTitlesByContent = new Map<string, string[]>();
+                for (const p of remotePlans) {
+                    const cid = p.contentId ?? '';
+                    byContentCounts[cid] = (byContentCounts[cid] ?? 0) + 1;
+                    const arr = existingTitlesByContent.get(cid) ?? [];
+                    arr.push(p.title);
+                    existingTitlesByContent.set(cid, arr);
+                }
+
+                // 2. 取り込み計画
+                const { toImport, result } = computeImportPlan({
+                    localPlans,
+                    totalCount: remotePlans.length,
+                    byContentCounts,
+                    existingTitlesByContent,
+                    totalLimit: PLAN_LIMITS.MAX_TOTAL_PLANS,
+                    perContentLimit: PLAN_LIMITS.MAX_PLANS_PER_CONTENT,
+                });
+
+                // 3. Firestore へ書き込み (失敗した個別プランは result から減算しローカル残存)
+                const successfullyImported: { localId: string; cloudPlan: SavedPlan }[] = [];
+                for (const item of toImport) {
+                    const cloudPlan: SavedPlan = {
+                        ...item.original,
+                        id: item.newId,
+                        ownerId: uid,
+                        ownerDisplayName: displayName,
+                        title: item.finalTitle,
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                    };
+                    try {
+                        await planService.createPlan(cloudPlan, uid, displayName);
+                        successfullyImported.push({ localId: item.original.id, cloudPlan });
+                    } catch (err) {
+                        console.error('Local import: createPlan failed', err);
+                        result.imported -= 1;
+                        result.skipped += 1;
+                        const cid = item.original.contentId ?? '';
+                        const bd = (result.contentBreakdown[cid] ??= { imported: 0, skipped: 0 });
+                        bd.imported -= 1;
+                        bd.skipped += 1;
+                    }
+                }
+
+                // 4. ストア更新: 取り込み成功した local プランを除去、新クラウドプランを追加
+                if (successfullyImported.length > 0) {
+                    const importedLocalIds = new Set(successfullyImported.map(s => s.localId));
+                    set(state => ({
+                        plans: [
+                            ...successfullyImported.map(s => s.cloudPlan),
+                            ...state.plans.filter(p => !importedLocalIds.has(p.id)),
+                        ].sort((a, b) => b.updatedAt - a.updatedAt),
+                    }));
+                }
+
+                return result;
             },
 
             /**
