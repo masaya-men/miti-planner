@@ -22,9 +22,18 @@ export function markHousingOnboardingSeen(): void {
 interface Props {
   open: boolean;
   onClose: () => void;
+  mode: 'authenticated' | 'anonymous';
+  onAcceptCurrentAccount?: () => void;
+  onSwitchAccount?: () => void;
 }
 
-export const HousingOnboardingDialog: React.FC<Props> = ({ open, onClose }) => {
+export const HousingOnboardingDialog: React.FC<Props> = ({
+  open,
+  onClose,
+  mode,
+  onAcceptCurrentAccount,
+  onSwitchAccount,
+}) => {
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -52,13 +61,33 @@ export const HousingOnboardingDialog: React.FC<Props> = ({ open, onClose }) => {
         <p className="text-app-sm text-app-text-muted mb-4">
           {t('housing.onboarding.image_modes_note')}
         </p>
-        <button
-          type="button"
-          onClick={() => { markHousingOnboardingSeen(); onClose(); }}
-          className="w-full bg-app-blue text-white rounded-md py-2 font-semibold hover:bg-app-blue-hover text-app-md"
-        >
-          {t('housing.onboarding.start')}
-        </button>
+
+        {mode === 'authenticated' ? (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={onAcceptCurrentAccount}
+              className="w-full bg-app-blue text-white rounded-md py-2 font-semibold hover:bg-app-blue-hover text-app-md"
+            >
+              {t('housing.onboarding.accept_current_account')}
+            </button>
+            <button
+              type="button"
+              onClick={onSwitchAccount}
+              className="w-full border border-app-border text-app-text rounded-md py-2 font-semibold hover:bg-app-surface2 text-app-md"
+            >
+              {t('housing.onboarding.switch_account')}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => { markHousingOnboardingSeen(); onClose(); }}
+            className="w-full bg-app-blue text-white rounded-md py-2 font-semibold hover:bg-app-blue-hover text-app-md"
+          >
+            {t('housing.onboarding.start')}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1702,7 +1702,9 @@
             "bullet2": "自分のおすすめツアーも作って共有できます",
             "bullet3": "気に入った物件はお気に入り登録できます",
             "image_modes_note": "現在は機能のみ提供中。デザイン・画像登録は順次拡充します",
-            "start": "はじめる"
+            "start": "はじめる",
+            "accept_current_account": "このアカウントで始める",
+            "switch_account": "別のアカウントでログインし直す"
         },
         "login_prompt": {
             "register": {

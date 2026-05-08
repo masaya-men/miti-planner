@@ -1636,7 +1636,9 @@
             "bullet2": "나만의 추천 투어를 만들어 공유할 수 있습니다",
             "bullet3": "마음에 드는 매물을 즐겨찾기로 저장할 수 있습니다",
             "image_modes_note": "현재는 기능만 제공 중입니다. 디자인·이미지 등록은 순차적으로 추가됩니다",
-            "start": "시작하기"
+            "start": "시작하기",
+            "accept_current_account": "이 계정으로 시작",
+            "switch_account": "다른 계정으로 로그인"
         },
         "login_prompt": {
             "register": {

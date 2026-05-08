@@ -1636,7 +1636,9 @@
             "bullet2": "也可以创建并分享自己的推荐导览",
             "bullet3": "喜欢的房屋可以收藏",
             "image_modes_note": "目前仅提供核心功能，设计和图片登记功能将陆续推出",
-            "start": "开始"
+            "start": "开始",
+            "accept_current_account": "使用此账户开始",
+            "switch_account": "切换其他账户登录"
         },
         "login_prompt": {
             "register": {

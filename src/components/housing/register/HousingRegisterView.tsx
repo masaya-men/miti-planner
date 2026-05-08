@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { auth } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import {
   canRegister,
   registerListing,
@@ -30,6 +30,8 @@ const EMPTY_DRAFT: RegistrationDraft = {
 
 export const HousingRegisterView: React.FC = () => {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
   const [draft, setDraft] = useState<RegistrationDraft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [quotaStatus, setQuotaStatus] = useState<CanRegisterResponse | null>(null);
@@ -38,14 +40,18 @@ export const HousingRegisterView: React.FC = () => {
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const isLoggedIn = auth.currentUser !== null;
-
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!user) return;
     canRegister().then(setQuotaStatus).catch(() => setQuotaStatus(null));
-  }, [isLoggedIn]);
+  }, [user]);
 
-  if (!isLoggedIn) return <HousingLoginPrompt context="register" />;
+  if (loading) {
+    return (
+      <div className="text-app-text-muted text-app-md p-6 text-center">...</div>
+    );
+  }
+
+  if (!user) return <HousingLoginPrompt context="register" />;
 
   const canSubmit = quotaStatus?.allowed === true && !submitting;
 

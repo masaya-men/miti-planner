@@ -1681,7 +1681,9 @@
             "bullet2": "Create and share your own recommended tours",
             "bullet3": "Save your favorite properties",
             "image_modes_note": "Currently providing core features. Design and image uploads will be added progressively",
-            "start": "Get started"
+            "start": "Get started",
+            "accept_current_account": "Use this account",
+            "switch_account": "Sign in with a different account"
         },
         "login_prompt": {
             "register": {
