@@ -549,10 +549,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 - ユーザーが「ログイン直後に画面操作 → ダイアログとの競合」を起こさないため */}
             {isImportPreparing && !isAuthRedirecting && !localImportOpen && (
                 <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-app-bg">
-                    <div className="flex flex-col items-center gap-4">
-                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
-                        <p className="text-app-2xl font-medium text-app-text-muted">{t('local_import.preparing')}</p>
-                    </div>
+                    <Loader2 size={28} className="animate-spin text-app-text-muted" />
                 </div>
             )}
 

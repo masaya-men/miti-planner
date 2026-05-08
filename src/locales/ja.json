@@ -158,7 +158,6 @@
         "confirm": "取り込む",
         "cancel": "あとで",
         "close": "閉じる",
-        "preparing": "ご利用の準備中...",
         "uploading_n_of_m": "{{current}} / {{total}} 件 アップロード中…",
         "uploading_in_progress": "アップロード中、お待ちください",
         "partial_failure": "{{success}} 件成功 ・ {{failed}} 件失敗",

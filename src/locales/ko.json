@@ -150,7 +150,6 @@
         "confirm": "가져오기",
         "cancel": "나중에",
         "close": "닫기",
-        "preparing": "준비 중...",
         "uploading_n_of_m": "{{current}} / {{total}} 업로드 중…",
         "uploading_in_progress": "업로드 중, 잠시만 기다려 주세요",
         "partial_failure": "{{success}}개 성공 ・ {{failed}}개 실패",

@@ -158,7 +158,6 @@
         "confirm": "Import",
         "cancel": "Later",
         "close": "Close",
-        "preparing": "Preparing your data…",
         "uploading_n_of_m": "Uploading {{current}} / {{total}}…",
         "uploading_in_progress": "Uploading, please wait",
         "partial_failure": "{{success}} succeeded ・ {{failed}} failed",

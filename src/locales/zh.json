@@ -150,7 +150,6 @@
         "confirm": "导入",
         "cancel": "稍后",
         "close": "关闭",
-        "preparing": "正在准备...",
         "uploading_n_of_m": "正在上传 {{current}} / {{total}}…",
         "uploading_in_progress": "正在上传,请稍候",
         "partial_failure": "成功 {{success}} 个 ・ 失败 {{failed}} 个",
