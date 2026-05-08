@@ -338,20 +338,20 @@ async function fetchAndMerge(
 }
 
 /**
- * ログイン時のデータマイグレーション
- * Firestoreを正（信頼できるデータ）として扱う。
- * localにあってFirestoreにないプランは:
- * - ownerId === 'local'（未ログイン時作成）→ アップロード
- * - それ以外 → 別端末で削除されたとみなし除外
+ * ログイン時のリモートマージ
+ * Firestoreを正（信頼できるデータ）として扱い、Firestoreから既存プランを取得して
+ * ローカルとマージする。両方に存在してローカルが新しい場合はFirestoreに書き戻す
+ * （端末間同期の要）。
  *
- * 両方に存在してローカルが新しい場合はFirestoreに書き戻す（端末間同期の要）
+ * 注意: B-1 で ownerId='local' プランのサイレントアップロードは撤去された。
+ * ローカル取り込みは usePlanStore.importLocalPlans (B-1 ダイアログ経由) でのみ行う。
  *
  * @returns { merged, dirtyIds } — マージ済みプラン + Firestoreに書き戻せなかったプランID
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
   uid: string,
-  displayName: string,
+  _displayName: string,
 ): Promise<{ merged: SavedPlan[]; dirtyIds: string[] }> {
   // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
   try {
@@ -362,26 +362,7 @@ async function migrateLocalPlansToFirestore(
 
   // Firestoreから既存プランを取得
   const remotePlans = await fetchUserPlans(uid);
-  const remoteIds = new Set(remotePlans.map((p) => p.id));
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
-
-  // ローカルにしかないプランを処理
-  const localOnly = localPlans.filter((p) => !remoteIds.has(p.id));
-  for (const plan of localOnly) {
-    // 未ログイン時に作成されたプラン（ownerId === 'local'）のみアップロード
-    // それ以外はFirestoreで削除されたとみなしスキップ
-    if (plan.ownerId !== 'local') continue;
-    try {
-      await createPlan(plan, uid, displayName);
-    } catch (err) {
-      // 上限に達した場合は残りをスキップ
-      if (err instanceof Error && err.message.startsWith('PLAN_LIMIT_')) {
-        console.warn('プラン上限に達したため、残りのローカルプランのアップロードをスキップ');
-        break;
-      }
-      console.error('プランのアップロードに失敗:', err);
-    }
-  }
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];

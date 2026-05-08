@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computeImportPlan } from '../localImportPlanner';
-import type { SavedPlan } from '../types';
+import type { SavedPlan } from '../../types';
 
 function makePlan(overrides: Partial<SavedPlan>): SavedPlan {
     return {
