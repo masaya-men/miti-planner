@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
-import { X, LogOut, Shield } from 'lucide-react';
+import { X, LogOut, Shield, Pencil } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
+import { DisplayNameEditor } from './DisplayNameEditor';
+import { showToast } from './Toast';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -47,6 +49,23 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
     const [isDeleting, setIsDeleting] = React.useState(false);
+    const [editingName, setEditingName] = React.useState(false);
+    const [isSavingName, setIsSavingName] = React.useState(false);
+    const updateDisplayName = useAuthStore(s => s.updateDisplayName);
+
+    const handleSaveDisplayName = async (newName: string) => {
+        setIsSavingName(true);
+        try {
+            await updateDisplayName(newName);
+            setEditingName(false);
+            showToast(t('profile.toast_name_updated'));
+        } catch (err) {
+            console.error('Display name update error:', err);
+            showToast(t('profile.toast_name_error'), 'error');
+        } finally {
+            setIsSavingName(false);
+        }
+    };
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
@@ -114,16 +133,38 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             <span className="text-app-xl font-bold text-app-text">{(profileDisplayName || 'U').charAt(0).toUpperCase()}</span>
                                         </div>
                                     )}
-                                    <div className="min-w-0">
-                                        <div className="text-app-xl font-bold text-app-text truncate">
-                                            {profileDisplayName || 'User'}
-                                        </div>
-                                        <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
-                                            {user.uid.startsWith('discord:') ? 'Discord'
-                                                : user.uid.startsWith('twitter:') ? 'X (Twitter)'
-                                                    : ''}
-                                            {t('app.sign_in_via')}
-                                        </div>
+                                    <div className="min-w-0 flex-1">
+                                        {editingName ? (
+                                            <DisplayNameEditor
+                                                value={profileDisplayName || ''}
+                                                onSave={handleSaveDisplayName}
+                                                onCancel={() => setEditingName(false)}
+                                                isSaving={isSavingName}
+                                            />
+                                        ) : (
+                                            <>
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className="text-app-xl font-bold text-app-text truncate">
+                                                        {profileDisplayName || 'User'}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setEditingName(true)}
+                                                        aria-label={t('profile.edit_display_name')}
+                                                        title={t('profile.edit_display_name')}
+                                                        className="p-1 rounded text-app-text-muted/60 hover:text-app-text hover:bg-app-surface2/50 transition-colors cursor-pointer shrink-0"
+                                                    >
+                                                        <Pencil size={12} />
+                                                    </button>
+                                                </div>
+                                                <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
+                                                    {user.uid.startsWith('discord:') ? 'Discord'
+                                                        : user.uid.startsWith('twitter:') ? 'X (Twitter)'
+                                                            : ''}
+                                                    {t('app.sign_in_via')}
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
