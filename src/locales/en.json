@@ -151,16 +151,16 @@
         "toast_name_error": "Failed to update display name"
     },
     "local_import": {
-        "title": "Import your local plans?",
-        "body": "You have {{count}} plan(s) saved while signed out. Save them to the cloud so you can access them from other devices?",
+        "title": "Plans carried over",
+        "subtitle": "Which plans should be saved to the cloud?",
+        "help_text": "Checked plans will be saved to the cloud. Unchecked plans will stay only on this device.",
         "dont_show_again": "Don't show this automatically next time",
-        "confirm": "Import",
-        "cancel": "Not now",
-        "toast_success": "Imported {{count}} plan(s)",
-        "toast_partial": "Imported {{imported}} ・ {{skipped}} skipped (quota full)",
-        "toast_error": "Failed to import",
-        "button_retry": "Retry",
-        "modal_button": "Import local plans ({{count}})"
+        "confirm": "Done",
+        "cancel": "Cancel",
+        "toast_success": "Saved {{count}} plan(s) to the cloud",
+        "toast_kept_local": "Kept {{count}} plan(s) on this device only",
+        "toast_mixed": "Saved {{kept}} ・ Kept {{local}} on this device",
+        "modal_button": "Carry over local plans ({{count}})"
     },
     "aa_settings": {
         "title": "Add AA Mode",

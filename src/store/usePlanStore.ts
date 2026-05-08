@@ -12,7 +12,6 @@ import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
-import { computeImportPlan, type ImportResult } from '../utils/localImportPlanner';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -48,9 +47,21 @@ interface PlanState {
     pullFromFirestore: (uid: string) => Promise<void>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
     forceSyncAll: (uid: string, displayName: string) => Promise<void>;
-    /** B-1: ローカルプランをクラウドへ取り込み (新ID発行・部分取り込み・同名採番) */
-    importLocalPlans: (uid: string, displayName: string) => Promise<ImportResult>;
+    /** ログイン時にFirestoreへ新規アップロードしたプランID (B-1 Revision 2: ダイアログ表示用) */
+    _lastUploadedLocalIds: string[];
     migrateOnLogin: (uid: string, displayName: string) => Promise<void>;
+    /**
+     * B-1 Revision 2: ダイアログでチェック外したプランをクラウドから削除し、ローカルへ ownerId='local' で復元する。
+     * 削除失敗時は既存 _deletedPlanIds キューで自動リトライ。
+     * @param uid 現在のユーザー UID
+     * @param uncheckedPlanIds チェック外したプラン (= ローカルにだけ残したい) の現在の Firestore ID 配列
+     */
+    applyLocalImportSelection: (uid: string, uncheckedPlanIds: string[]) => Promise<void>;
+    /**
+     * B-1 Revision 2: LoginModal 明示ボタン用。ownerId='local' プランで Firestore に未存在のものを upload し、
+     * 全 ownerId='local' プランの ID リストを返す (ダイアログ表示対象)。
+     */
+    prepareLocalImport: (uid: string, displayName: string) => Promise<string[]>;
     deleteFromFirestore: (planId: string, uid: string, contentId: string | null) => Promise<void>;
     /** 手動同期ボタン用: クールダウン無視で即座にPUSH + PULL */
     manualSync: (uid: string, displayName: string) => Promise<void>;
@@ -85,6 +96,7 @@ export const usePlanStore = create<PlanState>()(
             _saveStatus: 'idle' as const,
             _cloudStatus: 'idle' as const,
             _migrationDone: false,
+            _lastUploadedLocalIds: [],
             setSaveStatus: (status) => set({ _saveStatus: status }),
 
             addPlan: (plan) => {
@@ -504,75 +516,86 @@ export const usePlanStore = create<PlanState>()(
                 }
             },
 
-            importLocalPlans: async (uid, displayName) => {
+            /**
+             * B-1 Revision 2: LoginModal 明示ボタン用。Firestore 未存在のローカルプランを upload し、
+             * 表示対象プラン ID 配列を返す。失敗は無視 (ユーザーが個別に再試行可能)。
+             */
+            prepareLocalImport: async (uid, displayName) => {
                 const localPlans = get().plans.filter(p => p.ownerId === 'local');
-                if (localPlans.length === 0) {
-                    return { imported: 0, skipped: 0, contentBreakdown: {} };
+                if (localPlans.length === 0) return [];
+
+                let remoteIds: Set<string>;
+                try {
+                    const remotePlans = await planService.fetchUserPlans(uid);
+                    remoteIds = new Set(remotePlans.map(p => p.id));
+                } catch (err) {
+                    console.error('prepareLocalImport: fetchUserPlans failed', err);
+                    remoteIds = new Set(); // 失敗時は全件アップロード試行
                 }
 
-                // 1. リモートプランを取得 (枠カウント・既存タイトル抽出)
-                const remotePlans = await planService.fetchUserPlans(uid);
-                const byContentCounts: Record<string, number> = {};
-                const existingTitlesByContent = new Map<string, string[]>();
-                for (const p of remotePlans) {
-                    const cid = p.contentId ?? '';
-                    byContentCounts[cid] = (byContentCounts[cid] ?? 0) + 1;
-                    const arr = existingTitlesByContent.get(cid) ?? [];
-                    arr.push(p.title);
-                    existingTitlesByContent.set(cid, arr);
-                }
-
-                // 2. 取り込み計画
-                const { toImport, result } = computeImportPlan({
-                    localPlans,
-                    totalCount: remotePlans.length,
-                    byContentCounts,
-                    existingTitlesByContent,
-                    totalLimit: PLAN_LIMITS.MAX_TOTAL_PLANS,
-                    perContentLimit: PLAN_LIMITS.MAX_PLANS_PER_CONTENT,
-                });
-
-                // 3. Firestore へ書き込み (失敗した個別プランは result から減算しローカル残存)
-                const successfullyImported: { localId: string; cloudPlan: SavedPlan }[] = [];
-                const importStartedAt = Date.now();
-                for (const [i, item] of toImport.entries()) {
-                    const cloudPlan: SavedPlan = {
-                        ...item.original,
-                        id: item.newId,
-                        ownerId: uid,
-                        ownerDisplayName: displayName,
-                        title: item.finalTitle,
-                        // ループ内で同一 ms になり sort 順が不定になるのを防ぐため i オフセット
-                        createdAt: importStartedAt + i,
-                        updatedAt: importStartedAt + i,
-                    };
+                for (const plan of localPlans) {
+                    if (remoteIds.has(plan.id)) continue;
                     try {
-                        await planService.createPlan(cloudPlan, uid, displayName);
-                        successfullyImported.push({ localId: item.original.id, cloudPlan });
+                        await planService.createPlan(plan, uid, displayName);
                     } catch (err) {
-                        console.error('Local import: createPlan failed', err);
-                        // result は computeImportPlan が返した新規オブジェクト。直接ミュートして caller に返す。
-                        result.imported -= 1;
-                        result.skipped += 1;
-                        const cid = item.original.contentId ?? '';
-                        const bd = (result.contentBreakdown[cid] ??= { imported: 0, skipped: 0 });
-                        bd.imported -= 1;
-                        bd.skipped += 1;
+                        // PLAN_LIMIT エラーは想定内
+                        const msg = err instanceof Error ? err.message : '';
+                        if (!msg.startsWith('PLAN_LIMIT_')) {
+                            console.error('prepareLocalImport: createPlan failed', err);
+                        }
                     }
                 }
+                return localPlans.map(p => p.id);
+            },
 
-                // 4. ストア更新: 取り込み成功した local プランを除去、新クラウドプランを追加
-                if (successfullyImported.length > 0) {
-                    const importedLocalIds = new Set(successfullyImported.map(s => s.localId));
-                    set(state => ({
-                        plans: [
-                            ...successfullyImported.map(s => s.cloudPlan),
-                            ...state.plans.filter(p => !importedLocalIds.has(p.id)),
-                        ].sort((a, b) => b.updatedAt - a.updatedAt),
-                    }));
+            /**
+             * B-1 Revision 2: ダイアログで「外した」プランをクラウドから削除 + ローカル ownerId='local' に復元。
+             * - ユーザーから見ると「ローカルにだけ残った」状態
+             * - 削除失敗時は _deletedPlanIds キューに残り、次回 syncToFirestore で自動リトライ
+             * - すべての操作はローカル状態を即時更新するためデータロスは起きない
+             */
+            applyLocalImportSelection: async (uid, uncheckedPlanIds) => {
+                if (uncheckedPlanIds.length === 0) return;
+
+                // 1. ローカル state を即座に更新 (ownerId を uid → 'local' に戻す + _deletedPlanIds に追加)
+                const uncheckedSet = new Set(uncheckedPlanIds);
+                set(state => {
+                    const newPlans = state.plans.map(p => {
+                        if (uncheckedSet.has(p.id) && p.ownerId === uid) {
+                            return { ...p, ownerId: 'local', ownerDisplayName: 'Guest' };
+                        }
+                        return p;
+                    });
+                    const newDeleted = new Set(state._deletedPlanIds);
+                    for (const id of uncheckedPlanIds) newDeleted.add(id);
+                    return { plans: newPlans, _deletedPlanIds: newDeleted };
+                });
+
+                // 2. Firestore 削除を試行 (失敗したものは _deletedPlanIds に残り次回リトライ)
+                for (const planId of uncheckedPlanIds) {
+                    try {
+                        const plan = get().plans.find(p => p.id === planId);
+                        await planService.deletePlan(planId, uid, plan?.contentId ?? null);
+                        // 削除成功 → キューから除去
+                        set(state => {
+                            const newDeleted = new Set(state._deletedPlanIds);
+                            newDeleted.delete(planId);
+                            return { _deletedPlanIds: newDeleted };
+                        });
+                    } catch (err) {
+                        const msg = err instanceof Error ? err.message : '';
+                        if (msg.includes('permissions') || msg.includes('NOT_FOUND')) {
+                            // 既に Firestore に存在しない → キューから除去
+                            set(state => {
+                                const newDeleted = new Set(state._deletedPlanIds);
+                                newDeleted.delete(planId);
+                                return { _deletedPlanIds: newDeleted };
+                            });
+                        } else {
+                            console.error('applyLocalImportSelection: 削除失敗 (キューに残り次回リトライ)', err);
+                        }
+                    }
                 }
-
-                return result;
             },
 
             /**
@@ -581,7 +604,7 @@ export const usePlanStore = create<PlanState>()(
              */
             migrateOnLogin: async (uid, displayName) => {
                 try {
-                    const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
+                    const { merged, dirtyIds, uploadedIds } = await planService.migrateLocalPlansToFirestore(
                         get().plans,
                         uid,
                         displayName,
@@ -592,6 +615,8 @@ export const usePlanStore = create<PlanState>()(
                         _dirtyPlanIds: new Set<string>(dirtyIds),
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
+                        // B-1 Revision 2: 今回新規アップロードしたプラン ID をダイアログ表示用に保持
+                        _lastUploadedLocalIds: uploadedIds,
                     });
                 } catch (err) {
                     console.error('マイグレーションエラー:', err);

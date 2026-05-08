@@ -352,53 +352,67 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const authLoading = useAuthStore((s) => s.loading);
     const [hasMigrated, setHasMigrated] = React.useState(false);
 
-    // B-1: ローカル取り込みダイアログ
+    // B-1 Revision 2: ローカル取り込みダイアログ
     const localImportOpen = useLocalImportDialog(s => s.isOpen);
     const localImportIgnoreDontShow = useLocalImportDialog(s => s.ignoreDontShow);
+    const localImportTargetIds = useLocalImportDialog(useShallow(s => s.targetPlanIds));
     const closeLocalImportDialog = useLocalImportDialog(s => s.close);
-    const localImportCount = usePlanStore(s =>
-        s.plans.filter(p => p.ownerId === 'local').length,
+    /** 表示対象のプラン (ダイアログに渡す: 既に Firestore にアップロード済みだが state 上は ownerId='local') */
+    const localImportPlans = usePlanStore(
+        useShallow(s => s.plans.filter(p => localImportTargetIds.includes(p.id))),
     );
 
     const handleLocalImportConfirm = React.useCallback(
-        async ({ dontShow }: { dontShow: boolean }) => {
+        async ({ uncheckedPlanIds, dontShow }: { uncheckedPlanIds: string[]; dontShow: boolean }) => {
             closeLocalImportDialog();
             if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
 
             const currentUser = useAuthStore.getState().user;
             if (!currentUser) return;
-            const profileName = useAuthStore.getState().profileDisplayName || 'User';
-            try {
-                const result = await usePlanStore.getState().importLocalPlans(
-                    currentUser.uid,
-                    profileName,
-                );
-                if (result.imported > 0 && result.skipped === 0) {
-                    showToast(t('local_import.toast_success', { count: result.imported }));
-                } else if (result.imported > 0 && result.skipped > 0) {
-                    showToast(t('local_import.toast_partial', {
-                        imported: result.imported,
-                        skipped: result.skipped,
-                    }));
-                } else if (result.skipped > 0) {
-                    showToast(t('local_import.toast_partial', {
-                        imported: 0,
-                        skipped: result.skipped,
-                    }), 'info');
-                } else {
-                    // 0件取り込み・0件 skip: ダイアログ表示後に状態が変化したエッジケース
-                    showToast(t('local_import.toast_success', { count: 0 }), 'info');
+
+            // チェック ON のプラン: ownerId を 'local' → uid に書き換え (state 上で確定)
+            const checkedPlanIds = localImportTargetIds.filter(id => !uncheckedPlanIds.includes(id));
+            if (checkedPlanIds.length > 0) {
+                const profileName = useAuthStore.getState().profileDisplayName || 'User';
+                usePlanStore.setState(state => ({
+                    plans: state.plans.map(p =>
+                        checkedPlanIds.includes(p.id) && p.ownerId === 'local'
+                            ? { ...p, ownerId: currentUser.uid, ownerDisplayName: profileName }
+                            : p
+                    ),
+                }));
+            }
+
+            // チェック OFF のプラン: Firestore から削除 + ローカルに ownerId='local' で残す (= Revision 2 の本質)
+            if (uncheckedPlanIds.length > 0) {
+                try {
+                    await usePlanStore.getState().applyLocalImportSelection(
+                        currentUser.uid,
+                        uncheckedPlanIds,
+                    );
+                } catch (err) {
+                    console.error('applyLocalImportSelection failed:', err);
                 }
-            } catch (err) {
-                console.error('Local import failed:', err);
-                showToast(t('local_import.toast_error'), 'error');
+            }
+
+            // トースト出し分け
+            const keptCount = checkedPlanIds.length;
+            const localCount = uncheckedPlanIds.length;
+            if (keptCount > 0 && localCount === 0) {
+                showToast(t('local_import.toast_success', { count: keptCount }));
+            } else if (keptCount === 0 && localCount > 0) {
+                showToast(t('local_import.toast_kept_local', { count: localCount }), 'info');
+            } else if (keptCount > 0 && localCount > 0) {
+                showToast(t('local_import.toast_mixed', { kept: keptCount, local: localCount }));
             }
         },
-        [closeLocalImportDialog, t],
+        [closeLocalImportDialog, localImportTargetIds, t],
     );
 
     const handleLocalImportCancel = React.useCallback(
         ({ dontShow }: { dontShow: boolean }) => {
+            // キャンセル: 何もしない (チェック ON 扱いで全プランそのまま Firestore に残る)
+            // ローカル state も ownerId='local' のままだが、次回 syncToFirestore で uid に書き戻される
             closeLocalImportDialog();
             if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
         },
@@ -438,11 +452,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             usePlanStore.setState({ _migrationDone: true });
             // マイグレーション成功・失敗いずれでもPULL実行（他端末の変更を確実に取得）
             planStore.pullFromFirestore(authUser.uid).then(() => {
-                // B-1: ローカル取り込みダイアログ自動トリガー
-                const localCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
+                // B-1 Revision 2: ローカル取り込みダイアログ自動トリガー
+                // - migrateOnLogin で ownerId='local' プランは既に Firestore にアップロード済み
+                // - _lastUploadedLocalIds で今回アップロードしたプラン ID を取得
+                // - 認証オーバーレイが消えてから 700ms 待機 → ダイアログ表示
+                const uploadedIds = usePlanStore.getState()._lastUploadedLocalIds;
                 const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
-                if (localCount > 0 && !dontShow) {
-                    useLocalImportDialog.getState().open(false);
+                if (uploadedIds.length > 0 && !dontShow) {
+                    setTimeout(() => {
+                        useLocalImportDialog.getState().open({
+                            ignoreDontShow: false,
+                            targetPlanIds: uploadedIds,
+                        });
+                    }, 700);
                 }
             });
         });
@@ -755,10 +777,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
             )}
 
-            {/* B-1: ローカル取り込みダイアログ */}
+            {/* B-1 Revision 2: ローカル取り込みダイアログ */}
             <LocalImportDialog
                 isOpen={localImportOpen}
-                count={localImportCount}
+                plans={localImportPlans}
                 ignoreDontShow={localImportIgnoreDontShow}
                 onConfirm={handleLocalImportConfirm}
                 onCancel={handleLocalImportCancel}

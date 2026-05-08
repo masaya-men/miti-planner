@@ -338,21 +338,21 @@ async function fetchAndMerge(
 }
 
 /**
- * ログイン時のリモートマージ
- * Firestoreを正（信頼できるデータ）として扱い、Firestoreから既存プランを取得して
- * ローカルとマージする。両方に存在してローカルが新しい場合はFirestoreに書き戻す
- * （端末間同期の要）。
+ * ログイン時のデータマイグレーション
+ * Firestoreを正（信頼できるデータ）として扱う。
+ * localにあってFirestoreにないプランは:
+ * - ownerId === 'local'（未ログイン時作成）→ アップロード（B-1 Revision 2: 取捨選択用に uploadedIds として返す）
+ * - それ以外 → 別端末で削除されたとみなし除外
  *
- * 注意: B-1 で ownerId='local' プランのサイレントアップロードは撤去された。
- * ローカル取り込みは usePlanStore.importLocalPlans (B-1 ダイアログ経由) でのみ行う。
+ * 両方に存在してローカルが新しい場合はFirestoreに書き戻す（端末間同期の要）
  *
- * @returns { merged, dirtyIds } — マージ済みプラン + Firestoreに書き戻せなかったプランID
+ * @returns { merged, dirtyIds, uploadedIds } — マージ済みプラン + Firestoreに書き戻せなかったプランID + 今回新規アップロードしたプランID
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
   uid: string,
-  _displayName: string,
-): Promise<{ merged: SavedPlan[]; dirtyIds: string[] }> {
+  displayName: string,
+): Promise<{ merged: SavedPlan[]; dirtyIds: string[]; uploadedIds: string[] }> {
   // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
   try {
     await repairPlanCounts(uid);
@@ -362,7 +362,26 @@ async function migrateLocalPlansToFirestore(
 
   // Firestoreから既存プランを取得
   const remotePlans = await fetchUserPlans(uid);
+  const remoteIds = new Set(remotePlans.map((p) => p.id));
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
+
+  // ローカルにしかないプランをアップロード (B-1 Revision 2: ダイアログで取捨選択するため)
+  const uploadedIds: string[] = [];
+  const localOnly = localPlans.filter((p) => !remoteIds.has(p.id));
+  for (const plan of localOnly) {
+    if (plan.ownerId !== 'local') continue;
+    try {
+      await createPlan(plan, uid, displayName);
+      uploadedIds.push(plan.id);
+    } catch (err) {
+      // 上限に達した場合は残りをスキップ
+      if (err instanceof Error && err.message.startsWith('PLAN_LIMIT_')) {
+        console.warn('プラン上限に達したため、残りのローカルプランのアップロードをスキップ');
+        break;
+      }
+      console.error('プランのアップロードに失敗:', err);
+    }
+  }
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];
@@ -388,7 +407,8 @@ async function migrateLocalPlansToFirestore(
         merged.push(remote);
       }
     } else if (local.ownerId === 'local') {
-      // ローカルのみ & 未ログイン作成 → 残す（B-1 ダイアログでの取り込み対象）
+      // ローカルのみ & 未ログイン作成 → ownerId='local' のまま残す
+      // (Firestore に上げたが、ユーザーがダイアログで選択するまでローカル状態は維持)
       merged.push(local);
     }
     // ローカルのみ & ownerId !== 'local' → 削除されたとみなし除外
@@ -402,7 +422,7 @@ async function migrateLocalPlansToFirestore(
   // updatedAt降順でソート
   merged.sort((a, b) => b.updatedAt - a.updatedAt);
 
-  return { merged, dirtyIds };
+  return { merged, dirtyIds, uploadedIds };
 }
 
 /** プランがFirestoreに存在するか確認 */

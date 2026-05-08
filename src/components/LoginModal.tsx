@@ -256,8 +256,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 {localPlanCount > 0 && (
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            openLocalImport(true);
+                                        onClick={async () => {
+                                            if (!user) return;
+                                            const profileName = useAuthStore.getState().profileDisplayName || 'User';
+                                            const targetIds = await usePlanStore.getState().prepareLocalImport(
+                                                user.uid,
+                                                profileName,
+                                            );
+                                            if (targetIds.length === 0) return;
+                                            openLocalImport({ ignoreDontShow: true, targetPlanIds: targetIds });
                                             onClose();
                                         }}
                                         className={clsx(
