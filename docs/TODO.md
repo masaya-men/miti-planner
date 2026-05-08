@@ -11,32 +11,17 @@
 - **ブランチ**: main直接
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
-- **【最優先・実機検証待ち】Phase B-1 Revision 3 真因解決 (2026-05-09 未明)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に **新規作成プランを誤って圧縮** → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。原因は `getStalePlanIds` が「`lastOpened` 未記録 = stale」と扱い、かつ `addPlan` で `setLastOpened` を呼んでいなかったため。修正コミット **cf6d1df**: (1) `lastOpenedStore.getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番デプロイ済 (バンドル `index-BhHvFGDR.js`)。**次セッション最初**: ユーザー実機で「クリーン状態 → M9S+M10S 作成 → ログイン → ダイアログ → 取り込む」が完走するか検証。OK なら診断ログ撤去コミット → Phase B-2 着手。
 
-  **Rev3 設計刷新 (2026-05-08 ef3c2c9 + cf6d1df)**: silent upload 撤去、ログイン直後ローディングオーバーレイ → ダイアログ自動表示 → ユーザーが「取り込む」押下で 1 件ずつ進捗 UI 付きアップロード → 失敗時再試行。`signOut` も `ownerId='local'` プランは保持。設計書 `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。
+- **【最新セッション 2026-05-09 深夜・SharePage 致命バグ修正 + B-1 Rev3 実機 OK】**: B-1 Rev3 の取り込みフロー実機検証 OK 確認済み (バンドル `index-BhHvFGDR.js`、cf6d1df + 取り込み準備中ローディングテキスト削除)。続いて、共有 URL → SharePage の「自分のプランにコピー」が `ownerId: ''` (空文字) で `addPlan` していたため、ログイン後の `fetchAndMerge` / `migrateOnLogin` で「別端末で削除」誤判定されて **localStorage から消滅する致命バグ**をユーザー実機で再現確認、即修正。**過去 4 回直した同パターンが共有URL経路にも存在**していた (野良主流ボトムシートの修正 a37ce8b は別経路、SharePage は未対応のままだった)。修正コミット: SharePage の handleCopyToMine / handleCopyShared で `ownerId: 'local'` に + usePlanStore の addPlan 入口で空文字 → 'local' 正規化ガード追加 (再発防止保険)。471/471 vitest PASS、tsc clean、build 成功、push 済み。**次セッション最初**: 実機検証 (共有URL→コピー→リロード→消えないか) → OK なら 2 つの大タスクに着手。
 
-  **既知 UX 漏れ (実機検証 OK 後の別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚的に区別していないため、取り込み前後でプランが「最初から表示されてる」ように見える。「未取り込みバッジ」等を追加すべき。
+  **次セッション着手予定 (優先順)**:
+  1. **取り込みフロー Rev3 完了 (B2 sweep + 文言 + PLAN_LIMIT 精度)**: 設計合意済み。プレビュー HTML `tmp/local-import-anim-preview.html` で B2 (行 sweep) 採用決定、ダーク/ライト両方検証済み、文言も事実ベースで合意済み。実装作業: ①LocalImportDialog.tsx を B2 sweep + 完了パネル/失敗パネル + 自動クローズ廃止に改修 ②planService.createPlan の throw を構造化 (`PLAN_LIMIT_${reason}|current=${n}|max=${m}` 形式) ③ダイアログ側で error 種別 (`unavailable` / `PLAN_LIMIT_*` 等) ごとに対処文言出し分け (「全体上限 50 件」「コンテンツ上限 5 件」を具体的件数込みで) ④i18n 4 言語追加 ⑤既存 toast 撤去判断 ⑥テスト更新 ⑦実機検証 → デプロイ。文言は memory `feedback_no_guessing_fixes` 通り推測を排除し事実のみ採用済 (「サーバーが応答」「同名プラン別名で」を削除、「ネットワーク確認」「再ログイン」「時間置く」「上限到達時のプラン削除」を採用)。
 
-  **現状コミット**: 92d42f0 (チュートリアル保険) → 7833011 (並行同期抑制) → 15de127 (ID 衝突修正) → ef3c2c9 (B-1 Rev2 リスト UI) → 70821ea (TODO)。
+  2. **🆕 共有 URL 自動取り込み新機能 (Phase B-1.5)**: ユーザー要望「コピーボタンの動作は不要、踏んだら自動で自分のプランとして開く (ログイン=クラウド、非ログイン=ローカル)」。設計が必要。エッジケース整理: PLAN_LIMIT_max_total / max_per_content (上限到達時はトースト + 閲覧モードフォールバック) / ネットワーク認証エラー (ローカル保存にフォールバック → 既存 B-1 取り込みフローに乗る) / 同じ shareId を 2 回踏む (重複検出: sessionStorage に shareId 記録、既取り込みなら自分のプランを開く) / バンドル共有 (LocalImportDialog 風選択ダイアログ) / 「サイドバーからコンテンツを選択」マスクオーバーレイ問題 (currentPlanId 未設定が原因、自動取り込みで自然解消)。`brainstorming` → `writing-plans` で設計書 + 実装プラン → ユーザー承認 → `subagent-driven-development` で実装。
 
-  **ユーザー実機で再現した症状** (SW 削除 + ローカル全消 + タブ再起動した完全クリーン状態):
-  1. 非ログインで M9S 2件 + M10S 1件 = 3件作成
-  2. ログイン → **B-1 Rev2 のリストダイアログがそもそも出ない** (PWA キャッシュ問題ではない、完全クリーン後)
-  3. プラン 3件あるのを確認後すぐログアウト
-  4. ローカルにプランが無いことを確認 → **でもチュートリアルが出ない** (本来出るはず)
-  5. ログイン → **3件のうち M10S 1件しか残っていない (M9S 2件消失)** + **チュートリアル発火** (チュートリアル保険入れたのに)
+  3. **(次セッション扱い) 致命バグ修正の自動テスト追加**: addPlan 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest を追加。今セッションは時間制約で既存 471 テスト PASS で代替、実機検証で最終確認。
 
-  **疑うべき箇所**:
-  - `useLocalImportDialog` の自動トリガー条件 (`_lastUploadedLocalIds.length > 0` チェック) が機能していない
-  - `migrateLocalPlansToFirestore` の `localOnly` upload で 2件以上が連続で `createPlan` する時の race
-  - `crypto.randomUUID()` 修正が本当に効いているか (古いビルドキャッシュではないか)
-  - チュートリアル保険 (`!hasAnyPlan`) が `state.plans.length` を見ているが、`migrationDone` 完了直後に plans 反映タイミングずれの可能性
-
-  **次セッション推奨アクション**:
-  1. 今セッション全コミット (ef3c2c9 〜 92d42f0) を再レビュー、不整合を洗う
-  2. 場合によっては B-1 Revision 2 全体を revert して syncDirtyPlans + migrateLocalPlansToFirestore の挙動から再設計
-  3. ユーザーに DevTools で `console.log` 仕込んで実機ログ取ってもらう (どこでプランが消えるか追跡)
-  4. Firestore Console で残骸データのクリーンアップを admin 権限で実施
+- **【完了 2026-05-09 未明・実機 OK】Phase B-1 Revision 3 真因解決 (silentCompressStale 誤発動)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に新規作成プランを誤って圧縮 → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。修正 (cf6d1df): (1) `getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番バンドル `index-BhHvFGDR.js`。実機検証 OK 確認済 (2026-05-09)。Rev3 設計刷新は `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。**既知 UX 漏れ (別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚区別しない → 「未取り込みバッジ」追加すべき。**残作業**: 診断ログ撤去 (`debugLog.ts` + 各所 `dlog`、`scripts/inspect-user-plans.ts` は残す)。次の取り込みフロー Rev3 完了タスクと一緒に実施予定。
 
 - **【完了 2026-05-08 朝】Phase B-1 Revision 2 実装**: Revision 1 で実機テスト「ダイアログが見えないうちに取り込みが終わってる」問題が発覚し設計撤回。Revision 2 はアップロード自体は黙って実行し、ログイン後 700ms 待機後にダイアログを **リスト UI** で表示 → チェックボックスで取捨選択 → チェック OFF は裏で Firestore から削除 + ローカル `ownerId='local'` で残す方式。設計書 §5.0 Revision 2、ef3c2c9。**実装は完了したが上記重大バグで実機動作せず**。
 
