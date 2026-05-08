@@ -12,6 +12,33 @@ vi.mock('../../lib/housingApiClient', () => ({
 
 vi.mock('../../lib/firebase', () => ({
   auth: { currentUser: { uid: 'test-uid' } },
+  db: {},
+  appCheck: Promise.resolve({}),
+}));
+
+// HousingLoginPrompt は LoginModal → useAuthStore を import する。
+// 認証済みケースでは Prompt は描画されないが、import は走るので
+// firebase/auth と firestore の最小スタブを用意して useAuthStore を読み込めるようにする。
+vi.mock('firebase/auth', () => ({
+  onAuthStateChanged: vi.fn(),
+  signInWithPopup: vi.fn(),
+  signInWithRedirect: vi.fn(),
+  getRedirectResult: vi.fn().mockResolvedValue(null),
+  signOut: vi.fn(),
+  OAuthProvider: vi.fn(),
+  TwitterAuthProvider: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  deleteUser: vi.fn(),
+}));
+
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(),
+  collection: vi.fn(),
+  getDocs: vi.fn(),
+  getDoc: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  writeBatch: vi.fn(),
 }));
 
 import { HousingRegisterView } from '../../components/housing/register/HousingRegisterView';

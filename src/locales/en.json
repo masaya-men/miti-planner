@@ -1696,7 +1696,7 @@
                 "title": "Login required to save favorites",
                 "lead": "After logging in, your favorites will sync across devices"
             },
-            "go_to_login": "Go to /miti to log in"
+            "open_login": "Open login"
         },
         "tag": {
             "wafu": "Japanese Style",
