@@ -388,7 +388,7 @@ async function migrateLocalPlansToFirestore(
         merged.push(remote);
       }
     } else if (local.ownerId === 'local') {
-      // ローカルのみ & 未ログイン作成 → 残す（アップロード済み）
+      // ローカルのみ & 未ログイン作成 → 残す（B-1 ダイアログでの取り込み対象）
       merged.push(local);
     }
     // ローカルのみ & ownerId !== 'local' → 削除されたとみなし除外
