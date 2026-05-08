@@ -2,6 +2,27 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-08）
+
+### Sub-spec 2A: Registration (画像なしモード) 完了 2026-05-08
+- [x] タグマスタ 147 件 × 4 言語 i18n (`src/data/housingTags.ts` + ja/en/ko/zh.json)
+- [x] フォーム入力検証 純粋関数 (`src/utils/housingValidation.ts`、validateAddress/Tags/Description/RegistrationDraft)
+- [x] 登録枠 D 案ロジック 純粋関数 (`src/utils/housingQuota.ts`、累計 30 まで無制限 + 30 超過後 1 日 5 件、UTC 日付ベース、同日削除で count 戻し)
+- [x] 同住所キー生成 純粋関数 (`src/utils/housingDuplicate.ts`、`buildAddressKey` で `dc|server|area|W{n}|P{n}|size[|R{n}]` 形式)
+- [x] `HousingListing.addressKey: string` 必須フィールド追加 (型 + firestore.rules 検証 + 本番 rules デプロイ)
+- [x] Firestore listings 読取 service (`src/lib/housingListingsService.ts`、`findListingsByAddressKey`)
+- [x] `/api/housing` 3 アクション (can-register / register-listing / check-duplicate)、Admin SDK + AppCheck + RateLimit + runTransaction でアトミック
+- [x] API クライアントラッパー (`src/lib/housingApiClient.ts`、QuotaExhaustedError 含む)
+- [x] HousingPage 3 タブ (探す/回る/登録) 切替 + URL ハッシュ同期 (`HousingPage.tsx` + `HousingTabBar.tsx` + `HousingPlaceholderView.tsx`)
+- [x] 登録フォーム本体 (`HousingRegisterView.tsx`) + 住所入力フィールド + タグピッカー (5 件上限) + 紹介文入力 (200 文字) + 残り枠表示 + 重複警告ダイアログ + オンボーディングダイアログ + 未ログインプロンプト
+- [x] App.tsx の `/housing` ルートを `HousingComingSoonPage` から `HousingPage` に差し替え
+- [x] 437 tests PASS (既存 + 新規 約 80 件) / tsc clean / npm run build 成功
+- [x] Playwright 自動チェック 7/7 OK (3 タブ表示 / オンボーディング初回 → 「はじめる」で閉じる / LocalStorage flag で再訪時 0 / 未ログイン `/miti` 誘導 / 探す・回るタブのプレースホルダ)
+- 設計書: `docs/superpowers/specs/2026-05-07-housing-tour-phase1-design.md` §6 / §11 / §12
+- 実装プラン: `docs/superpowers/plans/2026-05-08-housing-sub-spec-2a-registration.md` (26 tasks、3,682 行)
+- 実装フロー: subagent-driven-development で各タスクごとに implementer + spec reviewer + quality reviewer の 3 段階レビュー
+- スコープ外 (後続): 画像 3 択 (SNS URL / サムネアップロード) は Sub-spec 2C / ギャラリー検索は Sub-spec 2B / リキッドグラス + ルーペは Sub-spec 2C 以降
+
 ## 完了（2026-05-01）
 - [x] **PiP（Floating Timeline）復活**: 過去に「Chrome の Document Picture-in-Picture API は OS レベル透過不可」で UI 非表示にしていたカンペビューを復活。仕様変更: ①透過機能完全撤去（将来 Chrome 透過対応で再検討）②単一選択 → 多選（個別/全員/任意組合せをジョブピッカー多選で統合）③自ジョブ未設定時 全員フォールバック ④透過の代わりに背景カラーピッカー追加（テーマ別デフォルト #0F0F10/#FAFAFA + localStorage `pip-bg-color` 永続化、HTML5 native input[type=color] + LoPo 風小色丸ボタン）⑤PC 起動ボタン disable 撤廃（自ジョブ未設定でも開ける）⑥モバイル FAB「カンペ」項目復活。設計書 `docs/superpowers/specs/2026-05-01-pip-revival-design.md`、実装プラン `docs/superpowers/plans/2026-05-01-pip-revival.md`、subagent-driven-development で 8 task + 最終レビュー進行。純粋関数 3 つ（`computeCueItems` / `computeInitialSelection` / `getDefaultBgColor`）を `src/utils/pipViewLogic.ts` に TDD 抽出（16 tests）し、PipView.tsx 本体改修。i18n 4 言語で 3 キー追加 / 2 キー削除。最終 328 tests PASS（既存 312 + 新規 16）、tsc clean、`npm run build` 成功。最終レビューで Important 1 件（cursor-pointer 欠落）fix 済み、Minor 3 件は本番実機確認で判断、Nice-to-have 2 件は次タスクで対応可。
 - [x] **「自分のプラン」バッジ機能 諦め決定**: 共有 API が ownerId を Firestore に書き込んでいないため動作不能。LoPo は個人特定情報を一切収集しない方針 → ownerId 書き込みは仕様禁止。今後は公式ロゴ OGP で自分のプランを識別する運用に切替。バッジ実装コードは残置（_popularHandler.ts と PopularBrowseView.tsx）、撤去するかは別途相談。
