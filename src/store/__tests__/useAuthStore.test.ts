@@ -1,5 +1,8 @@
-// @vitest-pool vmForks
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+const mockAuth = vi.hoisted(() => ({
+    currentUser: { uid: 'test-uid' } as { uid: string } | null,
+}));
 
 vi.mock('firebase/app', () => ({
     initializeApp: vi.fn(() => ({})),
@@ -47,7 +50,7 @@ vi.mock('firebase/firestore', () => ({
 }));
 
 vi.mock('../../lib/firebase', () => ({
-    auth: { currentUser: { uid: 'test-uid' } },
+    get auth() { return mockAuth; },
     db: {},
     storage: {},
 }));
@@ -81,6 +84,7 @@ import { useAuthStore } from '../useAuthStore';
 
 describe('useAuthStore.updateDisplayName', () => {
     beforeEach(() => {
+        mockAuth.currentUser = { uid: 'test-uid' };
         useAuthStore.setState({
             user: { uid: 'test-uid' } as any,
             profileDisplayName: 'OldName',
@@ -104,7 +108,7 @@ describe('useAuthStore.updateDisplayName', () => {
     });
 
     it('未ログイン時は拒否してエラーを投げる', async () => {
-        useAuthStore.setState({ user: null });
+        mockAuth.currentUser = null;
         await expect(useAuthStore.getState().updateDisplayName('AnyName')).rejects.toThrow();
     });
 

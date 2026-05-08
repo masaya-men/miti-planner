@@ -109,8 +109,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         if (trimmed.length > 30) throw new Error('name_too_long');
 
         const currentUser = auth.currentUser;
-        const storeUser = useAuthStore.getState().user;
-        if (!currentUser || !storeUser) throw new Error('not_signed_in');
+        if (!currentUser) throw new Error('not_signed_in');
 
         const userRef = doc(db, COLLECTIONS.USERS, currentUser.uid);
         await updateDoc(userRef, {
