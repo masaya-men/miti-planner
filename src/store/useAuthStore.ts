@@ -14,7 +14,7 @@ import {
     type User
 } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
-import { doc, collection, getDocs, getDoc, query, where, writeBatch } from 'firebase/firestore';
+import { doc, collection, getDocs, getDoc, query, where, writeBatch, updateDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
@@ -45,6 +45,7 @@ interface AuthState {
     profileAvatarUrl: string | null;    // Firestoreのアバター
     isNewUser: boolean;                 // 初回ログイン判定（Firestoreにドキュメントなし）
     signInWith: (provider: AuthProvider) => void;
+    updateDisplayName: (newName: string) => Promise<void>;
     signOut: () => Promise<void>;
     deleteAccount: () => Promise<void>;
     clearJustLoggedIn: () => void;
@@ -100,6 +101,24 @@ export const useAuthStore = create<AuthState>((set) => ({
                     });
                 break;
         }
+    },
+
+    updateDisplayName: async (newName: string) => {
+        const trimmed = newName.trim();
+        if (trimmed.length < 1) throw new Error('name_too_short');
+        if (trimmed.length > 30) throw new Error('name_too_long');
+
+        const currentUser = auth.currentUser;
+        const storeUser = useAuthStore.getState().user;
+        if (!currentUser || !storeUser) throw new Error('not_signed_in');
+
+        const userRef = doc(db, COLLECTIONS.USERS, currentUser.uid);
+        await updateDoc(userRef, {
+            displayName: trimmed,
+            updatedAt: new Date().toISOString(),
+        });
+
+        set({ profileDisplayName: trimmed });
     },
 
     signOut: async () => {
