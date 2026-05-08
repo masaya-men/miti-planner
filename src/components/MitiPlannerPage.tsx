@@ -63,16 +63,22 @@ export const MitiPlannerPage: React.FC = () => {
             if (tutPlan) planStore.deletePlan(tutPlan.id);
         }
 
+        // 既にプランを持っているユーザーは「初めて」ではないのでチュートリアル発火させない。
+        // 高速操作中に timelineEvents が一時的に空になる瞬間 (loadSnapshot 前 / resetForTutorial 後)
+        // でも誤発火しないための保険。
+        const planStoreState = usePlanStore.getState();
+        const hasAnyPlan = planStoreState.plans.length > 0;
+
         if (isMobile) {
             // モバイル: 簡易ガイドを未完了なら表示
             const guideCompleted = localStorage.getItem(MOBILE_GUIDE_KEY) === 'true';
-            if (!guideCompleted && !hasVisitedShare && timelineEvents.length === 0) {
+            if (!guideCompleted && !hasVisitedShare && timelineEvents.length === 0 && !hasAnyPlan) {
                 const timer = setTimeout(() => setMobileGuideOpen(true), 600);
                 return () => clearTimeout(timer);
             }
         } else {
             // PC: 従来のチュートリアル
-            if (!hasCompleted && !isActive && !hasVisitedShare && timelineEvents.length === 0) {
+            if (!hasCompleted && !isActive && !hasVisitedShare && timelineEvents.length === 0 && !hasAnyPlan) {
                 const timer = setTimeout(() => useTutorialStore.getState().startTutorial('main'), 500);
                 return () => clearTimeout(timer);
             }
