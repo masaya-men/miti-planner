@@ -31,7 +31,7 @@ const t = (id: string, category: HousingTagCategory): HousingTag => ({
 });
 
 export const HOUSING_TAGS: readonly HousingTag[] = [
-  // テイスト (45)
+  // テイスト (43-47)
   t('wafu', 'taste'), t('wamodern', 'taste'), t('chinese', 'taste'), t('korean', 'taste'),
   t('western', 'taste'), t('modern', 'taste'), t('minimal', 'taste'), t('natural', 'taste'),
   t('nordic', 'taste'), t('antique', 'taste'), t('vintage', 'taste'), t('retro', 'taste'),
@@ -44,7 +44,7 @@ export const HOUSING_TAGS: readonly HousingTag[] = [
   t('simple', 'taste'), t('warm', 'taste'), t('cool', 'taste'), t('mystical', 'taste'),
   t('ruins', 'taste'), t('horror', 'taste'), t('witch', 'taste'), t('alchemist', 'taste'),
   t('sage_mage', 'taste'),
-  // シーン・用途 (40)
+  // シーン・用途 (38-42)
   t('residence', 'scene'), t('apartment_room', 'scene'), t('bedroom', 'scene'), t('living_room', 'scene'),
   t('dining_room', 'scene'), t('kitchen', 'scene'), t('bath', 'scene'), t('study', 'scene'),
   t('childrens_room', 'scene'), t('walkin_closet', 'scene'), t('cafe', 'scene'), t('coffee_shop', 'scene'),
@@ -55,24 +55,24 @@ export const HOUSING_TAGS: readonly HousingTag[] = [
   t('library', 'scene'), t('gallery', 'scene'), t('atelier', 'scene'), t('workshop', 'scene'),
   t('photo_studio', 'scene'), t('temple', 'scene'), t('shrine', 'scene'), t('church', 'scene'),
   t('school', 'scene'), t('hospital', 'scene'), t('inn', 'scene'), t('hotel', 'scene'),
-  // 季節・イベント (20)
+  // 季節・イベント (18-22)
   t('spring', 'season'), t('summer', 'season'), t('autumn', 'season'), t('winter', 'season'),
   t('cherry_blossom', 'season'), t('autumn_leaves', 'season'), t('snow', 'season'), t('beach', 'season'),
   t('tanabata', 'season'), t('halloween', 'season'), t('christmas', 'season'), t('valentine', 'season'),
   t('new_year', 'season'), t('hinamatsuri', 'season'), t('easter', 'season'), t('summer_festival', 'season'),
   t('starlight', 'season'), t('guardian_day', 'season'), t('matsuri', 'season'), t('illumination', 'season'),
-  // 環境・舞台設定 (12)
+  // 環境・舞台設定 (10-14)
   t('forest', 'environment'), t('desert', 'environment'), t('snowland', 'environment'),
   t('tropical', 'environment'), t('mediterranean', 'environment'), t('grassland', 'environment'),
   t('mountain', 'environment'), t('cave', 'environment'), t('underwater', 'environment'),
   t('space', 'environment'), t('floating_island', 'environment'), t('otherworld', 'environment'),
-  // 構造・特殊 (15)
+  // 構造・特殊 (13-17)
   t('rooftop', 'structure'), t('basement', 'structure'), t('garden', 'structure'),
   t('terrace', 'structure'), t('courtyard', 'structure'), t('multilevel', 'structure'),
   t('multifloor', 'structure'), t('atrium', 'structure'), t('loft', 'structure'),
   t('attic', 'structure'), t('gimmick', 'structure'), t('hidden_room', 'structure'),
   t('warp_room', 'structure'), t('floating_furniture', 'structure'), t('photogenic', 'structure'),
-  // その他 (15)
+  // その他 (13-17)
   t('ghibli_style', 'other'), t('pirate', 'other'), t('medieval', 'other'), t('castle', 'other'),
   t('haunted_mansion', 'other'), t('yukaku', 'other'), t('ryugujo', 'other'), t('treehouse', 'other'),
   t('camp', 'other'), t('abandoned_factory', 'other'), t('lab', 'other'), t('prison', 'other'),

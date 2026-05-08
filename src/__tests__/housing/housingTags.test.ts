@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HOUSING_TAGS, HOUSING_TAG_CATEGORIES, getTagsByCategory, getTagById } from '../../data/housingTags';
+import { HOUSING_TAGS, HOUSING_TAG_CATEGORIES, getTagsByCategory, getTagById, isValidTagId } from '../../data/housingTags';
 
 describe('housingTags', () => {
   it('全 6 カテゴリが定義されている', () => {
@@ -46,5 +46,19 @@ describe('housingTags', () => {
 
   it('getTagById は存在しない id で undefined を返す', () => {
     expect(getTagById('not-a-tag')).toBeUndefined();
+  });
+
+  describe('isValidTagId', () => {
+    it('存在する id で true を返す', () => {
+      expect(isValidTagId('modern')).toBe(true);
+    });
+
+    it('存在しない id で false を返す', () => {
+      expect(isValidTagId('not-a-tag')).toBe(false);
+    });
+
+    it('空文字列で false を返す', () => {
+      expect(isValidTagId('')).toBe(false);
+    });
   });
 });
