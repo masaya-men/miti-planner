@@ -50,7 +50,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     </h3>
                     <button
                         onClick={handleCancel}
-                        aria-label={t('local_import.close')}
+                        aria-label={t('common.close')}
                         className="ml-auto p-1 rounded-lg text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
                     >
                         <X size={14} />
