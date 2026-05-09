@@ -1,26 +1,61 @@
 import { usePlanStore } from '../store/usePlanStore';
+import { useShareImportFlow } from '../store/useShareImportFlow';
 import { checkPlanLimit } from '../utils/planLimitChecker';
 import { buildNewPlan } from './buildShareImportItems';
-import type { ShareImportItem, ProgressEvent, ImportResult } from './shareImportTypes';
+import { PLAN_LIMITS } from '../types/firebase';
+import type {
+  ShareImportItem,
+  ProgressEvent,
+  ImportResult,
+  LimitReason,
+} from './shareImportTypes';
 
 const MIN_DELAY_CHECK_MS = 400;
 const MIN_DELAY_LOCAL_MS = 600;
 const MIN_DELAY_SERVER_MS = 800;
+/** 上限ヒット時、 該当カードを赤背景に切り替えてから重ねシートを開くまでの待機 (#4) */
+const LIMIT_HIT_REVEAL_DELAY_MS = 800;
 
 const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+export interface OnLimitHitParams {
+  reason: LimitReason;
+  contentId: string | null;
+  neededCount: number;
+  planId: string | null;
+}
 
 export async function executeShareImport(
   plansToImport: ShareImportItem[],
   uid: string | null,
   displayName: string,
   onProgress: (event: ProgressEvent) => void,
-  onLimitHit: (params: {
-    reason: 'max_per_content' | 'max_total';
-    contentId: string | null;
-    neededCount: number;
-    planId: string | null;
-  }) => Promise<'resolved' | 'cancelled'>,
+  onLimitHit: (params: OnLimitHitParams) => Promise<'resolved' | 'cancelled'>,
 ): Promise<ImportResult[]> {
+  // 1. 総上限事前判定 (#7)
+  // existing + import > MAX_TOTAL なら、 1 件ずつヒットさせず最初に 1 度まとめて重ねシートを出す。
+  const existingCount = usePlanStore.getState().plans.length;
+  const importCount = plansToImport.length;
+  if (existingCount + importCount > PLAN_LIMITS.MAX_TOTAL_PLANS) {
+    const neededCount = (existingCount + importCount) - PLAN_LIMITS.MAX_TOTAL_PLANS;
+    const decision = await onLimitHit({
+      reason: 'max_total',
+      contentId: null,
+      neededCount,
+      planId: null,
+    });
+    if (decision === 'cancelled') {
+      // すべて cancelled として返す (個別 stage progress は出さない)
+      return plansToImport.map(item => ({
+        itemPlanId: item.sourcePlanId ?? item.sourceShareId,
+        status: 'cancelled' as const,
+      }));
+    }
+    // resolved → 削除済み state で per_content ループへ進む。
+    // 再度総上限が超過していたら次の per_content check で発火するので無限ループにはならない。
+  }
+
+  // 2. per_content ループ (既存ロジック + 赤背景シーケンス追加)
   const results: ImportResult[] = [];
 
   for (const item of plansToImport) {
@@ -32,12 +67,20 @@ export async function executeShareImport(
 
     let limitResult = checkPlanLimit(usePlanStore.getState().plans, item.contentId);
     if (limitResult.exceeded) {
+      // #4: 赤背景に切り替え → 800ms wait → 重ねシート起動の連続演出
+      useShareImportFlow.getState().setRedFlag(itemPlanId);
+      await delay(LIMIT_HIT_REVEAL_DELAY_MS);
+
       const decision = await onLimitHit({
         reason: 'max_per_content',
-        contentId: item.contentId,
+        contentId: item.contentId ?? null,
         neededCount: 1,
         planId: itemPlanId,
       });
+
+      // 解消 / キャンセル いずれの場合も赤フラグは外す (見た目を元に戻す)
+      useShareImportFlow.getState().clearRedFlag(itemPlanId);
+
       if (decision === 'cancelled') {
         onProgress({ planId: itemPlanId, stage: 'check', status: 'cancelled' });
         results.push({ itemPlanId, status: 'cancelled' });

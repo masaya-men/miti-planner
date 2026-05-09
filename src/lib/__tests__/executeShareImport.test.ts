@@ -69,6 +69,19 @@ vi.mock('../../lib/planService', () => ({
 
 vi.mock('../../store/usePlanStore');
 
+// useShareImportFlow は setRedFlag / clearRedFlag だけ呼ばれるので
+// 純粋な state 操作のスタブで十分 (apiFetch を経由しない)。
+const mockSetRedFlag = vi.fn();
+const mockClearRedFlag = vi.fn();
+vi.mock('../../store/useShareImportFlow', () => ({
+  useShareImportFlow: {
+    getState: () => ({
+      setRedFlag: mockSetRedFlag,
+      clearRedFlag: mockClearRedFlag,
+    }),
+  },
+}));
+
 import { executeShareImport } from '../executeShareImport';
 import { usePlanStore } from '../../store/usePlanStore';
 import type { ShareImportItem } from '../shareImportTypes';
@@ -172,25 +185,22 @@ describe('executeShareImport', () => {
   it('resumes import after onLimitHit resolves', async () => {
     const addPlan = vi.fn();
     const syncToFirestore = vi.fn().mockResolvedValue(undefined);
-    let callCount = 0;
+    // 初回 5 件、 onLimitHit が呼ばれたら 4 件に減る (削除イベントを模擬)
+    let limitHitCalled = false;
     vi.mocked(usePlanStore.getState).mockImplementation(() => {
-      callCount++;
-      // 初回 5 件、 2 回目 (resolve 後) 4 件
-      const plans = callCount === 1
-        ? Array.from({ length: 5 }, (_, i) => ({
-            id: `existing${i}`,
-            ownerId: 'testUid',
-            contentId: 'fru',
-          }))
-        : Array.from({ length: 4 }, (_, i) => ({
-            id: `existing${i}`,
-            ownerId: 'testUid',
-            contentId: 'fru',
-          }));
+      const length = limitHitCalled ? 4 : 5;
+      const plans = Array.from({ length }, (_, i) => ({
+        id: `existing${i}`,
+        ownerId: 'testUid',
+        contentId: 'fru',
+      }));
       return { plans, addPlan, syncToFirestore } as any;
     });
 
-    const onLimitHit = vi.fn().mockResolvedValue('resolved');
+    const onLimitHit = vi.fn().mockImplementation(async () => {
+      limitHitCalled = true;
+      return 'resolved';
+    });
     const onProgress = vi.fn();
 
     const promise = executeShareImport(
@@ -305,6 +315,172 @@ describe('executeShareImport', () => {
 
     await vi.runAllTimersAsync();
     await promise;
+  });
+
+  describe('総上限 (max_total) 事前判定 (#7)', () => {
+    it('existing 49 + import 2 = 51 > 50 のとき max_total reason で onLimitHit が呼ばれる', async () => {
+      const addPlan = vi.fn();
+      const syncToFirestore = vi.fn().mockResolvedValue(undefined);
+      // 初回 49 件 (m10s)、 onLimitHit (max_total) 解決後は 48 件まで縮める
+      let limitHitCalled = false;
+      vi.mocked(usePlanStore.getState).mockImplementation(() => {
+        const length = limitHitCalled ? 48 : 49;
+        return {
+          plans: Array.from({ length }, (_, i) => ({
+            id: `existing-${i}`,
+            ownerId: 'local',
+            contentId: 'm10s',
+          })),
+          addPlan,
+          syncToFirestore,
+        } as any;
+      });
+
+      // 最初の onLimitHit 呼び出し (max_total) で resolved を返す
+      const onLimitHit = vi.fn().mockImplementation(async () => {
+        limitHitCalled = true;
+        return 'resolved';
+      });
+      const onProgress = vi.fn();
+
+      const items: ShareImportItem[] = [
+        { sourceShareId: 's1', sourcePlanId: 's1', contentId: 'm11s', title: 't1', planData: {} as any },
+        { sourceShareId: 's2', sourcePlanId: 's2', contentId: 'm11s', title: 't2', planData: {} as any },
+      ];
+
+      const promise = executeShareImport(items, null, '', onProgress, onLimitHit);
+      await vi.runAllTimersAsync();
+      await promise;
+
+      // 最初の呼び出しが max_total
+      expect(onLimitHit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: 'max_total',
+          contentId: null,
+          planId: null,
+          neededCount: 1,
+        }),
+      );
+    });
+
+    it('総上限事前判定で cancelled なら何も import されない', async () => {
+      const addPlan = vi.fn();
+      const syncToFirestore = vi.fn();
+      vi.mocked(usePlanStore.getState).mockReturnValue({
+        plans: Array.from({ length: 49 }, (_, i) => ({
+          id: `existing-${i}`,
+          ownerId: 'local',
+          contentId: 'm10s',
+        })) as any,
+        addPlan,
+        syncToFirestore,
+      } as any);
+
+      const onLimitHit = vi.fn().mockResolvedValue('cancelled');
+      const onProgress = vi.fn();
+
+      const items: ShareImportItem[] = [
+        { sourceShareId: 's1', sourcePlanId: 's1', contentId: 'm11s', title: 't1', planData: {} as any },
+        { sourceShareId: 's2', sourcePlanId: 's2', contentId: 'm11s', title: 't2', planData: {} as any },
+      ];
+
+      const promise = executeShareImport(items, null, '', onProgress, onLimitHit);
+      await vi.runAllTimersAsync();
+      const results = await promise;
+
+      expect(results).toHaveLength(2);
+      expect(results.every(r => r.status === 'cancelled')).toBe(true);
+      expect(addPlan).not.toHaveBeenCalled();
+      // local stage の progress は出さない (= 個別ループに入っていない)
+      expect(onProgress).not.toHaveBeenCalledWith(
+        expect.objectContaining({ stage: 'local' }),
+      );
+    });
+
+    it('existing 49 + import 1 = 50 (== 上限) のときは事前判定を発火しない', async () => {
+      const addPlan = vi.fn();
+      const syncToFirestore = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(usePlanStore.getState).mockReturnValue({
+        plans: Array.from({ length: 49 }, (_, i) => ({
+          id: `existing-${i}`,
+          ownerId: 'local',
+          contentId: 'm10s',
+        })) as any,
+        addPlan,
+        syncToFirestore,
+      } as any);
+
+      const onLimitHit = vi.fn();
+      const onProgress = vi.fn();
+
+      const items: ShareImportItem[] = [
+        { sourceShareId: 's1', sourcePlanId: 's1', contentId: 'm11s', title: 't1', planData: {} as any },
+      ];
+
+      const promise = executeShareImport(items, null, '', onProgress, onLimitHit);
+      await vi.runAllTimersAsync();
+      await promise;
+
+      const totalCalls = onLimitHit.mock.calls.filter(
+        ([params]) => params.reason === 'max_total',
+      );
+      expect(totalCalls.length).toBe(0);
+    });
+  });
+
+  describe('per_content 上限ヒット時の赤背景シーケンス (#4)', () => {
+    it('per_content limit hit 時、 setRedFlag → onLimitHit (max_per_content + planId) → clearRedFlag の順で呼ばれる', async () => {
+      mockSetRedFlag.mockClear();
+      mockClearRedFlag.mockClear();
+      const addPlan = vi.fn();
+      const syncToFirestore = vi.fn().mockResolvedValue(undefined);
+      // m10s に 5 件 (上限) → onLimitHit 呼び出し後は 4 件に減る
+      let limitHitCalled = false;
+      vi.mocked(usePlanStore.getState).mockImplementation(() => {
+        const length = limitHitCalled ? 4 : 5;
+        return {
+          plans: Array.from({ length }, (_, i) => ({
+            id: `m10s-${i}`,
+            ownerId: 'local',
+            contentId: 'm10s',
+          })),
+          addPlan,
+          syncToFirestore,
+        } as any;
+      });
+
+      const onLimitHit = vi.fn().mockImplementation(async () => {
+        limitHitCalled = true;
+        return 'resolved';
+      });
+      const onProgress = vi.fn();
+
+      const items: ShareImportItem[] = [
+        { sourceShareId: 's1', sourcePlanId: 's1', contentId: 'm10s', title: 't1', planData: {} as any },
+      ];
+
+      const promise = executeShareImport(items, null, '', onProgress, onLimitHit);
+      await vi.runAllTimersAsync();
+      await promise;
+
+      expect(onLimitHit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: 'max_per_content',
+          contentId: 'm10s',
+          planId: 's1',
+          neededCount: 1,
+        }),
+      );
+      // 赤背景マークがヒット時に立てられて、 解決後に外される
+      expect(mockSetRedFlag).toHaveBeenCalledWith('s1');
+      expect(mockClearRedFlag).toHaveBeenCalledWith('s1');
+      // 順序: setRedFlag が onLimitHit より前、 clearRedFlag が後
+      const setOrder = mockSetRedFlag.mock.invocationCallOrder[0];
+      const limitOrder = onLimitHit.mock.invocationCallOrder[0];
+      const clearOrder = mockClearRedFlag.mock.invocationCallOrder[0];
+      expect(setOrder).toBeLessThan(limitOrder);
+      expect(limitOrder).toBeLessThan(clearOrder);
+    });
   });
 
   it('emits failed and skips server when local addPlan throws', async () => {
