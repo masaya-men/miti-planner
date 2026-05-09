@@ -1,60 +1,91 @@
 import type { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { SweepOverlay } from './SweepOverlay';
 
 // チェックボックス関連プロパティの discriminated union。
-// showCheckbox=false のときは isChecked / onToggleCheck を要求しないが、
-// showCheckbox=true のときはこれらを必須にする。
-// これにより「showCheckbox=true なのに状態を渡し忘れて静かに壊れる」事故を型レベルで防ぐ。
 type CheckboxProps =
     | { showCheckbox: false }
     | { showCheckbox: true; isChecked: boolean; onToggleCheck: () => void };
 
 type SharePlanCardProps = {
+    /** 主タイトル (現在の使い方: コンテンツ名) */
     title: string;
+    /** 副タイトル (現在の使い方: プラン名) */
     subtitle?: string;
-    // アクティブ表示 (現在選択されている / プレビュー対象等) のフラグ。
     isActive: boolean;
-    // タイトル右側に置く任意のバッジ (例: 「取り込み済み」表示)。
     badge?: ReactNode;
-    // 行ボディ (タイトル / サブタイトル領域) クリック時のコールバック。
     onClickRow: () => void;
-    // 行下に追加で描画するスロット (進捗インジケータ等)。
     children?: ReactNode;
+    /** 上限ヒット時の赤背景フラグ (#4) */
+    isRedFlagged?: boolean;
+    /** カード退場アニメフラグ (#5: 削除完了後にフェードアウト) */
+    isExiting?: boolean;
+    /** sweep オーバーレイの状態 (#3, #5)。 undefined のとき非表示 */
+    sweepStatus?: 'idle' | 'active' | 'success' | 'failed';
+    /** sweep オーバーレイの色 (#3 取り込みで blue, #5 削除で red) */
+    sweepColor?: 'blue' | 'red';
 } & CheckboxProps;
 
 // 共有取り込み (ShareImportSheet) と上限解消 (LimitResolutionSheet) で共通使用するカード行。
-// レイアウト: [チェックボックス?] [タイトル/サブタイトル] [バッジ?]
+// レイアウト: [SweepOverlay (絶対配置の背景)] [チェックボックス?] [タイトル/サブタイトル] [バッジ?]
 //             [children (任意の追加スロット)]
-// アクセシビリティ: 行全体をクリック可能なボタンとして扱い、キーボード (Enter/Space) でも起動できる。
 export function SharePlanCard(props: SharePlanCardProps) {
-    const { title, subtitle, isActive, badge, onClickRow, children } = props;
+    const {
+        title,
+        subtitle,
+        isActive,
+        badge,
+        onClickRow,
+        children,
+        isRedFlagged,
+        isExiting,
+        sweepStatus,
+        sweepColor = 'blue',
+    } = props;
+    const baseClass = isExiting
+        ? 'pointer-events-none'
+        : isActive
+          ? 'active bg-app-blue/10 border-app-blue/40'
+          : isRedFlagged
+            ? 'bg-app-red/15 border-app-red/40'
+            : 'bg-app-surface2/30 border-app-border hover:bg-app-surface2/50';
     return (
-        <div
+        <motion.div
             data-testid="share-plan-card"
+            data-exiting={isExiting ? 'true' : undefined}
             role="button"
-            tabIndex={0}
-            onClick={onClickRow}
+            tabIndex={isExiting ? -1 : 0}
+            onClick={isExiting ? undefined : onClickRow}
             onKeyDown={(e) => {
-                // Enter / Space で行を起動。スクロール等の既定動作は抑止する。
+                if (isExiting) return;
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     onClickRow();
                 }
             }}
-            className={`flex flex-col gap-1 p-2 rounded-lg border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-blue ${
-                isActive
-                    ? 'active bg-app-blue/10 border-app-blue/40'
-                    : 'bg-app-surface2/30 border-app-border hover:bg-app-surface2/50'
-            }`}
+            // LayoutGroup と組み合わせて、 退場時に他カードがスムーズに詰まる
+            layout
+            initial={false}
+            animate={
+                isExiting
+                    ? { opacity: 0, scale: 0.95, height: 0, marginTop: 0, paddingTop: 0, paddingBottom: 0 }
+                    : { opacity: 1, scale: 1 }
+            }
+            transition={{ duration: 0.3, ease: 'easeIn' }}
+            className={`relative flex flex-col gap-1 p-2 rounded-lg border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-blue overflow-hidden ${baseClass}`}
         >
-            <div className="flex items-center gap-2">
+            {sweepStatus !== undefined && (
+                <SweepOverlay status={sweepStatus} color={sweepColor} />
+            )}
+            <div className="relative z-[1] flex items-center gap-2">
                 {props.showCheckbox && (
                     <input
                         type="checkbox"
                         checked={props.isChecked}
                         onChange={props.onToggleCheck}
-                        // チェックボックスのクリックが行クリックに伝播しないようにする。
                         onClick={(e) => e.stopPropagation()}
-                        className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
+                        disabled={isExiting}
+                        className="w-4 h-4 cursor-pointer accent-app-blue shrink-0 disabled:cursor-not-allowed"
                     />
                 )}
                 <div className="flex-1 min-w-0">
@@ -67,7 +98,7 @@ export function SharePlanCard(props: SharePlanCardProps) {
                 </div>
                 {badge && <div className="shrink-0">{badge}</div>}
             </div>
-            {children}
-        </div>
+            {children && <div className="relative z-[1]">{children}</div>}
+        </motion.div>
     );
 }

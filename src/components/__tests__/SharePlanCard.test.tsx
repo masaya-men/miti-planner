@@ -75,4 +75,30 @@ describe('SharePlanCard', () => {
         fireEvent.keyDown(card, { key: ' ' });
         expect(onClickRow).toHaveBeenCalledTimes(1);
     });
+
+    it('isRedFlagged=true のとき赤背景 class が付く', () => {
+        const { container } = render(<SharePlanCard {...baseProps} isRedFlagged={true} />);
+        const card = container.firstChild as HTMLElement;
+        expect(card.className).toContain('app-red');
+    });
+
+    it('isExiting=true のとき退場アニメ wrapper を描画する', () => {
+        const { container } = render(<SharePlanCard {...baseProps} isExiting={true} />);
+        const card = container.firstChild as HTMLElement;
+        expect(card.getAttribute('data-exiting')).toBe('true');
+    });
+
+    it('sweepStatus を渡すと SweepOverlay が描画される', () => {
+        const { container } = render(
+            <SharePlanCard {...baseProps} sweepStatus="active" sweepColor="blue" />,
+        );
+        const sweep = container.querySelector('[aria-hidden="true"]');
+        expect(sweep).toBeTruthy();
+    });
+
+    it('sweepStatus 未指定のとき SweepOverlay は描画しない', () => {
+        const { container } = render(<SharePlanCard {...baseProps} />);
+        const sweep = container.querySelector('[aria-hidden="true"]');
+        expect(sweep).toBeNull();
+    });
 });
