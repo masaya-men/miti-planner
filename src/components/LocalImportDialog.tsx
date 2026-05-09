@@ -512,7 +512,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                         </div>
                     </div>
 
-                    {/* Summary overlay (done フェーズでリストの上にカードとして重なる) */}
+                    {/* Summary overlay (done フェーズでリストの中央に「帯」として横長に重なる) */}
                     <AnimatePresence>
                         {phase === 'done' && summaryKind && (
                             <motion.div
@@ -521,59 +521,65 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.3 }}
-                                className="absolute inset-0 flex items-center justify-center px-4 pointer-events-none"
+                                className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 pointer-events-none"
                             >
                                 <motion.div
-                                    initial={{ scale: 0.9, y: 16, opacity: 0 }}
+                                    initial={{ scale: 0.96, y: 8, opacity: 0 }}
                                     animate={{ scale: 1, y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-                                    className="pointer-events-auto w-full max-w-[340px] rounded-2xl border border-app-border shadow-2xl backdrop-blur-lg px-5 py-5 text-center"
+                                    transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                                    className="pointer-events-auto rounded-xl border border-app-border shadow-2xl flex flex-col"
                                     style={{
-                                        // 半透明 65% + 強めの blur で、カード下のリストはぼやけて
-                                        // 「カード感」を保ちつつ、カード周辺のリストは普通に見える。
-                                        backgroundColor: 'color-mix(in srgb, var(--color-bg-tertiary) 65%, transparent)',
+                                        // 完全不透明: リストとはっきり区別される濃い帯
+                                        backgroundColor: 'var(--color-bg-tertiary)',
                                     }}
                                 >
-                                    <motion.div
-                                        initial={{ scale: 0.6, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
-                                        className={clsx(
-                                            "w-14 h-14 mx-auto mb-2 rounded-full flex items-center justify-center",
-                                            summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
-                                            summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
-                                            summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
-                                        )}
-                                    >
-                                        {summaryKind === 'success'
-                                            ? <CheckCircle2 size={32} />
-                                            : <AlertTriangle size={32} />}
-                                    </motion.div>
-                                    <h3 className="text-app-3xl font-black tracking-wide text-app-text mb-1">
-                                        {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
-                                        {summaryKind === 'partial' && t('local_import.summary_partial_title')}
-                                        {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
-                                    </h3>
-                                    {summaryKind === 'partial' && (
-                                        <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-full bg-app-surface2 text-app-md font-bold text-app-text-sec">
-                                            <span className="text-app-blue">
-                                                {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
-                                            </span>
-                                            <span className="opacity-40">/</span>
-                                            <span className="text-app-red">
-                                                {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
-                                            </span>
+                                    {/* 帯本体: アイコン (左) + 件数テキスト (右) を横並び */}
+                                    <div className="flex items-center gap-3 px-4 py-3">
+                                        <motion.div
+                                            initial={{ scale: 0.5, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
+                                            className={clsx(
+                                                "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                                                summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
+                                                summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
+                                                summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
+                                            )}
+                                        >
+                                            {summaryKind === 'success'
+                                                ? <CheckCircle2 size={22} />
+                                                : <AlertTriangle size={22} />}
+                                        </motion.div>
+                                        <div className="flex-1 min-w-0 text-left">
+                                            <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
+                                                {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
+                                                {summaryKind === 'partial' && t('local_import.summary_partial_title')}
+                                                {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
+                                            </h3>
+                                            {summaryKind === 'partial' && (
+                                                <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
+                                                    <span className="text-app-blue">
+                                                        {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
+                                                    </span>
+                                                    <span className="opacity-40">/</span>
+                                                    <span className="text-app-red">
+                                                        {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {(summaryKind === 'partial' || summaryKind === 'failed') && (
+                                                <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
+                                                    {summaryKind === 'failed'
+                                                        ? t('local_import.summary_all_failed_detail', { count: failedCount })
+                                                        : t('local_import.summary_partial_detail')}
+                                                </p>
+                                            )}
                                         </div>
-                                    )}
-                                    {(summaryKind === 'partial' || summaryKind === 'failed') && (
-                                        <p className="text-app-md text-app-text-muted mt-2 leading-relaxed">
-                                            {summaryKind === 'failed'
-                                                ? t('local_import.summary_all_failed_detail', { count: failedCount })
-                                                : t('local_import.summary_partial_detail')}
-                                        </p>
-                                    )}
+                                    </div>
+
+                                    {/* フィードバック箱 (失敗時のみ、帯の下に内包) */}
                                     {feedbackItems.length > 0 && (
-                                        <div className="mt-4 mx-auto max-w-[360px] px-3.5 py-3 rounded-xl bg-app-yellow/8 border border-app-yellow/30 text-left">
+                                        <div className="border-t border-app-border px-4 py-3 bg-app-yellow/8 text-left">
                                             <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
                                                 {t('local_import.feedback_box_title')}
                                             </p>
