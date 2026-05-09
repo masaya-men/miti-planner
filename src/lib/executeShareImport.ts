@@ -71,15 +71,18 @@ export async function executeShareImport(
       useShareImportFlow.getState().setRedFlag(itemPlanId);
       await delay(LIMIT_HIT_REVEAL_DELAY_MS);
 
-      const decision = await onLimitHit({
-        reason: 'max_per_content',
-        contentId: item.contentId ?? null,
-        neededCount: 1,
-        planId: itemPlanId,
-      });
-
-      // 解消 / キャンセル いずれの場合も赤フラグは外す (見た目を元に戻す)
-      useShareImportFlow.getState().clearRedFlag(itemPlanId);
+      let decision: 'resolved' | 'cancelled';
+      try {
+        decision = await onLimitHit({
+          reason: 'max_per_content',
+          contentId: item.contentId,
+          neededCount: 1,
+          planId: itemPlanId,
+        });
+      } finally {
+        // 解消 / キャンセル / reject いずれの場合も赤フラグは外す (見た目を元に戻す)
+        useShareImportFlow.getState().clearRedFlag(itemPlanId);
+      }
 
       if (decision === 'cancelled') {
         onProgress({ planId: itemPlanId, stage: 'check', status: 'cancelled' });

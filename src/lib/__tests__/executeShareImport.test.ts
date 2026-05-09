@@ -430,8 +430,6 @@ describe('executeShareImport', () => {
 
   describe('per_content 上限ヒット時の赤背景シーケンス (#4)', () => {
     it('per_content limit hit 時、 setRedFlag → onLimitHit (max_per_content + planId) → clearRedFlag の順で呼ばれる', async () => {
-      mockSetRedFlag.mockClear();
-      mockClearRedFlag.mockClear();
       const addPlan = vi.fn();
       const syncToFirestore = vi.fn().mockResolvedValue(undefined);
       // m10s に 5 件 (上限) → onLimitHit 呼び出し後は 4 件に減る
