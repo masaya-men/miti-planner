@@ -8,7 +8,9 @@ export function parseSharedDataToImportItems(
   if (Array.isArray(sharedData.plans)) {
     return sharedData.plans.map((p: any, index: number) => ({
       sourceShareId: shareId,
-      contentId: sharedData.contentId,
+      // バンドル共有は plan ごとに contentId を持つ。
+      // 旧フォーマット (top-level contentId しかない) や欠落時のフォールバックも用意。
+      contentId: p.contentId ?? sharedData.contentId ?? null,
       title: p.title || 'Shared Plan',
       planData: p.planData,
       sourcePlanId: p.id ?? `${shareId}_${index}`,

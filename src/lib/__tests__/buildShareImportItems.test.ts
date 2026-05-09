@@ -30,14 +30,16 @@ describe('parseSharedDataToImportItems', () => {
     expect(items[0].planData).toBe(samplePlanData);
   });
 
-  it('handles bundle shared data (multiple plans)', () => {
+  it('handles bundle shared data (multiple plans) — per-plan contentId', () => {
+    // 実際の API シェイプ: バンドルは top-level contentId を持たず、
+    // plans[].contentId に各プランの contentId が入る。
     const data = {
       shareId: 'bundle456',
-      contentId: 'fru',
+      type: 'bundle',
       plans: [
-        { id: 'p1', title: 'P2 終了後', planData: samplePlanData },
-        { id: 'p2', title: 'P3 P4 後半', planData: samplePlanData },
-        { id: 'p3', title: 'ガード範囲', planData: samplePlanData },
+        { id: 'p1', contentId: 'fru', title: 'P2 終了後', planData: samplePlanData },
+        { id: 'p2', contentId: 'fru', title: 'P3 P4 後半', planData: samplePlanData },
+        { id: 'p3', contentId: 'm8s', title: 'ガード範囲', planData: samplePlanData },
       ],
       createdAt: 0,
       updatedAt: 0,
@@ -48,10 +50,39 @@ describe('parseSharedDataToImportItems', () => {
     expect(items[0].sourcePlanId).toBe('p1');
     expect(items[2].title).toBe('ガード範囲');
     expect(items[2].sourcePlanId).toBe('p3');
+    // 各 item の contentId が plans[i].contentId と一致すること
+    expect(items[0].contentId).toBe('fru');
+    expect(items[1].contentId).toBe('fru');
+    expect(items[2].contentId).toBe('m8s');
     items.forEach(item => {
       expect(item.sourceShareId).toBe('bundle456');
-      expect(item.contentId).toBe('fru');
     });
+  });
+
+  it('falls back to top-level contentId when bundle plans omit contentId (legacy)', () => {
+    // 旧フォーマット互換: top-level contentId のみ
+    const data = {
+      shareId: 'legacyBundle',
+      contentId: 'fru',
+      plans: [
+        { id: 'p1', title: 'A', planData: samplePlanData },
+        { id: 'p2', title: 'B', planData: samplePlanData },
+      ],
+    };
+    const items = parseSharedDataToImportItems(data, 'legacyBundle');
+    expect(items[0].contentId).toBe('fru');
+    expect(items[1].contentId).toBe('fru');
+  });
+
+  it('falls back to null when neither per-plan nor top-level contentId exists', () => {
+    const data = {
+      shareId: 'noContent',
+      plans: [
+        { id: 'p1', title: 'A', planData: samplePlanData },
+      ],
+    };
+    const items = parseSharedDataToImportItems(data, 'noContent');
+    expect(items[0].contentId).toBeNull();
   });
 
   it('uses index-based fallback when bundle plans lack id', () => {
