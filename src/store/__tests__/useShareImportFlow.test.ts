@@ -62,17 +62,9 @@ import { useShareImportFlow } from '../useShareImportFlow';
 
 describe('useShareImportFlow', () => {
   beforeEach(() => {
-    useShareImportFlow.setState({
-      status: 'idle',
-      shareId: null,
-      sharedData: null,
-      importItems: [],
-      selectedItemIds: new Set(),
-      progressMap: new Map(),
-      deleteProgressMap: new Map(),
-      limitContext: null,
-      errorMessage: null,
-    });
+    // close() を canonical reset として利用 (全 state field を確実に初期化)。
+    // 個別 setState で field を列挙すると新規 state 追加時に漏れる。
+    useShareImportFlow.getState().close();
   });
 
   it('starts in idle state', () => {
