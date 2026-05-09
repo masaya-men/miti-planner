@@ -1,12 +1,13 @@
 // 共有 URL を踏んだときに開くメインのボトムシート。
 // 単一プランは preview + 取り込みボタン、 複数プランは左にチェックボックス付きリスト + 右にプレビュー。
-// status === 'idle' のときは何も描画しない (StatusBar 等の上に居座らないため)。
+// status === 'idle' のときは中身 (backdrop + sheet) を描画しないが、 ポータル/AnimatePresence は
+// 残したまま children を null にする。 これにより exit アニメーション (slide-down) が正しく走る。
 //
 // レイヤ構成:
 //   - backdrop: z=99990
 //   - sheet 本体: z=99991
 //   - LimitResolutionSheet (Task 15) は内部で z=99992/99993 を使い、 本シートの上に重ねる。
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -42,18 +43,32 @@ export function ShareImportSheet() {
     const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
     // importItems が空 → 何かしら入った瞬間に最初の 1 件をアクティブに。
-    // 既に activeItemId が選ばれていれば二度目は触らない (preview 中の選択を維持するため)。
+    // bundle 切り替え時に activeItemId が古いバンドルのものを指している場合も先頭にリセット
+    // (古い id を保持したままだと activeItem が undefined になり右カラムが空になる)。
     useEffect(() => {
-        if (importItems.length > 0 && !activeItemId) {
+        if (importItems.length === 0) return;
+        const ids = new Set(
+            importItems.map((i) => i.sourcePlanId ?? i.sourceShareId),
+        );
+        if (!activeItemId || !ids.has(activeItemId)) {
             const firstId =
                 importItems[0].sourcePlanId ?? importItems[0].sourceShareId;
             setActiveItemId(firstId);
         }
     }, [importItems, activeItemId]);
 
-    // status='idle' のときは早期 return。
-    // ※ Hooks (useState / useEffect / store subscriptions) は全てこの行より上で呼ぶこと。
-    if (status === 'idle') return null;
+    // status === 'done' になった瞬間にタイマーを張り、 一定時間経過後に close する。
+    // インライン setTimeout だとクリーンアップされず、 連続インポート時に古いタイマーが
+    // fresh な import を idle に戻してしまう (= cross-flow contamination)。
+    useEffect(() => {
+        if (status !== 'done') return;
+        const id = setTimeout(() => close(), CLOSE_DELAY_AFTER_DONE_MS);
+        return () => clearTimeout(id);
+    }, [status, close]);
+
+    // ※ ここから下は status='idle' でも実行される (早期 return しない)。
+    // AnimatePresence に exit アニメーションを実行させるため、 ポータル自体は常にマウントしておき、
+    // 中身を status !== 'idle' で条件分岐する。
 
     const isBundle = importItems.length > 1;
     const selectedCount = selectedItemIds.size;
@@ -63,8 +78,10 @@ export function ShareImportSheet() {
         ) ?? importItems[0];
 
     const handleBackdropClick = () => {
-        // インポート中は誤タップで閉じないようガード (進捗が消えると混乱するため)。
-        if (status === 'importing') return;
+        // インポート中・上限解消中は誤タップで閉じないようガード。
+        // limit_hit は LimitResolutionSheet 自身が backdrop を持つので通常はそちらが捕まえるが、
+        // 念のため defense in depth として ShareImportSheet 側でも無視する。
+        if (status === 'importing' || status === 'limit_hit') return;
         close();
     };
 
@@ -87,13 +104,15 @@ export function ShareImportSheet() {
                 ),
         );
         setStatus('done');
-        // ユーザーが「完了」 を視認できる程度の遅延を入れて自動で閉じる。
-        setTimeout(() => close(), CLOSE_DELAY_AFTER_DONE_MS);
+        // close は status='done' を watch する useEffect 側で行う (タイマー leak 防止)。
     };
 
-    // status === 'idle' は上で早期 return しているのでここに来ない。
+    // ポータル自体は常にマウントしておく。
+    // AnimatePresence の中で status !== 'idle' を切り替えると exit アニメ (slide-down) が走る。
     return createPortal(
         <AnimatePresence>
+            {status !== 'idle' && (
+                <Fragment key="share-import-sheet-fragment">
             <motion.div
                 key="share-import-backdrop"
                 className="fixed inset-0 z-[99990] bg-black/60"
@@ -144,9 +163,12 @@ export function ShareImportSheet() {
                     </div>
                 )}
 
-                {/* Preview / Importing / Done 状態 */}
+                {/* Preview / Importing / Limit_hit / Done 状態。
+                    limit_hit のときも body を描画したまま (上に LimitResolutionSheet が重なる)。
+                    ここを除外するとヘッダーだけ残って下半分が崩壊するように見える。 */}
                 {(status === 'preview' ||
                     status === 'importing' ||
+                    status === 'limit_hit' ||
                     status === 'done') && (
                     <>
                         {/* Body: bundle 時のみ左にリスト、 右にプレビュー。
@@ -270,8 +292,11 @@ export function ShareImportSheet() {
                     </>
                 )}
             </motion.div>
+                </Fragment>
+            )}
 
-            {/* 上限ヒット時に重ねて開く解消シート。 limitContext が null の間は内部で何も描画しない。 */}
+            {/* 上限ヒット時に重ねて開く解消シート。 limitContext が null の間は内部で何も描画しない。
+                自身で表示判定するので、 status='idle' に戻ったあとも問題ない (limitContext は close で null 化される)。 */}
             <LimitResolutionSheet />
         </AnimatePresence>,
         document.body,

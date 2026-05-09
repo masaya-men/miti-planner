@@ -189,4 +189,25 @@ describe('useShareImportFlow', () => {
     expect(state.shareId).toBe(null);
     expect(state.sharedData).toBe(null);
   });
+
+  it('close() resolves pending limitContext with cancelled', () => {
+    // limit_hit 状態のままシートを閉じると executeShareImport が
+    // limitContext.resolve を待ち続けて止まる (= stuck Promise) ため、
+    // close 時に未解決の Promise を 'cancelled' で resolve することを保証する。
+    const resolve = vi.fn();
+    useShareImportFlow.setState({
+      status: 'limit_hit',
+      limitContext: {
+        contentId: 'fru',
+        neededCount: 1,
+        planId: 'p1',
+        resolve,
+      },
+    });
+
+    useShareImportFlow.getState().close();
+
+    expect(resolve).toHaveBeenCalledWith('cancelled');
+    expect(useShareImportFlow.getState().limitContext).toBeNull();
+  });
 });

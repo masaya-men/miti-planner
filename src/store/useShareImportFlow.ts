@@ -133,6 +133,12 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
     set({ limitContext: ctx, status: ctx ? 'limit_hit' : 'importing' }),
 
   close: () => {
+    // limit_hit 状態のままシートを閉じると executeShareImport の for-loop が
+    // limitContext.resolve を待ち続けて止まる (= stuck Promise)。
+    // close 時に未解決の Promise が残っていれば 'cancelled' で resolve してから state を破棄する。
+    // resolveLimitHit が先に呼ばれていれば limitContext は null なのでここは no-op になる (二重 resolve 安全)。
+    const ctx = get().limitContext;
+    if (ctx) ctx.resolve('cancelled');
     set({
       status: 'idle',
       shareId: null,
