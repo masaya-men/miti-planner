@@ -142,11 +142,20 @@ async function repairPlanCounts(uid: string): Promise<void> {
   });
 }
 
-/** プラン上限チェック（クライアント側の事前チェック） */
+/**
+ * プラン上限チェック（クライアント側の事前チェック）
+ *
+ * 上限到達時は reason / current / max を返し、UI 側で具体的件数を表示できるようにする。
+ * createPlan 内では `PLAN_LIMIT_${reason}|current=${n}|max=${m}` 形式の Error メッセージで
+ * 投げるので、`parsePlanLimitError` でパースして表示文言を組み立てる。
+ */
 async function checkPlanLimits(
   uid: string,
   contentId: string,
-): Promise<{ allowed: boolean; reason?: string }> {
+): Promise<
+  | { allowed: true }
+  | { allowed: false; reason: 'max_total' | 'max_per_content'; current: number; max: number }
+> {
   const ref = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) {
@@ -154,10 +163,20 @@ async function checkPlanLimits(
   }
   const counts = snap.data() as FirestoreUserPlanCounts;
   if (counts.total >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
-    return { allowed: false, reason: 'max_total' };
+    return {
+      allowed: false,
+      reason: 'max_total',
+      current: counts.total,
+      max: PLAN_LIMITS.MAX_TOTAL_PLANS,
+    };
   }
   if (contentId && (counts.byContent[contentId] ?? 0) >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) {
-    return { allowed: false, reason: 'max_per_content' };
+    return {
+      allowed: false,
+      reason: 'max_per_content',
+      current: counts.byContent[contentId] ?? 0,
+      max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT,
+    };
   }
   return { allowed: true };
 }
@@ -197,7 +216,10 @@ async function createPlan(
   const contentId = plan.contentId ?? '';
   const limitCheck = await checkPlanLimits(uid, contentId);
   if (!limitCheck.allowed) {
-    throw new Error(`PLAN_LIMIT_${limitCheck.reason}`);
+    // 件数情報をパイプ区切りで埋め込む。UI 側で parsePlanLimitError で抽出する
+    throw new Error(
+      `PLAN_LIMIT_${limitCheck.reason}|current=${limitCheck.current}|max=${limitCheck.max}`
+    );
   }
 
   // 診断: バッチコミット直前に、プラン本体のみ単体で書き込みテスト → カウンター更新の問題か

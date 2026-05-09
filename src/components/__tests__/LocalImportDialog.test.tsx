@@ -243,7 +243,7 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
         resolveImport!([{ id: 'p1', status: 'success' }]);
     });
 
-    it('全成功で onClose が呼ばれる (自動クローズ)', async () => {
+    it('全成功で summary success パネルと「閉じる」ボタンが表示される (自動クローズしない)', async () => {
         const onClose = vi.fn();
         const onImport = vi.fn().mockResolvedValue([{ id: 'p1', status: 'success' }]);
         render(
@@ -256,12 +256,15 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             />,
         );
         fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
+        // PER_PLAN_MS (1000ms) + SWEEP_TO_SUMMARY_MS (350ms) を待つ
         await waitFor(() => {
-            expect(onClose).toHaveBeenCalled();
-        }, { timeout: 1000 });
+            expect(screen.getByText(/local_import\.summary_success_title/i)).toBeDefined();
+        }, { timeout: 2500 });
+        expect(onClose).not.toHaveBeenCalled();
+        expect(screen.getByRole('button', { name: /local_import\.close/i })).toBeDefined();
     });
 
-    it('一部失敗時はダイアログが残り「再試行」ボタンが出る', async () => {
+    it('一部失敗時はサマリーパネルが残り「失敗分を再試行」ボタンが出る', async () => {
         const onImport = vi.fn()
             .mockResolvedValueOnce([
                 { id: 'p1', status: 'success' },
@@ -278,12 +281,74 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
         );
         fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
         await waitFor(() => {
+            expect(screen.getByText(/local_import\.summary_partial_title/i)).toBeDefined();
             expect(screen.getByRole('button', { name: /local_import\.retry_failed/i })).toBeDefined();
             expect(screen.getByRole('button', { name: /local_import\.close/i })).toBeDefined();
-        });
+        }, { timeout: 2500 });
     });
 
-    it('「再試行」押下で失敗分のみ onImport に渡される', async () => {
+    it('全失敗時はサマリーパネルが残り「再試行」ボタンが出る', async () => {
+        const onImport = vi.fn().mockResolvedValueOnce([
+            { id: 'p1', status: 'failed', error: 'unavailable' },
+        ]);
+        render(
+            <LocalImportDialog
+                isOpen={true}
+                plans={[makePlan({ id: 'p1' })]}
+                ignoreDontShow={false}
+                onImport={onImport}
+                onClose={vi.fn()}
+            />,
+        );
+        fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
+        await waitFor(() => {
+            expect(screen.getByText(/local_import\.summary_all_failed_title/i)).toBeDefined();
+        }, { timeout: 2500 });
+        // 全失敗時は retry (not retry_failed) ボタン
+        const retryBtn = screen.getByText('local_import.retry');
+        expect(retryBtn).toBeDefined();
+    });
+
+    it('PLAN_LIMIT_max_total エラーで feedback に上限件数を含む文言が出る', async () => {
+        const onImport = vi.fn().mockResolvedValueOnce([
+            { id: 'p1', status: 'failed', error: 'PLAN_LIMIT_max_total|current=50|max=50' },
+        ]);
+        render(
+            <LocalImportDialog
+                isOpen={true}
+                plans={[makePlan({ id: 'p1' })]}
+                ignoreDontShow={false}
+                onImport={onImport}
+                onClose={vi.fn()}
+            />,
+        );
+        fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
+        await waitFor(() => {
+            // feedback_max_total キーが render されている (max=50 件数情報込み)
+            expect(screen.getByText(/local_import\.feedback_max_total.*"max":50/i)).toBeDefined();
+        }, { timeout: 2500 });
+    });
+
+    it('PLAN_LIMIT_max_per_content エラーで feedback にコンテンツ上限件数を含む文言が出る', async () => {
+        const onImport = vi.fn().mockResolvedValueOnce([
+            { id: 'p1', status: 'failed', error: 'PLAN_LIMIT_max_per_content|current=5|max=5' },
+        ]);
+        render(
+            <LocalImportDialog
+                isOpen={true}
+                plans={[makePlan({ id: 'p1' })]}
+                ignoreDontShow={false}
+                onImport={onImport}
+                onClose={vi.fn()}
+            />,
+        );
+        fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
+        await waitFor(() => {
+            expect(screen.getByText(/local_import\.feedback_max_per_content.*"max":5/i)).toBeDefined();
+        }, { timeout: 2500 });
+    });
+
+    it('「失敗分を再試行」押下で失敗分のみ onImport に渡される', async () => {
         const onImport = vi.fn()
             .mockResolvedValueOnce([
                 { id: 'p1', status: 'success' },
@@ -304,11 +369,11 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
         fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
         await waitFor(() => {
             expect(screen.getByRole('button', { name: /local_import\.retry_failed/i })).toBeDefined();
-        });
+        }, { timeout: 2500 });
         fireEvent.click(screen.getByRole('button', { name: /local_import\.retry_failed/i }));
         await waitFor(() => {
             expect(onImport).toHaveBeenCalledTimes(2);
-        });
+        }, { timeout: 2500 });
         expect(onImport.mock.calls[1][0]).toEqual(['p2']);
     });
 

@@ -369,30 +369,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const handleLocalImport = React.useCallback(
         async (
             planIds: string[],
-            onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed' }) => void,
-        ): Promise<{ id: string; status: 'success' | 'failed' }[]> => {
+            onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed'; error?: string }) => void,
+        ): Promise<{ id: string; status: 'success' | 'failed'; error?: string }[]> => {
             const currentUser = useAuthStore.getState().user;
             if (!currentUser) return [];
             const profileName = useAuthStore.getState().profileDisplayName || 'User';
-            const results = await usePlanStore.getState().executeLocalImport(
+            // サマリーはダイアログ内のサマリーパネルで完結する (B-1 Rev3 仕上げ)。
+            // 旧 toast (toast_success / toast_partial / toast_all_failed) は撤去済み。
+            return await usePlanStore.getState().executeLocalImport(
                 currentUser.uid,
                 profileName,
                 planIds,
                 onProgress,
             );
-            // サマリトースト
-            const successes = results.filter(r => r.status === 'success').length;
-            const failures = results.filter(r => r.status === 'failed').length;
-            if (successes > 0 && failures === 0) {
-                showToast(t('local_import.toast_success', { count: successes }));
-            } else if (successes > 0 && failures > 0) {
-                showToast(t('local_import.toast_partial', { success: successes, failed: failures }), 'error');
-            } else if (failures > 0) {
-                showToast(t('local_import.toast_all_failed', { count: failures }), 'error');
-            }
-            return results;
         },
-        [t],
+        [],
     );
 
     const handleLocalImportClose = React.useCallback(
