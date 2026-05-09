@@ -306,4 +306,41 @@ describe('executeShareImport', () => {
     await vi.runAllTimersAsync();
     await promise;
   });
+
+  it('emits failed and skips server when local addPlan throws', async () => {
+    const addPlan = vi.fn().mockImplementationOnce(() => {
+      throw new Error('quota exceeded');
+    });
+    const syncToFirestore = vi.fn();
+    vi.mocked(usePlanStore.getState).mockReturnValue({
+      plans: [],
+      addPlan,
+      syncToFirestore,
+    } as any);
+
+    const onProgress = vi.fn();
+    const onLimitHit = vi.fn();
+
+    const promise = executeShareImport(
+      [sampleItem('p1', 'fru')],
+      'testUid',
+      'TestUser',
+      onProgress,
+      onLimitHit,
+    );
+    await vi.runAllTimersAsync();
+    const results = await promise;
+
+    expect(results).toHaveLength(1);
+    expect(results[0].status).toBe('failed');
+    expect(results[0].error).toContain('quota exceeded');
+    // server stage は呼ばれない
+    expect(syncToFirestore).not.toHaveBeenCalled();
+    // onProgress に local: failed が含まれる
+    const localFailedEvent = onProgress.mock.calls
+      .map(c => c[0])
+      .find(e => e.stage === 'local' && e.status === 'failed');
+    expect(localFailedEvent).toBeTruthy();
+    expect(localFailedEvent.error).toContain('quota exceeded');
+  });
 });

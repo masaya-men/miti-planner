@@ -71,6 +71,9 @@ export async function executeShareImport(
       onProgress({ planId: itemPlanId, stage: 'server', status: 'in_progress' });
       try {
         // POSITIONAL CALL (Task 3 adaptive): (uid, displayName, force, onlyPlanIds)
+        // NOTE: 'success' event means sync was attempted. If dirty was concurrently
+        // cleared elsewhere, this no-ops; the dirty-sync safety net (5 min interval / tab-switch)
+        // will pick it up on the next pass.
         await usePlanStore.getState().syncToFirestore(uid, displayName, true, [newPlan.id]);
         await delay(MIN_DELAY_SERVER_MS);
         onProgress({ planId: itemPlanId, stage: 'server', status: 'success' });
