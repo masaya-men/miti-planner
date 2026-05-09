@@ -12,7 +12,20 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【完了 2026-05-09 セッション 4・Phase B-1.5 全タスク (Task 1-19)】**: 共有 URL 自動取り込み機能を完成。 SharePage を /miti リダイレクト + ボトムシート起動方式に刷新、 LimitResolutionSheet (重ねシート) で上限到達時の整理 UX、 LocalImportDialog の「次回から表示しない」チェックを廃止。 全 553 件 vitest PASS、 tsc clean、 build clean。 触らない箇所 (addPlan / fetchAndMerge / planService / MitigationSheet / LocalImportDialog.executeLocalImport / silentCompressStale) すべて 0 行 diff 維持。 全タスクで TDD + spec reviewer + code quality reviewer 2 段階レビュー実施、 Final code reviewer も通過。 
+- **【最優先 2026-05-09 実機検証フィードバック・Phase B-1.5 polish 8 点】**: ユーザー実機テスト後のフィードバック。 機能面 OK 確認済み、 以下は UI/UX polish + PWA 挙動の追加要望。 次セッションで `brainstorming` → `writing-plans` → `subagent-driven-development` で進める。
+
+  1. **単一 URL でも左カラム表示 (バンドルと統一レイアウト)**: 現状は単一だと左カラム非表示で右に preview 全幅、 import 押下後インジケーターも見えない。 → 1 件でも左カラム + カード + インジケーターを出す。 UI 同一化。
+  2. **左カラムカードに「コンテンツ名 + プラン名」両方表示**: 現状は title (= プラン名) のみ。 → 「至天の座アルカディア零式：ヘビー級」 + 「M10S」を縦に並べる。 contentRegistry から resolveしてコンテンツ名取得。
+  3. **取り込み中の表示は B2 sweep アニメ (青グラデ左→右)**: 既存 LocalImportDialog の B2 sweep (1.2s で青グラデが左から右に充填) をそのまま流用。 ✓ 上限OK / ✓ 端末保存 / ✓ サーバー保存 の 3 段テキストは廃止。
+  4. **上限ヒット → 該当カードを赤背景に + 一拍 → 重ねシート**: 即時 LimitResolutionSheet ではなく、 「赤くなったカード」をユーザーが認知する間を入れる。 重ねシート自体のレイアウトも ShareImportSheet と統一 (左細く / 右広い preview エリア) — 現状は preview が mobile で `hidden md:block` だが、 統一レイアウトに合わせて見直し。
+  5. **削除も同じ sweep アニメの赤バージョン**: 「端末から削除... サーバーから削除...」 のテキスト 3 段は廃止、 B2 sweep の赤グラデで「確かに消えた」演出 + 確認できる速度感 + シート下げる。
+  6. **シート位置 + 内容の連続アニメーション**: シート全体が 2 段階で動く感じ。 起動時: 画面外 (y=100%) → **下にちょっとせり出し** (中間位置) で「読み込み中」表示 → API 応答後そのシート内に情報が表示 → **その同じシートをもう一段上に引っ張り上げ** (y=0%、 full open)。 完了/キャンセル時: full open → 下に引っ込む (y=100%)。 シート位置と内容が連続して 1 つの動作として知覚される。 framer-motion の transition を 2 段階で組む。
+  7. **50件総上限は事前判定**: 現状は 1 件ずつ checkPlanLimit でヒット。 → バンドル取り込み開始時に「合計 N 件 + 既存 M 件 > 50」 を先に検知、 「50件しか持てないから削除してください」と最初にまとめて促す。 executeShareImport 冒頭にバンドル全体の総数チェックを追加。
+  8. **既存タブで開く (PWA 挙動)**: ブラウザで既に LoPo が開いている時、 共有 URL を踏むと新しいタブで LoPo がもう一個開いてしまう。 → 既存タブを再利用したい。 技術アプローチ候補: (a) PWA `launch_handler.client_mode: 'navigate-existing'` を `manifest.json` に追加 (Chrome/Edge 102+、 PWA インストール済み時)、 (b) ServiceWorker `clients.matchAll()` + `client.navigate()` でフォーカス + ナビゲート (PWA 未インストールでも効く)。 brainstorming 時に両案比較 + Safari iOS の対応状況確認。
+
+  **進め方**: 8 点すべて UI/UX 設計判断を含むため、 memory `feedback_design_approval` 通り brainstorming → writing-plans → 実装。 #6 のアニメ + #1-5 のレイアウト統一は密接に絡むので、 まとめて 1 spec / 1 PR で完成させたい。 #8 は #1-7 と独立なので別タスクでも良い。
+
+- **【完了 2026-05-09 セッション 4・Phase B-1.5 全タスク (Task 1-19)】**: 共有 URL 自動取り込み機能を完成。 SharePage を /miti リダイレクト + ボトムシート起動方式に刷新、 LimitResolutionSheet (重ねシート) で上限到達時の整理 UX、 LocalImportDialog の「次回から表示しない」チェックを廃止。 全 553 件 vitest PASS、 tsc clean、 build clean。 触らない箇所 (addPlan / fetchAndMerge / planService / MitigationSheet / LocalImportDialog.executeLocalImport / silentCompressStale) すべて 0 行 diff 維持。 全タスクで TDD + spec reviewer + code quality reviewer 2 段階レビュー実施、 Final code reviewer も通過。 push + Vercel デプロイ済 (HEAD: e0f5981、 33 コミット)。 ユーザー実機検証で機能面 OK + UI/UX polish 8 点フィードバック (上記参照)。
 
   **設計書**: `docs/superpowers/specs/2026-05-09-housing-phase-b1.5-share-url-auto-import-design.md`
   **実装プラン**: `docs/superpowers/plans/2026-05-09-housing-phase-b1.5-share-url-auto-import.md`
