@@ -12,16 +12,34 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【最新セッション 2026-05-09 深夜・SharePage 致命バグ修正 + B-1 Rev3 実機 OK】**: B-1 Rev3 の取り込みフロー実機検証 OK 確認済み (バンドル `index-BhHvFGDR.js`、cf6d1df + 取り込み準備中ローディングテキスト削除)。続いて、共有 URL → SharePage の「自分のプランにコピー」が `ownerId: ''` (空文字) で `addPlan` していたため、ログイン後の `fetchAndMerge` / `migrateOnLogin` で「別端末で削除」誤判定されて **localStorage から消滅する致命バグ**をユーザー実機で再現確認、即修正。**過去 4 回直した同パターンが共有URL経路にも存在**していた (野良主流ボトムシートの修正 a37ce8b は別経路、SharePage は未対応のままだった)。修正コミット: SharePage の handleCopyToMine / handleCopyShared で `ownerId: 'local'` に + usePlanStore の addPlan 入口で空文字 → 'local' 正規化ガード追加 (再発防止保険)。471/471 vitest PASS、tsc clean、build 成功、push 済み。**次セッション最初**: 実機検証 (共有URL→コピー→リロード→消えないか) → OK なら 2 つの大タスクに着手。
+- **【完了 2026-05-09・Phase B-1 完全完成】**: 取り込みダイアログの最終仕様まで実機 OK 確認 (ユーザー: 「完璧だと思う！！」)。本セッションの主な作業:
 
-  **次セッション着手予定 (優先順)**:
-  1. **取り込みフロー Rev3 完了 (B2 sweep + 文言 + PLAN_LIMIT 精度)**: 設計合意済み。プレビュー HTML `tmp/local-import-anim-preview.html` で B2 (行 sweep) 採用決定、ダーク/ライト両方検証済み、文言も事実ベースで合意済み。実装作業: ①LocalImportDialog.tsx を B2 sweep + 完了パネル/失敗パネル + 自動クローズ廃止に改修 ②planService.createPlan の throw を構造化 (`PLAN_LIMIT_${reason}|current=${n}|max=${m}` 形式) ③ダイアログ側で error 種別 (`unavailable` / `PLAN_LIMIT_*` 等) ごとに対処文言出し分け (「全体上限 50 件」「コンテンツ上限 5 件」を具体的件数込みで) ④i18n 4 言語追加 ⑤既存 toast 撤去判断 ⑥テスト更新 ⑦実機検証 → デプロイ。文言は memory `feedback_no_guessing_fixes` 通り推測を排除し事実のみ採用済 (「サーバーが応答」「同名プラン別名で」を削除、「ネットワーク確認」「再ログイン」「時間置く」「上限到達時のプラン削除」を採用)。
+  ① **SharePage 致命バグ修正** (前半): 共有 URL → 「自分のプランにコピー」が `ownerId: ''` で localStorage に追加されると、ログイン後の `fetchAndMerge` / `migrateOnLogin` で「別端末で削除」誤判定されて消滅する致命バグを実機再現 → 即修正 (commits 2c2fc76 など)。`SharePage.tsx` 2 箇所を `ownerId: 'local'` に + `usePlanStore.addPlan` で空文字正規化ガード追加 (再発防止保険)。
 
-  2. **🆕 共有 URL 自動取り込み新機能 (Phase B-1.5)**: ユーザー要望「コピーボタンの動作は不要、踏んだら自動で自分のプランとして開く (ログイン=クラウド、非ログイン=ローカル)」。設計が必要。エッジケース整理: PLAN_LIMIT_max_total / max_per_content (上限到達時はトースト + 閲覧モードフォールバック) / ネットワーク認証エラー (ローカル保存にフォールバック → 既存 B-1 取り込みフローに乗る) / 同じ shareId を 2 回踏む (重複検出: sessionStorage に shareId 記録、既取り込みなら自分のプランを開く) / バンドル共有 (LocalImportDialog 風選択ダイアログ) / 「サイドバーからコンテンツを選択」マスクオーバーレイ問題 (currentPlanId 未設定が原因、自動取り込みで自然解消)。`brainstorming` → `writing-plans` で設計書 + 実装プラン → ユーザー承認 → `subagent-driven-development` で実装。
+  ② **取り込みダイアログ仕上げ** (後半、最終形): プレビュー HTML 3 種で UX 共同設計 → 本番反映。最終仕様:
+  - **B2 sweep アニメ** (各行 1.2s で青グラデが左→右へ充填、視認しやすいテンポ)
+  - **PLAN_LIMIT 精度向上**: `parsePlanLimitError` 純粋関数 (7 vitest) + planService の throw 構造化 (`PLAN_LIMIT_${reason}|current=${n}|max=${m}`) でダイアログが「全体上限 50 件 (現在 50 件)」のように具体表示
+  - **i18n 4 言語**: summary_* / feedback_* / plan_limit_*_row / retry / `{{retry}}` プレースホルダ統一。toast_* 系撤去
+  - **snapshotPlans 化**: 取り込み中に親 (Layout) の `localImportPlans` 縮小に反応せず、ダイアログ表示は開いた瞬間の plans に固定 (行が消えるバグの真因解決)
+  - **P3 帯**: body の外、 footer 直上の flex children として配置。完全不透明 + 左右壁ぴったりフル幅 + 上方向シャドウ。 body スクロールから完全独立 (帯動かない)
+  - **自動スクロール**: handleProgress の uploading 通知時に scrollIntoView({ behavior: smooth, block: center }) で「いま処理中の行」を viewport 中央へ
+  - **ダイアログ最大高さ**: max-h-[min(620px,90vh)] (= 6 件相当)。 7 件以上は body 内 overflow-y-auto。スクロールバーは LoPo グローバル (8px 灰色)
+  - Layout.tsx の旧 toast 出し分けを撤去 (サマリーパネルでカバー)、 isImportPreparing オーバーレイにも login.authenticating 文言追加で位置統一
 
-  3. **(次セッション扱い) 致命バグ修正の自動テスト追加**: addPlan 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest を追加。今セッションは時間制約で既存 471 テスト PASS で代替、実機検証で最終確認。
+  本番バンドル更新済 (curl で `/miti` から確認可)、 481/481 vitest PASS、 tsc clean、 build 成功。
 
-  4. **🐛 ユーザー報告 (2026-05-09 深夜・要再現確認)**: 共有URLバグ修正の実機検証中、「シークレットウィンドウで非ログインコピー → 削除したつもり → ログインしたら『ローカルから取り込む?』ダイアログで同じプランを取り込まさせられた」現象。考えられる原因: (a) シークレットウィンドウの localStorage 分離による「削除したつもり」の誤認、(b) `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加せず Firestore 削除指示を出さない既知バグ ([TODO.md 既知残課題に記載済](#))、(c) LocalImportDialog の自動トリガー条件 `getLocalPlanIds` が削除済みプランも拾っている可能性。次セッションで再現手順を一緒に作って判定 → 該当箇所修正。
+  **学び (memory 追加済)**: feedback_user_reports_are_facts (報告された事実を再解釈しない、親→子の購読チェーンまで遡る) / feedback_thorough_collaboration (推測修正の繰り返しを止める)。
+
+  **残作業 (次セッション最優先)**:
+  1. **🆕 共有 URL 自動取り込み新機能 (Phase B-1.5)**: ユーザー要望「コピーボタン不要、踏んだら自動で自分のプランとして開く (ログイン=クラウド、非ログイン=ローカル)」。エッジケース整理済 (PLAN_LIMIT 上限時の閲覧モードフォールバック / ネットワーク認証エラー時はローカル保存フォールバック → 既存 B-1 取り込みフロー / shareId 重複検出 sessionStorage / バンドル共有は LocalImportDialog 風選択ダイアログ / 「サイドバーからコンテンツを選択」マスクは自動取り込みで自然解消)。`brainstorming` → `writing-plans` → `subagent-driven-development` で実装。
+
+  2. **🐛 削除プラン復活現象の調査** (要再現確認): シークレットウィンドウで非ログインコピー → 削除したつもり → ログインしたら同じプランが取り込みダイアログで復活。仮説 (a) シークレット window の localStorage 分離 (b) `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加せず Firestore 削除指示を出さない既知バグ (c) `getLocalPlanIds` が削除済みプラン拾う可能性。再現手順を一緒に作って判定 → 修正。
+
+  3. **致命バグ修正の自動テスト追加**: addPlan 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest 追加。
+
+  4. **診断ログ撤去**: `src/utils/debugLog.ts` + 各所 `dlog` 呼び出し削除 (Phase B-1 真因確定で役割終了。`scripts/inspect-user-plans.ts` は残す)。
+
+  5. **未取り込みバッジ**: サイドバーで `ownerId='local'` と `uid` を視覚区別 (現状混在で混乱の元)。
 
 - **【完了 2026-05-09 未明・実機 OK】Phase B-1 Revision 3 真因解決 (silentCompressStale 誤発動)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に新規作成プランを誤って圧縮 → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。修正 (cf6d1df): (1) `getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番バンドル `index-BhHvFGDR.js`。実機検証 OK 確認済 (2026-05-09)。Rev3 設計刷新は `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。**既知 UX 漏れ (別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚区別しない → 「未取り込みバッジ」追加すべき。**残作業**: 診断ログ撤去 (`debugLog.ts` + 各所 `dlog`、`scripts/inspect-user-plans.ts` は残す)。次の取り込みフロー Rev3 完了タスクと一緒に実施予定。
 
