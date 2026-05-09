@@ -45,8 +45,20 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
 }) => {
     const { t } = useTranslation();
     const jobs = useJobs();
+    /**
+     * 表示用プランのスナップショット。
+     *
+     * 親 (Layout.tsx) は `usePlanStore.plans.filter(p => p.ownerId === 'local')` を
+     * リアクティブに購読しており、各プランの取り込みが成功する度に
+     * `executeLocalImport` 内で `ownerId` が `'local'` → `uid` に書き換わる
+     * → filter から除外され、`plans` prop が縮んでいく。
+     *
+     * このため、表示は「ダイアログを開いた瞬間の plans」に固定する必要がある。
+     * 取り込み成功後も行が消えず、ダイアログサイズも動かないことを保証する。
+     */
+    const [snapshotPlans, setSnapshotPlans] = useState<SavedPlan[]>([]);
     // 全プラン ON で初期化
-    const [checkedSet, setCheckedSet] = useState<Set<string>>(() => new Set(plans.map(p => p.id)));
+    const [checkedSet, setCheckedSet] = useState<Set<string>>(new Set());
     const [dontShow, setDontShow] = useState(false);
     const [phase, setPhase] = useState<'idle' | 'uploading' | 'done'>('idle');
     const [progressMap, setProgressMap] = useState<Map<string, PlanProgressStatus>>(new Map());
@@ -54,9 +66,11 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     /** 各行の uploading 開始時刻 (B2 sweep の最低秒数を保証するため、結果反映を遅延させる用) */
     const uploadStartTimes = useRef<Map<string, number>>(new Map());
 
-    // plans が変わったら state を再初期化 (再オープン時のため)
+    // ダイアログが「閉→開」に変化した瞬間にだけ plans をスナップショット + state を再初期化
+    // (deps から plans を外すことで、取り込み中の親の plans 縮小に反応しない)
     useEffect(() => {
         if (isOpen) {
+            setSnapshotPlans(plans);
             setCheckedSet(new Set(plans.map(p => p.id)));
             setDontShow(false);
             setPhase('idle');
@@ -64,7 +78,8 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
             setErrorMap(new Map());
             uploadStartTimes.current = new Map();
         }
-    }, [isOpen, plans]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const successCount = useMemo(
         () => [...progressMap.values()].filter(s => s === 'success').length,
@@ -195,7 +210,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     };
 
     const handleStartImport = () => {
-        const idsToImport = plans.filter(p => checkedSet.has(p.id)).map(p => p.id);
+        const idsToImport = snapshotPlans.filter(p => checkedSet.has(p.id)).map(p => p.id);
         void startImport(idsToImport);
     };
 
@@ -382,7 +397,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     )}>
                         <div className="px-6 pb-3">
                             <ul className="flex flex-col gap-1.5">
-                                {plans.map((plan, idx) => {
+                                {snapshotPlans.map((plan, idx) => {
                                     const checked = checkedSet.has(plan.id);
                                     const status = progressMap.get(plan.id);
                                     const contentLabel = getContentLabel(plan);
@@ -474,7 +489,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 + plans.length * 0.08 + 0.1, duration: 0.3 }}
+                                    transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.1, duration: 0.3 }}
                                 >
                                     <p className="text-app-base text-app-text-muted leading-relaxed">
                                         {t('local_import.help_text')}
@@ -579,7 +594,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 + plans.length * 0.08 + 0.2, duration: 0.3 }}
+                    transition={{ delay: 0.4 + snapshotPlans.length * 0.08 + 0.2, duration: 0.3 }}
                     className="shrink-0 flex items-center justify-end gap-2 px-6 py-4 border-t border-app-border"
                 >
                     {phase === 'idle' && (
