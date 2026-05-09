@@ -88,6 +88,8 @@ export function LimitResolutionSheet() {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // TODO(B-1.5+): max_total (50/50 件) 上限ヒット時の対応は executeShareImport 側で
+    // LimitContext.reason 拡張 + 本コンポーネントで title_total モード追加が必要 (現在は per_content のみ対応)
     // 同コンテンツの自分のプランを「最終更新が古い順」で並べる。
     // 仕様: 「最後に開いた日 古い順 = 削除候補が見つけやすい」 (writing-plans 参照)
     const targetPlans = useMemo<SavedPlan[]>(() => {
@@ -151,6 +153,18 @@ export function LimitResolutionSheet() {
             limitContext.resolve('resolved');
             setLimitContext(null);
         } catch {
+            // 部分失敗時: 既に削除済みの ID を checkedIds から除いてリトライ可能にする。
+            // (例: 3 件中 2 件削除成功後に 3 件目で失敗した場合、既に消えた 2 件の ID が残ると
+            //  「削除して再開」 をもう一度押した時に存在しない ID を再削除しようとして
+            //  no-op か別エラーになるのを防ぐ)
+            const currentPlanIds = new Set(usePlanStore.getState().plans.map(p => p.id));
+            setCheckedIds(prev => {
+                const next = new Set<string>();
+                prev.forEach(id => {
+                    if (currentPlanIds.has(id)) next.add(id);
+                });
+                return next;
+            });
             // 1 件でも失敗したらシートに留まる (ユーザーに再試行 / キャンセルを選ばせる)
             setIsDeleting(false);
         }
