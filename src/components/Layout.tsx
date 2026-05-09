@@ -29,6 +29,7 @@ import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
+import { ShareImportSheet } from './ShareImportSheet';
 import { dlog } from '../utils/debugLog';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
@@ -824,6 +825,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onImport={handleLocalImport}
                 onClose={handleLocalImportClose}
             />
+
+            {/* Phase B-1.5 Task 17: 共有 URL 自動取り込みシート。
+                useShareImportFlow.status !== 'idle' のときだけ自前で描画する self-rendering 設計。
+                /share/:shareId 経由で SharePage が start() を叩くと自動的に表示される。 */}
+            <ShareImportSheet />
         </div>
     );
 };
