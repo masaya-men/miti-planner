@@ -76,7 +76,9 @@ function statusIconClass(status: ProgressStatus | 'pending'): string {
 export function ShareImportProgressIndicator({ events }: Props) {
     const { t } = useTranslation();
     return (
-        <div className="flex flex-col gap-1 mt-2">
+        // role="status" + aria-live="polite" で、進捗更新をスクリーンリーダーに通知する。
+        // 取り込み中は連続して状態が変わるため polite (割り込まない) を選択。
+        <div role="status" aria-live="polite" className="flex flex-col gap-1 mt-2">
             {STAGES.map((stage) => {
                 const status = statusOfStage(events, stage);
                 const i18nKey =

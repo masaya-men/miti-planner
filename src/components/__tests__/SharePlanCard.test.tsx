@@ -57,4 +57,22 @@ describe('SharePlanCard', () => {
         const card = container.firstChild as HTMLElement;
         expect(card.className).toContain('active');
     });
+
+    it('activates row on Enter key', () => {
+        const onClickRow = vi.fn();
+        render(<SharePlanCard {...baseProps} onClickRow={onClickRow} />);
+        const card = screen.getByTestId('share-plan-card');
+        card.focus();
+        fireEvent.keyDown(card, { key: 'Enter' });
+        expect(onClickRow).toHaveBeenCalledTimes(1);
+    });
+
+    it('activates row on Space key', () => {
+        const onClickRow = vi.fn();
+        render(<SharePlanCard {...baseProps} onClickRow={onClickRow} />);
+        const card = screen.getByTestId('share-plan-card');
+        card.focus();
+        fireEvent.keyDown(card, { key: ' ' });
+        expect(onClickRow).toHaveBeenCalledTimes(1);
+    });
 });
