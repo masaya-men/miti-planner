@@ -375,10 +375,10 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                 </div>
 
                 <div className="relative flex-1 overflow-y-auto">
-                    {/* List + Help (背景レイヤー。done フェーズでは opacity 0.4 で暗化し、サマリーが上に重なる) */}
+                    {/* List + Help (背景レイヤー。done フェーズでは少し暗化し、サマリーが上に重なる) */}
                     <div className={clsx(
                         "transition-opacity duration-500",
-                        phase === 'done' && "opacity-40 pointer-events-none",
+                        phase === 'done' && "opacity-60 pointer-events-none",
                     )}>
                         <div className="px-6 pb-3">
                             <ul className="flex flex-col gap-1.5">
@@ -512,8 +512,12 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                     initial={{ scale: 0.9, y: 16, opacity: 0 }}
                                     animate={{ scale: 1, y: 0, opacity: 1 }}
                                     transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-                                    className="pointer-events-auto w-full max-w-[400px] rounded-2xl border border-app-border shadow-2xl px-5 py-5 text-center"
-                                    style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                                    className="pointer-events-auto w-full max-w-[340px] rounded-2xl border border-app-border shadow-2xl backdrop-blur-md px-5 py-5 text-center"
+                                    style={{
+                                        // リストを少し透かして見せたいので半透明背景。
+                                        // CSS 変数を rgba 化するため inline で組み立てる。
+                                        backgroundColor: 'color-mix(in srgb, var(--color-bg-tertiary) 88%, transparent)',
+                                    }}
                                 >
                                     <motion.div
                                         initial={{ scale: 0.6, opacity: 0 }}
