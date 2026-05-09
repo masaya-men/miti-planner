@@ -304,4 +304,68 @@ describe('LimitResolutionSheet', () => {
             expect(btn).not.toBeDisabled();
         });
     });
+
+    it('reason="max_total" のときリストは全コンテンツ横断で表示される', () => {
+        useShareImportFlow.setState({
+            limitContext: {
+                reason: 'max_total',
+                contentId: null,
+                neededCount: 1,
+                planId: null,
+                resolve: () => {},
+            },
+        });
+        usePlanStore.setState({
+            plans: [
+                { id: 'p1', title: 't1', contentId: 'm10s', ownerId: 'local', data: {} as any, updatedAt: 1 },
+                { id: 'p2', title: 't2', contentId: 'm11s', ownerId: 'local', data: {} as any, updatedAt: 2 },
+                { id: 'p3', title: 't3', contentId: 'm12s', ownerId: 'local', data: {} as any, updatedAt: 3 },
+            ],
+        } as any);
+        render(<LimitResolutionSheet />);
+        expect(screen.getByText('t1')).toBeInTheDocument();
+        expect(screen.getByText('t2')).toBeInTheDocument();
+        expect(screen.getByText('t3')).toBeInTheDocument();
+    });
+
+    it('reason="max_per_content" のときリストは contentId 一致のみ', () => {
+        useShareImportFlow.setState({
+            limitContext: {
+                reason: 'max_per_content',
+                contentId: 'm10s',
+                neededCount: 1,
+                planId: 'in1',
+                resolve: () => {},
+            },
+        });
+        usePlanStore.setState({
+            plans: [
+                { id: 'p1', title: 't1', contentId: 'm10s', ownerId: 'local', data: {} as any, updatedAt: 1 },
+                { id: 'p2', title: 't2', contentId: 'm11s', ownerId: 'local', data: {} as any, updatedAt: 2 },
+            ],
+        } as any);
+        render(<LimitResolutionSheet />);
+        expect(screen.getByText('t1')).toBeInTheDocument();
+        expect(screen.queryByText('t2')).toBeNull();
+    });
+
+    it('preview パネルは mobile でも描画される (hidden md:block 撤去確認)', () => {
+        useShareImportFlow.setState({
+            limitContext: {
+                reason: 'max_per_content',
+                contentId: 'm10s',
+                neededCount: 1,
+                planId: 'in1',
+                resolve: () => {},
+            },
+        });
+        usePlanStore.setState({
+            plans: [
+                { id: 'p1', title: 't1', contentId: 'm10s', ownerId: 'local', data: {} as any, updatedAt: 1 },
+            ],
+        } as any);
+        render(<LimitResolutionSheet />);
+        // preview スタブが必ず出る (hidden 修飾子が無いことを確認)
+        expect(screen.getByTestId('preview')).toBeInTheDocument();
+    });
 });

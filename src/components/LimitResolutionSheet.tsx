@@ -1,11 +1,16 @@
 // 共有取り込みで「コンテンツあたり / 全体上限」 に達したときに重ねて開く
-// ボトムシート。ユーザーが既存プランを 1 件以上削除して上限を解消すると、
-// limitContext.resolve('resolved') を呼んで共有取り込みフローを再開する。
+// ボトムシート。 ShareImportSheet (z=99991) の上に重ねるため z=99993。
 //
-// 既存の ShareImportSheet (z-index 99991) の上に重ねるため z-index 99993 を使用。
+// 仕様変更点 (Phase B-1.5 polish #4 #5 #7):
+// - reason: 'max_per_content' | 'max_total' で表示モードを分岐
+// - レイアウトを ShareImportSheet と同一 (左狭リスト + 右広 preview)、
+//   mobile も preview 表示 (hidden md:block 撤去)
+// - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
+// - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
+// - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
 import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useShareImportFlow } from '../store/useShareImportFlow';
 import { usePlanStore } from '../store/usePlanStore';
@@ -15,65 +20,32 @@ import { SharePlanCard } from './SharePlanCard';
 import { executePlanDeletions } from '../lib/executePlanDeletions';
 import { PLAN_LIMITS } from '../types/firebase';
 import { getContentById } from '../data/contentRegistry';
+import { getPhaseName } from '../types';
 import type { DeleteProgressEvent } from '../lib/shareImportTypes';
 import type { SavedPlan } from '../types';
-
-// 削除進捗 (3 ステージ) の i18n キー解決。
-// 仕様: ja.json の `limit_resolution.delete_progress_*` / `delete_capacity_freed` / `delete_failed`
-function deleteStageI18n(
-    stage: DeleteProgressEvent['stage'],
-    status: DeleteProgressEvent['status'],
-): string {
-    if (status === 'failed') return 'limit_resolution.delete_failed';
-    if (stage === 'local_delete') {
-        return status === 'success'
-            ? 'limit_resolution.delete_progress_local_ok'
-            : 'limit_resolution.delete_progress_local';
-    }
-    if (stage === 'server_delete') {
-        return status === 'success'
-            ? 'limit_resolution.delete_progress_server_ok'
-            : 'limit_resolution.delete_progress_server';
-    }
-    // capacity_freed
-    return 'limit_resolution.delete_capacity_freed';
-}
-
-function deleteStageIcon(status: DeleteProgressEvent['status']): string {
-    switch (status) {
-        case 'success':
-            return '✓';
-        case 'failed':
-            return '⚠';
-        case 'in_progress':
-            return '⚪';
-        case 'skipped':
-            return '–';
-        case 'cancelled':
-            return '×';
-        default:
-            return '○';
-    }
-}
-
-function deleteStageIconClass(status: DeleteProgressEvent['status']): string {
-    switch (status) {
-        case 'success':
-            return 'text-app-blue';
-        case 'failed':
-            return 'text-app-red';
-        case 'in_progress':
-            return 'text-app-blue animate-pulse';
-        default:
-            return 'text-app-text-muted';
-    }
-}
 
 const DELETE_STAGES: DeleteProgressEvent['stage'][] = [
     'local_delete',
     'server_delete',
     'capacity_freed',
 ];
+
+function resolveSweepStatus(
+    events: DeleteProgressEvent[],
+    isDeleting: boolean,
+): { sweepStatus: 'idle' | 'active' | 'success' | 'failed'; isExiting: boolean } {
+    // 一覧 stage の最終状態から sweep status を決める。
+    // - 削除開始前: idle
+    // - 削除中で capacity_freed 未到達: active (sweep 走行)
+    // - capacity_freed success: success → カード退場開始
+    // - いずれかが failed: failed (赤 sweep 100% 維持、 退場しない)
+    if (events.length === 0) return { sweepStatus: isDeleting ? 'active' : 'idle', isExiting: false };
+    const failed = events.find(e => e.status === 'failed');
+    if (failed) return { sweepStatus: 'failed', isExiting: false };
+    const capacityFreed = events.find(e => e.stage === 'capacity_freed' && e.status === 'success');
+    if (capacityFreed) return { sweepStatus: 'success', isExiting: true };
+    return { sweepStatus: 'active', isExiting: false };
+}
 
 export function LimitResolutionSheet() {
     const { t, i18n } = useTranslation();
@@ -88,16 +60,15 @@ export function LimitResolutionSheet() {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // TODO(B-1.5+): max_total (50/50 件) 上限ヒット時の対応は executeShareImport 側で
-    // LimitContext.reason 拡張 + 本コンポーネントで title_total モード追加が必要 (現在は per_content のみ対応)
-    // 同コンテンツの自分のプランを「最終更新が古い順」で並べる。
-    // 仕様: 「最後に開いた日 古い順 = 削除候補が見つけやすい」 (writing-plans 参照)
+    // reason に応じてリストを切り替え (#7)。
+    // - max_per_content: 同じ contentId のプランだけ
+    // - max_total: 全コンテンツ横断 (削除候補を全プランから選ばせる)
+    // 並び順は最終更新が古い順 (削除候補が見つけやすい)。
     const targetPlans = useMemo<SavedPlan[]>(() => {
         if (!limitContext) return [];
-        return plans
-            .filter(p => p.contentId === limitContext.contentId)
-            .slice()
-            .sort((a, b) => (a.updatedAt ?? 0) - (b.updatedAt ?? 0));
+        const all = plans.slice().sort((a, b) => (a.updatedAt ?? 0) - (b.updatedAt ?? 0));
+        if (limitContext.reason === 'max_total') return all;
+        return all.filter(p => p.contentId === limitContext.contentId);
     }, [plans, limitContext]);
 
     if (!limitContext) return null;
@@ -105,7 +76,7 @@ export function LimitResolutionSheet() {
     const activePlan: SavedPlan | undefined =
         targetPlans.find(p => p.id === activeId) ?? targetPlans[0];
 
-    // contentId をユーザーフレンドリーなコンテンツ名に解決 (見つからなければ raw id)。
+    // contentId をユーザーフレンドリーなコンテンツ名に解決 (per_content モード時のヘッダ用)。
     // テスト環境では i18n オブジェクトが渡らない場合があるので optional chaining + デフォルト 'en'。
     const langSrc = i18n?.language ?? 'en';
     const lang = langSrc.startsWith('ja')
@@ -115,15 +86,27 @@ export function LimitResolutionSheet() {
             : langSrc.startsWith('ko')
                 ? 'ko'
                 : 'en';
-    // contentId は max_total 時に null になる新型に追従。 max_per_content 経路では string、
-    // 後続タスクで max_total UI を実装するまでは fallback ('') で扱う (どちらの経路でも tsc を満たすため)。
-    const contentDef = getContentById(limitContext.contentId ?? '');
-    const contentName =
-        contentDef?.name?.[lang] ?? contentDef?.name?.en ?? limitContext.contentId ?? '';
+    // max_total モード時は contentId が null なので contentName は空文字 (header で使わない)。
+    const contentName = limitContext.contentId
+        ? (getContentById(limitContext.contentId)?.name?.[lang]
+            ?? getContentById(limitContext.contentId)?.name?.en
+            ?? limitContext.contentId)
+        : '';
 
-    // 上限値とカレント件数 (ヘッダ表示用)。
     const maxPerContent = PLAN_LIMITS.MAX_PLANS_PER_CONTENT;
-    const currentCount = targetPlans.length;
+    const maxTotal = PLAN_LIMITS.MAX_TOTAL_PLANS;
+
+    // ヘッダーのタイトル: reason に応じて分岐。
+    const titleText = limitContext.reason === 'max_total'
+        ? t('limit_resolution.title_total', {
+              current: targetPlans.length,
+              max: maxTotal,
+          })
+        : t('limit_resolution.title_per_content', {
+              contentName,
+              current: targetPlans.length,
+              max: maxPerContent,
+          });
 
     const handleToggleCheck = (id: string) => {
         // 削除中はチェック切り替え不可 (誤操作防止)。
@@ -145,6 +128,11 @@ export function LimitResolutionSheet() {
         if (checkedIds.size === 0 || isDeleting) return;
         setIsDeleting(true);
         try {
+            // executePlanDeletions の contentId 引数は Firestore deleteFromFirestore の
+            // サブコレクションパス解決にだけ使われる (server_delete 経路のみ)。 max_total 時は
+            // contentId が null だが、 各プランの deleteFromFirestore は plan.contentId を
+            // 内部的に解決するため、 ここで渡す値はゲスト (uid なし) 経路で使われない。
+            // 安全のため、 max_total 時は空文字 fallback ('') を渡す。
             await executePlanDeletions(
                 Array.from(checkedIds),
                 authUser?.uid ?? null,
@@ -156,9 +144,6 @@ export function LimitResolutionSheet() {
             setLimitContext(null);
         } catch {
             // 部分失敗時: 既に削除済みの ID を checkedIds から除いてリトライ可能にする。
-            // (例: 3 件中 2 件削除成功後に 3 件目で失敗した場合、既に消えた 2 件の ID が残ると
-            //  「削除して再開」 をもう一度押した時に存在しない ID を再削除しようとして
-            //  no-op か別エラーになるのを防ぐ)
             const currentPlanIds = new Set(usePlanStore.getState().plans.map(p => p.id));
             setCheckedIds(prev => {
                 const next = new Set<string>();
@@ -192,10 +177,16 @@ export function LimitResolutionSheet() {
                 aria-modal="true"
                 aria-labelledby="limit-resolution-title"
                 className="glass-tier3 fixed bottom-0 left-0 right-0 z-[99993] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-red/30"
+                layout
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 30 }}
+                transition={{
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 28,
+                    layout: { type: 'spring', stiffness: 300, damping: 28 },
+                }}
             >
                 {/* Header: タイトル + 説明 */}
                 <div className="px-5 pt-5 pb-3 shrink-0 border-b border-app-border">
@@ -203,79 +194,56 @@ export function LimitResolutionSheet() {
                         id="limit-resolution-title"
                         className="text-app-2xl font-black text-app-text tracking-wide"
                     >
-                        {t('limit_resolution.title_per_content', {
-                            contentName,
-                            current: currentCount,
-                            max: maxPerContent,
-                        })}
+                        {titleText}
                     </h2>
                     <p className="text-app-md text-app-text-muted mt-1">
                         {t('limit_resolution.body', { count: limitContext.neededCount })}
                     </p>
                 </div>
 
-                {/* Body: 既存プラン一覧 (左) + プレビュー (右、 PC 時のみ) */}
-                <div className="flex-1 overflow-hidden flex flex-col md:flex-row min-h-0">
+                {/* Body: ShareImportSheet と同一レイアウト (左狭リスト + 右広 preview)。
+                    mobile (hidden md:block) を撤去、 全環境で flex-row。 */}
+                <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                     {/* リスト */}
-                    <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2 md:max-w-[55%]">
-                        {targetPlans.map(plan => {
-                            const checked = checkedIds.has(plan.id);
-                            // この plan に対応する 3 ステージ (local_delete / server_delete / capacity_freed) のイベントを抽出
-                            const events: DeleteProgressEvent[] = DELETE_STAGES
-                                .map(stage => deleteProgressMap.get(`${plan.id}:${stage}`))
-                                .filter((e): e is DeleteProgressEvent => !!e);
-                            const hasEvents = events.length > 0;
-                            return (
-                                <SharePlanCard
-                                    key={plan.id}
-                                    title={plan.title}
-                                    isActive={activePlan?.id === plan.id}
-                                    showCheckbox={true}
-                                    isChecked={checked}
-                                    onToggleCheck={() => handleToggleCheck(plan.id)}
-                                    onClickRow={() => setActiveId(plan.id)}
-                                >
-                                    {isDeleting && hasEvents && (
-                                        <div
-                                            role="status"
-                                            aria-live="polite"
-                                            className="flex flex-col gap-1 mt-2 text-app-sm"
-                                        >
-                                            {DELETE_STAGES.map(stage => {
-                                                const evt = events.find(e => e.stage === stage);
-                                                if (!evt) return null;
-                                                const opts =
-                                                    stage === 'capacity_freed'
-                                                        ? { current: currentCount, max: maxPerContent }
-                                                        : undefined;
-                                                return (
-                                                    <div
-                                                        key={stage}
-                                                        data-testid={`delete-stage-${stage}`}
-                                                        data-status={evt.status}
-                                                        className="flex items-center gap-2"
-                                                    >
-                                                        <span
-                                                            aria-hidden
-                                                            className={deleteStageIconClass(evt.status)}
-                                                        >
-                                                            {deleteStageIcon(evt.status)}
-                                                        </span>
-                                                        <span className="text-app-text-sec">
-                                                            {t(deleteStageI18n(stage, evt.status), opts)}
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </SharePlanCard>
-                            );
-                        })}
+                    <div className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
+                        <LayoutGroup>
+                            <AnimatePresence>
+                                {targetPlans.map(plan => {
+                                    const checked = checkedIds.has(plan.id);
+                                    // この plan に対応する 3 ステージ (local_delete / server_delete / capacity_freed) のイベント
+                                    const events: DeleteProgressEvent[] = DELETE_STAGES
+                                        .map(stage => deleteProgressMap.get(`${plan.id}:${stage}`))
+                                        .filter((e): e is DeleteProgressEvent => !!e);
+                                    const { sweepStatus, isExiting } = resolveSweepStatus(
+                                        events,
+                                        isDeleting && checked,
+                                    );
+                                    const contentDef = plan.contentId ? getContentById(plan.contentId) : null;
+                                    const contentLabel = contentDef
+                                        ? getPhaseName(contentDef.name, lang)
+                                        : '';
+                                    return (
+                                        <SharePlanCard
+                                            key={plan.id}
+                                            title={contentLabel || plan.title}
+                                            subtitle={contentLabel ? plan.title : undefined}
+                                            isActive={activePlan?.id === plan.id}
+                                            showCheckbox={true}
+                                            isChecked={checked}
+                                            onToggleCheck={() => handleToggleCheck(plan.id)}
+                                            onClickRow={() => setActiveId(plan.id)}
+                                            sweepStatus={isDeleting && checked ? sweepStatus : undefined}
+                                            sweepColor="red"
+                                            isExiting={isExiting}
+                                        />
+                                    );
+                                })}
+                            </AnimatePresence>
+                        </LayoutGroup>
                     </div>
 
-                    {/* プレビュー (PC 時のみ表示) */}
-                    <div className="hidden md:block flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
+                    {/* プレビュー (mobile も表示)。 hidden md:block を撤去 */}
+                    <div className="flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
                         <MitigationSheetPreview
                             planData={activePlan?.data ?? null}
                             loading={false}
@@ -305,17 +273,13 @@ export function LimitResolutionSheet() {
                             aria-label={
                                 checkedCount === 0
                                     ? t('limit_resolution.button_delete_and_resume_disabled')
-                                    : t('limit_resolution.button_delete_and_resume', {
-                                        count: checkedCount,
-                                    })
+                                    : t('limit_resolution.button_delete_and_resume', { count: checkedCount })
                             }
                             className="px-4 py-1.5 rounded-md font-semibold text-white bg-app-red hover:bg-app-red-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             {checkedCount === 0
                                 ? t('limit_resolution.button_delete_and_resume_disabled')
-                                : t('limit_resolution.button_delete_and_resume', {
-                                    count: checkedCount,
-                                })}
+                                : t('limit_resolution.button_delete_and_resume', { count: checkedCount })}
                         </button>
                     </div>
                 </div>
