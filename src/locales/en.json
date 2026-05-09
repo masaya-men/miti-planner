@@ -154,7 +154,6 @@
         "title": "Import local sheets",
         "subtitle": "Save your local sheets to your account?",
         "help_text": "Checked sheets will be uploaded to the cloud. Unchecked sheets stay on this device.",
-        "dont_show_again": "Don't show this automatically next time",
         "confirm": "Import",
         "cancel": "Later",
         "close": "Close",
