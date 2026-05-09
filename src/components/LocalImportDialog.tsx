@@ -12,7 +12,7 @@ import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
-const PER_PLAN_MS = 2000;
+const PER_PLAN_MS = 1200;
 /**
  * 最後の行の sweep 完了からサマリーパネルを表示するまでの間。
  * ✓/✗ アイコンの drop-in (約 360ms) をユーザーがしっかり視認できる時間を確保。
@@ -65,6 +65,8 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     const [errorMap, setErrorMap] = useState<Map<string, string>>(new Map());
     /** 各行の uploading 開始時刻 (B2 sweep の最低秒数を保証するため、結果反映を遅延させる用) */
     const uploadStartTimes = useRef<Map<string, number>>(new Map());
+    /** body スクロールエリア (sweep 中の行を viewport 中央へ自動スクロールする用) */
+    const bodyRef = useRef<HTMLDivElement | null>(null);
 
     // ダイアログが「閉→開」に変化した瞬間にだけ plans をスナップショット + state を再初期化
     // (deps から plans を外すことで、取り込み中の親の plans 縮小に反応しない)
@@ -154,6 +156,12 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     const next = new Map(prev);
                     next.set(event.id, 'uploading');
                     return next;
+                });
+                // 自動スクロール: 現在 sweep 中の行を viewport 中央へ smooth スクロール
+                // (リストが長い場合に「いま処理されてる」を視認させる)
+                requestAnimationFrame(() => {
+                    const rowEl = bodyRef.current?.querySelector<HTMLElement>(`[data-row-id="${event.id}"]`);
+                    rowEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 });
                 return;
             }
@@ -365,7 +373,9 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
                 className={clsx(
-                    "relative w-[480px] max-w-[92vw] max-h-[90vh] flex flex-col rounded-2xl glass-tier3 overflow-hidden",
+                    // max-h: ヘッダー(~90) + 6 行(60×6) + help(88) + footer(64) + 余白 ≒ 620px
+                    // これより長いリスト (7 件以上) は body 内 overflow-y-auto でスクロール
+                    "relative w-[480px] max-w-[92vw] max-h-[min(620px,90vh)] flex flex-col rounded-2xl glass-tier3 overflow-hidden",
                 )}
                 style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
             >
@@ -389,8 +399,8 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     </p>
                 </div>
 
-                <div className="relative flex-1 overflow-y-auto">
-                    {/* List + Help (背景レイヤー。常に通常の見た目で残し、サマリーは半透明カードとして上に重なる) */}
+                <div className="relative flex-1 overflow-y-auto" ref={bodyRef}>
+                    {/* List + Help (背景レイヤー。常に通常の見た目で残し、サマリーは P3 帯としてフッター直上に重なる) */}
                     <div className={clsx(
                         "transition-opacity duration-300",
                         phase === 'done' && "pointer-events-none",
@@ -410,6 +420,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                     return (
                                         <motion.li
                                             key={plan.id}
+                                            data-row-id={plan.id}
                                             initial={{ opacity: 0, x: -12 }}
                                             animate={{ opacity: isOutOfImport ? 0.35 : 1, x: 0 }}
                                             transition={{
@@ -510,87 +521,87 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                 </motion.div>
                             )}
                         </div>
+
+                        {/* done 時のリスト末尾余白 (帯+フィードバック分のスクロール余白を確保し、
+                            リスト末尾も帯の下までスクロールできるようにする) */}
+                        {phase === 'done' && summaryKind === 'success' && (
+                            <div className="h-[80px]" aria-hidden />
+                        )}
+                        {phase === 'done' && (summaryKind === 'partial' || summaryKind === 'failed') && (
+                            <div className="h-[220px]" aria-hidden />
+                        )}
                     </div>
 
-                    {/* Summary overlay (done フェーズでリストの中央に「帯」として横長に重なる) */}
+                    {/* P3 帯: フッター直上に absolute で吸着 (リストの上に重なる、左右壁までフル幅、完全不透明) */}
                     <AnimatePresence>
                         {phase === 'done' && summaryKind && (
                             <motion.div
-                                key="summary-overlay"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4 pointer-events-none"
+                                key="summary-bar"
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 8 }}
+                                transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+                                className="absolute inset-x-0 bottom-0 z-[2]"
                             >
-                                <motion.div
-                                    initial={{ scale: 0.96, y: 8, opacity: 0 }}
-                                    animate={{ scale: 1, y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-                                    className="pointer-events-auto rounded-xl border border-app-border shadow-2xl flex flex-col"
-                                    style={{
-                                        // 完全不透明: リストとはっきり区別される濃い帯
-                                        backgroundColor: 'var(--color-bg-tertiary)',
-                                    }}
-                                >
-                                    {/* 帯本体: アイコン (左) + 件数テキスト (右) を横並び */}
-                                    <div className="flex items-center gap-3 px-4 py-3">
-                                        <motion.div
-                                            initial={{ scale: 0.5, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
-                                            className={clsx(
-                                                "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                                                summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
-                                                summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
-                                                summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
-                                            )}
-                                        >
-                                            {summaryKind === 'success'
-                                                ? <CheckCircle2 size={22} />
-                                                : <AlertTriangle size={22} />}
-                                        </motion.div>
-                                        <div className="flex-1 min-w-0 text-left">
-                                            <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
-                                                {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
-                                                {summaryKind === 'partial' && t('local_import.summary_partial_title')}
-                                                {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
-                                            </h3>
-                                            {summaryKind === 'partial' && (
-                                                <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
-                                                    <span className="text-app-blue">
-                                                        {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
-                                                    </span>
-                                                    <span className="opacity-40">/</span>
-                                                    <span className="text-app-red">
-                                                        {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {(summaryKind === 'partial' || summaryKind === 'failed') && (
-                                                <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
-                                                    {summaryKind === 'failed'
-                                                        ? t('local_import.summary_all_failed_detail', { count: failedCount })
-                                                        : t('local_import.summary_partial_detail')}
-                                                </p>
-                                            )}
-                                        </div>
+                                {/* フィードバック箱 (失敗時のみ、帯の上に積み重なる) */}
+                                {feedbackItems.length > 0 && (
+                                    <div className="border-t border-app-border bg-app-yellow/10 px-6 py-3 text-left">
+                                        <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
+                                            {t('local_import.feedback_box_title')}
+                                        </p>
+                                        <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
+                                            {feedbackItems.map((item, idx) => (
+                                                <li key={idx}>{item}</li>
+                                            ))}
+                                        </ul>
                                     </div>
-
-                                    {/* フィードバック箱 (失敗時のみ、帯の下に内包) */}
-                                    {feedbackItems.length > 0 && (
-                                        <div className="border-t border-app-border px-4 py-3 bg-app-yellow/8 text-left">
-                                            <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
-                                                {t('local_import.feedback_box_title')}
+                                )}
+                                {/* 帯本体: アイコン (左) + タイトル (右) 横並び、完全不透明、左右壁ぴったり */}
+                                <div
+                                    className="border-t border-app-border flex items-center gap-3 px-6 py-3 shadow-[0_-6px_18px_rgba(0,0,0,0.18)]"
+                                    style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
+                                        className={clsx(
+                                            "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                                            summaryKind === 'success' && 'bg-app-blue/15 text-app-blue',
+                                            summaryKind === 'partial' && 'bg-app-yellow/15 text-app-yellow',
+                                            summaryKind === 'failed' && 'bg-app-red/15 text-app-red',
+                                        )}
+                                    >
+                                        {summaryKind === 'success'
+                                            ? <CheckCircle2 size={22} />
+                                            : <AlertTriangle size={22} />}
+                                    </motion.div>
+                                    <div className="flex-1 min-w-0 text-left">
+                                        <h3 className="text-app-2xl font-black tracking-wide text-app-text leading-tight">
+                                            {summaryKind === 'success' && t('local_import.summary_success_title', { count: successCount })}
+                                            {summaryKind === 'partial' && t('local_import.summary_partial_title')}
+                                            {summaryKind === 'failed' && t('local_import.summary_all_failed_title')}
+                                        </h3>
+                                        {summaryKind === 'partial' && (
+                                            <div className="flex items-center gap-2 mt-0.5 text-app-md font-bold">
+                                                <span className="text-app-blue">
+                                                    {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[0]}
+                                                </span>
+                                                <span className="opacity-40">/</span>
+                                                <span className="text-app-red">
+                                                    {t('local_import.summary_partial_stat', { success: successCount, failed: failedCount }).split('・')[1] ?? ''}
+                                                </span>
+                                            </div>
+                                        )}
+                                        {(summaryKind === 'partial' || summaryKind === 'failed') && (
+                                            <p className="text-app-base text-app-text-muted mt-0.5 leading-snug">
+                                                {summaryKind === 'failed'
+                                                    ? t('local_import.summary_all_failed_detail', { count: failedCount })
+                                                    : t('local_import.summary_partial_detail')}
                                             </p>
-                                            <ul className="list-disc pl-5 text-app-base text-app-text-sec leading-[1.7]">
-                                                {feedbackItems.map((item, idx) => (
-                                                    <li key={idx}>{item}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </motion.div>
+                                        )}
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
