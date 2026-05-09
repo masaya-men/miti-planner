@@ -41,6 +41,8 @@
 
   5. **未取り込みバッジ**: サイドバーで `ownerId='local'` と `uid` を視覚区別 (現状混在で混乱の元)。
 
+  6. **🆕 表エリアのスムーズスクロール導入**: ユーザーがマイコラージュで実装経験あり。 Timeline (軽減表) のホイールスクロールがガタガタする現状を、Lenis (Studio Freight) などの smooth scroll ライブラリで補間 → スムーズに。対象スコープ: Timeline 縦スクロール (PC)、サイドバーは別途検討。実装規模: 小 (lenis 導入 + Timeline ラッパに適用)。スマホは慣性スクロール (-webkit-overflow-scrolling: touch) があるので不要 or 別ライブラリ要確認。`brainstorming` で対象範囲確定 → 実装。
+
 - **【完了 2026-05-09 未明・実機 OK】Phase B-1 Revision 3 真因解決 (silentCompressStale 誤発動)**: 取り込み permission-denied の真因確定 = `silentCompressStale` が起動時に新規作成プランを誤って圧縮 → `plan.data` が undefined → Firestore Rules `data is map` 違反で reject されていた。修正 (cf6d1df): (1) `getStalePlanIds` で未記録プランを stale 扱いしない (2) `addPlan` 時に `setLastOpened(id, now)` 記録。本番バンドル `index-BhHvFGDR.js`。実機検証 OK 確認済 (2026-05-09)。Rev3 設計刷新は `docs/superpowers/specs/2026-05-08-housing-phase-b1-revision3-explicit-import.md`。**既知 UX 漏れ (別タスク)**: サイドバーが `ownerId='local'` と `uid` を視覚区別しない → 「未取り込みバッジ」追加すべき。**残作業**: 診断ログ撤去 (`debugLog.ts` + 各所 `dlog`、`scripts/inspect-user-plans.ts` は残す)。次の取り込みフロー Rev3 完了タスクと一緒に実施予定。
 
 - **【完了 2026-05-08 朝】Phase B-1 Revision 2 実装**: Revision 1 で実機テスト「ダイアログが見えないうちに取り込みが終わってる」問題が発覚し設計撤回。Revision 2 はアップロード自体は黙って実行し、ログイン後 700ms 待機後にダイアログを **リスト UI** で表示 → チェックボックスで取捨選択 → チェック OFF は裏で Firestore から削除 + ローカル `ownerId='local'` で残す方式。設計書 §5.0 Revision 2、ef3c2c9。**実装は完了したが上記重大バグで実機動作せず**。
