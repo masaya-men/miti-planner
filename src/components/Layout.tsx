@@ -357,7 +357,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // B-1 Revision 3: ローカル取り込みダイアログ
     const localImportOpen = useLocalImportDialog(s => s.isOpen);
-    const localImportIgnoreDontShow = useLocalImportDialog(s => s.ignoreDontShow);
     const closeLocalImportDialog = useLocalImportDialog(s => s.close);
     /** 表示対象: state 内の `ownerId='local'` プランをそのまま渡す */
     const localImportPlans = usePlanStore(
@@ -491,7 +490,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
                 setTimeout(() => {
                     dlog('layout', 'opening dialog');
-                    useLocalImportDialog.getState().open({ ignoreDontShow: false });
+                    useLocalImportDialog.getState().open();
                     setIsImportPreparing(false);
                 }, 40);
             } else {

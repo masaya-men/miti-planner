@@ -260,7 +260,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                             if (!user) return;
                                             // B-1 Revision 3: ダイアログを開くだけ。実際のアップロードは
                                             // ダイアログ内の「取り込む」ボタンで開始 (executeLocalImport)
-                                            openLocalImport({ ignoreDontShow: true });
+                                            openLocalImport();
                                             onClose();
                                         }}
                                         className={clsx(
