@@ -146,6 +146,25 @@ describe('syncToFirestore({ onlyPlanIds })', () => {
         expect(passedSet.has('p2')).toBe(true);
     });
 
+    it('onlyPlanIds に dirty にない ID が含まれる場合はスキップする (race-safe)', async () => {
+        usePlanStore.setState({
+            plans: [makePlan('p1', 'c1')],
+            _dirtyPlanIds: new Set(['p1']),
+        } as any);
+
+        const syncSpy = vi.mocked(planService.syncDirtyPlans);
+
+        // p99 は dirty に存在しない、p1 は存在する
+        await usePlanStore.getState().syncToFirestore(TEST_UID, TEST_DISPLAY_NAME, true, ['p99', 'p1']);
+
+        // syncDirtyPlans は p1 だけを含む Set で呼ばれる (p99 は除外)
+        expect(syncSpy).toHaveBeenCalledTimes(1);
+        const passedSet: Set<string> = syncSpy.mock.calls[0][0];
+        expect(passedSet.size).toBe(1);
+        expect(passedSet.has('p1')).toBe(true);
+        expect(passedSet.has('p99')).toBe(false);
+    });
+
     it('onlyPlanIds=[] のとき何も処理しない (空配列)', async () => {
         usePlanStore.setState({
             plans: [makePlan('p1', 'c1')],

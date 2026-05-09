@@ -412,12 +412,14 @@ export const usePlanStore = create<PlanState>()(
                 }
 
                 // 同期開始時点のdirty/deletedをスナップショット（同期中に追加された分を保持するため）
+                // onlyPlanIds 指定時: dirty / deleted の両方を交差絞り込み (race-safe)
                 let syncingDirtyIds = new Set(state._dirtyPlanIds);
+                let syncingDeletedIds = new Set(state._deletedPlanIds);
                 if (onlyPlanIds !== undefined) {
                     const filterSet = new Set(onlyPlanIds);
                     syncingDirtyIds = new Set([...syncingDirtyIds].filter(id => filterSet.has(id)));
+                    syncingDeletedIds = new Set([...syncingDeletedIds].filter(id => filterSet.has(id)));
                 }
-                const syncingDeletedIds = new Set(state._deletedPlanIds);
 
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
 
