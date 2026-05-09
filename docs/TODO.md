@@ -12,6 +12,25 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【完了 2026-05-09 セッション 2・用語統一 + リグレッションテスト】**: ユーザー指摘で発覚した「ユーザー向け文言で『プラン』が使われている漏れ」を 4 言語で一斉修正。あわせて致命バグ (ownerId='' で localStorage から消える) のリグレッションテストを追加。**未 push** (Phase B-1.5 完了後にまとめてデプロイ予定で Vercel 月100ビルド枠を節約)。
+
+  ① **用語統一** (commit 8b05c57): 「プラン」→「軽減表」(ja) /「mitigation sheet」「sheet」(en) /「경감표」(ko) /「减伤表」(zh) に統一。 影響範囲は app / local_import (Phase B-1 ダイアログ) / popular_consent / miti_sheet (野良主流ボトムシート) / mitigation auto_plan_confirm 説明文 / 法的文書 (privacy_section1/3/5/6/8 と terms_section3) / popular / backup の 約 150 文字列。 機能名 (軽減プランナー / オートプラン) と admin 画面は触らず。 4 言語並列でユーザー向け表現の一貫性確保。 memory `feedback_terminology_keigen_hyou.md` 追加。
+
+  ② **致命バグリグレッションテスト** (commit pending): `src/store/__tests__/usePlanStore.addPlanGuard.test.ts` 新規 6 件。 過去 4 回再発した「SharePage や他経路で `ownerId: ''` のままプラン追加 → fetchAndMerge 誤判定で localStorage から消滅」事故の防御 (`addPlan` 入口の `ownerId='' → 'local'` 矯正) が将来削除/破壊されないことを保証。 「コードで無理やり通す」のを避け、 Firebase だけ mock して実 store のロジックで state を assert する形。 vitest 487/487 PASS。
+
+  ③ **次セッション最優先タスクの仕分け** (ユーザー判断):
+  - ❌ 削除プラン復活 → 当面再現しないので一旦見送り
+  - ❌ 未取り込みバッジ → 不要と判断
+  - ✅ Phase B-1.5 (共有 URL 自動取り込み) → 次セッション着手
+  - ✅ 診断ログ撤去 → 残置
+  - ✅ 表エリアスムーズスクロール → 残置
+
+  **残作業**:
+  1. **🆕 共有 URL 自動取り込み (Phase B-1.5)** brainstorming → writing-plans → subagent-driven-development。 ユーザー要望「コピーボタン廃止、 踏んだら自動取り込み (ログイン=クラウド/非ログイン=ローカル)」、 「閲覧専用モード」廃止 OK。 **必須エッジケース**: 共有 URL のコンテンツが既に上限に達している場合の親切なハンドリング (例「絶もうひとつの未来は既に 5/5 件の軽減表があります。 削除してから再度 URL を開いてください」)。 **既存 Phase B-1 ダイアログのチェックボックス問題も解決**: 「次回から表示しない」を ON にしたら手動で取り込む導線がない問題、 brainstorming で代替設計を含める。
+  2. **3 コミット (用語修正 + テスト + Phase B-1.5) まとめて push + Vercel デプロイ**
+  3. 診断ログ撤去 (`src/utils/debugLog.ts` + 各所 `dlog` 呼び出し、 `scripts/inspect-user-plans.ts` は残す)
+  4. 表エリアのスムーズスクロール導入 (Lenis 等で Timeline をスムーズに)
+
 - **【完了 2026-05-09・Phase B-1 完全完成】**: 取り込みダイアログの最終仕様まで実機 OK 確認 (ユーザー: 「完璧だと思う！！」)。本セッションの主な作業:
 
   ① **SharePage 致命バグ修正** (前半): 共有 URL → 「自分のプランにコピー」が `ownerId: ''` で localStorage に追加されると、ログイン後の `fetchAndMerge` / `migrateOnLogin` で「別端末で削除」誤判定されて消滅する致命バグを実機再現 → 即修正 (commits 2c2fc76 など)。`SharePage.tsx` 2 箇所を `ownerId: 'local'` に + `usePlanStore.addPlan` で空文字正規化ガード追加 (再発防止保険)。
