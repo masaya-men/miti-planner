@@ -99,6 +99,7 @@ describe('LimitResolutionSheet', () => {
         useShareImportFlow.setState({
             status: 'limit_hit',
             limitContext: {
+                reason: 'max_per_content',
                 contentId: 'fru',
                 neededCount: 1,
                 planId: 'p1',
@@ -116,7 +117,7 @@ describe('LimitResolutionSheet', () => {
         } as any);
         useShareImportFlow.setState({
             status: 'limit_hit',
-            limitContext: { contentId: 'fru', neededCount: 1, planId: 'p1', resolve: vi.fn() },
+            limitContext: { reason: 'max_per_content', contentId: 'fru', neededCount: 1, planId: 'p1', resolve: vi.fn() },
         });
         render(<LimitResolutionSheet />);
         // Find the delete-and-resume button (not the cancel button)
@@ -129,7 +130,7 @@ describe('LimitResolutionSheet', () => {
         usePlanStore.setState({ plans: [] } as any);
         useShareImportFlow.setState({
             status: 'limit_hit',
-            limitContext: { contentId: 'fru', neededCount: 1, planId: 'p1', resolve },
+            limitContext: { reason: 'max_per_content', contentId: 'fru', neededCount: 1, planId: 'p1', resolve },
         });
         render(<LimitResolutionSheet />);
         fireEvent.click(screen.getByRole('button', { name: /button_cancel/i }));
@@ -152,6 +153,7 @@ describe('LimitResolutionSheet', () => {
         useShareImportFlow.setState({
             status: 'limit_hit',
             limitContext: {
+                reason: 'max_per_content',
                 contentId: 'fru',
                 neededCount: 1,
                 planId: 'p1',
@@ -190,6 +192,7 @@ describe('LimitResolutionSheet', () => {
         useShareImportFlow.setState({
             status: 'limit_hit',
             limitContext: {
+                reason: 'max_per_content',
                 contentId: 'fru',
                 neededCount: 1,
                 planId: 'p1',
@@ -260,6 +263,7 @@ describe('LimitResolutionSheet', () => {
         useShareImportFlow.setState({
             status: 'limit_hit',
             limitContext: {
+                reason: 'max_per_content',
                 contentId: 'fru',
                 neededCount: 1,
                 planId: 'p1',

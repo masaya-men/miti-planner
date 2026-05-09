@@ -179,14 +179,7 @@
         "already_copied_badge": "가져옴",
         "button_import_single": "가져오기",
         "button_import_count": "{{count}}개 가져오기",
-        "progress_check": "상한을 확인하는 중...",
-        "progress_check_ok": "상한 내",
-        "progress_local": "기기에 저장하는 중...",
-        "progress_local_ok": "기기에 저장했습니다",
-        "progress_server": "서버에 저장하는 중...",
-        "progress_server_ok": "서버에 저장했습니다",
-        "progress_server_failed": "서버 저장 실패 (기기에는 저장됨, 나중에 자동으로 재시도)",
-        "progress_local_failed": "기기에 저장하지 못했습니다",
+        "button_cancel": "취소",
         "done_summary": "경감표 {{count}}개를 가져왔습니다",
         "cancelled_some": "{{cancelled}}개 취소되었습니다"
     },
@@ -199,12 +192,6 @@
         "button_delete_and_resume": "{{count}}개 삭제하고 재개",
         "button_delete_and_resume_disabled": "삭제할 경감표를 체크해주세요",
         "button_cancel": "취소",
-        "delete_progress_local": "삭제를 준비 중...",
-        "delete_progress_local_ok": "기기에서 삭제했습니다",
-        "delete_progress_server": "서버에서 삭제하는 중...",
-        "delete_progress_server_ok": "서버에서 삭제했습니다",
-        "delete_capacity_freed": "용량 확보됨 ({{current}}/{{max}})",
-        "delete_failed": "삭제에 실패했습니다",
         "resume_message": "{{count}}개 가져오기를 재개합니다"
     },
     "aa_settings": {

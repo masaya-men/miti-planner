@@ -10,6 +10,7 @@ import type {
   ProgressEvent,
   DeleteProgressEvent,
   SharedData,
+  LimitContext,
 } from '../lib/shareImportTypes';
 
 export type ShareImportStatus =
@@ -21,12 +22,7 @@ export type ShareImportStatus =
   | 'done'
   | 'error';
 
-interface LimitContext {
-  contentId: string;
-  neededCount: number;
-  planId: string;
-  resolve: (decision: 'resolved' | 'cancelled') => void;
-}
+// LimitContext 型は shareImportTypes.ts に移動 (cross-module で参照されるため)
 
 interface ShareImportFlowState {
   status: ShareImportStatus;

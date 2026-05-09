@@ -187,14 +187,7 @@
         "already_copied_badge": "Imported",
         "button_import_single": "Import",
         "button_import_count": "Import {{count}} sheet(s)",
-        "progress_check": "Checking limit...",
-        "progress_check_ok": "Within limit",
-        "progress_local": "Saving to your device...",
-        "progress_local_ok": "Saved to your device",
-        "progress_server": "Saving to the server...",
-        "progress_server_ok": "Saved to the server",
-        "progress_server_failed": "Server save failed (saved on device, will retry automatically)",
-        "progress_local_failed": "Failed to save to device",
+        "button_cancel": "Cancel",
         "done_summary": "Imported {{count}} sheet(s)",
         "cancelled_some": "{{cancelled}} cancelled"
     },
@@ -207,12 +200,6 @@
         "button_delete_and_resume": "Delete {{count}} and resume",
         "button_delete_and_resume_disabled": "Check sheets to remove",
         "button_cancel": "Cancel",
-        "delete_progress_local": "Preparing to delete...",
-        "delete_progress_local_ok": "Deleted from your device",
-        "delete_progress_server": "Deleting from the server...",
-        "delete_progress_server_ok": "Deleted from the server",
-        "delete_capacity_freed": "Capacity freed ({{current}}/{{max}})",
-        "delete_failed": "Deletion failed",
         "resume_message": "Resuming {{count}} import(s)"
     },
     "aa_settings": {

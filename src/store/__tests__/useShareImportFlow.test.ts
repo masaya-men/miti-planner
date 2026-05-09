@@ -149,6 +149,7 @@ describe('useShareImportFlow', () => {
     useShareImportFlow.setState({
       status: 'limit_hit',
       limitContext: {
+        reason: 'max_per_content',
         contentId: 'fru',
         neededCount: 1,
         planId: 'p1',
@@ -167,7 +168,7 @@ describe('useShareImportFlow', () => {
     const resolve = vi.fn();
     useShareImportFlow.setState({
       status: 'limit_hit',
-      limitContext: { contentId: 'fru', neededCount: 1, planId: 'p1', resolve },
+      limitContext: { reason: 'max_per_content', contentId: 'fru', neededCount: 1, planId: 'p1', resolve },
     });
 
     useShareImportFlow.getState().resolveLimitHit('cancelled');
@@ -198,6 +199,7 @@ describe('useShareImportFlow', () => {
     useShareImportFlow.setState({
       status: 'limit_hit',
       limitContext: {
+        reason: 'max_per_content',
         contentId: 'fru',
         neededCount: 1,
         planId: 'p1',

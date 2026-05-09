@@ -179,14 +179,7 @@
         "already_copied_badge": "已导入",
         "button_import_single": "导入",
         "button_import_count": "导入 {{count}} 个",
-        "progress_check": "正在检查上限...",
-        "progress_check_ok": "上限内",
-        "progress_local": "正在保存到设备...",
-        "progress_local_ok": "已保存到设备",
-        "progress_server": "正在保存到服务器...",
-        "progress_server_ok": "已保存到服务器",
-        "progress_server_failed": "服务器保存失败 (已保存到设备, 稍后将自动重试)",
-        "progress_local_failed": "保存到设备失败",
+        "button_cancel": "取消",
         "done_summary": "已导入 {{count}} 个减伤表",
         "cancelled_some": "已取消 {{cancelled}} 个"
     },
@@ -199,12 +192,6 @@
         "button_delete_and_resume": "删除 {{count}} 个并继续",
         "button_delete_and_resume_disabled": "请勾选要删除的减伤表",
         "button_cancel": "取消",
-        "delete_progress_local": "正在准备删除...",
-        "delete_progress_local_ok": "已从设备删除",
-        "delete_progress_server": "正在从服务器删除...",
-        "delete_progress_server_ok": "已从服务器删除",
-        "delete_capacity_freed": "已释放容量 ({{current}}/{{max}})",
-        "delete_failed": "删除失败",
         "resume_message": "正在恢复 {{count}} 个导入"
     },
     "aa_settings": {

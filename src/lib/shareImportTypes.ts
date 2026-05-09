@@ -64,3 +64,18 @@ export interface ImportResult {
   status: 'success' | 'failed' | 'cancelled';
   error?: string;
 }
+
+// 上限ヒット時に LimitResolutionSheet へ渡すコンテキスト。
+// reason により表示モード (per content / 総上限) を分岐する。
+export type LimitReason = 'max_per_content' | 'max_total';
+
+export interface LimitContext {
+  reason: LimitReason;
+  /** max_total のときは null。 max_per_content のときは対象 contentId */
+  contentId: string | null;
+  /** 解消に必要な削除件数 (≧1) */
+  neededCount: number;
+  /** max_total のときは null。 max_per_content のときはヒットした取り込み対象の planId (= ShareImportItem.sourcePlanId ?? sourceShareId) */
+  planId: string | null;
+  resolve: (decision: 'resolved' | 'cancelled') => void;
+}

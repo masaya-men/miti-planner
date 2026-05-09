@@ -15,9 +15,10 @@ export async function executeShareImport(
   displayName: string,
   onProgress: (event: ProgressEvent) => void,
   onLimitHit: (params: {
-    contentId: string;
+    reason: 'max_per_content' | 'max_total';
+    contentId: string | null;
     neededCount: number;
-    planId: string;
+    planId: string | null;
   }) => Promise<'resolved' | 'cancelled'>,
 ): Promise<ImportResult[]> {
   const results: ImportResult[] = [];
@@ -32,7 +33,8 @@ export async function executeShareImport(
     let limitResult = checkPlanLimit(usePlanStore.getState().plans, item.contentId);
     if (limitResult.exceeded) {
       const decision = await onLimitHit({
-        contentId: item.contentId ?? '',
+        reason: 'max_per_content',
+        contentId: item.contentId,
         neededCount: 1,
         planId: itemPlanId,
       });

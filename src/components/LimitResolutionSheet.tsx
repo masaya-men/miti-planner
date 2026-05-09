@@ -115,9 +115,11 @@ export function LimitResolutionSheet() {
             : langSrc.startsWith('ko')
                 ? 'ko'
                 : 'en';
-    const contentDef = getContentById(limitContext.contentId);
+    // contentId は max_total 時に null になる新型に追従。 max_per_content 経路では string、
+    // 後続タスクで max_total UI を実装するまでは fallback ('') で扱う (どちらの経路でも tsc を満たすため)。
+    const contentDef = getContentById(limitContext.contentId ?? '');
     const contentName =
-        contentDef?.name?.[lang] ?? contentDef?.name?.en ?? limitContext.contentId;
+        contentDef?.name?.[lang] ?? contentDef?.name?.en ?? limitContext.contentId ?? '';
 
     // 上限値とカレント件数 (ヘッダ表示用)。
     const maxPerContent = PLAN_LIMITS.MAX_PLANS_PER_CONTENT;
@@ -146,7 +148,7 @@ export function LimitResolutionSheet() {
             await executePlanDeletions(
                 Array.from(checkedIds),
                 authUser?.uid ?? null,
-                limitContext.contentId,
+                limitContext.contentId ?? '',
                 setDeleteProgress,
             );
             // 全件成功 → 取り込みフローを再開
