@@ -58,6 +58,7 @@ describe('checkPlanLimit', () => {
     const result = checkPlanLimit([], 'fru');
     expect(result.exceeded).toBe(false);
     expect(result.current).toBe(0);
+    expect(result.max).toBe(PLAN_LIMITS.MAX_PLANS_PER_CONTENT);
   });
 
   it('counts only the specified contentId', () => {
@@ -70,6 +71,7 @@ describe('checkPlanLimit', () => {
     ];
     const result = checkPlanLimit(plans, 'fru');
     expect(result.current).toBe(2);
+    expect(result.exceeded).toBe(false);
   });
 
   it('handles boundary at max-1 (allows one more)', () => {

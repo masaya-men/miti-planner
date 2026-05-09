@@ -12,7 +12,7 @@ export interface PlanLimitCheckResult {
 
 export function checkPlanLimit(
   plans: SavedPlan[],
-  contentId: string,
+  contentId: string | null,
 ): PlanLimitCheckResult {
   const totalCount = plans.length;
   if (totalCount >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
