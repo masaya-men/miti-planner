@@ -180,7 +180,7 @@
         "button_import_single": "가져오기",
         "button_import_count": "{{count}}개 가져오기",
         "progress_check": "상한을 확인하는 중...",
-        "progress_check_ok": "상한 OK",
+        "progress_check_ok": "상한 내",
         "progress_local": "기기에 저장하는 중...",
         "progress_local_ok": "기기에 저장했습니다",
         "progress_server": "서버에 저장하는 중...",

@@ -188,7 +188,7 @@
         "button_import_single": "取り込む",
         "button_import_count": "{{count}} 件を取り込む",
         "progress_check": "上限を確認しています...",
-        "progress_check_ok": "上限 OK",
+        "progress_check_ok": "上限内です",
         "progress_local": "あなたの端末に保存しています...",
         "progress_local_ok": "あなたの端末に保存しました",
         "progress_server": "サーバーに保存しています...",
@@ -196,7 +196,7 @@
         "progress_server_failed": "サーバー保存に失敗しました (端末には保存済みです、 後で自動で再試行します)",
         "progress_local_failed": "端末への保存に失敗しました",
         "done_summary": "{{count}} 件の軽減表を取り込みました",
-        "cancelled_some": "{{cancelled}} 件キャンセルされました"
+        "cancelled_some": "{{cancelled}} 件はキャンセルしました"
     },
     "limit_resolution": {
         "title_per_content": "{{contentName}} は既に {{current}}/{{max}} 件です",

@@ -202,7 +202,7 @@
         "title_per_content": "{{contentName}} is at {{current}}/{{max}}",
         "title_total": "Total cap {{current}}/{{max}} reached",
         "body": "Check sheets to remove. {{count}} remaining slot(s) to import.",
-        "card_label_last_opened": "Last {{date}}",
+        "card_label_last_opened": "Last opened {{date}}",
         "selection_count": "{{count}} selected",
         "button_delete_and_resume": "Delete {{count}} and resume",
         "button_delete_and_resume_disabled": "Check sheets to remove",

@@ -180,7 +180,7 @@
         "button_import_single": "导入",
         "button_import_count": "导入 {{count}} 个",
         "progress_check": "正在检查上限...",
-        "progress_check_ok": "上限 OK",
+        "progress_check_ok": "上限内",
         "progress_local": "正在保存到设备...",
         "progress_local_ok": "已保存到设备",
         "progress_server": "正在保存到服务器...",
