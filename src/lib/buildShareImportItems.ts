@@ -6,12 +6,12 @@ export function parseSharedDataToImportItems(
   shareId: string,
 ): ShareImportItem[] {
   if (Array.isArray(sharedData.plans)) {
-    return sharedData.plans.map((p: any) => ({
+    return sharedData.plans.map((p: any, index: number) => ({
       sourceShareId: shareId,
       contentId: sharedData.contentId,
       title: p.title || 'Shared Plan',
       planData: p.planData,
-      sourcePlanId: p.id,
+      sourcePlanId: p.id ?? `${shareId}_${index}`,
     }));
   }
   return [

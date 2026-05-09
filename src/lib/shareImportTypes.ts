@@ -2,7 +2,7 @@ import type { PlanData } from '../types';
 
 export interface ShareImportItem {
   sourceShareId: string;
-  contentId: string;
+  contentId: string | null;
   title: string;
   planData: PlanData;
   sourcePlanId?: string; // バンドル内の元 plan id (ログ用)

@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { parseSharedDataToImportItems, buildNewPlan } from '../buildShareImportItems';
+import type { PlanData } from '../../types';
 
-const samplePlanData = { events: [], mitigations: [] } as any;
+const samplePlanData: PlanData = {
+  currentLevel: 100,
+  timelineEvents: [],
+  timelineMitigations: [],
+  phases: [],
+  partyMembers: [],
+  aaSettings: { damage: 0, type: 'physical', target: 'MT' },
+  schAetherflowPatterns: {},
+};
 
 describe('parseSharedDataToImportItems', () => {
   it('handles single shared plan (non-bundle)', () => {
@@ -43,6 +52,19 @@ describe('parseSharedDataToImportItems', () => {
       expect(item.sourceShareId).toBe('bundle456');
       expect(item.contentId).toBe('fru');
     });
+  });
+
+  it('uses index-based fallback when bundle plans lack id', () => {
+    const data = {
+      contentId: 'fru',
+      plans: [
+        { title: 'A', planData: samplePlanData },
+        { title: 'B', planData: samplePlanData },
+      ],
+    };
+    const items = parseSharedDataToImportItems(data, 'shareXyz');
+    expect(items[0].sourcePlanId).toBe('shareXyz_0');
+    expect(items[1].sourcePlanId).toBe('shareXyz_1');
   });
 
   it('falls back to "Shared Plan" when title missing in single', () => {
