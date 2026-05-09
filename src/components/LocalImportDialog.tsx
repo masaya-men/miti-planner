@@ -12,7 +12,7 @@ import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
-const PER_PLAN_MS = 1000;
+const PER_PLAN_MS = 2000;
 /**
  * 最後の行の sweep 完了からサマリーパネルを表示するまでの間。
  * ✓/✗ アイコンの drop-in (約 360ms) をユーザーがしっかり視認できる時間を確保。
@@ -374,100 +374,108 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                     </p>
                 </div>
 
-                <div className="flex-1 overflow-y-auto">
-                    {/* List (常時表示。done フェーズでも ✓/✗ つきで残る) */}
-                    <div className="px-6 pb-3">
-                        <ul className="flex flex-col gap-1.5">
-                            {plans.map((plan, idx) => {
-                                const checked = checkedSet.has(plan.id);
-                                const status = progressMap.get(plan.id);
-                                const contentLabel = getContentLabel(plan);
-                                const jobIcons = getMemberJobIcons(plan);
-                                const isInProgress = phase !== 'idle';
-                                const isVisibleInProgress = isInProgress && status !== undefined;
+                <div className="relative flex-1 overflow-y-auto">
+                    {/* List + Help (背景レイヤー。done フェーズでは opacity 0.4 で暗化し、サマリーが上に重なる) */}
+                    <div className={clsx(
+                        "transition-opacity duration-500",
+                        phase === 'done' && "opacity-40 pointer-events-none",
+                    )}>
+                        <div className="px-6 pb-3">
+                            <ul className="flex flex-col gap-1.5">
+                                {plans.map((plan, idx) => {
+                                    const checked = checkedSet.has(plan.id);
+                                    const status = progressMap.get(plan.id);
+                                    const contentLabel = getContentLabel(plan);
+                                    const jobIcons = getMemberJobIcons(plan);
+                                    const isInProgress = phase !== 'idle';
+                                    // チェック外したプランも常時表示し、isOutOfImport で薄く見せる
+                                    // (行数が変動しないことでウィンドウのガタつきを完全に抑える)
+                                    const isOutOfImport = isInProgress && status === undefined;
 
-                                // アップロード中・完了フェーズではチェック外したプランを非表示
-                                if (isInProgress && !isVisibleInProgress) return null;
-
-                                return (
-                                    <motion.li
-                                        key={plan.id}
-                                        initial={{ opacity: 0, x: -12 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: phase === 'idle' ? 0.4 + idx * 0.08 : 0, duration: 0.3 }}
-                                    >
-                                        <label
-                                            className={clsx(
-                                                "relative flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors overflow-hidden",
-                                                isInProgress ? "cursor-default" : "cursor-pointer",
-                                                !isInProgress && checked && "bg-app-blue/10 border-app-blue/30",
-                                                !isInProgress && !checked && "bg-app-surface2/30 border-app-border",
-                                                !isInProgress && checked && "hover:bg-app-blue/15",
-                                                !isInProgress && !checked && "hover:bg-app-surface2/50",
-                                                isInProgress && status === 'success' && "border-app-blue/30",
-                                                isInProgress && status === 'failed' && "border-app-red/30",
-                                                isInProgress && (status === 'pending' || status === 'uploading') && "border-app-border",
-                                            )}
+                                    return (
+                                        <motion.li
+                                            key={plan.id}
+                                            initial={{ opacity: 0, x: -12 }}
+                                            animate={{ opacity: isOutOfImport ? 0.35 : 1, x: 0 }}
+                                            transition={{
+                                                delay: phase === 'idle' ? 0.4 + idx * 0.08 : 0,
+                                                duration: 0.3,
+                                            }}
                                         >
-                                            {/* B2 sweep オーバーレイ (uploading 中の演出) */}
-                                            {isInProgress && renderSweep(status)}
-
-                                            <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
-                                                {isInProgress ? (
-                                                    renderStatusIcon(status)
-                                                ) : (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={checked}
-                                                        onChange={() => toggle(plan.id)}
-                                                        className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
-                                                    />
+                                            <label
+                                                className={clsx(
+                                                    "relative flex items-center gap-3 p-2.5 rounded-lg select-none border transition-colors overflow-hidden",
+                                                    isInProgress ? "cursor-default" : "cursor-pointer",
+                                                    !isInProgress && checked && "bg-app-blue/10 border-app-blue/30",
+                                                    !isInProgress && !checked && "bg-app-surface2/30 border-app-border",
+                                                    !isInProgress && checked && "hover:bg-app-blue/15",
+                                                    !isInProgress && !checked && "hover:bg-app-surface2/50",
+                                                    isInProgress && status === 'success' && "border-app-blue/30",
+                                                    isInProgress && status === 'failed' && "border-app-red/30",
+                                                    isInProgress && (status === 'pending' || status === 'uploading') && "border-app-border",
+                                                    isOutOfImport && "bg-app-surface2/20 border-app-border",
                                                 )}
-                                            </span>
-                                            <div className="relative z-[1] flex-1 min-w-0">
-                                                <div className="flex items-baseline gap-2">
-                                                    {contentLabel && (
-                                                        <span className="text-app-base font-bold text-app-text-muted shrink-0">
-                                                            [{contentLabel}]
-                                                        </span>
+                                            >
+                                                {/* B2 sweep オーバーレイ (uploading 中の演出) */}
+                                                {isInProgress && !isOutOfImport && renderSweep(status)}
+
+                                                <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
+                                                    {isInProgress ? (
+                                                        isOutOfImport ? (
+                                                            // 取り込み対象外: チェックマークなしの空チェックボックス風表示
+                                                            <span className="w-4 h-4 rounded border border-app-text-muted/40" />
+                                                        ) : (
+                                                            renderStatusIcon(status)
+                                                        )
+                                                    ) : (
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={checked}
+                                                            onChange={() => toggle(plan.id)}
+                                                            className="w-4 h-4 cursor-pointer accent-app-blue shrink-0"
+                                                        />
                                                     )}
-                                                    <span className="text-app-md font-medium text-app-text truncate">
-                                                        {plan.title || '—'}
-                                                    </span>
-                                                </div>
-                                                {jobIcons.length > 0 && (
-                                                    <div className="flex items-center gap-0.5 mt-1">
-                                                        {jobIcons.slice(0, 8).map(j => (
-                                                            <img
-                                                                key={j.id}
-                                                                src={j.icon}
-                                                                alt={j.jobName}
-                                                                title={j.jobName}
-                                                                className="w-5 h-5 object-contain opacity-80"
-                                                            />
-                                                        ))}
+                                                </span>
+                                                <div className="relative z-[1] flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2">
+                                                        {contentLabel && (
+                                                            <span className="text-app-base font-bold text-app-text-muted shrink-0">
+                                                                [{contentLabel}]
+                                                            </span>
+                                                        )}
+                                                        <span className="text-app-md font-medium text-app-text truncate">
+                                                            {plan.title || '—'}
+                                                        </span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        </label>
-                                    </motion.li>
-                                );
-                            })}
-                        </ul>
-                    </div>
+                                                    {jobIcons.length > 0 && (
+                                                        <div className="flex items-center gap-0.5 mt-1">
+                                                            {jobIcons.slice(0, 8).map(j => (
+                                                                <img
+                                                                    key={j.id}
+                                                                    src={j.icon}
+                                                                    alt={j.jobName}
+                                                                    title={j.jobName}
+                                                                    className="w-5 h-5 object-contain opacity-80"
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        </motion.li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
 
-                    {/* Help + dontShow (idle 限定、AnimatePresence で滑らかに出入り) */}
-                    <AnimatePresence initial={false}>
-                        {phase === 'idle' && (
-                            <motion.div
-                                key="help"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-                                className="overflow-hidden"
-                            >
-                                <div className="px-6 pb-3">
+                        {/* Help + dontShow 領域 (常時固定スペース確保。idle 時のみ内容表示でガタつき防止) */}
+                        <div className="px-6 pb-3 min-h-[88px]">
+                            {phase === 'idle' && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.4 + plans.length * 0.08 + 0.1, duration: 0.3 }}
+                                >
                                     <p className="text-app-base text-app-text-muted leading-relaxed">
                                         {t('local_import.help_text')}
                                     </p>
@@ -484,23 +492,29 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                             </span>
                                         </label>
                                     )}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                </motion.div>
+                            )}
+                        </div>
+                    </div>
 
-                    {/* Summary panel (done フェーズでリストの下に追加表示。リストは消えない) */}
-                    <AnimatePresence initial={false}>
+                    {/* Summary overlay (done フェーズでリストの上にカードとして重なる) */}
+                    <AnimatePresence>
                         {phase === 'done' && summaryKind && (
                             <motion.div
-                                key="summary"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-                                className="overflow-hidden border-t border-app-border"
+                                key="summary-overlay"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="absolute inset-0 flex items-center justify-center px-4 pointer-events-none"
                             >
-                                <div className="px-6 py-5 text-center">
+                                <motion.div
+                                    initial={{ scale: 0.9, y: 16, opacity: 0 }}
+                                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+                                    className="pointer-events-auto w-full max-w-[400px] rounded-2xl border border-app-border shadow-2xl px-5 py-5 text-center"
+                                    style={{ backgroundColor: 'var(--color-bg-tertiary)' }}
+                                >
                                     <motion.div
                                         initial={{ scale: 0.6, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
@@ -540,7 +554,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                         </p>
                                     )}
                                     {feedbackItems.length > 0 && (
-                                        <div className="mt-4 mx-auto max-w-[380px] px-3.5 py-3 rounded-xl bg-app-yellow/8 border border-app-yellow/30 text-left">
+                                        <div className="mt-4 mx-auto max-w-[360px] px-3.5 py-3 rounded-xl bg-app-yellow/8 border border-app-yellow/30 text-left">
                                             <p className="text-app-md font-bold tracking-wide text-app-yellow mb-1">
                                                 {t('local_import.feedback_box_title')}
                                             </p>
@@ -551,7 +565,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                             </ul>
                                         </div>
                                     )}
-                                </div>
+                                </motion.div>
                             </motion.div>
                         )}
                     </AnimatePresence>

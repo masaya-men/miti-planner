@@ -537,10 +537,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* B-1 Revision 3: 取り込みダイアログ準備中オーバーレイ
                 - migrateOnLogin / pullFromFirestore 完了 → ダイアログ open までの隙間を覆う
-                - ユーザーが「ログイン直後に画面操作 → ダイアログとの競合」を起こさないため */}
+                - ユーザーが「ログイン直後に画面操作 → ダイアログとの競合」を起こさないため
+                - isAuthRedirecting と同じレイアウト (spinner + 文言) でインジケータ位置を統一 */}
             {isImportPreparing && !isAuthRedirecting && !localImportOpen && (
                 <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-app-bg">
-                    <Loader2 size={28} className="animate-spin text-app-text-muted" />
+                    <div className="flex flex-col items-center gap-4">
+                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
+                        <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
+                    </div>
                 </div>
             )}
 
