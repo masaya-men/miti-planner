@@ -46,7 +46,7 @@ interface PlanState {
 
     // Firestore同期アクション
     markDirty: (planId: string) => void;
-    syncToFirestore: (uid: string, displayName: string, force?: boolean) => Promise<void>;
+    syncToFirestore: (uid: string, displayName: string, force?: boolean, onlyPlanIds?: string[]) => Promise<void>;
     /** Firestoreから最新データを取得してローカルとマージ（PULL操作） */
     pullFromFirestore: (uid: string) => Promise<void>;
     /** ログアウト前にdirtyプランを強制同期（_isSyncingチェックをバイパス） */
@@ -392,7 +392,7 @@ export const usePlanStore = create<PlanState>()(
              * dirtyなプランをFirestoreに同期する
              * 3分以上のインターバルを強制（コスト抑制）
              */
-            syncToFirestore: async (uid, displayName, force = false) => {
+            syncToFirestore: async (uid, displayName, force = false, onlyPlanIds?: string[]) => {
                 const state = get();
                 if (state._isSyncing) return;
                 if (state._dirtyPlanIds.size === 0 && state._deletedPlanIds.size === 0) return;
@@ -412,7 +412,11 @@ export const usePlanStore = create<PlanState>()(
                 }
 
                 // 同期開始時点のdirty/deletedをスナップショット（同期中に追加された分を保持するため）
-                const syncingDirtyIds = new Set(state._dirtyPlanIds);
+                let syncingDirtyIds = new Set(state._dirtyPlanIds);
+                if (onlyPlanIds !== undefined) {
+                    const filterSet = new Set(onlyPlanIds);
+                    syncingDirtyIds = new Set([...syncingDirtyIds].filter(id => filterSet.has(id)));
+                }
                 const syncingDeletedIds = new Set(state._deletedPlanIds);
 
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
