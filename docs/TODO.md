@@ -12,6 +12,23 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【完了 2026-05-09 セッション 4・Phase B-1.5 全タスク (Task 1-19)】**: 共有 URL 自動取り込み機能を完成。 SharePage を /miti リダイレクト + ボトムシート起動方式に刷新、 LimitResolutionSheet (重ねシート) で上限到達時の整理 UX、 LocalImportDialog の「次回から表示しない」チェックを廃止。 全 553 件 vitest PASS、 tsc clean、 build clean。 触らない箇所 (addPlan / fetchAndMerge / planService / MitigationSheet / LocalImportDialog.executeLocalImport / silentCompressStale) すべて 0 行 diff 維持。 全タスクで TDD + spec reviewer + code quality reviewer 2 段階レビュー実施、 Final code reviewer も通過。 
+
+  **設計書**: `docs/superpowers/specs/2026-05-09-housing-phase-b1.5-share-url-auto-import-design.md`
+  **実装プラン**: `docs/superpowers/plans/2026-05-09-housing-phase-b1.5-share-url-auto-import.md`
+
+  **追加コミット (Task 6-19 + 最終 fixes)**:
+  - Task 6: useShareImportFlow store + a11y/type コードレビュー fix
+  - Task 7-8: i18n 4 言語追加 (33 keys) + dont_show_again 削除
+  - Task 9-11: LocalImportDialog dont-show チェックボックス廃止 + Layout 簡略化
+  - Task 12-13: ShareImportProgressIndicator + SharePlanCard (a11y/type コードレビュー fix)
+  - Task 15: LimitResolutionSheet (stale checkedIds prune fix)
+  - Task 14: ShareImportSheet (setTimeout leak / stuck Promise / AnimatePresence exit fix)
+  - Task 16-17: SharePage rewrite + Layout マウント
+  - Task 18: 全 553 vitest + tsc + build 緑、 protected files 0 行 diff 確認
+  - Task 19: Playwright E2E 任意スキップ (実 shareId 必要 + dev 環境依存のため別タスクで)
+  - Final fix: bundle import per-plan contentId 復活 + share URL 経由ユーザーのチュートリアル抑制
+
 - **【完了 2026-05-09 セッション 3・Phase B-1.5 基盤層 (Task 1-5)】**: 共有 URL 自動取り込みの設計書 + 実装プラン作成 → subagent-driven-development で Task 1-5 (基盤層) を完了。 各タスク TDD + spec reviewer + code quality reviewer 2 段階レビュー実施。 全 506 + 新規テスト全 PASS、 tsc clean、 触らない箇所 (addPlan / fetchAndMerge / planService / MitigationSheet / LocalImportDialog) 全部無傷。 **未 push** (Phase B-1.5 完了後にまとめてデプロイ)。
 
   **設計書**: `docs/superpowers/specs/2026-05-09-housing-phase-b1.5-share-url-auto-import-design.md`

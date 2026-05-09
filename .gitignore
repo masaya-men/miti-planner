@@ -10,6 +10,7 @@ docs/.private/
 # Claude worktrees & local settings
 .claude/worktrees/
 .claude/settings.local.json
+.claude/settings.json
 
 # Environment files (secrets)
 .env*
