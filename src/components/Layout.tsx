@@ -387,9 +387,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
 
     const handleLocalImportClose = React.useCallback(
-        ({ dontShow }: { dontShow: boolean }) => {
+        () => {
             closeLocalImportDialog();
-            if (dontShow) localStorage.setItem('lopo_local_import_dont_show', 'true');
         },
         [closeLocalImportDialog],
     );
@@ -825,7 +824,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <LocalImportDialog
                 isOpen={localImportOpen}
                 plans={localImportPlans}
-                ignoreDontShow={localImportIgnoreDontShow}
                 onImport={handleLocalImport}
                 onClose={handleLocalImportClose}
             />

@@ -26,8 +26,6 @@ interface LocalImportDialogProps {
     isOpen: boolean;
     /** 表示対象のプラン (`ownerId='local'` のローカルプラン) */
     plans: SavedPlan[];
-    /** true のとき「次回から表示しない」チェック非表示 */
-    ignoreDontShow: boolean;
     /**
      * 取り込み実行コールバック。`onProgress` で 1 件ずつの進捗を通知してくる前提。
      * Promise の解決を Dialog 側で待ち、全件結果に応じて UI を切り替える。
@@ -37,11 +35,11 @@ interface LocalImportDialogProps {
         onProgress: (event: { id: string; status: 'uploading' | 'success' | 'failed'; error?: string }) => void,
     ) => Promise<{ id: string; status: 'success' | 'failed'; error?: string }[]>;
     /** ダイアログを閉じる (キャンセル / 完了後 / 諦める) */
-    onClose: (params: { dontShow: boolean }) => void;
+    onClose: () => void;
 }
 
 export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
-    isOpen, plans, ignoreDontShow, onImport, onClose,
+    isOpen, plans, onImport, onClose,
 }) => {
     const { t } = useTranslation();
     const jobs = useJobs();
@@ -59,7 +57,6 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     const [snapshotPlans, setSnapshotPlans] = useState<SavedPlan[]>([]);
     // 全プラン ON で初期化
     const [checkedSet, setCheckedSet] = useState<Set<string>>(new Set());
-    const [dontShow, setDontShow] = useState(false);
     const [phase, setPhase] = useState<'idle' | 'uploading' | 'done'>('idle');
     const [progressMap, setProgressMap] = useState<Map<string, PlanProgressStatus>>(new Map());
     const [errorMap, setErrorMap] = useState<Map<string, string>>(new Map());
@@ -74,7 +71,6 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
         if (isOpen) {
             setSnapshotPlans(plans);
             setCheckedSet(new Set(plans.map(p => p.id)));
-            setDontShow(false);
             setPhase('idle');
             setProgressMap(new Map());
             setErrorMap(new Map());
@@ -138,7 +134,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     const startImport = async (idsToImport: string[]) => {
         if (idsToImport.length === 0) {
             // 全部チェック外し → 何もせず閉じる (ローカルに残す扱い)
-            onClose({ dontShow: ignoreDontShow ? false : dontShow });
+            onClose();
             return;
         }
 
@@ -232,7 +228,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
 
     const handleClose = () => {
         if (phase === 'uploading') return; // アップロード中は閉じさせない
-        onClose({ dontShow: ignoreDontShow ? false : dontShow });
+        onClose();
     };
 
     const getContentLabel = (plan: SavedPlan): string => {
@@ -494,7 +490,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                             </ul>
                         </div>
 
-                        {/* Help + dontShow 領域 (常時固定スペース確保。idle 時のみ内容表示でガタつき防止) */}
+                        {/* Help 領域 (常時固定スペース確保。idle 時のみ内容表示でガタつき防止) */}
                         <div className="px-6 pb-3 min-h-[88px]">
                             {phase === 'idle' && (
                                 <motion.div
@@ -505,19 +501,6 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                     <p className="text-app-base text-app-text-muted leading-relaxed">
                                         {t('local_import.help_text')}
                                     </p>
-                                    {!ignoreDontShow && (
-                                        <label className="mt-3 flex items-center gap-2 cursor-pointer select-none">
-                                            <input
-                                                type="checkbox"
-                                                checked={dontShow}
-                                                onChange={e => setDontShow(e.target.checked)}
-                                                className="w-4 h-4 cursor-pointer accent-app-blue"
-                                            />
-                                            <span className="text-app-base text-app-text-muted">
-                                                {t('local_import.dont_show_again')}
-                                            </span>
-                                        </label>
-                                    )}
                                 </motion.div>
                             )}
                         </div>

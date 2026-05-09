@@ -68,7 +68,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={false}
                 plans={[makePlan({})]}
-                ignoreDontShow={false}
                 onImport={vi.fn()}
                 onClose={vi.fn()}
             />,
@@ -81,7 +80,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1', title: 'My Plan A', contentId: 'fru' })]}
-                ignoreDontShow={false}
                 onImport={vi.fn()}
                 onClose={vi.fn()}
             />,
@@ -102,7 +100,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' }), makePlan({ id: 'p2' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -120,16 +117,12 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' }), makePlan({ id: 'p2' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
         );
-        const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
-        const planCheckboxes = checkboxes.filter(cb => {
-            const label = cb.closest('label');
-            return label && !label.textContent?.includes('local_import.dont_show_again');
-        });
+        // 「次回から表示しない」チェックは廃止済みなので、checkbox はすべてプラン行のもの
+        const planCheckboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
         // p1 のチェックを外す
         fireEvent.click(planCheckboxes[0]);
         fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
@@ -146,70 +139,43 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={onClose}
             />,
         );
-        const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
-        const planCheckbox = checkboxes.find(cb => {
-            const label = cb.closest('label');
-            return label && !label.textContent?.includes('local_import.dont_show_again');
-        })!;
+        const planCheckbox = (screen.getAllByRole('checkbox') as HTMLInputElement[])[0];
         fireEvent.click(planCheckbox);
         fireEvent.click(screen.getByRole('button', { name: /local_import\.confirm/i }));
         expect(onImport).not.toHaveBeenCalled();
-        expect(onClose).toHaveBeenCalledWith({ dontShow: false });
+        expect(onClose).toHaveBeenCalledWith();
     });
 
-    it('「あとで」クリックで onClose({ dontShow: false }) を呼ぶ', () => {
+    it('「あとで」クリックで onClose() を呼ぶ', () => {
         const onClose = vi.fn();
         render(
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({})]}
-                ignoreDontShow={false}
                 onImport={vi.fn()}
                 onClose={onClose}
             />,
         );
         fireEvent.click(screen.getByRole('button', { name: /local_import\.cancel/i }));
-        expect(onClose).toHaveBeenCalledWith({ dontShow: false });
+        expect(onClose).toHaveBeenCalledWith();
     });
 
-    it('ignoreDontShow=true で「次回から表示しない」チェックボックスを表示しない', () => {
+    it('「次回から表示しない」チェックボックスは廃止されており、描画されない', () => {
         render(
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({})]}
-                ignoreDontShow={true}
                 onImport={vi.fn()}
                 onClose={vi.fn()}
             />,
         );
+        // i18n キー文言・英語訳・日本語訳いずれも残っていないこと
         expect(screen.queryByText('local_import.dont_show_again')).toBeNull();
-    });
-
-    it('「次回から表示しない」チェックすると onClose に dontShow: true が渡される', () => {
-        const onClose = vi.fn();
-        render(
-            <LocalImportDialog
-                isOpen={true}
-                plans={[makePlan({})]}
-                ignoreDontShow={false}
-                onImport={vi.fn()}
-                onClose={onClose}
-            />,
-        );
-        const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
-        const dontShowCheckbox = checkboxes.find(cb => {
-            const label = cb.closest('label');
-            return label?.textContent?.includes('local_import.dont_show_again');
-        });
-        expect(dontShowCheckbox).toBeDefined();
-        fireEvent.click(dontShowCheckbox!);
-        fireEvent.click(screen.getByRole('button', { name: /local_import\.cancel/i }));
-        expect(onClose).toHaveBeenCalledWith({ dontShow: true });
+        expect(screen.queryByText(/次回から表示しない|don.*show again/i)).toBeNull();
     });
 
     it('uploading フェーズでチェックボックスが進捗アイコンに置き換わり、キャンセルボタンが消える', async () => {
@@ -226,7 +192,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -250,7 +215,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={onClose}
             />,
@@ -274,7 +238,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' }), makePlan({ id: 'p2' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -295,7 +258,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -317,7 +279,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -337,7 +298,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -361,7 +321,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({ id: 'p1' }), makePlan({ id: 'p2' })]}
-                ignoreDontShow={false}
                 onImport={onImport}
                 onClose={vi.fn()}
             />,
@@ -382,7 +341,6 @@ describe('LocalImportDialog (Revision 3: explicit import + progress)', () => {
             <LocalImportDialog
                 isOpen={true}
                 plans={[makePlan({})]}
-                ignoreDontShow={false}
                 onImport={vi.fn()}
                 onClose={vi.fn()}
             />,
