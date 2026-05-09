@@ -476,17 +476,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 // トークン取得失敗でもダイアログは出す (executeLocalImport で再試行可能)
             }
 
-            // 自動トリガー
+            // 自動トリガー: ローカルプランがあるときは常に表示する (Phase B-1.5 Task 11)
+            // 旧 `lopo_local_import_dont_show` localStorage フラグは既存ユーザーの値を残したまま読み捨てる
             const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
-            const dontShow = localStorage.getItem('lopo_local_import_dont_show') === 'true';
-            const willOpen = localPlanCount > 0 && !dontShow;
             dlog('layout', 'auto-trigger check', {
                 localPlanCount,
-                dontShow,
-                willOpenDialog: willOpen,
+                willOpenDialog: localPlanCount > 0,
                 plansCountAfterPull: usePlanStore.getState().plans.length,
             });
-            if (willOpen) {
+            if (localPlanCount > 0) {
                 // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
                 setTimeout(() => {
                     dlog('layout', 'opening dialog');
