@@ -212,4 +212,47 @@ describe('useShareImportFlow', () => {
     expect(resolve).toHaveBeenCalledWith('cancelled');
     expect(useShareImportFlow.getState().limitContext).toBeNull();
   });
+
+  describe('redFlaggedPlanIds', () => {
+    beforeEach(() => {
+      useShareImportFlow.getState().close();
+    });
+
+    it('setRedFlag(id) で planId が Set に追加される', () => {
+      useShareImportFlow.getState().setRedFlag('plan-x');
+      expect(useShareImportFlow.getState().redFlaggedPlanIds.has('plan-x')).toBe(true);
+    });
+
+    it('clearRedFlag(id) で planId が Set から削除される', () => {
+      useShareImportFlow.getState().setRedFlag('plan-x');
+      useShareImportFlow.getState().clearRedFlag('plan-x');
+      expect(useShareImportFlow.getState().redFlaggedPlanIds.has('plan-x')).toBe(false);
+    });
+
+    it('close() で redFlaggedPlanIds が空 Set にリセットされる', () => {
+      useShareImportFlow.getState().setRedFlag('plan-a');
+      useShareImportFlow.getState().setRedFlag('plan-b');
+      useShareImportFlow.getState().close();
+      expect(useShareImportFlow.getState().redFlaggedPlanIds.size).toBe(0);
+    });
+  });
+
+  describe('LimitContext.reason', () => {
+    beforeEach(() => {
+      useShareImportFlow.getState().close();
+    });
+
+    it('setLimitContext で reason="max_total" がそのまま state に入る', () => {
+      const ctx = {
+        reason: 'max_total' as const,
+        contentId: null,
+        neededCount: 3,
+        planId: null,
+        resolve: () => {},
+      };
+      useShareImportFlow.getState().setLimitContext(ctx);
+      expect(useShareImportFlow.getState().limitContext?.reason).toBe('max_total');
+      expect(useShareImportFlow.getState().limitContext?.contentId).toBe(null);
+    });
+  });
 });

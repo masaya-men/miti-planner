@@ -34,6 +34,8 @@ interface ShareImportFlowState {
   deleteProgressMap: Map<string, DeleteProgressEvent>;
   limitContext: LimitContext | null;
   errorMessage: string | null;
+  /** 上限ヒット時に赤くマークするカード planId 集合 (#4) */
+  redFlaggedPlanIds: Set<string>;
 
   start: (shareId: string) => Promise<void>;
   toggleSelect: (itemPlanId: string) => void;
@@ -44,6 +46,10 @@ interface ShareImportFlowState {
   setDeleteProgress: (event: DeleteProgressEvent) => void;
   setStatus: (s: ShareImportStatus) => void;
   setLimitContext: (ctx: LimitContext | null) => void;
+  /** カードを赤背景にマーク (上限ヒット視覚化、 #4) */
+  setRedFlag: (planId: string) => void;
+  /** 赤背景マークを外す (上限解消後、 #4) */
+  clearRedFlag: (planId: string) => void;
   close: () => void;
 }
 
@@ -57,6 +63,7 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
   deleteProgressMap: new Map(),
   limitContext: null,
   errorMessage: null,
+  redFlaggedPlanIds: new Set(),
 
   start: async (shareId) => {
     set({ status: 'loading', shareId, errorMessage: null });
@@ -128,6 +135,18 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
   setLimitContext: (ctx) =>
     set({ limitContext: ctx, status: ctx ? 'limit_hit' : 'importing' }),
 
+  setRedFlag: (planId) => {
+    const next = new Set(get().redFlaggedPlanIds);
+    next.add(planId);
+    set({ redFlaggedPlanIds: next });
+  },
+
+  clearRedFlag: (planId) => {
+    const next = new Set(get().redFlaggedPlanIds);
+    next.delete(planId);
+    set({ redFlaggedPlanIds: next });
+  },
+
   close: () => {
     // limit_hit 状態のままシートを閉じると executeShareImport の for-loop が
     // limitContext.resolve を待ち続けて止まる (= stuck Promise)。
@@ -145,6 +164,7 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
       deleteProgressMap: new Map(),
       limitContext: null,
       errorMessage: null,
+      redFlaggedPlanIds: new Set(),
     });
   },
 }));
