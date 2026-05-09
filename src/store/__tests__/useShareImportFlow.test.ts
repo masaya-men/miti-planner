@@ -101,6 +101,8 @@ describe('useShareImportFlow', () => {
     expect(state.shareId).toBe('abc');
     expect(state.status).toBe('preview');
     expect(state.importItems).toHaveLength(1);
+    // デフォルトは全件選択 (1件中1件選択されている)
+    expect(state.selectedItemIds.size).toBe(1);
   });
 
   it('start() sets error status when fetch fails', async () => {
@@ -140,6 +142,37 @@ describe('useShareImportFlow', () => {
 
     expect(useShareImportFlow.getState().selectedItemIds.has('p1')).toBe(false);
     expect(useShareImportFlow.getState().selectedItemIds.has('p2')).toBe(true);
+  });
+
+  it('resolveLimitHit() invokes resolve callback and transitions to importing', () => {
+    const resolve = vi.fn();
+    useShareImportFlow.setState({
+      status: 'limit_hit',
+      limitContext: {
+        contentId: 'fru',
+        neededCount: 1,
+        planId: 'p1',
+        resolve,
+      },
+    });
+
+    useShareImportFlow.getState().resolveLimitHit('resolved');
+
+    expect(resolve).toHaveBeenCalledWith('resolved');
+    expect(useShareImportFlow.getState().limitContext).toBeNull();
+    expect(useShareImportFlow.getState().status).toBe('importing');
+  });
+
+  it('resolveLimitHit() with cancelled passes through to callback', () => {
+    const resolve = vi.fn();
+    useShareImportFlow.setState({
+      status: 'limit_hit',
+      limitContext: { contentId: 'fru', neededCount: 1, planId: 'p1', resolve },
+    });
+
+    useShareImportFlow.getState().resolveLimitHit('cancelled');
+
+    expect(resolve).toHaveBeenCalledWith('cancelled');
   });
 
   it('close() resets to idle', () => {

@@ -9,6 +9,7 @@ import type {
   ShareImportItem,
   ProgressEvent,
   DeleteProgressEvent,
+  SharedData,
 } from '../lib/shareImportTypes';
 
 export type ShareImportStatus =
@@ -30,7 +31,7 @@ interface LimitContext {
 interface ShareImportFlowState {
   status: ShareImportStatus;
   shareId: string | null;
-  sharedData: any | null;
+  sharedData: SharedData | null;
   importItems: ShareImportItem[];
   selectedItemIds: Set<string>;
   progressMap: Map<string, ProgressEvent>;
@@ -73,7 +74,7 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
         set({ status: 'error', errorMessage: `HTTP ${res.status}` });
         return;
       }
-      const data = await res.json();
+      const data = (await res.json()) as SharedData;
       const items = parseSharedDataToImportItems(data, shareId);
       // デフォルトは「全件選択」
       const allIds = new Set(items.map(i => i.sourcePlanId ?? i.sourceShareId));

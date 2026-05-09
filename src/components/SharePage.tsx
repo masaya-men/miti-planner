@@ -13,35 +13,13 @@ import { getAnonCopyId } from '../lib/anonCopyId';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { Copy } from 'lucide-react';
 import clsx from 'clsx';
-import type { PlanData } from '../types';
+import type { SharedData, SharedBundle } from '../lib/shareImportTypes';
+import { isSharedBundle } from '../lib/shareImportTypes';
 
-interface SharedSingle {
-    shareId: string;
-    title: string;
-    contentId: string | null;
-    planData: PlanData;
-    createdAt: number;
-}
-
-interface BundlePlan {
-    contentId: string | null;
-    title: string;
-    planData: PlanData;
-}
-
-interface SharedBundle {
-    shareId: string;
-    type: 'bundle';
-    plans: BundlePlan[];
-    createdAt: number;
-}
-
-type SharedData = SharedSingle | SharedBundle;
 type LoadState = 'loading' | 'loaded' | 'not_found' | 'error';
 
-function isBundle(data: SharedData): data is SharedBundle {
-    return 'type' in data && data.type === 'bundle';
-}
+// 既存呼び出し箇所と互換性を保つためのローカルエイリアス
+const isBundle = isSharedBundle;
 
 export const SharePage: React.FC = () => {
     const { shareId } = useParams<{ shareId: string }>();

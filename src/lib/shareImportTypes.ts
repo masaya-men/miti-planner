@@ -1,5 +1,36 @@
 import type { PlanData } from '../types';
 
+// 共有 API (`/api/share?id=...`) のレスポンス型。
+// 単一プラン (SharedSingle) と複数プランバンドル (SharedBundle) の union。
+// SharePage / useShareImportFlow から共通参照される。
+export interface SharedSingle {
+  shareId: string;
+  title: string;
+  contentId: string | null;
+  planData: PlanData;
+  createdAt: number;
+}
+
+export interface SharedBundlePlan {
+  contentId: string | null;
+  title: string;
+  planData: PlanData;
+}
+
+export interface SharedBundle {
+  shareId: string;
+  type: 'bundle';
+  plans: SharedBundlePlan[];
+  createdAt: number;
+}
+
+export type SharedData = SharedSingle | SharedBundle;
+
+// SharedBundle 判定の型ガード
+export function isSharedBundle(data: SharedData): data is SharedBundle {
+  return 'type' in data && data.type === 'bundle';
+}
+
 export interface ShareImportItem {
   sourceShareId: string;
   contentId: string | null;
