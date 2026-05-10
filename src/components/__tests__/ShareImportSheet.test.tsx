@@ -61,6 +61,7 @@ const I18N_TEMPLATES: Record<string, string> = {
     'share_import.button_import_single': 'share_import.button_import_single',
     'share_import.button_import_count':
         'share_import.button_import_count {{count}}',
+    'share_import.button_cancel': 'share_import.button_cancel',
     'limit_resolution.selection_count':
         'limit_resolution.selection_count {{count}}',
 };
@@ -78,6 +79,7 @@ vi.mock('react-i18next', () => ({
             }
             return template;
         },
+        i18n: { language: 'ja' },
     }),
 }));
 
@@ -219,5 +221,57 @@ describe('ShareImportSheet', () => {
         });
         render(<ShareImportSheet />);
         expect(screen.getByText('share_import.not_found')).toBeInTheDocument();
+    });
+
+    it('単一プランのときも左カラム (リスト) が描画される', () => {
+        useShareImportFlow.setState({
+            status: 'preview',
+            shareId: 's1',
+            sharedData: { shareId: 's1', title: 'プランA', contentId: 'fru', planData: {} as any, createdAt: 0 },
+            importItems: [
+                {
+                    sourceShareId: 's1',
+                    contentId: 'fru',
+                    title: 'プランA',
+                    planData: {} as any,
+                },
+            ],
+            selectedItemIds: new Set(['s1']),
+        });
+        render(<ShareImportSheet />);
+        // 左カラムにカード 1 件 + プレビューが両方描画される
+        expect(screen.getAllByTestId('share-plan-card').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByTestId('preview')).toBeInTheDocument();
+    });
+
+    it('preview 状態のときキャンセルボタンが描画され enabled', () => {
+        useShareImportFlow.setState({
+            status: 'preview',
+            shareId: 's1',
+            sharedData: { shareId: 's1', title: 't1', contentId: 'fru', planData: {} as any, createdAt: 0 },
+            importItems: [
+                { sourceShareId: 's1', contentId: 'fru', title: 't1', planData: {} as any },
+            ],
+            selectedItemIds: new Set(['s1']),
+        });
+        render(<ShareImportSheet />);
+        const cancel = screen.getByLabelText('share_import.button_cancel');
+        expect(cancel).toBeInTheDocument();
+        expect(cancel).not.toBeDisabled();
+    });
+
+    it('importing 状態のときキャンセルボタンは disabled', () => {
+        useShareImportFlow.setState({
+            status: 'importing',
+            shareId: 's1',
+            sharedData: { shareId: 's1', title: 't1', contentId: 'fru', planData: {} as any, createdAt: 0 },
+            importItems: [
+                { sourceShareId: 's1', contentId: 'fru', title: 't1', planData: {} as any },
+            ],
+            selectedItemIds: new Set(['s1']),
+        });
+        render(<ShareImportSheet />);
+        const cancel = screen.getByLabelText('share_import.button_cancel');
+        expect(cancel).toBeDisabled();
     });
 });
