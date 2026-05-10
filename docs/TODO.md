@@ -12,41 +12,29 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【進行中 2026-05-09 セッション 5・Phase B-1.5 polish (Tasks 1-5 完了 / Task 6 レビュー指摘待ち / 7-10 未着手)】**: 週制限到達のためセッション中断。 次セッション再開時の入口。
+- **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
   **設計書**: `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
   **実装プラン**: `docs/superpowers/plans/2026-05-09-share-import-polish.md` (10 tasks)
   **#8 (PWA 既存タブ再利用)** は drop 済 (Chrome 新タブ open を完全防止できない技術的制約)。
 
-  **完了 (commit 順)**:
-  - Task 1 型整理 + i18n 14 件削除 + button_cancel 追加 (5512b78)
-  - Task 2 SweepOverlay コンポーネント新設 + 6 vitest (dada3f9)
-  - Task 3 SharePlanCard に isRedFlagged / isExiting / sweepStatus / sweepColor 拡張 (b4f5026)
-  - Task 4 useShareImportFlow に redFlaggedPlanIds state + setRedFlag/clearRedFlag actions (3b14237)
-  - Task 4 minor refactor: outer beforeEach を close() に集約 (c336e5a)
-  - Task 5 executeShareImport 総上限事前判定 + 赤背景シーケンス + try/finally (f4c38b2 + d44ef70)
-  - Task 6 LimitResolutionSheet polish (2d92b46)
+  **セッション 5 で追加した commits**:
+  - 38c1d12 fix(LimitResolutionSheet): Task 6 review I-1 / I-3 / Minor #2
+  - 0f59c5e feat(ShareImportSheet): レイアウト統一 / キャンセル / layout prop / spring 統一
+  - 1fdb5f8 refactor(LocalImportDialog): renderSweep を SweepOverlay に置換
+  - e23d321 refactor(ShareImportProgressIndicator): ファイル + テスト削除
+  - 8aaa9dc fix(executeShareImport): ループ中の max_total 再ヒット時に動的 reason 切替
 
-  **Task 6 の code quality reviewer 指摘 (Important 2 件、 Minor 1 件)**:
-  - **I-1 (Important): `executePlanDeletions(planIds, uid, '', ...)` で max_total 認証ユーザーの byContent カウンターが drift する**。 `planService.deletePlan(planId, uid, '')` 内で `if (contentId) { byContent.${contentId} -1 }` の falsy check により、 contentId='' のとき byContent が更新されない。 max_total は **複数 content に跨る plan を削除** するので、 そもそも単一 contentId 引数の API では正しくならない。 修正方針: `executePlanDeletions` を per-plan で `usePlanStore.getState().plans.find(p => p.id === planId)?.contentId ?? null` 解決して `deleteFromFirestore` に渡す → 関数シグネチャから contentId 引数を撤去。
-  - **I-3 (Important): SharePlanCard の AnimatePresence exit が瞬時 (motion.div に exit prop が無い)**。 `executePlanDeletions` は local_delete:success の時点で `usePlanStore.deletePlan` を呼ぶ → `targetPlans` から消える → React が即 unmount → `isExiting` を見る前に消える → spec の「sweep red 1200ms → ✓ → fade out」 効果が発火しない。 修正方針: SharePlanCard の motion.div に `exit={{ opacity: 0, scale: 0.95, height: 0 }} transition={{ duration: 0.3, ease: 'easeIn' }}` を追加 (5 行)。
-  - **Minor #2: LimitResolutionSheet 131-135 行の inline コメントが不正確** (deleteFromFirestore は plan.contentId を内部解決しないため)。 I-1 修正と一緒に書き換え。
-
-  **次セッション最初にやること (3 ステップ)**:
-  1. **Task 6 review fix**: 上記 I-1 + I-3 + Minor #2 を修正 → 既存 LimitResolutionSheet test 全 PASS 確認 → re-review (code quality only) → commit。 推定 30 分。
-  2. **Task 7 ShareImportSheet polish**: レイアウト統一 (#1, #2)、 layout prop アニメ (#6)、 キャンセルボタン追加。 plan の Task 7 に詳細実装あり。
-  3. **Task 8-10**: LocalImportDialog → SweepOverlay 移行 (Task 8) / ShareImportProgressIndicator 削除 (Task 9) / 最終検証 + TODO.md 更新 + push + デプロイ (Task 10)。
-
-  **重要メモ**:
-  - 進め方は subagent-driven-development。 各タスク 「implementer → spec reviewer → code quality reviewer」 の 2 段階レビューを通過してから次へ。
-  - Final code reviewer (全体レビュー) を Task 10 完了後に実施 → finishing-a-development-branch スキルで push + デプロイ。
-  - **未 push** (Tasks 1-6 のコミットは local のみ)。 全タスク完了後にまとめて push する方針。
-  - 触らない箇所 (spec §2.2): usePlanStore.ts / planService.ts / silentCompressStale.ts / checkPlanLimit.ts / MitigationSheet.tsx / buildShareImportItems.ts は **0 行 diff 維持**。 Task 6 review I-1 修正で `executePlanDeletions.ts` のシグネチャ変更が入る (この lib は spec で触る対象に含まれているので OK、 ただし usePlanStore / planService 本体は触らない)。
-  - vitest: Task 6 終了時点で 574/574 PASS、 tsc clean、 build clean。
-
-  **進捗報告**:
-  - スキルチェーン: brainstorming (済) → writing-plans (済) → subagent-driven-development (進行中、 Task 6 まで完了)
-  - メモリ feedback_design_approval / feedback_one_fix_one_verify / feedback_thorough_collaboration 適用中
+  **実機検証チェックリスト (Vercel デプロイ後にユーザーが試す)**:
+  - **#1**: 単一 URL を踏むと左カラム + 1 件カード + preview が描画される (バンドル時と同じレイアウト)
+  - **#2**: 左カラムカードに「コンテンツ名」 + 「プラン名」 が 2 行で表示される
+  - **#3**: 取り込み中、 カード行に青 sweep が左→右で 1.2 秒充填される (テキスト 3 段が出ない)
+  - **#4**: 上限到達コンテンツの URL を踏むと、 該当カードが赤背景 → 800ms 後に重ねシート起動。 LimitResolutionSheet は mobile でも preview が見える
+  - **#5**: 削除確定でカードに赤 sweep → 完了でカードが滑らかにフェードアウト → 他カードが詰まる
+  - **#6**: シート起動時、 短い「読み込み中…」 シート → API 応答 → 高さがぐっと拡張 (spring) → preview 表示。 完了/キャンセルで一発引っ込み
+  - **#7**: 既存 49 件 + 2 件バンドルを踏むと、 1 件ずつヒットせず最初に LimitResolutionSheet が「全コンテンツ横断 + 総上限ヒット」 で開く
+  - **キャンセルボタン**: preview 中だけ enabled、 importing 中は disabled。 押すとシートが閉じる
+  - **既存 LocalImportDialog**: 旧 sweep と同じ見た目で動く (ローカルプラン取り込みダイアログ起動時)
 
 - **【完了 2026-05-09 セッション 4・Phase B-1.5 全タスク (Task 1-19)】**: 共有 URL 自動取り込み機能を完成。 SharePage を /miti リダイレクト + ボトムシート起動方式に刷新、 LimitResolutionSheet (重ねシート) で上限到達時の整理 UX、 LocalImportDialog の「次回から表示しない」チェックを廃止。 全 553 件 vitest PASS、 tsc clean、 build clean。 触らない箇所 (addPlan / fetchAndMerge / planService / MitigationSheet / LocalImportDialog.executeLocalImport / silentCompressStale) すべて 0 行 diff 維持。 全タスクで TDD + spec reviewer + code quality reviewer 2 段階レビュー実施、 Final code reviewer も通過。 push + Vercel デプロイ済 (HEAD: e0f5981、 33 コミット)。 ユーザー実機検証で機能面 OK + UI/UX polish 8 点フィードバック (上記参照)。
 
