@@ -12,6 +12,44 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【最優先 2026-05-09 実機検証フィードバック・Phase B-1.5 polish 第 2 弾 (4 件 / うち #2 致命操作不能バグ)】**: セッション 5 のデプロイ直後、 ユーザー実機検証で 4 件の問題発覚。 週制限解放 (約 13 時間後) を待って次セッションで対応する。
+
+  **#1: 「読み込み中」 が見えない (タイミング)**: URL を踏んでからタブが開くまでの間に loading フェーズが裏で完了してしまっており、 タブ表示時には既に preview 状態。 「下にちらっとシートが見える」 程度。 ユーザーが何が起きているか分からない。 修正方針: シートが**完全に表示された後** (= y=0 アニメ完了後) に最低 600-800ms 程度 loading 表示を保証する。 候補実装は (a) `setStatus('loading')` から `setStatus('preview')` までの最小遅延を `executeShareImport` 入口で保証、 (b) sheet の `onAnimationComplete` を待ってから API 結果を反映する 2 段階。 spec §3.5 の 2 段階アニメ「読み込み中→データ来た」 の意図そのもの。
+
+  **#2: 【致命】 2 回目以降の上限解消で操作不能 (チェックも押せず、 キャンセルも押せない)**: 2 層 (M11S) で 5/5 上限ヒット → 1 件削除して再開 → 続けて 3 層 (M12S P1) でも 5/5 上限ヒット → LimitResolutionSheet が再度開くが**チェックボックスも押せず、 キャンセルボタンも押せない**。 操作不能。
+    - **真因仮説 (高確度)**: `LimitResolutionSheet.tsx` の `handleDelete` 成功パスで `setIsDeleting(false)` を呼んでいない。 `setLimitContext(null)` でシートが unmount されるが、 React の component instance は createPortal で続いているので**内部 useState (isDeleting / checkedIds / activeId) がリセットされない**。 2 回目に limitContext が new value で来たとき、 isDeleting=true のまま再描画 → `handleToggleCheck` も `handleCancel` も `if (isDeleting) return` ガードで全 disabled。
+    - **修正方針**:
+      - (A) 成功パスでも `setIsDeleting(false)` を呼ぶ (resolve の前)
+      - (B) `useEffect(() => { reset all internal state }, [limitContext?.contentId, limitContext?.reason])` で開く度に初期化
+      - (C) シート本体に `key={`${limitContext?.reason}-${limitContext?.contentId ?? ''}`}` 付与で re-mount 強制
+    - 推奨は (A) + (B) の併用 (A は最小修正、 B は将来の同種バグ防御)。 (C) は spring アニメが毎回再生されるので NG。
+    - vitest で再現テストも追加: 「2 回連続で setLimitContext → 削除 → setLimitContext → 削除」 シナリオ。
+
+  **#3: 上限到達コンテンツがサイドバーで見えない**: サイドバー (`Sidebar.tsx`) で「現在開いているコンテンツのみプラン一覧を表示」 仕様 (折りたたみ?) のため、 上限 5/5 に達した別コンテンツがユーザーから見えず混乱。 「上限に達しているコンテンツは常時開いておく」 のが望ましい。
+    - 修正方針: Sidebar の折りたたみ判定で `plansForContent.length >= MAX_PLANS_PER_CONTENT` のとき強制 expand を維持。 もしくは「上限到達バッジ (5/5 を赤で)」 を折りたたみ状態でも表示 + クリックで該当コンテンツに即移動。
+    - 設計判断は次セッションでブレストしてから決める (`brainstorming` skill)。
+
+  **#4: 取り込みインジケーターの青 sweep がプレビュー選択中 (青背景) と被って見えない**: `SharePlanCard` の `isActive` 時 `bg-app-blue/10 border-app-blue/40` と sweep 中の青 width 0→100% が両方青で重なる → ユーザーがプログレスバー (sweep) を視認できない。
+    - 修正方針候補: (a) sweep 中は isActive スタイルを抑制 (例: `isActive && !sweepStatus` で適用)、 (b) isActive の表現を別軸 (左に縦の青ライン 3px、 背景なし) に変更、 (c) sweep の色を別色 (cyan / teal) にする。 spec §3.3 「青 sweep = 取り込み演出」 の象徴性を保つなら (a) または (b) が妥当。 LimitResolutionSheet 側の赤 sweep は `bg-app-red/15` で被らないので変更不要。
+    - 修正は SharePlanCard 1 ファイル + 視覚テスト追加。
+
+  **次セッション再開時の入口**:
+  1. 4 件の優先順: #2 (致命) → #1 (UX) → #4 (UX) → #3 (新仕様、 ブレスト要)
+  2. #2 は最優先。 修正方針 (A) + (B) で着手 → 再現 vitest 追加 → 実機検証
+  3. #1 は loading 表示の最低時間保証ロジックを `executeShareImport` 入口に挿入
+  4. #4 は SharePlanCard の `baseClass` ロジックに `sweepStatus` 引数を渡して isActive 抑制
+  5. #3 は `brainstorming` で対象範囲確定 → Sidebar 改修プラン
+
+  **このセッションでデプロイ済の Phase B-1.5 polish 第 1 弾**:
+  - HEAD: `9f8f7e9`、 セッション 5 で 6 commits 追加
+  - 全 vitest 573/573 PASS、 tsc clean、 build success
+  - 実機 OK 部分: spring 統一 / レイアウト統一 / 単一プランの左カラム描画 / コンテンツ名 + プラン名 2 行 / max_total 事前判定 (実機未検証) / キャンセルボタン (実機未検証だが仕様通り)
+
+  **設計書 / 実装プラン**:
+  - `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
+  - `docs/superpowers/plans/2026-05-09-share-import-polish.md`
+  - 第 2 弾用の新規 spec / plan は次セッションで作成 (subagent-driven-development チェーン継続)
+
 - **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
   **設計書**: `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
