@@ -73,9 +73,14 @@ export async function executeShareImport(
 
       let decision: 'resolved' | 'cancelled';
       try {
+        // ループ中に max_total が再ヒットするケース (pre-check で resolved 経路を通った後、
+        // 後続 item で再度 total を超えた等) では reason='max_total' に切り替えて
+        // 全コンテンツ横断の解消シートを開く。 そうしないと per_content の限定リストで
+        // 「他コンテンツの不要プランを削除する」 ルートが UI から閉ざされる。
+        const dynamicReason = limitResult.reason ?? 'max_per_content';
         decision = await onLimitHit({
-          reason: 'max_per_content',
-          contentId: item.contentId,
+          reason: dynamicReason,
+          contentId: dynamicReason === 'max_total' ? null : item.contentId,
           neededCount: 1,
           planId: itemPlanId,
         });
