@@ -10,6 +10,7 @@ import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
+import { SweepOverlay } from './SweepOverlay';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
 const PER_PLAN_MS = 1200;
@@ -286,31 +287,6 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
 
     const feedbackItems = buildFeedbackItems();
 
-    /** uploading フェーズで sweep バー (B2) を描画する。pending → uploading になった瞬間 width 0→100% へアニメ */
-    const renderSweep = (status: PlanProgressStatus | undefined) => {
-        // status: pending → width 0 / uploading → 0→100% (PER_PLAN_MS 線形) / success/failed → 100% 固定
-        const sweepActive = status === 'uploading' || status === 'success' || status === 'failed';
-        const isFailed = status === 'failed';
-        return (
-            <div
-                aria-hidden
-                style={{
-                    position: 'absolute',
-                    top: 0, bottom: 0, left: 0,
-                    width: sweepActive ? '100%' : '0%',
-                    background: isFailed
-                        ? 'var(--color-app-red-dim)'
-                        : 'var(--color-app-blue-dim)',
-                    transition: status === 'uploading'
-                        ? `width ${PER_PLAN_MS}ms linear`
-                        : 'none',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }}
-            />
-        );
-    };
-
     const renderStatusIcon = (status: PlanProgressStatus | undefined) => {
         if (!status || status === 'pending') {
             return (
@@ -439,7 +415,19 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
                                                 )}
                                             >
                                                 {/* B2 sweep オーバーレイ (uploading 中の演出) */}
-                                                {isInProgress && !isOutOfImport && renderSweep(status)}
+                                                {isInProgress && !isOutOfImport && (
+                                                    <SweepOverlay
+                                                        status={
+                                                            status === 'pending' || !status
+                                                                ? 'idle'
+                                                                : status === 'uploading'
+                                                                    ? 'active'
+                                                                    : status  // 'success' | 'failed'
+                                                        }
+                                                        color="blue"
+                                                        durationMs={PER_PLAN_MS}
+                                                    />
+                                                )}
 
                                                 <span className="relative z-[1] shrink-0 flex items-center justify-center w-[18px] h-[18px]">
                                                     {isInProgress ? (
