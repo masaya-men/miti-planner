@@ -2,6 +2,18 @@ import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { SweepOverlay } from './SweepOverlay';
 
+// 退場アニメ shape: AnimatePresence の `exit` (plan が unmount するとき) と、
+// `isExiting` フラグで `animate` 経由に切り替わるとき (delete fail 時に unmount せず
+// 退場演出だけ見せたいケース) の両方で同じ見た目を維持するため、 1 か所に集約。
+const EXIT_SHAPE = {
+    opacity: 0,
+    scale: 0.95,
+    height: 0,
+    marginTop: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+} as const;
+
 // チェックボックス関連プロパティの discriminated union。
 type CheckboxProps =
     | { showCheckbox: false }
@@ -63,14 +75,15 @@ export function SharePlanCard(props: SharePlanCardProps) {
                     onClickRow();
                 }
             }}
-            // LayoutGroup と組み合わせて、 退場時に他カードがスムーズに詰まる
+            // LayoutGroup と組み合わせて、 退場時に他カードがスムーズに詰まる。
+            // `executePlanDeletions` は `local_delete:success` の時点で `usePlanStore.deletePlan`
+            // を呼ぶため、 plan は `targetPlans` から消えて React が即 unmount される
+            // → `exit` 経路で fade + 縮小。 `animate` 側の `isExiting` 分岐は、 削除失敗で
+            // unmount せず退場演出だけ見せたいケースの保険。
             layout
             initial={false}
-            animate={
-                isExiting
-                    ? { opacity: 0, scale: 0.95, height: 0, marginTop: 0, paddingTop: 0, paddingBottom: 0 }
-                    : { opacity: 1, scale: 1 }
-            }
+            animate={isExiting ? EXIT_SHAPE : { opacity: 1, scale: 1 }}
+            exit={EXIT_SHAPE}
             transition={{ duration: 0.3, ease: 'easeIn' }}
             className={`relative flex flex-col gap-1 p-2 rounded-lg border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-blue overflow-hidden ${baseClass}`}
         >

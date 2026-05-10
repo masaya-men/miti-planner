@@ -128,15 +128,13 @@ export function LimitResolutionSheet() {
         if (checkedIds.size === 0 || isDeleting) return;
         setIsDeleting(true);
         try {
-            // executePlanDeletions の contentId 引数は Firestore deleteFromFirestore の
-            // サブコレクションパス解決にだけ使われる (server_delete 経路のみ)。 max_total 時は
-            // contentId が null だが、 各プランの deleteFromFirestore は plan.contentId を
-            // 内部的に解決するため、 ここで渡す値はゲスト (uid なし) 経路で使われない。
-            // 安全のため、 max_total 時は空文字 fallback ('') を渡す。
+            // executePlanDeletions は per-plan で `usePlanStore.plans` から contentId を
+            // 解決するため、 max_per_content / max_total どちらのモードでも byContent
+            // カウンターは正しく減算される (planService.deletePlan は falsy contentId のとき
+            // byContent を更新しない設計)。
             await executePlanDeletions(
                 Array.from(checkedIds),
                 authUser?.uid ?? null,
-                limitContext.contentId ?? '',
                 setDeleteProgress,
             );
             // 全件成功 → 取り込みフローを再開

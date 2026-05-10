@@ -78,29 +78,55 @@ describe('executePlanDeletions', () => {
     vi.clearAllMocks();
   });
 
-  it('deletes plans for logged-in user via deleteFromFirestore', async () => {
+  it('deletes plans for logged-in user via deleteFromFirestore (per-plan contentId resolved)', async () => {
     const deleteFromFirestore = vi.fn().mockResolvedValue(undefined);
     const deletePlan = vi.fn();
+    // 各プランで plan.contentId が異なるケース (max_total モード相当)
+    const plans = [
+      { id: 'p1', contentId: 'fru' },
+      { id: 'p2', contentId: 'dmu' },
+    ];
     vi.mocked(usePlanStore.getState).mockReturnValue({
       deleteFromFirestore,
       deletePlan,
+      plans,
     } as any);
 
     const onProgress = vi.fn();
 
-    const promise = executePlanDeletions(
-      ['p1', 'p2'],
-      'testUid',
-      'fru',
-      onProgress,
-    );
+    const promise = executePlanDeletions(['p1', 'p2'], 'testUid', onProgress);
     await vi.runAllTimersAsync();
     await promise;
 
     expect(deleteFromFirestore).toHaveBeenCalledTimes(2);
     expect(deleteFromFirestore).toHaveBeenCalledWith('p1', 'testUid', 'fru');
-    expect(deleteFromFirestore).toHaveBeenCalledWith('p2', 'testUid', 'fru');
+    expect(deleteFromFirestore).toHaveBeenCalledWith('p2', 'testUid', 'dmu');
     expect(deletePlan).not.toHaveBeenCalled();
+  });
+
+  it('passes null contentId when plan is not found in store (ghost plan, no throw)', async () => {
+    const deleteFromFirestore = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(usePlanStore.getState).mockReturnValue({
+      deleteFromFirestore,
+      plans: [],
+    } as any);
+
+    const events: any[] = [];
+    const onProgress = vi.fn(e => events.push(e));
+    const promise = executePlanDeletions(['ghost'], 'testUid', onProgress);
+    await vi.runAllTimersAsync();
+    await expect(promise).resolves.toBeUndefined();
+
+    expect(deleteFromFirestore).toHaveBeenCalledWith('ghost', 'testUid', null);
+    // ghost (削除→再削除 race 等で state 未存在) でも全 stage が success まで通る
+    const stages = events.filter(e => e.planId === 'ghost').map(e => `${e.stage}:${e.status}`);
+    expect(stages).toEqual([
+      'local_delete:in_progress',
+      'local_delete:success',
+      'server_delete:in_progress',
+      'server_delete:success',
+      'capacity_freed:success',
+    ]);
   });
 
   it('uses local-only deletePlan when uid is null', async () => {
@@ -109,11 +135,12 @@ describe('executePlanDeletions', () => {
     vi.mocked(usePlanStore.getState).mockReturnValue({
       deleteFromFirestore,
       deletePlan,
+      plans: [{ id: 'p1', contentId: 'fru' }],
     } as any);
 
     const onProgress = vi.fn();
 
-    const promise = executePlanDeletions(['p1'], null, 'fru', onProgress);
+    const promise = executePlanDeletions(['p1'], null, onProgress);
     await vi.runAllTimersAsync();
     await promise;
 
@@ -125,12 +152,13 @@ describe('executePlanDeletions', () => {
     const deleteFromFirestore = vi.fn().mockResolvedValue(undefined);
     vi.mocked(usePlanStore.getState).mockReturnValue({
       deleteFromFirestore,
+      plans: [{ id: 'p1', contentId: 'fru' }],
     } as any);
 
     const events: any[] = [];
     const onProgress = vi.fn(e => events.push(e));
 
-    const promise = executePlanDeletions(['p1'], 'testUid', 'fru', onProgress);
+    const promise = executePlanDeletions(['p1'], 'testUid', onProgress);
     await vi.runAllTimersAsync();
     await promise;
 
@@ -148,10 +176,11 @@ describe('executePlanDeletions', () => {
     const deleteFromFirestore = vi.fn().mockRejectedValue(new Error('permission-denied'));
     vi.mocked(usePlanStore.getState).mockReturnValue({
       deleteFromFirestore,
+      plans: [{ id: 'p1', contentId: 'fru' }],
     } as any);
 
     const onProgress = vi.fn();
-    const promise = executePlanDeletions(['p1'], 'testUid', 'fru', onProgress);
+    const promise = executePlanDeletions(['p1'], 'testUid', onProgress);
     const [result] = await Promise.allSettled([
       promise,
       vi.runAllTimersAsync(),

@@ -10,17 +10,20 @@ const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, m
 export async function executePlanDeletions(
   planIds: string[],
   uid: string | null,
-  contentId: string,
   onProgress: (event: DeleteProgressEvent) => void,
 ): Promise<void> {
   for (const planId of planIds) {
     onProgress({ planId, stage: 'local_delete', status: 'in_progress' });
     await delay(MIN_DELAY_LOCAL_MS);
 
+    const store = usePlanStore.getState();
+
     if (uid) {
+      // per-plan で contentId を解決 (max_total 対応)。 planService.deletePlan は
+      // falsy contentId で byContent を更新しないため、 単一引数では drift する。
+      const planContentId = store.plans.find(p => p.id === planId)?.contentId ?? null;
       try {
-        // deleteFromFirestore はローカル削除 + Firestore 削除を内部で行う
-        await usePlanStore.getState().deleteFromFirestore(planId, uid, contentId);
+        await store.deleteFromFirestore(planId, uid, planContentId);
         onProgress({ planId, stage: 'local_delete', status: 'success' });
         onProgress({ planId, stage: 'server_delete', status: 'in_progress' });
         await delay(MIN_DELAY_SERVER_MS);
@@ -35,7 +38,7 @@ export async function executePlanDeletions(
         throw err; // 整理フローを停止 → caller が retry button を出す
       }
     } else {
-      usePlanStore.getState().deletePlan(planId);
+      store.deletePlan(planId);
       onProgress({ planId, stage: 'local_delete', status: 'success' });
       onProgress({ planId, stage: 'server_delete', status: 'skipped' });
     }
