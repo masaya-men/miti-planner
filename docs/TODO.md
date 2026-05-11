@@ -62,12 +62,50 @@
   - `project_minna_mitigation.md` 削除 (該当機能は既にボトムシート統合済みで obsolete)
   - MEMORY.md からも該当 entry 削除
 
+- **【完了 2026-05-11 セッション 8・🌀 スムーズスクロール導入 + ラベルジャンプバグ修正】**: PC 環境で LP / 全ページの縦スクロール + Timeline / Sidebar 縦スクロールをスムーズ化。 booklage で実機検証済の Lenis (document mode) + 自前 critical-damped spring の 2 種使い分け戦略を移植。 brainstorming → writing-plans → subagent-driven-development (Task 1-10) で完走。 ユーザー実機検証「めっちゃ良い感じ」 で完成確定。 ついでに発見した PC + フェーズなしコンテンツのラベルジャンプ位置ズレ既存バグも修正。
+
+  **設計書**: `docs/superpowers/specs/2026-05-11-smooth-scroll-design.md`
+  **実装プラン**: `docs/superpowers/plans/2026-05-11-smooth-scroll.md`
+
+  **スコープ**: PC のページ全体縦 (Lenis) + Timeline / Sidebar 縦 (自前スプリング)。 Timeline 横 / スマホ / `prefers-reduced-motion` / ボトムシート全般 / 共有プレビューはネイティブ維持。
+
+  **新規ファイル**: `src/lib/scroll/smoothScrollLogic.ts` (純粋関数 3 つ) / `useSmoothScroll.ts` (Lenis hook) / `useSmoothWheelScroll.ts` (自前スプリング hook) + テスト 3 件 (純粋関数 14 + 統合 5 = 19 新規)
+
+  **既存修正 (配線 + cleanup)**: `package.json` (lenis 追加) / `App.tsx` (useSmoothScroll 配線) / `Timeline.tsx` (scrollContainerRef に hook 配線 + ラベル位置バグ修正) / `Sidebar.tsx` (4 ListRef + 4 hook 配線) / `src/hooks/useSmoothScroll.ts` 削除 (GSAP 版 dead code)
+
+  **主要 commits (14 個、 ed026e5 まで)**:
+  - 894811c docs(spec)
+  - d0ecc1b docs(plan)
+  - 239d96c chore(deps): lenis 追加
+  - a43c5b6 isSmoothScrollSupported 純粋関数
+  - fd69f3d 重複テストを pointer 粗ケースに置き換え
+  - 6f7f290 isAtScrollBoundary 純粋関数
+  - 1551b4f springStep 純粋関数
+  - 95e1d90 useSmoothScroll hook
+  - aa110eb 旧 GSAP 版 useSmoothScroll 削除
+  - 0359783 useSmoothWheelScroll hook
+  - 39c7234 未使用変数削除 (Vercel tsc strict 対策)
+  - 3792399 App.tsx 配線
+  - 517bd24 Timeline.tsx 配線
+  - 02b8f50 Sidebar.tsx 配線
+  - 1639356 React.RefObject を named import に統一
+  - ed026e5 fix(Timeline): ラベルジャンプ位置ズレ修正
+
+  **ラベルジャンプバグ真因** (Lenis 無関係の既存バグ): `mobileLabelInPhaseSlot = !hasPhases` の判定にモバイル条件が抜けており、 PC + phases.length === 0 のとき PC ヘッダー内に「24px、 md:hidden」 の小ヘッダーが描画されて `gimmickHeaderRef` がそちらを掴む → 0×0 要素を指す → 位置計算 fallback (画面中央上部) に逃げていた。 修正: `!hasPhases && isMobileView` の 1 行追加。
+
+  **設定値 (booklage 流用)**:
+  - Lenis: duration 1.2、 easing easeOutExpo、 touchMultiplier 2
+  - 自前スプリング: stiffness 200、 damping 2*sqrt(stiffness)、 MAX_DT 0.05、 外部 scrollTop 変動検知閾値 10px
+
+  **テスト**: 608/608 PASS (既存 589 + 新規 19)、 tsc clean、 build success、 触らない 10 ファイル (usePlanStore / planService / silentCompressStale / checkPlanLimit / buildShareImportItems / MitigationSheet / LocalImportDialog / ShareImportSheet / LimitResolutionSheet / useShareImportFlow) は origin/main から 0 行 diff 維持。
+
 - **【次セッション最優先候補】**:
-  - **セッション B**: **🌀 表エリアスムーズスクロール導入** — Timeline の縦スクロールを Lenis (Studio Freight) で補間。 PC のみ対象、 スマホは慣性スクロール既存。 brainstorming で対象範囲確定 → 実装。
   - **保留 (フィードバックがあれば再開)**:
     - 削除プラン復活現象 (要再現報告)
     - 未取り込みバッジ (役立つタイミング不明で見送り)
     - みんなの軽減表規約更新 (該当ページが既にボトムシート統合済みで動機なし)
+    - GSAP 依存削除 (src 配下で使われていない、 LP 改善時に再導入の可能性で保留)
+  - その他: ユーザーからの新規要望/フィードバック次第
 
 - **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
