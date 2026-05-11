@@ -137,6 +137,17 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             if (m.hidden) return false;
 
             if (!m.requires) return true;
+
+            // AST カード専用: 最新のドローが対応する種別か (手札は次のドローまで保持される仕様)
+            if (m.requires === 'astral_draw' || m.requires === 'umbral_draw') {
+                const drawsBeforeNow = activeMitigations
+                    .filter(am => am.mitigationId === 'astral_draw' || am.mitigationId === 'umbral_draw')
+                    .filter(am => am.time <= selectedTime)
+                    .sort((a, b) => b.time - a.time);
+                if (drawsBeforeNow.length === 0) return false;
+                return drawsBeforeNow[0].mitigationId === m.requires;
+            }
+
             return activeMitigations.some(am => {
                 const isNeutSect = am.mitigationId === 'neutral_sect';
                 const isHoroscope = am.mitigationId === 'horoscope';
