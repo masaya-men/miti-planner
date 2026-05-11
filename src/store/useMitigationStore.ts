@@ -6,6 +6,7 @@ import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabe
 
 import { calculateMemberValues } from '../utils/calculator';
 import { buildScholarAutoInserts, buildAetherflowChainFrom, hasAnyAetherflow } from '../utils/scholarAutoInsert';
+import { buildAstrologianAutoInserts, hasAnyAstrologianDraw } from '../utils/astrologianAutoInsert';
 import {
   getJobsFromStore,
   getMitigationsFromStore,
@@ -333,6 +334,10 @@ export const useMitigationStore = create<MitigationState>()(
                             const inserts = buildScholarAutoInserts(member.id, migratedMitigations, snapshot.timelineEvents);
                             migratedMitigations.push(...inserts);
                         }
+                        if (member.jobId === 'ast' && !hasAnyAstrologianDraw(member.id, migratedMitigations)) {
+                            const inserts = buildAstrologianAutoInserts(member.id, migratedMitigations, snapshot.timelineEvents);
+                            migratedMitigations.push(...inserts);
+                        }
                     }
 
                     set({
@@ -424,6 +429,10 @@ export const useMitigationStore = create<MitigationState>()(
                         for (const member of state.partyMembers) {
                             if (member.jobId === 'sch' && !hasAnyAetherflow(member.id, finalMitigations)) {
                                 const inserts = buildScholarAutoInserts(member.id, finalMitigations, state.timelineEvents);
+                                finalMitigations.push(...inserts);
+                            }
+                            if (member.jobId === 'ast' && !hasAnyAstrologianDraw(member.id, finalMitigations)) {
+                                const inserts = buildAstrologianAutoInserts(member.id, finalMitigations, state.timelineEvents);
                                 finalMitigations.push(...inserts);
                             }
                         }
@@ -927,6 +936,10 @@ export const useMitigationStore = create<MitigationState>()(
                             const inserts = buildScholarAutoInserts(memberId, filteredMitigations, state.timelineEvents);
                             filteredMitigations.push(...inserts);
                         }
+                        if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, filteredMitigations)) {
+                            const inserts = buildAstrologianAutoInserts(memberId, filteredMitigations, state.timelineEvents);
+                            filteredMitigations.push(...inserts);
+                        }
 
                         return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
                     });
@@ -964,6 +977,13 @@ export const useMitigationStore = create<MitigationState>()(
                             const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
                             if (!hasAnyAetherflow(memberId, ownedMitis)) {
                                 const inserts = buildScholarAutoInserts(memberId, ownedMitis, state.timelineEvents);
+                                finalMitis.push(...inserts);
+                            }
+                        }
+                        if (jobId === 'ast') {
+                            const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
+                            if (!hasAnyAstrologianDraw(memberId, ownedMitis)) {
+                                const inserts = buildAstrologianAutoInserts(memberId, ownedMitis, state.timelineEvents);
                                 finalMitis.push(...inserts);
                             }
                         }
@@ -1034,6 +1054,10 @@ export const useMitigationStore = create<MitigationState>()(
                             // 既に aetherflow を持っていればユーザー編集尊重でスキップ
                             if (jobId === 'sch' && !hasAnyAetherflow(memberId, currentMitigations)) {
                                 const inserts = buildScholarAutoInserts(memberId, currentMitigations, state.timelineEvents);
+                                currentMitigations.push(...inserts);
+                            }
+                            if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, currentMitigations)) {
+                                const inserts = buildAstrologianAutoInserts(memberId, currentMitigations, state.timelineEvents);
                                 currentMitigations.push(...inserts);
                             }
                         });
