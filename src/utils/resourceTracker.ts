@@ -293,6 +293,27 @@ export function validateMitigationPlacement(
 
     // 👆 追加ここまで
 
+    // 👇 AST ドロー専用: 直前のドローと交互制約 (同種別の連続使用は不可)
+    // ゲーム内仕様: アストラル → アンブラル → アストラル → ... と必ず交互。 時間経過で復活しない。
+    if (m.id === 'astral_draw' || m.id === 'umbral_draw') {
+        const drawsBeforeNow = relevantMitigations
+            .filter(am => am.mitigationId === 'astral_draw' || am.mitigationId === 'umbral_draw')
+            .filter(am => am.time < selectedTime)
+            .sort((a, b) => b.time - a.time);
+        if (drawsBeforeNow.length > 0 && drawsBeforeNow[0].mitigationId === m.id) {
+            const expectedId = m.id === 'astral_draw' ? 'umbral_draw' : 'astral_draw';
+            const expectedDef = getMitigationsFromStore().find(d => d.id === expectedId);
+            const expectedNameObj = expectedDef ? expectedDef.name : { ja: '反対のドロー', en: 'Opposite Draw' };
+            const lang = t('lang_info', 'ja');
+            const expectedName = (lang === 'en' || lang === 'en-US' || !expectedNameObj.ja) ? expectedNameObj.en : expectedNameObj.ja;
+            return {
+                available: false,
+                message: t('mitigation.draw_alternate_required', { expected: expectedName, defaultValue: `次は${expectedName}のみ使用可` })
+            };
+        }
+    }
+    // 👆 追加ここまで
+
     // 👇 ここから追加：前提スキル（requires）の完全ブロック制約
     if (m.requires) {
         // AST カード専用: 最新のドローが対応する種別か (手札は次のドローまで保持される仕様)

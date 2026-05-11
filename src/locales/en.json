@@ -306,6 +306,7 @@
         "no_charges": "No charges",
         "cd_remaining": "CD {{seconds}}s",
         "combat_only": "Available only during combat",
+        "draw_alternate_required": "Next must be {{expected}}",
         "seraph_cancels_dissipation": "Dissipation during the effect will be removed upon placement.",
         "cd_overlap": "Same mitigation is placed {{seconds}}s later. Remove or adjust it.",
         "next_at": "Placed {{gap}}s later. Remove or adjust it.",
