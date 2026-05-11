@@ -62,6 +62,43 @@
   - `project_minna_mitigation.md` 削除 (該当機能は既にボトムシート統合済みで obsolete)
   - MEMORY.md からも該当 entry 削除
 
+- **【完了 2026-05-12 セッション 9・🔮 占星術師カード機構実装】**: 占星術師 (AST) のドロー/カード関連スキル 7 個 (アストラルドロー / アンブラルドロー / オシュオンの矢 / ビエルゴの塔 / 世界樹の幹 / サリャクの水瓶 / クラウンレディ) を軽減シミュレータに追加。 ゲーム内仕様 (Patch 7.4) を正確に再現。 brainstorming → writing-plans → subagent-driven-development (Task 1-14) で完走。 ユーザー実機検証 OK で完成確定。
+
+  **設計書**: `docs/superpowers/specs/2026-05-11-astrologian-cards-design.md`
+  **実装プラン**: `docs/superpowers/plans/2026-05-11-astrologian-cards.md` (14 tasks)
+
+  **主要な設計判断**:
+  - 親子関係: 既存 AST の `requires` 機構 + AST カード専用フィルタ「最新ドローが対応種別か」 (sun_sign / aspected_helios 特例と同パターン)
+  - 戦闘前ドロー: `AppliedMitigation.autoHidden` フラグ新設 + t=-3 に自動配置 (タイムライン描画から除外、 計算には含める)
+  - 自動配置: 学者 `scholarAutoInsert.ts` 方式の `astrologianAutoInsert.ts` 新設 (戦闘前 Astral t=-3 + 9s Umbral + 65s Astral + 60s 毎交互)
+  - SKILL_DATA 追加: 過去バグ (バリア値 0 計算問題) の真因対策として `calculator.ts` の `SKILL_DATA` 辞書にビエルゴの塔を明示追加
+
+  **修正ファイル (12 ファイル)**:
+  - 新規: `src/utils/astrologianAutoInsert.ts` + テスト 13 件
+  - 新規: `public/icons/` に PNG 7 個
+  - 修正: `src/types/index.ts` (autoHidden フィールド追加) / `src/data/mockData.ts` (7 スキル + MITIGATION_DISPLAY_ORDER) / `src/utils/calculator.ts` (SKILL_DATA) / `src/components/Timeline.tsx` (描画 4 箇所) / `src/components/MitigationSelector.tsx` (AST 専用フィルタ) / `src/utils/resourceTracker.ts` (AST 専用バリデーション) / `src/store/useMitigationStore.ts` (5 箇所配線)
+  - 運用: `seed-icons.ts` 実行 (Firebase Storage アップロード) / `seed-skills-stats.ts` 実行 (Firestore /master/skills 同期 + dataVersion インクリメント)
+
+  **テスト**: 621/621 PASS (既存 608 + 新規 13)、 tsc clean、 build success
+
+  **主要 commits (11 個、 セッション 9 で追加)**:
+  - 34a96d8 feat(icons): 占星術師カード関連アイコン 7 個追加
+  - cff54ab feat(types): AppliedMitigation に autoHidden フラグを追加
+  - 8339555 feat(skills): 占星術師カード 7 スキル定義を mockData に追加
+  - 3cd0872 feat(calc): ビエルゴの塔のバリア値計算用 SKILL_DATA エントリ追加
+  - a4e53c1 feat(Timeline): autoHidden 付き mitigation を描画と行展開判定から除外
+  - 9f589dc feat(Selector): AST カード専用フィルタを追加 (最新ドロー種別判定)
+  - d726133 feat(resourceTracker): AST カード専用バリデーション追加 (最新ドロー種別判定)
+  - 409341e test(astrologianAutoInsert): failing test を先に追加 (TDD)
+  - db34376 feat(astrologianAutoInsert): 戦闘前 Astral + 60s 毎交互配置を実装
+  - e689b6b feat(useMitigationStore): AST メンバーに astrologianAutoInsert を 5 箇所配線
+  - (⑦修正コミット) fix(Timeline): autoHidden 付き mitigation も visibleMitigations に含める
+
+  **実装中に発見された別タスク (TODO 追記済み、 別セッションで対応)**:
+  - sun_sign の `requiresWindow: 30` 不足バグ (公式 30s だが現状 20s で消える、 既存バグ)
+  - モーダル内マウスホイールスクロール不可 (スムーズスクロール Lenis 横取り疑惑)
+  - 表エリア Shift+ホイール 横スクロール対応 (ユーザー依頼)
+
 - **【完了 2026-05-11 セッション 8・🌀 スムーズスクロール導入 + ラベルジャンプバグ修正】**: PC 環境で LP / 全ページの縦スクロール + Timeline / Sidebar 縦スクロールをスムーズ化。 booklage で実機検証済の Lenis (document mode) + 自前 critical-damped spring の 2 種使い分け戦略を移植。 brainstorming → writing-plans → subagent-driven-development (Task 1-10) で完走。 ユーザー実機検証「めっちゃ良い感じ」 で完成確定。 ついでに発見した PC + フェーズなしコンテンツのラベルジャンプ位置ズレ既存バグも修正。
 
   **設計書**: `docs/superpowers/specs/2026-05-11-smooth-scroll-design.md`
