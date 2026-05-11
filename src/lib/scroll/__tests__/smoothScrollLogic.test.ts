@@ -34,8 +34,8 @@ describe('isSmoothScrollSupported', () => {
         expect(isSmoothScrollSupported(win)).toBe(false);
     });
 
-    it('PC かつ reduce-motion 両方 ON の場合は reduce-motion 優先で false', () => {
-        const win = makeWindow({ hoverHover: true, pointerFine: true, reduceMotion: true });
+    it('hover あるが pointer 粗 (タッチパネル PC など) なら false', () => {
+        const win = makeWindow({ hoverHover: true, pointerFine: false, reduceMotion: false });
         expect(isSmoothScrollSupported(win)).toBe(false);
     });
 });
