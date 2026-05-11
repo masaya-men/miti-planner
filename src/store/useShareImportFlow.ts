@@ -13,6 +13,26 @@ import type {
   LimitContext,
 } from '../lib/shareImportTypes';
 
+/**
+ * loading → 次状態 (preview / error) への最小所要時間 (Phase B-1.5 polish 第 2 弾 #1)。
+ *
+ * シート slide-in は spring (stiffness 300, damping 28) で ~350ms 程度で settle する。
+ * API が高速 (キャッシュ済 / 軽量プラン) のとき loading 状態が裏で一瞬で完了してしまい、
+ * シートが y=0 に到達した頃には既に preview に切り替わっていて「下にちらっとシートが
+ * 見える」 だけになる問題があった。 シート slide-in 完了後にも「読み込み中…」 を
+ * 800ms 程度視認できるよう、 トータルで 1200ms を最低保証する。
+ */
+export const MIN_LOADING_VISIBLE_MS = 1200;
+
+const padLoadingDelay = async (startedAt: number): Promise<void> => {
+  const elapsed = Date.now() - startedAt;
+  if (elapsed < MIN_LOADING_VISIBLE_MS) {
+    await new Promise<void>(resolve =>
+      setTimeout(resolve, MIN_LOADING_VISIBLE_MS - elapsed),
+    );
+  }
+};
+
 export type ShareImportStatus =
   | 'idle'
   | 'loading'
@@ -66,14 +86,17 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
   redFlaggedPlanIds: new Set(),
 
   start: async (shareId) => {
+    const startedAt = Date.now();
     set({ status: 'loading', shareId, errorMessage: null });
     try {
       const res = await apiFetch(`/api/share?id=${encodeURIComponent(shareId)}`);
       if (res.status === 404) {
+        await padLoadingDelay(startedAt);
         set({ status: 'error', errorMessage: 'not_found' });
         return;
       }
       if (!res.ok) {
+        await padLoadingDelay(startedAt);
         set({ status: 'error', errorMessage: `HTTP ${res.status}` });
         return;
       }
@@ -81,6 +104,7 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
       const items = parseSharedDataToImportItems(data, shareId);
       // デフォルトは「全件選択」
       const allIds = new Set(items.map(i => i.sourcePlanId ?? i.sourceShareId));
+      await padLoadingDelay(startedAt);
       set({
         status: 'preview',
         sharedData: data,
@@ -88,6 +112,7 @@ export const useShareImportFlow = create<ShareImportFlowState>((set, get) => ({
         selectedItemIds: allIds,
       });
     } catch (err) {
+      await padLoadingDelay(startedAt);
       set({ status: 'error', errorMessage: String(err) });
     }
   },
