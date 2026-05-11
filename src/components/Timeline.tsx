@@ -2231,7 +2231,7 @@ const Timeline: React.FC = () => {
                                 gridLines.forEach(time => {
                                     const rowEvents = eventsByTime.get(time) || [];
                                     const hasEvents = rowEvents.length > 0;
-                                    const hasMitigationStart = timelineMitigations.some(m => m.time === time);
+                                    const hasMitigationStart = timelineMitigations.some(m => m.time === time && !m.autoHidden);
 
                                     const isBottomEmptyRow = hideEmptyRows && time === maxPopulatedTime + 1;
 
@@ -2262,10 +2262,14 @@ const Timeline: React.FC = () => {
                                 const mitigationsByTime = new Map<number, AppliedMitigation[]>();
                                 const mitStartsByTime = new Map<number, boolean>();
                                 timelineMitigations.forEach(mit => {
-                                    mitStartsByTime.set(mit.time, true);
+                                    if (!mit.autoHidden) {
+                                        mitStartsByTime.set(mit.time, true);
+                                    }
                                     for (let t = mit.time; t < mit.time + mit.duration; t++) {
                                         if (!mitigationsByTime.has(t)) mitigationsByTime.set(t, []);
-                                        mitigationsByTime.get(t)!.push(mit);
+                                        if (!mit.autoHidden) {
+                                            mitigationsByTime.get(t)!.push(mit);
+                                        }
                                     }
                                 });
 
@@ -2561,7 +2565,7 @@ const Timeline: React.FC = () => {
 
                                         {(() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
-                                                showPreStart || (m.time + m.duration > 0)
+                                                (showPreStart || (m.time + m.duration > 0)) && !m.autoHidden
                                             );
 
                                             const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
