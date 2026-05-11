@@ -210,9 +210,10 @@ describe('useShareImportFlow', () => {
       useShareImportFlow.getState().close();
     });
 
-    it('API が高速応答でも loading → preview の遷移は最低 2700ms 以上経過する', async () => {
-      // ShareImportSheet 側の loading keyframe (slide-in + 2 回ぽよん) が 2.6 秒なので、
-      // padLoadingDelay は 2800ms を最低保証する設定。 テスト誤差を見て 2700ms で判定。
+    it('API が高速応答でも loading → preview の遷移は最低 3400ms 以上経過する', async () => {
+      // Rev 3: シート slide-in (~850ms) + 呼吸アニメ 1.5 breath (~2500ms) を見せてから
+      // preview に遷移するため、 padLoadingDelay は 3500ms を最低保証。 テスト誤差を見て
+      // 3400ms で判定。
       const { apiFetch } = await import('../../lib/apiClient');
       vi.mocked(apiFetch).mockResolvedValue({
         ok: true,
@@ -232,7 +233,7 @@ describe('useShareImportFlow', () => {
       await useShareImportFlow.getState().start('fast');
       const elapsed = Date.now() - startedAt;
 
-      expect(elapsed).toBeGreaterThanOrEqual(2700);
+      expect(elapsed).toBeGreaterThanOrEqual(3400);
       expect(useShareImportFlow.getState().status).toBe('preview');
     });
 
@@ -248,7 +249,7 @@ describe('useShareImportFlow', () => {
       await useShareImportFlow.getState().start('err');
       const elapsed = Date.now() - startedAt;
 
-      expect(elapsed).toBeGreaterThanOrEqual(2700);
+      expect(elapsed).toBeGreaterThanOrEqual(3400);
       expect(useShareImportFlow.getState().status).toBe('error');
     });
   });

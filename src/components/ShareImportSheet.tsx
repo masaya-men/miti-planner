@@ -44,6 +44,29 @@ function isImportItemTerminal(events: ProgressEvent[]): boolean {
     return !events.some(e => e.status === 'in_progress');
 }
 
+/** LoPo らしい控えめなローディングインジケータ。 3 点が opacity + scale で
+ *  順番に脈打つ (Phase B-1.5 polish 第 2 弾 #5 Rev 3)。 業界標準の dot loader を
+ *  LoPo の白黒トーンで再現。 */
+function LoadingDots() {
+    return (
+        <div className="flex items-center gap-2" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+                <motion.div
+                    key={i}
+                    className="w-2.5 h-2.5 rounded-full bg-app-text-muted"
+                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.85, 1.1, 0.85] }}
+                    transition={{
+                        duration: 1.2,
+                        repeat: Infinity,
+                        delay: i * 0.18,
+                        ease: 'easeInOut',
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
+
 // done 状態に遷移してからシートを閉じるまでの遅延 (ms)。
 // ユーザーが「完了表示」 を視認する時間を確保するための定数。
 const CLOSE_DELAY_AFTER_DONE_MS = 1200;
@@ -171,7 +194,7 @@ export function ShareImportSheet() {
                 <Fragment key="share-import-sheet-fragment">
                     <motion.div
                         key="share-import-backdrop"
-                        className={`fixed inset-0 z-[99990] bg-black/60 ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
+                        className={`fixed inset-0 z-[99990] ${isLoadingPhase ? 'bg-black/75 cursor-not-allowed' : 'bg-black/60'}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -183,57 +206,53 @@ export function ShareImportSheet() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"
-                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
-                        // 注意: layout prop は子要素の position 自動アニメも引き起こすため、
-                        // sheet 直下のこの 1 個に限定する (子は通常の <div> に維持)。
+                        // 読み込み中は:
+                        //   - min-h-[55vh] でシートを画面下から 55vh 分しっかり見せる
+                        //   - animate-sheet-breathe (CSS keyframe) で bottom を 0↔16px に呼吸させる
+                        //   - cursor-not-allowed で操作不能であることを明示
+                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'min-h-[55vh] animate-sheet-breathe cursor-not-allowed' : ''}`}
                         layout
                         initial={{ y: '100%' }}
-                        animate={
-                            isLoadingPhase
-                                // 読み込み中の一連の動き (Phase B-1.5 polish 第 2 弾 #5)。
-                                // 1) 100% → 65% (slide-in)
-                                // 2) 65% で一拍ホールド
-                                // 3) 65→58→65 で 1 回ぽよん
-                                // 4) 65% で一拍ホールド
-                                // 5) 65→58→65 で 2 回目ぽよん
-                                // total 2.6 秒。 シートは「画面の下から半分出てきて 2 回ぽよん」 と
-                                // ユーザーに認知される。
-                                ? { y: ['100%', '65%', '65%', '58%', '65%', '65%', '58%', '65%'] }
-                                : { y: 0 }
-                        }
+                        animate={{ y: 0 }}
                         exit={{ y: '100%' }}
-                        transition={
-                            isLoadingPhase
-                                ? {
-                                      duration: 2.6,
-                                      times: [0, 0.18, 0.35, 0.45, 0.55, 0.72, 0.85, 1],
-                                      ease: 'easeOut',
-                                  }
-                                : {
-                                      // 読み込み完了 → y=0 に上がる時はバウンドしてから止まる。
-                                      // 低 damping + mass で複数オシレーションを見せる
-                                      // (「ぽよんぽよんしてバウンスして止まる」 の最終段)。
-                                      type: 'spring',
-                                      stiffness: 120,
-                                      damping: 8,
-                                      mass: 1.2,
-                                      layout: { type: 'spring', stiffness: 300, damping: 28 },
-                                  }
-                        }
+                        transition={{
+                            // バウンスが見える程度の低 damping spring。
+                            // - slide-in (mount で y=100% → 0%) : 複数オシレーション可視
+                            // - 読み込み完了の高さ拡張 (layout): 同じバウンスで「上に出てきてバウンスして止まる」
+                            type: 'spring',
+                            stiffness: 160,
+                            damping: 9,
+                            mass: 1.6,
+                            layout: { type: 'spring', stiffness: 160, damping: 9, mass: 1.6 },
+                        }}
                     >
+                        {/* 読み込み中: 専用レイアウトでシート上半分にしっかり情報を出す。
+                            ヘッダ + body の構造から離れて中央に大きく「読み込んでいます…」 を出し、
+                            その下に LoadingDots、 さらに sub-text。 シートの上部 (55vh の上半分くらい)
+                            にユーザーの目線が来るよう justify-center で中央寄せ。 */}
+                        {isLoadingPhase ? (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-12">
+                                <h2
+                                    id="share-import-title"
+                                    className="text-app-4xl font-black text-app-text tracking-wide text-center"
+                                >
+                                    {t('share_import.loading')}
+                                </h2>
+                                <LoadingDots />
+                                <p className="text-app-md text-app-text-muted text-center">
+                                    {t('share_import.loading_sub')}
+                                </p>
+                            </div>
+                        ) : (
+                            <>
                         <div className="px-5 pt-5 pb-3 shrink-0 border-b border-app-border">
                             <h2
                                 id="share-import-title"
                                 className="text-app-2xl font-black text-app-text tracking-wide"
                             >
-                                {/* 読み込み中はシートが y=65% 付近で上下に揺れていて、 ヘッダ
-                                    だけが画面下から覗いている状態。 title を「読み込んでいます…」
-                                    にしてユーザーがいま何が起きているか分かるようにする。 */}
-                                {status === 'loading'
-                                    ? t('share_import.loading')
-                                    : isBundle
-                                        ? t('share_import.title_bundle', { count: importItems.length })
-                                        : t('share_import.title')}
+                                {isBundle
+                                    ? t('share_import.title_bundle', { count: importItems.length })
+                                    : t('share_import.title')}
                             </h2>
                         </div>
 
@@ -357,6 +376,8 @@ export function ShareImportSheet() {
                                         </button>
                                     </div>
                                 </div>
+                            </>
+                        )}
                             </>
                         )}
                     </motion.div>

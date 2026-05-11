@@ -14,7 +14,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-import { Sun, Moon, Star } from 'lucide-react';
+import { Loader2, Sun, Moon, Star } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { SyncButton } from './SyncButton';
 import { showToast } from './Toast';
@@ -503,15 +503,36 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 初回ログイン判定
     const isNewUser = useAuthStore((s) => s.isNewUser);
 
-    // 注: 以前ここに isAuthRedirecting state + 「ログイン中」 オーバーレイがあったが、
-    // ユーザーフィードバックで撤去。 OAuth 戻り時の認証完了は justLoggedInUser で
-    // LoginModal 側が検知して自然に閉じる動線で十分。
+    // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
+    // ※ Phase B-1.5 polish 第 2 弾 Rev 3: 一度撤去したが、 OAuth リダイレクト戻り時は
+    //   実際にログイン処理中なので「ログイン中…」 オーバーレイは正しい用途として復活。
+    //   migrate / pull だけのときに出ていた isImportPreparing オーバーレイは撤去のまま。
+    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
+    const [isAuthRedirecting, setIsAuthRedirecting] = React.useState(() =>
+        localStorage.getItem('lopo_auth_redirecting') === 'true'
+    );
+    React.useEffect(() => {
+        if (justLoggedInUser || !localStorage.getItem('lopo_auth_redirecting')) {
+            setIsAuthRedirecting(false);
+        }
+    }, [justLoggedInUser]);
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
             {/* 初回ログイン: ウェルカムセットアップ画面 */}
             {isNewUser && <WelcomeSetup />}
+
+            {/* リダイレクト認証中オーバーレイ — Discord/Twitter からの戻り時、 processPendingAuth
+                完了前に表示。 実際にログイン処理中の場面のみ出る。 */}
+            {isAuthRedirecting && !justLoggedInUser && (
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg">
+                    <div className="flex flex-col items-center gap-4">
+                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
+                        <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
+                    </div>
+                </div>
+            )}
 
             {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}
             {/* <ParticleBackground /> */}

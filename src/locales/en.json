@@ -182,6 +182,7 @@
         "title": "Shared mitigation sheet",
         "title_bundle": "Shared mitigation sheets ({{count}})",
         "loading": "Loading...",
+        "loading_sub": "Fetching data",
         "not_found": "This share URL was not found",
         "error": "Failed to load",
         "already_copied_badge": "Imported",

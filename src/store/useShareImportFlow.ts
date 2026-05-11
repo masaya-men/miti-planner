@@ -16,13 +16,17 @@ import type {
 /**
  * loading → 次状態 (preview / error) への最小所要時間。
  *
- * Phase B-1.5 polish 第 2 弾 #5 (Revision 2): ユーザーが「シートが下からぽよんぽよん
- * 跳ねながら読み込み演出をして、 ちゃんとゆっくり見せてから preview に上がってきて
- * 欲しい」 と希望。 ShareImportSheet 側の loading keyframe (slide-in + 2 回ぽよん) が
- * 2.6 秒なので、 その完了後に少し余韻 (~200ms) を残してから preview へ遷移する形に
- * 揃える。 API が 2800ms より速くてもパディングして必ずこの所要時間を保証。
+ * Phase B-1.5 polish 第 2 弾 #5 (Revision 3): ユーザーが「ゆっくりやりすぎなくらいの
+ * 時間で読み込み演出を見せてほしい」 と希望。 シートが画面下半分まで上がってきて
+ * (~850ms)、 そこから呼吸アニメ (1 breath = 1.5s) を 1 回以上見せてから preview に
+ * 遷移する。 内訳:
+ *   - 0~ ~850ms: シート slide-in (bouncy spring 160/9/1.6)
+ *   - 1000ms~: 呼吸アニメ開始 (CSS animation-delay 1s)
+ *   - 2500ms 頃: 1 breath 完了
+ *   - 3500ms 頃: 1.5 breath 完了 + 余韻
+ * → MIN を 3500ms に設定。 API が早くてもパディングして必ずこの所要時間を保証。
  */
-export const MIN_LOADING_VISIBLE_MS = 2800;
+export const MIN_LOADING_VISIBLE_MS = 3500;
 
 const padLoadingDelay = async (startedAt: number): Promise<void> => {
   const elapsed = Date.now() - startedAt;

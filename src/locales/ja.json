@@ -182,6 +182,7 @@
         "title": "共有された軽減表",
         "title_bundle": "共有された軽減表 ({{count}}件)",
         "loading": "読み込んでいます...",
+        "loading_sub": "データを取得しています",
         "not_found": "この共有 URL は見つかりませんでした",
         "error": "読み込みに失敗しました",
         "already_copied_badge": "取り込み済み",
