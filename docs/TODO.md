@@ -100,6 +100,10 @@
   **テスト**: 608/608 PASS (既存 589 + 新規 19)、 tsc clean、 build success、 触らない 10 ファイル (usePlanStore / planService / silentCompressStale / checkPlanLimit / buildShareImportItems / MitigationSheet / LocalImportDialog / ShareImportSheet / LimitResolutionSheet / useShareImportFlow) は origin/main から 0 行 diff 維持。
 
 - **【次セッション最優先候補】**:
+  - **占星術師カード実装中に発見された別タスク (2026-05-12)**:
+    - **sun_sign の requiresWindow 不足バグ**: `mockData.ts` L539 で `requires: "neutral_sect"` だが `requiresWindow` 未設定。 結果として `am.duration` (=20s) が使われ、 ニュートラルセクト効果時間と同時に消える。 公式仕様は 30 秒間使えるべき → `requiresWindow: 30` を追加。 影響範囲: AST sun_sign のみ。 (占星術師カード機構と独立した既存バグ)
+    - **モーダル内マウスホイールスクロール不可**: 軽減追加モーダル / イベント追加モーダル等で wheel スクロールが効かない。 セッション 8 で導入したスムーズスクロール (Lenis) がモーダル内でも wheel を横取りしている疑惑。 useSmoothScroll の selector 適用範囲を確認・調整必要。
+    - **表エリア Shift+ホイール 横スクロール対応**: 現状ホイールは縦のみ。 Shift+ホイールで横スクロールを有効化したい。
   - **保留 (フィードバックがあれば再開)**:
     - 削除プラン復活現象 (要再現報告)
     - 未取り込みバッジ (役立つタイミング不明で見送り)
